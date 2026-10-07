@@ -1,0 +1,69 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-race",
+    "-tags=integration",
+    "-deps",
+    "-test",
+    "-json",
+    "./internal/central/project/http",
+    "./tests/model"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+  "plan_sha256": "d7b969776aef08299c2118f2ad05bf76566d636dac68ef854f0f21c7c0a8f8c6",
+  "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "started_unix": 1791391597.5680766,
+  "subreaper": true,
+  "main_pid": 512314,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.21493980399827706,
+  "total_seconds": 0.749964746999467,
+  "observed_processes": [
+    {
+      "pid": 512314,
+      "starttime": "1754939",
+      "ppid": 512311,
+      "pgrp": 512314,
+      "state": "S"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791391597.7896237,
+      "remaining": []
+    },
+    {
+      "time": 1791391597.8925347,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "stdout_sha256": "0cb54bce0fc8eb2174fdbe59417fff4b267e2894ee10a03ba470d2dcd6df3e1c",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

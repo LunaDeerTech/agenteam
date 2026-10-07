@@ -1,0 +1,4 @@
+# github.com/LunaDeerTech/agenteam/internal/central/project/http [github.com/LunaDeerTech/agenteam/internal/central/project/http.test]
+internal/central/project/http/wire_test.go:179:21: cannot use "" (untyped string constant) as "github.com/LunaDeerTech/agenteam/internal/central/identity/contract".UserID value in assignment
+internal/central/project/http/wire_test.go:181:12: cannot use "" (untyped string constant) as "github.com/LunaDeerTech/agenteam/internal/central/project/contract".ProjectID value in assignment
+internal/central/project/http/wire_test.go:195:45: cannot convert "bad" (untyped string constant) to type "github.com/LunaDeerTech/agenteam/internal/central/project/contract".SprintID

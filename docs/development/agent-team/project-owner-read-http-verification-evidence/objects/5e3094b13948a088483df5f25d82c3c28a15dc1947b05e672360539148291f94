@@ -1,0 +1,75 @@
+{
+  "candidate04_sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38",
+  "original_result_sha256": "9372165ec0281c38242eaf4d6c1c877363b3d49bd0c58ee889c630caf44684dc",
+  "original_command_sha256": "bdb479d1eb82225ba33fd870f12a530beac9e94f5dbb95bf76bf1476ba4b06c8",
+  "original_raw_sha256": "e43cab9edacf4d8d8daf344172bd88295bca4ca37eb00862bcf40d34f57bbbd6",
+  "actual_exit": 1,
+  "seconds": 68.199,
+  "actualwait": true,
+  "seven_resource_doublecleanup": true,
+  "source_same": true,
+  "forced": 0,
+  "adopted": 0,
+  "top_levels": [
+    [
+      "PASS",
+      "TestProjectB02OwnerSessionNamePathAndPaging"
+    ],
+    [
+      "PASS",
+      "TestProjectB02OwnerPortRequiresCallerTransactionLocks"
+    ],
+    [
+      "PASS",
+      "TestModelProjectUsageHTTPRootBinding"
+    ],
+    [
+      "FAIL",
+      "TestModelProjectUsageHTTPProjectionAndPath"
+    ],
+    [
+      "PASS",
+      "TestModelSystemHTTPCurrentAdministrator"
+    ],
+    [
+      "PASS",
+      "TestModelSystemHTTPBoundaryAndStrictWire"
+    ]
+  ],
+  "daemon_new_not_owned_not_waited": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 547427,
+      "ppid": 1,
+      "starttime": "1823395",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 547953,
+      "ppid": 1,
+      "starttime": "1823787",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 548233,
+      "ppid": 1,
+      "starttime": "1823999",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 548831,
+      "ppid": 1,
+      "starttime": "1824183",
+      "state": "Z"
+    }
+  ],
+  "failure": "Fixed old Usage helper needs AGENTEAM_USAGE_SCHEMA_PYTHON; driver set only new AGENTEAM_PROJECT_READ_SCHEMA_PYTHON. Failure at project_usage_http_test.go:184 after reaching standard schema boundary.",
+  "fix": "No product/test changes; driver-v02 adds exact accepted Python env and root-authorized recovery group containing only failedtop. Five unaffected oldPASS retained; no repeated full6 run."
+}

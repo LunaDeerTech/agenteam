@@ -1,0 +1,202 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38"
+  },
+  "parent_input": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pregraph04.json",
+    "sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787"
+  },
+  "inherited_actual_graph_index": {
+    "path": "/workspace/scratch/project-owner-read-http-author/graph-index02.json",
+    "sha256": "2725a92cbcc9bd7dbab691fc69067c9bd4aaeb5f4c4b90bd4cc8e58596208472"
+  },
+  "graph_reuse": "candidate03 changes two tests without imports/embed/package file-set change; actual parent graphs stay bound to their original evidence",
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/overlay.json",
+    "sha256": "0b7f8b2b860743eedb87ff8d93515b0b87c045be5ccc939ea6eff226c4667337"
+  },
+  "files": {
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/reader.go": "37cd934431d601bf052719eae9ad7f91274a1bc583a13c1425d9d14082555ed5",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/reader_test.go": "54bdf009f7852eab8c46188ba41774308cc49ce3fd97fbf5f40fd6b796a7f942",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/service.go": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/handler.go": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/wire.go": "563f97c2dcc7899ff2675308c60c0f6e6432b8c1dd8a9d9a03de1623b79c68e0",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/handler_test.go": "37615a534ea6d95172e733009fb439919dee50d8871b71e9e5f73f774d3452bc",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/wire_test.go": "9f1e676270a740db68a1d5ea1cb730988dd51a97ef2ad5b6e9a25c584716cc55",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/native_test.go": "e0b7fac74a00c45766ec6daf13380fbe382ffe15eeffc6e01b6daefbd4f41908",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/api/openapi/project-owner.json": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/app/project_read.go": "edfe8a16265864d6152c0a79110da4f8d9c4365cfb876006c3ad525483dfb772",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/app/project_read_test.go": "9722e3da78abdd38a9cc9dcc019094264c1227b391c2feabb06a9f7aaae62e3a",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/app/account.go": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_fixture_test.go": "56adb3a44e0fb3d4f5d50559a2f31cfcfd2a1e194723b0d44627d7a826d5ac39",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_test.go": "0c7c71519c4c93ece716623ef0dc9c607188ad3a93cf2cc622c272a370cf27ff",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_terminal_test.go": "a849fe7797015a084cfdeed85e445f6203bcf2e87119205e80031aecb445d2f1",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_root_test.go": "e60e085be366d5ee276ab18b2b0b6f5516c778aed741084db82f308948ee94d8",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/independent_owner_read_test.go": "1f15ad38c6149b2a472bfd6a2d86ca93a7a89abb5dcf039b35bc1cde981edab7",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/independent_http_test.go": "2373d60a23cdf766a6085a24dccf773ef4c892c52d318f269c1134e0f7cfc40c",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/check_real_body_schema.py": "0186de941e2f5b3592369d9743fb5a4545039dc2f6dc73d5e60f0503d9374c00",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json": "204705123861eb58be63d940928dd110eb42777b085744e417327d507f452926",
+    "/workspace/.cache/go-build/b3/b3fb56ee86afb3340750ad309f8b38a551929fee89761a9d023e0d5622b8c4fd-d": "b3fb56ee86afb3340750ad309f8b38a551929fee89761a9d023e0d5622b8c4fd",
+    "/workspace/.cache/go-build/ea/ea441f07813512e119fe03b28f4d4d9473b257fda045e03c93586b1f81d0e89f-d": "ea441f07813512e119fe03b28f4d4d9473b257fda045e03c93586b1f81d0e89f",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/close-graph.py": "def8ddbb59a8a5dc7713c152119260c43c9e481cd9e14b6c2fdad2ef83d9b728",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/result.json": "2e32b6e501530bda0330d39b4acc1c9a0b2423bb07f475382f6c1dca39585e53",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/command.json": "92566a0285965b7b03359090224687f98761f9a76a1c0e3373f64f89a827c97e",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/input-before.json": "92e4dd88f815a1c50f605aefd0cda29e58bbb2f67f164b5a33be30e0cb4fc492",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/input-after.json": "92e4dd88f815a1c50f605aefd0cda29e58bbb2f67f164b5a33be30e0cb4fc492",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/stdout.log": "cd7de675a4af9f0e4a0bf6a24fff1a635db44e4a7b725a2dd10f9605f5df3169",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/result.json": "0b84c8d82b9e9744fb926744d78598b84ca42eae6392f980a4659dc54c785b31",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/command.json": "d1e70d132197c33cdc57cf4a4f67002a31fe57031e356456d156b2e52dd8dd6b",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/input-before.json": "92e4dd88f815a1c50f605aefd0cda29e58bbb2f67f164b5a33be30e0cb4fc492",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/input-after.json": "92e4dd88f815a1c50f605aefd0cda29e58bbb2f67f164b5a33be30e0cb4fc492",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/stdout.log": "0cb54bce0fc8eb2174fdbe59417fff4b267e2894ee10a03ba470d2dcd6df3e1c",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/result.json": "189c8448e9a92600e2667df793e14009d1656c5b93cefaefbe848fe488558b6f",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/command.json": "1e3d10911922b749a46ea78c2ec21c1d5b162fdaf1f724ddb2cbcb407c22d289",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/input-before.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/input-after.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/result.json": "c5cbe1f2b7ca7318f282150284b35430f74f84b683702b27ca7e0c3878944365",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/command.json": "a2c50b554572625bc8445b97c78a80b10529d648e6db0f012196786ba0d9e145",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/input-before.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/input-after.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/result.json": "6a8d9679a8e4a627b4e48e0eaafe52308ac3a9c89c9cb73af0b66a2f8aea03a5",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/command.json": "ff9a12da3dbefb59ce84e375675dccbd33f12dec13d1cd979df871d52d7f2a22",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/input-before.json": "5e14f7eb1270082785dbe8c13f01eec9f1a2f7de54362158846b9eeb66c93b08",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/input-after.json": "5e14f7eb1270082785dbe8c13f01eec9f1a2f7de54362158846b9eeb66c93b08",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/stdout.log": "6a30dbf9cf55e1fb70c1a47b8875746960aad7f355f5cf9852d7fd6b767ef5bc",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/result.json": "5564486111a57eedb41cd85578557680e7331fed8540b96cc872bd129c20c9f2",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/command.json": "d999620bdd196b9fc5e0abf1dc55b5514d3f38c2fb1b0ef56b87e5a334f9259e",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/input-before.json": "5e14f7eb1270082785dbe8c13f01eec9f1a2f7de54362158846b9eeb66c93b08",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/input-after.json": "5e14f7eb1270082785dbe8c13f01eec9f1a2f7de54362158846b9eeb66c93b08",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/stdout.log": "a3f9a6e8f41995e0b93522e17d6df8edfcb3b67e66704715b971200ec33e3761",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/result.json": "dbb1e97d64d0754a4ae8f3772ea861f406026ff10fe498897b9f1eeb506781f3",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/command.json": "04dbc9cf949ff6ec657d54965815d1e0fdf136ef873cecd146e0b568b92885b5",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/input-before.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/input-after.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/result.json": "2f643439f38cc52cc254cc632d1444b7ceba3af8ed02c2fd8df7bb1e7fbe2a7e",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/command.json": "156d97ce969dbde41243efd1e296bdc159f17efc6486379c05c3452ad2d428c3",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/input-before.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/input-after.json": "48ceb01f014f51e2abdac426d47cdb972efb4807462eb29c882460b68e4d19df",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/closure-check.json": "c9e90e4eae302618dd14df019062227b87002876f8415850fc0c624d21152366",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/closure-check.json": "6cb35dbfea22655309435d5f84db81a98462d11b1b1e720e0d8dc4d2a02c580f",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/graph-plan.json": "d7b969776aef08299c2118f2ad05bf76566d636dac68ef854f0f21c7c0a8f8c6",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/compile-plan.json": "43baf42e3d6fcd4e6a56245881c6246b26d0f6803dcedda02017d333cc48e2e5",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/run-plan.json": "30600871dc0ab07d42bffaad5e585aa67fadc35280796c99439d8c7dd74d18b1",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline-run.py": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/bin/http-race.test": "7e394717acb5aace579fd99411850b63e6a7fe5e2c82ca52371d756350da6180",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/bin/model-race.test": "e208ed969ed3e764fc52aea1082bbd9105720d93fb89edf3db7e5ac7a80cc3ec",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/schemas/project-owner.json": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/schemas/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft201909/metaschema.json": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft201909/vocabularies/applicator": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft201909/vocabularies/content": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft201909/vocabularies/core": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft201909/vocabularies/format": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft201909/vocabularies/validation": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/metaschema.json": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/applicator": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/content": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/core": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft202012/vocabularies/validation": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft3/metaschema.json": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft4/metaschema.json": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft6/metaschema.json": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/jsonschema_specifications/schemas/draft7/metaschema.json": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e",
+    "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/schema-data-delta.json": "f4ae700dc501addc4b6de497c12f53b496f7550d86895503b110e94a33c13b95",
+    "/workspace/scratch/project-owner-read-http-author/candidate04/src/tests/model/project_owner_read_http_root_test.go": "b726bf27c67f0ee8030b8531b2af3c368a2b7e70859095c73347c899a643e35f",
+    "/workspace/agenteam/tests/model/project_owner_read_http_root_test.go": "b726bf27c67f0ee8030b8531b2af3c368a2b7e70859095c73347c899a643e35f",
+    "/workspace/scratch/project-owner-read-http-verification/overlay03/overlay.json": "0b7f8b2b860743eedb87ff8d93515b0b87c045be5ccc939ea6eff226c4667337",
+    "/workspace/scratch/project-owner-read-http-author/candidate04/delta.diff": "fcb02bf3a94ca00dbc180b6b9771fd84ed8e35508545f44ea93d3d3db109ff9f"
+  },
+  "package_file_additions": {
+    "/workspace/agenteam/tests/model": [
+      "zz_independent_project_owner_read_test.go"
+    ],
+    "/workspace/agenteam/internal/central/project/http": [
+      "zz_independent_project_owner_read_test.go"
+    ]
+  },
+  "independent_graphs": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/closure-check.json",
+      "sha256": "c9e90e4eae302618dd14df019062227b87002876f8415850fc0c624d21152366"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/closure-check.json",
+      "sha256": "6cb35dbfea22655309435d5f84db81a98462d11b1b1e720e0d8dc4d2a02c580f"
+    }
+  ],
+  "offline_acceptance": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/result.json",
+      "sha256": "2e32b6e501530bda0330d39b4acc1c9a0b2423bb07f475382f6c1dca39585e53"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/result.json",
+      "sha256": "0b84c8d82b9e9744fb926744d78598b84ca42eae6392f980a4659dc54c785b31"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/result.json",
+      "sha256": "189c8448e9a92600e2667df793e14009d1656c5b93cefaefbe848fe488558b6f"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/result.json",
+      "sha256": "c5cbe1f2b7ca7318f282150284b35430f74f84b683702b27ca7e0c3878944365"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/result.json",
+      "sha256": "6a8d9679a8e4a627b4e48e0eaafe52308ac3a9c89c9cb73af0b66a2f8aea03a5"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/result.json",
+      "sha256": "5564486111a57eedb41cd85578557680e7331fed8540b96cc872bd129c20c9f2"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/result.json",
+      "sha256": "dbb1e97d64d0754a4ae8f3772ea861f406026ff10fe498897b9f1eeb506781f3"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/result.json",
+      "sha256": "2f643439f38cc52cc254cc632d1444b7ceba3af8ed02c2fd8df7bb1e7fbe2a7e"
+    }
+  ],
+  "resource_ready": false,
+  "limitations": [
+    "Only controlled HTTP executed independently so far; real A/B requires explicit exclusive root window.",
+    "Real body/schema validation remains pending completed B source bytes; schemas are staged together so relative common.json is exact and local.",
+    "Original template component cleanup bounds remain; outer task-owned process joins do not prove every library component goroutine join.",
+    "Daemon/PID1 zombies are observed separately and not owned or waited; no whole-machine zero claim."
+  ],
+  "format_evidence": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay01/offline/f01-format-model/result.json",
+      "sha256": "c1a138f4b77a0a42a6057f81cde255391798b598e651c48ffca53b69e562eef0"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay01/offline/f02-format-http/result.json",
+      "sha256": "e6837b4826177812bbe3051cf46fc1e97b7d6e9923be5ac09847f7a841cad873"
+    }
+  ],
+  "schema_runtime_data_delta": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/schema-data-delta.json",
+    "sha256": "f4ae700dc501addc4b6de497c12f53b496f7550d86895503b110e94a33c13b95"
+  },
+  "candidate04_reuse": "Only Root test assertion changed without imports/embed/fileset; existing actual graphs and independent HTTP race result reused. Private model probe source unchanged; candidate04 model compile/list required before resource readiness."
+}

@@ -1,0 +1,95 @@
+=== RUN   TestProjectReaderPureConstructionAndServiceAdmission
+--- PASS: TestProjectReaderPureConstructionAndServiceAdmission (0.00s)
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/foreign-owner
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/pending
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/deleting
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/revoked
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/unknown
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/rollback
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/committed-cancel
+--- PASS: TestProjectReaderPureAuthorityAndCommitTerminal (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/foreign-owner (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/pending (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/deleting (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/revoked (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/unknown (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/rollback (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/committed-cancel (0.00s)
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/owner
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/pending
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/creation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/name
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/description
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/version
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/operation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/lifecycle
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/time
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/duplicate
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/order
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/late-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/close-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/extra
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/owner
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/pending
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/creation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/name
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/description
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/version
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/operation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/lifecycle
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/time
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/duplicate
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/order
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/late-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/close-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/extra
+--- PASS: TestProjectReaderPureCompleteRowsAndSentinel (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/owner (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/pending (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/creation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/name (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/description (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/version (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/operation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/lifecycle (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/time (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/duplicate (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/order (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/late-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/close-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/extra (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/owner (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/pending (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/creation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/name (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/description (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/version (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/operation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/lifecycle (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/time (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/duplicate (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/order (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/late-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/close-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/extra (0.00s)
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/active
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/archived
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/archiving
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/deleting
+--- PASS: TestProjectReaderPureStateProjectionAndActualClose (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/active (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/archived (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/archiving (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/deleting (0.00s)
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession/owner
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession/filter
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession/tamper
+--- PASS: TestProjectReaderPureCursorBindingAndCurrentSession (0.00s)
+    --- PASS: TestProjectReaderPureCursorBindingAndCurrentSession/owner (0.00s)
+    --- PASS: TestProjectReaderPureCursorBindingAndCurrentSession/filter (0.00s)
+    --- PASS: TestProjectReaderPureCursorBindingAndCurrentSession/tamper (0.00s)
+PASS

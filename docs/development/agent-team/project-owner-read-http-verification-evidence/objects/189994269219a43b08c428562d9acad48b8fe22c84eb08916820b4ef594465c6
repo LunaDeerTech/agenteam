@@ -1,0 +1,23 @@
+{
+  "status": "IMPORT_CLOSURE_PASS",
+  "result": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/schema-prep02/offline/s02-import-graph/result.json",
+    "sha256": "99450f5ecd51e3ab4a5c1dac41b43b8fc129de1e3e01c22ac209a62e994ca12a"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/schema-prep02/offline/s02-import-graph/stdout.log",
+    "sha256": "883a80181c5b54d6fc2d2bdc932e59941942a110d22c92a1fde73c72dd9f1de9"
+  },
+  "data_files_count": 20,
+  "extra": {},
+  "private_cli_additions": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/argparse.py": "7cc582dcb3b76e2c957f78a3f74e9809d6c311d6aab7bcaa2c9954d0cbff5f30",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/gettext.py": "a5c249a522b6b8e3aa6f1b12a8bcc09508b99ad612b58d2fc973db27ea3b7cc3"
+  },
+  "main_executed": false,
+  "actual_body_parsed": false,
+  "first_failure": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/schema-prep02/first-failure.json",
+    "sha256": "7d041b9a26d862ae0cc4ded40bb1ed7542367ecaf4234e31175bf2ef28979953"
+  }
+}

@@ -1,0 +1,66 @@
+--- /workspace/scratch/meeting-summary-settings-backend/native-preparation01/driver.py
++++ /workspace/scratch/project-owner-read-http-author/native-driver-v01/driver.py
+@@ -1,13 +1,14 @@
+ from pathlib import Path
+ import os,sys,json,hashlib,subprocess,time,signal,ctypes,re,shutil
+-BASE=Path('/workspace/scratch/meeting-summary-settings-backend/native-preparation01')
+-REPO=Path('/workspace/agenteam/internal/central/model')
++BASE=Path('/workspace/scratch/project-owner-read-http-author/native-driver-v01')
++REPO=Path('/workspace/agenteam/internal/central/project/http')
+ from trace_parser import parse_trace
+ FROZEN=json.loads((BASE/'execution-freeze.json').read_text())
+-GROUPS={'list':('^TestMeetingSummaryHTTPNative(KeepAlive|SlowBody|WriteAndClose)$',0,0), 'keepalive':('^TestMeetingSummaryHTTPNativeKeepAlive$',1,0), 'slowbody':('^TestMeetingSummaryHTTPNativeSlowBody$',4,4), 'writeclose':('^TestMeetingSummaryHTTPNativeWriteAndClose$',8,8)}
++GROUPS={'list':('^TestProjectOwnerReadHTTPNative(KeepAlive|SlowBody|WriteAndClose)$',0,0), 'keepalive':('^TestProjectOwnerReadHTTPNativeKeepAlive$',1,0), 'slowbody':('^TestProjectOwnerReadHTTPNativeSlowBody$',4,4), 'writeclose':('^TestProjectOwnerReadHTTPNativeWriteAndClose$',5,5)}
+ MODE=sys.argv[1]
+ assert MODE in GROUPS
+-assert MODE in FROZEN.get('root_authorized_modes',[]), 'root window not authorized'
++assert MODE in FROZEN['permitted_modes']
++assert '--execute-authorized' in sys.argv[2:], 'explicit root-authorized execution flag required'
+ SELECTOR,EXPECTED,SUBCASES=GROUPS[MODE]
+ OUT=BASE/MODE;OUT.mkdir(exist_ok=False)
+ def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+@@ -21,8 +22,8 @@
+ def closure():
+  actual={p:sha(p) for p in FROZEN['files']}
+  assert actual==FROZEN['files'], 'native fixed input changed'
+- sets={d:sorted(p.name for p in Path(d).iterdir() if p.is_file() and p.suffix in ('.go','.s','.S','.c','.h','.syso')) for d in FROZEN['source_directory_sets']}
+- assert sets==FROZEN['source_directory_sets'], 'native source directory set changed'
++ sets={d:sorted(p.name for p in Path(d).iterdir() if p.is_file() and (p.suffix in FROZEN['source_suffixes'] or row['embed_directory'])) for d,row in FROZEN['package_file_sets'].items()}
++ assert sets=={d:row['names'] for d,row in FROZEN['package_file_sets'].items()}, 'native source directory set changed'
+  return {'files':actual,'sets':sets,'sha256':hashlib.sha256(json.dumps(actual,sort_keys=True).encode()).hexdigest()}
+ libc=ctypes.CDLL(None,use_errno=True)
+ if libc.prctl(36,1,0,0,0)!=0:raise OSError(ctypes.get_errno(),'subreaper failed')
+@@ -31,11 +32,11 @@
+ for n in ('tcp','tcp6','unix'):(OUT/f'baseline-{n}.raw').write_text(Path('/proc/net/'+n).read_text())
+ initial=procscan();save('baseline-processes.json',initial)
+ tmp=OUT/'tmp';tmp.mkdir()
+-env={'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin','HOME':'/home/agent','TMPDIR':str(tmp),'GOTOOLCHAIN':'local','GOENV':'off','GOPROXY':'off','GOSUMDB':'off','GOPATH':'/workspace/go','GOMODCACHE':'/workspace/go/pkg/mod','GOCACHE':'/workspace/.cache/go-build','GOWORK':'off','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly','GOMAXPROCS':'2'}
+-if MODE!='list':env['AGENTEAM_MEETING_SUMMARY_NATIVE']='1'
+-binary=['/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test']
++env={'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin','HOME':'/home/agent','TMPDIR':str(tmp),'GOTOOLCHAIN':'local','GOENV':'off','GOPROXY':'off','GOSUMDB':'off','GOPATH':'/workspace/go','GOMODCACHE':'/workspace/go/pkg/mod','GOCACHE':'/workspace/.cache/go-build','GOWORK':'off','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -p=1','GOMAXPROCS':'2'}
++if MODE!='list':env['AGENTEAM_PROJECT_OWNER_READ_NATIVE']='1'
++binary=['/workspace/scratch/project-owner-read-http-author/http-race.test']
+ if MODE=='list':binary+=['-test.list='+SELECTOR]
+-else:binary+=['-test.count=1','-test.parallel=1','-test.timeout=45s','-test.run='+SELECTOR,'-test.v']
++else:binary+=['-test.count=1','-test.parallel=1','-test.timeout=35s','-test.run='+SELECTOR,'-test.v']
+ command=['/usr/bin/strace','-D','-f','-ttt','-yy','-e','trace=%network,%process,close','-o',str(OUT/'trace.raw')]+binary
+ record={'mode':MODE,'driver_sha256':sha(__file__),'driver_pid':os.getpid(),'driver_stat':stat(os.getpid()),'subreaper':True,'command':command,'env':env,'cwd':str(REPO),'budget_seconds':45,'cleanup_grace_seconds':15,'started':time.time(),'before':before}
+ owned={};waits=[];signals=[]
+@@ -62,7 +63,7 @@
+   observe(p.pid)
+   code=p.poll()
+   if code is not None:break
+-  if time.monotonic()-started>=45:
++  if time.monotonic()-started>=42:
+    record['execution_budget_expired']=True;send_owned(signal.SIGTERM)
+    try:code=p.wait(timeout=3)
+    except subprocess.TimeoutExpired:send_owned(signal.SIGKILL);code=p.wait(timeout=3)
+@@ -113,7 +114,7 @@
+ raw=(OUT/'raw.log').read_text()
+ if MODE=='list':
+  names=[line for line in raw.splitlines() if line.startswith('Test')]
+- tests_ok=names==['TestMeetingSummaryHTTPNativeKeepAlive','TestMeetingSummaryHTTPNativeSlowBody','TestMeetingSummaryHTTPNativeWriteAndClose']
++ tests_ok=names==['TestProjectOwnerReadHTTPNativeKeepAlive','TestProjectOwnerReadHTTPNativeSlowBody','TestProjectOwnerReadHTTPNativeWriteAndClose']
+  counts={'listed':names,'test_bodies':False}
+ else:
+  names=re.findall(r'^\s*--- PASS: (\S+)',raw,re.M)

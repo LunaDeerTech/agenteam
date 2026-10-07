@@ -1,0 +1,31 @@
+{
+  "product_baseline": "4e615c7da2875418e1fbd925a49f134f14feae6d",
+  "files": {
+    "internal/central/project/reader.go": "37cd934431d601bf052719eae9ad7f91274a1bc583a13c1425d9d14082555ed5",
+    "internal/central/project/reader_test.go": "21e630a577593e85995e583c679c6dcfc1e5a1bfd6f076ca407316f99251e63f",
+    "internal/central/project/service.go": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+    "internal/central/project/http/handler.go": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+    "internal/central/project/http/wire.go": "563f97c2dcc7899ff2675308c60c0f6e6432b8c1dd8a9d9a03de1623b79c68e0",
+    "internal/central/project/http/handler_test.go": "37615a534ea6d95172e733009fb439919dee50d8871b71e9e5f73f774d3452bc",
+    "internal/central/project/http/wire_test.go": "b7caabfc7bf6ab6a34003c37540774864c9b6ad874b16f8ee40a9e2f3d0b9340",
+    "internal/central/project/http/native_test.go": "e0b7fac74a00c45766ec6daf13380fbe382ffe15eeffc6e01b6daefbd4f41908",
+    "api/openapi/project-owner.json": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e",
+    "internal/central/app/project_read.go": "edfe8a16265864d6152c0a79110da4f8d9c4365cfb876006c3ad525483dfb772",
+    "internal/central/app/project_read_test.go": "9722e3da78abdd38a9cc9dcc019094264c1227b391c2feabb06a9f7aaae62e3a",
+    "internal/central/app/account.go": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53",
+    "tests/model/project_owner_read_http_fixture_test.go": "56adb3a44e0fb3d4f5d50559a2f31cfcfd2a1e194723b0d44627d7a826d5ac39",
+    "tests/model/project_owner_read_http_test.go": "0c7c71519c4c93ece716623ef0dc9c607188ad3a93cf2cc622c272a370cf27ff",
+    "tests/model/project_owner_read_http_terminal_test.go": "a849fe7797015a084cfdeed85e445f6203bcf2e87119205e80031aecb445d2f1",
+    "tests/model/project_owner_read_http_root_test.go": "e60e085be366d5ee276ab18b2b0b6f5516c778aed741084db82f308948ee94d8"
+  },
+  "scope_count": 16,
+  "snapshot_root": "/workspace/scratch/project-owner-read-http-author/candidate02/src",
+  "diff_sha256": "19739f6e21a01387cfaf55db2c1a256129124b4de4a816b6025a691f4316636f",
+  "accepted_S2_three_readonly_sources_unchanged": true,
+  "format_run": "format01 reused; one token replacement does not change formatting",
+  "static_only": false,
+  "fixture_provenance": "Accepted project_usage_http fixture: formal Bootstrap/Invitation/Redeem/Login; Project.Create with persisted test Skill facts. Archive/delete acceptance is formal; archived terminal SQL is explicit test canonical state. Actual COMMIT+idle ACK drop reuses projectModelPGTrace; no production initializer/Resolution/Facts binding.",
+  "delta_sha256": "23cb71b4061a8d333398e5f2d2c224c69be4ed778e5dd53bfb664a4f6b5ec2a1",
+  "previous_manifest_sha256": "3eb8e539f954c2003434078a77adf6a2aa20115561f55e413c601042dfb34cfa",
+  "reason": "First actual Project compilation rejected strong ProjectID versus string in zero-candidate test. Test-only typed zero comparison; production and other15 source bytes unchanged. Original compile/raw retained."
+}

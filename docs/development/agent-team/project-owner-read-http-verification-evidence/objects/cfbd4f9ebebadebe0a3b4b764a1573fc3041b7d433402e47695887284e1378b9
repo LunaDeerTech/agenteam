@@ -1,0 +1,125 @@
+{
+  "status": "REVIEWED_AUTHOR_NATIVE_PASS",
+  "scope": "Three separately authorized native rounds, not the prior app scope deviation",
+  "summary_source": {
+    "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/result-summary.json",
+    "sha256": "cca6fbf5a61533777f8f1070c4f64bf579e9366b0e8c136b762b64f7f9f943f0"
+  },
+  "groups": [
+    {
+      "group": "keepalive",
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/keepalive/command.json",
+        "sha256": "e2c471eb34d51ca94ed8cedecefba23ba4dd09af15519ed85664e0d950335998"
+      },
+      "raw_sha256": "41fd5f0b96443e5a2229f88a7200afc5a6044fda1bef452a207247259ff1c05b",
+      "trace_sha256": "e1a4fa3792b8914940f3bf48615ef45b2bf7fffadc177459d92df6caa81f84ce",
+      "cleanup_sha256": "938f84ac6b27ca72665cf5d902836f8cc4e3209f617a5be41003736b63bca17c",
+      "ports_sha256": "b21e1018e3e00d0ec97e83405d232710e5215e9bbf683ab1b953edbe74c9a13a",
+      "tops": 1,
+      "subcases": 0,
+      "listeners": 1,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 510911,
+          "starttime": "1742147",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391470.8866763
+        },
+        {
+          "role": "adopted",
+          "pid": 510915,
+          "starttime": "1742147",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391470.8896797
+        }
+      ],
+      "cleanup_times": [
+        1791391531.4080021,
+        1791391531.615932
+      ]
+    },
+    {
+      "group": "slowbody",
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/slowbody/command.json",
+        "sha256": "eadad81d76825965be607114662426b971f86f50401ef13192d4bf623206f1de"
+      },
+      "raw_sha256": "55c7b87e472319e3d0290db94eeb2943c50e3efa98e019be0cafe81ca351621e",
+      "trace_sha256": "aa79a9cf131a7c7e70554cb812d165c46e8523725150f1379eaada221a3aae36",
+      "cleanup_sha256": "6786ceb6f5c06c1fe8bf06c057624aaa768b83d0d827e3f3ce08395e3593c6e2",
+      "ports_sha256": "8d108126444452d166129c26a41036a90e2bfa82b6a609ff0fe2bee7f883c849",
+      "tops": 1,
+      "subcases": 4,
+      "listeners": 4,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 512026,
+          "starttime": "1752453",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391578.0184026
+        },
+        {
+          "role": "adopted",
+          "pid": 512030,
+          "starttime": "1752453",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391578.0217667
+        }
+      ],
+      "cleanup_times": [
+        1791391637.5615904,
+        1791391637.7694087
+      ]
+    },
+    {
+      "group": "writeclose",
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/writeclose/command.json",
+        "sha256": "7b896de33d0ccbb49ad766eaaade28353da2727f934ac0b3cdacbec03ca2bd01"
+      },
+      "raw_sha256": "d3e93d8cb6de8f09a29173713fbee18d996b6c7a37f36e7301d88e4188ce3b24",
+      "trace_sha256": "f8335b30c8c23ed5aa1eb30b0a0540d5b573fd5ee81867323df8c77e7c0e9563",
+      "cleanup_sha256": "318a668681bab23b6a3718d95dcc0fa703df032e723284ce07c4d11e23a46e79",
+      "ports_sha256": "7afae63517441a6d34f5fcb60f7af110867168395c9eaadd730b85d376b26031",
+      "tops": 1,
+      "subcases": 5,
+      "listeners": 5,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 512976,
+          "starttime": "1760522",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391661.2335148
+        },
+        {
+          "role": "adopted",
+          "pid": 512980,
+          "starttime": "1760522",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391661.2385607
+        }
+      ],
+      "cleanup_times": [
+        1791391721.8173404,
+        1791391722.0254698
+      ]
+    }
+  ],
+  "limits": [
+    "Author-produced native executions independently reviewed; no duplicate independent native execution.",
+    "TIME_WAIT retirement is evidenced at later cleanup timestamps, not falsely zero at initial test completion."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "status": "READY_WAIT_EXCLUSIVE_RESOURCE_WINDOW",
+  "readiness_sha256": "3b335bebf16308e766fee789842662e21b7b02f60c71dc91fbdfec635d83c72b",
+  "proposal": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/proposal.json",
+    "sha256": "20843e7de5fa38689038384557a356cf6b1dc479285bcb1d6ee962b9216cd7c0"
+  },
+  "offline_result": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline-result.json",
+    "sha256": "b9092a0fad0037540e873321d2f1f110a740a5bf28cc4a6db6fb81e7077ba98c"
+  },
+  "input_only_result": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/p01-resource-input-only/result.json",
+    "sha256": "11a0b1ed600f57410bc2b98a5bdbe9783a4af7ce3b6c300f0c4a684d2d9867cb"
+  },
+  "input_only_raw": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/p01-resource-input-only/stdout.log",
+    "sha256": "d9fef81e6aa2c2acc5ac2ecd66afd4631311c1fbb268adf29040ddfa232cc31b"
+  },
+  "active_owned_commands": 0,
+  "resources_started": false
+}

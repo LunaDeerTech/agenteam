@@ -1,0 +1,5 @@
+{
+  "actual_exit": 1,
+  "failure": "g01-normal-http extra1461: parser incorrectly counted unselected dependency TestGoFiles; no compiler run; original graph raw/closure-check preserved",
+  "tool_output": "AssertionError at assert not extra and not hook; g01-normal-http 374 3873 extra 1461 hooks []"
+}

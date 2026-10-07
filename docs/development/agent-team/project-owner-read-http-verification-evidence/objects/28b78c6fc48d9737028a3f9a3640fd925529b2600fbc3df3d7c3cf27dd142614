@@ -1,0 +1,41 @@
+{
+  "status": "AUTHOR_TEST_EXPECTATION_DEFECT",
+  "candidate": "ce7588745e9c94a2f5cd7078a08d69377045c8a228f638e0bfe7f2c7d170386c",
+  "failure": "project_owner_read_http_root_test.go:38 accepted Summary singleton default changed",
+  "cause": "New test searches model_id:null, but accepted S2 public JSON has model:null. model_id is an internal DB column, not the response contract.",
+  "fixed_sources": [
+    {
+      "git": "4e615c7da2875418e1fbd925a49f134f14feae6d:internal/central/model/contract/meeting_summary.go",
+      "sha256": "02ffab6bfddda7417575d422a17cf31f563dbe234079fbd3ebd0e45192628e1c"
+    },
+    {
+      "git": "4e615c7da2875418e1fbd925a49f134f14feae6d:internal/central/model/http_meeting_summary.go",
+      "sha256": "846984d236d53c63bbdf565c7be657246811749066bfa3a3d5501d9739eb7361"
+    },
+    {
+      "git": "4e615c7da2875418e1fbd925a49f134f14feae6d:tests/model/meeting_summary_settings_http_test.go",
+      "sha256": "ae7fd516da52cd67618698267a5cfe23fcbd9730313f535b08eb7e77204f612e"
+    }
+  ],
+  "raw": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/raw.log",
+    "sha256": "ae29c85b6264595c499ec50f824de4eba5897460d10378f1dc00b00b2323fb46"
+  },
+  "result": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/result.json",
+    "sha256": "d8ae5689a7502e1e180276d5a96c786d5dcea9a998c24adc124112944aefc665"
+  },
+  "terminal": {
+    "driver_exit": 1,
+    "actual_wait_completed": true,
+    "double_cleanup": true,
+    "observed_resources": 7,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "recommendation": "Root-coordinated test-only correction to exact existing three-field id/version/model projection; no product or shared serializer change.",
+  "independent_probe_impact": "Private A/B does not assert this wrong field. Wait for final candidate remap and affected model compile/list; old fixed outputs preserved.",
+  "resources": "Conditional independent window not entered; author old6 remains stopped until fix."
+}

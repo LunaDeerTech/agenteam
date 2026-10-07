@@ -1,0 +1,218 @@
+=== RUN   TestProjectOwnerReadHTTPPureConstructorAndRoutes
+--- PASS: TestProjectOwnerReadHTTPPureConstructorAndRoutes (0.00s)
+=== RUN   TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor
+=== RUN   TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/GET/api/v1/projects
+=== RUN   TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/HEAD/api/v1/projects
+=== RUN   TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/GET/api/v1/projects/01900000-0000-7000-8000-000000000001
+=== RUN   TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/HEAD/api/v1/projects/01900000-0000-7000-8000-000000000001
+--- PASS: TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/GET/api/v1/projects (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/HEAD/api/v1/projects (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/GET/api/v1/projects/01900000-0000-7000-8000-000000000001 (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureGETHEADAndCurrentActor/HEAD/api/v1/projects/01900000-0000-7000-8000-000000000001 (0.00s)
+=== RUN   TestProjectOwnerReadHTTPPureBoundaryAndUnknown
+=== RUN   TestProjectOwnerReadHTTPPureBoundaryAndUnknown/GET/api/v1/projects
+=== RUN   TestProjectOwnerReadHTTPPureBoundaryAndUnknown/HEAD/api/v1/projects
+=== RUN   TestProjectOwnerReadHTTPPureBoundaryAndUnknown/GET/api/v1/projects/01900000-0000-7000-8000-000000000001
+=== RUN   TestProjectOwnerReadHTTPPureBoundaryAndUnknown/HEAD/api/v1/projects/01900000-0000-7000-8000-000000000001
+--- PASS: TestProjectOwnerReadHTTPPureBoundaryAndUnknown (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBoundaryAndUnknown/GET/api/v1/projects (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBoundaryAndUnknown/HEAD/api/v1/projects (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBoundaryAndUnknown/GET/api/v1/projects/01900000-0000-7000-8000-000000000001 (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBoundaryAndUnknown/HEAD/api/v1/projects/01900000-0000-7000-8000-000000000001 (0.00s)
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/positive/GET
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/positive/HEAD
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/unknown/GET
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/unknown/HEAD
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/transfer/GET
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/transfer/HEAD
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/actual/GET
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/actual/HEAD
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/read_error/GET
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/read_error/HEAD
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/zero_progress/GET
+=== RUN   TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/zero_progress/HEAD
+--- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/positive/GET (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/positive/HEAD (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/unknown/GET (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/unknown/HEAD (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/transfer/GET (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/transfer/HEAD (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/actual/GET (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/actual/HEAD (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/read_error/GET (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/read_error/HEAD (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/zero_progress/GET (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureBodyFramingAndBoundedRead/zero_progress/HEAD (0.00s)
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/read_unsupported
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/write_unsupported
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/no_flush
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/short_write
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/write_error
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/flush_error
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/close_error
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/clear_read_error
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/clear_write_error
+=== RUN   TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/panic
+--- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/read_unsupported (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/write_unsupported (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/no_flush (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/short_write (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/write_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/flush_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/close_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/clear_read_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/clear_write_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCapabilitiesAndIOFailures/panic (0.00s)
+=== RUN   TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin
+=== RUN   TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/1m0s
+=== RUN   TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/50ms
+=== RUN   TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/1m0s
+=== RUN   TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/50ms
+--- PASS: TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin (4.10s)
+    --- PASS: TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/1m0s (2.00s)
+    --- PASS: TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/boundary/50ms (0.05s)
+    --- PASS: TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/1m0s (2.00s)
+    --- PASS: TestProjectOwnerReadHTTPPurePreauthenticationDeadlineAndCallbackJoin/authentication/50ms (0.05s)
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails/authentication
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails/read
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails/get
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails/list
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails/close
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails/write
+=== RUN   TestProjectOwnerReadHTTPPureActualIOTails/flush
+--- PASS: TestProjectOwnerReadHTTPPureActualIOTails (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureActualIOTails/authentication (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureActualIOTails/read (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureActualIOTails/get (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureActualIOTails/list (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureActualIOTails/close (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureActualIOTails/write (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureActualIOTails/flush (0.00s)
+=== RUN   TestProjectOwnerReadHTTPPureCloseBeforePublication
+=== RUN   TestProjectOwnerReadHTTPPureCloseBeforePublication/GET/problem=false
+=== RUN   TestProjectOwnerReadHTTPPureCloseBeforePublication/GET/problem=true
+=== RUN   TestProjectOwnerReadHTTPPureCloseBeforePublication/HEAD/problem=false
+=== RUN   TestProjectOwnerReadHTTPPureCloseBeforePublication/HEAD/problem=true
+--- PASS: TestProjectOwnerReadHTTPPureCloseBeforePublication (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCloseBeforePublication/GET/problem=false (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCloseBeforePublication/GET/problem=true (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCloseBeforePublication/HEAD/problem=false (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPPureCloseBeforePublication/HEAD/problem=true (0.00s)
+=== RUN   TestProjectOwnerReadHTTPNativeKeepAlive
+    native_test.go:145: requires the explicitly granted Project Owner read native resource window
+--- SKIP: TestProjectOwnerReadHTTPNativeKeepAlive (0.00s)
+=== RUN   TestProjectOwnerReadHTTPNativeSlowBody
+    native_test.go:196: requires the explicitly granted Project Owner read native resource window
+--- SKIP: TestProjectOwnerReadHTTPNativeSlowBody (0.00s)
+=== RUN   TestProjectOwnerReadHTTPNativeWriteAndClose
+    native_test.go:309: requires the explicitly granted Project Owner read native resource window
+--- SKIP: TestProjectOwnerReadHTTPNativeWriteAndClose (0.00s)
+=== RUN   TestProjectOwnerReadWireStrictQuery
+=== RUN   TestProjectOwnerReadWireStrictQuery/owner=x
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=0
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=01
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=-1
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=+1
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=101
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=1e1
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=١
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=1&limit=2
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=1&%6cimit=2
+=== RUN   TestProjectOwnerReadWireStrictQuery/lifecycle=active,active
+=== RUN   TestProjectOwnerReadWireStrictQuery/lifecycle=active,_archived
+=== RUN   TestProjectOwnerReadWireStrictQuery/lifecycle=active,
+=== RUN   TestProjectOwnerReadWireStrictQuery/lifecycle=ACTIVE
+=== RUN   TestProjectOwnerReadWireStrictQuery/lifecycle=active&lifecycle=archived
+=== RUN   TestProjectOwnerReadWireStrictQuery/cursor=
+=== RUN   TestProjectOwnerReadWireStrictQuery/x
+=== RUN   TestProjectOwnerReadWireStrictQuery/=x
+=== RUN   TestProjectOwnerReadWireStrictQuery/&limit=1
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=1&
+=== RUN   TestProjectOwnerReadWireStrictQuery/limit=1;cursor=x
+=== RUN   TestProjectOwnerReadWireStrictQuery/cursor=%zz
+=== RUN   TestProjectOwnerReadWireStrictQuery/cursor=%ff
+=== RUN   TestProjectOwnerReadWireStrictQuery/cursor=%00
+=== RUN   TestProjectOwnerReadWireStrictQuery/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+--- PASS: TestProjectOwnerReadWireStrictQuery (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/owner=x (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit= (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=0 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=01 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=-1 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=+1 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=101 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=1e1 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=١ (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=1&limit=2 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=1&%6cimit=2 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/lifecycle=active,active (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/lifecycle=active,_archived (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/lifecycle=active, (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/lifecycle=ACTIVE (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/lifecycle=active&lifecycle=archived (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/cursor= (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/x (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/=x (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/&limit=1 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=1& (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/limit=1;cursor=x (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/cursor=%zz (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/cursor=%ff (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/cursor=%00 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStrictQuery/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (0.00s)
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/active
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/archiving
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/archived
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/deleting
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/description
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/operation
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/duplicate
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/filter
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/page-size
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/cursor
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/active-operation
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/owner
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/id
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/normalized
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/description#01
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/time
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/archived#01
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/deleting#01
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/version
+=== RUN   TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/sprint
+--- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/active (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/archiving (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/archived (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/deleting (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/description (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/operation (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/duplicate (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/filter (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/page-size (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/cursor (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/active-operation (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/owner (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/id (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/normalized (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/description#01 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/time (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/archived#01 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/deleting#01 (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/version (0.00s)
+    --- PASS: TestProjectOwnerReadWireStatesPrecisionAndHiddenDamage/sprint (0.00s)
+=== RUN   TestProjectOwnerReadWireMaximumLegalRepresentation
+    wire_test.go:224: MAXIMUM_LEGAL_PROJECT_PAGE bytes=4948120 limit=5242880 rows=100 description_bytes_per_row=8192 escaped_ampersands=819200 untruncated=true
+--- PASS: TestProjectOwnerReadWireMaximumLegalRepresentation (0.10s)
+=== RUN   TestProjectOwnerReadWireStandardSchema
+    wire_test.go:320: STANDARD_SCHEMA_PASS 27
+--- PASS: TestProjectOwnerReadWireStandardSchema (0.09s)
+PASS

@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-read-http-author/candidate03/manifest.json",
+    "sha256": "ce7588745e9c94a2f5cd7078a08d69377045c8a228f638e0bfe7f2c7d170386c"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+    "sha256": "204705123861eb58be63d940928dd110eb42777b085744e417327d507f452926"
+  },
+  "runs": [
+    {
+      "label": "g01-normal-http",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/result.json",
+      "sha256": "2e32b6e501530bda0330d39b4acc1c9a0b2423bb07f475382f6c1dca39585e53",
+      "actual_exit": 0,
+      "execution_seconds": 0.15136545299901627
+    },
+    {
+      "label": "g02-race-http-model",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g02-race-http-model/result.json",
+      "sha256": "0b84c8d82b9e9744fb926744d78598b84ca42eae6392f980a4659dc54c785b31",
+      "actual_exit": 0,
+      "execution_seconds": 0.21493980399827706
+    },
+    {
+      "label": "c01-http-race",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c01-http-race/result.json",
+      "sha256": "189c8448e9a92600e2667df793e14009d1656c5b93cefaefbe848fe488558b6f",
+      "actual_exit": 0,
+      "execution_seconds": 2.1277191299996048
+    },
+    {
+      "label": "c02-model-race",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/c02-model-race/result.json",
+      "sha256": "c5cbe1f2b7ca7318f282150284b35430f74f84b683702b27ca7e0c3878944365",
+      "actual_exit": 0,
+      "execution_seconds": 6.167702325001301
+    },
+    {
+      "label": "r01-http-risk-race",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/r01-http-risk-race/result.json",
+      "sha256": "6a8d9679a8e4a627b4e48e0eaafe52308ac3a9c89c9cb73af0b66a2f8aea03a5",
+      "actual_exit": 0,
+      "execution_seconds": 2.1301153330023226
+    },
+    {
+      "label": "l01-independent-model",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/l01-independent-model/result.json",
+      "sha256": "5564486111a57eedb41cd85578557680e7331fed8540b96cc872bd129c20c9f2",
+      "actual_exit": 0,
+      "execution_seconds": 1.0364113229989016
+    },
+    {
+      "label": "v01-http-race",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v01-http-race/result.json",
+      "sha256": "dbb1e97d64d0754a4ae8f3772ea861f406026ff10fe498897b9f1eeb506781f3",
+      "actual_exit": 0,
+      "execution_seconds": 0.3320449790007842
+    },
+    {
+      "label": "v02-model-race",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/v02-model-race/result.json",
+      "sha256": "2f643439f38cc52cc254cc632d1444b7ceba3af8ed02c2fd8df7bb1e7fbe2a7e",
+      "actual_exit": 0,
+      "execution_seconds": 0.8833902930018667
+    }
+  ],
+  "author_capacity_source": {
+    "path": "/workspace/scratch/project-owner-read-http-author/http-purerun01/stdout.log",
+    "sha256": "08987d4f17419366e62933d71f550b46299239179ec36e95cc3cf723725780ad"
+  },
+  "independent_HTTP": "race 1 top/2 sub, actual GET+HEAD 4,939,930-byte representation and real synchronous blocked Flush/cancellation callback joins",
+  "model_test_execution": "integration race compiled, exact two names listed only; selected package has no TestMain/init",
+  "original_harness_failure": "close-graph-original.py/result and closure-check-original preserve unselected dependency TestGoFiles counting error; corrected selected test variants extra0",
+  "actual_resource_runs": 0
+}

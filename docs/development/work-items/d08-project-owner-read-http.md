@@ -1,5 +1,7 @@
 # D08 Project Owner 列表与详情只读 HTTP
 
+当前接受状态（2026-10-07）：本只读切片完整17路径（16技术路径及后端README末件）已独立有界PASS并获root采纳，产品 `901eb54605d293d4308caadd278c2c3a7ae1b824` 已提交推送、远端一致。作者新3/旧6与独立A/B按固定版本组合接受；原首红、误宽app运行的端口trace限制、正式native3组及九个PG轮各7资源actual wait/双清、daemon集合140→176新增36非owned未wait见[验收归档](../agent-team/project-owner-read-http-verification.md)。不代表完整D08–D28/E01完成；production Resolution/Invocations及D24未绑定，ready503与三停止保持。以下规格及旧状态保留其历史时点。
+
 修订：rev2。状态：完整限定独立 STATIC PASS，主线程已采纳 rev2；未授权产品实施、Go 执行或真实资源。本卡只交付下述读取结果，不标记完整 D08 完成。
 
 固定已接受产品基线：`baa6ffac7bdf87dea6f052704e509d7b547e9886`；[S3 验收](../agent-team/system-meeting-summary-resolution-verification.md)及归档 `77965be16feeb22d8c1b8301a047d95e3b15e8eb`不构成本卡的生成依赖。原 [Usage 根装配](../agent-team/project-usage-read-http-root-verification.md)产品 `03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05`是实际读取根接缝。编卡时 S2 仍在最终联验，不消费其活动实现；共享文件交接见 §5。

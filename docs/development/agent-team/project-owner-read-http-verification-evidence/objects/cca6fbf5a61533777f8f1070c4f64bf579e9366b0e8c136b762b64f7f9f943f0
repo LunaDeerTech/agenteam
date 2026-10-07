@@ -1,0 +1,142 @@
+{
+  "driver_sha256": "f3fe7b8e849e737e171f71fab25edceb33ec5c6d13379c84b84be386390a6ffe",
+  "freeze_sha256": "8e5d73ba1da27bb6a99feec8c05fd10a8f4f6d4704a5b4628a63c7ff33dcea38",
+  "scope": "Three formally authorized exact native rounds; prior app scope deviation not reused",
+  "groups": [
+    {
+      "name": "keepalive",
+      "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/keepalive/command.json",
+      "sha256": "e2c471eb34d51ca94ed8cedecefba23ba4dd09af15519ed85664e0d950335998",
+      "exit": 0,
+      "execution_elapsed_seconds": 1.2447014999997918,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 510911,
+          "starttime": "1742147",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391470.8866763
+        },
+        {
+          "role": "adopted",
+          "pid": 510915,
+          "starttime": "1742147",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391470.8896797
+        }
+      ],
+      "listener_ports": [
+        43795
+      ],
+      "test_results": {
+        "top_passes": [
+          "TestProjectOwnerReadHTTPNativeKeepAlive"
+        ],
+        "sub_passes": [],
+        "test_bodies": true
+      },
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "pass": true
+    },
+    {
+      "name": "slowbody",
+      "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/slowbody/command.json",
+      "sha256": "eadad81d76825965be607114662426b971f86f50401ef13192d4bf623206f1de",
+      "exit": 0,
+      "execution_elapsed_seconds": 5.310621439999522,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 512026,
+          "starttime": "1752453",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391578.0184026
+        },
+        {
+          "role": "adopted",
+          "pid": 512030,
+          "starttime": "1752453",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391578.0217667
+        }
+      ],
+      "listener_ports": [
+        32933,
+        37995,
+        43055,
+        44151
+      ],
+      "test_results": {
+        "top_passes": [
+          "TestProjectOwnerReadHTTPNativeSlowBody"
+        ],
+        "sub_passes": [
+          "TestProjectOwnerReadHTTPNativeSlowBody/declared/1m0s",
+          "TestProjectOwnerReadHTTPNativeSlowBody/declared/120ms",
+          "TestProjectOwnerReadHTTPNativeSlowBody/hidden/1m0s",
+          "TestProjectOwnerReadHTTPNativeSlowBody/hidden/120ms"
+        ],
+        "test_bodies": true
+      },
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "pass": true
+    },
+    {
+      "name": "writeclose",
+      "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/writeclose/command.json",
+      "sha256": "7b896de33d0ccbb49ad766eaaade28353da2727f934ac0b3cdacbec03ca2bd01",
+      "exit": 0,
+      "execution_elapsed_seconds": 7.838910460999614,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 512976,
+          "starttime": "1760522",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391661.2335148
+        },
+        {
+          "role": "adopted",
+          "pid": 512980,
+          "starttime": "1760522",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791391661.2385607
+        }
+      ],
+      "listener_ports": [
+        33671,
+        38071,
+        43053,
+        43289,
+        44123
+      ],
+      "test_results": {
+        "top_passes": [
+          "TestProjectOwnerReadHTTPNativeWriteAndClose"
+        ],
+        "sub_passes": [
+          "TestProjectOwnerReadHTTPNativeWriteAndClose/short_write",
+          "TestProjectOwnerReadHTTPNativeWriteAndClose/write_error",
+          "TestProjectOwnerReadHTTPNativeWriteAndClose/flush_error",
+          "TestProjectOwnerReadHTTPNativeWriteAndClose/close_error",
+          "TestProjectOwnerReadHTTPNativeWriteAndClose/native_write_deadline"
+        ],
+        "test_bodies": true
+      },
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "pass": true
+    }
+  ]
+}

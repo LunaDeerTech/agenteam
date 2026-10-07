@@ -1,0 +1,17 @@
+{
+  "status": "STATIC_DELTA_PASS",
+  "driver": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/driver.py",
+    "sha256": "3a9e9769d31604fac41e6e2451d87633cbdd0470ec7ec66e67f33c4e320c77b1"
+  },
+  "frozen_sha256": "c70c5b8b93ae72f296cc1434c0c14dec4c9c45f30c45d5b931ae2c5911000dfb",
+  "delta_sha256": "6818201d82c00b6b2ec94fce8dc33a82a8b182dc35fcab0680a4c12916814f03",
+  "changed_functions": [
+    "main"
+  ],
+  "unchanged_resource_watchdog_and_cleanup_functions": true,
+  "exact_addition": "old-usage-recovery selects only TestModelProjectUsageHTTPProjectionAndPath; environment points accepted helper AGENTEAM_USAGE_SCHEMA_PYTHON to same fixed interpreter",
+  "current_product_candidate": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38",
+  "resource_condition": "Requires author new input-only PASS plus existing root authorization; no resource run by reviewer",
+  "own_A_B_impact": "Does not call projectUsageCheckSchemas, so own driver needs no environment change."
+}

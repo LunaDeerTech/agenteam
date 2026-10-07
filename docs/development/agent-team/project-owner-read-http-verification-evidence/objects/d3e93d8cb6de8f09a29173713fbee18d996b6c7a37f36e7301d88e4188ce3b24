@@ -1,0 +1,13 @@
+=== RUN   TestProjectOwnerReadHTTPNativeWriteAndClose
+=== RUN   TestProjectOwnerReadHTTPNativeWriteAndClose/short_write
+=== RUN   TestProjectOwnerReadHTTPNativeWriteAndClose/write_error
+=== RUN   TestProjectOwnerReadHTTPNativeWriteAndClose/flush_error
+=== RUN   TestProjectOwnerReadHTTPNativeWriteAndClose/close_error
+=== RUN   TestProjectOwnerReadHTTPNativeWriteAndClose/native_write_deadline
+--- PASS: TestProjectOwnerReadHTTPNativeWriteAndClose (6.79s)
+    --- PASS: TestProjectOwnerReadHTTPNativeWriteAndClose/short_write (0.01s)
+    --- PASS: TestProjectOwnerReadHTTPNativeWriteAndClose/write_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPNativeWriteAndClose/flush_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPNativeWriteAndClose/close_error (0.00s)
+    --- PASS: TestProjectOwnerReadHTTPNativeWriteAndClose/native_write_deadline (6.77s)
+PASS

@@ -1,0 +1,98 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-tags=integration",
+    "-p=1",
+    "-c",
+    "-o",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/bin/model-race.test",
+    "./tests/model"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+  "plan_sha256": "43baf42e3d6fcd4e6a56245881c6246b26d0f6803dcedda02017d333cc48e2e5",
+  "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "started_unix": 1791391660.3404994,
+  "subreaper": true,
+  "main_pid": 513120,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 6.167702325001301,
+  "total_seconds": 6.728835883001011,
+  "observed_processes": [
+    {
+      "pid": 513120,
+      "starttime": "1761217",
+      "ppid": 513073,
+      "pgrp": 513120,
+      "state": "R"
+    },
+    {
+      "pid": 513139,
+      "starttime": "1761240",
+      "ppid": 513120,
+      "pgrp": 513120,
+      "state": "R"
+    },
+    {
+      "pid": 513189,
+      "starttime": "1761669",
+      "ppid": 513120,
+      "pgrp": 513120,
+      "state": "R"
+    },
+    {
+      "pid": 513197,
+      "starttime": "1761673",
+      "ppid": 513120,
+      "pgrp": 513120,
+      "state": "Z"
+    },
+    {
+      "pid": 513207,
+      "starttime": "1761806",
+      "ppid": 513120,
+      "pgrp": 513120,
+      "state": "R"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791391666.520045,
+      "remaining": []
+    },
+    {
+      "time": 1791391666.6234193,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true,
+  "binary_sha256": "e208ed969ed3e764fc52aea1082bbd9105720d93fb89edf3db7e5ac7a80cc3ec"
+}

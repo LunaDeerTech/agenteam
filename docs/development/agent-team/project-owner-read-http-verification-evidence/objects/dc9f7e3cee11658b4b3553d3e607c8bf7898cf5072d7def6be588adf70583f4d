@@ -1,0 +1,87 @@
+{
+  "input_command_sha256": "808c47aa031d0959ab69628073524e16a8da89c68552a460b7d1378132c0f142",
+  "original_result_sha256": "1c311fa9e95e797c144df1af5db07a93c6d0ce7b8fa81776d38943ac8b63699c",
+  "original_stdout_sha256": "e3de44214e87142756f89ead93d0eaf3dc5790d868fe0f7cfff4c607e1eccedf",
+  "scope_error": "All app ordinary tests accidentally executed; ordinary does not imply no sockets. Not authorized native/root evidence.",
+  "actual_exit": 0,
+  "direct_wait": true,
+  "adopted_waits": [],
+  "owned_clear_observations": 2,
+  "observed_pid_starttime": [
+    {
+      "pid": 507604,
+      "ppid": 507601,
+      "pgid": 507604,
+      "state": "Z",
+      "starttime": "1716064"
+    },
+    {
+      "pid": 507737,
+      "ppid": 507604,
+      "pgid": 507604,
+      "state": "Z",
+      "starttime": "1716426"
+    }
+  ],
+  "top_source_network_calls": [
+    {
+      "top": "TestDiagnosticRoutes",
+      "source": "/workspace/agenteam/internal/central/app/app_test.go",
+      "line": 136
+    },
+    {
+      "top": "TestGracefulDrainPreservesActiveContextAndRejectsLateRequest",
+      "source": "/workspace/agenteam/internal/central/app/app_test.go",
+      "line": 260
+    },
+    {
+      "top": "TestForcedStopBoundsNonCooperativeHandler",
+      "source": "/workspace/agenteam/internal/central/app/app_test.go",
+      "line": 348
+    },
+    {
+      "top": "TestStartupStopAndUnexpectedServeFailure",
+      "source": "/workspace/agenteam/internal/central/app/app_test.go",
+      "line": 402
+    },
+    {
+      "top": "TestOutboundHTTPMaintenanceDrainAllPrecedeDatabase",
+      "source": "/workspace/agenteam/internal/central/app/outbound_test.go",
+      "line": 49
+    },
+    {
+      "top": "TestOutboundAndDatabaseForceShareOneBudget",
+      "source": "/workspace/agenteam/internal/central/app/outbound_test.go",
+      "line": 115
+    },
+    {
+      "top": "TestRealProcessDrainDeadlineAndSecondSignal",
+      "source": "/workspace/agenteam/internal/central/app/process_test.go",
+      "line": 144
+    },
+    {
+      "top": "TestRealProcessSignalDuringStartup",
+      "source": "/workspace/agenteam/internal/central/app/process_test.go",
+      "line": 199
+    },
+    {
+      "top": "TestSecretWorkerAndExistingHTTPDrainBeforeDatabase",
+      "source": "/workspace/agenteam/internal/central/app/secret_test.go",
+      "line": 37
+    },
+    {
+      "top": "TestSecretWorkerForceAndJoinUseSingleTotalBudget",
+      "source": "/workspace/agenteam/internal/central/app/secret_test.go",
+      "line": 85
+    },
+    {
+      "top": "TestSecretWorkerFailureDoesNotClaimReadiness",
+      "source": "/workspace/agenteam/internal/central/app/secret_test.go",
+      "line": 132
+    }
+  ],
+  "port_scope": "Existing testConfig/launchFixture use 127.0.0.1:0 ephemeral loopback; no native pretrace port capture. Exact allocated ports and attributable TIME_WAIT cannot be retrospectively recovered.",
+  "termination": "Original binary direct wait, no descendant left, and two post-read snapshots observed recorded identities absent; no active task process can retain listeners. Native socket double-zero was not observed and is not claimed.",
+  "pg_docker": "Integration-only database fixtures absent in ordinary build; no PG/Docker invoked by run.",
+  "helper": "TestAppProcessFixture parent invocation returns without env; four launchFixture subprocess cases use it."
+}

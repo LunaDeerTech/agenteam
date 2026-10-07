@@ -1,0 +1,62 @@
+{
+  "status": "STATIC_PASS",
+  "technical_paths": {
+    "internal/central/project/reader.go": "37cd934431d601bf052719eae9ad7f91274a1bc583a13c1425d9d14082555ed5",
+    "internal/central/project/reader_test.go": "54bdf009f7852eab8c46188ba41774308cc49ce3fd97fbf5f40fd6b796a7f942",
+    "internal/central/project/service.go": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+    "internal/central/project/http/handler.go": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+    "internal/central/project/http/wire.go": "563f97c2dcc7899ff2675308c60c0f6e6432b8c1dd8a9d9a03de1623b79c68e0",
+    "internal/central/project/http/handler_test.go": "37615a534ea6d95172e733009fb439919dee50d8871b71e9e5f73f774d3452bc",
+    "internal/central/project/http/wire_test.go": "9f1e676270a740db68a1d5ea1cb730988dd51a97ef2ad5b6e9a25c584716cc55",
+    "internal/central/project/http/native_test.go": "e0b7fac74a00c45766ec6daf13380fbe382ffe15eeffc6e01b6daefbd4f41908",
+    "api/openapi/project-owner.json": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e",
+    "internal/central/app/project_read.go": "edfe8a16265864d6152c0a79110da4f8d9c4365cfb876006c3ad525483dfb772",
+    "internal/central/app/project_read_test.go": "9722e3da78abdd38a9cc9dcc019094264c1227b391c2feabb06a9f7aaae62e3a",
+    "internal/central/app/account.go": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53",
+    "tests/model/project_owner_read_http_fixture_test.go": "56adb3a44e0fb3d4f5d50559a2f31cfcfd2a1e194723b0d44627d7a826d5ac39",
+    "tests/model/project_owner_read_http_test.go": "0c7c71519c4c93ece716623ef0dc9c607188ad3a93cf2cc622c272a370cf27ff",
+    "tests/model/project_owner_read_http_terminal_test.go": "a849fe7797015a084cfdeed85e445f6203bcf2e87119205e80031aecb445d2f1",
+    "tests/model/project_owner_read_http_root_test.go": "e60e085be366d5ee276ab18b2b0b6f5516c778aed741084db82f308948ee94d8"
+  },
+  "evidence": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/candidate03/manifest.json",
+      "sha256": "ce7588745e9c94a2f5cd7078a08d69377045c8a228f638e0bfe7f2c7d170386c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/candidate03/delta.diff",
+      "sha256": "1e67661ed48524baebf1c39b5a3a8b5b84cbfb52e9acd9d4b75633e5c35e05aa"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/offline-summary01.json",
+      "sha256": "f0f010cad681e07645eebff1eee9805a7a06a5a369f0fe91e05c25fef89e5728"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/http-purerun01/result.json",
+      "sha256": "ebaed51b9fec2e209c5032b34635c2b223d237ad5ae3119f8034a3c10169dd56"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/http-purerun01/stdout.log",
+      "sha256": "08987d4f17419366e62933d71f550b46299239179ec36e95cc3cf723725780ad"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/http-purerun01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/static01/review.md",
+      "sha256": "a0f0720c1eeba5a784376926d7e98c768ce3d9a6fff370ccf6e8027645be6470"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/static01/finding-01.md",
+      "sha256": "87eb6dd376b60bb740436d8350bb94bbaad4a90725622bab03fcb66183f1ab73"
+    }
+  ],
+  "review_sha256": "92b3e27b2b2a89f79517e9395d3ceee0b41a86af7aaf851cf438fef3d4b7ffe9",
+  "not_accepted": [
+    "independent real A/B",
+    "same actual HTTP raw body standard-schema parse",
+    "final README"
+  ],
+  "production_changes_during_review": false
+}

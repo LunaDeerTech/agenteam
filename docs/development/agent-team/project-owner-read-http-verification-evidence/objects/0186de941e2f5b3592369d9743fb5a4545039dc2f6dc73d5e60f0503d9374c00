@@ -1,0 +1,184 @@
+#!/usr/bin/env python3
+"""DRAFT ONLY: unexecuted; requires a future fixed manifest and approved runner.
+
+Checks exact real HTTP bytes with standard Draft 2020-12 and a closed local
+registry. No network retrieval, subprocess, product writes or body rewriting.
+The future driver supplies the manifest hash and enforces its 45-second budget.
+"""
+
+import argparse
+import hashlib
+import json
+from pathlib import Path
+from urllib.parse import urldefrag, urljoin
+
+from jsonschema import Draft202012Validator, FormatChecker
+from referencing import Registry, Resource
+from referencing.jsonschema import DRAFT202012
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON key")
+        result[key] = value
+    return result
+
+
+def forbidden_constant(_):
+    raise ValueError("non-JSON numeric constant")
+
+
+def decode_original(data):
+    # Decode the original bytes once. No parse/stringify intermediate is used.
+    return json.loads(data.decode("utf-8"), object_pairs_hook=unique_object,
+                      parse_constant=forbidden_constant)
+
+
+def fixed_file(entry, seen):
+    path = Path(entry["path"])
+    if not path.is_absolute() or path.is_symlink() or not path.is_file():
+        raise ValueError("input is not a fixed regular absolute file")
+    data = path.read_bytes()
+    actual = digest(data)
+    if actual != entry["sha256"]:
+        raise ValueError("frozen input hash mismatch")
+    prior = seen.setdefault(str(path), actual)
+    if prior != actual:
+        raise ValueError("conflicting input identities")
+    return data
+
+
+def no_retrieval(_uri):
+    raise ValueError("schema reference is outside the explicitly frozen registry")
+
+
+def check_reference_graph(value, base, known):
+    if isinstance(value, list):
+        for child in value:
+            check_reference_graph(child, base, known)
+    elif isinstance(value, dict):
+        if "$id" in value:
+            base = urljoin(base, value["$id"])
+            if urldefrag(base)[0] not in known:
+                raise ValueError("unbound schema $id")
+        for keyword in ("$ref", "$dynamicRef"):
+            if keyword in value:
+                document, _fragment = urldefrag(urljoin(base, value[keyword]))
+                if document not in known:
+                    raise ValueError("schema has an unfrozen reference")
+        for child in value.values():
+            check_reference_graph(child, base, known)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--manifest", required=True)
+    parser.add_argument("--manifest-sha256", required=True)
+    parser.add_argument("--result", required=True)
+    args = parser.parse_args()
+
+    seen = {}
+    manifest_path = Path(args.manifest)
+    manifest_raw = fixed_file({"path": str(manifest_path), "sha256": args.manifest_sha256}, seen)
+    manifest = decode_original(manifest_raw)
+    if manifest["format"] != 1 or manifest["status"] != "FROZEN_REAL_HTTP_INPUT":
+        raise ValueError("a completed real HTTP input manifest is required")
+    # Source evidence identifies the completed run, source freeze and product
+    # candidate. These are not inferred from an arbitrary JSON sample.
+    for entry in manifest["provenance_files"]:
+        fixed_file(entry, seen)
+    if not manifest["provenance_files"] or not manifest["bodies"]:
+        raise ValueError("real source/provenance evidence missing")
+
+    registry = Registry(retrieve=no_retrieval)
+    schemas = []
+    known = set()
+    for entry in manifest["schemas"]:
+        raw = fixed_file(entry, seen)
+        document = decode_original(raw)
+        uri = Path(entry["path"]).as_uri()
+        if uri in known:
+            raise ValueError("duplicate schema document")
+        known.add(uri)
+        identifiers = [uri]
+        declared = document.get("$id")
+        if declared is not None:
+            identifier = urljoin(uri, declared)
+            if identifier != uri and identifier in known:
+                raise ValueError("duplicate schema identifier")
+            known.add(identifier)
+            identifiers.append(identifier)
+        resource = Resource.from_contents(document, default_specification=DRAFT202012)
+        for identifier in identifiers:
+            registry = registry.with_resource(identifier, resource)
+        schemas.append((uri, document))
+    if not schemas:
+        raise ValueError("frozen schema documents missing")
+    for uri, document in schemas:
+        check_reference_graph(document, uri, known)
+
+    results = []
+    for case in manifest["bodies"]:
+        raw = fixed_file(case["body"], seen)
+        metadata = decode_original(fixed_file(case["source"], seen))
+        # Do not permit complete HTTP headers, cookies or credential fields in
+        # this metadata contract. The producer records only these safe fields.
+        permitted = {"method", "path", "target_id", "status", "content_type",
+                     "content_length", "body_sha256", "body_bytes", "source_run",
+                     "producer_test", "frozen_input_sha256"}
+        if set(metadata) != permitted:
+            raise ValueError("unexpected or missing safe source metadata field")
+        if metadata["method"] != "GET" or metadata["status"] != 200:
+            raise ValueError("schema case is not a successful real GET")
+        if metadata["content_type"] != "application/json":
+            raise ValueError("unexpected actual response Content-Type")
+        if metadata["body_sha256"] != digest(raw) or metadata["body_bytes"] != len(raw):
+            raise ValueError("original body metadata mismatch")
+        if metadata["content_length"] != str(len(raw)) or len(raw) > 5 * 1024 * 1024:
+            raise ValueError("actual successful representation length mismatch")
+        for key in ("path", "target_id", "source_run", "producer_test", "frozen_input_sha256"):
+            if metadata[key] != case["expected_source"][key]:
+                raise ValueError("body is not from the explicitly bound completed run")
+        if not metadata["path"].startswith("/api/v1/projects"):
+            raise ValueError("body does not belong to the approved read routes")
+        schema_ref = case["schema_ref"]
+        if urldefrag(schema_ref)[0] not in known:
+            raise ValueError("root schema is not frozen")
+        Draft202012Validator.check_schema(registry.resolver().lookup(schema_ref).contents)
+        validator = Draft202012Validator({"$ref": schema_ref}, registry=registry,
+                                        format_checker=FormatChecker())
+        # Body bytes are still raw, unchanged data from the socket read.
+        value = decode_original(raw)
+        errors = list(validator.iter_errors(value))
+        if errors:
+            # Avoid printing schema messages, which may quote private values.
+            raise ValueError("real original body failed the frozen schema")
+        results.append({"name": case["name"], "body_sha256": digest(raw),
+                        "bytes": len(raw), "source_run": metadata["source_run"],
+                        "schema_ref": schema_ref, "status": "PASS"})
+
+    for path, expected in seen.items():
+        if digest(Path(path).read_bytes()) != expected:
+            raise ValueError("input changed during original-body parsing")
+    result = {"status": "PASS", "manifest_sha256": digest(manifest_raw),
+              "schema_parser": "jsonschema.Draft202012Validator", "network": False,
+              "body_reencoded": False, "cases": results,
+              "input_count": len(seen), "inputs_unchanged": True}
+    output = Path(args.result)
+    if not output.is_absolute():
+        raise ValueError("result must be an absolute own-scratch path")
+    with output.open("x", encoding="utf-8") as stream:
+        json.dump(result, stream, indent=2)
+        stream.write("\n")
+    print(json.dumps({"status": "PASS", "cases": len(results),
+                      "result_sha256": digest(output.read_bytes())}))
+
+
+if __name__ == "__main__":
+    main()

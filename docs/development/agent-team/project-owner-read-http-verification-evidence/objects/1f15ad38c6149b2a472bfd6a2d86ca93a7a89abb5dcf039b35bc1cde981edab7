@@ -1,0 +1,560 @@
+//go:build integration
+
+// DRAFT: not formatted, compiled, listed or executed. Public signatures come
+// from accepted D08 rev2; every reused helper is fixed at 4e615c7. No active
+// author's helper or private production seam is assumed here.
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"log/slog"
+	"net"
+	"net/url"
+	"os"
+	"path/filepath"
+	"reflect"
+	"sort"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
+)
+
+// These observers neither replace SQL rows nor modify a physical CommitResult.
+// The callback observer also sees failed callbacks, permitting a missing-target
+// lock assertion before the original NotFound exits the real transaction.
+type independentOwnerReadStore struct {
+	*postgres.Store
+	mu            sync.Mutex
+	afterCallback func(context.Context, f.Tx, f.TransactionCause, error) error
+	afterTerminal func(f.TransactionCause, f.CommitResult)
+}
+
+func (s *independentOwnerReadStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	s.mu.Lock()
+	after, terminal := s.afterCallback, s.afterTerminal
+	s.mu.Unlock()
+	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		original := fn(ctx, tx)
+		var observed error
+		if after != nil {
+			observed = after(ctx, tx, cause, original)
+		}
+		if original != nil {
+			return original
+		}
+		return observed
+	})
+	if terminal != nil {
+		terminal(cause, result)
+	}
+	return result
+}
+
+func (s *independentOwnerReadStore) observe(after func(context.Context, f.Tx, f.TransactionCause, error) error, terminal func(f.TransactionCause, f.CommitResult)) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.afterCallback, s.afterTerminal = after, terminal
+}
+
+func independentOwnerReadCause(cause f.TransactionCause, suffix string) bool {
+	return cause.Kind() == f.RecoveryCause && cause.Details().Owner == "project."+suffix
+}
+
+func independentOwnerReadBind(t *testing.T, v *projectUsageHTTPFixture) (*project.Reader, *independentOwnerReadStore) {
+	t.Helper()
+	store := &independentOwnerReadStore{Store: v.raw}
+	authority, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: v.accounts, Routes: v.accounts})
+	if err != nil {
+		t.Fatal("independent real Project Authority", err)
+	}
+	_, cursors, _ := testKeys(t)
+	reader, err := project.NewReader(store, authority, cursors)
+	if err != nil {
+		t.Fatal("independent Reader", err)
+	}
+	boundary, err := account.NewHTTPBoundary(v.core, systemHTTPOrigin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler, err := projecthttp.NewHTTPHandler(reader, boundary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v.handler = httpapi.Handler(slog.New(slog.NewJSONHandler(v.logs, nil)), handler)
+	return reader, store
+}
+
+func independentOwnerReadIDs(page f.Page[pc.ProjectListItem]) []string {
+	out := make([]string, len(page.Items))
+	for i, item := range page.Items {
+		out[i] = item.ID.String()
+	}
+	return out
+}
+
+func independentOwnerReadPath(id pc.ProjectID) string { return "/api/v1/projects/" + id.String() }
+
+func TestIndependentProjectOwnerReadAuthorityPagingAndTerminal(t *testing.T) {
+	v := newProjectUsageHTTPFixture(t) // formal Bootstrap/Invite/Redeem/Login; accepted Skills fixture
+	reader, observed := independentOwnerReadBind(t, v)
+	defer observed.observe(nil, nil)
+
+	t.Run("cursor-is-user-and-filter-bound-not-session-or-limit", func(t *testing.T) {
+		refs := []pc.ProjectRef{v.project, v.createProject(t, v.owner), v.createProject(t, v.owner)}
+		// Isolated canonical timestamps only: no identity, owner or grant changes.
+		tie := time.Date(2025, 1, 2, 3, 4, 5, 123456000, time.UTC)
+		for _, ref := range refs {
+			if _, err := v.raw.Exec(testContext(t), `UPDATE agenteam_project.projects SET created_at=$2,updated_at=GREATEST(updated_at,$2) WHERE id=$1`, ref.ID.String(), tie); err != nil {
+				t.Fatal(err)
+			}
+		}
+		sort.Slice(refs, func(i, j int) bool { return refs[i].ID.String() > refs[j].ID.String() })
+		filter := pc.ListOwnedProjectsRequest{Lifecycle: []pc.Lifecycle{pc.Active, pc.Archived}}
+		first, err := reader.ListOwnedProjects(testContext(t), v.ownerBrowser.actor, filter, f.PageRequest{Limit: 1})
+		if err != nil || len(first.Items) != 1 || first.Items[0].ID != refs[0].ID || first.NextCursor == "" {
+			t.Fatal("first actual page / sentinel", err)
+		}
+		secondSession := v.login(t, v.ownerBrowser.email)
+		second, err := reader.ListOwnedProjects(testContext(t), secondSession.actor, pc.ListOwnedProjectsRequest{Lifecycle: []pc.Lifecycle{pc.Archived, pc.Active}}, f.PageRequest{Limit: 2, Cursor: first.NextCursor})
+		if err != nil || !reflect.DeepEqual(independentOwnerReadIDs(second), []string{refs[1].ID.String(), refs[2].ID.String()}) || second.NextCursor != "" {
+			t.Fatal("cursor changed with Session/limit/filter order", err)
+		}
+		for _, tc := range []struct {
+			name    string
+			browser systemHTTPBrowser
+			filter  pc.ListOwnedProjectsRequest
+		}{
+			{"other-owner", v.otherBrowser, filter},
+			{"different-filter", secondSession, pc.ListOwnedProjectsRequest{Lifecycle: []pc.Lifecycle{pc.Active}}},
+		} {
+			bad, err := reader.ListOwnedProjects(testContext(t), tc.browser.actor, tc.filter, f.PageRequest{Limit: 2, Cursor: first.NextCursor})
+			requireCode(t, err, f.CursorInvalid)
+			if len(bad.Items) != 0 || bad.NextCursor != "" {
+				t.Fatal(tc.name, "returned a candidate")
+			}
+		}
+		// The second row is the limit+1 sentinel; archived_at is not projected by
+		// a list item. Existing SQL permits this value but ProjectRef rejects it.
+		if _, err = v.raw.Exec(testContext(t), `UPDATE agenteam_project.projects SET archived_at=created_at WHERE id=$1`, refs[1].ID.String()); err != nil {
+			t.Fatal(err)
+		}
+		restored := false
+		restore := func() {
+			if restored {
+				return
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+			if _, e := v.raw.Exec(ctx, `UPDATE agenteam_project.projects SET archived_at=NULL WHERE id=$1`, refs[1].ID.String()); e != nil {
+				t.Error("restore isolated sentinel fact", e)
+				return
+			}
+			restored = true
+		}
+		defer restore()
+		bad, err := reader.ListOwnedProjects(testContext(t), secondSession.actor, filter, f.PageRequest{Limit: 1})
+		if err == nil || len(bad.Items) != 0 || bad.NextCursor != "" {
+			t.Fatal("hidden malformed sentinel escaped full-row validation")
+		}
+		restore()
+		if !restored {
+			t.Fatal("sentinel restore incomplete")
+		}
+		valid, err := reader.ListOwnedProjects(testContext(t), secondSession.actor, filter, f.PageRequest{Limit: 1})
+		if err != nil || len(valid.Items) != 1 || valid.NextCursor == "" {
+			t.Fatal("restored sentinel did not yield valid continuation", err)
+		}
+	})
+
+	t.Run("formal-admin-is-not-owner-and-revocation-first", func(t *testing.T) {
+		for _, browser := range []systemHTTPBrowser{v.adminBrowser, v.otherBrowser} {
+			ref, err := reader.GetProject(testContext(t), browser.actor, v.project.ID)
+			requireCode(t, err, f.NotFound)
+			if !reflect.DeepEqual(ref, pc.ProjectRef{}) {
+				t.Fatal("non-owner retained private projection")
+			}
+		}
+		browser := v.login(t, v.ownerBrowser.email)
+		if err := v.core.Logout(testContext(t), account.LogoutRequest{Actor: browser.actor, Key: f.IdempotencyKey(newID[struct{}](t).String())}); err != nil {
+			t.Fatal("formal Logout", err)
+		}
+		v.request(t, browser, "GET", independentOwnerReadPath(v.project.ID)).problem(t, 401, f.SessionRevoked)
+	})
+
+	t.Run("list-UserSH-before-formal-Logout", func(t *testing.T) {
+		browser := v.login(t, v.ownerBrowser.email)
+		user, _ := f.UserLock(browser.actor.Details().UserID)
+		entered, release := make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		unblock := func() { once.Do(func() { close(release) }) }
+		var hit atomic.Bool
+		observed.observe(func(ctx context.Context, tx f.Tx, cause f.TransactionCause, original error) error {
+			if independentOwnerReadCause(cause, "list") && hit.CompareAndSwap(false, true) {
+				if original != nil {
+					return original
+				}
+				if err := v.raw.RequireHeldLocks(ctx, tx, []f.LockRequest{{Key: user, Mode: f.Shared}}); err != nil {
+					return err
+				}
+				close(entered)
+				select {
+				case <-release:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
+			return nil
+		}, nil)
+		ctx, cancel := context.WithCancel(testContext(t))
+		flight := v.flight(ctx, browser, "/api/v1/projects?limit=1")
+		defer func() { unblock(); cancel(); <-flight.done; observed.observe(nil, nil) }()
+		waitSignal(t, entered)
+		logoutCtx, logoutCancel := context.WithCancel(testContext(t))
+		logoutDone := make(chan error, 1)
+		key := f.IdempotencyKey(newID[struct{}](t).String())
+		go func() { logoutDone <- v.core.Logout(logoutCtx, account.LogoutRequest{Actor: browser.actor, Key: key}) }()
+		joined := false
+		defer func() {
+			unblock()
+			logoutCancel()
+			if !joined {
+				<-logoutDone
+			}
+		}()
+		managementWaitBlocked(t, &systemHTTPFixture{fixture: v.fixture}, user)
+		if flight.writer.writeCount() != 0 {
+			t.Fatal("list published before current Session transaction completed")
+		}
+		unblock()
+		<-flight.done
+		logoutErr := <-logoutDone
+		joined = true
+		if flight.aborted || logoutErr != nil {
+			t.Fatal("actual read/logout completion", logoutErr)
+		}
+		flight.result().want(t, 200)
+		observed.observe(nil, nil)
+		v.request(t, browser, "GET", "/api/v1/projects?limit=1").problem(t, 401, f.SessionRevoked)
+	})
+
+	for _, missing := range []bool{false, true} {
+		name := "detail-ProjectSH-through-terminal"
+		if missing {
+			name = "missing-detail-still-holds-ProjectSH"
+		}
+		t.Run(name, func(t *testing.T) {
+			target := v.project.ID
+			if missing {
+				target = newID[id.Project](t)
+			}
+			independentOwnerProjectLock(t, v, observed, target, missing)
+		})
+	}
+
+	t.Run("Committed-then-parent-cancel-drops-candidate", func(t *testing.T) {
+		entered, release := make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		unblock := func() { once.Do(func() { close(release) }) }
+		var hit atomic.Bool
+		var committed atomic.Bool
+		observed.observe(nil, func(cause f.TransactionCause, result f.CommitResult) {
+			if independentOwnerReadCause(cause, "get") && hit.CompareAndSwap(false, true) {
+				committed.Store(result.State() == f.Committed)
+				close(entered)
+				<-release // returned physical result is never decorated
+			}
+		})
+		ctx, cancel := context.WithTimeout(testContext(t), 150*time.Millisecond)
+		flight := v.flight(ctx, v.ownerBrowser, independentOwnerReadPath(v.project.ID))
+		defer func() { unblock(); cancel(); <-flight.done; observed.observe(nil, nil) }()
+		waitSignal(t, entered)
+		<-ctx.Done()
+		if !errors.Is(ctx.Err(), context.DeadlineExceeded) || !committed.Load() {
+			t.Fatal("real committed / earlier-parent ordering not reached")
+		}
+		select {
+		case <-flight.done:
+			t.Fatal("handler returned before actual terminal observer completed")
+		default:
+		}
+		if flight.writer.writeCount() != 0 {
+			t.Fatal("cancelled request published before terminal join")
+		}
+		unblock()
+		<-flight.done
+		if !flight.aborted || len(flight.writer.Body.Bytes()) != 0 {
+			t.Fatal("committed but cancelled candidate was published")
+		}
+	})
+
+	t.Run("actual-reader-COMMIT-ACK-loss", func(t *testing.T) {
+		independentOwnerPhysicalUnknown(t, v)
+	})
+}
+
+func independentOwnerProjectLock(t *testing.T, v *projectUsageHTTPFixture, observed *independentOwnerReadStore, target pc.ProjectID, missing bool) {
+	t.Helper()
+	user, _ := f.UserLock(v.ownerBrowser.actor.Details().UserID)
+	key, _ := f.ProjectLock(target.String())
+	entered, release := make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	unblock := func() { once.Do(func() { close(release) }) }
+	var hit atomic.Bool
+	lockObserved := make(chan error, 1)
+	observed.observe(func(ctx context.Context, tx f.Tx, cause f.TransactionCause, original error) error {
+		if independentOwnerReadCause(cause, "get") && hit.CompareAndSwap(false, true) {
+			err := v.raw.RequireHeldLocks(ctx, tx, []f.LockRequest{{Key: user, Mode: f.Shared}, {Key: key, Mode: f.Shared}})
+			lockObserved <- err
+			close(entered)
+			select {
+			case <-release:
+				return err
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+		return nil
+	}, nil)
+	ctx, cancel := context.WithCancel(testContext(t))
+	flight := v.flight(ctx, v.ownerBrowser, independentOwnerReadPath(target))
+	defer func() { unblock(); cancel(); <-flight.done; observed.observe(nil, nil) }()
+	waitSignal(t, entered)
+	if err := <-lockObserved; err != nil {
+		t.Fatal("detail/missing-target lock was not actually held", err)
+	}
+	writeCtx, writeCancel := context.WithCancel(testContext(t))
+	writeDone := make(chan f.CommitResult, 1)
+	cause := recoveryCause(t)
+	go func() {
+		writeDone <- v.raw.WithinTx(writeCtx, cause, func(ctx context.Context, tx f.Tx) error {
+			return v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Exclusive}})
+		})
+	}()
+	joined := false
+	defer func() {
+		unblock()
+		writeCancel()
+		if !joined {
+			<-writeDone
+		}
+	}()
+	managementWaitBlocked(t, &systemHTTPFixture{fixture: v.fixture}, key)
+	if flight.writer.writeCount() != 0 {
+		t.Fatal("detail published before actual SH owner terminal")
+	}
+	unblock()
+	<-flight.done
+	result := <-writeDone
+	joined = true
+	if flight.aborted || result.State() != f.Committed {
+		t.Fatal("detail/EX actual terminal", result.Fault())
+	}
+	if missing {
+		flight.result().problem(t, 404, f.NotFound)
+	} else {
+		flight.result().want(t, 200)
+	}
+}
+
+func independentOwnerPhysicalUnknown(t *testing.T, v *projectUsageHTTPFixture) {
+	t.Helper()
+	trace := newProjectModelPGTrace(t, net.JoinHostPort("127.0.0.1", v.db.Fixture.Port))
+	u, err := url.Parse(v.db.Fixture.URL(v.db.Name))
+	if err != nil {
+		t.Fatal("owned database URL parse")
+	}
+	u.Host = trace.listener.Addr().String()
+	raw := openStore(t, v.db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable"}))
+	store := &independentOwnerReadStore{Store: raw}
+	ak, ck, _ := testKeys(t)
+	// A different physical Store needs its own real Account Authority. Existing
+	// identities/sessions are read from the same persisted formal account rows.
+	accounts, err := account.NewAuthority(store, ak)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = accounts.Initialize(testContext(t)); err != nil {
+		t.Fatal(err)
+	}
+	authority, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: accounts, Routes: accounts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	reader, err := project.NewReader(store, authority, ck)
+	if err != nil {
+		t.Fatal(err)
+	}
+	user, _ := f.UserLock(v.ownerBrowser.actor.Details().UserID)
+	key, _ := f.ProjectLock(v.project.ID.String())
+	var armed atomic.Bool
+	var original f.CommitResult
+	store.observe(func(ctx context.Context, tx f.Tx, cause f.TransactionCause, callbackErr error) error {
+		if !independentOwnerReadCause(cause, "get") || callbackErr != nil || !armed.CompareAndSwap(false, true) {
+			return nil
+		}
+		if err := raw.RequireHeldLocks(ctx, tx, []f.LockRequest{{Key: user, Mode: f.Shared}, {Key: key, Mode: f.Shared}}); err != nil {
+			return err
+		}
+		trace.dropCommitACK.Store(true)
+		return nil
+	}, func(cause f.TransactionCause, result f.CommitResult) {
+		if independentOwnerReadCause(cause, "get") {
+			original = result
+		}
+	})
+	defer store.observe(nil, nil)
+	ref, err := reader.GetProject(testContext(t), v.ownerBrowser.actor, v.project.ID)
+	attempt, ok := project.UnknownAttempt(err)
+	if !ok || !armed.Load() || original.State() != f.Unknown || attempt.AttemptID() != original.AttemptID() || !reflect.DeepEqual(attempt.Cause().Details(), original.Cause().Details()) || !reflect.DeepEqual(ref, pc.ProjectRef{}) {
+		t.Fatal("physical Reader Unknown identity or zero candidate was lost")
+	}
+	select {
+	case <-trace.ackDropped:
+	default:
+		t.Fatal("no actual COMMIT+idle ACK loss")
+	}
+	if !strings.Contains(strings.Join(trace.snapshot(), " "), "commit-idle-ack-dropped") {
+		t.Fatal("missing safe PG protocol phase")
+	}
+	// A separate real EX acquisition proves the original read transaction no
+	// longer owns the Project lock; it does not confirm/recover an Unknown read.
+	result := v.raw.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
+		return v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Exclusive}})
+	})
+	if result.State() != f.Committed {
+		t.Fatal("original read transaction remained live", result.Fault())
+	}
+	t.Log("actual Reader COMMIT+idle ACK loss; original UnknownAttempt retained; no candidate; transaction lock released")
+}
+
+func TestIndependentProjectOwnerReadRootAndWire(t *testing.T) {
+	v := newProjectUsageHTTPFixture(t)
+	invocation := v.success(t, json.RawMessage(`{"prompt_tokens":17,"completion_tokens":0,"total_tokens":17}`), nil)
+	root := startProjectUsageRoot(t, v) // actual default app.Run, no handler injection
+	listPath := "/api/v1/projects?limit=1&lifecycle=active"
+	detailPath := independentOwnerReadPath(v.project.ID)
+	list := root.request(t, v.ownerBrowser, "GET", listPath, nil).want(t, 200)
+	detail := root.request(t, v.ownerBrowser, "GET", detailPath, nil).want(t, 200)
+	var page struct {
+		Items []map[string]json.RawMessage `json:"items"`
+		Next  json.RawMessage              `json:"next_cursor"`
+	}
+	if json.Unmarshal(list.body, &page) != nil || len(page.Items) != 1 || !bytes.Equal(page.Next, []byte("null")) {
+		t.Fatal("real root list shell differs")
+	}
+	for _, field := range []string{"id", "name", "lifecycle", "version", "description"} {
+		if page.Items[0][field] == nil {
+			t.Fatal("missing active list field", field)
+		}
+	}
+	if len(page.Items[0]) != 5 {
+		t.Fatal("active list leaked hidden fields")
+	}
+	var object map[string]json.RawMessage
+	if json.Unmarshal(detail.body, &object) != nil || len(object) != 11 || !bytes.Equal(object["current_sprint_id"], []byte("null")) || !bytes.Equal(object["archived_at"], []byte("null")) {
+		t.Fatal("real detail nullable/closed projection differs")
+	}
+	for name, body := range map[string]json.RawMessage{"list-version": page.Items[0]["version"], "detail-version": object["version"]} {
+		var version string
+		if json.Unmarshal(body, &version) != nil || version == "" {
+			t.Fatal(name, "was not a version string")
+		}
+	}
+	for _, p := range []struct {
+		path string
+		get  systemHTTPResponse
+	}{{listPath, list}, {detailPath, detail}} {
+		head := root.request(t, v.ownerBrowser, "HEAD", p.path, nil).want(t, 200)
+		if len(head.body) != 0 || head.headers.Get("Content-Length") != p.get.headers.Get("Content-Length") {
+			t.Fatal("HEAD did not preserve full GET representation length")
+		}
+	}
+	independentOwnerSaveBody(t, "owner-list", listPath, "", list)
+	independentOwnerSaveBody(t, "owner-detail", detailPath, v.project.ID.String(), detail)
+
+	oldResolve := projectUsageResolve(v.ownerName, v.project.Name)
+	root.request(t, v.ownerBrowser, "GET", oldResolve, nil).want(t, 200)
+	usagePath := projectUsagePath(v.project.ID) // accepted actual /model-usage spelling
+	usage := root.request(t, v.ownerBrowser, "GET", usagePath, nil).want(t, 200)
+	if !bytes.Contains(usage.body, []byte(invocation.event.Identity.Attempt.InvocationID.String())) {
+		t.Fatal("nested old Usage handler did not read its actual ledger")
+	}
+	root.request(t, v.ownerBrowser, "GET", usagePath+"/summary?group_by=day", nil).want(t, 200)
+	root.request(t, v.adminBrowser, "GET", detailPath, nil).problem(t, 404, f.NotFound)
+	root.request(t, v.ownerBrowser, "GET", "/api/v1/projects/not-a-uuid", nil).problem(t, 400, f.InvalidArgument)
+	for _, path := range []string{"/api/v1/projects/", detailPath + "/unowned-tail"} {
+		response := root.request(t, v.ownerBrowser, "GET", path, nil)
+		if response.status != 404 {
+			t.Fatal("nonmatching path was claimed by new read dispatcher")
+		}
+	}
+	method := root.request(t, v.ownerBrowser, "POST", detailPath, nil)
+	if method.status != 405 || method.headers.Get("Allow") != "GET, HEAD" {
+		t.Fatal("exact read route method boundary")
+	}
+	if root.connections.Load() != 1 {
+		t.Fatal("sequential read/HEAD/old route responses lost keepalive")
+	}
+	root.stop(t)
+	if !strings.Contains(root.logs.String(), `"outcome":"drained"`) {
+		t.Fatal("default root did not actually drain")
+	}
+}
+
+// Exact body bytes are written once, before any schema process sees them. Only
+// safe source metadata is persisted; no complete HTTP header map is retained.
+func independentOwnerSaveBody(t *testing.T, name, path, target string, response systemHTTPResponse) {
+	t.Helper()
+	dir := os.Getenv("AGENTEAM_D08_SAFE_HTTP_DIR")
+	run := os.Getenv("AGENTEAM_D08_SOURCE_RUN")
+	inputHash := os.Getenv("AGENTEAM_D08_FROZEN_INPUT_SHA256")
+	if dir == "" || !filepath.IsAbs(dir) || run == "" || len(inputHash) != 64 {
+		t.Fatal("explicit safe evidence binding missing")
+	}
+	if _, err := hex.DecodeString(inputHash); err != nil {
+		t.Fatal("invalid frozen input hash")
+	}
+	info, err := os.Lstat(dir)
+	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+		t.Fatal("safe evidence directory must already exist")
+	}
+	if response.status != 200 || response.headers.Get("Content-Type") != "application/json" {
+		t.Fatal("unexpected real source response")
+	}
+	write := func(suffix string, data []byte) {
+		file, err := os.OpenFile(filepath.Join(dir, name+suffix), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+		if err != nil {
+			t.Fatal("safe evidence output already exists or cannot be opened")
+		}
+		_, writeErr := file.Write(data)
+		closeErr := file.Close()
+		if writeErr != nil || closeErr != nil {
+			t.Fatal("safe evidence actual write/close failed")
+		}
+	}
+	sum := sha256.Sum256(response.body)
+	metadata := map[string]any{"method": "GET", "path": path, "target_id": target, "status": response.status, "content_type": response.headers.Get("Content-Type"), "content_length": response.headers.Get("Content-Length"), "body_sha256": hex.EncodeToString(sum[:]), "body_bytes": len(response.body), "source_run": run, "producer_test": t.Name(), "frozen_input_sha256": inputHash}
+	raw, err := json.MarshalIndent(metadata, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	write(".json", response.body)
+	write("-source.json", append(raw, '\n'))
+}

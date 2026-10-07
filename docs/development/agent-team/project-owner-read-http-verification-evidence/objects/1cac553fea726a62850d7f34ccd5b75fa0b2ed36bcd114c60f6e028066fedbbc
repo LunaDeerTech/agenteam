@@ -1,0 +1,30 @@
+from pathlib import Path
+import hashlib,json
+B=Path(__file__).resolve().parent
+ROOT=B.parent
+run=ROOT/'overlay04/driver-v01/runs/independent-b02'
+sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+ref=lambda p:{'path':str(p),'sha256':sha(p)}
+put=lambda p,d:p.write_text(json.dumps(d,indent=2)+'\n')
+r=json.loads((run/'result.json').read_text())
+assert r['driver_exit']==0 and r['actual_wait_completed'] and r['double_cleanup'] and r['selected_tests_passed'] and r['source_files_unchanged'] and r['verification_inputs_unchanged']
+frozen=ROOT/'overlay04/driver-v01/frozen.json'
+assert sha(frozen)=='b5014d1fcc0b1d66dc124de46c783ad65d3e181761f0ca2ef54751a4fbda8d0c'
+manifest={'format':1,'status':'FROZEN_REAL_HTTP_INPUT','provenance_files':[ref(p) for p in [run/'result.json',run/'command.json',run/'input-before.json',run/'input-after.json',run/'frozen-input.json',frozen,ROOT/'overlay04/resource-closure.json',Path('/workspace/scratch/project-owner-read-http-author/candidate04/manifest.json')]],'schemas':[ref(ROOT/'overlay02/schemas'/name) for name in ['project-owner.json','common.json']],'bodies':[]}
+for name,component in [('owner-list','ProjectPage'),('owner-detail','Project')]:
+ body=run/'safe-http-evidence'/(name+'.json');source=run/'safe-http-evidence'/(name+'-source.json');m=json.loads(source.read_text());assert m['source_run']=='independent-b02' and m['producer_test']=='TestIndependentProjectOwnerReadRootAndWire' and m['frozen_input_sha256']==sha(frozen)
+ if name=='owner-list':assert m['path']=='/api/v1/projects?limit=1&lifecycle=active' and m['target_id']==''
+ else:assert m['target_id'] and m['path']=='/api/v1/projects/'+m['target_id']
+ assert m['body_sha256']==sha(body) and m['body_bytes']==body.stat().st_size and m['status']==200 and m['content_type']=='application/json'
+ manifest['bodies'].append({'name':name,'body':ref(body),'source':ref(source),'expected_source':{k:m[k] for k in ['path','target_id','source_run','producer_test','frozen_input_sha256']},'schema_ref':(ROOT/'overlay02/schemas/project-owner.json').as_uri()+'#/components/schemas/'+component})
+put(B/'manifest.json',manifest)
+d=json.loads((ROOT/'schema-prep02/closure.json').read_text())
+for p in [B/'freeze-input.py',B/'manifest.json',ROOT/'schema-prep02/result.json']:
+ d['files'][str(p)]=sha(p)
+for row in manifest['provenance_files']+manifest['schemas']:
+ d['files'][row['path']]=row['sha256']
+for row in manifest['bodies']:
+ for k in ['body','source']:d['files'][row[k]['path']]=row[k]['sha256']
+put(B/'closure.json',d)
+p=json.loads((ROOT/'schema-prep02/plan.json').read_text());p['scope']='Only actual completed independent B original GET list/detail bytes through frozen standard schema. No resources or reencoding.';p['closure']=ref(B/'closure.json');p['output_root']=str(B/'offline');p['environment']['TMPDIR']=str(B/'tmp');p['environment']['GOTMPDIR']=str(B/'tmp');p['commands']=[{'label':'h01-actual-body-schema','argv':['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python',str(ROOT/'overlay02/check_real_body_schema.py'),'--manifest',str(B/'manifest.json'),'--manifest-sha256',sha(B/'manifest.json'),'--result',str(B/'schema-result.json')]}];put(B/'plan.json',p)
+print(json.dumps({'manifest':ref(B/'manifest.json'),'plan':ref(B/'plan.json'),'bodies':[{'name':r['name'],'body':r['body'],'source':r['source']} for r in manifest['bodies']]}))

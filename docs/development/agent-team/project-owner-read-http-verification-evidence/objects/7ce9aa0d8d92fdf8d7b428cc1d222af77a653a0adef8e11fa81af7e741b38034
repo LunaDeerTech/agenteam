@@ -1,0 +1,43 @@
+{
+  "status": "CANDIDATE04_OFFLINE_PASS_WAIT_AUTHOR_RELEASE",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38"
+  },
+  "driver": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/driver.py",
+    "sha256": "2fa2d159f57eef5295e27efe050385632ccb328f91d043c56a86c81d66fb61f2"
+  },
+  "frozen": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/frozen.json",
+    "sha256": "ec2ee1a79ccd1546bf92718ae5a9b82ad7627681eee0c971ba4cb8db9550963a"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/overlay.json",
+    "sha256": "0b7f8b2b860743eedb87ff8d93515b0b87c045be5ccc939ea6eff226c4667337"
+  },
+  "resource_groups": {
+    "independent-a01": "^TestIndependentProjectOwnerReadAuthorityPagingAndTerminal$",
+    "independent-b01": "^TestIndependentProjectOwnerReadRootAndWire$"
+  },
+  "sequence": "A then B only after PASS/actual wait/seven resources double clear/unchanged inputs; any FAIL stops next group",
+  "top_seconds_including_cleanup": 120,
+  "package_timeout": "6m",
+  "resource_count": 7,
+  "minimum_free_bytes": 5368709120,
+  "test_scope": "Formal fixture identities; physical same-Reader COMMIT ACK loss; no app whole-package tests, browser or Node. Runtime schemas checked afterward against original captured body.",
+  "inherited_driver_functions": "process observation, actual waits, watchdog, resource topology and cleanup preserved; from-accepted-template.diff lists narrow changes",
+  "future_gate": "Root conditional permission requires author root rerun + old6 full PASS/actualwait/double7clear and explicit release; no resources started.",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/resource-closure.json",
+    "sha256": "9b3287862fd951090d70fa0610ab7b216ce1a8ae07e76aa146ea037a8e8f5a51"
+  },
+  "offline_result": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/offline-result.json",
+    "sha256": "6217c424bf67d06e5a34d025f029fe49902d9301ddadfd95fa4a26274736a92d"
+  },
+  "schema_runtime_data_delta": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/schema-data-delta.json",
+    "sha256": "f4ae700dc501addc4b6de497c12f53b496f7550d86895503b110e94a33c13b95"
+  }
+}

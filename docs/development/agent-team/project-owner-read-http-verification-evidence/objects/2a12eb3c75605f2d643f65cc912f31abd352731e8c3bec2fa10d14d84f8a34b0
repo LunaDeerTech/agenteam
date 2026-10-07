@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 18838.496648798,
+      "top": "TestIndependentProjectOwnerReadRootAndWire"
+    },
+    {
+      "event": "result",
+      "monotonic": 18843.117306458,
+      "observed_seconds": 4.620657660001598,
+      "reported_seconds": 4.62,
+      "state": "PASS",
+      "top": "TestIndependentProjectOwnerReadRootAndWire"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectOwnerReadRootAndWire"
+  ],
+  "failures": []
+}

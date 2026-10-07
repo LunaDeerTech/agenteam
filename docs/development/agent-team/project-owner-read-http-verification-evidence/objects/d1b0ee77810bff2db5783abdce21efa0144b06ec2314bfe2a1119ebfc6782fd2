@@ -1,0 +1,76 @@
+{
+  "status": "PRIVATE_PROBE_EXPECTATION_DEFECT",
+  "source": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/independent_owner_read_test.go",
+    "sha256": "1f15ad38c6149b2a472bfd6a2d86ca93a7a89abb5dcf039b35bc1cde981edab7"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/probe-from-b01.diff",
+    "sha256": "dd2919b31b9cb5f603e4cca2a65c90d7f16acf6e0a924b23ef284c69f673f76b"
+  },
+  "original_run": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/result.json",
+    "sha256": "3461f5454f179bf54db0c421e81d6c0575f2d5be4167eb2ebf5e148acca0d5cc"
+  },
+  "original_raw": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/raw.log",
+    "sha256": "9852c64319403dae280ff18add146aac323dd1f3828377ac4c64ac97f8eae701"
+  },
+  "fixed_source_refs": [
+    {
+      "git": "4e615c7da2875418e1fbd925a49f134f14feae6d:internal/central/account/http.go",
+      "sha256": "e87f71d7954ad9c1620bc90b47b1fb6b483ffeb1410668f6a1c2e93765fe93a1"
+    },
+    {
+      "git": "4e615c7da2875418e1fbd925a49f134f14feae6d:internal/central/account/http_boundary.go",
+      "sha256": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572"
+    },
+    {
+      "git": "4e615c7da2875418e1fbd925a49f134f14feae6d:internal/central/app/project_usage.go",
+      "sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337"
+    },
+    {
+      "git": "4e615c7da2875418e1fbd925a49f134f14feae6d:internal/central/usage/http/handler.go",
+      "sha256": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9"
+    }
+  ],
+  "cause": "Both Project and Usage HandlesPath decline the paths; Account fallback path.Clean guard returns 400 InvalidArgument for trailing slash before mux, whereas canonical unknown nested route returns404 NotFound. Original private assertion incorrectly required404 for both.",
+  "new_assertions": "Both HandlesPath false; trailing slash actual400/InvalidArgument; canonical unknown404/NotFound.",
+  "product_changes": false,
+  "A_unchanged": true,
+  "original_complete_cleanup": true,
+  "new_daemon_zombies_not_owned_or_waited": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 572436,
+      "ppid": 1,
+      "starttime": "1860218",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 572969,
+      "ppid": 1,
+      "starttime": "1860648",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 573335,
+      "ppid": 1,
+      "starttime": "1860859",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 573818,
+      "ppid": 1,
+      "starttime": "1861038",
+      "state": "Z"
+    }
+  ]
+}

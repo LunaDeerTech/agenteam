@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/check_real_body_schema.py",
+    "--manifest",
+    "/workspace/scratch/project-owner-read-http-verification/http-body02/manifest.json",
+    "--manifest-sha256",
+    "698e84163888e386424c3bbe79f3a6c6a40b9988757ef243aa88c47d4d3d5bfa",
+    "--result",
+    "/workspace/scratch/project-owner-read-http-verification/http-body02/schema-result.json"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-read-http-verification/overlay03/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/http-body02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/http-body02/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+  "plan_sha256": "21799f20ac49e6eecdf214f3c6f72239e4dfa44f81a240ed1fee1d941feb85c7",
+  "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "started_unix": 1791392923.4726794,
+  "subreaper": true,
+  "main_pid": 588115
+}

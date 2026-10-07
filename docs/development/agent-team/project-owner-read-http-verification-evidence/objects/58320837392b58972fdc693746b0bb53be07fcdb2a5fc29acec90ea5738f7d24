@@ -1,0 +1,23 @@
+{
+  "unchanged": [
+    "sha",
+    "load_bound",
+    "digest",
+    "runtime_environment",
+    "processes",
+    "observe_processes",
+    "reap_adopted",
+    "retire_owned",
+    "TopWatchdog",
+    "watch_output",
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "resource_topology"
+  ],
+  "changed": [
+    "source_input",
+    "main"
+  ]
+}

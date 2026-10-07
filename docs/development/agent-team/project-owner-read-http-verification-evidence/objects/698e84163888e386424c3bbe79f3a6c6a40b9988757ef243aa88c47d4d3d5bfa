@@ -1,0 +1,88 @@
+{
+  "format": 1,
+  "status": "FROZEN_REAL_HTTP_INPUT",
+  "provenance_files": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/result.json",
+      "sha256": "c2cd977b619330af8ea978a90918a474f3dd310b13d0f5b097b30841151547f0"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/command.json",
+      "sha256": "37529a43dad61a8336bad54c3f7b94a6709cc7fc55edbf39bb7cd27b601d1aec"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/input-before.json",
+      "sha256": "4e30c02c38d03bef776984897e9b548391c64a3515c157dcdfee7184425c6343"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/input-after.json",
+      "sha256": "4e30c02c38d03bef776984897e9b548391c64a3515c157dcdfee7184425c6343"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/frozen-input.json",
+      "sha256": "b5014d1fcc0b1d66dc124de46c783ad65d3e181761f0ca2ef54751a4fbda8d0c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/frozen.json",
+      "sha256": "b5014d1fcc0b1d66dc124de46c783ad65d3e181761f0ca2ef54751a4fbda8d0c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/resource-closure.json",
+      "sha256": "2641a865aff878ac5808d639c1b1a7ba017b367d6b8c9c8686355935c2b7cb90"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/candidate04/manifest.json",
+      "sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38"
+    }
+  ],
+  "schemas": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/schemas/project-owner.json",
+      "sha256": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/schemas/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    }
+  ],
+  "bodies": [
+    {
+      "name": "owner-list",
+      "body": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/safe-http-evidence/owner-list.json",
+        "sha256": "b7671d09593f8c05b299dfa77a1c51e3a39ff1ad07264f3ce58962648a2fed29"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/safe-http-evidence/owner-list-source.json",
+        "sha256": "1dcf5804c46233aa74782005c057f132cb5a0d5c8999c03b5d33cc386c93512d"
+      },
+      "expected_source": {
+        "path": "/api/v1/projects?limit=1&lifecycle=active",
+        "target_id": "",
+        "source_run": "independent-b02",
+        "producer_test": "TestIndependentProjectOwnerReadRootAndWire",
+        "frozen_input_sha256": "b5014d1fcc0b1d66dc124de46c783ad65d3e181761f0ca2ef54751a4fbda8d0c"
+      },
+      "schema_ref": "file:///workspace/scratch/project-owner-read-http-verification/overlay02/schemas/project-owner.json#/components/schemas/ProjectPage"
+    },
+    {
+      "name": "owner-detail",
+      "body": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/safe-http-evidence/owner-detail.json",
+        "sha256": "539ff55193e60528537373ec1e5798e78fe13443cd08a295c09946d54977d536"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/safe-http-evidence/owner-detail-source.json",
+        "sha256": "78d39d5b004bf3e28ca104798c9fb9737c8e415d0fb448050b1a2a396a74c83d"
+      },
+      "expected_source": {
+        "path": "/api/v1/projects/01a11756-3d3b-7389-9f52-0d9ffe1b2755",
+        "target_id": "01a11756-3d3b-7389-9f52-0d9ffe1b2755",
+        "source_run": "independent-b02",
+        "producer_test": "TestIndependentProjectOwnerReadRootAndWire",
+        "frozen_input_sha256": "b5014d1fcc0b1d66dc124de46c783ad65d3e181761f0ca2ef54751a4fbda8d0c"
+      },
+      "schema_ref": "file:///workspace/scratch/project-owner-read-http-verification/overlay02/schemas/project-owner.json#/components/schemas/Project"
+    }
+  ]
+}

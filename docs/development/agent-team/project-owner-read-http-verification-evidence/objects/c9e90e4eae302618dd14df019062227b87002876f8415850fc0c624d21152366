@@ -1,0 +1,26 @@
+{
+  "raw": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/stdout.log",
+    "sha256": "cd7de675a4af9f0e4a0bf6a24fff1a635db44e4a7b725a2dd10f9605f5df3169"
+  },
+  "result": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/result.json",
+    "sha256": "2e32b6e501530bda0330d39b4acc1c9a0b2423bb07f475382f6c1dca39585e53"
+  },
+  "packages_count": 374,
+  "files_count": 2359,
+  "effective_files_digest": "fb4e53c6007c90f2515635a9350cdcd7a2627c4f10cb7fc2765d81443ba07241",
+  "parent_input": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pregraph04.json",
+    "sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+    "sha256": "204705123861eb58be63d940928dd110eb42777b085744e417327d507f452926"
+  },
+  "extra": {},
+  "generated_testmain": {
+    "/workspace/.cache/go-build/b3/b3fb56ee86afb3340750ad309f8b38a551929fee89761a9d023e0d5622b8c4fd-d": "b3fb56ee86afb3340750ad309f8b38a551929fee89761a9d023e0d5622b8c4fd"
+  },
+  "selected_package_init_or_TestMain": []
+}

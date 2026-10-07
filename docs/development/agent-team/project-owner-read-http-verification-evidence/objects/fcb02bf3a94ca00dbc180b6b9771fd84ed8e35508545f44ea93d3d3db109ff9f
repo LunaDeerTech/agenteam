@@ -1,0 +1,15 @@
+--- candidate03/tests/model/project_owner_read_http_root_test.go
++++ candidate04/tests/model/project_owner_read_http_root_test.go
+@@ -34,7 +34,11 @@
+ 	}
+ 	root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-providers", nil).want(t, 200)
+ 	summary := root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection/meeting-summary", nil).want(t, 200)
+-	if !bytes.Contains(summary.body, []byte(`"model_id":null`)) {
++	selection := summary.object(t)
++	selectorID, idString := selection["id"].(string)
++	_, idError := f.ParseID[struct{}](selectorID)
++	_, modelPresent := selection["model"]
++	if len(selection) != 3 || !idString || idError != nil || selection["version"] != "1" || !modelPresent || selection["model"] != nil {
+ 		t.Fatal("accepted Summary singleton default changed")
+ 	}
+ 	root.request(t, v.ownerBrowser, "POST", "/api/v1/projects", nil).problem(t, 405, f.MethodNotAllowed)

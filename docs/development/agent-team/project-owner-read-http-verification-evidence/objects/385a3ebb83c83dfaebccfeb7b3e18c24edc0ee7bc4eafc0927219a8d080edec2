@@ -1,0 +1,42 @@
+{
+  "candidate": "/workspace/scratch/project-owner-read-http-author/candidate01/manifest.json",
+  "input": "/workspace/scratch/project-owner-read-http-author/pregraph02.json",
+  "input_sha256": "e2acc3c06004d621aa20b474aab8d6949e596be65e7d1511b37d9bd7218f723a",
+  "graphs": [
+    {
+      "run": "graph-normal02",
+      "path": "/workspace/scratch/project-owner-read-http-author/graph-normal02/actual-graph.json",
+      "sha256": "bb38e60474881046e69591babe12cac1ee998a516b4ba99c5db47524749eddd5",
+      "result_sha256": "463724d68e086358b683dc9a4c65ffda2e32ff9c860c7e72cf3b299b67cad58c"
+    },
+    {
+      "run": "graph-race01",
+      "path": "/workspace/scratch/project-owner-read-http-author/graph-race01/actual-graph.json",
+      "sha256": "8ec9786e86bd1dca82d08ed245d5fff521efd60c375015ac52adac58e80014ef",
+      "result_sha256": "af182f6dce7b8e45853c79bb706c3b0a16c8ed99c9cd4bd43b145433498b1596"
+    },
+    {
+      "run": "graph-fixture01",
+      "path": "/workspace/scratch/project-owner-read-http-author/graph-fixture01/actual-graph.json",
+      "sha256": "328efc11da2260a76ece4238dce9e01b33abfeeeb7e28da6609272704184b951",
+      "result_sha256": "b52135c34d692ff22679e8f19798d4e5fc64bc5d68ce1bff0ff6cb7965dcc2f9"
+    },
+    {
+      "run": "graph-dynamic01",
+      "path": "/workspace/scratch/project-owner-read-http-author/graph-dynamic01/actual-graph.json",
+      "sha256": "6653fc342f6ba8f89e6c1fc5cf0e606530e7793c068ef71ca63ba05944a5a6f0",
+      "result_sha256": "7444d33314081cf98056918a65f71116dabe06791991b845d3be047ab9b9c22c"
+    },
+    {
+      "run": "graph-outbound-cgo0-01",
+      "path": "/workspace/scratch/project-owner-read-http-author/graph-outbound-cgo0-01/actual-graph.json",
+      "sha256": "fbafa2b7406f46da4604aa1ac112f1216329ba5b903f543ccdc90f799355b8a6",
+      "result_sha256": "2233f5f7e1aa700f3f20034370ac4fce4261092b4edda8ed3752008de9c7155e"
+    }
+  ],
+  "limitations": [
+    "No native/PG/TestMain resource execution; go list only.",
+    "graph-integration01 used broad ./tests/... and includes two unrelated helper targets; superseded by exact fixture graph-fixture01 without source expansion.",
+    "Schema Python module closure preparation pending; Go graphs do not model runtime schema reads."
+  ]
+}

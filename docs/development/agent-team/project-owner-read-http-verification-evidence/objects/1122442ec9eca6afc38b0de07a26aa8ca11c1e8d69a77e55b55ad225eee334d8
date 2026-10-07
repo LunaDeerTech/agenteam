@@ -1,0 +1,29 @@
+{
+  "scope": "Only independent-b02 with exact TestIndependentProjectOwnerReadRootAndWire",
+  "driver": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/driver.py",
+    "sha256": "2fa2d159f57eef5295e27efe050385632ccb328f91d043c56a86c81d66fb61f2"
+  },
+  "frozen": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/frozen.json",
+    "sha256": "b5014d1fcc0b1d66dc124de46c783ad65d3e181761f0ca2ef54751a4fbda8d0c"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/resource-closure.json",
+    "sha256": "2641a865aff878ac5808d639c1b1a7ba017b367d6b8c9c8686355935c2b7cb90"
+  },
+  "private_delta": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/probe-from-b01.diff",
+    "sha256": "dd2919b31b9cb5f603e4cca2a65c90d7f16acf6e0a924b23ef284c69f673f76b"
+  },
+  "first_failure": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/b01-attribution.json",
+    "sha256": "d1b0ee77810bff2db5783abdce21efa0144b06ec2314bfe2a1119ebfc6782fd2"
+  },
+  "reuse_A": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-a01/result.json",
+    "sha256": "5b61b3bd085a68f0e6b1b444e028ce435e867207483dd421690876f033cbfda1"
+  },
+  "budget": "unchanged120s top including Cleanup,6m package,fresh5GiB,7exact resources,actualwait/doublecleanup",
+  "runtime_functions_unchanged": true
+}

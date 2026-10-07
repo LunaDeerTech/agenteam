@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "manifest_sha256": "698e84163888e386424c3bbe79f3a6c6a40b9988757ef243aa88c47d4d3d5bfa",
+  "schema_parser": "jsonschema.Draft202012Validator",
+  "network": false,
+  "body_reencoded": false,
+  "cases": [
+    {
+      "name": "owner-list",
+      "body_sha256": "b7671d09593f8c05b299dfa77a1c51e3a39ff1ad07264f3ce58962648a2fed29",
+      "bytes": 185,
+      "source_run": "independent-b02",
+      "schema_ref": "file:///workspace/scratch/project-owner-read-http-verification/overlay02/schemas/project-owner.json#/components/schemas/ProjectPage",
+      "status": "PASS"
+    },
+    {
+      "name": "owner-detail",
+      "body_sha256": "539ff55193e60528537373ec1e5798e78fe13443cd08a295c09946d54977d536",
+      "bytes": 380,
+      "source_run": "independent-b02",
+      "schema_ref": "file:///workspace/scratch/project-owner-read-http-verification/overlay02/schemas/project-owner.json#/components/schemas/Project",
+      "status": "PASS"
+    }
+  ],
+  "input_count": 15,
+  "inputs_unchanged": true
+}

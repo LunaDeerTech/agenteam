@@ -1,0 +1,41 @@
+from pathlib import Path
+import json,hashlib,re
+BASE=Path(__file__).resolve().parent
+sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+put=lambda p,d:p.write_text(json.dumps(d,indent=2)+'\n')
+d=json.loads((BASE/'closure-delta.json').read_text());parent=json.loads(Path(d['parent_input']['path']).read_text());expected=dict(parent['files']);expected.update(d['files']);overlay=json.loads(Path(d['overlay']['path']).read_text())['Replace']
+fields=['GoFiles','TestGoFiles','XTestGoFiles','CgoFiles','SFiles','CFiles','HFiles','CXXFiles','MFiles','FFiles','SysoFiles','SwigFiles','SwigCXXFiles','EmbedFiles','TestEmbedFiles','XTestEmbedFiles']
+refs=[];generated={}
+for label in ['g01-normal-http','g02-race-http-model']:
+ run=BASE/'offline'/label; assert json.loads((run/'result.json').read_text())['passed'];source=(run/'stdout.log').read_text();decoder=json.JSONDecoder();packages=[];files={};extra={};gens={};hook=[]
+ while source.strip():
+  row,n=decoder.raw_decode(source.lstrip());source=source.lstrip()[n:];assert not row.get('Error') and not row.get('DepsErrors');packages.append(row['ImportPath'])
+  paths=[]
+  for field in fields:
+   selected=row['ImportPath'].split(' [')[0] in {'github.com/LunaDeerTech/agenteam/internal/central/project/http','github.com/LunaDeerTech/agenteam/tests/model','github.com/LunaDeerTech/agenteam/tests/model_test'}
+   if field in {'TestGoFiles','XTestGoFiles','TestEmbedFiles','XTestEmbedFiles'} and not selected:continue
+   paths.extend(str(Path(row['Dir'])/name) for name in row.get(field,[]))
+  module=row.get('Module') or {};module=module.get('Replace') or module
+  if module.get('GoMod'):paths.append(module['GoMod'])
+  for path in paths:
+   backing=overlay.get(path,path)
+   if not backing:continue
+   value=sha(backing)
+   if row['ImportPath'].endswith('.test') and backing.startswith('/workspace/.cache/go-build/'):
+    gens[backing]=value
+    assert '._testmain' not in Path(backing).read_text()
+   else:
+    files[backing]=value
+    if expected.get(backing)!=value:extra[backing]=value
+   if path.startswith('/workspace/agenteam/tests/model/') or path.startswith('/workspace/agenteam/internal/central/project/http/'):
+    if Path(backing).suffix=='.go' and re.search(r'^func (TestMain|init)\s*\(',Path(backing).read_text(),re.M):hook.append(path)
+ out={'raw':{'path':str(run/'stdout.log'),'sha256':sha(run/'stdout.log')},'result':{'path':str(run/'result.json'),'sha256':sha(run/'result.json')},'packages_count':len(packages),'files_count':len(files),'effective_files_digest':hashlib.sha256(json.dumps(files,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'parent_input':d['parent_input'],'overlay':d['overlay'],'extra':extra,'generated_testmain':gens,'selected_package_init_or_TestMain':sorted(set(hook))}
+ put(run/'closure-check.json',out);refs.append({'path':str(run/'closure-check.json'),'sha256':sha(run/'closure-check.json')});generated.update(gens)
+ print(label,len(packages),len(files),'extra',len(extra),'hooks',hook)
+ assert not extra and not hook
+ for p in gens:
+  text=Path(p).read_text();assert 'os.Exit(m.Run())' in text
+nd=json.loads(json.dumps(d));nd['independent_graphs']=refs;nd['files'].update(generated);nd['files'][str(BASE/'close-graph.py')]=sha(__file__);nd['limitations'][0]='Independent graph closed; test probes compiled/run only after next fixed plan. Resource execution still prohibited.';put(BASE/'closure-graph02.json',nd)
+p=json.loads((BASE/'graph-plan.json').read_text());p['scope']='Only own exact controlled HTTP test; real integration package compile and exact list, no test body/resources.';p['closure']={'path':str(BASE/'closure-graph02.json'),'sha256':sha(BASE/'closure-graph02.json')};go='/workspace/toolchains/go1.27.1/bin/go';(BASE/'bin').mkdir(exist_ok=True)
+http=str(BASE/'bin/http-race.test');model=str(BASE/'bin/model-race.test');p['commands']=[{'label':'c01-http-race','argv':[go,'test','-race','-p=1','-c','-o',http,'./internal/central/project/http'],'binary_output':http},{'label':'c02-model-race','argv':[go,'test','-race','-tags=integration','-p=1','-c','-o',model,'./tests/model'],'binary_output':model},{'label':'v01-http-race','argv':[go,'vet','-race','./internal/central/project/http']},{'label':'v02-model-race','argv':[go,'vet','-race','-tags=integration','./tests/model']}];put(BASE/'compile-plan.json',p)
+print('compile-plan',sha(BASE/'compile-plan.json'),'closure',sha(BASE/'closure-graph02.json'))

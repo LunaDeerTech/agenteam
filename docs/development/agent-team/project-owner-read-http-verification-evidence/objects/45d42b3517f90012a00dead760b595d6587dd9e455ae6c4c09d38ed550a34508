@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-07T16:40:39.890093+00:00",
+  "rows": [
+    {
+      "original": {
+        "pid": 507604,
+        "ppid": 507601,
+        "pgid": 507604,
+        "state": "Z",
+        "starttime": "1716064"
+      },
+      "absent": true
+    },
+    {
+      "original": {
+        "pid": 507737,
+        "ppid": 507604,
+        "pgid": 507604,
+        "state": "Z",
+        "starttime": "1716426"
+      },
+      "absent": true
+    }
+  ],
+  "limits": "No pre-run native trace; cannot identify task TIME_WAIT ports from this snapshot. Original offline driver directwait+two owned empty retained."
+}

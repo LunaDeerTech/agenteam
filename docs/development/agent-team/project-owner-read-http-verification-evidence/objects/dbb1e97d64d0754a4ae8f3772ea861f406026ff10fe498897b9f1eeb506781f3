@@ -1,0 +1,78 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-race",
+    "./internal/central/project/http"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+  "plan_sha256": "43baf42e3d6fcd4e6a56245881c6246b26d0f6803dcedda02017d333cc48e2e5",
+  "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "started_unix": 1791391713.2834141,
+  "subreaper": true,
+  "main_pid": 513733,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.3320449790007842,
+  "total_seconds": 0.8698237930002506,
+  "observed_processes": [
+    {
+      "pid": 513733,
+      "starttime": "1766511",
+      "ppid": 513730,
+      "pgrp": 513733,
+      "state": "S"
+    },
+    {
+      "pid": 513737,
+      "starttime": "1766511",
+      "ppid": 513733,
+      "pgrp": 513733,
+      "state": "R"
+    },
+    {
+      "pid": 513760,
+      "starttime": "1766534",
+      "ppid": 513733,
+      "pgrp": 513733,
+      "state": "S"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791391713.622208,
+      "remaining": []
+    },
+    {
+      "time": 1791391713.725607,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

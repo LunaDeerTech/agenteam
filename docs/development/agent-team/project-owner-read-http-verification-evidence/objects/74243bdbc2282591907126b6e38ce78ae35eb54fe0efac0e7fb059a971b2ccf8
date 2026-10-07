@@ -1,0 +1,10 @@
+--- /workspace/scratch/project-owner-read-http-verification/schema-prep01/import-graph.py
++++ /workspace/scratch/project-owner-read-http-verification/schema-prep02/import-graph.py
+@@ -12,6 +12,6 @@
+     p=getattr(module,'__file__',None)
+     if p and Path(p).is_file():
+         files[str(Path(p).resolve())]=hashlib.sha256(Path(p).read_bytes()).hexdigest()
+-for p in opened:
++for p in tuple(opened):
+     files[p]=hashlib.sha256(Path(p).read_bytes()).hexdigest()
+ print(json.dumps({'scope':'module import only; main not run; no body parsed or resources','files':files,'schema_data_opened':sorted(set(opened))},indent=2))

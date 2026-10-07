@@ -1,0 +1,535 @@
+{
+  "nine_rounds": [
+    {
+      "run": "new1",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "19bcf86f5234eb10b37c4e3dd8c6a0ceaafd6a14324c4cb178bc62230c5c1f3e"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/command.json",
+        "sha256": "830de1110a1d50a01beccd0578df2ddae2fb53065fad35d2d1797c14a7eaace0"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/raw.log",
+        "sha256": "e0552daead458d0a8baf9bc53717ea47753c4ce132da671c0b8debddcc41b161"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/cleanup.json",
+        "sha256": "8bad8870c8730bd49471b9dadf6c741440164ee4fdfe15bd4a2be369e158854e"
+      },
+      "exit": 0,
+      "seconds": 62.614,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 91,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 140,
+      "daemon_final_count": 144,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPProjectionAndPaging"
+        ]
+      ]
+    },
+    {
+      "run": "new2",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "31d1b42a086514e8b2ed2ff8cd4c557bbf4afe62de8a7e6c95e4d36c36cb817e"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/command.json",
+        "sha256": "2a47a90a0be97df0f3eea331904fab026fc571e8df983fce53c7b77fd7ac44f8"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/raw.log",
+        "sha256": "83d0c1a98e858629af2513abcfe491249433d73f4b0473449aa479f35f8219b5"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/cleanup.json",
+        "sha256": "d93d9347ae4623af649c0efa47d8afb8ced0a94f592a84424dd67ed44c736304"
+      },
+      "exit": 0,
+      "seconds": 55.821,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 84,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 144,
+      "daemon_final_count": 148,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPAuthorityAndTerminal"
+        ]
+      ]
+    },
+    {
+      "run": "new3",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/result.json",
+        "sha256": "d8ae5689a7502e1e180276d5a96c786d5dcea9a998c24adc124112944aefc665"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/command.json",
+        "sha256": "3a8bed2174654aab28040d9c7cce6c1c60c014f1ffbc65c4b3a50739dea0ad7f"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/raw.log",
+        "sha256": "ae29c85b6264595c499ec50f824de4eba5897460d10378f1dc00b00b2323fb46"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/cleanup.json",
+        "sha256": "946b132626226bf098ece97284ae1e1d5c72e7d95a79fe9cdfb55575f3e8146b"
+      },
+      "exit": 1,
+      "seconds": 54.923,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 85,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 148,
+      "daemon_final_count": 152,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectOwnerReadHTTPRootBinding"
+        ]
+      ]
+    },
+    {
+      "run": "new3-rerun",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/result.json",
+        "sha256": "8c560b0a7049fb63477fc33b77568690da45afc1bf9c367a6f7098ae55b483de"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/command.json",
+        "sha256": "2dbab5cfbf0113b9a43be5b43868f9eead0e106ba33670e362e6fff5c2ca67d5"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/raw.log",
+        "sha256": "f1de4e4c937455425cd057863728b95ef8ddab4b6b1b4eba393610483d7205ec"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/cleanup.json",
+        "sha256": "44a00ece3c14fd8d3b942696fd4ff83dadf998d2dc0512e072bfca594948f6d8"
+      },
+      "exit": 0,
+      "seconds": 56.521,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 86,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 152,
+      "daemon_final_count": 156,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPRootBinding"
+        ]
+      ]
+    },
+    {
+      "run": "old1",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/result.json",
+        "sha256": "9372165ec0281c38242eaf4d6c1c877363b3d49bd0c58ee889c630caf44684dc"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/command.json",
+        "sha256": "bdb479d1eb82225ba33fd870f12a530beac9e94f5dbb95bf76bf1476ba4b06c8"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/raw.log",
+        "sha256": "e43cab9edacf4d8d8daf344172bd88295bca4ca37eb00862bcf40d34f57bbbd6"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/cleanup.json",
+        "sha256": "70a41e894d1dce632bacb79a621d8c5fb7e44c5d42cc0048520bb3fe143c3f02"
+      },
+      "exit": 1,
+      "seconds": 68.199,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 84,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 156,
+      "daemon_final_count": 160,
+      "top_levels": [
+        [
+          "PASS",
+          "TestProjectB02OwnerSessionNamePathAndPaging"
+        ],
+        [
+          "PASS",
+          "TestProjectB02OwnerPortRequiresCallerTransactionLocks"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPProjectionAndPath"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire"
+        ]
+      ]
+    },
+    {
+      "run": "usage-rerun1",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/result.json",
+        "sha256": "8ffdddb3933e9f306a5a2aff15014379774242440d0d824b8dc2d9d159e49a5e"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/command.json",
+        "sha256": "7cbe5f71158958e40f293cd445e63258f8c7465a284968c0e1f521e7fc749c6c"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/raw.log",
+        "sha256": "9f0f935c0070211d18de90fc744d4aa11c4914dab0c29f3274d8beeb10b1b4fd"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/cleanup.json",
+        "sha256": "3cfcc3fca8183188fa6b28d69ea956e475030313f23b7db4d4408c4d83d8ddb3"
+      },
+      "exit": 0,
+      "seconds": 55.136,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 83,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 160,
+      "daemon_final_count": 164,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath"
+        ]
+      ]
+    },
+    {
+      "run": "independent-a01",
+      "directory": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-a01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-a01/result.json",
+        "sha256": "5b61b3bd085a68f0e6b1b444e028ce435e867207483dd421690876f033cbfda1"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-a01/command.json",
+        "sha256": "1cbaec0a2253ed422b0ffed183b77c612be45c73f59658fe1b60a09a2cf54d4b"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-a01/raw.log",
+        "sha256": "3c062e2a4b847e8ece79b79c4ad2ea48a86e19ddf238a84c42dbd1332bb02ca8"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-a01/cleanup.json",
+        "sha256": "c34147519bd8b0dc1fce0b0ecc4cf0d2ee3be6defa64c6e5ea48957b3a59d6da"
+      },
+      "exit": 0,
+      "seconds": 55.87,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 83,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 164,
+      "daemon_final_count": 168,
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentProjectOwnerReadAuthorityPagingAndTerminal"
+        ]
+      ]
+    },
+    {
+      "run": "independent-b01",
+      "directory": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/result.json",
+        "sha256": "3461f5454f179bf54db0c421e81d6c0575f2d5be4167eb2ebf5e148acca0d5cc"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/command.json",
+        "sha256": "32c23045f9534aa5438f177429d036589108351e1a4fdcfd2ff9a7fe14ae44e7"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/raw.log",
+        "sha256": "9852c64319403dae280ff18add146aac323dd1f3828377ac4c64ac97f8eae701"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/cleanup.json",
+        "sha256": "18cc10271dcc10f065510c295c2dd509b2a39683ebcf655ec4d642d1d4d6bf4b"
+      },
+      "exit": 1,
+      "seconds": 54.452,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 83,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 168,
+      "daemon_final_count": 172,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestIndependentProjectOwnerReadRootAndWire"
+        ]
+      ]
+    },
+    {
+      "run": "independent-b02",
+      "directory": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/result.json",
+        "sha256": "c2cd977b619330af8ea978a90918a474f3dd310b13d0f5b097b30841151547f0"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/command.json",
+        "sha256": "37529a43dad61a8336bad54c3f7b94a6709cc7fc55edbf39bb7cd27b601d1aec"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/raw.log",
+        "sha256": "858dc4c18abac65bfff97ebb5b53d1ed98c4fa372f3246094450e2079bd0aead"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/cleanup.json",
+        "sha256": "29bd687c46cdf3e15a0f0622a491bde3aa9db8926bc3ba5bf48f3611aaa63e7a"
+      },
+      "exit": 0,
+      "seconds": 53.203,
+      "actual_wait": true,
+      "owned_resources_double_clear": 7,
+      "owned_processes_observed": 84,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_baseline_count": 172,
+      "daemon_final_count": 176,
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentProjectOwnerReadRootAndWire"
+        ]
+      ]
+    }
+  ],
+  "actual_initial_daemon_set_count": 140,
+  "actual_final_daemon_set_count": 176,
+  "initial_baseline": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/process-baseline.json",
+    "sha256": "9d1ec858efc4d6767d8bf01b57be30cadf99d287b63a9d1137340a6761dd52d8"
+  },
+  "final_two_cleanup": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/driver-v01/runs/independent-b02/cleanup.json",
+    "sha256": "29bd687c46cdf3e15a0f0622a491bde3aa9db8926bc3ba5bf48f3611aaa63e7a"
+  },
+  "initial_set_sha256": "78fb4fb83efe1f5d8dd61cf561fbb83a8c11e3f93799ebd7c36ee620e1adeaa2",
+  "final_set_sha256": "cf5a6d444d8524a1bd0dba87486b0d4f55a8ae9b872475f66c5042bcefcc8c56",
+  "added_actual_pid_starttime": [
+    {
+      "pid": 514959,
+      "starttime": "1774783",
+      "run": "new1"
+    },
+    {
+      "pid": 515320,
+      "starttime": "1775036",
+      "run": "new1"
+    },
+    {
+      "pid": 515675,
+      "starttime": "1775224",
+      "run": "new1"
+    },
+    {
+      "pid": 516269,
+      "starttime": "1775457",
+      "run": "new1"
+    },
+    {
+      "pid": 523540,
+      "starttime": "1785576",
+      "run": "new2"
+    },
+    {
+      "pid": 524069,
+      "starttime": "1785998",
+      "run": "new2"
+    },
+    {
+      "pid": 524340,
+      "starttime": "1786188",
+      "run": "new2"
+    },
+    {
+      "pid": 524941,
+      "starttime": "1786375",
+      "run": "new2"
+    },
+    {
+      "pid": 530847,
+      "starttime": "1792320",
+      "run": "new3"
+    },
+    {
+      "pid": 531374,
+      "starttime": "1792729",
+      "run": "new3"
+    },
+    {
+      "pid": 531656,
+      "starttime": "1792920",
+      "run": "new3"
+    },
+    {
+      "pid": 532253,
+      "starttime": "1793101",
+      "run": "new3"
+    },
+    {
+      "pid": 540111,
+      "starttime": "1816562",
+      "run": "new3-rerun"
+    },
+    {
+      "pid": 540604,
+      "starttime": "1816992",
+      "run": "new3-rerun"
+    },
+    {
+      "pid": 540976,
+      "starttime": "1817197",
+      "run": "new3-rerun"
+    },
+    {
+      "pid": 541507,
+      "starttime": "1817396",
+      "run": "new3-rerun"
+    },
+    {
+      "pid": 547427,
+      "starttime": "1823395",
+      "run": "old1"
+    },
+    {
+      "pid": 547953,
+      "starttime": "1823787",
+      "run": "old1"
+    },
+    {
+      "pid": 548233,
+      "starttime": "1823999",
+      "run": "old1"
+    },
+    {
+      "pid": 548831,
+      "starttime": "1824183",
+      "run": "old1"
+    },
+    {
+      "pid": 557292,
+      "starttime": "1841280",
+      "run": "usage-rerun1"
+    },
+    {
+      "pid": 557773,
+      "starttime": "1841675",
+      "run": "usage-rerun1"
+    },
+    {
+      "pid": 558043,
+      "starttime": "1841867",
+      "run": "usage-rerun1"
+    },
+    {
+      "pid": 558642,
+      "starttime": "1842064",
+      "run": "usage-rerun1"
+    },
+    {
+      "pid": 565104,
+      "starttime": "1852751",
+      "run": "independent-a01"
+    },
+    {
+      "pid": 565603,
+      "starttime": "1853156",
+      "run": "independent-a01"
+    },
+    {
+      "pid": 565859,
+      "starttime": "1853343",
+      "run": "independent-a01"
+    },
+    {
+      "pid": 566455,
+      "starttime": "1853530",
+      "run": "independent-a01"
+    },
+    {
+      "pid": 572436,
+      "starttime": "1860218",
+      "run": "independent-b01"
+    },
+    {
+      "pid": 572969,
+      "starttime": "1860648",
+      "run": "independent-b01"
+    },
+    {
+      "pid": 573335,
+      "starttime": "1860859",
+      "run": "independent-b01"
+    },
+    {
+      "pid": 573818,
+      "starttime": "1861038",
+      "run": "independent-b01"
+    },
+    {
+      "pid": 581113,
+      "starttime": "1880145",
+      "run": "independent-b02"
+    },
+    {
+      "pid": 581567,
+      "starttime": "1880495",
+      "run": "independent-b02"
+    },
+    {
+      "pid": 581841,
+      "starttime": "1880697",
+      "run": "independent-b02"
+    },
+    {
+      "pid": 582440,
+      "starttime": "1880881",
+      "run": "independent-b02"
+    }
+  ],
+  "owned_or_task_waited": false,
+  "claim": "Actual exact PID/starttime set difference verified, not merely counts added; no whole-machine zero claim."
+}

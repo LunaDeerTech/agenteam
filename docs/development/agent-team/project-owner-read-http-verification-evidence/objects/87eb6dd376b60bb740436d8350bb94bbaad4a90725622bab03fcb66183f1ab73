@@ -1,0 +1,15 @@
+# Later finding superseding candidate01's initial no-blocker status
+
+**D08-IMPL-STATIC-01: test compilation blocker, no production change indicated.** The initial `review.md`/`result.json` are preserved as the earlier static record and must not be treated as final acceptance after this finding.
+
+Frozen `candidate01/src/internal/central/project/http/wire_test.go` (SHA `b7caabfc7bf6ab6a34003c37540774864c9b6ad874b16f8ee40a9e2f3d0b9340`) has three invalid strong-ID constructions, unchanged in reported candidate02:
+
+- line 179: `p.OwnerUserID = ""`;
+- line 181: `p.ID = ""`;
+- line 195: `wirePtr(pc.SprintID("bad"))`.
+
+Fixed baseline `foundation/id.go:17` defines `ID[K any] struct{ value [16]byte }`. String assignment/conversion cannot form these ID types. Suggested test-only replacements are the corresponding typed zero values; they remain invalid IDs for projection rejection. No public scalar/production API change is needed. This finding was determined statically; this verifier did not execute a compiler or claim an actual failing test result.
+
+The author separately reported and repaired the same issue in `reader_test.go:199` as candidate02 (`got.ID != (c.ProjectID{})`). That actual author compiler failure and raw evidence remain attributed to the author, not independently rerun. The three HTTP cases were sent immediately to root/author; active affected test reads are paused until the next candidate freeze. All unaffected production static analysis remains reusable.
+
+Current combined status: production static checks covered; candidate01/02 whole-source STATIC acceptance is blocked by the three uncorrected HTTP test constructions. Wait for test-only fixed candidate and affected compile evidence. No Go/Node/test/resource execution or product mutation occurred here.

@@ -1,0 +1,43 @@
+{
+  "candidate04_sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38",
+  "changed_source": "tests/model/project_owner_read_http_root_test.go only; exact oldSummary wire assertion; no production/import/embed/fileset change",
+  "reused": "candidate03 ordinary/race/vet/build/schema/native/new1/new2; only affected model integration compile/list rerun; old Project binary unchanged",
+  "checks": [
+    {
+      "run": "format03",
+      "path": "/workspace/scratch/project-owner-read-http-author/format03/result.json",
+      "sha256": "ce543ba93c5b95c49633dd821acac74f67cd8c761284b66bc4ca6f9fa7af1c32",
+      "exit": 0,
+      "actualwait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "run": "model-integrationcompile02",
+      "path": "/workspace/scratch/project-owner-read-http-author/model-integrationcompile02/result.json",
+      "sha256": "9010c6f641308c092e98f8667b33fff5c2675d39afa5317677460dd9ee819ca4",
+      "exit": 0,
+      "actualwait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "run": "model-integration-list02",
+      "path": "/workspace/scratch/project-owner-read-http-author/model-integration-list02/result.json",
+      "sha256": "30b89cd18dea286b3edf179b8cf7eb122234554949b8ed8dbda27a137bbf4c74",
+      "exit": 0,
+      "actualwait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    },
+    {
+      "run": "pg-driver-check03",
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-check03/result.json",
+      "sha256": "ca1c1e42db71801dc87e1ed5d635810aabf0f818435229a0f8496ba49e2b47f9",
+      "exit": 0,
+      "actualwait": true,
+      "owned_clear_observations": 2,
+      "inputs_match": true
+    }
+  ]
+}

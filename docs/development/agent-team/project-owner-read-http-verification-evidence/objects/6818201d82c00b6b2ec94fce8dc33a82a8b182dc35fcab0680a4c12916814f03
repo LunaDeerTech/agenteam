@@ -1,0 +1,19 @@
+--- /workspace/scratch/project-owner-read-http-author/pg-driver-v01/driver.py
++++ /workspace/scratch/project-owner-read-http-author/pg-driver-v02/driver.py
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+-GROUPS = {'new-projection': ['TestModelProjectOwnerReadHTTPProjectionAndPaging'], 'new-terminal': ['TestModelProjectOwnerReadHTTPAuthorityAndTerminal'], 'new-root': ['TestModelProjectOwnerReadHTTPRootBinding'], 'old': ['TestProjectB02OwnerSessionNamePathAndPaging', 'TestProjectB02OwnerPortRequiresCallerTransactionLocks', 'TestModelProjectUsageHTTPProjectionAndPath', 'TestModelProjectUsageHTTPRootBinding', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelSystemHTTPCurrentAdministrator']}
++GROUPS = {'new-projection': ['TestModelProjectOwnerReadHTTPProjectionAndPaging'], 'new-terminal': ['TestModelProjectOwnerReadHTTPAuthorityAndTerminal'], 'new-root': ['TestModelProjectOwnerReadHTTPRootBinding'], 'old': ['TestProjectB02OwnerSessionNamePathAndPaging', 'TestProjectB02OwnerPortRequiresCallerTransactionLocks', 'TestModelProjectUsageHTTPProjectionAndPath', 'TestModelProjectUsageHTTPRootBinding', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelSystemHTTPCurrentAdministrator'], 'old-usage-recovery': ['TestModelProjectUsageHTTPProjectionAndPath']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -356,6 +356,7 @@
+     env['AGENTEAM_PROJECT_READ_RUN'] = args.name
+     env['AGENTEAM_PROJECT_READ_CANDIDATE'] = FROZEN['candidate_sha256']
+     env['AGENTEAM_PROJECT_READ_SCHEMA_PYTHON'] = PYTHON
++    env['AGENTEAM_USAGE_SCHEMA_PYTHON'] = PYTHON
+     expected = set(GROUPS[args.group])
+     selector = '^(' + '|'.join(GROUPS[args.group]) + ')$'
+     argv = ['sh', 'scripts/test-objects.sh', '-run', selector]

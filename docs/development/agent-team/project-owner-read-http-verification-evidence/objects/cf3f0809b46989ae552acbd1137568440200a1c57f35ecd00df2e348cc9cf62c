@@ -1,0 +1,510 @@
+{
+  "author_verdict": "PASS by versioned combination, not independent/final product acceptance",
+  "sources": {
+    "path": "/workspace/scratch/project-owner-read-http-author/author-final01/sources.json",
+    "sha256": "ce7cb4483d43cc23b8ec9b84e5bd2f14aa68c530d9276d656e81e497f03351c3"
+  },
+  "evidence": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/offline-summary01.json",
+      "sha256": "f0f010cad681e07645eebff1eee9805a7a06a5a369f0fe91e05c25fef89e5728"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/post-candidate04-offline.json",
+      "sha256": "6dddf1f025a929c48196f2374031f4561f4de54c44d8c349a0050fcd9d9a1584"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/result-summary.json",
+      "sha256": "cca6fbf5a61533777f8f1070c4f64bf579e9366b0e8c136b762b64f7f9f943f0"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/schema-rerun01/result.json",
+      "sha256": "6168f722a68f54e5d938335abdf8903880a9b2ba2b06d25e32efab37e8c8fb4e"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/schema-data-delta.json",
+      "sha256": "f4ae700dc501addc4b6de497c12f53b496f7550d86895503b110e94a33c13b95"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/failure-analysis.json",
+      "sha256": "c2095178438b70784d751951d58eed77a33b1c1ba1a23370d6ebb3900b9268db"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/failure-analysis.json",
+      "sha256": "5e3094b13948a088483df5f25d82c3c28a15dc1947b05e672360539148291f94"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/app-purerun01/scope-deviation.json",
+      "sha256": "dc9f7e3cee11658b4b3553d3e607c8bf7898cf5072d7def6be588adf70583f4d"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/safe-http-index.json",
+      "sha256": "955048e1d79d22811b6ed4ba24774a30774c7a968f3a2d8d4ddeb8ae0f9bb2a0"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/delta.diff",
+      "sha256": "6818201d82c00b6b2ec94fce8dc33a82a8b182dc35fcab0680a4c12916814f03"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-check04/result.json",
+      "sha256": "f68e31874fdd3a7a096987c40e1879f24aa2486cf177859d4f48aa63c5647b15"
+    }
+  ],
+  "PG_actual_rounds": [
+    {
+      "run": "new1",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "19bcf86f5234eb10b37c4e3dd8c6a0ceaafd6a14324c4cb178bc62230c5c1f3e"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/command.json",
+        "sha256": "830de1110a1d50a01beccd0578df2ddae2fb53065fad35d2d1797c14a7eaace0"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/raw.log",
+        "sha256": "e0552daead458d0a8baf9bc53717ea47753c4ce132da671c0b8debddcc41b161"
+      },
+      "exit": 0,
+      "seconds": 62.614,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPProjectionAndPaging",
+          "5.61"
+        ]
+      ],
+      "nested_passes": 3,
+      "actualwait": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "owned_resources": 7,
+      "double_cleanup": true,
+      "input_same": true,
+      "watchdog_and_join": true,
+      "observed_owned_processes": 91,
+      "baseline_daemon_shim_z_count": 140,
+      "daemon_shim_z_added": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 514959,
+          "ppid": 1,
+          "starttime": "1774783",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 515320,
+          "ppid": 1,
+          "starttime": "1775036",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 515675,
+          "ppid": 1,
+          "starttime": "1775224",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 516269,
+          "ppid": 1,
+          "starttime": "1775457",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new2",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "31d1b42a086514e8b2ed2ff8cd4c557bbf4afe62de8a7e6c95e4d36c36cb817e"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/command.json",
+        "sha256": "2a47a90a0be97df0f3eea331904fab026fc571e8df983fce53c7b77fd7ac44f8"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/raw.log",
+        "sha256": "83d0c1a98e858629af2513abcfe491249433d73f4b0473449aa479f35f8219b5"
+      },
+      "exit": 0,
+      "seconds": 55.821,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPAuthorityAndTerminal",
+          "5.88"
+        ]
+      ],
+      "nested_passes": 12,
+      "actualwait": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "owned_resources": 7,
+      "double_cleanup": true,
+      "input_same": true,
+      "watchdog_and_join": true,
+      "observed_owned_processes": 84,
+      "baseline_daemon_shim_z_count": 144,
+      "daemon_shim_z_added": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 523540,
+          "ppid": 1,
+          "starttime": "1785576",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 524069,
+          "ppid": 1,
+          "starttime": "1785998",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 524340,
+          "ppid": 1,
+          "starttime": "1786188",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 524941,
+          "ppid": 1,
+          "starttime": "1786375",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new3",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/result.json",
+        "sha256": "d8ae5689a7502e1e180276d5a96c786d5dcea9a998c24adc124112944aefc665"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/command.json",
+        "sha256": "3a8bed2174654aab28040d9c7cce6c1c60c014f1ffbc65c4b3a50739dea0ad7f"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/raw.log",
+        "sha256": "ae29c85b6264595c499ec50f824de4eba5897460d10378f1dc00b00b2323fb46"
+      },
+      "exit": 1,
+      "seconds": 54.923,
+      "top_results": [
+        [
+          "FAIL",
+          "TestModelProjectOwnerReadHTTPRootBinding",
+          "5.02"
+        ]
+      ],
+      "nested_passes": 0,
+      "actualwait": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "owned_resources": 7,
+      "double_cleanup": true,
+      "input_same": true,
+      "watchdog_and_join": true,
+      "observed_owned_processes": 85,
+      "baseline_daemon_shim_z_count": 148,
+      "daemon_shim_z_added": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 530847,
+          "ppid": 1,
+          "starttime": "1792320",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 531374,
+          "ppid": 1,
+          "starttime": "1792729",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 531656,
+          "ppid": 1,
+          "starttime": "1792920",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 532253,
+          "ppid": 1,
+          "starttime": "1793101",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new3-rerun",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/result.json",
+        "sha256": "8c560b0a7049fb63477fc33b77568690da45afc1bf9c367a6f7098ae55b483de"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/command.json",
+        "sha256": "2dbab5cfbf0113b9a43be5b43868f9eead0e106ba33670e362e6fff5c2ca67d5"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/raw.log",
+        "sha256": "f1de4e4c937455425cd057863728b95ef8ddab4b6b1b4eba393610483d7205ec"
+      },
+      "exit": 0,
+      "seconds": 56.521,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPRootBinding",
+          "5.27"
+        ]
+      ],
+      "nested_passes": 0,
+      "actualwait": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "owned_resources": 7,
+      "double_cleanup": true,
+      "input_same": true,
+      "watchdog_and_join": true,
+      "observed_owned_processes": 86,
+      "baseline_daemon_shim_z_count": 152,
+      "daemon_shim_z_added": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 540111,
+          "ppid": 1,
+          "starttime": "1816562",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 540604,
+          "ppid": 1,
+          "starttime": "1816992",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 540976,
+          "ppid": 1,
+          "starttime": "1817197",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 541507,
+          "ppid": 1,
+          "starttime": "1817396",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old1",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/result.json",
+        "sha256": "9372165ec0281c38242eaf4d6c1c877363b3d49bd0c58ee889c630caf44684dc"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/command.json",
+        "sha256": "bdb479d1eb82225ba33fd870f12a530beac9e94f5dbb95bf76bf1476ba4b06c8"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/raw.log",
+        "sha256": "e43cab9edacf4d8d8daf344172bd88295bca4ca37eb00862bcf40d34f57bbbd6"
+      },
+      "exit": 1,
+      "seconds": 68.199,
+      "top_results": [
+        [
+          "PASS",
+          "TestProjectB02OwnerSessionNamePathAndPaging",
+          "1.19"
+        ],
+        [
+          "PASS",
+          "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+          "1.01"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding",
+          "4.91"
+        ],
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPProjectionAndPath",
+          "6.43"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator",
+          "4.25"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire",
+          "1.99"
+        ]
+      ],
+      "nested_passes": 21,
+      "actualwait": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "owned_resources": 7,
+      "double_cleanup": true,
+      "input_same": true,
+      "watchdog_and_join": true,
+      "observed_owned_processes": 84,
+      "baseline_daemon_shim_z_count": 156,
+      "daemon_shim_z_added": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 547427,
+          "ppid": 1,
+          "starttime": "1823395",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 547953,
+          "ppid": 1,
+          "starttime": "1823787",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 548233,
+          "ppid": 1,
+          "starttime": "1823999",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 548831,
+          "ppid": 1,
+          "starttime": "1824183",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "usage-rerun1",
+      "directory": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/result.json",
+        "sha256": "8ffdddb3933e9f306a5a2aff15014379774242440d0d824b8dc2d9d159e49a5e"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/command.json",
+        "sha256": "7cbe5f71158958e40f293cd445e63258f8c7465a284968c0e1f521e7fc749c6c"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/raw.log",
+        "sha256": "9f0f935c0070211d18de90fc744d4aa11c4914dab0c29f3274d8beeb10b1b4fd"
+      },
+      "exit": 0,
+      "seconds": 55.136,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath",
+          "5.36"
+        ]
+      ],
+      "nested_passes": 0,
+      "actualwait": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "owned_resources": 7,
+      "double_cleanup": true,
+      "input_same": true,
+      "watchdog_and_join": true,
+      "observed_owned_processes": 83,
+      "baseline_daemon_shim_z_count": 160,
+      "daemon_shim_z_added": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 557292,
+          "ppid": 1,
+          "starttime": "1841280",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 557773,
+          "ppid": 1,
+          "starttime": "1841675",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 558043,
+          "ppid": 1,
+          "starttime": "1841867",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 558642,
+          "ppid": 1,
+          "starttime": "1842064",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "accepted_PG_combination": {
+    "new1": "candidate03/new1 Projection PASS",
+    "new2": "candidate03/new2 Terminal PASS",
+    "root": "candidate04/new3-rerun PASS; original candidate03/new3 FAIL retained",
+    "old6": "candidate04/old1 five PASS + driver-v02/usage-rerun1 Usage PASS; original old1 FAIL retained"
+  },
+  "daemon_boundary": {
+    "unique_added_pid_starttime_count": 24,
+    "baseline_shim_z_count": 140,
+    "final_shim_z_count": 164,
+    "owned_or_task_waited": false,
+    "scope": "six author PG rounds only; later independent runs tracked separately; no whole-machine zero claim"
+  },
+  "native_boundary": "three authorized rounds:3tops9nested10listeners,actual direct3+adopted3,all-port/owned-process doublezero. Prior app unauthorized full ordinary run excluded from native/root acceptance.",
+  "resource_handoff": "All author groups terminated and owned cleanup complete; explicitly released to usage_verification under root authorization. No author resources active.",
+  "pending": "Independent dynamic/final acceptance and root-only README authorization/submission remain."
+}

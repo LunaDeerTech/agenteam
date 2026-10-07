@@ -1,0 +1,334 @@
+=== RUN   TestAuditFactsConstructionClosedAndCopied
+=== RUN   TestAuditFactsConstructionClosedAndCopied/nil
+=== RUN   TestAuditFactsConstructionClosedAndCopied/typed-nil
+=== RUN   TestAuditFactsConstructionClosedAndCopied/object-reserved
+=== RUN   TestAuditFactsConstructionClosedAndCopied/project
+=== RUN   TestAuditFactsConstructionClosedAndCopied/artifact
+=== RUN   TestAuditFactsConstructionClosedAndCopied/account
+=== RUN   TestAuditFactsConstructionClosedAndCopied/master
+=== RUN   TestAuditFactsConstructionClosedAndCopied/outbox
+=== RUN   TestAuditFactsConstructionClosedAndCopied/unknown
+--- PASS: TestAuditFactsConstructionClosedAndCopied (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/nil (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/typed-nil (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/object-reserved (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/project (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/artifact (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/account (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/master (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/outbox (0.00s)
+    --- PASS: TestAuditFactsConstructionClosedAndCopied/unknown (0.00s)
+=== RUN   TestAuditFactsChecksCurrentOwnerBeforeExactDispatch
+--- PASS: TestAuditFactsChecksCurrentOwnerBeforeExactDispatch (0.00s)
+=== RUN   TestAuditFactsServiceResolveAndMissingProvider
+--- PASS: TestAuditFactsServiceResolveAndMissingProvider (0.00s)
+=== RUN   TestOwnerAuthorityOrdersLockSessionAndFacts
+--- PASS: TestOwnerAuthorityOrdersLockSessionAndFacts (0.00s)
+=== RUN   TestForeignOwnerAndUninitializedRowsAreNotGrants
+--- PASS: TestForeignOwnerAndUninitializedRowsAreNotGrants (0.00s)
+=== RUN   TestMissingOrdinaryProjectDoesNotExposeTombstone
+--- PASS: TestMissingOrdinaryProjectDoesNotExposeTombstone (0.00s)
+=== RUN   TestUpdateSemanticChangeAndNoOpBoundary
+--- PASS: TestUpdateSemanticChangeAndNoOpBoundary (0.00s)
+=== RUN   TestSemanticReplayIgnoresOldVersionButNotDigestOrOwner
+--- PASS: TestSemanticReplayIgnoresOldVersionButNotDigestOrOwner (0.00s)
+=== RUN   TestAuditIdentityUsesExistingCanonicalDigest
+--- PASS: TestAuditIdentityUsesExistingCanonicalDigest (0.00s)
+=== RUN   TestPlanSurvivesJSONBObjectOrdering
+--- PASS: TestPlanSurvivesJSONBObjectOrdering (0.00s)
+=== RUN   TestOwnerNameCollisionUsesEstablishedFieldCode
+--- PASS: TestOwnerNameCollisionUsesEstablishedFieldCode (0.00s)
+=== RUN   TestUnknownUpdateDistinguishesPlanningFromFinalAttempt
+=== RUN   TestUnknownUpdateDistinguishesPlanningFromFinalAttempt/planning
+=== RUN   TestUnknownUpdateDistinguishesPlanningFromFinalAttempt/final
+--- PASS: TestUnknownUpdateDistinguishesPlanningFromFinalAttempt (0.00s)
+    --- PASS: TestUnknownUpdateDistinguishesPlanningFromFinalAttempt/planning (0.00s)
+    --- PASS: TestUnknownUpdateDistinguishesPlanningFromFinalAttempt/final (0.00s)
+=== RUN   TestUnboundCreateMakesNoReservationButReplaysReadyReceipt
+--- PASS: TestUnboundCreateMakesNoReservationButReplaysReadyReceipt (0.00s)
+=== RUN   TestCreationCompletedResultRemainsHistoricalAndBodyGateWins
+--- PASS: TestCreationCompletedResultRemainsHistoricalAndBodyGateWins (0.00s)
+=== RUN   TestEventFactUsesTypedCanonicalPayload
+--- PASS: TestEventFactUsesTypedCanonicalPayload (0.00s)
+=== RUN   TestAppendPlanBindsCurrentSession
+--- PASS: TestAppendPlanBindsCurrentSession (0.00s)
+=== RUN   TestModelProjectEventUsesSameCompletePlanForReadAndMutate
+--- PASS: TestModelProjectEventUsesSameCompletePlanForReadAndMutate (0.00s)
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/session
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/user
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/event
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/digest
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/time
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/aggregate
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/version
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/schema
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/type
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/producer
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/project
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/service
+=== RUN   TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/sequence
+--- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/session (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/user (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/event (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/digest (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/time (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/aggregate (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/version (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/schema (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/type (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/producer (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/project (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/service (0.00s)
+    --- PASS: TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose/sequence (0.00s)
+=== RUN   TestLifecycleAcceptedAuditUsesOriginalOperationAndTransition
+--- PASS: TestLifecycleAcceptedAuditUsesOriginalOperationAndTransition (0.00s)
+=== RUN   TestLifecycleAuthorityConstructionAndCompatibility
+--- PASS: TestLifecycleAuthorityConstructionAndCompatibility (0.00s)
+=== RUN   TestLifecycleEventRequiresExactAcceptanceAndCanonicalPayload
+--- PASS: TestLifecycleEventRequiresExactAcceptanceAndCanonicalPayload (0.00s)
+=== RUN   TestLifecyclePlanPreservesJSONBIdentityAndRejectsDrift
+--- PASS: TestLifecyclePlanPreservesJSONBIdentityAndRejectsDrift (0.00s)
+=== RUN   TestLifecycleProgressValidatesEntireStoredSetBeforeDTOCap
+--- PASS: TestLifecycleProgressValidatesEntireStoredSetBeforeDTOCap (0.00s)
+=== RUN   TestLifecycleStoredManifestAndJSONFailClosed
+--- PASS: TestLifecycleStoredManifestAndJSONFailClosed (0.00s)
+=== RUN   TestLifecycleUnboundServiceAndNewIntentGates
+--- PASS: TestLifecycleUnboundServiceAndNewIntentGates (0.00s)
+=== RUN   TestProjectStopAuthorityRejectsRebuiltWrongPlans
+--- PASS: TestProjectStopAuthorityRejectsRebuiltWrongPlans (0.00s)
+=== RUN   TestOutboxLifecyclePlansRequireIssuerAndExactDependencies
+--- PASS: TestOutboxLifecyclePlansRequireIssuerAndExactDependencies (0.00s)
+=== RUN   TestLifecycleRegistryCurrentManifestAndSkills
+=== RUN   TestLifecycleRegistryCurrentManifestAndSkills/skills=false
+=== RUN   TestLifecycleRegistryCurrentManifestAndSkills/skills=true
+--- PASS: TestLifecycleRegistryCurrentManifestAndSkills (0.00s)
+    --- PASS: TestLifecycleRegistryCurrentManifestAndSkills/skills=false (0.00s)
+    --- PASS: TestLifecycleRegistryCurrentManifestAndSkills/skills=true (0.00s)
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/nil
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/typed-nil
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/name-mismatch
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/empty-name
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/invalid-name
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/zero-version
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/negative-version
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/empty-owner
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/invalid-owner
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/invalid-reference
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/empty-reference
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/duplicate-reference
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/invalid-dependency
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/empty-dependency
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/duplicate-dependency
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/duplicate-tuple
+=== RUN   TestLifecycleRegistryRejectsInvalidBindings/conflicting-tuple
+--- PASS: TestLifecycleRegistryRejectsInvalidBindings (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/nil (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/typed-nil (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/name-mismatch (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/empty-name (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/invalid-name (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/zero-version (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/negative-version (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/empty-owner (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/invalid-owner (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/invalid-reference (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/empty-reference (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/duplicate-reference (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/invalid-dependency (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/empty-dependency (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/duplicate-dependency (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/duplicate-tuple (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsInvalidBindings/conflicting-tuple (0.00s)
+=== RUN   TestLifecycleRegistryRequiresEveryCurrentBinding
+=== RUN   TestLifecycleRegistryRequiresEveryCurrentBinding/artifact-object
+=== RUN   TestLifecycleRegistryRequiresEveryCurrentBinding/secret
+=== RUN   TestLifecycleRegistryRequiresEveryCurrentBinding/outbox
+=== RUN   TestLifecycleRegistryRequiresEveryCurrentBinding/audit
+=== RUN   TestLifecycleRegistryRequiresEveryCurrentBinding/agent-skills-variables
+--- PASS: TestLifecycleRegistryRequiresEveryCurrentBinding (0.00s)
+    --- PASS: TestLifecycleRegistryRequiresEveryCurrentBinding/artifact-object (0.00s)
+    --- PASS: TestLifecycleRegistryRequiresEveryCurrentBinding/secret (0.00s)
+    --- PASS: TestLifecycleRegistryRequiresEveryCurrentBinding/outbox (0.00s)
+    --- PASS: TestLifecycleRegistryRequiresEveryCurrentBinding/audit (0.00s)
+    --- PASS: TestLifecycleRegistryRequiresEveryCurrentBinding/agent-skills-variables (0.00s)
+=== RUN   TestLifecycleRegistryZeroValuesFailClosed
+--- PASS: TestLifecycleRegistryZeroValuesFailClosed (0.00s)
+=== RUN   TestLifecycleRegistryRetainsExactFrozenVersions
+--- PASS: TestLifecycleRegistryRetainsExactFrozenVersions (0.00s)
+=== RUN   TestLifecycleRegistryNeverSubstitutesMissingVersions
+=== RUN   TestLifecycleRegistryNeverSubstitutesMissingVersions/only-current
+=== RUN   TestLifecycleRegistryNeverSubstitutesMissingVersions/partial-old
+=== RUN   TestLifecycleRegistryNeverSubstitutesMissingVersions/cannot-upgrade-current
+=== RUN   TestLifecycleRegistryNeverSubstitutesMissingVersions/cannot-downgrade-current
+--- PASS: TestLifecycleRegistryNeverSubstitutesMissingVersions (0.00s)
+    --- PASS: TestLifecycleRegistryNeverSubstitutesMissingVersions/only-current (0.00s)
+    --- PASS: TestLifecycleRegistryNeverSubstitutesMissingVersions/partial-old (0.00s)
+    --- PASS: TestLifecycleRegistryNeverSubstitutesMissingVersions/cannot-upgrade-current (0.00s)
+    --- PASS: TestLifecycleRegistryNeverSubstitutesMissingVersions/cannot-downgrade-current (0.00s)
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift/owner
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift/reference-shrink
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift/reference-expand
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift/reference-replace
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift/cleanup-shrink
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift/cleanup-expand
+=== RUN   TestLifecycleRegistryRejectsValidFrozenMetadataDrift/cleanup-replace
+--- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift/owner (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift/reference-shrink (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift/reference-expand (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift/reference-replace (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift/cleanup-shrink (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift/cleanup-expand (0.00s)
+    --- PASS: TestLifecycleRegistryRejectsValidFrozenMetadataDrift/cleanup-replace (0.00s)
+=== RUN   TestLifecycleRegistryOrderIgnoresInputAndSetPermutation
+--- PASS: TestLifecycleRegistryOrderIgnoresInputAndSetPermutation (0.00s)
+=== RUN   TestLifecycleRegistryDoesNotExposeMutableMetadata
+--- PASS: TestLifecycleRegistryDoesNotExposeMutableMetadata (0.00s)
+=== RUN   TestLifecycleRegistryConcurrentResolutionAndReads
+--- PASS: TestLifecycleRegistryConcurrentResolutionAndReads (0.03s)
+=== RUN   TestProjectReaderPureConstructionAndServiceAdmission
+    reader_test.go:152: legacy wrapper diverged DEPENDENCY_UNAVAILABLE
+--- FAIL: TestProjectReaderPureConstructionAndServiceAdmission (0.00s)
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/foreign-owner
+    reader_test.go:207: code = DEPENDENCY_UNAVAILABLE, want NOT_FOUND
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/pending
+    reader_test.go:207: code = DEPENDENCY_UNAVAILABLE, want PROJECT_NOT_ACTIVE
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/deleting
+    reader_test.go:207: code = DEPENDENCY_UNAVAILABLE, want PROJECT_NOT_ACTIVE
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/revoked
+    reader_test.go:207: code = DEPENDENCY_UNAVAILABLE, want SESSION_REVOKED
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/unknown
+    reader_test.go:207: code = DEPENDENCY_UNAVAILABLE, want COMMIT_UNKNOWN
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/rollback
+=== RUN   TestProjectReaderPureAuthorityAndCommitTerminal/committed-cancel
+    reader_test.go:204: DEPENDENCY_UNAVAILABLE
+--- FAIL: TestProjectReaderPureAuthorityAndCommitTerminal (0.00s)
+    --- FAIL: TestProjectReaderPureAuthorityAndCommitTerminal/foreign-owner (0.00s)
+    --- FAIL: TestProjectReaderPureAuthorityAndCommitTerminal/pending (0.00s)
+    --- FAIL: TestProjectReaderPureAuthorityAndCommitTerminal/deleting (0.00s)
+    --- FAIL: TestProjectReaderPureAuthorityAndCommitTerminal/revoked (0.00s)
+    --- FAIL: TestProjectReaderPureAuthorityAndCommitTerminal/unknown (0.00s)
+    --- PASS: TestProjectReaderPureAuthorityAndCommitTerminal/rollback (0.00s)
+    --- FAIL: TestProjectReaderPureAuthorityAndCommitTerminal/committed-cancel (0.00s)
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/owner
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/pending
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/creation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/name
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/description
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/version
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/operation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/lifecycle
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/time
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/duplicate
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/order
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/late-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/close-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/0/extra
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/owner
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/pending
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/creation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/name
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/description
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/version
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/operation
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/lifecycle
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/time
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/duplicate
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/order
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/late-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/close-error
+=== RUN   TestProjectReaderPureCompleteRowsAndSentinel/1/extra
+--- PASS: TestProjectReaderPureCompleteRowsAndSentinel (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/owner (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/pending (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/creation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/name (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/description (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/version (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/operation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/lifecycle (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/time (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/duplicate (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/order (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/late-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/close-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/0/extra (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/owner (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/pending (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/creation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/name (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/description (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/version (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/operation (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/lifecycle (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/time (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/duplicate (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/order (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/late-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/close-error (0.00s)
+    --- PASS: TestProjectReaderPureCompleteRowsAndSentinel/1/extra (0.00s)
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/active
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/archived
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/archiving
+=== RUN   TestProjectReaderPureStateProjectionAndActualClose/deleting
+--- PASS: TestProjectReaderPureStateProjectionAndActualClose (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/active (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/archived (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/archiving (0.00s)
+    --- PASS: TestProjectReaderPureStateProjectionAndActualClose/deleting (0.00s)
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession/owner
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession/filter
+=== RUN   TestProjectReaderPureCursorBindingAndCurrentSession/tamper
+--- PASS: TestProjectReaderPureCursorBindingAndCurrentSession (0.00s)
+    --- PASS: TestProjectReaderPureCursorBindingAndCurrentSession/owner (0.00s)
+    --- PASS: TestProjectReaderPureCursorBindingAndCurrentSession/filter (0.00s)
+    --- PASS: TestProjectReaderPureCursorBindingAndCurrentSession/tamper (0.00s)
+=== RUN   TestClaimRequiresActualJoinOrExactDeath
+--- PASS: TestClaimRequiresActualJoinOrExactDeath (0.00s)
+=== RUN   TestUnknownPreservesOriginalAttemptAndCause
+--- PASS: TestUnknownPreservesOriginalAttemptAndCause (0.00s)
+=== RUN   TestStopCancellationIsNotAJoin
+--- PASS: TestStopCancellationIsNotAJoin (0.02s)
+=== RUN   TestSerializedAbsenceConvergesWithOriginalProvenance
+=== RUN   TestSerializedAbsenceConvergesWithOriginalProvenance/create
+=== RUN   TestSerializedAbsenceConvergesWithOriginalProvenance/update
+--- PASS: TestSerializedAbsenceConvergesWithOriginalProvenance (0.00s)
+    --- PASS: TestSerializedAbsenceConvergesWithOriginalProvenance/create (0.00s)
+    --- PASS: TestSerializedAbsenceConvergesWithOriginalProvenance/update (0.00s)
+=== RUN   TestCreationCheckpointSeparatesPendingUnknownAndFailed
+=== RUN   TestCreationCheckpointSeparatesPendingUnknownAndFailed/work_pending
+=== RUN   TestCreationCheckpointSeparatesPendingUnknownAndFailed/outcome_unknown
+=== RUN   TestCreationCheckpointSeparatesPendingUnknownAndFailed/operation_failed
+--- PASS: TestCreationCheckpointSeparatesPendingUnknownAndFailed (0.00s)
+    --- PASS: TestCreationCheckpointSeparatesPendingUnknownAndFailed/work_pending (0.00s)
+    --- PASS: TestCreationCheckpointSeparatesPendingUnknownAndFailed/outcome_unknown (0.00s)
+    --- PASS: TestCreationCheckpointSeparatesPendingUnknownAndFailed/operation_failed (0.00s)
+=== RUN   TestProviderUnknownStateWinsOverDiagnosticCode
+--- PASS: TestProviderUnknownStateWinsOverDiagnosticCode (0.00s)
+=== RUN   TestFailedWriterConfirmationKeepsUnknown
+--- PASS: TestFailedWriterConfirmationKeepsUnknown (0.00s)
+=== RUN   TestCreatePreservesConfirmedFailureAndUncertainInspection
+=== RUN   TestCreatePreservesConfirmedFailureAndUncertainInspection/failed
+=== RUN   TestCreatePreservesConfirmedFailureAndUncertainInspection/failed-checkpoint-unknown
+=== RUN   TestCreatePreservesConfirmedFailureAndUncertainInspection/accept-unknown-failed
+=== RUN   TestCreatePreservesConfirmedFailureAndUncertainInspection/inspect-unknown
+=== RUN   TestCreatePreservesConfirmedFailureAndUncertainInspection/pending-unavailable
+--- PASS: TestCreatePreservesConfirmedFailureAndUncertainInspection (0.00s)
+    --- PASS: TestCreatePreservesConfirmedFailureAndUncertainInspection/failed (0.00s)
+    --- PASS: TestCreatePreservesConfirmedFailureAndUncertainInspection/failed-checkpoint-unknown (0.00s)
+    --- PASS: TestCreatePreservesConfirmedFailureAndUncertainInspection/accept-unknown-failed (0.00s)
+    --- PASS: TestCreatePreservesConfirmedFailureAndUncertainInspection/inspect-unknown (0.00s)
+    --- PASS: TestCreatePreservesConfirmedFailureAndUncertainInspection/pending-unavailable (0.00s)
+=== RUN   TestSecretAuthorityConstructionAndUnboundCapabilities
+--- PASS: TestSecretAuthorityConstructionAndUnboundCapabilities (0.00s)
+=== RUN   TestSecretAuthorityMutationUsesCurrentOwnerMutateGate
+--- PASS: TestSecretAuthorityMutationUsesCurrentOwnerMutateGate (0.00s)
+FAIL

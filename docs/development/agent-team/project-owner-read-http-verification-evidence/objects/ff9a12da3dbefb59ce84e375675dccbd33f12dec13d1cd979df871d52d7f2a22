@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/bin/http-race.test",
+    "-test.run=^TestIndependentProjectOwnerReadHTTPBoundaryRisk$",
+    "-test.count=1",
+    "-test.timeout=45s",
+    "-test.v"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay02/tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+  "plan_sha256": "30600871dc0ab07d42bffaad5e585aa67fadc35280796c99439d8c7dd74d18b1",
+  "tool_before_sha256": "7e394717acb5aace579fd99411850b63e6a7fe5e2c82ca52371d756350da6180",
+  "started_unix": 1791391682.9642262,
+  "subreaper": true,
+  "main_pid": 513411
+}

@@ -1,0 +1,40 @@
+--- candidate02/internal/central/project/reader_test.go
++++ candidate03/internal/central/project/reader_test.go
+@@ -58,8 +58,13 @@
+ 	return nil
+ }
+ func (s *readerStore) RequireHeldLocks(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
+-	if tx != s.tx || !reflect.DeepEqual(locks, s.locks) {
++	if tx != s.tx || len(locks) != len(s.locks) {
+ 		return errors.New("missing held locks")
++	}
++	for i, lock := range locks {
++		if f.CompareLockKeys(lock.Key, s.locks[i].Key) != 0 || lock.Mode != s.locks[i].Mode {
++			return errors.New("missing held locks")
++		}
+ 	}
+ 	return nil
+ }
+--- candidate02/internal/central/project/http/wire_test.go
++++ candidate03/internal/central/project/http/wire_test.go
+@@ -176,9 +176,9 @@
+ 			p := wireProject()
+ 			switch damage {
+ 			case "owner":
+-				p.OwnerUserID = ""
++				p.OwnerUserID = id.UserID{}
+ 			case "id":
+-				p.ID = ""
++				p.ID = pc.ProjectID{}
+ 			case "normalized":
+ 				p.NormalizedName = "wrong"
+ 			case "description":
+@@ -192,7 +192,7 @@
+ 			case "version":
+ 				p.Version = 0
+ 			case "sprint":
+-				p.CurrentSprintID = wirePtr(pc.SprintID("bad"))
++				p.CurrentSprintID = wirePtr(pc.SprintID{})
+ 			}
+ 			if raw, e := encodeProject(context.Background(), wireActor(), wireID[id.Project](), p); e == nil || raw != nil {
+ 				t.Fatal("bad detail published")

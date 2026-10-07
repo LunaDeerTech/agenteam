@@ -1,0 +1,58 @@
+{
+  "scope": "Only private B fallback assertion repair; source and imports unchanged otherwise; format and affected model race compile only",
+  "runner_sha256": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/closure-delta.json",
+    "sha256": "e207282e795fa4a1326aa3d1c50e05be38ee2563e26dc593b1decbcbfe5de7e3"
+  },
+  "tools": {
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "environment": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-read-http-verification/overlay04/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay04/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay04/tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "output_root": "/workspace/scratch/project-owner-read-http-verification/overlay04/offline",
+  "commands": [
+    {
+      "label": "f03-private-b-format",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-d",
+        "/workspace/scratch/project-owner-read-http-verification/overlay04/independent_owner_read_test.go"
+      ],
+      "stdout_empty": true
+    },
+    {
+      "label": "c04-model-race",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-p=1",
+        "-c",
+        "-o",
+        "/workspace/scratch/project-owner-read-http-verification/overlay04/bin/model-race.test",
+        "./tests/model"
+      ],
+      "binary_output": "/workspace/scratch/project-owner-read-http-verification/overlay04/bin/model-race.test"
+    }
+  ]
+}

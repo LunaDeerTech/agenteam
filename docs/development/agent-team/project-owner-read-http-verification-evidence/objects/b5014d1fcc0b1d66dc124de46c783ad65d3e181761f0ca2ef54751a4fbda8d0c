@@ -1,0 +1,21 @@
+{
+  "driver_sha256": "2fa2d159f57eef5295e27efe050385632ccb328f91d043c56a86c81d66fb61f2",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/resource-closure.json",
+    "sha256": "2641a865aff878ac5808d639c1b1a7ba017b367d6b8c9c8686355935c2b7cb90"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay04/overlay.json",
+    "sha256": "cf6f3c920c33792abddec8f345fa9522aacd41b3a8f4fc4b0d24d89420e985fd"
+  },
+  "driver_runtime_source": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/frozen.json",
+    "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+  },
+  "template": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/driver.py",
+    "sha256": "feff2997a0c24cb9dd2a80399c5698d60344f8d179d5d46c7195da7e867c0150"
+  },
+  "resource_authorization": "Root authorized only B02 after private scratch correction, format/affected compile/list/input gate PASS; A result reused unchanged.",
+  "status": "PRIVATE_B02_OFFLINE_PREPARED"
+}

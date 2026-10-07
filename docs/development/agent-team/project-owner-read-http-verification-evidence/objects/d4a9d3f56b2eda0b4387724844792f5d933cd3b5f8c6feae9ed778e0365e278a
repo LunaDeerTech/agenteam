@@ -1,0 +1,9 @@
+# D08 native proposed window
+
+Candidate03; no source editing or prior unauthorized app result reused. Run serial keepalive → slowbody → writeclose, stop on any failure. Exact source top names are card §7.2; expected listener/subcase counts 1/0,4/4,5/5. Existing S2 native trace parser unchanged; new strace -D/-f captures actual process/network/close syscalls before each case.
+
+Fresh>=2GiB at scratch and /tmp, original process/socket baseline, actual direct/adopted waits, trace pair/owned port identification, two owned process+all TCP port rows empty (including TIME_WAIT) observations; no PG/Docker. Inputs bind candidate03, actual ordinary/race Go graph, existing3source closure, toolchain, http-race.test, strace/parser/Python and native driver.
+
+Binary35s; driver intervenes42s, original force/wait and safety cleanup preserved. Cleanup may take extra time for actual reaping/TIME_WAIT (original15s adopted+75s socket polling); this is resource retirement rather than extending testcase. Each group separate label directory. No shell command or test body has run through this driver.
+
+Command form after root authorization: `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/scratch/project-owner-read-http-author/native-driver-v01/driver.py keepalive --execute-authorized` then slowbody/writeclose only after prior PASS+complete cleanup and root permits continuation.

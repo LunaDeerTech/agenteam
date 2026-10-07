@@ -1,0 +1,69 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "/workspace/scratch/project-owner-read-http-verification/schema-prep01/import-graph.py"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-read-http-verification/overlay03/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/schema-prep01/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/schema-prep01/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "fd1e66e1d1c22fa5b37dc309d1c94b8fa79d85f000f46eaedd9af3c0e166d893",
+  "plan_sha256": "bb8312c0d7e1d77443649351507ebb41743884cdff765e2fef52ca89dc5c208c",
+  "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "started_unix": 1791392326.6079717,
+  "subreaper": true,
+  "main_pid": 553125,
+  "actual_exit": -15,
+  "actual_wait": true,
+  "execution_seconds": 45.06734462699751,
+  "total_seconds": 45.74102806600058,
+  "observed_processes": [
+    {
+      "pid": 553125,
+      "starttime": "1827843",
+      "ppid": 553033,
+      "pgrp": 553125,
+      "state": "R"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [
+    {
+      "pid": 553125,
+      "starttime": "1827843",
+      "signal": "SIGTERM"
+    }
+  ],
+  "cleanup_twice": [
+    {
+      "time": 1791392371.6834896,
+      "remaining": []
+    },
+    {
+      "time": 1791392371.7867732,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": false
+}

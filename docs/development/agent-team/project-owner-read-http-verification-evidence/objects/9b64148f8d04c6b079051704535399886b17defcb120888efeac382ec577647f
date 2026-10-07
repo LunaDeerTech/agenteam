@@ -1,0 +1,1 @@
+First extractor incorrectly counted dependency TestGoFiles/XTestGoFiles, which are descriptive metadata, as compiled inputs. Original overbroad extraction retained. Correct extraction uses GoFiles and EmbedFiles from actual ordinary/test variants; no Go command rerun or product/test result change.

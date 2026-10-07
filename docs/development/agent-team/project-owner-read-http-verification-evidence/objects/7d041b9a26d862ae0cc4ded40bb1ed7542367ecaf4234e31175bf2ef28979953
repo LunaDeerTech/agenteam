@@ -1,0 +1,15 @@
+{
+  "source": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/schema-prep01/import-graph.py",
+    "sha256": "48d8021a6f9b5f310ee1ee88f5020481d0c075da335fa70ac5965efc6c3a0483"
+  },
+  "result": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/schema-prep01/offline/s01-import-graph/result.json",
+    "sha256": "0cdfd6f663c5a741309d4447f72a1e9cee51e9d9f5dce7148a4ed2543b426470"
+  },
+  "actual_exit": -15,
+  "actual_wait": true,
+  "double_owned_empty": true,
+  "cause": "Audit hook appended opened data path while for-loop iterated the same list; snapshot tuple prevents self-appending work.",
+  "production_or_body_change": false
+}

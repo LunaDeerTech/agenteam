@@ -1,0 +1,191 @@
+{
+  "status": "REVIEWED_AUTHOR_PG_VERSION_COMBINATION_PASS",
+  "source": {
+    "path": "/workspace/scratch/project-owner-read-http-author/author-final01/result.json",
+    "sha256": "cf3f0809b46989ae552acbd1137568440200a1c57f35ecd00df2e348cc9cf62c"
+  },
+  "rounds": [
+    {
+      "run": "new1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "19bcf86f5234eb10b37c4e3dd8c6a0ceaafd6a14324c4cb178bc62230c5c1f3e"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new1/raw.log",
+        "sha256": "e0552daead458d0a8baf9bc53717ea47753c4ce132da671c0b8debddcc41b161"
+      },
+      "exit": 0,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPProjectionAndPaging",
+          "5.61"
+        ]
+      ],
+      "actual_wait": true,
+      "double7clear": true,
+      "new_daemon_not_owned_or_waited": 4
+    },
+    {
+      "run": "new2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "31d1b42a086514e8b2ed2ff8cd4c557bbf4afe62de8a7e6c95e4d36c36cb817e"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new2/raw.log",
+        "sha256": "83d0c1a98e858629af2513abcfe491249433d73f4b0473449aa479f35f8219b5"
+      },
+      "exit": 0,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPAuthorityAndTerminal",
+          "5.88"
+        ]
+      ],
+      "actual_wait": true,
+      "double7clear": true,
+      "new_daemon_not_owned_or_waited": 4
+    },
+    {
+      "run": "new3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/result.json",
+        "sha256": "d8ae5689a7502e1e180276d5a96c786d5dcea9a998c24adc124112944aefc665"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3/raw.log",
+        "sha256": "ae29c85b6264595c499ec50f824de4eba5897460d10378f1dc00b00b2323fb46"
+      },
+      "exit": 1,
+      "top_results": [
+        [
+          "FAIL",
+          "TestModelProjectOwnerReadHTTPRootBinding",
+          "5.02"
+        ]
+      ],
+      "actual_wait": true,
+      "double7clear": true,
+      "new_daemon_not_owned_or_waited": 4
+    },
+    {
+      "run": "new3-rerun",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/result.json",
+        "sha256": "8c560b0a7049fb63477fc33b77568690da45afc1bf9c367a6f7098ae55b483de"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/new3-rerun/raw.log",
+        "sha256": "f1de4e4c937455425cd057863728b95ef8ddab4b6b1b4eba393610483d7205ec"
+      },
+      "exit": 0,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPRootBinding",
+          "5.27"
+        ]
+      ],
+      "actual_wait": true,
+      "double7clear": true,
+      "new_daemon_not_owned_or_waited": 4
+    },
+    {
+      "run": "old1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/result.json",
+        "sha256": "9372165ec0281c38242eaf4d6c1c877363b3d49bd0c58ee889c630caf44684dc"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/runs/old1/raw.log",
+        "sha256": "e43cab9edacf4d8d8daf344172bd88295bca4ca37eb00862bcf40d34f57bbbd6"
+      },
+      "exit": 1,
+      "top_results": [
+        [
+          "PASS",
+          "TestProjectB02OwnerSessionNamePathAndPaging",
+          "1.19"
+        ],
+        [
+          "PASS",
+          "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+          "1.01"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding",
+          "4.91"
+        ],
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPProjectionAndPath",
+          "6.43"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator",
+          "4.25"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire",
+          "1.99"
+        ]
+      ],
+      "actual_wait": true,
+      "double7clear": true,
+      "new_daemon_not_owned_or_waited": 4
+    },
+    {
+      "run": "usage-rerun1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/result.json",
+        "sha256": "8ffdddb3933e9f306a5a2aff15014379774242440d0d824b8dc2d9d159e49a5e"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/runs/usage-rerun1/raw.log",
+        "sha256": "9f0f935c0070211d18de90fc744d4aa11c4914dab0c29f3274d8beeb10b1b4fd"
+      },
+      "exit": 0,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath",
+          "5.36"
+        ]
+      ],
+      "actual_wait": true,
+      "double7clear": true,
+      "new_daemon_not_owned_or_waited": 4
+    }
+  ],
+  "accepted_distinct_tops": [
+    "TestModelProjectOwnerReadHTTPAuthorityAndTerminal",
+    "TestModelProjectOwnerReadHTTPProjectionAndPaging",
+    "TestModelProjectOwnerReadHTTPRootBinding",
+    "TestModelProjectUsageHTTPProjectionAndPath",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelSystemHTTPBoundaryAndStrictWire",
+    "TestModelSystemHTTPCurrentAdministrator",
+    "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+    "TestProjectB02OwnerSessionNamePathAndPaging"
+  ],
+  "reuse": {
+    "new1": "candidate03/new1 Projection PASS",
+    "new2": "candidate03/new2 Terminal PASS",
+    "root": "candidate04/new3-rerun PASS; original candidate03/new3 FAIL retained",
+    "old6": "candidate04/old1 five PASS + driver-v02/usage-rerun1 Usage PASS; original old1 FAIL retained"
+  },
+  "original_failed_rounds": [
+    "new3",
+    "old1"
+  ],
+  "limits": [
+    "Each round has actual wait and exact seven-resource double cleanup; daemon/PID1 zombies are separate and not task-owned/waited.",
+    "Five old1 passing tops reused, only missing-schema-env Usage failed top rerun; no claim all six old tops passed in one final run."
+  ]
+}

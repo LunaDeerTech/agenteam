@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38"
+  },
+  "delta_reuse": "Private probe bytes/imports unchanged. Prior two actual graphs, HTTP controlled race and both vet results reused; only changed model package race compile and exact2 list rerun.",
+  "prior_offline": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline-result.json",
+    "sha256": "b9092a0fad0037540e873321d2f1f110a740a5bf28cc4a6db6fb81e7077ba98c"
+  },
+  "affected_runs": [
+    {
+      "label": "c03-model-race",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/offline/c03-model-race/result.json",
+      "sha256": "2693c510f4ecd5abb197e9c4b8415d71deacae16e7968f256bc4925530d20b6a",
+      "actual_exit": 0,
+      "execution_seconds": 6.0661067190012545
+    },
+    {
+      "label": "l02-independent-model",
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay03/offline/l02-independent-model/result.json",
+      "sha256": "c307c0bc49e862510d237dcc02177a1f60132027e1a7121011f11cc269c91470",
+      "actual_exit": 0,
+      "execution_seconds": 1.0379004509995866
+    }
+  ],
+  "actual_resources": 0
+}

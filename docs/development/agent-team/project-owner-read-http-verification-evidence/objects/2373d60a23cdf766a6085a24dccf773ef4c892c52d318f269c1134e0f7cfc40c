@@ -1,0 +1,173 @@
+// DRAFT: frozen candidate01 seams; not formatted, compiled or executed.
+package projecthttp
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
+	"io"
+	"math"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+func TestIndependentProjectOwnerReadHTTPBoundaryRisk(t *testing.T) {
+	t.Run("complete-maximum-escaped-page-GET-and-HEAD", func(t *testing.T) {
+		// Independent data: '<' instead of the author's '&', exactly 100 rows
+		// with a terminal null cursor. The actual handler performs both encodes.
+		description := strings.Repeat("<", 8192)
+		page := f.Page[pc.ProjectListItem]{Items: make([]pc.ProjectListItem, 100)}
+		for i := range page.Items {
+			projectID, err := f.ParseID[id.Project](fmt.Sprintf("01900000-0000-7000-8000-%012x", i+101))
+			if err != nil {
+				t.Fatal(err)
+			}
+			operationID, err := f.ParseID[pc.Operation](fmt.Sprintf("01900000-0000-7000-8000-%012x", i+301))
+			if err != nil {
+				t.Fatal(err)
+			}
+			text := description
+			page.Items[i] = pc.ProjectListItem{ID: projectID, Name: strings.Repeat("N", 64), Lifecycle: pc.Archiving, Version: f.Version(math.MaxInt64), Description: &text, OperationID: &operationID}
+		}
+		h, b, s := handlerFixture()
+		var authentication context.Context
+		b.auth = func(r *http.Request) (id.Actor, error) { authentication = r.Context(); return wireActor(), nil }
+		s.list = func(ctx context.Context, actor id.Actor, request pc.ListOwnedProjectsRequest, p f.PageRequest) (f.Page[pc.ProjectListItem], error) {
+			if ctx != authentication || !actor.Equal(wireActor()) || p.Limit != 100 || p.Cursor != "" || len(request.Lifecycle) != 1 || request.Lifecycle[0] != pc.Archiving {
+				t.Error("maximum page detached current request binding")
+			}
+			return page, nil
+		}
+		var getLength string
+		for _, method := range []string{"GET", "HEAD"} {
+			body := &handlerBody{Reader: strings.NewReader("")}
+			r := httptest.NewRequest(method, "/api/v1/projects?limit=100&lifecycle=archiving", nil)
+			r.Body = body
+			w := newHandlerWriter()
+			h.ServeHTTP(w, r)
+			if w.Code != 200 || body.closes.Load() != 1 || w.flushes != 1 || w.Header().Get("Content-Type") != "application/json" || w.Header().Get("Cache-Control") != "no-store" {
+				t.Fatal("maximum page not completely handled")
+			}
+			w.assertCleared(t)
+			if method == "HEAD" {
+				if w.Body.Len() != 0 || w.Header().Get("Content-Length") != getLength {
+					t.Fatal("maximum HEAD skipped full representation or emitted body")
+				}
+				continue
+			}
+			raw := w.Body.Bytes()
+			getLength = strconv.Itoa(len(raw))
+			if w.Header().Get("Content-Length") != getLength || len(raw) > 5<<20 || bytes.Count(raw, []byte(`\u003c`)) != 100*8192 {
+				t.Fatal("maximal escaped body exceeded bound or lost description bytes")
+			}
+			var result struct {
+				Items  []map[string]json.RawMessage `json:"items"`
+				Cursor json.RawMessage              `json:"next_cursor"`
+			}
+			if json.Unmarshal(raw, &result) != nil || len(result.Items) != 100 || !bytes.Equal(result.Cursor, []byte("null")) {
+				t.Fatal("maximum page shell lost items or terminal cursor")
+			}
+			for i, item := range result.Items {
+				var text, version, projectID, operationID string
+				if len(item) != 6 || json.Unmarshal(item["description"], &text) != nil || text != description || json.Unmarshal(item["version"], &version) != nil || version != "9223372036854775807" || json.Unmarshal(item["id"], &projectID) != nil || projectID != page.Items[i].ID.String() || json.Unmarshal(item["operation_id"], &operationID) != nil || operationID != page.Items[i].OperationID.String() {
+					t.Fatal("maximum row truncated, reordered or changed precision")
+				}
+			}
+			t.Logf("INDEPENDENT_MAX_PAGE bytes=%d sha256=%x rows=100 description_bytes=8192 escaped_less_than=%d", len(raw), sha256.Sum256(raw), bytes.Count(raw, []byte(`\u003c`)))
+		}
+		if s.lists.Load() != 2 || s.gets.Load() != 0 || b.auths.Load() != 2 {
+			t.Fatal("GET and HEAD did not both perform full current read")
+		}
+	})
+
+	t.Run("earlier-parent-Flush-and-callback-both-actually-join", func(t *testing.T) {
+		parent, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
+		defer cancel()
+		h, _, _ := handlerFixture()
+		w := newHandlerWriter()
+		bodyClosed := make(chan struct{})
+		body := &handlerBody{Reader: strings.NewReader(""), close: func() error { close(bodyClosed); return nil }}
+		flushEntered, flushRelease, flushReturned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+		callbackEntered, callbackRelease := make(chan struct{}), make(chan struct{})
+		var flushOnce, callbackOnce sync.Once
+		unblockFlush := func() { flushOnce.Do(func() { close(flushRelease) }) }
+		unblockCallback := func() { callbackOnce.Do(func() { close(callbackRelease) }) }
+		var callback atomic.Bool
+		w.write = func(data []byte) (int, error) {
+			select {
+			case <-bodyClosed:
+			default:
+				t.Error("body Close had not completed before Write")
+				return 0, io.ErrClosedPipe
+			}
+			return w.ResponseRecorder.Write(data)
+		}
+		w.flush = func() error { close(flushEntered); <-flushRelease; close(flushReturned); return nil }
+		w.setRead = func(deadline time.Time) error {
+			if !deadline.IsZero() && !deadline.After(time.Now()) && callback.CompareAndSwap(false, true) {
+				close(callbackEntered)
+				<-callbackRelease
+			}
+			return nil
+		}
+		r := httptest.NewRequest("GET", "/api/v1/projects", nil).WithContext(parent)
+		r.Body = body
+		done, joined := make(chan bool, 1), make(chan struct{})
+		go func() { defer close(joined); done <- handlerAborts(func() { h.ServeHTTP(w, r) }) }()
+		t.Cleanup(func() { cancel(); unblockFlush(); unblockCallback(); <-joined })
+		select {
+		case <-flushEntered:
+		case <-time.After(time.Second):
+			t.Fatal("real synchronous Flush phase not reached")
+		}
+		<-parent.Done()
+		select {
+		case <-callbackEntered:
+		case <-time.After(time.Second):
+			t.Fatal("earlier-parent callback did not enter")
+		}
+		stillOwned := func() {
+			select {
+			case <-done:
+				t.Fatal("handler returned while a real tail was blocked")
+			default:
+			}
+			w.mu.Lock()
+			cleared := len(w.reads) > 0 && w.reads[len(w.reads)-1].IsZero() || len(w.writes) > 0 && w.writes[len(w.writes)-1].IsZero()
+			w.mu.Unlock()
+			if cleared {
+				t.Fatal("deadlines cleared before actual tail join")
+			}
+		}
+		stillOwned()
+		unblockFlush()
+		<-flushReturned
+		select {
+		case <-done:
+			t.Fatal("Flush returned but cancellation callback was abandoned")
+		case <-time.After(25 * time.Millisecond):
+		}
+		stillOwned()
+		unblockCallback()
+		if !handlerJoined(t, done) {
+			t.Fatal("expired partially-written request did not abort")
+		}
+		<-joined
+		if body.closes.Load() != 1 || w.flushes != 1 || bytes.Contains(w.Body.Bytes(), []byte("application/problem+json")) {
+			t.Fatal("I/O completion duplicated Close/Flush or appended Problem")
+		}
+		w.assertCleared(t)
+	})
+}

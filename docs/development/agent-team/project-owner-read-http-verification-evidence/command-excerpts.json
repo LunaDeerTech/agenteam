@@ -1,0 +1,3819 @@
+{
+  "kind": "DERIVED PREPARATION03 not original bytes",
+  "records": {
+    "/workspace/scratch/project-owner-read-http-author/project-purecompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purecompile01/result.json",
+        "sha256": "d47d199e7d7bde0bf1d0adc12c2052c5640db0690bbefc1d358e92ab1f28cc1a",
+        "bytes": 477289
+      },
+      "fields": {
+        "command_exit_code": 1,
+        "timed_out": false,
+        "elapsed_seconds": 0.643560566000815,
+        "direct_child_pid": 505221,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 505221,
+            "ppid": 505218,
+            "pgid": 505221,
+            "state": "Z",
+            "starttime": "1697726"
+          },
+          {
+            "pid": 505240,
+            "ppid": 505221,
+            "pgid": 505221,
+            "state": "R",
+            "starttime": "1697739"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 1,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "9488a44f937197a5b9e61f781436174794bcc506ac945f1d76e169ab4fbf8e9e"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purecompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purecompile01/command.json",
+        "sha256": "a56ae3150fa28e8d04119dc85e25d75768c5d876833e089a32ed5e1497a84287",
+        "bytes": 477712
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/project-pure.test",
+          "./internal/central/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 505218,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e2acc3c06004d621aa20b474aab8d6949e596be65e7d1511b37d9bd7218f723a",
+        "started_utc": "2026-10-07T16:37:05Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purecompile02/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purecompile02/result.json",
+        "sha256": "4c50ea30ae1b4eade65e8547d8a4ec0fa87c7227af903cdfc81ab4016acfdffd",
+        "bytes": 507731
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.4481354109993845,
+        "direct_child_pid": 505722,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 505722,
+            "ppid": 505718,
+            "pgid": 505722,
+            "state": "Z",
+            "starttime": "1702092"
+          },
+          {
+            "pid": 505741,
+            "ppid": 505722,
+            "pgid": 505722,
+            "state": "S",
+            "starttime": "1702108"
+          },
+          {
+            "pid": 505766,
+            "ppid": 505722,
+            "pgid": 505722,
+            "state": "R",
+            "starttime": "1702290"
+          },
+          {
+            "pid": 505774,
+            "ppid": 505722,
+            "pgid": 505722,
+            "state": "Z",
+            "starttime": "1702293"
+          },
+          {
+            "pid": 505782,
+            "ppid": 505722,
+            "pgid": 505722,
+            "state": "S",
+            "starttime": "1702363"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purecompile02/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purecompile02/command.json",
+        "sha256": "b3a651971e9f6524af5cd456ef18bbaad8a40f450fe3e14f5386f24d8ca0cdaa",
+        "bytes": 507772
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/project-pure.test",
+          "./internal/central/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 505718,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "9ec28f665f02f408364f0611e4124df1a3f937d1c1297a01bcdb486fab3f378b",
+        "started_utc": "2026-10-07T16:37:48Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purerun01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purerun01/result.json",
+        "sha256": "41ed93f0c6cef7fae27abde525d6e6dbcb16917e4aaf4eb60eb9929afa78741d",
+        "bytes": 507366
+      },
+      "fields": {
+        "command_exit_code": 1,
+        "timed_out": false,
+        "elapsed_seconds": 0.5421808829996735,
+        "direct_child_pid": 506042,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 506042,
+            "ppid": 506039,
+            "pgid": 506042,
+            "state": "Z",
+            "starttime": "1704587"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 1,
+        "stdout.log_sha256": "75712e9ff4d3cbc3014b47d2d95a2a064dbeb733886f95f08ca5151d42064096",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purerun01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purerun01/command.json",
+        "sha256": "5115c0f4a52bd725025a812a65456af1e320416b45c3f9ea60ff9330c563582c",
+        "bytes": 507890
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/project-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 506039,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "311a87ff2ebaf6ff18303d031340f51a85e3debff0d41983dbf05c4d34d5e2c0",
+        "started_utc": "2026-10-07T16:38:13Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-purecompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-purecompile01/result.json",
+        "sha256": "4601ff8fa39d1c30f0a183bbd5b534fc40262b6b6e036d4354cfdfb854852c99",
+        "bytes": 507476
+      },
+      "fields": {
+        "command_exit_code": 1,
+        "timed_out": false,
+        "elapsed_seconds": 1.845806129000266,
+        "direct_child_pid": 506101,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 506101,
+            "ppid": 506098,
+            "pgid": 506101,
+            "state": "Z",
+            "starttime": "1705131"
+          },
+          {
+            "pid": 506120,
+            "ppid": 506101,
+            "pgid": 506101,
+            "state": "S",
+            "starttime": "1705148"
+          },
+          {
+            "pid": 506152,
+            "ppid": 506101,
+            "pgid": 506101,
+            "state": "R",
+            "starttime": "1705257"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 1,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "0260b8eb2fd5fe2d5e2a0de98529c83860b4c27d0b8a1764c59f4807f593fa66"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-purecompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-purecompile01/command.json",
+        "sha256": "02427b429d13e9f8a3ff431c6fa3589421dc24aedeacd29e00274eb499612885",
+        "bytes": 507774
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/http-pure.test",
+          "./internal/central/project/http"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 506098,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "9ec28f665f02f408364f0611e4124df1a3f937d1c1297a01bcdb486fab3f378b",
+        "started_utc": "2026-10-07T16:38:19Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purecompile03/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purecompile03/result.json",
+        "sha256": "04c396d164ff8722a1d70a44603f3356e98797cd14c6cc1c6b82d89cd3eeb5c4",
+        "bytes": 507731
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.0486573460002546,
+        "direct_child_pid": 506800,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 506800,
+            "ppid": 506797,
+            "pgid": 506800,
+            "state": "Z",
+            "starttime": "1711162"
+          },
+          {
+            "pid": 506838,
+            "ppid": 506800,
+            "pgid": 506800,
+            "state": "R",
+            "starttime": "1711178"
+          },
+          {
+            "pid": 506870,
+            "ppid": 506800,
+            "pgid": 506800,
+            "state": "R",
+            "starttime": "1711340"
+          },
+          {
+            "pid": 506878,
+            "ppid": 506800,
+            "pgid": 506800,
+            "state": "S",
+            "starttime": "1711344"
+          },
+          {
+            "pid": 506919,
+            "ppid": 506800,
+            "pgid": 506800,
+            "state": "R",
+            "starttime": "1711406"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purecompile03/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purecompile03/command.json",
+        "sha256": "4378a777e8677db6d6cb7f685c21862a743ac18ec3cd5b18f6782cc3a866ae11",
+        "bytes": 507772
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/project-pure.test",
+          "./internal/central/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 506797,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:39:19Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-purecompile02/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-purecompile02/result.json",
+        "sha256": "81c9290d54d4b0d6dd939121a5b575eb073c231c380ec1c6a5414552d88b3b57",
+        "bytes": 507604
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.9551894060023187,
+        "direct_child_pid": 506847,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 506847,
+            "ppid": 506844,
+            "pgid": 506847,
+            "state": "Z",
+            "starttime": "1711294"
+          },
+          {
+            "pid": 506866,
+            "ppid": 506847,
+            "pgid": 506847,
+            "state": "R",
+            "starttime": "1711315"
+          },
+          {
+            "pid": 506890,
+            "ppid": 506847,
+            "pgid": 506847,
+            "state": "R",
+            "starttime": "1711366"
+          },
+          {
+            "pid": 506927,
+            "ppid": 506847,
+            "pgid": 506847,
+            "state": "S",
+            "starttime": "1711436"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-purecompile02/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-purecompile02/command.json",
+        "sha256": "10def8f09d0a6f4735a7878eef1103cfc3aa3fea620ebab29286ff570e7ea80c",
+        "bytes": 507774
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/http-pure.test",
+          "./internal/central/project/http"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 506844,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:39:20Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purerun02/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purerun02/result.json",
+        "sha256": "f3b3e04059a24c78790380096e0ff0221694b9f988d8148153c848ace1acabf3",
+        "bytes": 507506
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5642791629979911,
+        "direct_child_pid": 507105,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 507105,
+            "ppid": 507102,
+            "pgid": 507105,
+            "state": "Z",
+            "starttime": "1713003"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "50adc7c75eddeb4052c4c2da0fc1f008bc14fe64859da990285e7a13eb1eafea",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-purerun02/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-purerun02/command.json",
+        "sha256": "1dd14216d1c49fc1c45b0b77f9c8fcc813c0cabc327ee80087e796e7b060f5b2",
+        "bytes": 508070
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/project-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s",
+          "-test.run=^TestProjectReaderPure"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 507102,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "865c22ceb924f5158c2aef410a4e7e3aee77ba5808f78d85971b68d51e17fc82",
+        "started_utc": "2026-10-07T16:39:37Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-purerun01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-purerun01/result.json",
+        "sha256": "ebaed51b9fec2e209c5032b34635c2b223d237ad5ae3119f8034a3c10169dd56",
+        "bytes": 507632
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 4.810246534001635,
+        "direct_child_pid": 507134,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 507134,
+            "ppid": 507131,
+            "pgid": 507134,
+            "state": "Z",
+            "starttime": "1713120"
+          },
+          {
+            "pid": 507182,
+            "ppid": 507134,
+            "pgid": 507134,
+            "state": "R",
+            "starttime": "1713541"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "08987d4f17419366e62933d71f550b46299239179ec36e95cc3cf723725780ad",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-purerun01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-purerun01/command.json",
+        "sha256": "1d760084d41c7efd3c2d296c759a0cfe986cbd7b39cec080b114507c9404429e",
+        "bytes": 508032
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/http-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project/http",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 507131,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "865c22ceb924f5158c2aef410a4e7e3aee77ba5808f78d85971b68d51e17fc82",
+        "started_utc": "2026-10-07T16:39:38Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-purecompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-purecompile01/result.json",
+        "sha256": "3316b3d5a728d3d9129d07775ae3c5f2f0630e2fef13ad9d32602a8ced5e348c",
+        "bytes": 508112
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.4071616379987972,
+        "direct_child_pid": 507216,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 507216,
+            "ppid": 507213,
+            "pgid": 507216,
+            "state": "Z",
+            "starttime": "1713782"
+          },
+          {
+            "pid": 507235,
+            "ppid": 507216,
+            "pgid": 507216,
+            "state": "R",
+            "starttime": "1713801"
+          },
+          {
+            "pid": 507239,
+            "ppid": 507216,
+            "pgid": 507216,
+            "state": "Z",
+            "starttime": "1713821"
+          },
+          {
+            "pid": 507243,
+            "ppid": 507216,
+            "pgid": 507216,
+            "state": "S",
+            "starttime": "1713846"
+          },
+          {
+            "pid": 507283,
+            "ppid": 507216,
+            "pgid": 507216,
+            "state": "S",
+            "starttime": "1713959"
+          },
+          {
+            "pid": 507291,
+            "ppid": 507216,
+            "pgid": 507216,
+            "state": "R",
+            "starttime": "1714055"
+          },
+          {
+            "pid": 507295,
+            "ppid": 507216,
+            "pgid": 507216,
+            "state": "S",
+            "starttime": "1714059"
+          },
+          {
+            "pid": 507299,
+            "ppid": 507216,
+            "pgid": 507216,
+            "state": "R",
+            "starttime": "1714063"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-purecompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-purecompile01/command.json",
+        "sha256": "637af2c8a1f57f0fd5d8ceb50d5ae6ac4706e03eb9337ec01e66df92a1921086",
+        "bytes": 507764
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/app-pure.test",
+          "./internal/central/app"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 507213,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:39:45Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-racecompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-racecompile01/result.json",
+        "sha256": "92c4782f5f1cf882d9840ba33d73bb16143e104ae55ed956c8a3bffeecaf6c80",
+        "bytes": 507730
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 4.842690648998541,
+        "direct_child_pid": 507514,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 507514,
+            "ppid": 507501,
+            "pgid": 507514,
+            "state": "Z",
+            "starttime": "1715887"
+          },
+          {
+            "pid": 507564,
+            "ppid": 507514,
+            "pgid": 507514,
+            "state": "S",
+            "starttime": "1715911"
+          },
+          {
+            "pid": 507653,
+            "ppid": 507514,
+            "pgid": 507514,
+            "state": "R",
+            "starttime": "1716217"
+          },
+          {
+            "pid": 507667,
+            "ppid": 507514,
+            "pgid": 507514,
+            "state": "S",
+            "starttime": "1716222"
+          },
+          {
+            "pid": 507690,
+            "ppid": 507514,
+            "pgid": 507514,
+            "state": "R",
+            "starttime": "1716306"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-racecompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-racecompile01/command.json",
+        "sha256": "d9949648c30648266fd04df822e6149b1b7661fb09075f7c21e8734f6875bd6e",
+        "bytes": 507785
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/project-race.test",
+          "./internal/central/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 507501,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:40:06Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-racecompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-racecompile01/result.json",
+        "sha256": "05b4d9bb9941a693e2a87e2f7448edb763988f06b3427df4c5875767070ab6a2",
+        "bytes": 507984
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 4.688755428996956,
+        "direct_child_pid": 507506,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 507506,
+            "ppid": 507497,
+            "pgid": 507506,
+            "state": "Z",
+            "starttime": "1715886"
+          },
+          {
+            "pid": 507568,
+            "ppid": 507506,
+            "pgid": 507506,
+            "state": "R",
+            "starttime": "1715912"
+          },
+          {
+            "pid": 507609,
+            "ppid": 507506,
+            "pgid": 507506,
+            "state": "R",
+            "starttime": "1716117"
+          },
+          {
+            "pid": 507641,
+            "ppid": 507506,
+            "pgid": 507506,
+            "state": "R",
+            "starttime": "1716192"
+          },
+          {
+            "pid": 507649,
+            "ppid": 507506,
+            "pgid": 507506,
+            "state": "S",
+            "starttime": "1716196"
+          },
+          {
+            "pid": 507677,
+            "ppid": 507506,
+            "pgid": 507506,
+            "state": "R",
+            "starttime": "1716285"
+          },
+          {
+            "pid": 507682,
+            "ppid": 507506,
+            "pgid": 507506,
+            "state": "S",
+            "starttime": "1716294"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-racecompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-racecompile01/command.json",
+        "sha256": "566cd9bba23f2672f5e1617abd3075379402146ff02233720c84ff557564f9dc",
+        "bytes": 507787
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/http-race.test",
+          "./internal/central/project/http"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 507497,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:40:06Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-racecompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-racecompile01/result.json",
+        "sha256": "79f1b3275a03dd4b6ad51bb2c0c22fd061999d5e6e4331cbc3bd3a4453ba055d",
+        "bytes": 508365
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 7.228411950000009,
+        "direct_child_pid": 507510,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 507510,
+            "ppid": 507498,
+            "pgid": 507510,
+            "state": "Z",
+            "starttime": "1715886"
+          },
+          {
+            "pid": 507572,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "S",
+            "starttime": "1715914"
+          },
+          {
+            "pid": 507613,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "R",
+            "starttime": "1716124"
+          },
+          {
+            "pid": 507637,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "R",
+            "starttime": "1716171"
+          },
+          {
+            "pid": 507657,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "S",
+            "starttime": "1716218"
+          },
+          {
+            "pid": 507713,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "R",
+            "starttime": "1716409"
+          },
+          {
+            "pid": 507721,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "Z",
+            "starttime": "1716413"
+          },
+          {
+            "pid": 507773,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "S",
+            "starttime": "1716537"
+          },
+          {
+            "pid": 507777,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "R",
+            "starttime": "1716541"
+          },
+          {
+            "pid": 507781,
+            "ppid": 507510,
+            "pgid": 507510,
+            "state": "R",
+            "starttime": "1716546"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-racecompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-racecompile01/command.json",
+        "sha256": "d1f9fe742de1fcd3c51410cfc8c55171d00cf3741cbba963c6c28a664677eec4",
+        "bytes": 507777
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/app-race.test",
+          "./internal/central/app"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 507498,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:40:06Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-pure-list01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-pure-list01/result.json",
+        "sha256": "80545bf63dce686a9c984b4ca9065bb97e10db7e844194c77e53489ae6b5302e",
+        "bytes": 507784
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.6039795489996322,
+        "direct_child_pid": 508688,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 508688,
+            "ppid": 508685,
+            "pgid": 508688,
+            "state": "Z",
+            "starttime": "1724855"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "3fd0f517d6670acbb145fe0433d5bb7258a0e87d00b956470f7f5623bdcb9ee3",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-pure-list01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-pure-list01/command.json",
+        "sha256": "10a1c6565db1822aa034c5c13d557e7e4933f32d449da1130de4ae82c0e227bb",
+        "bytes": 508580
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/app-pure.test",
+          "-test.list=^(TestProjectReadRootPureConstruction|TestProjectReadRootPureRouteOwnership|TestProjectUsageRootPureConstructionAndReadOnly|TestProjectUsageRootPureStartupContextAndFailure|TestProjectUsageRootPureRoutesPreserveOriginalChain|TestModelRootRouteOwnershipAndRequestPreservation|TestModelRootRequiredConstructionDependencies)$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/app",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 508685,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "d13e1a1adf93dbc055e46ab4b4d8feca58426d5d927a035a82f548e089ccf872",
+        "started_utc": "2026-10-07T16:41:36Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-racerun01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-racerun01/result.json",
+        "sha256": "7340a4c5acb717a331fd704f6c7dd8f5d64d3921d840869f6b1eb6b65a046868",
+        "bytes": 507784
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 2.0763202569978603,
+        "direct_child_pid": 508881,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 508881,
+            "ppid": 508876,
+            "pgid": 508881,
+            "state": "Z",
+            "starttime": "1725953"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "aa1b71a2a76a20145d5b8d05e3959a314d85b488d85575082ec4d8c4894870a6",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-racerun01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-racerun01/command.json",
+        "sha256": "258ea611c6e3fa9a7377cdbac792d2fb92d5187ce32bfe32b0fb4c5d5bb9a0ef",
+        "bytes": 508308
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/project-race.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 508876,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "d13e1a1adf93dbc055e46ab4b4d8feca58426d5d927a035a82f548e089ccf872",
+        "started_utc": "2026-10-07T16:41:47Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-racerun01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-racerun01/result.json",
+        "sha256": "5e9405fe1246acca3930f7fb1ee7bbe74df68ab22362567cfc371ac155c1bd69",
+        "bytes": 507910
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 6.450906976999249,
+        "direct_child_pid": 508889,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 508889,
+            "ppid": 508886,
+            "pgid": 508889,
+            "state": "Z",
+            "starttime": "1726090"
+          },
+          {
+            "pid": 508965,
+            "ppid": 508889,
+            "pgid": 508889,
+            "state": "R",
+            "starttime": "1726565"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "d0c35b2a41ebd94ee8002b61742166830fece5c23cdfd02abb2e96204ce5bc17",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/http-racerun01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/http-racerun01/command.json",
+        "sha256": "b04d88cff839bc7cad6b577a7e984526492fe0f3e9c3156447c4bb269e2b8400",
+        "bytes": 508310
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/http-race.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project/http",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 508886,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "d13e1a1adf93dbc055e46ab4b4d8feca58426d5d927a035a82f548e089ccf872",
+        "started_utc": "2026-10-07T16:41:48Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-purerun02/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-purerun02/result.json",
+        "sha256": "802586636532159cffb650f98901330d5e436891c8e9ad006e0968040847f806",
+        "bytes": 507784
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.6426259840009152,
+        "direct_child_pid": 508916,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 508916,
+            "ppid": 508913,
+            "pgid": 508916,
+            "state": "Z",
+            "starttime": "1726225"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3cfc8fc0ae1aac885b6f69a53685c86ea39d30e37a36322ad3c134ebf55f28d",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-purerun02/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-purerun02/command.json",
+        "sha256": "2ac7ef7cbc6b5c7ee1ded1ef3d084d27fd7aee377c47f39ac03a03c6b88b1a16",
+        "bytes": 508640
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/app-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s",
+          "-test.run=^(TestProjectReadRootPureConstruction|TestProjectReadRootPureRouteOwnership|TestProjectUsageRootPureConstructionAndReadOnly|TestProjectUsageRootPureStartupContextAndFailure|TestProjectUsageRootPureRoutesPreserveOriginalChain|TestModelRootRouteOwnershipAndRequestPreservation|TestModelRootRequiredConstructionDependencies)$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/app",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 508913,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "d13e1a1adf93dbc055e46ab4b4d8feca58426d5d927a035a82f548e089ccf872",
+        "started_utc": "2026-10-07T16:41:49Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-racerun01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-racerun01/result.json",
+        "sha256": "9d6bfe51662be660d01514dbcb6ac2cc4358e532e5f8ba25b4f83ec74b297e4e",
+        "bytes": 507784
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.7777818529975775,
+        "direct_child_pid": 509156,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 509156,
+            "ppid": 509153,
+            "pgid": 509156,
+            "state": "Z",
+            "starttime": "1728556"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "c169a4ac4bea3b1b457b8d0aa1c03d34b4ad025133ffc5f56bf1182ada909e33",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-racerun01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-racerun01/command.json",
+        "sha256": "360ae3acc25e471b21c00f68a97fd2c32edfd2bf8c83a966929857433c761988",
+        "bytes": 508640
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/app-race.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s",
+          "-test.run=^(TestProjectReadRootPureConstruction|TestProjectReadRootPureRouteOwnership|TestProjectUsageRootPureConstructionAndReadOnly|TestProjectUsageRootPureStartupContextAndFailure|TestProjectUsageRootPureRoutesPreserveOriginalChain|TestModelRootRouteOwnershipAndRequestPreservation|TestModelRootRequiredConstructionDependencies)$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/app",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 509153,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "d13e1a1adf93dbc055e46ab4b4d8feca58426d5d927a035a82f548e089ccf872",
+        "started_utc": "2026-10-07T16:42:13Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/affected-racevet01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/affected-racevet01/result.json",
+        "sha256": "8193d488ee8f7621c456263b37e03c8955a1a4a3c758103c7905bac70679110d",
+        "bytes": 509763
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 2.0590658170003735,
+        "direct_child_pid": 509566,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 509566,
+            "ppid": 509563,
+            "pgid": 509566,
+            "state": "Z",
+            "starttime": "1731807"
+          },
+          {
+            "pid": 509589,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731827"
+          },
+          {
+            "pid": 509593,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "S",
+            "starttime": "1731830"
+          },
+          {
+            "pid": 509597,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "S",
+            "starttime": "1731835"
+          },
+          {
+            "pid": 509602,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731857"
+          },
+          {
+            "pid": 509606,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731868"
+          },
+          {
+            "pid": 509610,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731877"
+          },
+          {
+            "pid": 509614,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731881"
+          },
+          {
+            "pid": 509622,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731892"
+          },
+          {
+            "pid": 509638,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "S",
+            "starttime": "1731899"
+          },
+          {
+            "pid": 509642,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731905"
+          },
+          {
+            "pid": 509654,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731912"
+          },
+          {
+            "pid": 509662,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731916"
+          },
+          {
+            "pid": 509670,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "S",
+            "starttime": "1731920"
+          },
+          {
+            "pid": 509692,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "S",
+            "starttime": "1731926"
+          },
+          {
+            "pid": 509697,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731931"
+          },
+          {
+            "pid": 509702,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731934"
+          },
+          {
+            "pid": 509706,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "S",
+            "starttime": "1731938"
+          },
+          {
+            "pid": 509710,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "Z",
+            "starttime": "1731942"
+          },
+          {
+            "pid": 509714,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "R",
+            "starttime": "1731946"
+          },
+          {
+            "pid": 509718,
+            "ppid": 509566,
+            "pgid": 509566,
+            "state": "S",
+            "starttime": "1731952"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/affected-racevet01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/affected-racevet01/command.json",
+        "sha256": "573a7a0638a14b2182be8724460cfd232ac1d21c4d3c460552dab199cb422293",
+        "bytes": 507758
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "./internal/central/project",
+          "./internal/central/project/http",
+          "./internal/central/app"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 509563,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:42:45Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/central-build01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/central-build01/result.json",
+        "sha256": "6033b384d71b343a4c62a5e7efe6a892674e4a793b16f6db14411c97b6048cba",
+        "bytes": 507731
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 2.8084554839988414,
+        "direct_child_pid": 509956,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 509956,
+            "ppid": 509932,
+            "pgid": 509956,
+            "state": "Z",
+            "starttime": "1734226"
+          },
+          {
+            "pid": 509961,
+            "ppid": 509956,
+            "pgid": 509956,
+            "state": "R",
+            "starttime": "1734233"
+          },
+          {
+            "pid": 509997,
+            "ppid": 509956,
+            "pgid": 509956,
+            "state": "R",
+            "starttime": "1734248"
+          },
+          {
+            "pid": 510004,
+            "ppid": 509956,
+            "pgid": 509956,
+            "state": "S",
+            "starttime": "1734321"
+          },
+          {
+            "pid": 510012,
+            "ppid": 509956,
+            "pgid": 509956,
+            "state": "R",
+            "starttime": "1734329"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/central-build01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/central-build01/command.json",
+        "sha256": "1f7966b10e92c77fb0be0fbb3868801e60506f9c51578e4472bf9ebe95ba5fb1",
+        "bytes": 507742
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/agenteam",
+          "./cmd/agenteam"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 509932,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:43:09Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/runner-build01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/runner-build01/result.json",
+        "sha256": "ad2090ce8ad10679579692e732d431f6a8c256ce9b8750fa13afb8764b91e21a",
+        "bytes": 507604
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.9571166269997775,
+        "direct_child_pid": 510016,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 510016,
+            "ppid": 510001,
+            "pgid": 510016,
+            "state": "Z",
+            "starttime": "1734362"
+          },
+          {
+            "pid": 510021,
+            "ppid": 510016,
+            "pgid": 510016,
+            "state": "R",
+            "starttime": "1734364"
+          },
+          {
+            "pid": 510052,
+            "ppid": 510016,
+            "pgid": 510016,
+            "state": "R",
+            "starttime": "1734374"
+          },
+          {
+            "pid": 510060,
+            "ppid": 510016,
+            "pgid": 510016,
+            "state": "Z",
+            "starttime": "1734377"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/runner-build01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/runner-build01/command.json",
+        "sha256": "b97a071aad3e9b12ad9b2f4be63b3da4ee115e52454e42693b707069878bf0e2",
+        "bytes": 507756
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/agenteam-runner",
+          "./cmd/agenteam-runner"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 510001,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:43:11Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integrationcompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integrationcompile01/result.json",
+        "sha256": "707b8ff5fc5493c6492f4eef59652f1a7262300b4f1b07709d043a7caaa0a171",
+        "bytes": 507985
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 7.4147058540002035,
+        "direct_child_pid": 508717,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 508717,
+            "ppid": 508714,
+            "pgid": 508717,
+            "state": "Z",
+            "starttime": "1724979"
+          },
+          {
+            "pid": 508736,
+            "ppid": 508717,
+            "pgid": 508717,
+            "state": "R",
+            "starttime": "1725005"
+          },
+          {
+            "pid": 508762,
+            "ppid": 508717,
+            "pgid": 508717,
+            "state": "Z",
+            "starttime": "1725096"
+          },
+          {
+            "pid": 508808,
+            "ppid": 508717,
+            "pgid": 508717,
+            "state": "R",
+            "starttime": "1725501"
+          },
+          {
+            "pid": 508817,
+            "ppid": 508717,
+            "pgid": 508717,
+            "state": "R",
+            "starttime": "1725505"
+          },
+          {
+            "pid": 508827,
+            "ppid": 508717,
+            "pgid": 508717,
+            "state": "S",
+            "starttime": "1725637"
+          },
+          {
+            "pid": 508831,
+            "ppid": 508717,
+            "pgid": 508717,
+            "state": "R",
+            "starttime": "1725645"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integrationcompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integrationcompile01/command.json",
+        "sha256": "f0d3f0baba4a9e2e79e7ffca6d01e6f05e96c8dc8b475d26e1bdc5aebc167b4c",
+        "bytes": 507802
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-tags=integration",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/model-integration.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 508714,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:41:37Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-integrationcompile01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-integrationcompile01/result.json",
+        "sha256": "ba47f00bd2cf208d35ae3e3ca4946837ebdf2574e6cda127ad624af9e7ca2fe5",
+        "bytes": 507730
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.571121447999758,
+        "direct_child_pid": 509185,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 509185,
+            "ppid": 509182,
+            "pgid": 509185,
+            "state": "Z",
+            "starttime": "1728670"
+          },
+          {
+            "pid": 509204,
+            "ppid": 509185,
+            "pgid": 509185,
+            "state": "S",
+            "starttime": "1728693"
+          },
+          {
+            "pid": 509228,
+            "ppid": 509185,
+            "pgid": 509185,
+            "state": "S",
+            "starttime": "1728861"
+          },
+          {
+            "pid": 509236,
+            "ppid": 509185,
+            "pgid": 509185,
+            "state": "R",
+            "starttime": "1728865"
+          },
+          {
+            "pid": 509246,
+            "ppid": 509185,
+            "pgid": 509185,
+            "state": "R",
+            "starttime": "1728969"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-integrationcompile01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-integrationcompile01/command.json",
+        "sha256": "bd49abb1d660f84cfdca93f5b260e417a944ce72596b604806d3e620547108c7",
+        "bytes": 507806
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-tags=integration",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/project-integration.test",
+          "./tests/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 509182,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787",
+        "started_utc": "2026-10-07T16:42:14Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/native-exact-list01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/native-exact-list01/result.json",
+        "sha256": "f00a5b202e34a5095303a837587b47df608a0c9cb33d3f6a24e59f582e5e0f2a",
+        "bytes": 507783
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.651953961001709,
+        "direct_child_pid": 510469,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 510469,
+            "ppid": 510466,
+            "pgid": 510469,
+            "state": "Z",
+            "starttime": "1738246"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "424629368703d8507911d749127a0ecd50476c1e442e2635e93dd55f5752032c",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/native-exact-list01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/native-exact-list01/command.json",
+        "sha256": "06d815d10e8cb36b921b7a0626902887c95a47ddfc1a39d3141b23b909748282",
+        "bytes": 508334
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/http-race.test",
+          "-test.list=^TestProjectOwnerReadHTTPNative(KeepAlive|SlowBody|WriteAndClose)$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project/http",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 510466,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "d13e1a1adf93dbc055e46ab4b4d8feca58426d5d927a035a82f548e089ccf872",
+        "started_utc": "2026-10-07T16:43:50Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integration-list01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integration-list01/result.json",
+        "sha256": "9b00ef93ea6bd833663d10fccd16aac6af3840cee8607fa99c62c1d5394d9a80",
+        "bytes": 507521
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.6751779549995263,
+        "direct_child_pid": 510750,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 510750,
+            "ppid": 510747,
+            "pgid": 510750,
+            "state": "Z",
+            "starttime": "1740757"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "bdb38f42feb4a27a471c4797c77581295f74407e7cdde81fd746c32c663eeb2a",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integration-list01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integration-list01/command.json",
+        "sha256": "e0309fa033f9319df284a9578f497b6d1bc58ef85e61c64c51cb4b91f659b50c",
+        "bytes": 508299
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/model-integration.test",
+          "-test.list=^(TestModelProjectOwnerReadHTTPProjectionAndPaging|TestModelProjectOwnerReadHTTPAuthorityAndTerminal|TestModelProjectOwnerReadHTTPRootBinding|TestModelProjectUsageHTTPProjectionAndPath|TestModelProjectUsageHTTPRootBinding|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPCurrentAdministrator)$"
+        ],
+        "cwd": "/workspace/agenteam/tests/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 510747,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "ffb1e14f547a28d48f55684e6902c8a2f536ba41a33765e6cb35d32cd7e8b76f",
+        "started_utc": "2026-10-07T16:44:15Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-integration-list01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-integration-list01/result.json",
+        "sha256": "9f61368e79c8595b1380a446398411f51a393af5e2ad2b80103f920938ba06d4",
+        "bytes": 507521
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.6081906799990975,
+        "direct_child_pid": 510778,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 510778,
+            "ppid": 510755,
+            "pgid": 510778,
+            "state": "Z",
+            "starttime": "1740884"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "54c150ceba8ca432038ca988a6951e87d9ab3cbed15d6834db6578d209b5e0ba",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/project-integration-list01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/project-integration-list01/command.json",
+        "sha256": "75f1ddbc16c013283a9ec6c7e3fc0ff151971d881f65717158ea66fe27d5ac35",
+        "bytes": 508100
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/project-integration.test",
+          "-test.list=^(TestProjectB02OwnerSessionNamePathAndPaging|TestProjectB02OwnerPortRequiresCallerTransactionLocks)$"
+        ],
+        "cwd": "/workspace/agenteam/tests/project",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 510755,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "ffb1e14f547a28d48f55684e6902c8a2f536ba41a33765e6cb35d32cd7e8b76f",
+        "started_utc": "2026-10-07T16:44:16Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/python-closure01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/python-closure01/result.json",
+        "sha256": "e883fab088923fd8c603780ada37d84f2ac2d8498a8392f62a8d93ce0434585b",
+        "bytes": 507223
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.6053887349989964,
+        "direct_child_pid": 505907,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 505907,
+            "ppid": 505904,
+            "pgid": 505907,
+            "state": "Z",
+            "starttime": "1703432"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "4102635f5fffad4fc5f86f93821bf5806e22e9528d0152fe96af7a7b61eb5757",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/python-closure01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/python-closure01/command.json",
+        "sha256": "5612c6f47af347cc73cba22996be8c5bc968d2aaf19a16898a1554488bf08a30",
+        "bytes": 507741
+      },
+      "fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-read-http-author/python-inputs.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 505904,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "9ec28f665f02f408364f0611e4124df1a3f937d1c1297a01bcdb486fab3f378b",
+        "started_utc": "2026-10-07T16:38:02Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-purerun01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-purerun01/command.json",
+        "sha256": "808c47aa031d0959ab69628073524e16a8da89c68552a460b7d1378132c0f142",
+        "bytes": 507878
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/app-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/app",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 507601,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "4bef2c8f2207b05896b91e812a645c8ccc2357a867f4a4647c8f0d4135067536",
+        "started_utc": "2026-10-07T16:40:08Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/app-purerun01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/app-purerun01/result.json",
+        "sha256": "1c311fa9e95e797c144df1af5db07a93c6d0ce7b8fa81776d38943ac8b63699c",
+        "bytes": 507488
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 7.571875890997035,
+        "direct_child_pid": 507604,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 507604,
+            "ppid": 507601,
+            "pgid": 507604,
+            "state": "Z",
+            "starttime": "1716064"
+          },
+          {
+            "pid": 507737,
+            "ppid": 507604,
+            "pgid": 507604,
+            "state": "Z",
+            "starttime": "1716426"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3de44214e87142756f89ead93d0eaf3dc5790d868fe0f7cfff4c607e1eccedf",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/schema-rerun01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/schema-rerun01/command.json",
+        "sha256": "6e4afdf8bb13d9205e365d7585f2b2f5e1bd9d2a39d37fdacf8f5411314d3d50",
+        "bytes": 512589
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/http-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=35s",
+          "-test.run=^TestProjectOwnerReadWireStandardSchema$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project/http",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 514420,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "c3860042a14d960f05ad0451df873429968a4f4611e08319309452eee97592fc",
+        "started_utc": "2026-10-07T16:49:31Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/schema-rerun01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/schema-rerun01/result.json",
+        "sha256": "6168f722a68f54e5d938335abdf8903880a9b2ba2b06d25e32efab37e8c8fb4e",
+        "bytes": 512132
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.6225756540006842,
+        "direct_child_pid": 514427,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 514427,
+            "ppid": 514420,
+            "pgid": 514427,
+            "state": "Z",
+            "starttime": "1772399"
+          },
+          {
+            "pid": 514433,
+            "ppid": 514427,
+            "pgid": 514427,
+            "state": "R",
+            "starttime": "1772399"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "362e2a28ab6711676edb565f2828d2fbef067752dbd55c4e76eb242b91a1ca2d",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/native-driver-v01/keepalive/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/keepalive/command.json",
+        "sha256": "e2c471eb34d51ca94ed8cedecefba23ba4dd09af15519ed85664e0d950335998",
+        "bytes": 1331999
+      },
+      "fields": {
+        "mode": "keepalive",
+        "driver_sha256": "f3fe7b8e849e737e171f71fab25edceb33ec5c6d13379c84b84be386390a6ffe",
+        "driver_pid": 510888,
+        "driver_stat": {
+          "pid": 510888,
+          "starttime": "1742101",
+          "ppid": 850,
+          "pgrp": 510888,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/native-driver-v01/keepalive/trace.raw",
+          "/workspace/scratch/project-owner-read-http-author/http-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=35s",
+          "-test.run=^TestProjectOwnerReadHTTPNativeKeepAlive$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/keepalive/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/project/http",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791391469.641942,
+        "direct_pid": {
+          "pid": 510911,
+          "starttime": "1742147",
+          "ppid": 510888,
+          "pgrp": 510911,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 1.2447014999997918,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 510911,
+            "starttime": "1742147",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791391470.8866763
+          },
+          {
+            "role": "adopted",
+            "pid": 510915,
+            "starttime": "1742147",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791391470.8896797
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 510911,
+            "starttime": "1742147",
+            "ppid": 510888,
+            "pgrp": 510911,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791391469.6423464
+          },
+          {
+            "pid": 510915,
+            "starttime": "1742147",
+            "ppid": 510888,
+            "pgrp": 510911,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791391469.650144
+          }
+        ],
+        "execution_finished": 1791391470.8924136,
+        "inputs_unchanged": true,
+        "finished": 1791391532.0323272,
+        "listener_ports": [
+          43795
+        ],
+        "all_ports": [
+          43795,
+          60814
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "e1a4fa3792b8914940f3bf48615ef45b2bf7fffadc177459d92df6caa81f84ce",
+        "raw_sha256": "41fd5f0b96443e5a2229f88a7200afc5a6044fda1bef452a207247259ff1c05b",
+        "test_results": {
+          "top_passes": [
+            "TestProjectOwnerReadHTTPNativeKeepAlive"
+          ],
+          "sub_passes": [],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 1,
+        "pass": true
+      },
+      "omitted_fields": [
+        "before",
+        "after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/native-driver-v01/slowbody/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/slowbody/command.json",
+        "sha256": "eadad81d76825965be607114662426b971f86f50401ef13192d4bf623206f1de",
+        "bytes": 1332343
+      },
+      "fields": {
+        "mode": "slowbody",
+        "driver_sha256": "f3fe7b8e849e737e171f71fab25edceb33ec5c6d13379c84b84be386390a6ffe",
+        "driver_pid": 512023,
+        "driver_stat": {
+          "pid": 512023,
+          "starttime": "1752405",
+          "ppid": 850,
+          "pgrp": 512023,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/native-driver-v01/slowbody/trace.raw",
+          "/workspace/scratch/project-owner-read-http-author/http-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=35s",
+          "-test.run=^TestProjectOwnerReadHTTPNativeSlowBody$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/slowbody/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/project/http",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791391572.707741,
+        "direct_pid": {
+          "pid": 512026,
+          "starttime": "1752453",
+          "ppid": 512023,
+          "pgrp": 512026,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 5.310621439999522,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 512026,
+            "starttime": "1752453",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791391578.0184026
+          },
+          {
+            "role": "adopted",
+            "pid": 512030,
+            "starttime": "1752453",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791391578.0217667
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 512026,
+            "starttime": "1752453",
+            "ppid": 512023,
+            "pgrp": 512026,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791391572.7082686
+          },
+          {
+            "pid": 512030,
+            "starttime": "1752453",
+            "ppid": 512023,
+            "pgrp": 512026,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791391572.7169974
+          }
+        ],
+        "execution_finished": 1791391578.0249977,
+        "inputs_unchanged": true,
+        "finished": 1791391638.1515198,
+        "listener_ports": [
+          32933,
+          37995,
+          43055,
+          44151
+        ],
+        "all_ports": [
+          32933,
+          35656,
+          35990,
+          37995,
+          39774,
+          43055,
+          44151,
+          44790
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "aa79a9cf131a7c7e70554cb812d165c46e8523725150f1379eaada221a3aae36",
+        "raw_sha256": "55c7b87e472319e3d0290db94eeb2943c50e3efa98e019be0cafe81ca351621e",
+        "test_results": {
+          "top_passes": [
+            "TestProjectOwnerReadHTTPNativeSlowBody"
+          ],
+          "sub_passes": [
+            "TestProjectOwnerReadHTTPNativeSlowBody/declared/1m0s",
+            "TestProjectOwnerReadHTTPNativeSlowBody/declared/120ms",
+            "TestProjectOwnerReadHTTPNativeSlowBody/hidden/1m0s",
+            "TestProjectOwnerReadHTTPNativeSlowBody/hidden/120ms"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 4,
+        "pass": true
+      },
+      "omitted_fields": [
+        "before",
+        "after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/native-driver-v01/writeclose/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/writeclose/command.json",
+        "sha256": "7b896de33d0ccbb49ad766eaaade28353da2727f934ac0b3cdacbec03ca2bd01",
+        "bytes": 1332480
+      },
+      "fields": {
+        "mode": "writeclose",
+        "driver_sha256": "f3fe7b8e849e737e171f71fab25edceb33ec5c6d13379c84b84be386390a6ffe",
+        "driver_pid": 512973,
+        "driver_stat": {
+          "pid": 512973,
+          "starttime": "1760470",
+          "ppid": 850,
+          "pgrp": 512973,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/native-driver-v01/writeclose/trace.raw",
+          "/workspace/scratch/project-owner-read-http-author/http-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=35s",
+          "-test.run=^TestProjectOwnerReadHTTPNativeWriteAndClose$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/native-driver-v01/writeclose/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/project/http",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791391653.3945577,
+        "direct_pid": {
+          "pid": 512976,
+          "starttime": "1760522",
+          "ppid": 512973,
+          "pgrp": 512976,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 7.838910460999614,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 512976,
+            "starttime": "1760522",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791391661.2335148
+          },
+          {
+            "role": "adopted",
+            "pid": 512980,
+            "starttime": "1760522",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791391661.2385607
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 512976,
+            "starttime": "1760522",
+            "ppid": 512973,
+            "pgrp": 512976,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791391653.3953023
+          },
+          {
+            "pid": 512980,
+            "starttime": "1760522",
+            "ppid": 512973,
+            "pgrp": 512976,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791391653.4057677
+          }
+        ],
+        "execution_finished": 1791391661.242843,
+        "inputs_unchanged": true,
+        "finished": 1791391722.423408,
+        "listener_ports": [
+          33671,
+          38071,
+          43053,
+          43289,
+          44123
+        ],
+        "all_ports": [
+          33671,
+          38071,
+          39076,
+          42690,
+          43053,
+          43289,
+          44123,
+          46824,
+          48634,
+          59602
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "f8335b30c8c23ed5aa1eb30b0a0540d5b573fd5ee81867323df8c77e7c0e9563",
+        "raw_sha256": "d3e93d8cb6de8f09a29173713fbee18d996b6c7a37f36e7301d88e4188ce3b24",
+        "test_results": {
+          "top_passes": [
+            "TestProjectOwnerReadHTTPNativeWriteAndClose"
+          ],
+          "sub_passes": [
+            "TestProjectOwnerReadHTTPNativeWriteAndClose/short_write",
+            "TestProjectOwnerReadHTTPNativeWriteAndClose/write_error",
+            "TestProjectOwnerReadHTTPNativeWriteAndClose/flush_error",
+            "TestProjectOwnerReadHTTPNativeWriteAndClose/close_error",
+            "TestProjectOwnerReadHTTPNativeWriteAndClose/native_write_deadline"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 5,
+        "pass": true
+      },
+      "omitted_fields": [
+        "before",
+        "after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/closure-check-original.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/closure-check-original.json",
+        "sha256": "9bb2f0d4542939a73801693781612501889e2fc7ce9ea0932b8ed2b1267467c3",
+        "bytes": 208631
+      },
+      "fields": {
+        "raw": {
+          "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/stdout.log",
+          "sha256": "cd7de675a4af9f0e4a0bf6a24fff1a635db44e4a7b725a2dd10f9605f5df3169"
+        },
+        "result": {
+          "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/offline/g01-normal-http/result.json",
+          "sha256": "2e32b6e501530bda0330d39b4acc1c9a0b2423bb07f475382f6c1dca39585e53"
+        },
+        "packages_count": 374,
+        "files_count": 3873,
+        "effective_files_digest": "0c8da3724442cc96854da1c39d9fab0f5efc97a70970a4824490b8b156e2248e",
+        "parent_input": {
+          "path": "/workspace/scratch/project-owner-read-http-author/pregraph04.json",
+          "sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787"
+        },
+        "overlay": {
+          "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+          "sha256": "204705123861eb58be63d940928dd110eb42777b085744e417327d507f452926"
+        },
+        "generated_testmain": {
+          "/workspace/.cache/go-build/b3/b3fb56ee86afb3340750ad309f8b38a551929fee89761a9d023e0d5622b8c4fd-d": "b3fb56ee86afb3340750ad309f8b38a551929fee89761a9d023e0d5622b8c4fd"
+        },
+        "selected_package_init_or_TestMain": []
+      },
+      "omitted_fields": [
+        "extra"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/pg-driver-check04/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/pg-driver-check04/result.json",
+        "sha256": "f68e31874fdd3a7a096987c40e1879f24aa2486cf177859d4f48aa63c5647b15",
+        "bytes": 512321
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.0577722990019538,
+        "direct_child_pid": 556337,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 556337,
+            "ppid": 556334,
+            "pgid": 556337,
+            "state": "Z",
+            "starttime": "1836250"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "711442de95ee83ec3f1631b74b0226b5a8ebe806c0d0ecaea0fe362d77e29752",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/format03/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/format03/result.json",
+        "sha256": "ce543ba93c5b95c49633dd821acac74f67cd8c761284b66bc4ca6f9fa7af1c32",
+        "bytes": 511865
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4766295879999234,
+        "direct_child_pid": 538264,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 538264,
+            "ppid": 538261,
+            "pgid": 538264,
+            "state": "Z",
+            "starttime": "1804152"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/format03/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/format03/command.json",
+        "sha256": "f4fcc7d76553036c4ba938d1f288d8380d0dea53f731311e5154f0bb3dafac2c",
+        "bytes": 512342
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-w",
+          "tests/model/project_owner_read_http_root_test.go"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 538261,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "aa4544b22c5c0b47e92250d821691435286cf82fea08fe09408aa6c9dffedf1f",
+        "started_utc": "2026-10-07T16:54:49Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integrationcompile02/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integrationcompile02/result.json",
+        "sha256": "9010c6f641308c092e98f8667b33fff5c2675d39afa5317677460dd9ee819ca4",
+        "bytes": 512372
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 7.047094810997805,
+        "direct_child_pid": 538712,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 538712,
+            "ppid": 538708,
+            "pgid": 538712,
+            "state": "Z",
+            "starttime": "1808248"
+          },
+          {
+            "pid": 538731,
+            "ppid": 538712,
+            "pgid": 538712,
+            "state": "R",
+            "starttime": "1808269"
+          },
+          {
+            "pid": 538780,
+            "ppid": 538712,
+            "pgid": 538712,
+            "state": "S",
+            "starttime": "1808725"
+          },
+          {
+            "pid": 538788,
+            "ppid": 538712,
+            "pgid": 538712,
+            "state": "R",
+            "starttime": "1808729"
+          },
+          {
+            "pid": 538824,
+            "ppid": 538712,
+            "pgid": 538712,
+            "state": "R",
+            "starttime": "1808876"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integrationcompile02/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integrationcompile02/command.json",
+        "sha256": "431e38279e4b8024072bec4f633704ebc394f624d38b7c6a8443444cbc4c4bca",
+        "bytes": 512446
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-tags=integration",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-owner-read-http-author/model-integration04.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 538708,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "4ce62e64686ffaf42d4cae14831875adbe653563d9cfd36c36f86d0411e1d497",
+        "started_utc": "2026-10-07T16:55:30Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integration-list02/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integration-list02/result.json",
+        "sha256": "30b89cd18dea286b3edf179b8cf7eb122234554949b8ed8dbda27a137bbf4c74",
+        "bytes": 512014
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.572215877000417,
+        "direct_child_pid": 539215,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 539215,
+            "ppid": 539212,
+            "pgid": 539215,
+            "state": "Z",
+            "starttime": "1812073"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "bdb38f42feb4a27a471c4797c77581295f74407e7cdde81fd746c32c663eeb2a",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/model-integration-list02/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/model-integration-list02/command.json",
+        "sha256": "342d52a05a3951d53e3e7ee6020074d5e338894ea92d8459d5070491b425d14a",
+        "bytes": 512795
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-read-http-author/model-integration04.test",
+          "-test.list=^(TestModelProjectOwnerReadHTTPProjectionAndPaging|TestModelProjectOwnerReadHTTPAuthorityAndTerminal|TestModelProjectOwnerReadHTTPRootBinding|TestModelProjectUsageHTTPProjectionAndPath|TestModelProjectUsageHTTPRootBinding|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPCurrentAdministrator)$"
+        ],
+        "cwd": "/workspace/agenteam/tests/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 539212,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "3091cbf2ae860d091ec5ddb6b04e02d07d908cbbc2d042c2fabee9b44bc4b748",
+        "started_utc": "2026-10-07T16:56:08Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/pg-driver-check03/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/pg-driver-check03/result.json",
+        "sha256": "ca1c1e42db71801dc87e1ed5d635810aabf0f818435229a0f8496ba49e2b47f9",
+        "bytes": 512469
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.0634722009999678,
+        "direct_child_pid": 539243,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 539243,
+            "ppid": 539240,
+            "pgid": 539243,
+            "state": "Z",
+            "starttime": "1812201"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "494d86bba1aa2302ea1fef657eb62c6cfec5e88738db2c4809b7902a8f2cc644",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/pg-driver-check03/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/pg-driver-check03/command.json",
+        "sha256": "aed02e178e9c1dfa534462e5551da7434975adcdd7768ce2ae467cfcdc6571bb",
+        "bytes": 513181
+      },
+      "fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/driver.py",
+          "--name",
+          "prep3",
+          "--group",
+          "new-root",
+          "--frozen",
+          "/workspace/scratch/project-owner-read-http-author/pg-driver-v01/frozen-v03.json",
+          "--check-input-only"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 539240,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "fd57c631cb14ab6899f8553c5b95f795a3a0321621d9e05af3b6276bc93839af",
+        "started_utc": "2026-10-07T16:56:09Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/pg-driver-check04/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/pg-driver-check04/command.json",
+        "sha256": "97bcfbc3d764cb46207009b4b8c6350b49965480f24271116f111be12e6de0f4",
+        "bytes": 513039
+      },
+      "fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/driver.py",
+          "--name",
+          "prep4",
+          "--group",
+          "old-usage-recovery",
+          "--frozen",
+          "/workspace/scratch/project-owner-read-http-author/pg-driver-v02/frozen.json",
+          "--check-input-only"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 556334,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "91506959dcabc40c5df3e380d840f563b44955ad0cf25e2df0080b9ce198717a",
+        "started_utc": "2026-10-07T17:00:10Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/graph-normal01/command.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/graph-normal01/command.json",
+        "sha256": "ab78f7bd15f3b1ad4a5313a88db1a80915a6775f011eebc917f487b1600d3ca1",
+        "bytes": 475347
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/project",
+          "./internal/central/project/http",
+          "./internal/central/app",
+          "./cmd/agenteam",
+          "./cmd/agenteam-runner"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/project-owner-read-http-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "subreaper": true,
+        "driver_pid": 501840,
+        "driver_sha256": "c49532ba6653268c8b2a469d53147fcd263575a70a1428060315a45b45ab8d5d",
+        "frozen_manifest_sha256": "785e1a9164d2d8184ecc8abf9179b8de4360dd3f667444d0dace2545348546bf",
+        "started_utc": "2026-10-07T16:32:30Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/project-owner-read-http-author/graph-normal01/result.json": {
+      "kind": "DERIVED exact field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/project-owner-read-http-author/graph-normal01/result.json",
+        "sha256": "05d3758994ae6cc16dcdb55029dab0f259a0fd3c567509631492a9254055906d",
+        "bytes": 474861
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.6710249450006813,
+        "direct_child_pid": 501843,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 501843,
+            "ppid": 501840,
+            "pgid": 501843,
+            "state": "Z",
+            "starttime": "1670264"
+          },
+          {
+            "pid": 501849,
+            "ppid": 501843,
+            "pgid": 501843,
+            "state": "R",
+            "starttime": "1670270"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "77c09fcb62de079a8604293696785b591f99673258e0abfe4397a54d04ccc691",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    }
+  }
+}

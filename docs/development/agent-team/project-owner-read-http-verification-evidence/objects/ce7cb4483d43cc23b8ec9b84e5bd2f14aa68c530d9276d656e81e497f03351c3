@@ -1,0 +1,38 @@
+{
+  "product_baseline": "4e615c7da2875418e1fbd925a49f134f14feae6d",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "097d47b4f4cdb5c92a102f62f6398c0d691bc918111c76b95a7972cd54004b38"
+  },
+  "scope_count": 16,
+  "actual_files": {
+    "internal/central/project/reader.go": "37cd934431d601bf052719eae9ad7f91274a1bc583a13c1425d9d14082555ed5",
+    "internal/central/project/reader_test.go": "54bdf009f7852eab8c46188ba41774308cc49ce3fd97fbf5f40fd6b796a7f942",
+    "internal/central/project/service.go": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+    "internal/central/project/http/handler.go": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+    "internal/central/project/http/wire.go": "563f97c2dcc7899ff2675308c60c0f6e6432b8c1dd8a9d9a03de1623b79c68e0",
+    "internal/central/project/http/handler_test.go": "37615a534ea6d95172e733009fb439919dee50d8871b71e9e5f73f774d3452bc",
+    "internal/central/project/http/wire_test.go": "9f1e676270a740db68a1d5ea1cb730988dd51a97ef2ad5b6e9a25c584716cc55",
+    "internal/central/project/http/native_test.go": "e0b7fac74a00c45766ec6daf13380fbe382ffe15eeffc6e01b6daefbd4f41908",
+    "api/openapi/project-owner.json": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e",
+    "internal/central/app/project_read.go": "edfe8a16265864d6152c0a79110da4f8d9c4365cfb876006c3ad525483dfb772",
+    "internal/central/app/project_read_test.go": "9722e3da78abdd38a9cc9dcc019094264c1227b391c2feabb06a9f7aaae62e3a",
+    "internal/central/app/account.go": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53",
+    "tests/model/project_owner_read_http_fixture_test.go": "56adb3a44e0fb3d4f5d50559a2f31cfcfd2a1e194723b0d44627d7a826d5ac39",
+    "tests/model/project_owner_read_http_test.go": "0c7c71519c4c93ece716623ef0dc9c607188ad3a93cf2cc622c272a370cf27ff",
+    "tests/model/project_owner_read_http_terminal_test.go": "a849fe7797015a084cfdeed85e445f6203bcf2e87119205e80031aecb445d2f1",
+    "tests/model/project_owner_read_http_root_test.go": "b726bf27c67f0ee8030b8531b2af3c368a2b7e70859095c73347c899a643e35f"
+  },
+  "accepted_S2_and_locks_unchanged": {
+    "internal/central/app/project_usage.go": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+    "internal/central/app/project_usage_test.go": "5321f1119dc32d075b8e332cf132c03ad5864e700bf25f9ba6bff4cd2ad272cf",
+    "internal/central/app/model_test.go": "a21efaa382a99c587c9450130a0e9308de919f3176008d2f72b8064055564f7a",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "product_diff": {
+    "path": "/workspace/scratch/project-owner-read-http-author/author-final01/product.diff",
+    "sha256": "1efa21cedb852e42428b559fd6b8cec374263b121e4bc80e8660146efa3ff6cc"
+  },
+  "README_authorized_or_written": false
+}

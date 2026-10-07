@@ -1,0 +1,46 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestIndependentProjectOwnerReadRootAndWire)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T17:05:00.070878+00:00",
+  "env": {
+    "AGENTEAM_D08_FROZEN_INPUT_SHA256": "ec2ee1a79ccd1546bf92718ae5a9b82ad7627681eee0c971ba4cb8db9550963a",
+    "AGENTEAM_D08_SAFE_HTTP_DIR": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/safe-http-evidence",
+    "AGENTEAM_D08_SOURCE_RUN": "independent-b01",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/project-owner-read-http-verification/overlay03/overlay.json",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/project-owner-read-http-verification/overlay03/driver-v01/runs/independent-b01/runtime"
+  },
+  "exit": 1,
+  "fixture_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 572054,
+  "pid_stat": "572054 (sh) R 571995 572054 572054 0 -1 4194560 23 0 0 0 0 0 0 0 20 0 1 0 1859744 540672 0 18446744073709551615 94626520219648 94626520300641 140735550430768 0 0 0 0 0 0 0 0 0 17 4 0 0 0 0 0 94626520329776 94626520334912 94626896412672 140735550438127 140735550438206 140735550438206 140735550439404 0\n",
+  "seconds": 54.452,
+  "started_utc": "2026-10-07T17:04:05.618554+00:00",
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

@@ -1,0 +1,49 @@
+{
+  "candidate03_sha256": "ce7588745e9c94a2f5cd7078a08d69377045c8a228f638e0bfe7f2c7d170386c",
+  "original_result_sha256": "d8ae5689a7502e1e180276d5a96c786d5dcea9a998c24adc124112944aefc665",
+  "original_command_sha256": "3a8bed2174654aab28040d9c7cce6c1c60c014f1ffbc65c4b3a50739dea0ad7f",
+  "original_raw_sha256": "ae29c85b6264595c499ec50f824de4eba5897460d10378f1dc00b00b2323fb46",
+  "actual_exit": 1,
+  "seconds": 54.923,
+  "actualwait": true,
+  "seven_resource_doublecleanup": true,
+  "source_same": true,
+  "forced": 0,
+  "adopted": 0,
+  "daemon_new_not_owned_not_waited": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 530847,
+      "ppid": 1,
+      "starttime": "1792320",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 531374,
+      "ppid": 1,
+      "starttime": "1792729",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 531656,
+      "ppid": 1,
+      "starttime": "1792920",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 532253,
+      "ppid": 1,
+      "starttime": "1793101",
+      "state": "Z"
+    }
+  ],
+  "failure": "root_test.go:38 wrongly expects model_id:null. accepted4e615c7/S2 contract is model:null, exact3-field id/version/model; request returned200 and preceding newGET/HEAD/schema+original routes passed.",
+  "fix": "candidate04 only test assertion exact3/key-present modelnull/version1/canonicalid; production15otherpaths unchanged. Subsequent POST405/foreign404/ready503/oneconnection/shutdown assertions had not run on first failure."
+}

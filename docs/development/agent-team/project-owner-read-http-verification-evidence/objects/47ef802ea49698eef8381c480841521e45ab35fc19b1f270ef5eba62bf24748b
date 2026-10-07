@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 17893.418814963,
+      "top": "TestModelProjectOwnerReadHTTPAuthorityAndTerminal"
+    },
+    {
+      "event": "result",
+      "monotonic": 17899.318078052,
+      "observed_seconds": 5.899263089002488,
+      "reported_seconds": 5.88,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerReadHTTPAuthorityAndTerminal"
+    }
+  ],
+  "expected": [
+    "TestModelProjectOwnerReadHTTPAuthorityAndTerminal"
+  ],
+  "failures": []
+}

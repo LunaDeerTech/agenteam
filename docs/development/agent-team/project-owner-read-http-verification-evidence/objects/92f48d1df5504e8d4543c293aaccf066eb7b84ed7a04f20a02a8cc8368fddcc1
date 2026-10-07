@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 18564.708113784,
+      "top": "TestIndependentProjectOwnerReadAuthorityPagingAndTerminal"
+    },
+    {
+      "event": "result",
+      "monotonic": 18570.930673598,
+      "observed_seconds": 6.222559813999396,
+      "reported_seconds": 6.23,
+      "state": "PASS",
+      "top": "TestIndependentProjectOwnerReadAuthorityPagingAndTerminal"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectOwnerReadAuthorityPagingAndTerminal"
+  ],
+  "failures": []
+}

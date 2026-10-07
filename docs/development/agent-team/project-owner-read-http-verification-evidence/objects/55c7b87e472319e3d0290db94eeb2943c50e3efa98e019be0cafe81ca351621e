@@ -1,0 +1,11 @@
+=== RUN   TestProjectOwnerReadHTTPNativeSlowBody
+=== RUN   TestProjectOwnerReadHTTPNativeSlowBody/declared/1m0s
+=== RUN   TestProjectOwnerReadHTTPNativeSlowBody/declared/120ms
+=== RUN   TestProjectOwnerReadHTTPNativeSlowBody/hidden/1m0s
+=== RUN   TestProjectOwnerReadHTTPNativeSlowBody/hidden/120ms
+--- PASS: TestProjectOwnerReadHTTPNativeSlowBody (4.27s)
+    --- PASS: TestProjectOwnerReadHTTPNativeSlowBody/declared/1m0s (2.01s)
+    --- PASS: TestProjectOwnerReadHTTPNativeSlowBody/declared/120ms (0.12s)
+    --- PASS: TestProjectOwnerReadHTTPNativeSlowBody/hidden/1m0s (2.01s)
+    --- PASS: TestProjectOwnerReadHTTPNativeSlowBody/hidden/120ms (0.12s)
+PASS

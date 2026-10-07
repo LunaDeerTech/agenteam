@@ -1,0 +1,67 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-read-http-author/candidate03/manifest.json",
+    "sha256": "ce7588745e9c94a2f5cd7078a08d69377045c8a228f638e0bfe7f2c7d170386c"
+  },
+  "parent_input": {
+    "path": "/workspace/scratch/project-owner-read-http-author/pregraph04.json",
+    "sha256": "e8eedee7842277a64d3b57eed71cb5181150530ff30175d919c05d14ff315787"
+  },
+  "inherited_actual_graph_index": {
+    "path": "/workspace/scratch/project-owner-read-http-author/graph-index02.json",
+    "sha256": "2725a92cbcc9bd7dbab691fc69067c9bd4aaeb5f4c4b90bd4cc8e58596208472"
+  },
+  "graph_reuse": "candidate03 changes two tests without imports/embed/package file-set change; actual parent graphs stay bound to their original evidence",
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json",
+    "sha256": "204705123861eb58be63d940928dd110eb42777b085744e417327d507f452926"
+  },
+  "files": {
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/reader.go": "37cd934431d601bf052719eae9ad7f91274a1bc583a13c1425d9d14082555ed5",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/reader_test.go": "54bdf009f7852eab8c46188ba41774308cc49ce3fd97fbf5f40fd6b796a7f942",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/service.go": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/handler.go": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/wire.go": "563f97c2dcc7899ff2675308c60c0f6e6432b8c1dd8a9d9a03de1623b79c68e0",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/handler_test.go": "37615a534ea6d95172e733009fb439919dee50d8871b71e9e5f73f774d3452bc",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/wire_test.go": "9f1e676270a740db68a1d5ea1cb730988dd51a97ef2ad5b6e9a25c584716cc55",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/project/http/native_test.go": "e0b7fac74a00c45766ec6daf13380fbe382ffe15eeffc6e01b6daefbd4f41908",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/api/openapi/project-owner.json": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/app/project_read.go": "edfe8a16265864d6152c0a79110da4f8d9c4365cfb876006c3ad525483dfb772",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/app/project_read_test.go": "9722e3da78abdd38a9cc9dcc019094264c1227b391c2feabb06a9f7aaae62e3a",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/internal/central/app/account.go": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_fixture_test.go": "56adb3a44e0fb3d4f5d50559a2f31cfcfd2a1e194723b0d44627d7a826d5ac39",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_test.go": "0c7c71519c4c93ece716623ef0dc9c607188ad3a93cf2cc622c272a370cf27ff",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_terminal_test.go": "a849fe7797015a084cfdeed85e445f6203bcf2e87119205e80031aecb445d2f1",
+    "/workspace/scratch/project-owner-read-http-author/candidate03/src/tests/model/project_owner_read_http_root_test.go": "e60e085be366d5ee276ab18b2b0b6f5516c778aed741084db82f308948ee94d8",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/independent_owner_read_test.go": "1f15ad38c6149b2a472bfd6a2d86ca93a7a89abb5dcf039b35bc1cde981edab7",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/independent_http_test.go": "2373d60a23cdf766a6085a24dccf773ef4c892c52d318f269c1134e0f7cfc40c",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/check_real_body_schema.py": "0186de941e2f5b3592369d9743fb5a4545039dc2f6dc73d5e60f0503d9374c00",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "/workspace/scratch/project-owner-read-http-verification/overlay02/overlay.json": "204705123861eb58be63d940928dd110eb42777b085744e417327d507f452926"
+  },
+  "package_file_additions": {
+    "/workspace/agenteam/tests/model": [
+      "zz_independent_project_owner_read_test.go"
+    ],
+    "/workspace/agenteam/internal/central/project/http": [
+      "zz_independent_project_owner_read_test.go"
+    ]
+  },
+  "independent_graphs": [],
+  "offline_acceptance": [],
+  "resource_ready": false,
+  "limitations": [
+    "No independent actual graph/compile/list/pure yet. Resource driver must reject execution.",
+    "Overlay does not redirect runtime os.ReadFile; live candidate/common bytes remain hash-gated, independent schema uses fixed document paths."
+  ],
+  "format_evidence": [
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay01/offline/f01-format-model/result.json",
+      "sha256": "c1a138f4b77a0a42a6057f81cde255391798b598e651c48ffca53b69e562eef0"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-read-http-verification/overlay01/offline/f02-format-http/result.json",
+      "sha256": "e6837b4826177812bbe3051cf46fc1e97b7d6e9923be5ac09847f7a841cad873"
+    }
+  ]
+}

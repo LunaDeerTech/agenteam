@@ -1,0 +1,19 @@
+# D08 Project Owner read HTTP 作者交付
+
+作者范围按版本组合 PASS，独立最终接受和 README 末件仍待 root。已停止产品写入和资源执行，并把唯一资源窗明确交给 usage_verification。
+
+最终 candidate04 的16技术路径全部与仓库现字节一致，精确源/hash见 sources.json；相对已接受4e615c7的最终差量见 product.diff。除 reader_test、wire_test、root_test 的已保留测试修复外，生产自 candidate01 起没有返修；只实现同 Store/Authority 的窄 Reader、完整行/哨兵/当前权限/提交终局、Owner列表详情 GET/HEAD/schema 和默认根局部接线。S2已接受初始化/路由及锁文件未变。没有创建/写/UI/迁移、生产 Skills/生命周期/Resolution/Invocations 或 D24 绑定。ready503、三停止、完整D08–D28/E01未完成保持。
+
+离线证据位于 offline-summary01.json 和 post-candidate04-offline.json。Go普通/race/完整20包fixture/import/embed/TestMain动态两cmd+CGO0图闭合；最初16个旧Project测试输入缺口、过宽图/提取器原件保留。Project普通以原未变通过项加修复后5top组合，全race52top111nested；HTTP普通/race各12top91nested，native3在pure中明确跳过；app最终只执行明确无资源7top94nested普通/race。相关race vet、两cmd build、model/Project integration compile与精确3新6旧发现通过。每条45s上界、actual direct wait/双owned空和输入前后同均有独立原件。
+
+最大合法页真实编码4948120 B（上限5242880 B），100×8192 B description、819200次\u0026转义完整反解。标准schema27代表通过；发现Python模块闭包漏官方meta-schema的20数据文件后，保留旧闭包，仅补既装20文件并重跑schema单top通过，不安装依赖。
+
+三轮正式授权native全部PASS：keepalive、slowbody、writeclose，共3top9nested、10个实际listener。strace前置抓取、direct3/adopted3实际wait、每轮全部关联TCP端口（含TIME_WAIT）和owned进程双空，原件见native-driver-v01/result-summary.json。
+
+PG实际六轮及组合见result.json：new1 Projection5.61s、new2 Terminal5.88s、new3-rerun Root5.27s；旧六以old1五PASS与usage-rerun1单Usage5.36s恢复PASS组成。每轮完整fixture7个精确资源/全Mount/nonce、fresh≥5GiB、actualwait、watchdog线程join、双owned清理及输入一致；adopted0/forced0。新top120s包含Cleanup、包6m，没有扩大预算。6轮新增24个daemon/PID1 shim Z，按实际PID/starttime从基线140到164；它们不属于task-owned，也未由task等待。独立后继差量另计，不声称全机零。
+
+两个PG首红完整保留：new3误将已接受Summary wire的model写为内部DB列名model_id，仅root测试改为严格id/version/model三字段；new3失败后的POST405/foreign404/ready503/同连接/关停断言在重跑全部到达。old1漏旧AGENTEAM_USAGE_SCHEMA_PYTHON，driver-v02只补既有解释器环境和失败单topgroup，旧测试/产品不改、五通过不重复。此前强类型ID编译红与测试DeepEqual opaque LockKey的纯红也按candidate01→02→03保留。
+
+另保留一次授权偏差：app-purerun01误执行全普通包，带入11个旧真实网络top。虽实际exit0/directwait/双owned空，且事后所记录PID/starttime均消失，但无native前置trace，确切端口和归属TIME_WAIT不可追补；该轮不算授权native或根验收。后续明确7纯selector及正式native三轮独立留证。
+
+真实身份来自Bootstrap/Invitation/Redeem/Login；项目来自正式Project.Create加持久Skills测试fixture，不冒生产初始化。archived/特殊canonical状态SQLfixture明确限于测试，不冒生命周期runtime完成。真实Unknown采用目标读完成后才arm的实际PG COMMIT ACK丢失，GET/HEAD都零候选，保留原attempt/cause；受控CommitResult案例与物理代表分开。默认app.Run安全GET原body及真实来源metadata见new3-rerun/safe-http-index.json（两个body为公开测试DTO，无cookie/密码/DSN）。
