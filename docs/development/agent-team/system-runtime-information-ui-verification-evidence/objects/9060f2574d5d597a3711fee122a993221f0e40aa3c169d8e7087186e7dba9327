@@ -1,0 +1,188 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_INVITATIONS_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-invitations.config.js",
+        "--list"
+      ],
+      "config": "system-invitations.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-invitations01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_PROVIDERS_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-providers.config.js",
+        "--list"
+      ],
+      "config": "system-providers.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-providers01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_MODELS_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-models.config.js",
+        "--list"
+      ],
+      "config": "system-models.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-models01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_MODEL_SELECTION_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-model-selection.config.js",
+        "--list"
+      ],
+      "config": "system-model-selection.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-model-selection01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_ACCOUNT_SECURITY_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-account-security.config.js",
+        "--list"
+      ],
+      "config": "system-account-security.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-account-security01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_SMTP_SETTINGS_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-smtp-settings.config.js",
+        "--list"
+      ],
+      "config": "system-smtp-settings.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-smtp-settings01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_SMTP_DELIVERY_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-smtp-delivery.config.js",
+        "--list"
+      ],
+      "config": "system-smtp-delivery.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-smtp-delivery01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_OUTBOUND_POLICY_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-outbound-policy.config.js",
+        "--list"
+      ],
+      "config": "system-outbound-policy.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-outbound-policy01",
+      "selected": "navigation"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+        "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+        "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+        "AGENTEAM_AUDIT_WEB_CASE=navigation",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/playwright/cli.js",
+        "test",
+        "--config",
+        "system-audit.config.js",
+        "--list"
+      ],
+      "config": "system-audit.config.js",
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+      "expected_tests": 1,
+      "name": "old-list-audit01",
+      "selected": "navigation"
+    }
+  ],
+  "env_executable_sha256": "eb1c64bbc9908afcdf8cb48524f17112d8dd76a249f80dee2f01da14747b3b6e",
+  "purpose": "Only --list; placeholder origin/path are never connected/launched. No material exists in list directory.",
+  "resource_execution": false,
+  "source_revision": "C current, candidates fixed by each record_navigation01 before/after gate"
+}

@@ -1,0 +1,33 @@
+{
+  "actual_cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+  "author_delta": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source.diff",
+    "sha256": "bc02c9753eb0795e0d56367cf537e6089435f2b62694bcf472dfc1ba4613d9b7"
+  },
+  "author_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input04/manifest.json",
+    "sha256": "1e41477c2810d5ba78e78021528f7048563ce43245c8de88e50ecb4973f9b9e7"
+  },
+  "changed_author_sources": [
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts"
+  ],
+  "previous_author_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json",
+    "sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f"
+  },
+  "prior_checks": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-results01.json",
+    "sha256": "dbc31738b5fe6097ac603f2a310e2535b33269137d75286fea4ded15ef47146d"
+  },
+  "resources_started": false,
+  "scope": "Only author browser adds explicit current-session check before existing login chain; independent two bodies, Go, driver and overlay unchanged.",
+  "unchanged": [
+    "33 sources",
+    "42 dist",
+    "957 Git baseline",
+    "2892 runtime dependencies",
+    "independent browser and Go tests",
+    "driver02",
+    "overlay02"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "execution-gate02": {
+    "actual_wait": true,
+    "adopted": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "adopted_waits": 0,
+    "cleanup": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/cleanup.json",
+      "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+    },
+    "command": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/command.json",
+      "sha256": "205f79a6e65852d1330f109dc45aebd58e9538c42dd6c132340ea834e8e880f6"
+    },
+    "double_empty": true,
+    "duration_seconds": 2.231,
+    "exit_code": 0,
+    "input_after": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/input-after.json",
+      "sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85"
+    },
+    "input_before": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/input-before.json",
+      "sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85"
+    },
+    "observed": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/observed-processes.json",
+      "sha256": "e7ffd412c6e1a81738d4d2bfa9c33b6b835173b0ae2feb4480389fbb5d4a4294"
+    },
+    "owned_processes": 2,
+    "raw": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/raw.log",
+      "sha256": "3612816be0045e66face16a330fa95aa29398201301aae07796e73cc3bde23a3"
+    },
+    "result": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate02/result.json",
+      "sha256": "a55d74948d4cd2b35d52b0ee16af674c5b4b30d35b06a45cf5e696b39dc907d9"
+    }
+  },
+  "external-go-source-freeze02": {
+    "actual_wait": true,
+    "adopted": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "adopted_waits": 0,
+    "cleanup": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/cleanup.json",
+      "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+    },
+    "command": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/command.json",
+      "sha256": "ce05d4a92916e75e49812158b614a2e028212147c5665224b18d0b9dadcb1e31"
+    },
+    "double_empty": true,
+    "duration_seconds": 1.665,
+    "exit_code": 0,
+    "input_after": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/input-after.json",
+      "sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85"
+    },
+    "input_before": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/input-before.json",
+      "sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85"
+    },
+    "observed": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/observed-processes.json",
+      "sha256": "8de321c85540a41778b803c3538692c46beda5a02ace1283829db40a0ac74f15"
+    },
+    "owned_processes": 1,
+    "raw": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/raw.log",
+      "sha256": "95cc24461d53c5ff466f18d89aca3dfe5a89db767210f8cb07247b63bc882279"
+    },
+    "result": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/external-go-source-freeze02/result.json",
+      "sha256": "9ee570eb79c156fafefbb50cce3f50d2e92217ccd3c8a91dd4d35d77fc0786ff"
+    }
+  }
+}

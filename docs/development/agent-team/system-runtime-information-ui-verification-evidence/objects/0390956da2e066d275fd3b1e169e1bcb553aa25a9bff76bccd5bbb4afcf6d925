@@ -1,0 +1,35 @@
+--- record_navigation01.py
++++ record_harness01.py
+@@ -2,18 +2,16 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ S=Path(__file__).resolve().parent;W=S/'workspace'
+-FILES=['web/src/api/client.ts', 'web/src/api/system-runtime-information.ts', 'web/src/composables/useSession.ts', 'web/src/composables/useSystemRuntimeInformation.ts', 'web/src/tests/system-runtime-information-client.spec.ts', 'web/src/tests/system-runtime-information-state.spec.ts', 'web/src/router/index.ts', 'web/src/router/auth.ts', 'web/src/views/system/SystemSettingsView.vue', 'web/src/views/system/SystemRuntimeInformationView.vue', 'web/src/tests/system-runtime-information.spec.ts', 'web/src/tests/system-user-directory.spec.ts', 'web/src/tests/system-invitations.spec.ts', 'web/src/tests/system-providers.spec.ts', 'web/src/tests/system-models.spec.ts', 'web/src/tests/system-model-selection.spec.ts', 'web/src/tests/system-account-security.spec.ts', 'web/src/tests/system-smtp-settings.spec.ts', 'web/src/tests/system-outbound-policy.spec.ts', 'web/src/tests/system-audit.spec.ts', 'web/src/tests/personal-settings.spec.ts', 'tests/account-captcha-web/e2e/system-invitations.spec.ts', 'tests/account-captcha-web/e2e/system-providers.spec.ts', 'tests/account-captcha-web/e2e/system-models.spec.ts', 'tests/account-captcha-web/e2e/system-model-selection.spec.ts', 'tests/account-captcha-web/e2e/system-account-security.spec.ts', 'tests/account-captcha-web/e2e/system-smtp-settings.spec.ts', 'tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts', 'tests/account-captcha-web/e2e/system-outbound-policy.spec.ts', 'tests/account-captcha-web/e2e/system-audit.spec.ts']
++FILES=['tests/account-captcha-web/e2e/system-account-security.spec.ts', 'tests/account-captcha-web/e2e/system-audit.spec.ts', 'tests/account-captcha-web/e2e/system-invitations.spec.ts', 'tests/account-captcha-web/e2e/system-model-selection.spec.ts', 'tests/account-captcha-web/e2e/system-models.spec.ts', 'tests/account-captcha-web/e2e/system-outbound-policy.spec.ts', 'tests/account-captcha-web/e2e/system-providers.spec.ts', 'tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts', 'tests/account-captcha-web/e2e/system-smtp-settings.spec.ts', 'web/src/api/client.ts', 'web/src/api/system-runtime-information.ts', 'web/src/composables/useSession.ts', 'web/src/composables/useSystemRuntimeInformation.ts', 'web/src/router/auth.ts', 'web/src/router/index.ts', 'web/src/tests/personal-settings.spec.ts', 'web/src/tests/system-account-security.spec.ts', 'web/src/tests/system-audit.spec.ts', 'web/src/tests/system-invitations.spec.ts', 'web/src/tests/system-model-selection.spec.ts', 'web/src/tests/system-models.spec.ts', 'web/src/tests/system-outbound-policy.spec.ts', 'web/src/tests/system-providers.spec.ts', 'web/src/tests/system-runtime-information-client.spec.ts', 'web/src/tests/system-runtime-information-state.spec.ts', 'web/src/tests/system-runtime-information.spec.ts', 'web/src/tests/system-smtp-settings.spec.ts', 'web/src/tests/system-user-directory.spec.ts', 'web/src/views/system/SystemRuntimeInformationView.vue', 'web/src/views/system/SystemSettingsView.vue', 'tests/account/system_runtime_information_web_test.go', 'tests/account/system_runtime_information_web_fixture_test.go', 'tests/account-captcha-web/system-runtime-information.config.js', 'tests/account-captcha-web/e2e/system-runtime-information.spec.ts']
+ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+ 
+ def dependency_gate():
+- prep=json.loads((S/'preparation-c01.json').read_text())
+- expected={p:row['sha256'] for p,row in prep['fixed_files'].items() if p not in FILES}
+- expected.update(prep['accepted_AB'])
++ prep=json.loads((S/'preparation-d01.json').read_text())
++ expected=prep['fixed']|prep['accepted_C']|prep['accepted_dist']
+  actual={p:sha(W/p) for p in expected}
+- tools=json.loads((S/'tools-navigation01.json').read_text())
++ tools=json.loads((S/'tools-harness01.json').read_text())
+  tool_actual={p:sha(Path(p)) for p in tools['files']}
+- config=sha(S/'page-stage.config.ts')
+- return {'all_exact':actual==expected and tool_actual==tools['files'] and config==tools['config_sha256'],'fixed_count':len(actual),'tools_count':len(tool_actual),'preparation_C_sha256':sha(S/'preparation-c01.json'),'tools_sha256':sha(S/'tools-navigation01.json'),'actual':actual,'tools_actual':tool_actual,'config_sha256':config}
++ return {'all_exact':actual==expected and tool_actual==tools['files'],'fixed_count':len(actual),'tools_count':len(tool_actual),'preparation_D_sha256':sha(S/'preparation-d01.json'),'tools_sha256':sha(S/'tools-harness01.json'),'actual':actual,'tools_actual':tool_actual}
+ 
+ def snapshot():return {p:sha(W/p) for p in FILES if (W/p).is_file()}
+ p=argparse.ArgumentParser();p.add_argument('--name',required=True);p.add_argument('--cwd',default='workspace/web');p.add_argument('argv',nargs=argparse.REMAINDER);a=p.parse_args();r=S/'runs'/a.name;r.mkdir(parents=True,exist_ok=False)
+@@ -23,7 +21,7 @@
+ assert deps_before['all_exact'], 'FIXED_READONLY_INPUT_MISMATCH'
+ for n in before:
+  q=r/'source'/n;q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(W/n,q)
+-env={k:v for k,v in os.environ.items() if k in ['PATH','HOME','LANG','LC_ALL','TMPDIR','NODE_OPTIONS','CI']}
++env={k:v for k,v in os.environ.items() if k in ['PATH','HOME','LANG','LC_ALL','TMPDIR','NODE_OPTIONS','CI','GOTOOLCHAIN','GOMODCACHE','GOCACHE','GOPROXY','GOSUMDB','GOWORK','GOFLAGS','CGO_ENABLED']}
+ cmd={'started_at_utc':datetime.now(timezone.utc).isoformat(),'argv':a.argv,'cwd':str((S/a.cwd).resolve()),'env':env,'runner_sha256':sha(Path(__file__)),'resource_execution':False};save('command.json',cmd)
+ def process_rows():
+  rows={}

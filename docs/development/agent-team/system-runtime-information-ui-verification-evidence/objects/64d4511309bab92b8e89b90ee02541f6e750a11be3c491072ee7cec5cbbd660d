@@ -1,0 +1,56 @@
+import hashlib
+import importlib.util
+import json
+import shutil
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+S = Path(__file__).resolve().parent
+OUT = S / 'resource-baseline01'
+OUT.mkdir(mode=0o700, exist_ok=False)
+spec = importlib.util.spec_from_file_location('runtime_driver_readonly', S / 'driver01.py')
+driver = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(driver)
+commands = []
+
+def save(name, value):
+    (OUT / name).write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+def read_command(argv):
+    started = datetime.now(timezone.utc).isoformat()
+    result = subprocess.run(argv, cwd=S / 'workspace', capture_output=True, text=True, timeout=20)
+    commands.append({'argv': argv, 'started_at': started, 'actual_wait': True,
+                     'exit': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr})
+    if result.returncode:
+        raise RuntimeError('read-only resource metadata command failed')
+    return result.stdout
+
+driver.command = read_command
+try:
+    snapshots = []
+    for index in range(2):
+        rows = driver.resources()
+        value = {'time': datetime.now(timezone.utc).isoformat(), 'resources': rows,
+                 'canonical': driver.canonical_resources(rows),
+                 'containers': sum(r['kind'] == 'container' for r in rows.values()),
+                 'networks': sum(r['kind'] == 'network' for r in rows.values()),
+                 'disk': shutil.disk_usage(S)._asdict()}
+        save(f'scan{index + 1}.json', value)
+        snapshots.append(value)
+        if index == 0:
+            time.sleep(0.5)
+    result = {'baseline_counts_2c4n': all(r['containers'] == 2 and r['networks'] == 4 for r in snapshots),
+              'canonical_equal': snapshots[0]['canonical'] == snapshots[1]['canonical'],
+              'disk_both_at_least_5GiB': all(r['disk']['free'] >= 5 * 1024 ** 3 for r in snapshots),
+              'driver_sha256': hashlib.sha256((S / 'driver01.py').read_bytes()).hexdigest(),
+              'actual_wait_all': all(c['actual_wait'] for c in commands),
+              'resource_mutations': False, 'future_start_requires_fresh_baseline': True}
+    save('result.json', result)
+    print(json.dumps(result))
+    raise SystemExit(0 if all(result[k] for k in ['baseline_counts_2c4n', 'canonical_equal', 'disk_both_at_least_5GiB']) else 1)
+finally:
+    save('commands.json', commands)

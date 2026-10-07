@@ -1,0 +1,17 @@
+import {registerHooks,stripTypeScriptTypes} from 'node:module';
+import {readFileSync} from 'node:fs';
+const prefix=new URL('../workspace/web/src/',import.meta.url).href;
+const vue=new URL('../runtime/vue.runtime.esm-browser.mjs',import.meta.url).href;
+registerHooks({
+  resolve(specifier,context,nextResolve) {
+    if(specifier==='vue') return {url:vue,shortCircuit:true};
+    if(context.parentURL?.startsWith(prefix)&&specifier.startsWith('.')&&!specifier.endsWith('.ts'))
+      return {url:new URL(specifier+'.ts',context.parentURL).href,shortCircuit:true};
+    return nextResolve(specifier,context);
+  },
+  load(url,context,nextLoad) {
+    if(url.startsWith(prefix)&&url.endsWith('.ts'))
+      return {format:'module',source:stripTypeScriptTypes(readFileSync(new URL(url),'utf8'),{mode:'transform',sourceUrl:url}),shortCircuit:true};
+    return nextLoad(url,context);
+  },
+});

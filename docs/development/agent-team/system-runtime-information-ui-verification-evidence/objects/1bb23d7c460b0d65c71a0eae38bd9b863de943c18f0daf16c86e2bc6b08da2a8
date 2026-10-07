@@ -1,0 +1,26 @@
+{
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/manifest.json",
+    "sha256": "b3e9089698859ba102da6587d6e12deadecd8b44cf8c6fd3b700f559bf764bb6"
+  },
+  "sources": [
+    {
+      "path": "web/src/api/client.ts",
+      "source": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/api/client.ts",
+      "copy": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/workspace/web/src/api/client.ts",
+      "sha256": "c7c894e8b9baf762823ea5c1b5385d4bf48b76aae33fa9890ad696494bb29526"
+    },
+    {
+      "path": "web/src/api/system-runtime-information.ts",
+      "source": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/api/system-runtime-information.ts",
+      "copy": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/workspace/web/src/api/system-runtime-information.ts",
+      "sha256": "7126e4a1d17260a6c8f467372f65f6d1749ffe7880a5d1099036fa8fc46254ec"
+    },
+    {
+      "path": "web/src/tests/system-runtime-information-client.spec.ts",
+      "source": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/tests/system-runtime-information-client.spec.ts",
+      "copy": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/workspace/web/src/tests/system-runtime-information-client.spec.ts",
+      "sha256": "82047e045ee00a4110dea1c92a43a9ddf411e6dbe2eb334f04b41f90a21b5d6c"
+    }
+  ]
+}

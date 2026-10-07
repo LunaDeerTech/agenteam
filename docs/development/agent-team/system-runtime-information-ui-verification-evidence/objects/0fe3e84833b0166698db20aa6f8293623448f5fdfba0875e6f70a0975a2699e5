@@ -1,0 +1,136 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {setImmediate as turn} from 'node:timers/promises';
+import {AccountFailure} from '../workspace/web/src/api/client.ts';
+import {createAccountAPI} from '../workspace/web/src/api/account.ts';
+import {createSystemAccountAPI} from '../workspace/web/src/api/system-account.ts';
+import {createSystemInvitationAPI} from '../workspace/web/src/api/system-invitations.ts';
+import {createSystemProviderAPI} from '../workspace/web/src/api/system-providers.ts';
+import {createSystemModelAPI} from '../workspace/web/src/api/system-models.ts';
+import {createSystemModelSelectionAPI} from '../workspace/web/src/api/system-model-selection.ts';
+import {createSystemAccountSecurityAPI} from '../workspace/web/src/api/system-account-security.ts';
+import {createSystemSMTPSettingsAPI} from '../workspace/web/src/api/system-smtp-settings.ts';
+import {createSystemSMTPDeliveryAPI} from '../workspace/web/src/api/system-smtp-delivery.ts';
+import {createSystemOutboundPolicyAPI} from '../workspace/web/src/api/system-outbound-policy.ts';
+import {createSystemAuditAPI} from '../workspace/web/src/api/system-audit.ts';
+import {createSystemRuntimeInformationAPI} from '../workspace/web/src/api/system-runtime-information.ts';
+import {createSessionController} from '../workspace/web/src/composables/useSession.ts';
+import {useSystemRuntimeInformation} from '../workspace/web/src/composables/useSystemRuntimeInformation.ts';
+
+// Theme publication is unrelated to these reactivity-only controllers; no DOM is mounted.
+globalThis.document={documentElement:{dataset:{}}};
+const id=n=>`01970000-0000-7000-8000-${n.toString(16).padStart(12,'0')}`;
+const at='2026-10-07T01:02:03.123456Z', path='/api/v1/system/runtime-information';
+const session=(n=2)=>({user:{id:id(1),email:'admin@example.test',username:'admin',display_name:'Admin',role:'admin',theme:'system',version:'1',initial_password_suggestion:false},session:{id:id(n),issued_at:at,idle_expires_at:at,absolute_expires_at:at},csrf_token:'S'.repeat(43)});
+const snapshot=()=>({observed_at:at,central:{version:null,safe_reason:'build_version_not_recorded'},database:{status:'available',safe_reason:null,last_success:{checked_at:at,received_at:at,postgresql_version:'PostgreSQL 17.8',pgvector_version:'0.8.1'}},object_storage:{backend:'minio',assessment:'object_storage_aggregate',status:'available',safe_reason:null,last_success_received_at:at,details:'not_reported'},readiness:{ready:false,safe_reason:'DEPENDENCY_UNAVAILABLE'}});
+const fields=()=>({host:'mail.example',port:587,encryption:'starttls',username:'',sender_email:'sender@example.test',sender_name:'',auto_retry_count:'3',retry_interval_seconds:'60'});
+const settings=()=>({id:id(10),version:'1',configured:true,...fields(),credential_present:false});
+const json=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'Content-Type':status>=400?'application/problem+json':'application/json','X-Request-ID':id(9)}});
+const problemValue=(code,status=503,commit='not_started')=>({type:'urn:agenteam:problem:test',title:'Failure',status,code,detail:'',instance:path,request_id:id(9),commit_state:commit,retry_hint:'lookup'});
+const problem=(code,status=503,commit='not_started')=>json(problemValue(code,status,commit),status);
+function deferred(){let resolve;const promise=new Promise(r=>resolve=r);return{promise,resolve};}
+const outcome=p=>p.then(value=>({value}),error=>({error}));
+async function until(check,label){for(let i=0;i<500;i++){if(check())return;await turn();}assert.ok(check(),label);}
+async function rejected(p,kind){const r=await outcome(p);assert.equal(r.error?.kind,kind);return r;}
+async function fixture(override){
+  const calls=[], pages=[];
+  const f={current:session(),runtime:async()=>json(snapshot()),smtp:async()=>json(settings()),audit:async()=>json({items:[],next_cursor:null})};
+  f.session=async()=>json(f.current);
+  const fetcher=async(p,init)=>{calls.push({path:p,init});if(p==='/api/v1/session')return f.session();if(p===path)return f.runtime(p,init);if(p.startsWith('/api/v1/system/smtp'))return f.smtp(p,init);if(p.startsWith('/api/v1/system/audit'))return f.audit(p,init);throw new Error('Unexpected synthetic endpoint');};
+  const factories=[createAccountAPI,createSystemAccountAPI,createSystemInvitationAPI,createSystemProviderAPI,createSystemModelAPI,createSystemModelSelectionAPI,createSystemAccountSecurityAPI,createSystemSMTPSettingsAPI,createSystemSMTPDeliveryAPI,createSystemOutboundPolicyAPI,createSystemAuditAPI];
+  const auth=createSessionController(...factories.map(make=>make(fetcher)),override??createSystemRuntimeInformationAPI(fetcher));
+  await auth.restore();assert.equal(auth.state.phase,'authenticated');
+  return Object.assign(f,{auth,calls,pages,page(){const p=useSystemRuntimeInformation(auth);pages.push(p);return p;},reads(){return calls.filter(c=>c.path===path);},writes(){return calls.filter(c=>c.init.method!=='GET');},async close(){for(const p of pages)p.dispose();auth.leave();await until(()=>!auth.state.busy,'actual owner must finish during cleanup');}});
+}
+function nativeTail(body,media='application/json'){
+  const gate=deferred();let cancelled=false,joined=false,readStarted=0,readEnded=0,controller;
+  const stream=new ReadableStream({start(c){controller=c;if(body!==undefined)c.enqueue(new TextEncoder().encode(JSON.stringify(body)));},cancel(){cancelled=true;return gate.promise.then(()=>{joined=true;});}});
+  const get=stream.getReader.bind(stream);
+  stream.getReader=(...args)=>{const reader=get(...args),read=reader.read.bind(reader);reader.read=(...r)=>{readStarted++;const native=read(...r);void native.then(()=>readEnded++,()=>readEnded++);return native;};return reader;};
+  return {stream,controller,response:()=>new Response(stream,{headers:{'Content-Type':media}}),release:gate.resolve,get cancelled(){return cancelled;},get joined(){return joined;},get readStarted(){return readStarted;},get readEnded(){return readEnded;}};
+}
+function virtualTimeouts(){
+  const set=globalThis.setTimeout,clear=globalThis.clearTimeout,queue=new Map();let now=0,next=0;
+  globalThis.setTimeout=(fn,ms,...args)=>{const key=++next;queue.set(key,{fn,args,at:now+ms});return key;};
+  globalThis.clearTimeout=key=>queue.delete(key);
+  return{advance(ms){now+=ms;for(const[key,t]of [...queue])if(t.at<=now){queue.delete(key);t.fn(...t.args);}},restore(){globalThis.setTimeout=set;globalThis.clearTimeout=clear;assert.equal(queue.size,0,'all product timers cleared');}};
+}
+
+test('A: qualified safety errors and Runtime reads preserve unrelated unknown material and isolate old identity',async()=>{
+  const f=await fixture(),a=f.auth,identity=a.personalContext.identity;
+  try{
+    await a.system.smtp.get();a.system.smtp.setMaterial(' private synthetic value ');
+    f.smtp=async(_p,init)=>init.method==='GET'?json(settings()):problem('COMMIT_UNKNOWN',503,'unknown');
+    await rejected(a.system.smtp.startUpdate({...fields(),username:'smtp-user',version:'1',credential_action:'keep'}),'problem');
+    assert.ok(f.writes().length===1&&a.system.smtp.progress?.phase==='uncertain'&&a.system.smtp.material.present);
+    const original=f.writes()[0];
+    for(const[status,code,commit]of [[503,'COMMIT_UNKNOWN','unknown'],[403,'CSRF_FAILED','not_started'],[401,'FORBIDDEN','not_started'],[503,'SESSION_REVOKED','not_started']]){
+      f.runtime=async()=>problem(code,status,commit);await rejected(a.system.runtimeInformation.get(),'problem');a.system.runtimeInformation.abandon();
+      assert.ok(a.state.phase==='authenticated'&&a.personalContext.identity===identity&&!a.system.denied&&a.system.smtp.progress?.phase==='uncertain'&&a.system.smtp.material.present);
+    }
+    await a.system.smtp.checkOriginal();assert.ok(a.system.smtp.progress?.canRetryOriginal);
+    await rejected(a.system.smtp.retryOriginal(),'problem');
+    const replay=f.writes()[1];
+    assert.ok(f.writes().length===2&&original.path===replay.path&&original.init.method===replay.init.method&&original.init.body===replay.init.body&&new Headers(original.init.headers).get('Idempotency-Key')===new Headers(replay.init.headers).get('Idempotency-Key')&&new Headers(original.init.headers).get('X-CSRF-Token')===new Headers(replay.init.headers).get('X-CSRF-Token'));
+    f.runtime=async()=>problem('FORBIDDEN',403);await outcome(a.system.runtimeInformation.get());
+    assert.ok(a.state.phase==='authenticated'&&a.personalContext.identity===identity&&a.system.denied&&!a.system.smtp.material.present&&a.system.smtp.progress===null);
+    await a.restore();f.runtime=async()=>problem('SESSION_REVOKED',401);await outcome(a.system.runtimeInformation.get());
+    assert.ok(a.state.phase==='unavailable'&&a.personalContext.identity===null&&f.writes().length===2);
+    console.log(JSON.stringify({combination:'A',mismatched_status_and_csrf_no_cleanup:true,read_unknown_preserves_old_write:true,original_body_key_csrf_equal:true,current403_clears_material:true,legal401_invalidates:true}));
+  }finally{await f.close();}
+
+  // This seam represents a Problem already parsed before abandonment; unlike B it is not a native stream claim.
+  const answer=deferred();let entered=false;
+  const late=await fixture({get:async()=>{entered=true;await answer.promise;throw new AccountFailure('problem',problemValue('SESSION_REVOKED',401));}});
+  let pending;
+  try{
+    pending=outcome(late.auth.system.runtimeInformation.get());await until(()=>entered,'old API entered');late.auth.leave();
+    late.current=session(20);const before=late.calls.length;await late.auth.restore();
+    assert.ok(late.auth.state.busy&&late.calls.length===before&&late.auth.personalContext.identity===null);
+    answer.resolve();await pending;await until(()=>!late.auth.state.busy,'old controlled API actual terminal');
+    assert.equal(late.auth.state.phase,'checking');await late.auth.restore();
+    assert.ok(late.auth.state.phase==='authenticated'&&late.auth.personalContext.identity?.sessionID===id(20)&&!late.auth.system.denied&&late.writes().length===0);
+    console.log(JSON.stringify({combination:'A',old_generation401_ignored:true,new_identity_only_after_actual_tail:true,controlled_parsed_problem_not_native:true}));
+  }finally{answer.resolve();await pending;await late.close();}
+});
+
+test('B: actual native owner tails gate waiting cancellation, virtual timeout and permanent page retirement',async()=>{
+  const f=await fixture(),a=f.auth,held=[];let clock;
+  const hold=(body,media)=>{const h=nativeTail(body,media);held.push(h);return h;};
+  try{
+    const audit=hold(undefined,'text/plain');f.audit=async()=>audit.response();
+    const old=outcome(a.system.audit.list({}));await until(()=>audit.cancelled,'native Audit unread cancel started');
+    const auditSignal=f.calls.at(-1).init.signal,page=f.page();assert.equal(page.state.phase,'waiting');
+    page.cancel();a.system.runtimeInformation.abandon();await rejected(a.system.runtimeInformation.get(),'busy');
+    assert.ok(page.state.phase==='error'&&a.state.busy&&!auditSignal.aborted&&!audit.joined&&f.reads().length===0);
+    audit.release();await old;await until(()=>!a.state.busy,'Audit actual native tail joined');
+    assert.ok(audit.joined&&!audit.stream.locked&&f.reads().length===0);await page.refresh();assert.equal(page.state.phase,'ready');
+
+    const first=hold(snapshot());f.runtime=async()=>first.response();clock=virtualTimeouts();
+    const refresh=page.refresh();await until(()=>first.readStarted>=2,'native complete JSON held awaiting EOF');
+    const runtimeSignal=f.reads().at(-1).init.signal;
+    for(const abandon of [()=>a.system.audit.abandon(),()=>a.system.smtp.abandonRead(),()=>a.system.outboundPolicy.abandonRead(),()=>a.personal.abandon()])abandon();
+    assert.ok(!runtimeSignal.aborted&&a.state.busy&&page.state.observation===null);
+    await rejected(a.system.audit.list({}),'busy');await rejected(a.system.smtp.get(),'busy');await rejected(a.personal.getProfile(),'busy');
+    clock.advance(30000);await refresh;await until(()=>first.cancelled,'Runtime native reader cancel started');
+    assert.ok(page.state.phase==='error'&&page.blocked.value&&a.state.busy&&!first.joined&&first.stream.locked&&first.readStarted===first.readEnded);
+    await page.refresh();assert.equal(f.reads().length,2);
+    first.release();await until(()=>!a.state.busy,'Runtime native reader cancel actual joined');clock.restore();clock=undefined;
+    assert.ok(first.joined&&!first.stream.locked&&page.state.phase==='error'&&f.reads().length===2);
+
+    const second=hold(snapshot());f.runtime=async()=>second.response();const abandoned=page.refresh();await until(()=>second.readStarted>=2,'old instance pending EOF');
+    page.dispose();await abandoned;await until(()=>second.cancelled,'dispose native reader cancel');
+    f.runtime=async()=>json(snapshot());const next=f.page();assert.ok(next.state.phase==='waiting'&&f.reads().length===3&&a.state.busy);
+    second.release();await until(()=>next.state.phase==='ready'&&!a.state.busy,'new instance one read after actual old owner');
+    assert.ok(second.joined&&!second.stream.locked&&page.state.phase==='inactive'&&page.state.observation===null&&f.reads().length===4);
+    page.cancel();await page.refresh();assert.equal(f.reads().length,4);
+    f.session=async()=>problem('DEPENDENCY_UNAVAILABLE');await a.restore();assert.ok(next.state.phase==='inactive'&&!next.isCurrent()&&next.state.observation===null);
+    f.session=async()=>json(f.current);await a.restore();await next.refresh();assert.equal(f.reads().length,4);
+    const fresh=f.page();await until(()=>fresh.state.phase==='ready'&&!a.state.busy,'fresh same-identity page single initial read');assert.equal(f.reads().length,5);
+    fresh.leave();assert.ok(fresh.state.phase==='error'&&fresh.isCurrent()&&fresh.state.observation===null);await fresh.refresh();assert.ok(fresh.state.phase==='ready'&&f.reads().length===6&&f.writes().length===0);
+    console.log(JSON.stringify({combination:'B',waiting_cancel_preserves_other_owner:true,opposite_abandons_preserve_Runtime:true,virtual_timeout_ms:30000,native_reader_tail_joined:true,disposed_old_instance_cannot_publish:true,new_instance_once_after_actual_tail:true,checking503_permanent_retirement:true,same_identity_fresh_instance_once:true,leave_explicit_refresh:true,zero_writes:true}));
+  }finally{
+    for(const h of held)h.release();for(const p of f.pages)p.dispose();a.leave();await until(()=>!a.state.busy,'finally all native tails joined');clock?.restore();
+    assert.ok(held.every(h=>h.joined&&!h.stream.locked),'all three actual cancel tails joined and readers unlocked');
+  }
+});

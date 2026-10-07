@@ -1,0 +1,42 @@
+{
+  "status": "STATIC harness-premise finding; no independent dynamic execution",
+  "inputs": {
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "41346ae83aa8f2cfcd66e32b27c7eb0358267dce45e23beda127c17ade5d4b40",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account/system_runtime_information_web_fixture_test.go": "218d66218871f5f088806565357ae28efdaf2146965818b393c305a75b3cadee",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/api/client.ts": "c7c894e8b9baf762823ea5c1b5385d4bf48b76aae33fa9890ad696494bb29526",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read01/raw.log": "57e0274e90356e762908a4436292a347ac4d45030f5b601e347082335e915523",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read01/command.json": "a73f3d8d1bfbed91cae12ef454351fd62a96200c11cd318689550b749be3d761",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read01/result.json": "21c4d1db93e51f18f7c5aef4358370b4ca1568f0bbe4b17e6841ba7731701af1",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read01/cleanup.json": "5d2ba031521fe2f16239426865ca63e05bdeb6492d0053664667f182ffe0c628",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source-freeze01.json": "ac7146c9d1990c597e4415a3475d60130ec55e0fc825693be3d2a3cb5648f415",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/execution01.json": "b8bf872c9d64cffdf6b6b4b13b0931f232a341cccaf0891739768e813137867a",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account-captcha-web/e2e/independent-runtime-information.spec.ts": "ee4915e60a2ba6f7a35a2fcba4ff312af87e5341ea2047ae42929c569d62b108"
+  },
+  "author_run": {
+    "actual_exit": 1,
+    "seconds": 109.734,
+    "top_seconds": 15.69,
+    "observed_resources": 7,
+    "observed_processes": 119,
+    "adopted_waits": 4,
+    "double_cleanup": true
+  },
+  "observed_safe_fields": {
+    "method": "GET",
+    "path": "runtime",
+    "status": 200,
+    "ended": true,
+    "eof": true,
+    "code": null
+  },
+  "not_recorded_in_safe_line": [
+    "snapshot",
+    "abort state",
+    "network EOF",
+    "reader cancel promise completion"
+  ],
+  "private_original_preserved": true,
+  "new_resources": false,
+  "probe_or_checks_executed": false
+}

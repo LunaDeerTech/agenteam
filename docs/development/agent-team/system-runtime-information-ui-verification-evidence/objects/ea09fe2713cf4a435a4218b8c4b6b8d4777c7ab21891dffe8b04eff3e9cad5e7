@@ -1,0 +1,15 @@
+{
+  "script": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/prepare_runtime_closure01.py",
+  "script_sha256": "1a5af137edb6dadb4b7f0bc75a23aeebe2457f573969c49da753763b9ea087fd",
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/prepare_runtime_closure01.py"
+  ],
+  "tool_session": 98681,
+  "actual_exit": 1,
+  "observed_error": "RuntimeError: missing fixed package: internal/runner/",
+  "reason": "original regexp treated a non-import module-prefix string as package; proper import-token parsing is needed",
+  "failure_before_dependency_copy": true,
+  "resources_started": false,
+  "original_output": "tool functions exec/wait transcript retained; no per-command file runner existed for this initial preparation"
+}

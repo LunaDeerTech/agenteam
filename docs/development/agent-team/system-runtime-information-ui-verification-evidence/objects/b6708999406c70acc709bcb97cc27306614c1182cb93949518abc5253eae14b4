@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/usr/bin/env",
+    "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+    "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+    "AGENTEAM_RUNTIME_INFORMATION_WEB_CASE=read",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node_modules/playwright/cli.js",
+    "test",
+    "--config",
+    "system-runtime-information.config.js",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "resource_execution": false,
+  "runner_sha256": "265086132322425360337c0b142a2fd513c8827757bd476d5dd95b407fb51c66",
+  "started_at_utc": "2026-10-07T05:30:12.095950+00:00"
+}

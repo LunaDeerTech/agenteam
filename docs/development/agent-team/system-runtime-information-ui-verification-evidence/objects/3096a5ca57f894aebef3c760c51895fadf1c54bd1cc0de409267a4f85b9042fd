@@ -1,0 +1,34 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 837719,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 837719,
+      "ppid": 837696,
+      "pgid": 837719,
+      "state": "R",
+      "starttime": "3698490"
+    },
+    {
+      "pid": 837720,
+      "ppid": 837719,
+      "pgid": 837719,
+      "state": "R",
+      "starttime": "3698593"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-runtime-independent-offline-0rm101dp",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

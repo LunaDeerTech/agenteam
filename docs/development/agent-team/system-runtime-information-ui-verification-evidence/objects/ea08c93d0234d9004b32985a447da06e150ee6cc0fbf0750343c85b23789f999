@@ -1,0 +1,238 @@
+[
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "container",
+      "ls",
+      "-aq",
+      "--no-trunc"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.711712+00:00",
+    "stderr": "",
+    "stdout": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\n9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.726071+00:00",
+    "stderr": "",
+    "stdout": "\"a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\"\t\"/agenteam-dev-infra-minio-1\"\t{\"com.docker.compose.config-hash\":\"0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"minio\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/minio\",\"Type\":\"bind\"},{\"Destination\":\"/var/lib/postgresql/data\",\"Driver\":\"local\",\"Mode\":\"\",\"Name\":\"5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260\",\"Propagation\":\"\",\"RW\":true,\"Source\":\"/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data\",\"Type\":\"volume\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.738806+00:00",
+    "stderr": "",
+    "stdout": "\"9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\"\t\"/agenteam-dev-infra-postgres-1\"\t{\"com.docker.compose.config-hash\":\"14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"postgres\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/postgres\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "ls",
+      "-q",
+      "--no-trunc"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.754383+00:00",
+    "stderr": "",
+    "stdout": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\nf5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\naf11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\n9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.766817+00:00",
+    "stderr": "",
+    "stdout": "\"142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\"\t\"agenteam-dev-infra_default\"\t{\"com.docker.compose.config-hash\":\"9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1\",\"com.docker.compose.network\":\"default\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.version\":\"2.40.3\"}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.781511+00:00",
+    "stderr": "",
+    "stdout": "\"f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\"\t\"bridge\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.795062+00:00",
+    "stderr": "",
+    "stdout": "\"af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\"\t\"host\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:36.807620+00:00",
+    "stderr": "",
+    "stdout": "\"9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\"\t\"none\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "container",
+      "ls",
+      "-aq",
+      "--no-trunc"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.321609+00:00",
+    "stderr": "",
+    "stdout": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\n9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.338886+00:00",
+    "stderr": "",
+    "stdout": "\"a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\"\t\"/agenteam-dev-infra-minio-1\"\t{\"com.docker.compose.config-hash\":\"0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"minio\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Driver\":\"local\",\"Mode\":\"\",\"Name\":\"5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260\",\"Propagation\":\"\",\"RW\":true,\"Source\":\"/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data\",\"Type\":\"volume\"},{\"Destination\":\"/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/minio\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.354724+00:00",
+    "stderr": "",
+    "stdout": "\"9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\"\t\"/agenteam-dev-infra-postgres-1\"\t{\"com.docker.compose.config-hash\":\"14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"postgres\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/postgres\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "ls",
+      "-q",
+      "--no-trunc"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.367710+00:00",
+    "stderr": "",
+    "stdout": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\nf5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\naf11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\n9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.384221+00:00",
+    "stderr": "",
+    "stdout": "\"142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\"\t\"agenteam-dev-infra_default\"\t{\"com.docker.compose.config-hash\":\"9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1\",\"com.docker.compose.network\":\"default\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.version\":\"2.40.3\"}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.396753+00:00",
+    "stderr": "",
+    "stdout": "\"f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\"\t\"bridge\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.411137+00:00",
+    "stderr": "",
+    "stdout": "\"af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\"\t\"host\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "/usr/local/bin/docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96"
+    ],
+    "exit": 0,
+    "started_at": "2026-10-07T05:46:37.424950+00:00",
+    "stderr": "",
+    "stdout": "\"9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\"\t\"none\"\t{}\t[]\n"
+  }
+]

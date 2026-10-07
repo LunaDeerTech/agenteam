@@ -1,0 +1,19 @@
+# Runtime Information UI API stage A
+
+Author stage A is frozen for independent review: three candidates only, based on accepted product a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1 and the committed rev2 card 2aceadfef6e7a214bc631822317ccf4283bcabc0. No main/Git write, owner/page/harness/README implementation or real listener/browser/database/container activity occurred.
+
+client.ts adds one fixed GET, a narrow signal-only overload/own-options shape, and a 16384-byte success budget limited to that endpoint. The new parser validates every required closed object, fixed literals, aggregate status/reason pairs, the readiness implication, four canonical Gregorian UTC microsecond instants with an additional Go-zero rejection, and both untrimmed 1–256-byte printable ASCII versions. Historical samples remain required even when unavailable/stale. Legal time inversions and year0000 are accepted. Publication returns detached deeply frozen values. The shared helper and existing response reader/cancellation algorithm are unchanged.
+
+Actual author checks on the frozen candidate:
+
+| Check | Result | Actual outer seconds |
+| --- | --- | ---: |
+| New native Node API tests | 59/59 PASS, exit0 | 1.380 |
+| TypeScript in minimal fixed API/config closure | exit0 | 1.893 |
+| Three-candidate Prettier check | exit0 | 0.728 |
+
+The preceding exact-file Prettier write exited0/0.746s and preserves its three preformat sources in runs/api-format01/source. Pure/type/check inputs were unchanged. Every command has its original argv/cwd/environment/raw, before/after source and dependency hashes, actual child wait, observed PID/starttimes and two empty owned-process sweeps; see checks.json. No failing product/test round occurred in this stage.
+
+Meaningful evidence includes exact wire/zero mutation material, each required/extra deep field, all nine status combinations, invalid readiness and version/time cases, maximal escaped legal versions, 16384/16385 actual success boundaries independent of Content-Length, and complete EOF before publication. Native barriers separately hold overflow cancellation, a cancelled pending read plus reader.cancel, unread wrong-media body.cancel, and an abort-ignoring fetch plus its unread body tail; every held tail is released and the request awaited in finally. Ordinary600000B, Audit1MiB and Provider2MiB success boundaries are exercised at and one byte over; the Runtime Problem branch still accepts a valid600000B Problem and rejects600001B. Problem status/request-ID/media validation remains shared, and status/code facts do not become an API identity decision.
+
+The fixed runtimeinfo service.Validate and HTTP projection are recorded as reference provenance; no new Go oracle was run. The accepted parseSystemInstant helper is reused without changing its domain. Type checking covers the minimal API dependency closure, not the full frontend/App or the old eleven-domain owner matrix. Synthetic cached observations do not prove current dependency health. API-stage author evidence is not independent or whole-card acceptance. Stage B remains unstarted pending root/independent acceptance.

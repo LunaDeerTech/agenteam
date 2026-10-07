@@ -1,0 +1,106 @@
+{
+  "active_commands": false,
+  "artifacts": {
+    "offline-dynamic-build01/agenteam-runner.json": "546bce066ef26f496964b13e89456923e6a7f772e68c9caf85031d605218718d",
+    "offline-dynamic-build01/agenteam.json": "4043f62be7e4f99290e99570bffd7143f43394eb1c0e8b5b192ce46f5b6f6da1",
+    "offline-dynamic-build01/smtp-server.json": "9c6a554845c14e9b99190d2309e5b8c34e8550a54476f0fc68445168496a5b31"
+  },
+  "baseline": {
+    "resource-baseline01/commands.json": "ea08c93d0234d9004b32985a447da06e150ee6cc0fbf0750343c85b23789f999",
+    "resource-baseline01/result.json": "c7c55f99ff164e2693e9433cded9ff3523bdd41a1acd311e025105c5f40f9552",
+    "resource-baseline01/scan1.json": "696b9238ec43962c68dd2afddd338ff758682406efd2b47cd2f4effabf70625b",
+    "resource-baseline01/scan2.json": "5ed7ccf3faa1677e7b843f28005e10c01f69a8195d923b083eb05f7461e17449"
+  },
+  "driver_sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36",
+  "execution_input_sha256": "b1e7ff33e0531c239b66a155756b96b8d2fdb048d6d3262a06b12368303a6ffd",
+  "frozen_at_utc": "2026-10-07T05:50:46.694493+00:00",
+  "local": {
+    "checks.json": "0a3129878691f51b948f5b6b039fe65d08b65cfc391d342603d2137f19046156",
+    "report.md": "f503bd24a0964e37cbe9ad4fc432984fb1fc67eb96b6ad5c18c14b5d0a678d16"
+  },
+  "refs": {
+    "driver01-origin.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01-origin.json",
+      "sha256": "7008c8dbf60179b7621755871941cca85bb51077dc65103f69887d9e794ed384"
+    },
+    "driver01.diff": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01.diff",
+      "sha256": "c1d289ca229aaeecc11b1ec6f1ab3214cf59b1d1aea422a121678e25222424b4"
+    },
+    "driver01.py": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01.py",
+      "sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36"
+    },
+    "harness-runtime-closure02.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-runtime-closure02.json",
+      "sha256": "e08e33df6bd5f683596cc1f03fce5de337f53c0f8df7291e2c28c2204d4af285"
+    },
+    "input01/manifest.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input01/manifest.json",
+      "sha256": "b1e7ff33e0531c239b66a155756b96b8d2fdb048d6d3262a06b12368303a6ffd"
+    },
+    "preparation-execution01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/preparation-execution01.json",
+      "sha256": "b9841b9e97ccf8a2f857534ca5299c99cf2bcc41fbf23c5abb48dcec9f2b991c"
+    },
+    "prepare_runtime_closure01.py": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/prepare_runtime_closure01.py",
+      "sha256": "1a5af137edb6dadb4b7f0bc75a23aeebe2457f573969c49da753763b9ea087fd"
+    },
+    "prepare_runtime_closure02.py": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/prepare_runtime_closure02.py",
+      "sha256": "d3a6b48277e7c681b69a4606cbc801767e7d4838646b3980c2d98b5417f00fec"
+    },
+    "read_baseline01.py": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/read_baseline01.py",
+      "sha256": "64d4511309bab92b8e89b90ee02541f6e750a11be3c491072ee7cec5cbbd660d"
+    },
+    "record-execution01.diff": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/record-execution01.diff",
+      "sha256": "3abbb6d31aabeab53e926cf4d2f1bb8c2c8f495c79b5fd44a39157519f0a6db9"
+    },
+    "record_execution01.py": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/record_execution01.py",
+      "sha256": "27afad81eece8204df770f8cce2af341a9de21c8f967e595696f77c2a7f5d244"
+    },
+    "run_runtime_list01.py": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/run_runtime_list01.py",
+      "sha256": "85796b3a9a28ff0a41f16cf4e25aaf1522dc224fe949a2b46f8716dca48e6289"
+    },
+    "run_runtime_list02.py": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/run_runtime_list02.py",
+      "sha256": "0214493db1c8a5e058ff513f02e340b939c0ac7680910e7b362a66003eedfafc"
+    },
+    "runtime-graph01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runtime-graph01.json",
+      "sha256": "2ebb226e94f8e58953807899ee3f3a7a89da0d94de7191f443f99d60acd75156"
+    },
+    "runtime-graph02.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runtime-graph02.json",
+      "sha256": "5f9bf1d1f0caf71e7dcc63e446124fd3f1710c134809e2f7d8707e6a6d353248"
+    },
+    "runtime-list-argv01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runtime-list-argv01.json",
+      "sha256": "5c282d1d17d29b301a8349823858fdba6c5693d1507a45f9e56d600e37b76c5c"
+    },
+    "runtime-list-argv02.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runtime-list-argv02.json",
+      "sha256": "ab68a7b33645fc1a1b6b1cd613cdc3eb162fcef2fc25fb2313518d594c8e9d23"
+    },
+    "runtime-preparation01-failure.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runtime-preparation01-failure.json",
+      "sha256": "ea09fe2713cf4a435a4218b8c4b6b8d4777c7ab21891dffe8b04eff3e9cad5e7"
+    },
+    "startup-plan01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/startup-plan01.json",
+      "sha256": "8061ed067f44a69f29dc1ac86c90a1e9bdb06bb353a9f73164503e59d1dad363"
+    },
+    "tools-execution01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/tools-execution01.json",
+      "sha256": "c0c4675326f050ead33992594ceb6e8cdf40fd364e587b584bd715611d1cb700"
+    }
+  },
+  "resource_mutations": false,
+  "source34_dist42_unchanged": true,
+  "status": "offline prepared; stopped for root review"
+}

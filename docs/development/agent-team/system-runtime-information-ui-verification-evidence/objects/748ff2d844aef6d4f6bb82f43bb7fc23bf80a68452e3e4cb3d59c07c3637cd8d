@@ -1,0 +1,33 @@
+{
+  "actual_cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+  "author_delta": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/source.diff",
+    "sha256": "7849852cc0a7bcd62fc71e472d1d505f4a23a0c18f1291f095e1cb46dfff5745"
+  },
+  "author_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json",
+    "sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f"
+  },
+  "changed_author_sources": [
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts"
+  ],
+  "independent_body_delta": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/probe01-to02.diff",
+    "sha256": "a0053bfd38471289c1c1d97f2c28253144a346076ad48a97f88cefebfe64dc04"
+  },
+  "previous_author_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json",
+    "sha256": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179"
+  },
+  "private_source02": "9ce7e4662fd1f2a4572664168acff58904a1e3364a22196825fca50a9146113e",
+  "resources_started": false,
+  "scope": "one post-cancel !eof predicate removal; other body/helper bytes unchanged; config/fixture/overlay path rebinding only",
+  "status": "source/driver frozen; exact six offline commands proposed, none executed",
+  "unchanged_author": [
+    "33 other sources",
+    "42 dist",
+    "957 fixed Git dependencies",
+    "2892 external/tool dependencies",
+    "driver"
+  ]
+}

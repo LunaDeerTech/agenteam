@@ -1,0 +1,50 @@
+{
+  "accepted_git_dependency_count": 957,
+  "actual_cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+  "author_driver": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01.py",
+    "sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36"
+  },
+  "author_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json",
+    "sha256": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179"
+  },
+  "author_runtime_dependency_count": 2892,
+  "cache": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+  "cache_coordination": "No command until root grants offline checks; Embeddings cache user reported stopped by root.",
+  "dist_count": 42,
+  "overlay": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/overlay01.json",
+    "sha256": "50664977b86885e3862f9742d362c8c22b76ba15030c896bbb7d241ccd0da644"
+  },
+  "package_json_origin": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/package.json",
+    "sha256": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58"
+  },
+  "private_browser_link": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account-captcha-web/node_modules",
+    "readlink": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/node_modules",
+    "realpath": "/workspace/agenteam/tests/account-captcha-web/node_modules"
+  },
+  "proof_limits": [
+    "No command executed in this preparation",
+    "proxy hold starts after upstream EOF/Close; not a held DB Tx",
+    "synthetic pageshow calls installed listener; not BFCache",
+    "no native focus claim before the real window"
+  ],
+  "source_count": 34,
+  "source_freeze01": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source-freeze01.json",
+    "sha256": "ac7146c9d1990c597e4415a3475d60130ec55e0fc825693be3d2a3cb5648f415"
+  },
+  "status": "frozen source/runner preparation; no offline checks executed",
+  "unchanged_real_contract": [
+    "seven exact resource IDs",
+    "two-container/four-network fresh baseline",
+    "complete Mounts multiset",
+    "owned PID/starttime + direct/adopted actualwait",
+    "double cleanup",
+    "45s browser/120s top/360s package/race/count1/worker1/retry0",
+    "original fixture proxy and IPC semantics"
+  ]
+}

@@ -1,0 +1,8 @@
+import { defineConfig } from './workspace/web/node_modules/vitest/dist/config.js'
+import vue from './workspace/web/node_modules/@vitejs/plugin-vue/dist/index.mjs'
+export default defineConfig({
+  root: '/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web',
+  cacheDir: '/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/vite-page-cache',
+  plugins: [vue()],
+  test: { environment: 'jsdom', include: ['src/tests/system-runtime-information.spec.ts'], restoreMocks: true, maxWorkers: 1, minWorkers: 1, testTimeout: 5000 },
+})

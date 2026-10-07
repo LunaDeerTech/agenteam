@@ -1,0 +1,283 @@
+{
+  "status": "OFFLINE READY; no independent business execution",
+  "author_input03": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json",
+    "sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/execution02.json",
+    "sha256": "f284ab4e0431769788a28eee148f2d8a8c2e7cbaa00143057f1827fee3905530"
+  },
+  "commands": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02.json",
+    "sha256": "094232a67f5dbe211d9d1cd35668a227882acdcb76cb03e799cb272e88f8a2de"
+  },
+  "checks": [
+    {
+      "name": "go-race-list01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 33.45049274300254,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 40,
+        "adopted_wait_count": 0,
+        "raw_sha256": "ccc6d4f0b9346b7a4557bdd49daf89cc2aab9bdd77426c8585e54650ac91bd15",
+        "cleanup_sha256": "72d69579812a4ab488cdd68c61727ceaa037adaaafbc00b44f8350f7fe2889fd"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-race-list01/command.json",
+          "sha256": "f44e6367f3b0814b2a43d077e776b125da97583bf8365d532f88809e0cc8d192"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-race-list01/raw.log",
+          "sha256": "ccc6d4f0b9346b7a4557bdd49daf89cc2aab9bdd77426c8585e54650ac91bd15"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-race-list01/result.json",
+          "sha256": "4f72cceb9096ef318169cb5e8e7479e817becdb99f90373bb521ce8295b3e59d"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-race-list01/cleanup.json",
+          "sha256": "72d69579812a4ab488cdd68c61727ceaa037adaaafbc00b44f8350f7fe2889fd"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-race-list01/input-before.json",
+          "sha256": "9a74c56ee5bcbde0d486232ac528ca7cd336ad62dcc084fa94aa1146998630ad"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-race-list01/input-after.json",
+          "sha256": "9a74c56ee5bcbde0d486232ac528ca7cd336ad62dcc084fa94aa1146998630ad"
+        }
+      }
+    },
+    {
+      "name": "go-vet01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 14.57555994100403,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 62,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cleanup_sha256": "1241d9ca552e33a04f3a5a02cafddd74571afc71ef056ef551e7025862657434"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-vet01/command.json",
+          "sha256": "1fcd845dbb966ca14aa88ce5416dbe428ac328488dbcd8bcdb6c4a838f785dae"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-vet01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-vet01/result.json",
+          "sha256": "9b04e81bfc2a995362d7f03782a98174c3fc54afc5c7c4e903394ce2ffa95e26"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-vet01/cleanup.json",
+          "sha256": "1241d9ca552e33a04f3a5a02cafddd74571afc71ef056ef551e7025862657434"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-vet01/input-before.json",
+          "sha256": "1c0c446aff3a7f4f59622e34f8fcf4c04880ba48e633727740112ad46c1e2ab9"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/go-vet01/input-after.json",
+          "sha256": "1c0c446aff3a7f4f59622e34f8fcf4c04880ba48e633727740112ad46c1e2ab9"
+        }
+      }
+    },
+    {
+      "name": "type01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 1.1334649849959533,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cleanup_sha256": "76ebf5cc02e7b36b08a2c2b6d386295478033773ed0a05deea4d49d341f8dbbc"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/type01/command.json",
+          "sha256": "5ebb4db40af09987894dc7c47be88c919ec22fc9aff5e3569deeb0a06b586a83"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/type01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/type01/result.json",
+          "sha256": "c66dce432de8ba2e1c24b50524ee54dfefc138c6ad2cdd3f79a4f0745507f029"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/type01/cleanup.json",
+          "sha256": "76ebf5cc02e7b36b08a2c2b6d386295478033773ed0a05deea4d49d341f8dbbc"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/type01/input-before.json",
+          "sha256": "83ca0e8c12b20de2dd40dbdc244cfc7d9c79e845636fc0b513f8a97257dc1383"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/type01/input-after.json",
+          "sha256": "83ca0e8c12b20de2dd40dbdc244cfc7d9c79e845636fc0b513f8a97257dc1383"
+        }
+      }
+    },
+    {
+      "name": "list-independent-read01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.9930899160026456,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "fbceaa7891d43311153ecca1189ebeceb1456b8c60952c0ac4860bd066ed55aa",
+        "cleanup_sha256": "0383050a674bb2c13a4a3cd7e17f5b4e1ba5a8f9dcf756a6afce06045bf39c93"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-read01/command.json",
+          "sha256": "f854c9127d499ad311187eb184e68336cc630a14c6601a5f236277b79fa4ddeb"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-read01/raw.log",
+          "sha256": "fbceaa7891d43311153ecca1189ebeceb1456b8c60952c0ac4860bd066ed55aa"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-read01/result.json",
+          "sha256": "dd37de08889678e71bf34cf795f9685f8eb88b0e129cd4a2c6a180f070176ec9"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-read01/cleanup.json",
+          "sha256": "0383050a674bb2c13a4a3cd7e17f5b4e1ba5a8f9dcf756a6afce06045bf39c93"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-read01/input-before.json",
+          "sha256": "34b8f6dc3aa3e7dc88a72075d1491c4aa51d862b321a66fa4871381d6a033663"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-read01/input-after.json",
+          "sha256": "34b8f6dc3aa3e7dc88a72075d1491c4aa51d862b321a66fa4871381d6a033663"
+        }
+      }
+    },
+    {
+      "name": "list-independent-lifecycle01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.9910389780052355,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "806e3deeddf9c4835538f2df990a28138a0d3f2d6933a29808965f5b4407b921",
+        "cleanup_sha256": "5483bbafe2e911adfc5c73d295546fc777a4c53e182b69f2ca44f8e67bc3ba4d"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-lifecycle01/command.json",
+          "sha256": "7081efd354c8e2e4e48004eaccffb8eb65535efe71ca11f07ddc82a380c5f353"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-lifecycle01/raw.log",
+          "sha256": "806e3deeddf9c4835538f2df990a28138a0d3f2d6933a29808965f5b4407b921"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-lifecycle01/result.json",
+          "sha256": "20a3504988c8ace9347e4e878073fa43f69005186e5c9c5cbe5af5af471f6463"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-lifecycle01/cleanup.json",
+          "sha256": "5483bbafe2e911adfc5c73d295546fc777a4c53e182b69f2ca44f8e67bc3ba4d"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-lifecycle01/input-before.json",
+          "sha256": "03b9356d8f2dec22b595d83cf5001afcceff945a5e423a1dc6405dc49b9c447f"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/list-independent-lifecycle01/input-after.json",
+          "sha256": "03b9356d8f2dec22b595d83cf5001afcceff945a5e423a1dc6405dc49b9c447f"
+        }
+      }
+    },
+    {
+      "name": "gate01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 1.2044839809968835,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "3612816be0045e66face16a330fa95aa29398201301aae07796e73cc3bde23a3",
+        "cleanup_sha256": "b5a6b40ce51595797cbf2bec2d48396be6889e34573d8b331141df0ef88ef94d"
+      },
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/gate01/command.json",
+          "sha256": "da61407c03d949ce3668b5e8aec59adf1cf50c909d03a9895db9df9ce46b73c1"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/gate01/raw.log",
+          "sha256": "3612816be0045e66face16a330fa95aa29398201301aae07796e73cc3bde23a3"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/gate01/result.json",
+          "sha256": "45b62da2195dc91f66b20d1c10080c6c7d9f16653128c28d847a74050698af48"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/gate01/cleanup.json",
+          "sha256": "b5a6b40ce51595797cbf2bec2d48396be6889e34573d8b331141df0ef88ef94d"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/gate01/input-before.json",
+          "sha256": "da5e4089c4a3912a3986c6ed839e47125ddba0be065957e2fc6b478c5dbc0369"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/runs/gate01/input-after.json",
+          "sha256": "da5e4089c4a3912a3986c6ed839e47125ddba0be065957e2fc6b478c5dbc0369"
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Go -run ^$ and exact -list: zero test bodies; no TestMain/init in selected tests/account package.",
+    "Playwright --list discovers one test per mode; no browser launched.",
+    "Driver --check-input-only: no execute-authorized/resource execution.",
+    "Every command 45s outer limit, readonly/offline locked dependencies, own tmp; all direct actual waits and two PID/starttime sweeps complete.",
+    "Author input04 later requires narrow rebinding and gate only; no old-input03 rerun."
+  ],
+  "report_assembly_note": "First report assembly exited 1 before writing any file: it incorrectly tested scan dictionaries for emptiness. Each scan has two named empty arrays; corrected field-wise check passed. No command/test rerun or original evidence change."
+}

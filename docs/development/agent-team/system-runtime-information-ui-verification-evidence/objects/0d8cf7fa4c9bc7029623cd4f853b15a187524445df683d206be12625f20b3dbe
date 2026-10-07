@@ -1,0 +1,16 @@
+Runtime UI API 阶段 A 独立结论：PASS（有界静审与两个离线风险组合）。未发现阶段阻断；不据此授予 owner、页面或真实 HTTP 的完成结论。
+
+受验输入为作者 api-stage01 manifest `b3e9089698859ba102da6587d6e12deadecd8b44cf8c6fd3b700f559bf764bb6`，3 候选与 7 必要依赖。正式卡为 `2aceadfef6e7a214bc631822317ccf4283bcabc0`（技术 `85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400`），产品基线为 a0e73bd；本轮未改产品或主树。逐项来源在 [input01.json](input01.json)，执行输入在 [execution01.json](execution01.json)。
+
+静审覆盖完整 API/parser、client 精确差量及接受的 Runtime service/wire/schema。共享 Problem、readJSON、readEmptyBody 与接受的 client 基线逐字相同；新增端点只接受 signal，并独立使用 16384 字节成功体上限。DTO 严格校验全部对象、字段和状态配对；时间复用既有完整日历解析，仅本域额外拒绝四处 Go zero instant；可打印 ASCII 版本保留原空格；返回对象递归冻结并与输入脱离。两依赖非 available 时 readiness 不能是 DEPENDENCY_UNBOUND，双 available 仍可为 DEPENDENCY_UNAVAILABLE。未发现自行收紧正式规则。
+
+本轮直接以锁定 Node 24.19.0、内建 TypeScript stripping loader 执行 [原探针](probe01/api.spec.mjs)，没有 node_modules 或 Go 编译。原 argv/cwd/环境及实际退出见 [command.json](runs/node01/command.json)。外层预算 45s，实际 0.228668s，exit 0，2/2 PASS、0 fail、0 skip。
+
+- A：严格 immutable/detached DTO、19 个非法对象/时间/状态代表，以及 ASCII 长度和终止符边界；固定 GET 的 method/path、same-origin、no-store、redirect-error、原 signal 与无写材料；额外 csrf/body/query/responseBudget 在 fetch 前拒绝。
+- B：原生 ReadableStream 在 16384 字节完整 JSON 到达后继续保持无 EOF，API 尚不返回；真实 close/EOF 后才返回 DTO。16385 超限、已开始 read 的取消、未读错误媒体三种分支都在实际 cancel Promise 释放并 join 后才返回，reader 解锁；非法 UTF-8 拒绝。Runtime 合法 600000 字节 Problem 保留原错误协议；旧成功预算 600000 / 1048576 / 2097152 代表未被新域改动。
+
+[raw.log](runs/node01/raw.log) 保留全部原断言结果与安全布尔，[result.json](runs/node01/result.json) 保留 actual exit。subreaper 在启动子进程前生效，实际 wait 已完成；观测 2 个 owned PID/starttime、0 adopted wait；两扫 known PID 与 descendants 均空，TMP 已删除。39 个实际绑定输入前后相同；[cleanup.json](runs/node01/cleanup.json) 为完整清理证据。没有首轮失败、修前提或重跑。
+
+复用作者已冻结 59/59 pure、最小类型与格式检查 actual 0，原件副本在 author-evidence；未重复该矩阵。原格式写入步骤的变化与 pre-format 源由作者报告保留，不伪称该写入检查输入未变。本轮正式 Go service/wire/schema 仅作固定静态依据，未新增 Go oracle 或声称 Go 动态交叉执行。
+
+限界：这里的 native 是离线 Node 原生 Response/ReadableStream，fetch 为受控注入，不是 HTTP/TCP/browser。16KiB 用合法 JSON 加空白达到 wire 大小，不声称为语义字段的最大 Runtime DTO；旧成功预算代表仅验证 transport 边界，不冒充旧域严格 DTO 全验。未检验第十二 owner、Session/current 权限、App/router、pageshow、实际浏览器焦点或任何业务资源；这些按后续冻结阶段另验。Node 实验性 stripTypeScriptTypes 警告保留于 raw，不影响 actual 0。

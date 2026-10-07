@@ -1,0 +1,13 @@
+# Runtime UI read01 — cancellation observer premise
+
+STATIC finding: the post-cancel `!eof` assertion is invalid for this observer; no product defect is established by read01. The author run remains exit 1 / 109.734s (top 15.69s), with actual wait, seven exact resources and 119 PID/starttime observations cleared in both sweeps, four adopted waits, unchanged input and removed browser runtime.
+
+The frozen observer assigns `eof = true` directly when the original `reader.read()` resolves `{done: true}` (spec lines 293–316). This observes reader termination, not proof that all network response bytes arrived. Frozen `client.ts` lines 181–200 invoke `reader.cancel()` on abort and join the same cancellation promise in `finally`; stream cancellation may legitimately resolve a pending read with `done: true`. Client lines 891–893 preserve cancelled classification and cannot publish success merely because that read returned done.
+
+The original safe log records only GET/runtime/status 200/ended true/eof true/code null. It records no snapshot or abort flag. The failing predicate is reached at the post-cancel call (frozen spec 642–645); the subsequent explicit 401/SESSION_REVOKED and member-login segment was not reached. Do not fill missing observations from this static explanation.
+
+Accept the proposed narrow test-only correction: remove `!eof` only from the three cancellation/route-leave predicates, preserving sequence/path/ended/absence of a complete snapshot. Add the exact failure heading and noSnapshot assertions after the read-case cancellation. Keep the pre-cancel held-prefix `!ended && !eof`, genuine cut-response `!eof`, joined/release ordering, explicit fresh read, 401/SESSION_REVOKED, identity isolation and budgets. No new observer hook/reader is needed; its original `eof` can be documented as read.done.
+
+The independent lifecycle body has the same invalid predicate. Its original file, source-freeze01 and execution01 remain unchanged and UNRUN. Only that post-cancel condition needs the corresponding authorized revision; its existing exact error heading/noSnapshot/focus, proxy join, enabled owner-dependent controls and new successful read remain strong. Reader-ended plus proxy join is not a TCP precommit or retained backend transaction proof; earlier controlled owner-tail evidence remains separate.
+
+Author raw SHA: 57e0274e90356e762908a4436292a347ac4d45030f5b601e347082335e915523. Exact source/run hashes are in read01-cancel-diagnosis01.json. This review executes no test, listener, browser or service and changes no author/product source.

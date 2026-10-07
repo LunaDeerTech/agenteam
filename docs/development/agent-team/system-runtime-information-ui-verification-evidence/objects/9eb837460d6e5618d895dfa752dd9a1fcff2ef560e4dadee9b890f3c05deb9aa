@@ -1,0 +1,28 @@
+# Runtime UI 最终独立验收
+
+**PASS：固定34源可接受，README第35项由作者最后交付。** 独立A/B/C阶段、D静审、作者四个最终真实组与本轮两独立真实组合按精确版本组合；没有新增业务轮。
+
+固定产品 a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1、正式卡2aceadfef6e7a214bc631822317ccf4283bcabc0。作者 input04 `1e41477c2810d5ba78e78021528f7048563ce43245c8de88e50ecb4973f9b9e7`；独立 execution03 `7126260480887e6db740f4c5316f0163398c1da3347b6a71c485c0ce910125f1`、driver02 `a03500bb4d4641500fe93326957436df564b523f7c51e6af13e162414b59a573`。34源/42dist/957固定Git及2892实际外部源与工具依赖；独立私有输入另逐项绑定。精确源清单 [delivery34.json](delivery34.json)，SHA `f0260d0e4fa9621659f522d00b9202fbfc2eecabf13aa13fccb3a83476a5740a`。
+
+独立真实 independent01 实际 exit0/118.972s，session21975已实际关闭。精确两top：CurrentProjection 9.37s（browser4.6s），CancellationAndSession 8.60s（browser4.1s）；两测试全部断言到达。原45s/browser、2m/top、6m/pkg、race/count1、worker1/retry0保持。
+
+R1把同次正式GET严格DTO与页面四区域/四时间/原样版本对照；503读失败清观察、显式新GET恢复，普通账户正式403与新member页面拒绝分列；全程无Runtime写入或额外健康probe。R2以原代理完整上游响应后的hold复现真实浏览器在途读取：busy页pageshow不检查Session；取消后无snapshot/error标题与本地焦点，native read实际结束/代理handler join后才释放owner；显式新读取成功。空闲pageshow503卸载旧实例，公开检查同身份后只一次新GET，旧DOM失联/新标题焦点，零写/零dialog。原生取消允许read.done=true，不再误称该布尔代表网络EOF；成功仍须完整合法DTO/EOF。代理hold不冒充真实DB事务尾或TCP precommit零字节。
+
+实际direct wait与8 adopted waits已完成；136 owned PID/starttime两扫空，7个exact资源两扫absent，runtime/browserTMP删除，monitor0错误。原2c4n的完整Mount对象canonical比较未变；第一扫raw只有既有MinIO两个完整Mount对象顺序交换，第二扫raw也一致，原差量完整保留。历史PPID1僵尸及其他任务PID89884未触碰，不声称本轮回收。输入before/after均 `93f6791e66fe221a6690ec72bebb75c7a5c53d28d4ea875bfcb329d6b9e24cbf`，verification输入未变。
+
+原件位于 `runs/independent01`：command `4a3d5685eab0fb9aac62aa763b426e8b81154525093e6650c3d0675e676223bf`；raw `26981c70420f9a83c394509008cbb268201a3dd923fad24e6c8bd7fa5d5463b2`；result `0d2ffa89041378b037878bc5f42a04fcf04c338f558643b016709c52daa418f5`；cleanup `cb1aa12d4e8c3a1dd85ba80391d63533a1198afac31fc31bd627b12141289ad4`。手动fresh磁盘5,838,045,184B且driver第二次门禁通过；详细argv/env/原基线/nonce IDs/实际wait留原件，无补造。资源窗已交回。
+
+前阶段独立报告复用（A/B/C生产字节未变）：
+
+- /workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/verification-report.md，SHA `0d8cf7fa4c9bc7029623cd4f853b15a187524445df683d206be12625f20b3dbe`。
+- /workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/verification-report.md，SHA `4a605d6aea5a8e78b32f22928100908d4dcbbbed0b7b5f8a9d3b32691a6738a2`。
+- /workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/verification-report.md，SHA `4abf611ce02feccd0db6420dc12d9caf2f9608bfa0a2a8cefb2520dfd895eb38`。
+- /workspace/scratch/agenteam-runtime-ui-harness-independent-5zjy1e_7/review.md，SHA `f20cd2244cc4d6d8e9130831814086a2917584a84490ed1aec29f5923f74532f`。
+
+A两组合验证strictDTO/zero-time/16KiB实际Node EOF与cancel join；B两组合验证第12唯一owner、当前401/403、旧域隔离/virtual30s与实际tail、waiting/退休；C两真实App/router/factory离线组合覆盖后置guard拒绝后显式恢复、checking新实例及焦点代次。Node native/jsdom限制保持，真实浏览器焦点由本轮R2和作者navigation补齐；未重复全部旧域矩阵。
+
+作者 input04 四最终组均actual0+双清：read03 57.871s、navigation01 65.161s、old-audit-navigation01 74.353s、old-outbound-navigation01 78.249s。本独立未重复作者8布局或额外截图，也未把作者视觉报告当作本人view。作者 read01/input02 首红是取消后误要求!eof；read02/input03 首红是合法401进入unavailable后直接等待login。两轮原失败、raw/双清与独立归因永久保留，input04仅测试加真实检查按钮步骤，产品不改；独立source01/execution01未执行历史及一处同类取消谓词修订亦保留。
+
+作者原type CLI/旧format warning/AST SourceFile.text前提红及3辅助脚本原逐轮gate未绑定脚本SHA的限制，仍沿C报告分列，不倒填。六项独立offline与input04唯gate已通过，未变两体/Go/type未重跑。
+
+本卡只交受保护Runtime聚合缓存读取与页面，不扩后台诊断/健康probe、App/shared权限、生产hosting或三项已停止任务。最终报告不冒主树整合后的再测试；所有业务源与运行原件现已停写，无活动资源。

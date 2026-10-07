@@ -1,0 +1,34 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "../../page-stage.config.ts",
+    "-t",
+    "Runtime page uses"
+  ],
+  "child_pid": 724007,
+  "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web",
+  "duration_seconds": 3.678,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T04:52:55.908553+00:00",
+  "input_after_sha256": "1f4e7b7bb99021f9172212e9d5c16957cba6b746675f80544bd6cf0a5608b418",
+  "input_before_sha256": "1f4e7b7bb99021f9172212e9d5c16957cba6b746675f80544bd6cf0a5608b418",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "8e313e395e75ab3421715dd134a4273b4f444d45141081d7f064f77499641577",
+  "readonly_dependencies_unchanged": true,
+  "resource_execution": false,
+  "runner_sha256": "54a5e76d07658ff0f8dac810743f5d4695c3dcb3d3d1bfabca5224b67d10cff9",
+  "started_at_utc": "2026-10-07T04:52:52.230720+00:00",
+  "timed_out": false
+}

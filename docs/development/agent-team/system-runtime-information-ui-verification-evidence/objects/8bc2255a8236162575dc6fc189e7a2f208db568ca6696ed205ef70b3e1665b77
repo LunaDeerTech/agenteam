@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--list",
+    "--config",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/independent-runtime-information.config.js"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web",
+  "env": {
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-discovery/independent-read",
+    "AGENTEAM_RUNTIME_INFORMATION_WEB_CASE": "independent-read",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "inputs_path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-inputs02.json",
+  "inputs_sha256": "0f49493f89c4bcb7b83815c415f8fc6099999deae2d599b7e7e893f16c3a6337",
+  "outer_limit_seconds": 45,
+  "outputs": [],
+  "run_name": "list-independent-read01",
+  "scope": "No business test body/browser/listener/resource execution",
+  "task": "Runtime UI independent preparation; explicit offline grant required"
+}

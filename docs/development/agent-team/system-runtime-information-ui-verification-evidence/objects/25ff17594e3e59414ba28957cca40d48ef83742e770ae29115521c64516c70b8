@@ -1,0 +1,57 @@
+{
+  "checks": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/checks.json",
+    "sha256": "ad8a9cf478b39cec2e6c40fce87404af7f001a287836fcb66c0ddebe9a70a6fe"
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/delta.json",
+    "sha256": "593be23d1154001b5dd6cec32f4ad707e4f3debf162f885612adc9df0e94feef"
+  },
+  "gate": {
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate03/cleanup.json",
+      "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate03/command.json",
+      "sha256": "4bc1dd7e7ed9b48016b5035fc31a1afd37868d818d2611b2f7fad776b1384a23"
+    },
+    "input-after.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate03/input-after.json",
+      "sha256": "7b81b88af1148b9f8ba18ea35a3717635a541e60c11fdb6ce870ca8a69824a2a"
+    },
+    "input-before.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate03/input-before.json",
+      "sha256": "7b81b88af1148b9f8ba18ea35a3717635a541e60c11fdb6ce870ca8a69824a2a"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate03/raw.log",
+      "sha256": "3612816be0045e66face16a330fa95aa29398201301aae07796e73cc3bde23a3"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/execution-gate03/result.json",
+      "sha256": "081f0176bb15ee04e28b161575589058646c40e8d19d6f78be9b03c0dce4d779"
+    }
+  },
+  "harness": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/manifest.json",
+    "sha256": "b6ab9a0ef6eece0d79220be9f2ee96efdf9fa4241f2bbd9e9da771a4b5347f4a"
+  },
+  "input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json",
+    "sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f"
+  },
+  "real_retest_executed": false,
+  "report": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/report.md",
+    "sha256": "484231171d0a64938237dbd7f10a6ea405cb73375c89a46fac41c6e90b8c1cde"
+  },
+  "source_diff": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/source.diff",
+    "sha256": "7849852cc0a7bcd62fc71e472d1d505f4a23a0c18f1291f095e1cb46dfff5745"
+  },
+  "startup_plan": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/startup-plan03.json",
+    "sha256": "9da36eb442627dd795a9542e4b3f4550a8b803fc7db059dccc55b45f7cc3fdc7"
+  }
+}

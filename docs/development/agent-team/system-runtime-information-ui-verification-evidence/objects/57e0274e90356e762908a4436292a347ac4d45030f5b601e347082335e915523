@@ -1,0 +1,115 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.16.220.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0d7134bc059e652c4ed6613f70a61695
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=c6491f96eb1773515858129cb8f24c03
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.167s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+=== RUN   TestAccountSystemRuntimeInformationWebReadAndAuthority
+    system_runtime_information_web_fixture_test.go:458: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:778797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:778797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-runtime-information.spec.ts:322:1 › [read] formal cached Runtime snapshot, ordinary permission, read errors and exact Session Logout
+        [1A[2Ke2e/system-runtime-information.spec.ts:322:1 › [read] formal cached Runtime snapshot, ordinary permission, read errors and exact Session Logout
+        runtime-safe-response-facts [{"method":"GET","path":"runtime","status":200,"ended":true,"eof":true,"code":null}]
+        
+        [1A[2K  1) e2e/system-runtime-information.spec.ts:322:1 › [read] formal cached Runtime snapshot, ordinary permission, read errors and exact Session Logout 
+        
+            Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+        
+            Expected: [32mtrue[39m
+            Received: [31mfalse[39m
+        
+            Call Log:
+            - Timeout 5000ms exceeded while waiting on the predicate
+        
+              353 |   let found: Fact | undefined;
+              354 |   try {
+            > 355 |     await expect
+                  |     ^
+              356 |       .poll(
+              357 |         async () =>
+              358 |           !!(found = (await facts(page)).find(
+                at factAfter (/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/e2e/system-runtime-information.spec.ts:355:5)
+                at /workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/e2e/system-runtime-information.spec.ts:642:5
+        
+        
+        [1A[2K  1 failed
+            e2e/system-runtime-information.spec.ts:322:1 › [read] formal cached Runtime snapshot, ordinary permission, read errors and exact Session Logout 
+        
+    system_runtime_information_web_fixture_test.go:460: actual Runtime information production browser failed: exit status 1
+--- FAIL: TestAccountSystemRuntimeInformationWebReadAndAuthority (15.69s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	15.722s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 0c6bcf17db1bbedc7e83296b291fc596
+D04 outbound fixture cleanup checked for nonce c6491f96eb1773515858129cb8f24c03
+D05 object fixture exact resource cleanup checked nonce=0d7134bc059e652c4ed6613f70a61695

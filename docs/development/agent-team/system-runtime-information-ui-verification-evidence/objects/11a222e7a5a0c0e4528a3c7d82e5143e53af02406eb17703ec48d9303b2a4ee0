@@ -1,0 +1,30 @@
+--- record_state01.py
++++ record_page01.py
+@@ -2,20 +2,18 @@
+ from pathlib import Path
+ from datetime import datetime,timezone
+ S=Path(__file__).resolve().parent;W=S/'workspace'
+-FILES=['web/src/api/client.ts','web/src/api/system-runtime-information.ts','web/src/tests/system-runtime-information-client.spec.ts','web/src/composables/useSession.ts','web/src/composables/useSystemRuntimeInformation.ts','web/src/tests/system-runtime-information-state.spec.ts']
++FILES=['web/src/api/client.ts', 'web/src/api/system-runtime-information.ts', 'web/src/composables/useSession.ts', 'web/src/composables/useSystemRuntimeInformation.ts', 'web/src/tests/system-runtime-information-client.spec.ts', 'web/src/tests/system-runtime-information-state.spec.ts', 'web/src/router/index.ts', 'web/src/router/auth.ts', 'web/src/views/system/SystemSettingsView.vue', 'web/src/views/system/SystemRuntimeInformationView.vue', 'web/src/tests/system-runtime-information.spec.ts', 'web/src/tests/system-user-directory.spec.ts', 'web/src/tests/system-invitations.spec.ts', 'web/src/tests/system-providers.spec.ts', 'web/src/tests/system-models.spec.ts', 'web/src/tests/system-model-selection.spec.ts', 'web/src/tests/system-account-security.spec.ts', 'web/src/tests/system-smtp-settings.spec.ts', 'web/src/tests/system-outbound-policy.spec.ts', 'web/src/tests/system-audit.spec.ts', 'web/src/tests/personal-settings.spec.ts', 'tests/account-captcha-web/e2e/system-invitations.spec.ts', 'tests/account-captcha-web/e2e/system-providers.spec.ts', 'tests/account-captcha-web/e2e/system-models.spec.ts', 'tests/account-captcha-web/e2e/system-model-selection.spec.ts', 'tests/account-captcha-web/e2e/system-account-security.spec.ts', 'tests/account-captcha-web/e2e/system-smtp-settings.spec.ts', 'tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts', 'tests/account-captcha-web/e2e/system-outbound-policy.spec.ts', 'tests/account-captcha-web/e2e/system-audit.spec.ts']
+ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+ 
+ def dependency_gate():
+- prep_a=json.loads((S/'preparation.json').read_text())
+- prep_b=json.loads((S/'preparation-b01.json').read_text())
+- inventory={**prep_a['fixed_files'],**prep_b['fixed_files']}
+- expected={p:row['sha256'] for p,row in inventory.items() if p not in FILES}
+- expected.update(prep_b['accepted_A']['source'])
++ prep=json.loads((S/'preparation-c01.json').read_text())
++ expected={p:row['sha256'] for p,row in prep['fixed_files'].items() if p not in FILES}
++ expected.update(prep['accepted_AB'])
+  actual={p:sha(W/p) for p in expected}
+- tools=json.loads((S/'tools-state01.json').read_text())
++ tools=json.loads((S/'tools-page01.json').read_text())
+  tool_actual={p:sha(Path(p)) for p in tools['files']}
+- config=sha(S/'state-stage.config.ts')
+- return {'all_exact':actual==expected and tool_actual==tools['files'] and config==tools['config_sha256'],'fixed_count':len(actual),'tools_count':len(tool_actual),'preparation_A_sha256':sha(S/'preparation.json'),'preparation_B_sha256':sha(S/'preparation-b01.json'),'tools_sha256':sha(S/'tools-state01.json'),'actual':actual,'tools_actual':tool_actual,'config_sha256':config}
++ config=sha(S/'page-stage.config.ts')
++ return {'all_exact':actual==expected and tool_actual==tools['files'] and config==tools['config_sha256'],'fixed_count':len(actual),'tools_count':len(tool_actual),'preparation_C_sha256':sha(S/'preparation-c01.json'),'tools_sha256':sha(S/'tools-page01.json'),'actual':actual,'tools_actual':tool_actual,'config_sha256':config}
+ 
+ def snapshot():return {p:sha(W/p) for p in FILES if (W/p).is_file()}
+ p=argparse.ArgumentParser();p.add_argument('--name',required=True);p.add_argument('--cwd',default='workspace/web');p.add_argument('argv',nargs=argparse.REMAINDER);a=p.parse_args();r=S/'runs'/a.name;r.mkdir(parents=True,exist_ok=False)

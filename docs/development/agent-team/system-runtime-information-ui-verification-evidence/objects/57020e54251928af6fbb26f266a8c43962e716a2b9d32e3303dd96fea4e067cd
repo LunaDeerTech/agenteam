@@ -1,0 +1,71 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (../../api-stage.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web
+
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > dispatches only the fixed GET with same-origin Cookie and no mutation or query material 56ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own body option, including undefined, before fetch 2ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own query option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own target option, including undefined, before fetch 2ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own cursor option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own identity option, including undefined, before fetch 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own csrf option, including undefined, before fetch 3ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own key option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own avatar option, including undefined, before fetch 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own users option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own invitations option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own providers option, including undefined, before fetch 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own models option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own mailJobs option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own audit option, including undefined, before fetch 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own url option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own headers option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > rejects the own responseBudget option, including undefined, before fetch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > requires the sole options object and own signal before dispatch 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information fixed read contract > returns detached immutable values without trimming printable versions 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects every missing required key and extra key at snapshot 3ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects null, array and scalar instead of snapshot 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects every missing required key and extra key at central 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects null, array and scalar instead of central 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects every missing required key and extra key at database 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects null, array and scalar instead of database 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects every missing required key and extra key at database.last_success 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects null, array and scalar instead of database.last_success 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects every missing required key and extra key at object_storage 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects null, array and scalar instead of object_storage 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects every missing required key and extra key at readiness 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects null, array and scalar instead of readiness 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > enforces the fixed Central, Object Storage and readiness literals without coercion 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > accepts all nine aggregate status pairs with historical samples and broad unavailability 3ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects wrong status/reason pairs for database 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > rejects wrong status/reason pairs for object_storage 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > validates canonical nonzero Gregorian microseconds at observed_at 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > validates canonical nonzero Gregorian microseconds at database.last_success.checked_at 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > validates canonical nonzero Gregorian microseconds at database.last_success.received_at 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > validates canonical nonzero Gregorian microseconds at object_storage.last_success_received_at 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > leaves the accepted helper intact and does not impose time ordering or a client age 0ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > validates postgresql_version as 1–256 printable ASCII bytes 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information all-or-nothing projection > validates pgvector_version as 1–256 printable ASCII bytes 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > accepts maximal escaped legal versions without interpreting their text 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > accepts the actual 16384-byte success including trailing whitespace, regardless of Content-Length 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > does not lower the new endpoint Problem budget or treat COMMIT_UNKNOWN as a successful observation 3ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > preserves the actual bootstrap success budget 2ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > preserves the actual listSystemAudit success budget 3ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > preserves the actual getSystemAudit success budget 3ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > preserves the actual listProviders success budget 9ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > rejects malformed UTF-8, truncated JSON, trailing content, absent body and unexpected success statuses 2ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > rejects redirect indicators and invalid Problem media, status, request ID or deep fields 2ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information status, media and byte boundaries > keeps valid Problem security facts without promoting status/code mismatches into identity decisions 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information actual native I/O completion > publishes nothing after a complete JSON prefix until the native read reaches actual EOF 1ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information actual native I/O completion > rejects 16385 actual bytes but waits for the independent native cancel tail and releases its lock 52ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information actual native I/O completion > joins the cancelled native read and still waits for native reader.cancel completion 104ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information actual native I/O completion > joins wrong-media response.body.cancel without acquiring a reader 52ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information actual native I/O completion > waits for a fetch that ignores abort and then its unread native response cancellation 52ms
+ ✓ src/tests/system-runtime-information-client.spec.ts > Runtime Information actual native I/O completion > publishes no partial projection on native read failure or a valid body with one bad deep field 1ms
+
+ Test Files  1 passed (1)
+      Tests  59 passed (59)
+   Start at  04:12:36
+   Duration  731ms (transform 160ms, setup 0ms, import 191ms, tests 387ms, environment 0ms)
+

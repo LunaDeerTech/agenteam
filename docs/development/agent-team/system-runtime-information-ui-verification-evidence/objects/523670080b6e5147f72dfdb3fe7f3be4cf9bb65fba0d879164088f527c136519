@@ -1,0 +1,72 @@
+{
+  "application": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/application.json",
+    "sha256": "28b1c997c68ce7287bc29b461911e6dc10257cdfb7fda7f5180618823ed02adb"
+  },
+  "changed_source": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source/tests/account-captcha-web/e2e/system-runtime-information.spec.ts",
+    "sha256": "7989df08a4cf6e32a61e4341ca059826279ceae4e641c08ed1f02fd3e21831d8"
+  },
+  "checks": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/checks.json",
+    "sha256": "0cec75b0b8e286fe125a795d9f543845325138925bef08ae2e4c0b795b4420d9"
+  },
+  "files": {
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "7989df08a4cf6e32a61e4341ca059826279ceae4e641c08ed1f02fd3e21831d8",
+    "tests/account-captcha-web/system-runtime-information.config.js": "cc98919ddb3ca76b4e5df9f078050427da573b2aaaf08d449ace39d921c5e373",
+    "tests/account/system_runtime_information_web_fixture_test.go": "218d66218871f5f088806565357ae28efdaf2146965818b393c305a75b3cadee",
+    "tests/account/system_runtime_information_web_test.go": "d0ff7c71af3cac638031507c9f3f502bfcacdec23335294ff8b40ce512a9b121"
+  },
+  "frozen_at_utc": "2026-10-07T06:30:01.814682+00:00",
+  "prepared_source": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source-candidate.json",
+    "sha256": "3de237b9e2ff2c96318c5905b81d239a4daa3ba6bb444b803381c0700e9a17ed"
+  },
+  "preserved_failure": {
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read02/cleanup.json",
+      "sha256": "c13b469c0f15615853f9cb2a67cd59bc24e5c87d1e44f9b119b7c8eb2721f502"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read02/raw.log",
+      "sha256": "43a831f1ad86ba51651fead33d4d6d2217b3104701e4da16553db729db0c327c"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read02/result.json",
+      "sha256": "514d38cae48f3a539fc0f5dfdd18eea07f74849b1e4b1a5a3feb8f7dba3c7f38"
+    }
+  },
+  "previous_D": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/manifest.json",
+    "sha256": "b6ab9a0ef6eece0d79220be9f2ee96efdf9fa4241f2bbd9e9da771a4b5347f4a"
+  },
+  "previous_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json",
+    "sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f"
+  },
+  "product_base": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "read_retest_not_executed": true,
+  "resource_execution": false,
+  "reused_navigation_discovery": {
+    "basis": "Only four statements inside read body added; navigation body/config/helper unchanged.",
+    "raw": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/harness-list-navigation02/raw.log",
+      "sha256": "a6171cf5f1bf40f58cced8ad708515241784b1dded17de50aeb4645e5df34ec4"
+    },
+    "result": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/harness-list-navigation02/result.json",
+      "sha256": "a80d675a27383f2808b0e22854dea30b63a17f59c920415a1a3d3b6b1f4c049b"
+    }
+  },
+  "scope": "Four test-only read-body statements require unavailable heading/noSnapshot and enabled real check-current-Session button click. Existing login URL/ID/member chain unchanged.",
+  "source_diff": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source.diff",
+    "sha256": "bc02c9753eb0795e0d56367cf537e6089435f2b62694bcf472dfc1ba4613d9b7"
+  },
+  "unchanged_counts": {
+    "accepted_Git": 957,
+    "dist": 42,
+    "external_dependencies": 2892,
+    "other_candidate_sources": 33
+  }
+}

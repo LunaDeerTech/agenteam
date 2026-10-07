@@ -1,0 +1,28 @@
+{
+  "verdict": "STATIC PASS",
+  "stage_manifest": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/manifest.json",
+  "stage_manifest_sha256": "88ab0e91abf1532f8a1e70839567d267345683b50c210f99d97c053417584275",
+  "input": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-harness-independent-5zjy1e_7/input01.json",
+    "sha256": "e4d5af53e1f4b2150f9864248867f3476538d3b85f7dadda5b40b9fa2a91df83"
+  },
+  "review": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-harness-independent-5zjy1e_7/review.md",
+    "sha256": "f20cd2244cc4d6d8e9130831814086a2917584a84490ed1aec29f5923f74532f"
+  },
+  "source4": {
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "41346ae83aa8f2cfcd66e32b27c7eb0358267dce45e23beda127c17ade5d4b40",
+    "tests/account-captcha-web/system-runtime-information.config.js": "cc98919ddb3ca76b4e5df9f078050427da573b2aaaf08d449ace39d921c5e373",
+    "tests/account/system_runtime_information_web_fixture_test.go": "218d66218871f5f088806565357ae28efdaf2146965818b393c305a75b3cadee",
+    "tests/account/system_runtime_information_web_test.go": "d0ff7c71af3cac638031507c9f3f502bfcacdec23335294ff8b40ce512a9b121"
+  },
+  "independent_dynamic": false,
+  "runtime_driver_ready": false,
+  "reason": "Full execution closure and concrete driver remain pending.",
+  "limitations": [
+    "No tests/builds/listeners/resources executed.",
+    "Author compile/type/list are preparation evidence only.",
+    "Observer EOF and proxy handler joins do not prove backend transaction or TCP precommit zero bytes.",
+    "Original recorder pre-spawn failure has no independent raw; retained as declared."
+  ]
+}

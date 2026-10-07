@@ -1,0 +1,18 @@
+Runtime UI 阶段 B 独立结论：有界 PASS。完整关键静审与两个独立离线组合未发现阻断；不据此声称 App、浏览器或整卡完成。
+
+固定作者 owner-stage01 manifest `ec828206404299f87ebc98e913b9c8d468c2b3e04ed1affede89f973dcb53626`；B 三源、20 固定 Git 依赖以及 A 三源均逐项匹配。正式卡 `2aceadfef6e7a214bc631822317ccf4283bcabc0`，产品基线 a0e73bd；实际副本及工具来源见 [input01.json](input01.json)，本轮 [execution01.json](execution01.json) SHA `34a9a5e7ad3cff2c3581a71447e2c267190bc605d048a41107251876f0d956f8`。没有产品、主树或 Git 写入。
+
+完整 Session 差量保留前十一 API 位置，仅追加第十二 Runtime API/kind/revision。新 get 捕获当前管理员完整 identity，通过原唯一 Cookie owner；局部 abandon 只推进本域 revision、只取消本域实际操作。身份退休、非管理员 publish 和当前系统拒绝都清 Runtime；合法 Problem 401 的同 identity/generation 安全清理与 current 403 FORBIDDEN 区分，Runtime 不加入旧写域 CSRF_FAILED 清理。其余旧分支没有语义修改。十一旧域（个人/Directory/Invitation/Provider/Model/Selection/AccountSecurity/SMTPSettings/SMTPDelivery/Outbound/Audit）的入口与 abandon 映射静态核对，作者对应全域代表复用；独立未重演十一业务矩阵。
+
+新 controller 只保存该实例的 identity/代次/观察和一次初读资格，没有写意图。waiting 不持有其他域 owner；cancel/leave 同步清观察并终止本次资格，实际 busy 清除后不自动读取。dispose/checking/身份或权限变化永久退休；新合格实例等旧 owner 实际结束后才初读。此 controller 只用 Vue reactivity，可直接测试，不需要组件生命周期或 App。
+
+原作者 state-pure01 为 39 PASS / 1 FAIL：SMTP 例缺正式 settings GET，startUpdate 在 singleton 未建立时拒绝，随后 writes[0] TypeError；原轮不能证明该 pending 尾部。原 type01 exit2 为两处 signal nullable 赋值。test-premise-fix.diff 仅补 GET、实际派发/busy 断言及两处 `?? undefined`；两产品源与原首测副本逐字相同，A 三源未变。作者受影响 pure02 1 PASS / 39 skip，最终 pure03 40/40，type02 与格式检查实际通过；8 轮原 raw/result/cleanup、原失败源码已保留于 author-evidence。格式写入轮的输入变化单独保留，不说成全部轮次输入不变。
+
+独立只执行两个顶层组合，锁定 Node 24.19.0 和 Vue 3.5.43 官方 runtime（同 package-lock；没有 node_modules 全树副本）。原命令见 [command.json](runs/node01/command.json)，原探针见 [owner.spec.mjs](probe01/owner.spec.mjs)。45s 外层实际 0.251321s，exit 0，2/2 PASS、0 fail/skip；未修探针或重跑。
+
+- A：真实十二 factory 的受控 native Response 路径先建立 SMTP singleton，保留未知写的私有材料，再经历 Runtime COMMIT_UNKNOWN 与错配/CSRF_FAILED 读取错误；显式 SMTP check/replay 的原 method/path/body/key/CSRF 安全等值。当前合法 403 清全部系统材料且保留身份；合法 401 销毁身份。另以已经解析 Problem 的受控 API Promise 证明全局退休后旧 generation 401 不污染新身份，旧 actual owner 未终局前 restore 不派发；该小段明确不是 native stream 证明。
+- B：Audit 未读媒体的 native cancel 被扣留时，Runtime waiting/cancel 不 abort 旧 owner、不自动读取；释放并实际 join 后才可显式读。Runtime 完整 JSON 等 EOF 期间，Audit/SMTP/Outbound/个人 abandon 不取消 Runtime，旧域新请求均 busy。virtual 30000ms 使可见错误成立，但实际 reader/cancel 尾部未释放时仍 busy/locked；释放后才解锁，且不自动重读。dispose 后新实例等待旧尾部，仅一次初读；旧实例不能再发布。checking503 永久退休，显式同身份恢复只允许新实例一次初读；leave 后仍存活实例可显式刷新，组合无写请求。
+
+[raw.log](runs/node01/raw.log) 原安全观察均保留。subreaper 在子进程前设置，实际 child wait 完成，观测两个 owned PID/starttime、0 adopted wait；两次扫描 known PID 与 descendants 皆空，TMP 删除。81 实际绑定输入前后完全相同。完整终局见 [result.json](runs/node01/result.json) 和 [cleanup.json](runs/node01/cleanup.json)。Node stripping 实验性警告、Vue development runtime 提示未隐藏。
+
+限界：virtual 30s 与本轮 0.251321s wall time 分列；三个取消尾部用实际原生 Promise 释放并 join，不以进程退出替代尾部证据。fetch 受控，无 HTTP/服务/listener/browser/PG/Docker。仅 Theme 的 documentElement.dataset 接缝提供空容器，无 DOM 挂载、路由或焦点声明。未运行全 Vue/npm 检查或新 Go oracle；A 严格解析和作者类型/全域代表按固定未变来源复用，App/pageshow/真实页面待后续授权。

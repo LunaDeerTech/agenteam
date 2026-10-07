@@ -1,0 +1,25 @@
+{
+  "actual": {
+    "web/.prettierrc.json": "247948f37fa595cc5c84503e35dcb06706b874f01777807691e11a4fc8ee4431",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  },
+  "all_exact": true,
+  "config_sha256": "7ec0bd22b0a4059065036eb263c1403ed34486093a2bc095913ce34c07fb2604",
+  "fixed_count": 7,
+  "preparation_sha256": "a5dbd2cadda4511bf35d94cc03bfd29344654ecf4a7af0d57e4befe93c3c098f",
+  "tools_actual": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/usr/bin/python3.13": "17b78e0a93175e86f9ac03141924fd7a7f0c0c52e66b34bfa0de20ffef989df1",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/.package-lock.json": "b3c46d4d6d7d25282ef60c069e02b181792731f0975e0cd19f62fbb8363ec071",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/prettier/bin/prettier.cjs": "6e922134a3c76fd4de202959bb6aef50bde0c994148075003a15569b7197906e",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/typescript/bin/tsc": "8d5fa5bd883fec0979fc2004f1fe1d99aef40570155d550eadc0b03b55513bf0",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/vitest/vitest.mjs": "39db22f579acf5639bbb17a261408debbde03f4692c0c439e77e7f13aeba74d6"
+  },
+  "tools_count": 6,
+  "tools_sha256": "35004b060ed7339f3859f866601351fc454e2b3f8959f7c1b970998f8ecf237f"
+}

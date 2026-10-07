@@ -1,0 +1,13 @@
+# Runtime read02 登录入口静态归因
+
+结论：确定为测试操作前提缺口，未发现需要修改产品的依据。作者原轮失败保留；不追加动态验证。
+
+固定 input03 的合法 Runtime 401/SESSION_REVOKED 经 useSession `unavailableSession` (407–411) 与 `systemFailure` (1451–1484)，清 identity/browser 后令 phase=unavailable；App 131 只在 anonymous 且 !busy 时跳 /login，protected 模板 199–211 在此状态显示“会话尚未确认”与“检查当前会话”。
+
+该真实按钮调用 restore：878 开始 checking；当前 Session 不可用、无 pending/expectedSession 时，915–924 转 bootstrap；870–876 正式 bootstrap 后 anonymous，实际 owner finally 清 busy 后才满足 App 跳登录条件。旧 Audit browser 1174 先点击用户导航，router/auth 128 触发 restore，不能把它的登录等待直接移植到本 Runtime 原地读 401 流程。LoginView 的 login-email ID 与现 helper 相符。
+
+接受最小修法：仅原 spec 661 前严格断言未确认 heading、无 Runtime snapshot、检查按钮 enabled，并点击真实检查；随后原 login URL/path/query 白名单、新 member identity、旧内容/写入阴性全部保持。禁止 goto/reload 或修改 App/owner。检查按钮 enabled 仍等待实际 owner 尾部释放，不能提前开启新 Cookie 操作。
+
+原 raw 仅记录 #login-email 不存在及固定控制流已经跨过前序 401/SESSION_REVOKED observer 屏障，没有当时 route/DOM 记录；上述 UI/路由原因来自固定源码，不倒填为原轮现场观察。
+
+输入 `/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json` SHA `08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f`；原 raw `/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read02/raw.log` SHA `43a831f1ad86ba51651fead33d4d6d2217b3104701e4da16553db729db0c327c`。useSession 为 owner-stage01 固定源 SHA `c3b4c9a18ac4d3601af6d4bed83d182d39dbe6734e2b89044c263c7bcf757ec1`。

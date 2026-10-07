@@ -1,0 +1,22 @@
+# Runtime UI 独立真实准备：六项离线终局
+
+结论：六项全部 actual exit 0，OFFLINE READY。未执行两个业务测试体，未启动浏览器、监听器或服务。
+
+固定作者 input03 `08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f`，独立 execution02 `f284ab4e0431769788a28eee148f2d8a8c2e7cbaa00143057f1827fee3905530`，六项命令清单 `094232a67f5dbe211d9d1cd35668a227882acdcb76cb03e799cb272e88f8a2de`；原 source-freeze01/execution01 未执行历史与 source02 单条取消谓词修正均保留。
+
+| 检查 | actual exit | 秒 | 本轮观测 PID/starttime |
+|---|---:|---:|---:|
+| go-race-list01 | 0 | 33.450 | 40 |
+| go-vet01 | 0 | 14.576 | 62 |
+| type01 | 0 | 1.133 | 1 |
+| list-independent-read01 | 0 | 0.993 | 1 |
+| list-independent-lifecycle01 | 0 | 0.991 | 1 |
+| gate01 | 0 | 1.204 | 1 |
+
+Go 精确发现两个独立顶层；两个 Playwright mode 各仅发现 1 test。选择的 tests/account 包无 TestMain/init；Go `-run ^$`、Playwright `--list` 和 driver `--check-input-only` 均未执行业务体。
+
+每轮 45s 外层、readonly/offline/p1、独占子进程监督、实际 wait、输入前后同字节、PID/starttime 两扫为空、临时目录已删；六轮均 0 adopted wait。各原 argv/env、raw、result、cleanup 与输入前后 SHA 见 [offline-results01.json](offline-results01.json)，该索引 SHA `dbc31738b5fe6097ac603f2a310e2535b33269137d75286fea4ded15ef47146d`。
+
+实际 cwd 为作者被冻结的 workspace；现六项工具 session 均已退出。作者随后 input04 的单 spec 修订需另作必要窄绑定/gate，不能把此历史 input03 检查冒称新输入执行；未变两个业务体与 Go/type 不需重复。
+
+报告汇总首次脚本在写文件前因错误判断非空 scan 字典为失败而 exit 1；两字典实际均只含两个空数组，按字段检查后通过。未重跑六项或改原件。

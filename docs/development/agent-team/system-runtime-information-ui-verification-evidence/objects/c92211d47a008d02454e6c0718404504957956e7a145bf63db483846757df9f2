@@ -1,0 +1,57 @@
+{
+  "all_dependency_count": 2892,
+  "checks": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/execution-preparation02/checks.json",
+    "sha256": "ed96599b2a733e526b65fdfd39719688649af4e099beaf1583f2cbd8977013c9"
+  },
+  "delta": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/delta.json",
+    "sha256": "e761288f1c33a9da0a220cedd8e192d1294d756f0e9f3a25e1230f9eae7b0272"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01.py",
+    "sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36"
+  },
+  "external_sources": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/external-go-sources.json",
+    "sha256": "b71511bc0a3d1fa845dc0b340991c1991235b7cc7e194544b529c4602f6aa776"
+  },
+  "extractor": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/prepare_external_go_sources02.py",
+    "sha256": "7caa3938efa17a489bfd26ff67d40eb345219fbbc9d541dace3b4157c75deb71"
+  },
+  "frozen_at_utc": "2026-10-07T05:59:43.077652+00:00",
+  "input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json",
+    "sha256": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179"
+  },
+  "new_dependency_count": 2098,
+  "previous_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input01/manifest.json",
+    "sha256": "b1e7ff33e0531c239b66a155756b96b8d2fdb048d6d3262a06b12368303a6ffd"
+  },
+  "previous_preparation": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/execution-preparation01/manifest.json",
+    "sha256": "fbddcee54a40d3603a5c31232446f816ba73dc3d40c2a77a6dad98a70d6c80c7"
+  },
+  "report": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/execution-preparation02/report.md",
+    "sha256": "68cfa05067fdc3fbe1fc6d1fcf9a758b799c3c02997016202fe5f23e86bc7bbf"
+  },
+  "resources_started": false,
+  "startup_plan": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/startup-plan02.json",
+    "sha256": "86cd8048e13f6732f88097969b84f225c1c77fe799ebb4956bf042227ed2550f"
+  },
+  "startup_plan_diff": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/execution-preparation02/startup-plan.diff",
+    "sha256": "c54bf2d4e58f49595e7d848e24e8e3cc312fe64620af6d603036ab462b4950ab"
+  },
+  "status": "prepared; stopped, root real-resource authorization required",
+  "unchanged": {
+    "accepted_Git_files": 957,
+    "candidate_sources": 34,
+    "dist_files": 42,
+    "driver_sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36"
+  }
+}

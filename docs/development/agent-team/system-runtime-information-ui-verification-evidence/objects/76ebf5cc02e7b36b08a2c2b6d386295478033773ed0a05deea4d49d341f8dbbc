@@ -1,0 +1,27 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 810666,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 810666,
+      "ppid": 810642,
+      "pgid": 810666,
+      "state": "R",
+      "starttime": "3608256"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-runtime-independent-offline-b670sxul",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

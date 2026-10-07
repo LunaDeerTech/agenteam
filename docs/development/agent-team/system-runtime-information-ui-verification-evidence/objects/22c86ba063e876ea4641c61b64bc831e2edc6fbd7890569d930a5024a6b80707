@@ -1,0 +1,20 @@
+# Runtime UI 作者结果索引
+
+固定产品为 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`。最终 [delivery34.json](delivery34.json) 逐路径绑定 34 源、42 构建产物、既有不可变源副本和 input04；未复制源码树或缓存。当前无活动资源命令，README 第 35 路径未写。
+
+| 实际轮次 | 固定输入 | browser / Go top | driver 实际退出 / 秒 | 双清 |
+|---|---|---|---|---|
+| read03 | input04 | 7.9s / 12.33s | 0 / 57.871 | 7 IDs、88 PID/start、4 adopted waits |
+| navigation01 | input04 | 7.0s / 11.31s | 0 / 65.161 | 7 IDs、82 PID/start、4 adopted waits |
+| old-audit-navigation01 | input04 | 15.7s / 20.53s | 0 / 74.353 | 7 IDs、85 PID/start、4 adopted waits |
+| old-outbound-navigation01 | input04 | 19.3s / 22.23s | 0 / 78.249 | 7 IDs、83 PID/start、4 adopted waits |
+
+各轮 original command/raw/result/cleanup 的路径及 SHA 在交付清单 `runs` 中；工具 session 均已 actual wait 关闭。每轮原 45s browser / 2m top / 6m package、race/count1/worker1/retry0 保持；前后输入同、完整原资源基线同、精确所属资源/进程及 runtime 双扫为空。历史 PPID1 zombie（包括原 Outbound 89884）未触碰，未声称回收。
+
+A/B/C/D 的原 manifest、report、checks 指针在 `stages`：A/B 产品从接受后保持；C 完整 check 1875 例及实际 App 8 例按其固定版本复用；D 原编译/类型/发现依原记录。两次后续修改均只在新 browser spec，未改产品、Go 或 dist，分别运行必要类型/format/list/dry gate；未机械重跑原矩阵。
+
+原失败全部保留：read01/input02 实际 1/109.734s，取消后原 native read 的 done 可为 true，不能把 observer 的 eof 等同完整响应解析；当轮原安全事实并未投影 snapshot。read02/input03 实际 1/64.776s，已到严格 Runtime 401 后误期待立即出现登录表单，未记录现场 route/DOM；正式 unavailable 状态须用户点击“检查当前会话”。harness-stage02/03 保存两次精确 test-only 修订及原件；read03 已真正走完此前未到的后续链。早期离线 fixture/CLI/format/闭包前提失败和证据限制保持在对应原阶段，不改写为产品通过。
+
+图审：Runtime 八张 light/dark×390/768/1024/1440 均由作者实际 view，无新增视觉问题；root 仅实际查看本轮 light390、dark768。旧 Audit、Outbound 各保留八张 SHA/尺寸，作者每组仅 view light390 与 dark1440 两张代表。所有图均为 900px 高局部视口；不声称覆盖截图外字段、表单或完整长列表。三个原 `visual-review.json` 逐图标明实际范围，几何/焦点/键盘断言与图审分列。
+
+运行闭包为固定 957 Git 文件及 2892 工具/实际 Go 图依赖；原 input01 缺少外部 Go 源指纹的事实和 input02 精确补充保留。root 已只读确认 main93d5863 相对产品仅 docs/AGENTS；本报告不把私有固定运行称为 main 动态实测。只证明本卡缓存信息读取、身份/取消/导航及两个旧导航回归，不外推目标健康探测、外部连接、真实 BFCache、production SPA 或完整 D27。独立最终与 README 仍由 root 后续接受。

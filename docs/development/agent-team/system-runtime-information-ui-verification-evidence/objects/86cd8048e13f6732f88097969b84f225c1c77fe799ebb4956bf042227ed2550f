@@ -1,0 +1,131 @@
+{
+  "after_each_run": [
+    "actual direct Popen wait and adopted wait",
+    "owned PID/starttime and exact nonce-resource IDs double scan",
+    "preserved raw and canonical baseline Mount multiset projections",
+    "both runtime directories empty",
+    "original input and tool gate unchanged"
+  ],
+  "before_every_authorized_run": [
+    "unused name",
+    "fresh >=5368709120 available bytes (the preparation scan is not future permission)",
+    "34 source/42 dist/957 fixed accepted/2892 installed runtime and actual Go graph-source dependency gate",
+    "fresh exact two-container/four-network baseline including full Mount objects, not historical IDs",
+    "task nonce and exact IDs; never touch baseline resources"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj",
+  "driver": {
+    "diff": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01.diff",
+    "diff_sha256": "c1d289ca229aaeecc11b1ec6f1ab3214cf59b1d1aea422a121678e25222424b4",
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01.py",
+    "sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36"
+  },
+  "frozen_manifest": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json",
+    "sha256": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179"
+  },
+  "graphs": {
+    "actual_race_Go_graph": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runtime-graph02.json",
+    "dynamic_build_artifacts_metadata": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/offline-dynamic-build01",
+    "external_Go_sources": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/external-go-sources.json",
+      "sha256": "b71511bc0a3d1fa845dc0b340991c1991235b7cc7e194544b529c4602f6aa776"
+    },
+    "fixed_script_16_roots": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-runtime-closure02.json"
+  },
+  "groups": {
+    "navigation": {
+      "expected_exact_resources": 7,
+      "selector": "^(TestAccountSystemRuntimeInformationWebNavigationAndLifecycle)$",
+      "smtp_pair": false,
+      "startup_argv": [
+        "/usr/bin/python3",
+        "driver01.py",
+        "--name",
+        "navigation01",
+        "--group",
+        "navigation",
+        "--frozen",
+        "input02/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    "old-audit-navigation": {
+      "expected_exact_resources": 7,
+      "selector": "^(TestAccountSystemAuditWebNavigationAndLayouts)$",
+      "smtp_pair": false,
+      "startup_argv": [
+        "/usr/bin/python3",
+        "driver01.py",
+        "--name",
+        "old-audit-navigation01",
+        "--group",
+        "old-audit-navigation",
+        "--frozen",
+        "input02/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    "old-outbound-navigation": {
+      "expected_exact_resources": 7,
+      "selector": "^(TestAccountSystemOutboundPolicyWebNavigationAndLayouts)$",
+      "smtp_pair": false,
+      "startup_argv": [
+        "/usr/bin/python3",
+        "driver01.py",
+        "--name",
+        "old-outbound-navigation01",
+        "--group",
+        "old-outbound-navigation",
+        "--frozen",
+        "input02/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    },
+    "read": {
+      "expected_exact_resources": 7,
+      "selector": "^(TestAccountSystemRuntimeInformationWebReadAndAuthority)$",
+      "smtp_pair": false,
+      "startup_argv": [
+        "/usr/bin/python3",
+        "driver01.py",
+        "--name",
+        "read01",
+        "--group",
+        "read",
+        "--frozen",
+        "input02/manifest.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+      ]
+    }
+  },
+  "original_history": [
+    "Runtime preparation01 non-import string mistaken for package; exit1 retained, corrected tokenizer in revision02",
+    "First driver assembler assumed PATH git=/usr/bin/git; assertion before driver creation. Current driver explicitly binds existing /usr/bin/git. Original tool output retained",
+    "runtime-list01 was non-race metadata; runtime-list02 is the final -race/-tags=integration metadata, neither executes tests",
+    "All C and D checks/failures remain in their original stages",
+    "input01 omitted external Go source hashes; input02 adds only actual race JSON sources and five actual non-race dynamic-build source differences. Original input01/gate01 unchanged."
+  ],
+  "original_limits": {
+    "browser_retries": 0,
+    "browser_seconds": 45,
+    "browser_workers": 1,
+    "count": 1,
+    "go_package_seconds": 360,
+    "offline_commands_seconds": 45,
+    "race": true,
+    "top_seconds": 120
+  },
+  "preparation_baseline": {
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/resource-baseline01",
+    "not_reusable_as_future_current_state": true,
+    "result_sha256": "c7c55f99ff164e2693e9433cded9ff3523bdd41a1acd311e025105c5f40f9552"
+  },
+  "product_base": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "resources_started": false,
+  "status": "prepared only; each resource run requires root window authorization"
+}

@@ -1,0 +1,32 @@
+{
+  "resource_execution": false,
+  "raw_product_modified": false,
+  "results": [
+    {
+      "path": "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+      "accepted_git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "before_sha256": "228a5ff2e1334efef89e42107f562b7ded279dd24549b5395e06b33935964424",
+      "after_sha256": "761af119ace877ccafce0ae06ea994c19b92c4a21f60d2d3740ca06c6d3c5190",
+      "accepted_prettier_compliant": false,
+      "candidate_prettier_compliant": false,
+      "candidate_exact_narrow_adaptation": true,
+      "formatter_commutes_with_narrow_adaptation": true,
+      "resolved_options": {
+        "filepath": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts"
+      }
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-audit.spec.ts",
+      "accepted_git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "before_sha256": "3729ce36f852c913c1b52a551c352106e917db79a5d16713f15d8236566daed2",
+      "after_sha256": "45acdc68b0e968a5b471dbf705707428b71a3311325ed4b95c78eb99f3f759ed",
+      "accepted_prettier_compliant": true,
+      "candidate_prettier_compliant": false,
+      "candidate_exact_narrow_adaptation": true,
+      "formatter_commutes_with_narrow_adaptation": false,
+      "resolved_options": {
+        "filepath": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/e2e/system-audit.spec.ts"
+      }
+    }
+  ]
+}

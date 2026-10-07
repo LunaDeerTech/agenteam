@@ -1,0 +1,102 @@
+import argparse,subprocess,os,time,json,hashlib,sys,shutil,signal,ctypes
+from pathlib import Path
+from datetime import datetime,timezone
+S=Path(__file__).resolve().parent;W=S/'workspace'
+FILES=['web/src/api/client.ts','web/src/api/system-runtime-information.ts','web/src/tests/system-runtime-information-client.spec.ts','web/src/composables/useSession.ts','web/src/composables/useSystemRuntimeInformation.ts','web/src/tests/system-runtime-information-state.spec.ts']
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+
+def dependency_gate():
+ prep_a=json.loads((S/'preparation.json').read_text())
+ prep_b=json.loads((S/'preparation-b01.json').read_text())
+ inventory={**prep_a['fixed_files'],**prep_b['fixed_files']}
+ expected={p:row['sha256'] for p,row in inventory.items() if p not in FILES}
+ expected.update(prep_b['accepted_A']['source'])
+ actual={p:sha(W/p) for p in expected}
+ tools=json.loads((S/'tools-state01.json').read_text())
+ tool_actual={p:sha(Path(p)) for p in tools['files']}
+ config=sha(S/'state-stage.config.ts')
+ return {'all_exact':actual==expected and tool_actual==tools['files'] and config==tools['config_sha256'],'fixed_count':len(actual),'tools_count':len(tool_actual),'preparation_A_sha256':sha(S/'preparation.json'),'preparation_B_sha256':sha(S/'preparation-b01.json'),'tools_sha256':sha(S/'tools-state01.json'),'actual':actual,'tools_actual':tool_actual,'config_sha256':config}
+
+def snapshot():return {p:sha(W/p) for p in FILES if (W/p).is_file()}
+p=argparse.ArgumentParser();p.add_argument('--name',required=True);p.add_argument('--cwd',default='workspace/web');p.add_argument('argv',nargs=argparse.REMAINDER);a=p.parse_args();r=S/'runs'/a.name;r.mkdir(parents=True,exist_ok=False)
+def save(n,v):(r/n).write_text(json.dumps(v,indent=2,sort_keys=True)+'\n')
+before=snapshot();save('input-before.json',before)
+deps_before=dependency_gate();save('dependencies-before.json',deps_before)
+assert deps_before['all_exact'], 'FIXED_READONLY_INPUT_MISMATCH'
+for n in before:
+ q=r/'source'/n;q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(W/n,q)
+env={k:v for k,v in os.environ.items() if k in ['PATH','HOME','LANG','LC_ALL','TMPDIR','NODE_OPTIONS','CI']}
+cmd={'started_at_utc':datetime.now(timezone.utc).isoformat(),'argv':a.argv,'cwd':str((S/a.cwd).resolve()),'env':env,'runner_sha256':sha(Path(__file__)),'resource_execution':False};save('command.json',cmd)
+def process_rows():
+ rows={}
+ for entry in Path('/proc').iterdir():
+  if not entry.name.isdigit():continue
+  try:
+   values=(entry/'stat').read_text().rsplit(')',1)[1].split()
+   rows[int(entry.name)]={'pid':int(entry.name),'ppid':int(values[1]),'pgrp':int(values[2]),'state':values[0],'starttime':values[19],'name':(entry/'comm').read_text().strip()}
+  except (OSError,ValueError,IndexError):pass
+ return rows
+if ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)!=0:raise RuntimeError('offline child subreaper unavailable')
+start=time.monotonic();timed_out=False;observed={};adopted=[]
+def observe(main):
+ rows=process_rows();owned={main}
+ for _ in range(12):
+  expanded=owned|{pid for pid,row in rows.items() if row['ppid'] in owned or row['ppid']==os.getpid() or row['pgrp']==main}
+  if expanded==owned:break
+  owned=expanded
+ for pid in owned:
+  if pid in rows:
+   row=rows[pid];observed[str(pid)+':'+row['starttime']]=row
+ return rows
+def reap(main):
+ rows=observe(main)
+ for row in list(observed.values()):
+  pid=row['pid'];now=rows.get(pid)
+  if pid==main or not now or now['starttime']!=row['starttime'] or now['ppid']!=os.getpid() or now['state']!='Z':continue
+  try:got,status=os.waitpid(pid,os.WNOHANG)
+  except ChildProcessError:continue
+  if got==pid:adopted.append({'pid':pid,'starttime':row['starttime'],'exit':os.waitstatus_to_exitcode(status),'actual_wait':True})
+with (r/'raw.log').open('wb') as raw:
+ child=subprocess.Popen(a.argv,cwd=cmd['cwd'],env=os.environ.copy(),stdout=raw,stderr=subprocess.STDOUT,start_new_session=True)
+ while child.poll() is None:
+  observe(child.pid);reap(child.pid)
+  if time.monotonic()-start>=45:
+   timed_out=True;os.killpg(child.pid,signal.SIGTERM)
+   try:child.wait(timeout=5)
+   except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL)
+   break
+  time.sleep(.02)
+ exit_code=child.wait()
+# Any adopted child remains owned until a real wait; do not infer completion
+# from the main exit or from sending a signal. This is cleanup, not work time.
+reap(child.pid)
+rows=observe(child.pid)
+remaining=[row for row in observed.values() if row['pid'] in rows and rows[row['pid']]['starttime']==row['starttime']]
+if remaining:
+ try:os.killpg(child.pid,signal.SIGTERM)
+ except ProcessLookupError:pass
+ until=time.monotonic()+5
+ while time.monotonic()<until:
+  reap(child.pid);rows=observe(child.pid)
+  remaining=[row for row in observed.values() if row['pid'] in rows and rows[row['pid']]['starttime']==row['starttime']]
+  if not remaining:break
+  time.sleep(.02)
+ if remaining:
+  for row in remaining:
+   if row['state']!='Z':
+    try:os.kill(row['pid'],signal.SIGKILL)
+    except ProcessLookupError:pass
+  for row in remaining:
+   now=process_rows().get(row['pid'])
+   if now and now['starttime']==row['starttime'] and now['ppid']==os.getpid():
+    try:got,status=os.waitpid(row['pid'],0);adopted.append({'pid':got,'starttime':row['starttime'],'exit':os.waitstatus_to_exitcode(status),'actual_wait':True})
+    except ChildProcessError:pass
+cleanup=[]
+for _ in range(2):
+ reap(child.pid);rows=process_rows()
+ cleanup.append({'remaining':[row for row in observed.values() if row['pid'] in rows and rows[row['pid']]['starttime']==row['starttime']]})
+ time.sleep(.05)
+save('observed-processes.json',observed);save('adopted-waits.json',adopted);save('cleanup.json',cleanup)
+after=snapshot();save('input-after.json',after)
+deps_after=dependency_gate();save('dependencies-after.json',deps_after)
+result={**cmd,'finished_at_utc':datetime.now(timezone.utc).isoformat(),'child_pid':child.pid,'exit_code':exit_code,'duration_seconds':round(time.monotonic()-start,3),'actual_wait':True,'adopted_waits':len(adopted),'owned_processes_double_empty':all(not row['remaining'] for row in cleanup),'timed_out':timed_out,'input_unchanged':before==after,'readonly_dependencies_unchanged':deps_before==deps_after and deps_after['all_exact'],'input_before_sha256':sha(r/'input-before.json'),'input_after_sha256':sha(r/'input-after.json'),'raw_sha256':sha(r/'raw.log')};save('result.json',result);print(json.dumps({k:result[k] for k in ['exit_code','duration_seconds','actual_wait','timed_out','input_unchanged','raw_sha256']}));sys.exit(exit_code if exit_code>=0 and deps_before==deps_after and deps_after['all_exact'] and all(not row['remaining'] for row in cleanup) else 1)

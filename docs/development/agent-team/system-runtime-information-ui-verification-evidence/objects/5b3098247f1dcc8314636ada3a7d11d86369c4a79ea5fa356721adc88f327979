@@ -1,0 +1,442 @@
+{
+  "state-format-check01": {
+    "actual_seconds": 1.021,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01",
+    "exit_code": 0,
+    "input_unchanged": true,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/source",
+    "owned_pid_starttime_count": 1,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/command.json",
+        "sha256": "f00875f193ccc4fab226b14e5f0d792de6a6a4333c3cc76ca1826fab7b036280"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/input-after.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/input-before.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/observed-processes.json",
+        "sha256": "ddc903cacf2e63a57c74a1094034bf97a1539e65d4c69ab2f695c0c8c68d378f"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/raw.log",
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format-check01/result.json",
+        "sha256": "95452c6cdf52ae3bb9a4fa789b2394e5e49b94b76965813e562613b55e2d5e4f"
+      }
+    },
+    "timed_out": false
+  },
+  "state-format01": {
+    "actual_seconds": 0.869,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01",
+    "exit_code": 0,
+    "input_unchanged": false,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/source",
+    "owned_pid_starttime_count": 1,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/command.json",
+        "sha256": "de727ee669a8d574881de399bf9e59548ece2d569a4bef0f33f97d723909f4ba"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/input-after.json",
+        "sha256": "9b111b3e70568d5ee0afc913dffba5973ca460ba6981ab7a7e0dc79f265a1fe5"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/input-before.json",
+        "sha256": "3f4c814511b1bf5390b10b7da6480e051f3400da983d10febbba5b3124118f35"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/observed-processes.json",
+        "sha256": "399fbb1cda0a3fe61193c45760becf2b2188334ce976a08325467867d238d602"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/raw.log",
+        "sha256": "401a13c103b681663dc4104076ba4de96abbdb1999adbcadb2020ea4d23b90bf"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format01/result.json",
+        "sha256": "cf0c07ed183a8140cbb4d68e4719aa8df876d59fdb06e1008e45fb77dd28f043"
+      }
+    },
+    "timed_out": false
+  },
+  "state-format02": {
+    "actual_seconds": 0.573,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02",
+    "exit_code": 0,
+    "input_unchanged": true,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/source",
+    "owned_pid_starttime_count": 1,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/command.json",
+        "sha256": "fb5e1e22471bd534e3015ab8767a0503c2266c96b3ed4ef0e0d877e2868530d7"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/input-after.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/input-before.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/observed-processes.json",
+        "sha256": "6f819653f9de313a27f0798d11ecc847840417abed2133cc211316c7644ca7fb"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/raw.log",
+        "sha256": "394451f2e33170416bad840fed6ff98d53fef2c92ca33fc412fb2dbeea510498"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-format02/result.json",
+        "sha256": "81b437edbe85a04d46421f0049018adc9c6fd7792c36c6050a82d9a329056281"
+      }
+    },
+    "timed_out": false
+  },
+  "state-pure01": {
+    "actual_seconds": 2.0,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01",
+    "exit_code": 1,
+    "input_unchanged": true,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/source",
+    "owned_pid_starttime_count": 2,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/command.json",
+        "sha256": "2b5298cf4e92e7a1167abd6fd7b5584397079a758123ab3ca9289942a3d3da15"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/input-after.json",
+        "sha256": "9b111b3e70568d5ee0afc913dffba5973ca460ba6981ab7a7e0dc79f265a1fe5"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/input-before.json",
+        "sha256": "9b111b3e70568d5ee0afc913dffba5973ca460ba6981ab7a7e0dc79f265a1fe5"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/observed-processes.json",
+        "sha256": "4ed619736b6d4da7d600efe9eb0d5622670e3b15b6e21e88cd604cd6f52a665c"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/raw.log",
+        "sha256": "8a10ffee358e0f4bda430b0bdefe241353d140fb9fe1bb69aea1595be5595af4"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure01/result.json",
+        "sha256": "64005d55ca8b737f2d772a79400057ce322867ab30930f8b9adf42f748bda79a"
+      }
+    },
+    "timed_out": false
+  },
+  "state-pure02": {
+    "actual_seconds": 1.827,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02",
+    "exit_code": 0,
+    "input_unchanged": true,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/source",
+    "owned_pid_starttime_count": 2,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/command.json",
+        "sha256": "8e28de84c1f6a49d689a37c4d57edf41ce4a98e808848d533967fa991b7be747"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/input-after.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/input-before.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/observed-processes.json",
+        "sha256": "bcbad86a97cd5499df0d1554e897458efb4c4eb5f2cb1ed8a1da06abf6867c23"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/raw.log",
+        "sha256": "4a0762b05f74db3b41b005f8f3a69e81c7337838712aa70b5e6569dbe61c7b7b"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure02/result.json",
+        "sha256": "5efc3ffe38fe9a8fa6abe8f2e12ceac45959ba9e3f8374e5a2a829c3fe8738e7"
+      }
+    },
+    "timed_out": false
+  },
+  "state-pure03": {
+    "actual_seconds": 1.709,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03",
+    "exit_code": 0,
+    "input_unchanged": true,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/source",
+    "owned_pid_starttime_count": 2,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/command.json",
+        "sha256": "196ecdbfcf66bd3c69954504e1fdfe5e5ff82e4eb0d8fa82b80556c0cf3f460f"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/input-after.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/input-before.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/observed-processes.json",
+        "sha256": "dd1f613cba8d03ded4b01da2ef243a57fdf77cc3f306113dbf4ef5e920a6cd85"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/raw.log",
+        "sha256": "07073701c2d59207ea4e3f3d92dbbc8ad5154d43418c375d2e66192dee5e84c8"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-pure03/result.json",
+        "sha256": "a8a5c51f7753912d280ebc7669fa7907bf63fb015e1c7e807bc0d6140ddbc4a9"
+      }
+    },
+    "timed_out": false
+  },
+  "state-type01": {
+    "actual_seconds": 2.422,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01",
+    "exit_code": 2,
+    "input_unchanged": true,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/source",
+    "owned_pid_starttime_count": 1,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/command.json",
+        "sha256": "2b214e0be4f4ef8ef817f610ad5406f43910c1034f706563a4469965cce9d2c2"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/input-after.json",
+        "sha256": "9b111b3e70568d5ee0afc913dffba5973ca460ba6981ab7a7e0dc79f265a1fe5"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/input-before.json",
+        "sha256": "9b111b3e70568d5ee0afc913dffba5973ca460ba6981ab7a7e0dc79f265a1fe5"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/observed-processes.json",
+        "sha256": "9b94557e762bdf8065a9042a5db5653f3374e556bb290bf5527cb6f1bc26552f"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/raw.log",
+        "sha256": "ae5f53908079ae932c7e27f9f51330f874b783879f3f5f16e8f9172ecbb56ab4"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type01/result.json",
+        "sha256": "8d922dd4bef19f08c0af2ae7ae43b04843e42feb03a4eb651c780f5a8c2e5d79"
+      }
+    },
+    "timed_out": false
+  },
+  "state-type02": {
+    "actual_seconds": 2.878,
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02",
+    "exit_code": 0,
+    "input_unchanged": true,
+    "original_source_directory": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/source",
+    "owned_pid_starttime_count": 1,
+    "owned_processes_double_empty": true,
+    "readonly_dependencies_unchanged": true,
+    "records": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/adopted-waits.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/cleanup.json",
+        "sha256": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/command.json",
+        "sha256": "371fcc95d7210c5539cb51f7fc9f74e45431277282aa2ce3679bb7354bcaae09"
+      },
+      "dependencies-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/dependencies-after.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "dependencies-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/dependencies-before.json",
+        "sha256": "c20e10ef698104d9a33f5716f614b0057ade9491abca08d27f6f2fd19b8c8faa"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/input-after.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/input-before.json",
+        "sha256": "c82740ff2e27cd7965649faacda4fa15f14813e318e5da596883ee5899b9f5aa"
+      },
+      "observed-processes.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/observed-processes.json",
+        "sha256": "7b3ea66b3a1d1884d074dcd1e6aad15d95f09476d46ef80013337650dce19172"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/state-type02/result.json",
+        "sha256": "0ae80c6fdc62579b8324b3b1fcdea21bb7c8ae94d1e92a44b7b081a6cc24403d"
+      }
+    },
+    "timed_out": false
+  }
+}

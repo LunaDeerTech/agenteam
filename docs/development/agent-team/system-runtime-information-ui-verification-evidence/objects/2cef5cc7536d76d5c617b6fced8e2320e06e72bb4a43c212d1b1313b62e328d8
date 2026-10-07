@@ -1,0 +1,86 @@
+{
+  "conclusion": "BOUNDED_STAGE_B_PASS",
+  "report": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/verification-report.md",
+    "sha256": "4a605d6aea5a8e78b32f22928100908d4dcbbbed0b7b5f8a9d3b32691a6738a2"
+  },
+  "actual": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 0.25132139600100345,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "owned_processes_observed": 2,
+    "adopted_wait_count": 0,
+    "raw_sha256": "7fd0b82205139cdd0b4ac88ad7f4ccca8280ccbe47105b39957e11978171e507",
+    "cleanup_sha256": "5fc4eb1c36a0114894e23b2a65511cfc6c6132e36098ca1b3841159d2761b155"
+  },
+  "two_top_level_tests": {
+    "pass": 2,
+    "fail": 0,
+    "skip": 0
+  },
+  "artifacts": {
+    "input01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/input01.json",
+      "sha256": "80d56816e48de48b3a8057eda741b85487d86c904084a937a68ddd7f59fec77b"
+    },
+    "execution01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/execution01.json",
+      "sha256": "34a9a5e7ad3cff2c3581a71447e2c267190bc605d048a41107251876f0d956f8"
+    },
+    "probe01/owner.spec.mjs": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/probe01/owner.spec.mjs",
+      "sha256": "0fe3e84833b0166698db20aa6f8293623448f5fdfba0875e6f70a0975a2699e5"
+    },
+    "probe01/loader.mjs": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/probe01/loader.mjs",
+      "sha256": "30d8fc5c78dceeed7a1edeb7291ea84f0afc905db671082ca20c49b9d84415dc"
+    },
+    "run_offline.py": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/run_offline.py",
+      "sha256": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b"
+    },
+    "runs/node01/raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/runs/node01/raw.log",
+      "sha256": "7fd0b82205139cdd0b4ac88ad7f4ccca8280ccbe47105b39957e11978171e507"
+    },
+    "runs/node01/command.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/runs/node01/command.json",
+      "sha256": "a3ba37283c214cf4393d81875da960735aabf0ca8b45bfc76bc7a3b85000a02b"
+    },
+    "runs/node01/result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/runs/node01/result.json",
+      "sha256": "484c74ba6f2c5cf3a75238d9c414aa64c35ae2b124c4f43b22c06bcd71efc1fe"
+    },
+    "runs/node01/cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/runs/node01/cleanup.json",
+      "sha256": "5fc4eb1c36a0114894e23b2a65511cfc6c6132e36098ca1b3841159d2761b155"
+    },
+    "runs/node01/input-before.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/runs/node01/input-before.json",
+      "sha256": "8c0700d25ce2b784808627b8721be2ba5d50314f433a3f9a140fdd9d4202c446"
+    },
+    "runs/node01/input-after.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/runs/node01/input-after.json",
+      "sha256": "8c0700d25ce2b784808627b8721be2ba5d50314f433a3f9a140fdd9d4202c446"
+    },
+    "delivery3.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-owner-independent-llvfx665/delivery3.json",
+      "sha256": "4394f5c85a57fc31d23d4b0c1ce9135f72f17011d131ad1815b3cb00b8559bee"
+    }
+  },
+  "author_original_failures_retained": [
+    "state-pure01 exit1 39PASS/1FAIL SMTP missing current-settings GET",
+    "state-type01 exit2 two nullable signal assignments"
+  ],
+  "limits": [
+    "No App/router/browser/native HTTP or business resources",
+    "Virtual 30000ms is not wall duration",
+    "Already parsed late401 uses controlled API Promise distinct from native stream evidence",
+    "Eleven old domain matrix reused from author; independent representative subset only"
+  ]
+}

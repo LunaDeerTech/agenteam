@@ -1,0 +1,97 @@
+--- frozen-author-driver01
++++ independent-driver02
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only an explicitly authorized frozen System Runtime Information UI group in a private fixed workspace."""
++"""Run only the two explicitly authorized independent Runtime UI groups over the frozen author workspace."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -16,7 +16,7 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'workspace'
++REPO = Path('/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace')
+ GIT_OBJECT_REPO = Path('/workspace/agenteam')
+ BASE = 'a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1'
+ FROZEN = {}
+@@ -155,25 +155,28 @@
+     for name,expected in FROZEN['dependencies'].items():
+         path=Path(name)
+         dependencies[name]={'realpath':str(path.resolve(strict=True)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+-    return {'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies}
++    return {'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies, 'private_files':{name:sha(Path(name)) for name in FROZEN['private_files']},
++            'private_links':{name:{'readlink':os.readlink(name),'realpath':str(Path(name).resolve(strict=True))} for name in FROZEN['private_links']}}
+ 
+ 
+ def main():
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['read','navigation','old-audit-navigation','old-outbound-navigation'], required=True)
++    parser.add_argument('--group', choices=['read','lifecycle','both'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
++    parser.add_argument('--execute-authorized', action='store_true', help='required for the separately authorized resource window')
+     args = parser.parse_args()
++    if not args.check_input_only and not args.execute_authorized:
++        parser.error('resource execution requires the separate --execute-authorized grant')
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-      'read': ['TestAccountSystemRuntimeInformationWebReadAndAuthority'],
+-      'navigation': ['TestAccountSystemRuntimeInformationWebNavigationAndLifecycle'],
+-      'old-audit-navigation': ['TestAccountSystemAuditWebNavigationAndLayouts'],
+-      'old-outbound-navigation': ['TestAccountSystemOutboundPolicyWebNavigationAndLayouts'],
++      'read': ['TestIndependentRuntimeInformationCurrentProjection'],
++      'lifecycle': ['TestIndependentRuntimeInformationCancellationAndSession'],
++      'both': ['TestIndependentRuntimeInformationCurrentProjection', 'TestIndependentRuntimeInformationCancellationAndSession'],
+     }
+     if Path(args.modcache).resolve(strict=True) != Path('/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache'):
+         raise ValueError('unexpected module cache; use the fixed read-only cache')
+@@ -196,7 +199,7 @@
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+-        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies'])
++        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies', 'private_files', 'private_links'])
+         accepted = current['accepted_baseline']['accepted']
+         print(json.dumps({'candidate_dist_dependencies_match': same, 'accepted_baseline': accepted,
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+@@ -225,7 +228,7 @@
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+         raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+-    if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
++    if any(before[key] != FROZEN[key] for key in ['files', 'dist', 'dependencies', 'private_files', 'private_links']):
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+     browser_runtime = Path(tempfile.mkdtemp(prefix='agtrun-', dir='/tmp'))
+@@ -244,14 +247,14 @@
+     if sum(row['kind']=='container' for row in baseline.values()) != 2 or sum(row['kind']=='network' for row in baseline.values()) != 4:
+         raise RuntimeError('current pre-run resource baseline is not the required two containers/four networks')
+     env = os.environ.copy()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(ROOT / 'overlay02.json')
+     env.update({'PATH': '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin',
+                 'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'AGENTEAM_AUTH_WEB_RUNTIME': str(browser_runtime), 'AGENTEAM_AUTH_WEB_IMAGES': str(images),
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+-                'GOCACHE': '/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache', 'TMPDIR': str(runtime),
++                'GOCACHE': '/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache', 'TMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+     argv = ['/usr/bin/sh', 'scripts/test-security.sh', '-run', args.selector]
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+@@ -332,7 +335,7 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['private_files'] == after['private_files'] and before['private_links'] == after['private_links'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'resource_ownership_valid': all(row['nonce_present'] and row['mounts_within_task_runtime'] for row in ownership.values()),
+                'expected_resources': expected_resource_count, 'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),

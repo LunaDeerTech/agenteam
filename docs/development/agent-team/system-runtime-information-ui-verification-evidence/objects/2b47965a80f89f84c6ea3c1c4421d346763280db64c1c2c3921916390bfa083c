@@ -1,0 +1,84 @@
+{
+  "conclusion": "BOUNDED_STAGE_A_PASS",
+  "report": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/verification-report.md",
+    "sha256": "0d8cf7fa4c9bc7029623cd4f853b15a187524445df683d206be12625f20b3dbe"
+  },
+  "delivery3": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/delivery3.json",
+    "sha256": "1bb23d7c460b0d65c71a0eae38bd9b863de943c18f0daf16c86e2bc6b08da2a8"
+  },
+  "artifacts": {
+    "input01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/input01.json",
+      "sha256": "ea5c180c42b7d309fe2a919561c57e9c4eebb174ba5715be7321093bb0a39ae6"
+    },
+    "execution01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/execution01.json",
+      "sha256": "90ff3d768adfc9579202bb2589c22aab7f63cf19bfb7592c79ccc1356c29d838"
+    },
+    "probe01/api.spec.mjs": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/probe01/api.spec.mjs",
+      "sha256": "3518b26115ee5e3ce0b88669147e1168c1e3c6b02d234e7d60943a4b7348901b"
+    },
+    "probe01/loader.mjs": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/probe01/loader.mjs",
+      "sha256": "edfe45e33878a1fb93784f2fd7b2b197660d82b153967ae0703165be9ecc8cbe"
+    },
+    "run_offline.py": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/run_offline.py",
+      "sha256": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b"
+    },
+    "runs/node01/command.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/runs/node01/command.json",
+      "sha256": "18feef90d9e4dc430219c310d72550f5228665ac3ff39fab6c6b3b6f67537d85"
+    },
+    "runs/node01/raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/runs/node01/raw.log",
+      "sha256": "79f5f35c4919f28c8698271548e22e271f85f2dee8b9d55360a2b6d2621da957"
+    },
+    "runs/node01/result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/runs/node01/result.json",
+      "sha256": "c3b19d6dccac60d49f626a881db0afe8c9754315b189f805d5d473ed1e12241d"
+    },
+    "runs/node01/cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/runs/node01/cleanup.json",
+      "sha256": "d7931d0241f29c8b9c38adaa82cb37fc0219aa10cff3b5dc58515fc809344e4b"
+    },
+    "runs/node01/input-before.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/runs/node01/input-before.json",
+      "sha256": "39dd890f34ee0eee085a6aaeb401425930f96b351b3b6f0a75168b818729230d"
+    },
+    "runs/node01/input-after.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-api-independent-j_vrrpa0/runs/node01/input-after.json",
+      "sha256": "39dd890f34ee0eee085a6aaeb401425930f96b351b3b6f0a75168b818729230d"
+    }
+  },
+  "actual": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 0.22866773100031423,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "owned_processes_observed": 2,
+    "adopted_wait_count": 0,
+    "raw_sha256": "79f5f35c4919f28c8698271548e22e271f85f2dee8b9d55360a2b6d2621da957",
+    "cleanup_sha256": "d7931d0241f29c8b9c38adaa82cb37fc0219aa10cff3b5dc58515fc809344e4b"
+  },
+  "top_level_tests": {
+    "total": 2,
+    "pass": 2,
+    "fail": 0,
+    "skipped": 0
+  },
+  "resource_execution": false,
+  "limitations": [
+    "Controlled offline native Node streams; no HTTP/TCP/browser",
+    "No independent Go run; accepted fixed formal contract reused statically",
+    "Owner/page/identity and real-resource stages not evaluated",
+    "Legacy successful budget probes validate transport only"
+  ]
+}

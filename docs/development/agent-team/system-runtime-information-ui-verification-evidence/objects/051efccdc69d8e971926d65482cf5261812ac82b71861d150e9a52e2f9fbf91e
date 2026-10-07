@@ -1,0 +1,21 @@
+--- /workspace/scratch/agenteam-audit-page-independent-q5uly54i/run_offline.py
++++ /workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/run_offline.py
+@@ -24,7 +24,8 @@
+ 
+ def fingerprints():
+     actual = {p: digest(p) for p in plan['files']}
+-    return {'files': actual, 'matches_frozen': actual == plan['files'], 'execution_sha256': digest(EXECUTION)}
++    links = {p: os.readlink(p) if Path(p).is_symlink() else None for p in plan.get('symlinks', {})}
++    return {'files': actual, 'symlinks': links, 'matches_frozen': actual == plan['files'] and links == plan.get('symlinks', {}), 'execution_sha256': digest(EXECUTION)}
+ 
+ def processes():
+     found = {}
+@@ -45,7 +46,7 @@
+     raise SystemExit('input gate failed before execution')
+ if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+     raise RuntimeError('subreaper setup failed')
+-tmp = Path(tempfile.mkdtemp(prefix='agt-audit-offline-', dir='/tmp'))
++tmp = Path(tempfile.mkdtemp(prefix='agt-runtime-ui-app-offline-', dir='/tmp'))
+ env = os.environ.copy()
+ env.update(plan.get('env', {}))
+ env.update({'TMPDIR': str(tmp), 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', 'TZ': 'UTC'})

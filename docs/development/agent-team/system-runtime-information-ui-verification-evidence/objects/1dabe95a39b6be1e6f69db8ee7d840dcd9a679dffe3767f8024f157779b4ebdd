@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/driver02.py",
+    "--name",
+    "offline-gate02",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/execution03.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+  "env": {},
+  "inputs_path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-inputs03.json",
+  "inputs_sha256": "c88eb2ef2e3c4d147cc1113529383ba19b1a41378770ffc69443ead19f8098c8",
+  "outer_limit_seconds": 45,
+  "outputs": [],
+  "run_name": "gate02",
+  "scope": "No business test body/browser/listener/resource execution",
+  "task": "Authorized input04 narrow rebind gate only"
+}

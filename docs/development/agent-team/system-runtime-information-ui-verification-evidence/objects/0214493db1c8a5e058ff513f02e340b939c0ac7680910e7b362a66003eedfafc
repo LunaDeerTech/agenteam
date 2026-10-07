@@ -1,0 +1,5 @@
+import os,json
+from pathlib import Path
+s=Path(__file__).resolve().parent
+a=json.loads((s/"runtime-list-argv02.json").read_text())
+os.execv(a[0],a)

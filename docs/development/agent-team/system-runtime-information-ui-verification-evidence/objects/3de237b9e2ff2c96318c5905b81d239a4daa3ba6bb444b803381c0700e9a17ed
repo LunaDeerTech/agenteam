@@ -1,0 +1,38 @@
+{
+  "diff": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source.diff",
+    "sha256": "bc02c9753eb0795e0d56367cf537e6089435f2b62694bcf472dfc1ba4613d9b7"
+  },
+  "failed_read02": {
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read02/cleanup.json",
+      "sha256": "c13b469c0f15615853f9cb2a67cd59bc24e5c87d1e44f9b119b7c8eb2721f502"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read02/raw.log",
+      "sha256": "43a831f1ad86ba51651fead33d4d6d2217b3104701e4da16553db729db0c327c"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read02/result.json",
+      "sha256": "514d38cae48f3a539fc0f5dfdd18eea07f74849b1e4b1a5a3feb8f7dba3c7f38"
+    }
+  },
+  "frozen_at_utc": "2026-10-07T06:27:16.450464+00:00",
+  "no_resources_started": true,
+  "offline_checks_executed": false,
+  "ownership": "Actual workspace/input03 remain unchanged pending independent offline completion and root release.",
+  "preimage": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/preimage/tests/account-captcha-web/e2e/system-runtime-information.spec.ts",
+    "sha256": "8352368be00dbdbbaed3a5b0cb47383cb81de21d2c306f5b59a43d439f4b4e81"
+  },
+  "previous_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json",
+    "sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f"
+  },
+  "scope": "Exactly four read-group statements: fixed unavailable heading, noSnapshot, enabled restore button, real click. Original subsequent login URL/ID/member chain unchanged.",
+  "source": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source/tests/account-captcha-web/e2e/system-runtime-information.spec.ts",
+    "sha256": "7989df08a4cf6e32a61e4341ca059826279ceae4e641c08ed1f02fd3e21831d8"
+  },
+  "workspace_applied": false
+}

@@ -1,0 +1,11 @@
+--- private-fixture01
++++ private-fixture02
+@@ -355,7 +355,7 @@
+ 	if err != nil {
+ 		f.t.Fatal("locked browser root unavailable")
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account-captcha-web/independent-runtime-information.config.js")
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/independent-runtime-information.config.js")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }

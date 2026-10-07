@@ -1,0 +1,177 @@
+import copy
+import hashlib
+import json
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+
+S = Path(__file__).resolve().parent
+W = S / 'workspace'
+STD = Path('/workspace/toolchains/go1.27.1/src')
+MOD = Path('/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache')
+FIELDS = ('GoFiles', 'CgoFiles', 'CFiles', 'CXXFiles', 'MFiles', 'HFiles',
+          'FFiles', 'SFiles', 'SwigFiles', 'SwigCXXFiles', 'SysoFiles', 'EmbedFiles')
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def save(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def reference(path):
+    return {'path': str(path), 'sha256': sha(path)}
+
+
+def family(path):
+    if path.is_relative_to(STD):
+        return 'Go1.27.1/src'
+    if path.is_relative_to(MOD):
+        return 'modcache'
+    if path.is_relative_to(W):
+        return 'fixed_workspace'
+    raise RuntimeError('unexpected source root: ' + str(path))
+
+
+def graph(name):
+    path = S / 'runs' / name / 'raw.log'
+    raw = path.read_text()
+    decoder = json.JSONDecoder()
+    index = 0
+    packages = []
+    while index < len(raw):
+        while index < len(raw) and raw[index].isspace():
+            index += 1
+        if index == len(raw):
+            break
+        package, index = decoder.raw_decode(raw, index)
+        assert not package.get('Error') and not package.get('DepsErrors')
+        assert not package.get('Incomplete')
+        packages.append(package)
+    uses = defaultdict(set)
+    package_counts = Counter()
+    for package in packages:
+        directory = Path(package['Dir'])
+        group = family(directory)
+        package_counts[group] += 1
+        if group == 'fixed_workspace':
+            continue
+        for field in FIELDS:
+            for filename in package.get(field, []):
+                path = directory / filename
+                assert family(path) == group
+                resolved = path.resolve(strict=True)
+                assert path.is_file() and family(resolved) == group
+                uses[str(path)].add((name, package['ImportPath'], field))
+        module = package.get('Module')
+        if module:
+            assert not module.get('Replace')
+            if module.get('GoMod'):
+                path = Path(module['GoMod'])
+                assert family(path) == 'modcache'
+                assert path.is_file() and family(path.resolve(strict=True)) == 'modcache'
+                uses[str(path)].add((name, module['Path'], 'Module.GoMod'))
+    return uses, {
+        'raw': reference(S / 'runs' / name / 'raw.log'),
+        'command': reference(S / 'runs' / name / 'command.json'),
+        'result': reference(S / 'runs' / name / 'result.json'),
+        'json_packages': len(packages),
+        'package_counts': dict(package_counts),
+        'test_bodies_or_TestMain_executed': False,
+    }
+
+
+old_path = S / 'input01/manifest.json'
+old_sha = sha(old_path)
+assert old_sha == 'b1e7ff33e0531c239b66a155756b96b8d2fdb048d6d3262a06b12368303a6ffd'
+old = json.loads(old_path.read_text())
+assert sha(S / 'driver01.py') == old['driver_sha256']
+assert sha(S / 'runs/runtime-list02/raw.log') == '668637dbb72f363193768291cc9f506f246ea54a9e15a83dcdcc0bde0ca5c25a'
+for section in ('files', 'dist'):
+    assert {name: sha(W / name) for name in old[section]} == old[section]
+
+race, race_info = graph('runtime-list02')
+nonrace, nonrace_info = graph('runtime-list01')
+extra = sorted(set(nonrace) - set(race))
+assert extra == sorted([
+    str(MOD / 'github.com/klauspost/compress@v1.19.2/internal/race/norace.go'),
+    str(STD / 'internal/race/norace.go'),
+    str(STD / 'internal/runtime/sys/consts_norace.go'),
+    str(STD / 'runtime/race0.go'),
+    str(STD / 'sync/atomic/asm.s'),
+])
+uses = dict(race)
+uses.update({name: nonrace[name] for name in extra})
+added = {name: {'realpath': str(Path(name).resolve(strict=True)), 'sha256': sha(Path(name))}
+         for name in sorted(uses)}
+assert not set(added).intersection(old['dependencies'])
+counts = Counter(family(Path(name)) for name in added)
+field_counts = Counter(field for name, rows in uses.items() for field in {row[2] for row in rows})
+
+output = S / 'input02'
+output.mkdir(exist_ok=False)
+sources_path = output / 'external-go-sources.json'
+save(sources_path, {
+    'created_at_utc': datetime.now(timezone.utc).isoformat(),
+    'extractor': reference(Path(__file__)),
+    'race_graph': race_info,
+    'nonrace_dynamic_build_graph': nonrace_info,
+    'selected_fields': list(FIELDS) + ['Module.GoMod'],
+    'race_added_paths': sorted(race),
+    'nonrace_only_added_paths': extra,
+    'counts_by_root': dict(counts),
+    'unique_paths_by_source_field': dict(field_counts),
+    'files': added,
+    'provenance': {
+        name: [{'run': run, 'package_or_module': package, 'field': field}
+               for run, package, field in sorted(rows)]
+        for name, rows in sorted(uses.items())
+    },
+    'scope': [
+        'Only paths named in the existing actual Go package JSON; no directory inventory or source copies.',
+        'runtime-list02 supplies the race/tagged graph; five runtime-list01-only sources cover non-race dynamic builds.',
+        'Dependency TestGoFiles/XTestGoFiles are not selected; selected test variants already expose their GoFiles.',
+        'Workspace sources remain under the original accepted/candidate gates; generated cache test mains are outputs, not accepted sources.',
+        'This binds Go graph sources and embeds; it is not a claim to hash the complete OS or C system-header installation.',
+    ],
+})
+new = copy.deepcopy(old)
+new['frozen_at_utc'] = datetime.now(timezone.utc).isoformat()
+new['dependencies'].update(added)
+new['runtime_preparation']['external_go_source_gate'] = reference(sources_path)
+new['runtime_preparation']['previous_input'] = reference(old_path)
+save(output / 'manifest.json', new)
+assert all(new[key] == old[key] for key in ('files', 'dist', 'accepted_baseline', 'driver_sha256', 'product_base', 'source_stages'))
+save(output / 'delta.json', {
+    'previous_input': reference(old_path),
+    'new_input': reference(output / 'manifest.json'),
+    'added_dependencies': added,
+    'removed_dependencies': [],
+    'changed_existing_dependencies': [],
+    'dependency_count_before': len(old['dependencies']),
+    'dependency_count_after': len(new['dependencies']),
+    'added_counts_by_root': dict(counts),
+    'external_source_provenance': reference(sources_path),
+    'unchanged': {'candidate_sources': len(new['files']), 'dist_files': len(new['dist']),
+                  'accepted_Git_files': len(new['accepted_baseline']['files']),
+                  'driver_sha256': new['driver_sha256']},
+    'historical_limit': 'input01 and execution-gate01 bound local Git and installed tool/runtime files, but omitted Go/std/modcache source bytes. Those original records are preserved and do not prove the newly added source gate.',
+    'package_count_note': 'The actual runtime-list02 raw JSON contains 460 objects (251 std, 104 modcache, 105 local). Any earlier 458 summary is not rewritten.',
+    'no_new_Go_list_build_or_resource_execution': True,
+})
+plan = json.loads((S / 'startup-plan01.json').read_text())
+plan['frozen_manifest'] = reference(output / 'manifest.json')
+plan['before_every_authorized_run'][2] = f"34 source/42 dist/957 fixed accepted/{len(new['dependencies'])} installed runtime and actual Go graph-source dependency gate"
+plan['graphs']['external_Go_sources'] = reference(sources_path)
+for group in plan['groups'].values():
+    group['startup_argv'] = ['input02/manifest.json' if arg == 'input01/manifest.json' else arg for arg in group['startup_argv']]
+plan['original_history'].append('input01 omitted external Go source hashes; input02 adds only actual race JSON sources and five actual non-race dynamic-build source differences. Original input01/gate01 unchanged.')
+save(S / 'startup-plan02.json', plan)
+assert sha(old_path) == old_sha
+print(json.dumps({'manifest': reference(output / 'manifest.json'),
+                  'added_dependencies': len(added), 'dependencies_total': len(new['dependencies']),
+                  'counts_by_root': dict(counts), 'unique_paths_by_field': dict(field_counts),
+                  'nonrace_only': len(extra), 'source_files_copied': 0,
+                  'Go_commands_or_resources_started': 0}, sort_keys=True))

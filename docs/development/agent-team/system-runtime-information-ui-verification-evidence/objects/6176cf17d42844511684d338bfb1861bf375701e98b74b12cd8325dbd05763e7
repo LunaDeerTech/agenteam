@@ -1,0 +1,13 @@
+--- type-list-input/tests/account-captcha-web/e2e/system-audit.spec.ts
++++ final/tests/account-captcha-web/e2e/system-audit.spec.ts
+@@ -1577,7 +1577,9 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(page.getByRole("dialog").getByRole("link")).toHaveCount(10);
++        await expect(page.getByRole("dialog").getByRole("link")).toHaveCount(
++          10,
++        );
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);

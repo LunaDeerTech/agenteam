@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/driver02.py",
+    "--name",
+    "offline-gate02",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/execution03.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-runtime-independent-offline-0rm101dp",
+    "GOTMPDIR": "/tmp/agt-runtime-independent-offline-0rm101dp",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "1dabe95a39b6be1e6f69db8ee7d840dcd9a679dffe3767f8024f157779b4ebdd",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 837719,
+  "actual_exit": 0,
+  "seconds": 1.131719767996401,
+  "timeout": false
+}

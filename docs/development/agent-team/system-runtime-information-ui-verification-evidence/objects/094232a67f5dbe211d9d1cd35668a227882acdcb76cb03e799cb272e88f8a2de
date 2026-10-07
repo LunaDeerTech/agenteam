@@ -1,0 +1,162 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-vet=off",
+        "-run",
+        "^$",
+        "-list",
+        "^TestIndependentRuntimeInformation(CurrentProjection|CancellationAndSession)$",
+        "-count=1",
+        "-timeout=30s",
+        "./tests/account"
+      ],
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+      "expected": "two exact new Go names; zero business tests",
+      "name": "go-race-list01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/go-race-list01.json",
+      "sha256": "efb2310826fec57917750669ff6110a26b1cd0ffac6ff07a1b48367e6890e695",
+      "supervised_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/run_offline01.py",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/go-race-list01.json"
+      ]
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/account"
+      ],
+      "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+      "expected": "exit zero",
+      "name": "go-vet01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/go-vet01.json",
+      "sha256": "d16894a49b63776adb0f999962a0af083ba24c29d8b2a3234c90121a91418a21",
+      "supervised_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/run_offline01.py",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/go-vet01.json"
+      ]
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--strict",
+        "--skipLibCheck",
+        "--target",
+        "ES2022",
+        "--module",
+        "ESNext",
+        "--moduleResolution",
+        "Bundler",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "--types",
+        "node",
+        "--typeRoots",
+        "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/@types",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/e2e/independent-runtime-information.spec.ts"
+      ],
+      "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+      "expected": "exit zero",
+      "name": "type01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/type01.json",
+      "sha256": "a3cf9979fb288ece4496a081757b7dc0f9261f91fd53b6643eb21a1af6e72b2f",
+      "supervised_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/run_offline01.py",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/type01.json"
+      ]
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+        "test",
+        "--list",
+        "--config",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/independent-runtime-information.config.js"
+      ],
+      "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web",
+      "expected": "exactly one browser test; no launch",
+      "name": "list-independent-read01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/list-independent-read01.json",
+      "sha256": "8bc2255a8236162575dc6fc189e7a2f208db568ca6696ed205ef70b3e1665b77",
+      "supervised_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/run_offline01.py",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/list-independent-read01.json"
+      ]
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+        "test",
+        "--list",
+        "--config",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/independent-runtime-information.config.js"
+      ],
+      "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web",
+      "expected": "exactly one browser test; no launch",
+      "name": "list-independent-lifecycle01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/list-independent-lifecycle01.json",
+      "sha256": "2414fad9b117ab39d19a344bc710af4d485c05a943e227ec7d1fe279ecb47ecd",
+      "supervised_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/run_offline01.py",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/list-independent-lifecycle01.json"
+      ]
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/driver02.py",
+        "--name",
+        "offline-gate01",
+        "--group",
+        "both",
+        "--frozen",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/execution02.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+      "expected": "exit zero",
+      "name": "gate01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/gate01.json",
+      "sha256": "23436d1508752d83fd5ee6c574cd4fcbfc6ac2cd4738e0fcc5541b617a8b1ab7",
+      "supervised_argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/run_offline01.py",
+        "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-commands02/gate01.json"
+      ]
+    }
+  ],
+  "execution02": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/execution02.json",
+    "sha256": "f284ab4e0431769788a28eee148f2d8a8c2e7cbaa00143057f1827fee3905530"
+  },
+  "no_automatic_retry": true,
+  "status": "PROPOSED ONLY; not executed",
+  "stop_on_failure": true,
+  "supervisor": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/run_offline01.py",
+    "sha256": "da9c2379981ca6607b6d791fc45cee2c3bbc003a20b47babbdd3d8062ce57777"
+  }
+}

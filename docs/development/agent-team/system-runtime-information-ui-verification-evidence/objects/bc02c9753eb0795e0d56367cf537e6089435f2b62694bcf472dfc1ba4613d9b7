@@ -1,0 +1,13 @@
+--- input03/tests/account-captcha-web/e2e/system-runtime-information.spec.ts
++++ harness-stage03/tests/account-captcha-web/e2e/system-runtime-information.spec.ts
+@@ -658,6 +658,10 @@
+         f.ended &&
+         f.code === "SESSION_REVOKED",
+     );
++    await expect(heading(page, "会话尚未确认")).toBeVisible();
++    await noSnapshot(page);
++    await expect(button(page, "检查当前会话")).toBeEnabled();
++    await button(page, "检查当前会话").click();
+     await expect(page.locator("#login-email")).toBeVisible();
+     await expect(page).toHaveURL(/\/login(?:\?|$)/);
+     await noSnapshot(page);

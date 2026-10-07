@@ -1,0 +1,27 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 813212,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 813212,
+      "ppid": 813201,
+      "pgid": 813212,
+      "state": "S",
+      "starttime": "3631905"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-runtime-independent-offline-4cnwol_9",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

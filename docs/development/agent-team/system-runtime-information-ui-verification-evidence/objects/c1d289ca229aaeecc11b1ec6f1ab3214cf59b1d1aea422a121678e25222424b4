@@ -1,0 +1,104 @@
+--- /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/driver01.py
++++ driver01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only an explicitly authorized frozen System Audit UI group in a private fixed workspace."""
++"""Run only an explicitly authorized frozen System Runtime Information UI group in a private fixed workspace."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -18,7 +18,7 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'workspace'
+ GIT_OBJECT_REPO = Path('/workspace/agenteam')
+-BASE = 'b124650aee095b26191bc181dc8cf5d6e0f977f5'
++BASE = 'a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1'
+ FROZEN = {}
+ # The earlier Outbound task owns this historical offline-timeout orphan.
+ # This Audit driver does not claim it as new, recovered, or ownerless.
+@@ -43,11 +43,11 @@
+ def resources():
+     result = {}
+     for kind in ['container', 'network']:
+-        for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
++        for resource_id in command(['/usr/local/bin/docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['/usr/local/bin/docker', kind, 'ls', '-aq', '--no-trunc']).split():
+             label = '.Config.Labels' if kind == 'container' else '.Labels'
+             mounts = '{{json .Mounts}}' if kind == 'container' else '[]'
+             try:
+-                raw = command(['docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}\t' + mounts, resource_id]).strip().split('\t')
++                raw = command(['/usr/local/bin/docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}\t' + mounts, resource_id]).strip().split('\t')
+             except RuntimeError as exc:
+                 if 'No such' in str(exc) or 'not found' in str(exc):
+                     continue  # The fixture may remove an ID after the list call.
+@@ -104,7 +104,7 @@
+ IGNORED_PATHS = {'web/node_modules', 'web/dist', 'tests/account-captcha-web/node_modules'}
+ 
+ def fixed_tree():
+-    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=GIT_OBJECT_REPO, timeout=20)
++    raw = subprocess.check_output(['/usr/bin/git', 'ls-tree', '-r', '-z', BASE], cwd=GIT_OBJECT_REPO, timeout=20)
+     entries = {}
+     for record in raw.split(b'\0'):
+         if not record:
+@@ -162,7 +162,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['read','authority','navigation','old-outbound-navigation','old-delivery-navigation'], required=True)
++    parser.add_argument('--group', choices=['read','navigation','old-audit-navigation','old-outbound-navigation'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+@@ -170,11 +170,10 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-      'read': ['TestAccountSystemAuditWebReadAndFilters'],
+-      'authority': ['TestAccountSystemAuditWebAuthorityAndOwnership'],
+-      'navigation': ['TestAccountSystemAuditWebNavigationAndLayouts'],
++      'read': ['TestAccountSystemRuntimeInformationWebReadAndAuthority'],
++      'navigation': ['TestAccountSystemRuntimeInformationWebNavigationAndLifecycle'],
++      'old-audit-navigation': ['TestAccountSystemAuditWebNavigationAndLayouts'],
+       'old-outbound-navigation': ['TestAccountSystemOutboundPolicyWebNavigationAndLayouts'],
+-      'old-delivery-navigation': ['TestAccountSystemSMTPDeliveryWebNavigationAndLayouts'],
+     }
+     if Path(args.modcache).resolve(strict=True) != Path('/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache'):
+         raise ValueError('unexpected module cache; use the fixed read-only cache')
+@@ -229,7 +228,7 @@
+     if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+-    browser_runtime = Path(tempfile.mkdtemp(prefix='agtaud-', dir='/tmp'))
++    browser_runtime = Path(tempfile.mkdtemp(prefix='agtrun-', dir='/tmp'))
+     if len(str(browser_runtime)) > 45:
+         raise RuntimeError('browser runtime is not short')
+     images = run / 'images'
+@@ -246,16 +245,17 @@
+         raise RuntimeError('current pre-run resource baseline is not the required two containers/four networks')
+     env = os.environ.copy()
+     flags = '-mod=readonly -buildvcs=false -p=1 -v'
+-    env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
++    env.update({'PATH': '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin',
++                'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'AGENTEAM_AUTH_WEB_RUNTIME': str(browser_runtime), 'AGENTEAM_AUTH_WEB_IMAGES': str(images),
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+                 'GOCACHE': '/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache', 'TMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+-    argv = ['sh', 'scripts/test-security.sh', '-run', args.selector]
++    argv = ['/usr/bin/sh', 'scripts/test-security.sh', '-run', args.selector]
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+-              'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'AGENTEAM_AUTH_WEB_RUNTIME', 'AGENTEAM_AUTH_WEB_IMAGES', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
++              'env': {key: env[key] for key in ['PATH', 'AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'AGENTEAM_AUTH_WEB_RUNTIME', 'AGENTEAM_AUTH_WEB_IMAGES', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+     write(run / 'command.json', record)
+     observed_resources, observed_processes, errors, adopted_waits = {}, {}, [], []
+     start = time.monotonic()
+@@ -308,7 +308,7 @@
+         current, proc = resources(), processes()
+         exact = {}
+         for resource_id, row in observed_resources.items():
+-            result = subprocess.run(['docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, timeout=20)
++            result = subprocess.run(['/usr/local/bin/docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, timeout=20)
+             missing = b'No such' in result.stderr or b'not found' in result.stderr
+             exact[resource_id] = {'absent': result.returncode != 0 and resource_id not in current and missing}
+         remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]

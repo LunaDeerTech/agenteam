@@ -1,0 +1,42 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "build",
+    "-p=1",
+    "-o",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/offline-dynamic-build01/agenteam",
+    "./cmd/agenteam"
+  ],
+  "child_pid": 761086,
+  "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+  "duration_seconds": 2.009,
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "TMPDIR": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/go-tmp"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T05:44:09.861973+00:00",
+  "input_after_sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85",
+  "input_before_sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "readonly_dependencies_unchanged": true,
+  "resource_execution": false,
+  "runner_sha256": "27afad81eece8204df770f8cce2af341a9de21c8f967e595696f77c2a7f5d244",
+  "started_at_utc": "2026-10-07T05:44:07.852479+00:00",
+  "timed_out": false
+}

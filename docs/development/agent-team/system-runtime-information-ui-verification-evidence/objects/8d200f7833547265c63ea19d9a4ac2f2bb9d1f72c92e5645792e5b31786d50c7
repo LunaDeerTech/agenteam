@@ -1,0 +1,13 @@
+# Runtime UI execution preparation 02
+
+Prepared only; no resource window has been granted or exercised.
+
+- Input 02 `877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179` retains all 34 candidate sources, 42 dist files, 957 accepted Git files and the unchanged driver `7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36`.
+- Only dependency fingerprints and their provenance were added. The existing actual `runtime-list02/raw.log` has 460 JSON package objects (251 std, 104 modcache, 105 local). No Go list/build or business test was repeated. The earlier 458 summary is not backfilled.
+- Added 2,098 actual graph dependencies: 1,442 Go 1.27.1 `src` files and 656 modcache paths. They include 31 module manifests, three publicsuffix embeds, selected Cgo/C/assembly/header inputs and the race syso. Five additional source paths come only from the existing non-race `runtime-list01`, covering the dynamic builds. No source files, cache or full directory tree was copied.
+- Original input01/gate01 omitted external Go source bytes. They remain unchanged and do not prove this added gate. Full exact additions and per-path graph provenance are in `input02/delta.json` and `input02/external-go-sources.json`.
+- Extraction actual exit 0 / 1.665 s; one dry gate actual exit 0 / 2.231 s. Both direct children were actually waited; the extraction observed one owned PID and the dry gate observed two, with zero adopted waits, and two empty owned-PID/starttime scans. Candidate and previously gated dependency inputs remained unchanged. The dry gate consumed input02 and the original driver's generic dependency checker, including all 2,892 dependency fingerprints.
+- The offline recorder itself still guards the original 794 tool files; the child driver's dry gate checks the expanded 2,892 dependency manifest. This is not a new business/browser run or a claim to hash all OS/C system headers. Generated cache test mains remain generated outputs, not accepted source records.
+- Preparation-only filesystem observation: 6268575744 available bytes at 2026-10-07T05:59:43.077573+00:00. Every future authorized run must freshly satisfy the original 5 GiB gate and recapture the full baseline; this observation is not permission or a reusable baseline.
+
+`startup-plan02.json` changes only the frozen input binding/dependency description and preserves all four exact selectors, limits, nonce/resource topology, supervision and cleanup rules. Original failures, input01, both original Go-list rounds and all prior stages are retained. No active command or resource remains from this preparation.

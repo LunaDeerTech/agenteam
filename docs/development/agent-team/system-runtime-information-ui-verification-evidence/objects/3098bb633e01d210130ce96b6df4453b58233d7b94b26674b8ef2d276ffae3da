@@ -1,0 +1,31 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "tests/account/system_runtime_information_web_test.go",
+    "tests/account/system_runtime_information_web_fixture_test.go"
+  ],
+  "child_pid": 748546,
+  "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+  "duration_seconds": 0.341,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T05:29:00.020190+00:00",
+  "input_after_sha256": "81a99ab16154b0c3afd220e164f94bdb3e42b47d09e3c7a350a11710c7c2ad4f",
+  "input_before_sha256": "b18b66baca48f7bdea8198ebcfbdd8e5d88dcab1adf3985824b6a27a87c0c1b4",
+  "input_unchanged": false,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "readonly_dependencies_unchanged": true,
+  "resource_execution": false,
+  "runner_sha256": "265086132322425360337c0b142a2fd513c8827757bd476d5dd95b407fb51c66",
+  "started_at_utc": "2026-10-07T05:28:59.678495+00:00",
+  "timed_out": false
+}

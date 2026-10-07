@@ -1,0 +1,56 @@
+--- execution02.json
++++ execution03.json
+@@ -18310,7 +18310,7 @@
+     "tests/account-captcha-web/e2e/system-models.spec.ts": "3a4a0d80e62838da11de9859ba79dba6905eaf6589366161e8e44b5d9efce473",
+     "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": "761af119ace877ccafce0ae06ea994c19b92c4a21f60d2d3740ca06c6d3c5190",
+     "tests/account-captcha-web/e2e/system-providers.spec.ts": "d1252dc547eaeaa763021ff0ccfd43e963234bc9b2924ca8777c8c93d5da0daf",
+-    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "8352368be00dbdbbaed3a5b0cb47383cb81de21d2c306f5b59a43d439f4b4e81",
++    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "7989df08a4cf6e32a61e4341ca059826279ceae4e641c08ed1f02fd3e21831d8",
+     "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "9d822a309e13206b7fe5be749bf1c405eae5563786c806c6bba3e987c24b1ee4",
+     "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": "65e1dd27035d9394a19dcb3d4ae53c6a0594743e2422e8028720aa2ce7f23f3d",
+     "tests/account-captcha-web/system-runtime-information.config.js": "cc98919ddb3ca76b4e5df9f078050427da573b2aaaf08d449ace39d921c5e373",
+@@ -18338,12 +18338,12 @@
+     "web/src/views/system/SystemRuntimeInformationView.vue": "b0f67f59236b15584f2e688847dab1c016b9f84774de88d722a56799546f0150",
+     "web/src/views/system/SystemSettingsView.vue": "e78bf2340485f185e3a2c40b7945d1c9f8a836845e33350f4465bf7a0bc38b66"
+   },
+-  "frozen_at_utc": "2026-10-07T05:58:11.239233+00:00",
++  "frozen_at_utc": "2026-10-07T06:30:01.824697+00:00",
+   "independent_preparation": {
+     "actual_cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+-    "author_input_sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f",
++    "author_input_sha256": "1e41477c2810d5ba78e78021528f7048563ce43245c8de88e50ecb4973f9b9e7",
+     "author_runtime_dependencies": 2892,
+-    "binding": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/binding03.json",
++    "binding": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/binding04.json",
+     "exact_top_levels": [
+       "TestIndependentRuntimeInformationCurrentProjection",
+       "TestIndependentRuntimeInformationCancellationAndSession"
+@@ -18359,12 +18359,15 @@
+   "private_files": {
+     "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/driver01.py": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36",
+     "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/source.diff": "7849852cc0a7bcd62fc71e472d1d505f4a23a0c18f1291f095e1cb46dfff5745",
++    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source.diff": "bc02c9753eb0795e0d56367cf537e6089435f2b62694bcf472dfc1ba4613d9b7",
+     "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/external-go-sources.json": "b71511bc0a3d1fa845dc0b340991c1991235b7cc7e194544b529c4602f6aa776",
+     "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179",
+     "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f",
++    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input04/manifest.json": "1e41477c2810d5ba78e78021528f7048563ce43245c8de88e50ecb4973f9b9e7",
+     "/workspace/scratch/agenteam-runtime-ui-independent-plan-xx_ygl_n/plan01.md": "b0a455e1e012568ae64c48ef4a4ddcc42b4b18bd2c931588f10b3256b6278900",
+     "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/binding02.json": "912d4148d30a046aeaa483413b649bdbee2a51c73a651af17e5068f313f1ff68",
+     "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/binding03.json": "748ff2d844aef6d4f6bb82f43bb7fc23bf80a68452e3e4cb3d59c07c3637cd8d",
++    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/binding04.json": "0e1e34fe1b0ff940320e2d6f71e893a03f190c5f162cfa2e896cc22716cc3550",
+     "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/config01.diff": "ded05f2db18317c86f8e1ebc12e09ead83ac88dff305f93c65214315889a3469",
+     "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/driver-author-to-independent01.diff": "6a7bec6c66eabeac2ad488dc93666128583950df59a11120b74da669788f8f9e",
+     "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/driver-author-to-independent02.diff": "26596bef11b78189c5ae6754f98fae00b4fd184161d644aee8e0e1cd5de4eef2",
+@@ -18436,9 +18439,9 @@
+       "sha256": "ddc91856eadae403e1f7d4e56421fc642f19b9fa8e1ea17c7de3da4f5446c755"
+     },
+     "D": {
+-      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/manifest.json",
+-      "sha256": "b6ab9a0ef6eece0d79220be9f2ee96efdf9fa4241f2bbd9e9da771a4b5347f4a"
++      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/manifest.json",
++      "sha256": "523670080b6e5147f72dfdb3fe7f3be4cf9bb65fba0d879164088f527c136519"
+     }
+   },
+-  "status": "FROZEN source preparation02; offline and real execution NOT RUN"
++  "status": "input04 narrow rebind; six prior offline checks reused; gate02 proposed; no independent resources authorized"
+ }

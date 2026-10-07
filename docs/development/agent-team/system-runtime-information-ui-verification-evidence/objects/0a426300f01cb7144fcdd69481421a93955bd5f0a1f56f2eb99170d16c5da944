@@ -1,0 +1,1185 @@
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -118,6 +118,10 @@
+   type SystemAuditAPI,
+   type AuditQuery,
+ } from '../api/system-audit'
++import {
++  createSystemRuntimeInformationAPI,
++  type SystemRuntimeInformationAPI,
++} from '../api/system-runtime-information'
+ 
+ type OutboundPolicyAction = 'outbound-policy-read' | 'outbound-policy-write'
+ export type SystemOutboundPolicyProgress = Readonly<{
+@@ -309,6 +313,7 @@
+   | 'entry'
+   | 'system'
+   | 'audit-read'
++  | 'runtime-information-read'
+   | 'invitation-read'
+   | 'invitation-write'
+   | ProviderAction
+@@ -424,6 +429,7 @@
+   smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),
+   outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI(),
+   auditAPI: SystemAuditAPI = createSystemAuditAPI(),
++  runtimeInformationAPI: SystemRuntimeInformationAPI = createSystemRuntimeInformationAPI(),
+ ) {
+   const state = shallowReactive<PublicState>({
+     phase: 'checking',
+@@ -460,7 +466,8 @@
+     deniedIdentity: null,
+   })
+   let systemRevision = 0,
+-    auditRevision = 0
++    auditRevision = 0,
++    runtimeInformationRevision = 0
+   let invitationReadRevision = 0,
+     invitationRevision = 0
+   let invitationIntent: SystemInvitationIntent | null = null
+@@ -625,6 +632,7 @@
+       clearSMTPDeliveryState()
+       clearOutboundPolicyState()
+       clearAuditRead()
++      clearRuntimeInformationRead()
+       ++systemRevision
+       systemState.deniedIdentity = null
+       sessionCSRF = ''
+@@ -741,6 +749,7 @@
+     )
+       clearOutboundPolicyState()
+     if (!same || view.user.role !== 'admin') clearAuditRead()
++    if (!same || view.user.role !== 'admin') clearRuntimeInformationRead()
+     state.notice = ''
+     state.fields = {}
+     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
+@@ -1171,6 +1180,7 @@
+       | 'personal'
+       | 'system'
+       | 'audit-read'
++      | 'runtime-information-read'
+       | 'invitation-read'
+       | 'invitation-write'
+       | ProviderAction
+@@ -1187,25 +1197,27 @@
+         ? systemRevision
+         : kind === 'audit-read'
+           ? auditRevision
+-          : kind === 'invitation-read'
+-            ? invitationReadRevision
+-            : kind === 'invitation-write'
+-              ? invitationRevision
+-              : kind === 'personal'
+-                ? personalRevision
+-                : isModelAction(kind)
+-                  ? modelRevisions[kind]
+-                  : isSelectionAction(kind)
+-                    ? selectionRevisions[kind]
+-                    : isAccountSecurityAction(kind)
+-                      ? accountSecurityRevisions[kind]
+-                      : isSMTPAction(kind)
+-                        ? smtpRevisions[kind]
+-                        : isSMTPDeliveryAction(kind)
+-                          ? smtpDeliveryRevisions[kind]
+-                          : isOutboundPolicyAction(kind)
+-                            ? outboundRevisions[kind]
+-                            : providerRevisions[kind]
++          : kind === 'runtime-information-read'
++            ? runtimeInformationRevision
++            : kind === 'invitation-read'
++              ? invitationReadRevision
++              : kind === 'invitation-write'
++                ? invitationRevision
++                : kind === 'personal'
++                  ? personalRevision
++                  : isModelAction(kind)
++                    ? modelRevisions[kind]
++                    : isSelectionAction(kind)
++                      ? selectionRevisions[kind]
++                      : isAccountSecurityAction(kind)
++                        ? accountSecurityRevisions[kind]
++                        : isSMTPAction(kind)
++                          ? smtpRevisions[kind]
++                          : isSMTPDeliveryAction(kind)
++                            ? smtpDeliveryRevisions[kind]
++                            : isOutboundPolicyAction(kind)
++                              ? outboundRevisions[kind]
++                              : providerRevisions[kind]
+     const revision = revisionNow()
+     const op: Operation = {
+       kind,
+@@ -1471,7 +1483,8 @@
+         state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+       } else if (
+         current() &&
+-        (op.kind !== 'audit-read' || e.kind === 'problem') &&
++        ((op.kind !== 'audit-read' && op.kind !== 'runtime-information-read') ||
++          e.kind === 'problem') &&
+         e.problem?.status === 403 &&
+         e.problem.code === 'FORBIDDEN'
+       ) {
+@@ -1484,6 +1497,7 @@
+         clearSMTPDeliveryState()
+         clearOutboundPolicyState()
+         clearAuditRead()
++        clearRuntimeInformationRead()
+         systemState.deniedIdentity = identity
+       }
+     }
+@@ -3321,6 +3335,26 @@
+       return performOutboundPolicy(outboundIntent)
+     },
+   }
++  function clearRuntimeInformationRead() {
++    ++runtimeInformationRevision
++    if (owner?.kind === 'runtime-information-read') owner.abandon?.()
++  }
++  const runtimeInformation = {
++    get() {
++      try {
++        const identity = invitationIdentity()
++        return runAuthorized(
++          identity,
++          (op) => runtimeInformationAPI.get(op.abort.signal),
++          undefined,
++          'runtime-information-read',
++        )
++      } catch (error) {
++        return Promise.reject(error)
++      }
++    },
++    abandon: clearRuntimeInformationRead,
++  }
+   function clearAuditRead() {
+     ++auditRevision
+     if (owner?.kind === 'audit-read') owner.abandon?.()
+@@ -3358,6 +3392,7 @@
+     abandon: clearAuditRead,
+   }
+   const system = {
++    runtimeInformation,
+     audit,
+     outboundPolicy,
+     smtpDelivery,
+--- /dev/null
++++ b/web/src/composables/useSystemRuntimeInformation.ts
+@@ -0,0 +1,139 @@
++import { computed, readonly, shallowReactive, watch } from 'vue'
++import { AccountFailure } from '../api/client'
++import type { SystemRuntimeInformation } from '../api/system-runtime-information'
++import { useSession, type PersonalIdentity, type SessionController } from './useSession'
++
++export type RuntimeInformationPhase =
++  'waiting' | 'loading' | 'ready' | 'error' | 'forbidden' | 'inactive'
++const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
++  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
++
++// A page instance owns only its observation. The shared Session controller keeps
++// actual Cookie ownership until transport and cancellation have both finished.
++export function useSystemRuntimeInformation(auth: SessionController = useSession()) {
++  const state = shallowReactive({
++    phase: 'waiting' as RuntimeInformationPhase,
++    observation: null as SystemRuntimeInformation | null,
++    message: '',
++  })
++  const identity = auth.personalContext.identity
++  let generation = 0,
++    initial = true,
++    disposed = false,
++    retired = false,
++    active: number | null = null
++  const authorized = () =>
++    auth.state.phase === 'authenticated' &&
++    auth.personalContext.phase === 'current' &&
++    auth.state.user?.role === 'admin' &&
++    !auth.system.denied &&
++    same(identity, auth.personalContext.identity)
++  const live = () => !disposed && !retired && authorized()
++  const blocked = computed(() => !live() || auth.state.busy || state.phase === 'loading')
++  const reading = computed(() => state.phase === 'waiting' || state.phase === 'loading')
++  function retireRead() {
++    ++generation
++    const wasActive = active !== null
++    active = null
++    if (wasActive) auth.system.runtimeInformation.abandon()
++  }
++  function invalidate() {
++    retired = true
++    initial = false
++    retireRead()
++    state.observation = null
++    state.message = ''
++    state.phase =
++      auth.state.phase === 'authenticated' &&
++      auth.personalContext.phase === 'current' &&
++      same(identity, auth.personalContext.identity) &&
++      (auth.state.user?.role === 'user' || auth.system.denied)
++        ? 'forbidden'
++        : 'inactive'
++  }
++  async function refresh() {
++    if (blocked.value) return
++    initial = false
++    const own = ++generation,
++      capturedIdentity = auth.personalContext.identity
++    const current = () =>
++      live() && generation === own && same(capturedIdentity, auth.personalContext.identity)
++    active = own
++    state.observation = null
++    state.message = ''
++    state.phase = 'loading'
++    try {
++      const value = await auth.system.runtimeInformation.get()
++      if (!current()) return
++      state.observation = value
++      state.phase = 'ready'
++    } catch (error) {
++      if (!current()) return
++      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
++      state.observation = null
++      state.message =
++        failure.kind === 'cancelled'
++          ? '本次读取已取消或等待超时，请在请求结束后重新读取。'
++          : failure.kind === 'invalid-response'
++            ? '运行信息响应无法确认，请重新读取。'
++            : '暂时无法读取运行信息，请重新读取。'
++      state.phase = 'error'
++    } finally {
++      if (active === own) active = null
++    }
++  }
++  const stop = watch(
++    () =>
++      [
++        auth.state.phase,
++        auth.personalContext.phase,
++        auth.personalContext.identity,
++        auth.state.user?.role,
++        auth.system.denied,
++        auth.state.busy,
++      ] as const,
++    () => {
++      if (disposed || retired) return
++      if (!authorized()) {
++        invalidate()
++        return
++      }
++      if (initial && !auth.state.busy) {
++        initial = false
++        void refresh()
++      }
++    },
++    { immediate: true, flush: 'sync' },
++  )
++  return {
++    state: readonly(state),
++    blocked,
++    reading,
++    isCurrent: live,
++    refresh,
++    cancel() {
++      if (!live() || !reading.value) return
++      initial = false
++      retireRead()
++      state.observation = null
++      state.message = '本次读取已取消，请在请求结束后重新读取。'
++      state.phase = 'error'
++    },
++    leave() {
++      if (!live()) return
++      initial = false
++      retireRead()
++      state.observation = null
++      state.message = '本页读取已停止，可显式重新读取。'
++      state.phase = 'error'
++    },
++    dispose() {
++      if (disposed) return
++      disposed = true
++      stop()
++      invalidate()
++      state.phase = 'inactive'
++    },
++  }
++}
++export type SystemRuntimeInformationController = ReturnType<typeof useSystemRuntimeInformation>
+--- /dev/null
++++ b/web/src/tests/system-runtime-information-state.spec.ts
+@@ -0,0 +1,877 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { watch } from 'vue'
++import { createAccountAPI, type SessionView } from '../api/account'
++import { AccountFailure, type Fetch, type CommitState, type Problem } from '../api/client'
++import { createSystemAccountAPI } from '../api/system-account'
++import { createSystemInvitationAPI } from '../api/system-invitations'
++import { createSystemProviderAPI } from '../api/system-providers'
++import { createSystemModelAPI } from '../api/system-models'
++import { createSystemModelSelectionAPI } from '../api/system-model-selection'
++import { createSystemAccountSecurityAPI } from '../api/system-account-security'
++import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
++import { createSystemSMTPDeliveryAPI } from '../api/system-smtp-delivery'
++import { createSystemOutboundPolicyAPI } from '../api/system-outbound-policy'
++import { createSystemAuditAPI } from '../api/system-audit'
++import {
++  createSystemRuntimeInformationAPI,
++  type SystemRuntimeInformationAPI,
++} from '../api/system-runtime-information'
++import { createSessionController, type SessionController } from '../composables/useSession'
++import {
++  useSystemRuntimeInformation,
++  type SystemRuntimeInformationController,
++} from '../composables/useSystemRuntimeInformation'
++import { useTheme } from '../composables/useTheme'
++
++const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
++const time = '2026-10-07T01:02:03.123456Z'
++const endpoint = '/api/v1/system/runtime-information'
++const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
++  user: {
++    id: id(1),
++    email: 'admin@example.test',
++    username: 'admin',
++    display_name: 'Admin',
++    role,
++    theme: 'system',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
++  csrf_token: 'S'.repeat(43),
++})
++const sample = () => ({
++  observed_at: time,
++  central: { version: null, safe_reason: 'build_version_not_recorded' },
++  database: {
++    status: 'available',
++    safe_reason: null,
++    last_success: {
++      checked_at: time,
++      received_at: time,
++      postgresql_version: 'PostgreSQL 17.8',
++      pgvector_version: '0.8.1',
++    },
++  },
++  object_storage: {
++    backend: 'minio',
++    assessment: 'object_storage_aggregate',
++    status: 'available',
++    safe_reason: null,
++    last_success_received_at: time,
++    details: 'not_reported',
++  },
++  readiness: { ready: false, safe_reason: 'DEPENDENCY_UNAVAILABLE' },
++})
++const smtpFields = () => ({
++  host: 'mail.example',
++  port: 587,
++  encryption: 'starttls' as const,
++  username: '',
++  sender_email: 'sender@example.test',
++  sender_name: '',
++  auto_retry_count: '3',
++  retry_interval_seconds: '60',
++})
++const settings = () => ({
++  id: id(10),
++  version: '1',
++  configured: true,
++  ...smtpFields(),
++  credential_present: false,
++})
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id(9),
++    },
++  })
++const problemValue = (
++  code: string,
++  status = 503,
++  commit_state: CommitState = 'not_started',
++): Problem => ({
++  type: 'urn:agenteam:problem:test',
++  title: 'Failure',
++  status,
++  code,
++  detail: '',
++  instance: endpoint,
++  request_id: id(9),
++  commit_state,
++  retry_hint: 'lookup',
++})
++const problem = (code: string, status = 503, commit: CommitState = 'not_started') =>
++  json(problemValue(code, status, commit), status)
++function barrier<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => (resolve = r))
++  return { promise, resolve }
++}
++const resultOf = (pending: Promise<unknown>) =>
++  pending.then(
++    (value) => ({ value, error: undefined }),
++    (error: unknown) => ({ value: undefined, error }),
++  )
++const owners: SessionController[] = [],
++  pages: SystemRuntimeInformationController[] = []
++const releases: (() => void)[] = []
++function nativeHold(media = 'application/json', body?: unknown) {
++  const tail = barrier(),
++    entered = barrier()
++  let joined = false
++  let controller!: ReadableStreamDefaultController<Uint8Array>
++  const cancel = vi.fn(() => {
++    entered.resolve()
++    return tail.promise.then(() => {
++      joined = true
++    })
++  })
++  const stream = new ReadableStream<Uint8Array>({
++    start(c) {
++      controller = c
++      if (body !== undefined) c.enqueue(new TextEncoder().encode(JSON.stringify(body)))
++    },
++    cancel,
++  })
++  const release = () => tail.resolve()
++  releases.push(release)
++  return {
++    response: () => new Response(stream, { headers: { 'Content-Type': media } }),
++    stream,
++    controller,
++    cancel,
++    entered,
++    release,
++    joined: () => joined,
++  }
++}
++async function fixture(runtimeOverride?: SystemRuntimeInformationAPI, defaultTwelfth = false) {
++  let current = view(),
++    session: Fetch = async () => json(current)
++  let runtime: Fetch = async () => json(sample())
++  let other: Fetch = async (path) =>
++    path === '/api/v1/me'
++      ? json({ user: current.user, avatar: null })
++      : json({ items: [], next_cursor: null })
++  let smtp: Fetch = async () => json(settings())
++  let outbound: Fetch = async () => json({ version: '1', rules: [] })
++  const fetcher = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return session(path, init)
++    if (path === '/api/v1/auth/bootstrap')
++      return json({
++        csrf_token: 'A'.repeat(43),
++        challenge_modes: ['rotate'],
++        delivery_channel: 'backend_log',
++      })
++    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
++    if (path === endpoint) return runtime(path, init)
++    if (path === '/api/v1/system/outbound-policy') return outbound(path, init)
++    if (path.startsWith('/api/v1/system/smtp')) return smtp(path, init)
++    return other(path, init)
++  })
++  const firstEleven = [
++    createAccountAPI(fetcher),
++    createSystemAccountAPI(fetcher),
++    createSystemInvitationAPI(fetcher),
++    createSystemProviderAPI(fetcher),
++    createSystemModelAPI(fetcher),
++    createSystemModelSelectionAPI(fetcher),
++    createSystemAccountSecurityAPI(fetcher),
++    createSystemSMTPSettingsAPI(fetcher),
++    createSystemSMTPDeliveryAPI(fetcher),
++    createSystemOutboundPolicyAPI(fetcher),
++    createSystemAuditAPI(fetcher),
++  ] as const
++  if (defaultTwelfth) vi.stubGlobal('fetch', fetcher)
++  const auth = defaultTwelfth
++    ? createSessionController(...firstEleven)
++    : createSessionController(
++        ...firstEleven,
++        runtimeOverride ?? createSystemRuntimeInformationAPI(fetcher),
++      )
++  owners.push(auth)
++  await auth.restore()
++  return {
++    auth,
++    fetcher,
++    page() {
++      const page = useSystemRuntimeInformation(auth)
++      pages.push(page)
++      return page
++    },
++    setRuntime(value: Fetch) {
++      runtime = value
++    },
++    setOther(value: Fetch) {
++      other = value
++    },
++    setSMTP(value: Fetch) {
++      smtp = value
++    },
++    setOutbound(value: Fetch) {
++      outbound = value
++    },
++    setSession(value: SessionView) {
++      current = value
++    },
++    setSessionRequest(value: Fetch) {
++      session = value
++    },
++    reads() {
++      return fetcher.mock.calls.filter(([path]) => path === endpoint)
++    },
++    writes() {
++      return fetcher.mock.calls.filter(([, init]) => init.method !== 'GET')
++    },
++  }
++}
++const domains = [
++  {
++    name: 'account-personal',
++    read: (a: SessionController) => a.personal.getProfile(),
++    abandon: (a: SessionController) => a.personal.abandon(),
++  },
++  {
++    name: 'directory',
++    read: (a: SessionController) => a.system.listUsers({}),
++    abandon: (a: SessionController) => a.system.abandon(),
++  },
++  {
++    name: 'invitation',
++    read: (a: SessionController) => a.system.listInvitations({}),
++    abandon: (a: SessionController) => a.system.abandonInvitationRead(),
++  },
++  {
++    name: 'provider',
++    read: (a: SessionController) => a.system.providers.list({}),
++    abandon: (a: SessionController) => a.system.providers.abandonRead('provider-list'),
++  },
++  {
++    name: 'model',
++    read: (a: SessionController) =>
++      a.system.models.get({
++        id: id(3),
++        provider_id: id(2),
++        protocol: 'openai-chat-completions',
++      }),
++    abandon: (a: SessionController) => a.system.models.abandonRead('model-detail'),
++  },
++  {
++    name: 'selection',
++    read: (a: SessionController) => a.system.selection.get(),
++    abandon: (a: SessionController) => a.system.selection.abandonRead('selection-state'),
++  },
++  {
++    name: 'account-security',
++    read: (a: SessionController) => a.system.accountSecurity.get(),
++    abandon: (a: SessionController) => a.system.accountSecurity.abandonRead(),
++  },
++  {
++    name: 'smtp-settings',
++    read: (a: SessionController) => a.system.smtp.get(),
++    abandon: (a: SessionController) => a.system.smtp.abandonRead(),
++  },
++  {
++    name: 'smtp-delivery',
++    read: (a: SessionController) => a.system.smtpDelivery.list(),
++    abandon: (a: SessionController) => a.system.smtpDelivery.abandonRead(),
++  },
++  {
++    name: 'outbound',
++    read: (a: SessionController) => a.system.outboundPolicy.get(),
++    abandon: (a: SessionController) => a.system.outboundPolicy.abandonRead(),
++  },
++  {
++    name: 'audit',
++    read: (a: SessionController) => a.system.audit.list({}),
++    abandon: (a: SessionController) => a.system.audit.abandon(),
++  },
++] as const
++afterEach(async () => {
++  for (const release of releases.splice(0)) release()
++  for (const page of pages.splice(0)) page.dispose()
++  const previous = owners.splice(0)
++  for (const auth of previous) auth.leave()
++  await flushPromises()
++  expect(previous.every((auth) => !auth.state.busy)).toBe(true)
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++  vi.unstubAllGlobals()
++  useTheme().setTheme('system')
++})
++
++describe('Runtime Information is the optional twelfth API on the actual Cookie owner', () => {
++  it('keeps eleven-position callers compatible and exposes only a fixed read and abandon', async () => {
++    const f = await fixture(undefined, true),
++      random = vi.spyOn(crypto, 'randomUUID')
++    const value = await f.auth.system.runtimeInformation.get()
++    expect(value.readiness.ready).toBe(false)
++    expect(f.reads()).toHaveLength(1)
++    const [path, init] = f.reads()[0]!
++    expect(
++      path === endpoint &&
++        init.method === 'GET' &&
++        init.body === undefined &&
++        !new Headers(init.headers).has('X-CSRF-Token') &&
++        !new Headers(init.headers).has('Idempotency-Key'),
++    ).toBe(true)
++    expect(Object.keys(f.auth.system.runtimeInformation).sort().join(',')).toBe('abandon,get')
++    expect(random).not.toHaveBeenCalled()
++    expect(f.writes()).toHaveLength(0)
++  })
++
++  it.each(domains)(
++    'waits for $name actual native cancel and cannot abandon that owner',
++    async (domain) => {
++      const f = await fixture(),
++        held = nativeHold('text/plain')
++      let signal: AbortSignal | undefined
++      const fetcher: Fetch = async (_path, init) => {
++        signal = init.signal ?? undefined
++        return held.response()
++      }
++      f.setOther(fetcher)
++      f.setSMTP(fetcher)
++      f.setOutbound(fetcher)
++      const pending = resultOf(domain.read(f.auth))
++      try {
++        await held.entered.promise
++        const count = f.fetcher.mock.calls.length
++        await expect(f.auth.system.runtimeInformation.get()).rejects.toMatchObject({ kind: 'busy' })
++        f.auth.system.runtimeInformation.abandon()
++        expect(
++          signal?.aborted === false &&
++            f.auth.state.busy &&
++            !held.joined() &&
++            f.fetcher.mock.calls.length === count,
++        ).toBe(true)
++      } finally {
++        held.release()
++        await pending
++        await flushPromises()
++      }
++      expect(held.joined() && !held.stream.locked && !f.auth.state.busy).toBe(true)
++      await f.auth.system.runtimeInformation.get()
++      expect(f.reads()).toHaveLength(1)
++    },
++  )
++
++  it('blocks all eleven domains and auth entry while Runtime cancel is actually held', async () => {
++    const f = await fixture(),
++      held = nativeHold('text/plain')
++    f.setRuntime(async () => held.response())
++    const pending = resultOf(f.auth.system.runtimeInformation.get())
++    try {
++      await held.entered.promise
++      const signal = f.reads()[0]![1].signal!,
++        count = f.fetcher.mock.calls.length
++      for (const domain of domains) {
++        await expect(domain.read(f.auth)).rejects.toMatchObject({ kind: 'busy' })
++        domain.abandon(f.auth)
++        expect(signal.aborted).toBe(false)
++      }
++      await f.auth.restore()
++      await f.auth.logout()
++      await expect(f.auth.entry.prepare()).rejects.toMatchObject({ kind: 'busy' })
++      expect(f.fetcher.mock.calls.length === count && f.auth.state.busy).toBe(true)
++      f.auth.system.runtimeInformation.abandon()
++      expect((await pending).error).toMatchObject({ kind: 'cancelled' })
++      expect(signal.aborted && f.auth.state.busy && !held.joined()).toBe(true)
++    } finally {
++      held.release()
++      await pending
++      await flushPromises()
++    }
++    expect(held.joined() && !f.auth.state.busy).toBe(true)
++  })
++
++  it('keeps ownership after the virtual 30-second visible bound until real reader cancellation joins', async () => {
++    const f = await fixture(),
++      held = nativeHold('application/json', sample())
++    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
++    f.setRuntime(async () => held.response())
++    const page = f.page()
++    try {
++      await flushPromises()
++      expect(page.state.phase === 'loading' && page.state.observation === null).toBe(true)
++      await vi.advanceTimersByTimeAsync(30_000)
++      await held.entered.promise
++      expect(
++        page.state.phase === 'error' && page.blocked.value && f.auth.state.busy && !held.joined(),
++      ).toBe(true)
++      await expect(f.auth.system.audit.list({})).rejects.toMatchObject({ kind: 'busy' })
++      await page.refresh()
++      expect(f.reads()).toHaveLength(1)
++    } finally {
++      held.release()
++      await flushPromises()
++    }
++    expect(
++      held.joined() &&
++        !held.stream.locked &&
++        !f.auth.state.busy &&
++        page.state.phase === 'error' &&
++        f.reads().length === 1,
++    ).toBe(true)
++  })
++
++  it('does not release a synchronous successor from the old actual finally', async () => {
++    const f = await fixture(),
++      first = nativeHold('application/json', sample()),
++      second = nativeHold('text/plain')
++    let calls = 0
++    f.setRuntime(async () => (++calls === 1 ? first.response() : second.response()))
++    const old = resultOf(f.auth.system.runtimeInformation.get())
++    let next: ReturnType<typeof resultOf> | undefined
++    const stop = watch(
++      () => f.auth.state.busy,
++      (busy) => {
++        if (!busy && !next) next = resultOf(f.auth.system.runtimeInformation.get())
++      },
++      { flush: 'sync' },
++    )
++    try {
++      await flushPromises()
++      first.controller.close()
++      await old
++      await second.entered.promise
++      expect(f.auth.state.busy && f.reads().length === 2 && !second.joined()).toBe(true)
++      await expect(f.auth.system.audit.list({})).rejects.toMatchObject({ kind: 'busy' })
++    } finally {
++      stop()
++      first.release()
++      second.release()
++      await old
++      await next
++      await flushPromises()
++    }
++    expect(second.joined() && !f.auth.state.busy).toBe(true)
++  })
++
++  it.each(['smtp-settings', 'outbound'] as const)(
++    'preserves the original %s unknown material through Runtime reads and local abandonment',
++    async (domain) => {
++      const f = await fixture(),
++        response = barrier<Response>()
++      releases.push(() => response.resolve(problem('COMMIT_UNKNOWN', 503, 'unknown')))
++      const oldFetch: Fetch = async (_p, init) =>
++        init.method === 'GET'
++          ? json(domain === 'smtp-settings' ? settings() : { version: '1', rules: [] })
++          : response.promise
++      if (domain === 'smtp-settings') f.setSMTP(oldFetch)
++      else f.setOutbound(oldFetch)
++      const random = vi.spyOn(crypto, 'randomUUID')
++      const owner = domain === 'smtp-settings' ? f.auth.system.smtp : f.auth.system.outboundPolicy
++      if (domain === 'smtp-settings') {
++        await f.auth.system.smtp.get()
++        f.auth.system.smtp.setMaterial(' private synthetic password ')
++      }
++      const pending = resultOf(
++        domain === 'smtp-settings'
++          ? f.auth.system.smtp.startUpdate({
++              ...smtpFields(),
++              username: 'smtp-user',
++              version: '1',
++              credential_action: 'keep',
++            })
++          : f.auth.system.outboundPolicy.startUpdate({ expected_version: '1', rules: [] }),
++      )
++      try {
++        await flushPromises()
++        expect(f.writes().length === 1 && f.auth.state.busy).toBe(true)
++        const original = f.writes()[0]![1]
++        f.auth.system.runtimeInformation.abandon()
++        await expect(f.auth.system.runtimeInformation.get()).rejects.toMatchObject({ kind: 'busy' })
++        expect(original.signal?.aborted === false && f.writes().length === 1).toBe(true)
++        response.resolve(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++        await pending
++        expect(owner.progress?.phase).toBe('uncertain')
++        f.setRuntime(async () => problem('DEPENDENCY_UNAVAILABLE'))
++        const page = f.page()
++        await flushPromises()
++        page.leave()
++        page.dispose()
++        f.auth.system.runtimeInformation.abandon()
++        expect(owner.progress?.phase).toBe('uncertain')
++        if (domain === 'smtp-settings') expect(f.auth.system.smtp.material.present).toBe(true)
++        await owner.checkOriginal()
++        expect(owner.progress?.canRetryOriginal).toBe(true)
++        await resultOf(owner.retryOriginal())
++        const writes = f.writes(),
++          repeated = writes[1]![1]
++        expect(
++          writes.length === 2 &&
++            original.method === repeated.method &&
++            original.body === repeated.body &&
++            new Headers(original.headers).get('Idempotency-Key') ===
++              new Headers(repeated.headers).get('Idempotency-Key') &&
++            new Headers(original.headers).get('X-CSRF-Token') ===
++              new Headers(repeated.headers).get('X-CSRF-Token'),
++        ).toBe(true)
++        expect(random).toHaveBeenCalledTimes(1)
++      } finally {
++        response.resolve(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++        await pending
++        await flushPromises()
++      }
++    },
++  )
++})
++
++describe('Runtime identity and Problem qualification', () => {
++  it.each(['UNAUTHENTICATED', 'SESSION_REVOKED'])(
++    'clears the same identity for legal 401 %s',
++    async (code) => {
++      const f = await fixture()
++      f.auth.system.smtp.setMaterial(' synthetic private value ')
++      f.setRuntime(async () => problem(code, 401))
++      const page = f.page()
++      await flushPromises()
++      expect(
++        f.auth.state.phase === 'unavailable' &&
++          f.auth.personalContext.identity === null &&
++          page.state.phase === 'inactive' &&
++          page.state.observation === null &&
++          !f.auth.system.smtp.material.present &&
++          !f.auth.state.busy,
++      ).toBe(true)
++      expect(f.writes()).toHaveLength(0)
++    },
++  )
++  it('clears current system permission and private material for legal current 403 FORBIDDEN', async () => {
++    const f = await fixture()
++    f.auth.system.smtp.setMaterial(' synthetic private value ')
++    f.setRuntime(async () => problem('FORBIDDEN', 403))
++    const page = f.page()
++    await flushPromises()
++    expect(
++      f.auth.state.phase === 'authenticated' &&
++        f.auth.system.denied &&
++        page.state.phase === 'forbidden' &&
++        page.state.observation === null &&
++        !f.auth.system.smtp.material.present &&
++        !f.auth.state.busy,
++    ).toBe(true)
++    await expect(f.auth.system.runtimeInformation.get()).rejects.toMatchObject({
++      kind: 'invalid-input',
++    })
++    expect(f.writes()).toHaveLength(0)
++  })
++  it.each([
++    [401, 'FORBIDDEN'],
++    [403, 'UNAUTHENTICATED'],
++    [403, 'SESSION_REVOKED'],
++    [403, 'CSRF_FAILED'],
++    [401, 'UNRECOGNIZED'],
++    [503, 'FORBIDDEN'],
++  ] as const)(
++    'treats %s/%s as read failure without inferring identity loss',
++    async (status, code) => {
++      const f = await fixture(),
++        identity = f.auth.personalContext.identity
++      f.setRuntime(async () => problem(code, status))
++      const page = f.page()
++      await flushPromises()
++      expect(
++        f.auth.state.phase === 'authenticated' &&
++          f.auth.personalContext.identity === identity &&
++          !f.auth.system.denied &&
++          page.state.phase === 'error' &&
++          page.state.observation === null &&
++          !f.auth.state.busy,
++      ).toBe(true)
++      expect(f.writes()).toHaveLength(0)
++    },
++  )
++  it('requires a validated Problem kind rather than an attached numeric status or code', async () => {
++    const f = await fixture({
++        get: async () => {
++          throw new AccountFailure('transport', problemValue('FORBIDDEN', 403))
++        },
++      }),
++      identity = f.auth.personalContext.identity
++    await resultOf(f.auth.system.runtimeInformation.get())
++    expect(f.auth.personalContext.identity === identity && !f.auth.system.denied).toBe(true)
++  })
++  it.each([401, 403] as const)(
++    'handles an already-parsed late %s after local abandon by its own safety rule',
++    async (status) => {
++      const answer = barrier(),
++        entered = barrier()
++      releases.push(() => answer.resolve())
++      const f = await fixture({
++        get: async () => {
++          entered.resolve()
++          await answer.promise
++          throw new AccountFailure(
++            'problem',
++            problemValue(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status),
++          )
++        },
++      })
++      const page = f.page()
++      try {
++        await entered.promise
++        page.cancel()
++        expect(page.state.phase === 'error' && f.auth.state.busy).toBe(true)
++      } finally {
++        answer.resolve()
++        await flushPromises()
++      }
++      expect(
++        status === 401
++          ? f.auth.state.phase === 'unavailable' && page.state.phase === 'inactive'
++          : f.auth.state.phase === 'authenticated' &&
++              !f.auth.system.denied &&
++              page.state.phase === 'error',
++      ).toBe(true)
++      expect(page.state.observation === null && !f.auth.state.busy).toBe(true)
++    },
++  )
++  it('keeps the old actual owner after global retirement and cannot clear the later Session', async () => {
++    const answer = barrier(),
++      entered = barrier()
++    let calls = 0
++    releases.push(() => answer.resolve())
++    const f = await fixture({
++      get: async () => {
++        if (++calls === 1) {
++          entered.resolve()
++          await answer.promise
++          throw new AccountFailure('problem', problemValue('SESSION_REVOKED', 401))
++        }
++        return createSystemRuntimeInformationAPI(async () => json(sample())).get(
++          new AbortController().signal,
++        )
++      },
++    })
++    const old = f.page()
++    try {
++      await entered.promise
++      f.auth.leave()
++      f.setSession(view(id(20)))
++      const before = f.fetcher.mock.calls.length
++      await f.auth.restore()
++      expect(
++        f.auth.state.busy &&
++          f.fetcher.mock.calls.length === before &&
++          old.state.phase === 'inactive' &&
++          old.state.observation === null,
++      ).toBe(true)
++    } finally {
++      answer.resolve()
++      await flushPromises()
++    }
++    await f.auth.restore()
++    const next = f.page()
++    await flushPromises()
++    expect(
++      f.auth.state.phase === 'authenticated' &&
++        f.auth.personalContext.identity?.sessionID === id(20) &&
++        !f.auth.system.denied &&
++        next.state.phase === 'ready' &&
++        old.state.phase === 'inactive',
++    ).toBe(true)
++  })
++})
++
++describe('Runtime observations belong to one page instance', () => {
++  it('publishes only after EOF and clears the old observation on every new read and failure', async () => {
++    const f = await fixture(),
++      page = f.page()
++    await flushPromises()
++    expect(page.state.phase).toBe('ready')
++    const held = nativeHold('application/json', sample())
++    f.setRuntime(async () => held.response())
++    const pending = page.refresh()
++    try {
++      await flushPromises()
++      expect(
++        page.state.phase === 'loading' && page.state.observation === null && f.auth.state.busy,
++      ).toBe(true)
++      held.controller.close()
++      await pending
++      expect(page.state.phase === 'ready' && page.state.observation !== null).toBe(true)
++    } finally {
++      held.release()
++      await pending
++    }
++    f.setRuntime(async () => json({}))
++    await page.refresh()
++    expect(page.state.phase === 'error' && page.state.observation === null).toBe(true)
++    const before = f.reads().length
++    await flushPromises()
++    expect(f.reads()).toHaveLength(before)
++    f.setRuntime(async () => json(sample()))
++    await page.refresh()
++    expect(f.reads().length === before + 1 && page.state.phase === 'ready').toBe(true)
++    expect(f.writes()).toHaveLength(0)
++  })
++  it('cancel before dispatch consumes initial eligibility without leaving a loading state', async () => {
++    const f = await fixture(),
++      page = f.page()
++    page.cancel()
++    expect(page.state.phase === 'error' && page.state.observation === null).toBe(true)
++    await flushPromises()
++    expect(f.reads().length === 0 && !f.auth.state.busy && page.state.phase === 'error').toBe(true)
++    await page.refresh()
++    expect(f.reads().length === 1 && page.state.phase === 'ready').toBe(true)
++  })
++  it('cancelled reading remains error after actual tail release and only an explicit read recovers', async () => {
++    const f = await fixture(),
++      held = nativeHold('application/json', sample())
++    f.setRuntime(async () => held.response())
++    const page = f.page()
++    try {
++      await flushPromises()
++      page.cancel()
++      expect(
++        page.state.phase === 'error' && page.state.observation === null && page.blocked.value,
++      ).toBe(true)
++      await held.entered.promise
++      await page.refresh()
++      expect(f.reads().length === 1 && f.auth.state.busy && !held.joined()).toBe(true)
++    } finally {
++      held.release()
++      await flushPromises()
++    }
++    expect(
++      held.joined() && !held.stream.locked && !f.auth.state.busy && f.reads().length === 1,
++    ).toBe(true)
++    f.setRuntime(async () => json(sample()))
++    await page.refresh()
++    expect(page.state.phase === 'ready' && f.reads().length === 2).toBe(true)
++  })
++  it.each(['eligible', 'cancelled', 'disposed'] as const)(
++    'a %s page waits for the old Audit tail without cancelling it',
++    async (mode) => {
++      const f = await fixture(),
++        held = nativeHold('text/plain')
++      let signal: AbortSignal | undefined
++      f.setOther(async (_p, init) => {
++        signal = init.signal ?? undefined
++        return held.response()
++      })
++      const old = resultOf(f.auth.system.audit.list({}))
++      let page: SystemRuntimeInformationController | undefined
++      try {
++        await held.entered.promise
++        page = f.page()
++        expect(page.state.phase === 'waiting' && f.reads().length === 0).toBe(true)
++        if (mode === 'cancelled') page.cancel()
++        if (mode === 'disposed') page.dispose()
++        expect(signal?.aborted === false && f.auth.state.busy).toBe(true)
++      } finally {
++        held.release()
++        await old
++        await flushPromises()
++      }
++      expect(held.joined() && f.reads().length === (mode === 'eligible' ? 1 : 0)).toBe(true)
++      if (mode === 'eligible') expect(page!.state.phase).toBe('ready')
++      if (mode === 'cancelled') {
++        expect(page!.state.phase).toBe('error')
++        await page!.refresh()
++        expect(f.reads()).toHaveLength(1)
++      }
++    },
++  )
++  it('waits across disposed Runtime instances and does not let the old continuation alter the new read', async () => {
++    const f = await fixture(),
++      first = nativeHold('application/json', sample()),
++      second = nativeHold('application/json', sample())
++    let count = 0
++    f.setRuntime(async () => (++count === 1 ? first.response() : second.response()))
++    const old = f.page()
++    let next: SystemRuntimeInformationController | undefined
++    try {
++      await flushPromises()
++      old.dispose()
++      await first.entered.promise
++      next = f.page()
++      expect(next.state.phase === 'waiting' && f.reads().length === 1).toBe(true)
++      first.release()
++      await flushPromises()
++      expect(
++        first.joined() &&
++          old.state.phase === 'inactive' &&
++          old.state.observation === null &&
++          next.state.phase === 'loading' &&
++          f.reads().length === 2 &&
++          f.auth.state.busy,
++      ).toBe(true)
++      old.cancel()
++      old.dispose()
++      await old.refresh()
++      expect(f.reads()[1]![1].signal?.aborted).toBe(false)
++      second.controller.close()
++      await flushPromises()
++      expect(next.state.phase === 'ready' && old.state.phase === 'inactive').toBe(true)
++    } finally {
++      first.release()
++      second.release()
++      next?.dispose()
++      await flushPromises()
++    }
++  })
++  it('checking and a failed Session permanently retire the old page; same-Session recovery needs a new instance', async () => {
++    const f = await fixture(),
++      page = f.page()
++    await flushPromises()
++    f.setSessionRequest(async () => problem('DEPENDENCY_UNAVAILABLE'))
++    await f.auth.restore()
++    expect(
++      page.state.phase === 'inactive' && page.state.observation === null && !page.isCurrent(),
++    ).toBe(true)
++    const before = f.reads().length
++    await page.refresh()
++    f.setSessionRequest(async () => json(view()))
++    await f.auth.restore()
++    await flushPromises()
++    expect(f.reads()).toHaveLength(before)
++    const next = f.page()
++    await flushPromises()
++    expect(next.state.phase === 'ready' && f.reads().length === before + 1).toBe(true)
++  })
++  it('a non-admin instance never starts a GET and does not gain eligibility after role restoration', async () => {
++    const f = await fixture()
++    f.setSession(view(id(2), 'user'))
++    await f.auth.restore()
++    const page = f.page()
++    expect(page.state.phase).toBe('forbidden')
++    await page.refresh()
++    f.setSession(view())
++    await f.auth.restore()
++    await page.refresh()
++    expect(f.reads()).toHaveLength(0)
++    const next = f.page()
++    await flushPromises()
++    expect(next.state.phase === 'ready' && f.reads().length === 1).toBe(true)
++  })
++  it('route-leave consumes eligibility and cancels synchronously, but a later blocked navigation allows explicit refresh', async () => {
++    const f = await fixture(),
++      held = nativeHold('application/json', sample())
++    f.setRuntime(async () => held.response())
++    const page = f.page()
++    try {
++      await flushPromises()
++      page.leave()
++      expect(
++        page.state.phase === 'error' && page.state.observation === null && f.auth.state.busy,
++      ).toBe(true)
++      await held.entered.promise
++    } finally {
++      held.release()
++      await flushPromises()
++    }
++    expect(held.joined() && f.reads().length === 1 && page.isCurrent()).toBe(true)
++    f.setRuntime(async () => json(sample()))
++    await page.refresh()
++    expect(page.state.phase === 'ready' && f.reads().length === 2 && f.writes().length === 0).toBe(
++      true,
++    )
++  })
++})

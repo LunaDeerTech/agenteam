@@ -1,0 +1,373 @@
+--- a/web/src/tests/system-user-directory.spec.ts
++++ b/web/src/tests/system-user-directory.spec.ts
+@@ -217,6 +217,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(menu.get('a').attributes('aria-current')).toBe('page')
+     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
+--- a/web/src/tests/system-invitations.spec.ts
++++ b/web/src/tests/system-invitations.spec.ts
+@@ -293,6 +293,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(f.reads()).toHaveLength(1)
+     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([
+--- a/web/src/tests/system-providers.spec.ts
++++ b/web/src/tests/system-providers.spec.ts
+@@ -316,7 +316,7 @@
+ }
+ 
+ describe('Provider actual App/router/controller composition', () => {
+-  it('keeps users as default, has exactly nine leaves in four groups and preserves Provider return validation', async () => {
++  it('keeps users as default, has exactly ten leaves in four groups and preserves Provider return validation', async () => {
+     const f = await page('/system')
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -334,6 +334,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+     await f.wrapper.get('a[href="/system/providers"]').trigger('click')
+--- a/web/src/tests/system-models.spec.ts
++++ b/web/src/tests/system-models.spec.ts
+@@ -456,6 +456,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+     await f.wrapper.get('a[href="/system/models"]').trigger('click')
+--- a/web/src/tests/system-model-selection.spec.ts
++++ b/web/src/tests/system-model-selection.spec.ts
+@@ -516,7 +516,7 @@
+ }
+ 
+ describe('Selection actual App/router/controller interactions', () => {
+-  it('keeps the users default and nine leaves with the exact Selection return target', async () => {
++  it('keeps the users default and ten leaves with the exact Selection return target', async () => {
+     const f = await page({ path: '/system' })
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -534,6 +534,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+     await f.wrapper.get('a[href="/system/model-selection"]').trigger('click')
+--- a/web/src/tests/system-account-security.spec.ts
++++ b/web/src/tests/system-account-security.spec.ts
+@@ -255,7 +255,7 @@
+ }
+ 
+ describe('Account security inline form in the actual App and router', () => {
+-  it('keeps users as default, renders nine leaves in four groups and preserves the tenth exact return', async () => {
++  it('keeps users as default, renders ten leaves in four groups and preserves the tenth exact return', async () => {
+     const f = await page({ path: '/system' })
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -273,6 +273,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(f.wrapper.findAll('.settings-group-toggle').map((group) => group.text())).toEqual([
+       '用户与邀请',
+--- a/web/src/tests/system-smtp-settings.spec.ts
++++ b/web/src/tests/system-smtp-settings.spec.ts
+@@ -297,7 +297,7 @@
+ }
+ 
+ describe('SMTP inline form and two persistent confirmation hosts in the actual App', () => {
+-  it('keeps SMTP as the eighth leaf and eleventh return within nine leaves, four groups and thirteen returns', async () => {
++  it('keeps SMTP as the eighth leaf and eleventh return within ten leaves, four groups and fourteen returns', async () => {
+     const f = await page({ path: '/system', configured: false })
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -315,6 +315,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(f.wrapper.findAll('.settings-group-toggle').map((g) => g.text())).toEqual([
+       '用户与邀请',
+--- a/web/src/tests/system-outbound-policy.spec.ts
++++ b/web/src/tests/system-outbound-policy.spec.ts
+@@ -736,7 +736,7 @@
+ })
+ 
+ describe('Outbound structured View and public navigation composition', () => {
+-  it('has nine leaves in four groups, preserves users default and validates the twelfth exact return', async () => {
++  it('has ten leaves in four groups, preserves users default and validates the twelfth exact return', async () => {
+     const f = await app(view(), '/system')
+     expect(f.router.currentRoute.value.path).toBe('/system/users')
+     expect(
+@@ -754,6 +754,7 @@
+       '账号安全',
+       'SMTP',
+       '出站规则',
++      '运行信息',
+     ])
+     expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+     expect(safeReturnTarget('/system/outbound-policy')).toBe('/system/outbound-policy')
+--- a/web/src/tests/system-audit.spec.ts
++++ b/web/src/tests/system-audit.spec.ts
+@@ -339,7 +339,7 @@
+ const detailButton = (n = 100) => '查看详情 ' + id(n)
+ 
+ describe('Audit page uses the production App, route records, authentication guard and factory', () => {
+-  it('has one protected Audit leaf, nine leaves/four groups and thirteen exact return targets', async () => {
++  it('has one protected Audit leaf, ten leaves/four groups and fourteen exact return targets', async () => {
+     const f = await app()
+     expect(f.router.resolve('/system/audit').matched.at(-1)?.path).toBe('/system/audit')
+     expect(f.router.currentRoute.value.meta.systemAdmin).toBe(true)
+@@ -357,6 +357,7 @@
+       '/system/account-security',
+       '/system/smtp',
+       '/system/outbound-policy',
++      '/system/runtime-information',
+     ])
+     const targets = [
+       '/',
+@@ -372,6 +373,7 @@
+       '/system/smtp',
+       '/system/outbound-policy',
+       '/system/audit',
++      '/system/runtime-information',
+     ]
+     for (const target of targets) expect(safeReturnTarget(target)).toBe(target)
+     for (const value of [
+--- a/web/src/tests/personal-settings.spec.ts
++++ b/web/src/tests/personal-settings.spec.ts
+@@ -471,7 +471,7 @@
+       expect(p.api.login.mock.calls.length).toBe(1)
+     },
+   )
+-  it('only permits the thirteen exact return targets and clears dirty previews on real context invalidation', async () => {
++  it('only permits the fourteen exact return targets and clears dirty previews on real context invalidation', async () => {
+     expect(safeReturnTarget('/system/invitations')).toBe('/system/invitations')
+     expect(safeReturnTarget('/system/providers')).toBe('/system/providers')
+     expect(safeReturnTarget('/system/models')).toBe('/system/models')
+@@ -480,6 +480,7 @@
+     expect(safeReturnTarget('/system/smtp')).toBe('/system/smtp')
+     expect(safeReturnTarget('/system/outbound-policy')).toBe('/system/outbound-policy')
+     expect(safeReturnTarget('/system/audit')).toBe('/system/audit')
++    expect(safeReturnTarget('/system/runtime-information')).toBe('/system/runtime-information')
+     expect(safeReturnTarget('/system/users')).toBe('/system/users')
+     for (const target of [
+       '/settings',
+@@ -505,6 +506,11 @@
+       '/system/audit/',
+       '/system/audit/extra',
+       ['/system/audit'],
++      '/system/runtime-information?x=1',
++      '/system/runtime-information#x',
++      '/system/runtime-information/',
++      '/system/runtime-information/extra',
++      ['/system/runtime-information'],
+       '//example.com',
+       'https://example.com',
+       ['/settings/profile'],
+--- a/tests/account-captcha-web/e2e/system-invitations.spec.ts
++++ b/tests/account-captcha-web/e2e/system-invitations.spec.ts
+@@ -1525,7 +1525,7 @@
+           name: "系统设置栏目",
+           exact: true,
+         });
+-        await expect(drawer.getByRole("link")).toHaveCount(9);
++        await expect(drawer.getByRole("link")).toHaveCount(10);
+         for (let n = 0; n < 6; n++) {
+           await page.keyboard.press("Tab");
+           expect(
+--- a/tests/account-captcha-web/e2e/system-providers.spec.ts
++++ b/tests/account-captcha-web/e2e/system-providers.spec.ts
+@@ -1189,7 +1189,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(9);
++  ).toHaveCount(10);
+   await page.getByRole("link", { name: "待注册邀请", exact: true }).click();
+   await expect(
+     page.getByRole("heading", { name: "待注册邀请", exact: true }),
+--- a/tests/account-captcha-web/e2e/system-models.spec.ts
++++ b/tests/account-captcha-web/e2e/system-models.spec.ts
+@@ -1920,7 +1920,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(9);
++  ).toHaveCount(10);
+   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
+     await page.getByRole("link", { name: leaf, exact: true }).click();
+     await expect(title(page, leaf)).toBeVisible();
+@@ -1988,7 +1988,7 @@
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(9);
++        await expect(top(page).getByRole("link")).toHaveCount(10);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-model-selection.spec.ts
++++ b/tests/account-captcha-web/e2e/system-model-selection.spec.ts
+@@ -1919,7 +1919,7 @@
+     page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+       .getByRole("link"),
+-  ).toHaveCount(9);
++  ).toHaveCount(10);
+   for (const leaf of ["待注册邀请", "Providers", "Models"]) {
+     await page
+       .getByRole("navigation", { name: "系统设置", exact: true })
+@@ -2078,7 +2078,7 @@
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(9);
++        await expect(top(page).getByRole("link")).toHaveCount(10);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.getByRole("dialog")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-account-security.spec.ts
++++ b/tests/account-captcha-web/e2e/system-account-security.spec.ts
+@@ -1109,7 +1109,7 @@
+   await page.goto("/system");
+   await expect(page).toHaveURL(/\/system\/users$/);
+   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+-  await expect(nav.getByRole("link")).toHaveCount(9);
++  await expect(nav.getByRole("link")).toHaveCount(10);
+   await expect(nav.locator(".settings-group-toggle")).toHaveCount(4);
+   const platform = nav.getByRole("button", { name: "平台配置", exact: true });
+   await platform.focus();
+@@ -1186,7 +1186,7 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(9);
++        await expect(top(page).getByRole("link")).toHaveCount(10);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts
++++ b/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts
+@@ -1296,7 +1296,7 @@
+   await button(page, "取消修改").scrollIntoViewIfNeeded();
+   await expect(button(page, "取消修改")).toBeInViewport();
+ }
+-test("[navigation] nine leaves, two restored confirmations and eight responsive layouts", async ({
++test("[navigation] ten leaves, two restored confirmations and eight responsive layouts", async ({
+   page,
+ }) => {
+   await page.addInitScript(observeNative);
+@@ -1308,7 +1308,7 @@
+   await page.goto("/system");
+   await expect(page).toHaveURL(/\/system\/users$/);
+   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+-  await expect(nav.getByRole("link")).toHaveCount(9);
++  await expect(nav.getByRole("link")).toHaveCount(10);
+   await expect(nav.locator(".settings-group-toggle")).toHaveCount(4);
+   const platform = nav.getByRole("button", { name: "平台配置", exact: true });
+   await platform.focus();
+@@ -1488,7 +1488,7 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(9);
++        await expect(top(page).getByRole("link")).toHaveCount(10);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts
++++ b/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts
+@@ -1421,7 +1421,7 @@
+   expect((await writes(page)).length).toBe(0);
+   await page.goto("/system/users");
+   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+-  await expect(nav.getByRole("link")).toHaveCount(9);
++  await expect(nav.getByRole("link")).toHaveCount(10);
+   await expect(nav.locator(".settings-group-toggle")).toHaveCount(4);
+   let after = await seq(page);
+   await nav.getByRole("link", { name: "SMTP", exact: true }).click();
+@@ -1552,7 +1552,7 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(9);
++        await expect(top(page).getByRole("link")).toHaveCount(10);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
++++ b/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts
+@@ -1341,7 +1341,7 @@
+   await button(page, "取消修改").scrollIntoViewIfNeeded();
+   await expect(button(page, "取消修改")).toBeInViewport();
+ }
+-test("[navigation] nine leaves, same-identity confirmations, explicit cancellation and eight layouts", async ({
++test("[navigation] ten leaves, same-identity confirmations, explicit cancellation and eight layouts", async ({
+   page,
+ }) => {
+   await page.addInitScript(observeNative);
+@@ -1355,7 +1355,7 @@
+   await page.goto("/system");
+   await expect(page).toHaveURL(/\/system\/users$/);
+   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+-  await expect(nav.getByRole("link")).toHaveCount(9);
++  await expect(nav.getByRole("link")).toHaveCount(10);
+   await expect(nav.locator(".settings-group-toggle")).toHaveCount(4);
+   const platform = nav.getByRole("button", { name: "平台配置", exact: true });
+   await platform.focus();
+@@ -1458,7 +1458,7 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(top(page).getByRole("link")).toHaveCount(9);
++        await expect(top(page).getByRole("link")).toHaveCount(10);
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);
+--- a/tests/account-captcha-web/e2e/system-audit.spec.ts
++++ b/tests/account-captcha-web/e2e/system-audit.spec.ts
+@@ -1483,7 +1483,7 @@
+   let current = await ready(page);
+   await page.goto("/system");
+   await expect(page).toHaveURL(/\/system\/users$/);
+-  await expect(nav(page).getByRole("link")).toHaveCount(9);
++  await expect(nav(page).getByRole("link")).toHaveCount(10);
+   await expect(nav(page).locator(".settings-group-toggle")).toHaveCount(4);
+   expect(
+     await nav(page)
+@@ -1499,6 +1499,7 @@
+     "/system/account-security",
+     "/system/smtp",
+     "/system/outbound-policy",
++    "/system/runtime-information",
+   ]);
+   const group = nav(page).getByRole("button", { name: "审计", exact: true });
+   await group.focus();
+@@ -1576,7 +1577,9 @@
+       if (width === 390) {
+         const toggle = button(page, "系统设置栏目");
+         await toggle.click();
+-        await expect(page.getByRole("dialog").getByRole("link")).toHaveCount(9);
++        await expect(page.getByRole("dialog").getByRole("link")).toHaveCount(
++          10,
++        );
+         await focusContained(page);
+         await page.keyboard.press("Escape");
+         await expect(page.locator(".ui-overlay")).toHaveCount(0);

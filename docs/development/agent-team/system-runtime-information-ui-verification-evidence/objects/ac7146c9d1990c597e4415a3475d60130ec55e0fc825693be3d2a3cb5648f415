@@ -1,0 +1,58 @@
+{
+  "status": "FROZEN private source preparation; not offline-checked or executable-ready",
+  "root": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+  "fixed_harness_manifest": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/manifest.json",
+    "sha256": "88ab0e91abf1532f8a1e70839567d267345683b50c210f99d97c053417584275"
+  },
+  "fixed_C_manifest": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/manifest.json",
+    "sha256": "ddc91856eadae403e1f7d4e56421fc642f19b9fa8e1ea17c7de3da4f5446c755"
+  },
+  "fixed_C_source_count": 30,
+  "fixed_dist_count": 42,
+  "source4": {
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "41346ae83aa8f2cfcd66e32b27c7eb0358267dce45e23beda127c17ade5d4b40",
+    "tests/account-captcha-web/system-runtime-information.config.js": "cc98919ddb3ca76b4e5df9f078050427da573b2aaaf08d449ace39d921c5e373",
+    "tests/account/system_runtime_information_web_fixture_test.go": "218d66218871f5f088806565357ae28efdaf2146965818b393c305a75b3cadee",
+    "tests/account/system_runtime_information_web_test.go": "d0ff7c71af3cac638031507c9f3f502bfcacdec23335294ff8b40ce512a9b121"
+  },
+  "private_files": {
+    "fixture-config-only01.diff": "67d1b3007f6768858c8d0ac6d92298530105fe0662c6ade9e12cb94039805cd8",
+    "helper-origin01.json": "f24bada1d908a641cd4866ef23a2d29b6025966cbdccbc1ba6b791cc8695e43c",
+    "config01.diff": "ded05f2db18317c86f8e1ebc12e09ead83ac88dff305f93c65214315889a3469",
+    "driver-binding-plan01.json": "28a2caea2281cad02559e7f954fbc3f60c62e8c2dd0efaa2d2083374ed64d56e",
+    "source/tests/account/system_runtime_information_web_fixture_test.go": "dec6a1014232d2fd8de0f44fa5937df14523b2c31a8094159eb8261b48410ec5",
+    "source/tests/account/runtime_information_independent_test.go": "1ef28f2e91d6584da385ddf7cda24a129c5bdd0eaa2352fb22411e389ebf3d9a",
+    "source/tests/account-captcha-web/independent-runtime-information.config.js": "c5beb333c14fb32af0bb89af6ad3bdea0b24e20b39cf92d982693071cf792d77",
+    "source/tests/account-captcha-web/e2e/independent-runtime-information.spec.ts": "ee4915e60a2ba6f7a35a2fcba4ff312af87e5341ea2047ae42929c569d62b108",
+    "source/web/src/api/system-runtime-information.ts": "7126e4a1d17260a6c8f467372f65f6d1749ffe7880a5d1099036fa8fc46254ec",
+    "source/web/src/api/client.ts": "c7c894e8b9baf762823ea5c1b5385d4bf48b76aae33fa9890ad696494bb29526",
+    "source/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "source/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+  },
+  "type_only_accepted_sources": {
+    "web/src/api/system-runtime-information.ts": {
+      "origin": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/api/system-runtime-information.ts",
+      "sha256": "7126e4a1d17260a6c8f467372f65f6d1749ffe7880a5d1099036fa8fc46254ec"
+    },
+    "web/src/api/client.ts": {
+      "origin": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/api/client.ts",
+      "sha256": "c7c894e8b9baf762823ea5c1b5385d4bf48b76aae33fa9890ad696494bb29526"
+    },
+    "web/src/api/account.ts": {
+      "origin": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/dependencies/web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    "web/src/api/system-account.ts": {
+      "origin": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/dependencies/web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    }
+  },
+  "plan": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-independent-plan-xx_ygl_n/plan01.md",
+    "sha256": "b0a455e1e012568ae64c48ef4a4ddcc42b4b18bd2c931588f10b3256b6278900"
+  },
+  "execution_performed": false,
+  "resources_started": false
+}

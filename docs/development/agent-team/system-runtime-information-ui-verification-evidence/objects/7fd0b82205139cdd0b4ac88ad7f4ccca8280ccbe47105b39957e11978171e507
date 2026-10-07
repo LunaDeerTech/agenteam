@@ -1,0 +1,17 @@
+You are running a development build of Vue.
+Make sure to use the production build (*.prod.js) when deploying for production.
+{"combination":"A","mismatched_status_and_csrf_no_cleanup":true,"read_unknown_preserves_old_write":true,"original_body_key_csrf_equal":true,"current403_clears_material":true,"legal401_invalidates":true}
+(node:718520) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"combination":"A","old_generation401_ignored":true,"new_identity_only_after_actual_tail":true,"controlled_parsed_problem_not_native":true}
+✔ A: qualified safety errors and Runtime reads preserve unrelated unknown material and isolate old identity (38.431717ms)
+{"combination":"B","waiting_cancel_preserves_other_owner":true,"opposite_abandons_preserve_Runtime":true,"virtual_timeout_ms":30000,"native_reader_tail_joined":true,"disposed_old_instance_cannot_publish":true,"new_instance_once_after_actual_tail":true,"checking503_permanent_retirement":true,"same_identity_fresh_instance_once":true,"leave_explicit_refresh":true,"zero_writes":true}
+✔ B: actual native owner tails gate waiting cancellation, virtual timeout and permanent page retirement (8.714375ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 213.06358

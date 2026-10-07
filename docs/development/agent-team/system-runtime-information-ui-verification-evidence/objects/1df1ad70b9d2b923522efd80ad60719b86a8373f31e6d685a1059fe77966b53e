@@ -1,0 +1,87 @@
+{
+  "at_utc": "2026-10-07T06:41:41.423885+00:00",
+  "run": "navigation01",
+  "reviewer": "directory_frontend",
+  "images": [
+    {
+      "file": "runtime-information-dark-1024.png",
+      "sha256": "d5e8870da010cacbce140c66d1f6e7b79412b4377b766bfe6d9c54f20779f45b",
+      "bytes": 111421,
+      "width": 1024,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "runtime-information-dark-1440.png",
+      "sha256": "011b806482335d3fc76b42c35dce6b8defd7730b7d7267c29eed4a6042166100",
+      "bytes": 115117,
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "runtime-information-dark-390.png",
+      "sha256": "bdf729fa19c10990f414367ce37e65bbe52d8c5cf21b28c73bb93032a736d684",
+      "bytes": 65230,
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "runtime-information-dark-768.png",
+      "sha256": "1dceeb34fa333d0a68387291b6d9fde73d9b2b30272df3a2bd99d63ebc4a2ea6",
+      "bytes": 91749,
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "runtime-information-light-1024.png",
+      "sha256": "f86b47a1dad1b2313d0ea5a0c2ab2abcd5c53b44a72238c5df3151f1dbec513f",
+      "bytes": 110452,
+      "width": 1024,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "runtime-information-light-1440.png",
+      "sha256": "58862661e5fede373dabe43a032e316b4530af0a6fccbcd171e3015b79991171",
+      "bytes": 114233,
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "runtime-information-light-390.png",
+      "sha256": "1a41247377ebf7a3ccdaa30e3d3ea66447e9c98fabdcb72b1120c648a0b6538d",
+      "bytes": 64080,
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "runtime-information-light-768.png",
+      "sha256": "7888661d2d3cc17084cd3b91febc3cde1b2a9459636b02300b2657d992d578a4",
+      "bytes": 90870,
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": true
+    }
+  ],
+  "conclusion": "No visual repair identified in the eight captured viewports. Text, timestamps, card boundaries and navigation remain legible in both themes; no visible horizontal overflow or overlay.",
+  "observations_by_width": {
+    "390": "Single-column cards; observation timestamp wraps; lower regions extend below this viewport.",
+    "768": "Two-column cards beside sidebar; long UTC values wrap within cards; lower region content extends below the crop.",
+    "1024": "Two-column cards, readable status/history labels and UTC values; lower cards reach the viewport edge.",
+    "1440": "Four cache sections are visible within the captured viewport; Central unknown and readiness not-ready remain distinct from historical success records."
+  },
+  "limits": [
+    "All screenshots are 900px-high viewport captures, not full-page images.",
+    "Image review does not claim unpictured content or interaction coverage; geometry, keyboard and recovery assertions are separate browser evidence."
+  ],
+  "root_actually_viewed": [
+    "runtime-information-light-390.png",
+    "runtime-information-dark-768.png"
+  ],
+  "root_review_source": "Root message confirming exactly two partial 900px views."
+}

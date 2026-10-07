@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--list",
+    "--config",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/independent-runtime-information.config.js"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-runtime-independent-offline-z_v81xbp",
+    "GOTMPDIR": "/tmp/agt-runtime-independent-offline-z_v81xbp",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-discovery/independent-read",
+    "AGENTEAM_RUNTIME_INFORMATION_WEB_CASE": "independent-read",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "8bc2255a8236162575dc6fc189e7a2f208db568ca6696ed205ef70b3e1665b77",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 810759,
+  "actual_exit": 0,
+  "seconds": 0.9930899160026456,
+  "timeout": false
+}

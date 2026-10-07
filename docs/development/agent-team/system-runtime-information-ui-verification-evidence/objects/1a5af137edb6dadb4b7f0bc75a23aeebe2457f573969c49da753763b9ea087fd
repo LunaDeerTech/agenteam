@@ -1,0 +1,46 @@
+import fnmatch, hashlib, json, re, subprocess
+from pathlib import Path
+S=Path(__file__).resolve().parent; W=S/'workspace'; REPO=Path('/workspace/agenteam')
+BASE='a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1'; PREFIX='github.com/LunaDeerTech/agenteam/'
+paths=subprocess.check_output(['git','ls-tree','-r','--name-only',BASE],cwd=REPO,text=True).splitlines()
+cache={}
+def read(path):
+ if path not in cache:cache[path]=subprocess.check_output(['git','show',BASE+':'+path],cwd=REPO)
+ return cache[path]
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+c=json.loads((S/'web-stage01/manifest.json').read_text());d=json.loads((S/'harness-stage01/manifest.json').read_text())
+frozen={**c['source'],**{'web/dist/'+p:v for p,v in c['dist'].items()},**d['source']}
+assert all(sha(W/p)==v for p,v in frozen.items())
+# These are exactly the unchanged PostgreSQL fixture's go-test package roots,
+# including its -objects branch selected by the unchanged Object fixture.
+prefixes=['internal/central/postgres','tests/database','internal/central/app','tests/process','tests/security','tests/outbox','internal/central/outbox','tests/account','tests/accountmail','internal/central/accountmail','internal/central/recoverylog','tests/project','internal/central/model','tests/model','tests/objects','internal/central/object']
+tested={str(Path(p).parent) for p in paths if p.endswith('.go') and any(p.startswith(prefix+'/') for prefix in prefixes)}
+pending=list(tested)+['tests/testsupport/postgres/cmd/fixture','tests/testsupport/objectstore/cmd/fixture','tests/testsupport/outbound/cmd/fixture','tests/testsupport/outbound/cmd/server','cmd/agenteam','cmd/agenteam-runner','tests/testsupport/smtp/cmd/server']
+selected={'go.mod','go.sum'};seen=set()
+while pending:
+ directory=pending.pop()
+ if directory in seen:continue
+ seen.add(directory)
+ package=[p for p in paths if str(Path(p).parent)==directory and p.endswith('.go') and (directory in tested or not p.endswith('_test.go'))]
+ if not package:raise RuntimeError('missing fixed package: '+directory)
+ for p in package:
+  selected.add(p);source=read(p).decode()
+  for imp in re.findall(r'"(github\.com/LunaDeerTech/agenteam/[^"\n]+)"',source):pending.append(imp[len(PREFIX):])
+  for entry in re.findall(r'^//go:embed\s+([^\n]+)',source,re.M):
+   for pattern in entry.split():
+    pattern=pattern.removeprefix('all:')
+    selected.update(q for q in paths if fnmatch.fnmatch(q,directory+'/'+pattern) or q.startswith(directory+'/'+pattern+'/'))
+selected.update(['scripts/test-security.sh','scripts/test-objects.sh','scripts/test-postgres.sh'])
+selected.update(p for p in paths if p.startswith('internal/central/account/testdata/b04-avatar/') or p.startswith('tests/account/testdata/challenge/'))
+inventory={};added={}
+for p in sorted(selected):
+ data=read(p);target=W/p;digest=hashlib.sha256(data).hexdigest()
+ if target.exists() and target.read_bytes()!=data:raise RuntimeError('fixed dependency mismatch: '+p)
+ target.parent.mkdir(parents=True,exist_ok=True)
+ if not target.exists():target.write_bytes(data);added[p]=digest
+ inventory[p]=digest
+assert all(sha(W/p)==v for p,v in frozen.items())
+value={'base':BASE,'reason':'exact fixed fixture 16 Go-test roots/import/embed closure, four fixture/server helpers, and TestMain/dynamic Central/Runner/SMTP server builds; no whole-repository copy or runtime execution','script_package_roots':prefixes,'tested_package_directories':sorted(tested),'source':inventory,'added_after_harness_stage01':added,'frozen34_dist42_unchanged':True}
+assert not (S/'harness-runtime-closure01.json').exists()
+(S/'harness-runtime-closure01.json').write_text(json.dumps(value,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'runtime_go_source_count':len(inventory),'new_files':len(added),'bytes':sum(len(read(p)) for p in selected),'tested_packages':len(tested)}))

@@ -1,0 +1,17 @@
+{
+  "probe_sha256": "9ccd1ccb63cbacd320fc78b0910b9b1dafe66df6602081a63611eabdb9ff7e0e",
+  "runner_sha256": "1e7ebf92d1fdb3a45f8f971a0830e1c57fe8341a4acd6f8bdcd8fb4a3d5dc614",
+  "config_sha256": "cb598df321520b6669104dfe3bb0f71f7b22d32e8830cd6fd0d0f3c1627076a1",
+  "execution_sha256": "a28e16c85009ccd53c305a62e19327492062438e73e5fb456e1c134bfeb0218b",
+  "files": 2449,
+  "actual_command": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/run_offline.py",
+    "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/execution01.json"
+  ],
+  "status": "frozen before execution",
+  "read_only_preparation_notes": [
+    "Initial direct B source path under web-stage01 did not exist; followed manifest accepted_AB_archives instead. No product command executed.",
+    "One read-only Python metadata print command had unmatched-parenthesis SyntaxError before file reads; corrected print only. No test or resource execution."
+  ]
+}

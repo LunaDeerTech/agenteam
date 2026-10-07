@@ -1,0 +1,46 @@
+--- input02/tests/account-captcha-web/e2e/system-runtime-information.spec.ts
++++ harness-stage02/tests/account-captcha-web/e2e/system-runtime-information.spec.ts
+@@ -72,7 +72,8 @@
+ 
+ // Observe the same application fetch/Response/native reader without replacing
+ // any Promise, taking a second reader, cloning, teeing, cancelling or awaiting.
+-// EOF/ended here is an observation, not proof that the Cookie owner is released.
++// eof observes native done, which can also follow cancellation; it proves neither
++// complete HTTP/JSON success nor that the Cookie owner is released.
+ function observeNative() {
+   const scope = window as ObservedWindow;
+   scope.__runtimeFacts = [];
+@@ -637,12 +638,14 @@
+       true,
+     );
+     await button(page, "取消读取").click();
++    await expect(heading(page, "运行信息读取失败")).toBeVisible();
++    await noSnapshot(page);
+     await joined();
+     await ipc("release");
+     await factAfter(
+       page,
+       after,
+-      (f) => f.path === endpoint && f.ended && !f.eof && !f.snapshot,
++      (f) => f.path === endpoint && f.ended && !f.snapshot,
+     );
+     after = await seq(page);
+     await button(page, "重新读取运行信息").click();
+@@ -897,7 +900,7 @@
+     await factAfter(
+       page,
+       after,
+-      (f) => f.path === endpoint && f.ended && !f.eof && !f.snapshot,
++      (f) => f.path === endpoint && f.ended && !f.snapshot,
+     );
+     await joined();
+     await ipc("release");
+@@ -920,7 +923,7 @@
+     await factAfter(
+       page,
+       after,
+-      (f) => f.path === endpoint && f.ended && !f.eof && !f.snapshot,
++      (f) => f.path === endpoint && f.ended && !f.snapshot,
+     );
+     await joined();
+     await ipc("release");

@@ -416,3 +416,11 @@ A01跨字段实际RED保留，A02三行guard／同probeGREEN；错误作者笛�
 主线程已收到backend实际ACK：仅五路径输入/编码/parser/纯测/manifest私有A阶段启动；constructor/Start/handle、Budget/transport/fixture与末件README未开始，无真实资源授权或产品接受。本次只记录协调事实，不读取活动实现。Runtime UI作者C已完成并冻结1875检查，独立C刚实际开始，尚无真实资源或整卡接受。
 
 §1–35及所有既有验收保持原字节。完整D08–D28/E01未完成、E01未开始，Summary待决、ready503不变；Object runtime join、OpenAI tools独立验证与SPA concurrent-publication三停止不重试、不改写、不改派。SPA有限受控/native通过不代表完整产品交付。
+
+## 37. System运行信息只读UI三十五路径接受
+
+- 本次只追加当前结果，§1–36 原字节不变。产品 `e1f8cefbeaf3203c4e0388f9ea9dbf11e2e2959b` 已由主线程采纳、提交推送并核远端一致；[工作卡 rev2](../work-items/d27-system-runtime-information-ui.md)技术 SHA `85b3d003c8f257e12fa29e0becd2f23b1f77ea4f64efcc521179567c50f27400` 保持。[永久验证报告](system-runtime-information-ui-verification.md)归位原件，旧规格档按当时阶段保留。
+- 固定 a0e73bd 私有 input04 的 34 技术源/42 dist/957 Git/2892 外部指纹，与独立 execution03 的同候选及 3127 外部/47 私有输入分列；README 第35路径最后交付。1079 原件路径、610 新对象、71 固定 Git 复用及 53 保存源版本，不复制 runtime/工具/cache/dist 实体。提交绑定不是主树动态重跑。
+- 作者 read01 actual1/109.734、read02 actual1/64.776 的原前提失败/未到达与未采样边界保留；read03 57.871、navigation01 65.161、旧 Audit 导航74.353、旧 Outbound 导航78.249 全实际0/双清。独立两 top 同轮 actual0/118.972，7 IDs/136 PID/8 adopted waits 双清；完整 Mount 多重集合不变与 raw 顺序差异同时保存，PID89884 等历史僵尸未被本轮回收。
+- 前阶段 1875/App8、虚拟30s、Node/jsdom、六项 input03 offline、input04 唯 gate 和真实 browser 证据各有固定边界；三 helper 无同期脚本 SHA 门禁、原 CLI/格式/AST/闭包准备错误不补造。保存24张900px局部图，作者新8+旧各2实际view共12，root仅新light390/dark768两张。
+- 本卡 GET 只读缓存，显式重读/取消，不探测、不写、不轮询。Runtime HTTP 和 Audit UI 的既有接受保持；不读取或归档另线 Embedding B。完整 D08–D28/E01 未完成，E01 未开始，Summary 待決、ready503 及 Object/tools/SPA publication 三停止保持。后继由主线程按真实依赖继续调度。

@@ -1,0 +1,39 @@
+{
+  "kind": "STATIC only; no product execution",
+  "stage": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01",
+  "stage_manifest_sha256": "88ab0e91abf1532f8a1e70839567d267345683b50c210f99d97c053417584275",
+  "fixed_files": {
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/manifest.json": "88ab0e91abf1532f8a1e70839567d267345683b50c210f99d97c053417584275",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/checks.json": "ca5e3f8c26a3e91047372f2dde32af23303ee2f78a700e60f1a8181458fede81",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/compile-input.json": "1c355dda2e78a931f18ae7b67da5b7e9e04864b91f3c606a7f855dcd238df6d9",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/freeze-gate.json": "9e80af3258115f243c2b68577896c1143173b11dcb088d0b97d59d839e727a0b",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/plan.json": "98ea1f45331442e6dec5f5438f72622acc01c078ee2ddcfe69b57699c8ffa4fc",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/report.md": "2013f40bb5ed65fdf337e2acf7ab5058ba2a9159c8a5738e14b6b1c935e6e257",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source.diff": "e5553f99642aa17ebbdecb16c3cc1194d2f885a4c9b5b4912a92694b3321d82f",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "41346ae83aa8f2cfcd66e32b27c7eb0358267dce45e23beda127c17ade5d4b40",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account-captcha-web/system-runtime-information.config.js": "cc98919ddb3ca76b4e5df9f078050427da573b2aaaf08d449ace39d921c5e373",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account/system_runtime_information_web_fixture_test.go": "218d66218871f5f088806565357ae28efdaf2146965818b393c305a75b3cadee",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account/system_runtime_information_web_test.go": "d0ff7c71af3cac638031507c9f3f502bfcacdec23335294ff8b40ce512a9b121",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/preparation-d-runner01-failure.txt": "505fd3d3e74bb57cc4097a124195bcdd7ea7c2f767f10341cc588da56c9cd0d0"
+  },
+  "product_base": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "limited_git_references": {
+    "internal/central/app/runtime_information.go": "8544c989b3dc3ec1ffd2ff2f430c810da544f87133434a5e6f3b08551a790736",
+    "internal/central/account/logout.go": "f1db049b537254dfa044d8dca49873d26061196fa534882fe81c505af753e5a2",
+    "tests/account/personal_settings_web_fixture_test.go": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+    "tests/account/system_audit_web_test.go": "ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f",
+    "tests/account/system_outbound_policy_web_test.go": "61ec8d9518df4ef6c24e3ab67c6afd83babdac888660fdd338856555bec473b8"
+  },
+  "accepted_C": {
+    "manifest": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/manifest.json",
+    "sha256": "ddc91856eadae403e1f7d4e56421fc642f19b9fa8e1ea17c7de3da4f5446c755",
+    "source30_sha_same_and_actual_archives_verified": true,
+    "dist42_sha_same_and_actual_bytes_verified": true
+  },
+  "compile_input": {
+    "scope": "439 fixed Go/import/embed/testdata files for integration Account package compile, combined with 160 C fixed frontend dependencies. Not the runtime script/package/TestMain graph.",
+    "fixed_count": 599,
+    "sha256": "1c355dda2e78a931f18ae7b67da5b7e9e04864b91f3c606a7f855dcd238df6d9"
+  },
+  "independent_commands": "read/hash/static text comparison only; no test/build/list/resource command"
+}

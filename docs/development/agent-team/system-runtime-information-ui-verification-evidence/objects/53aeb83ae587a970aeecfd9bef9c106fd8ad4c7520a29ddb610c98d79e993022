@@ -1,0 +1,23 @@
+import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import * as prettier from './workspace/web/node_modules/prettier/index.mjs'
+const root = new URL('.', import.meta.url)
+const hash = (value) => createHash('sha256').update(value).digest('hex')
+const results = []
+for (const kind of ['outbound-policy', 'audit']) {
+  const path = `tests/account-captcha-web/e2e/system-${kind}.spec.ts`
+  const before = readFileSync(new URL('baseline/' + path, root), 'utf8')
+  const after = readFileSync(new URL('workspace/' + path, root), 'utf8')
+  const filepath = new URL('workspace/' + path, root).pathname
+  const options = { ...await prettier.resolveConfig(filepath), filepath }
+  const adapt = (text) => {
+    text = text.replaceAll('.toHaveCount(9)', '.toHaveCount(10)').replaceAll('nine leaves', 'ten leaves')
+    if (kind === 'audit') text = text.replace('    "/system/outbound-policy",\n  ]', '    "/system/outbound-policy",\n    "/system/runtime-information",\n  ]')
+    return text
+  }
+  const formattedBefore = await prettier.format(before, options)
+  const formattedAfter = await prettier.format(after, options)
+  results.push({path, accepted_git:'a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1', before_sha256:hash(before),after_sha256:hash(after),accepted_prettier_compliant:before===formattedBefore,candidate_prettier_compliant:after===formattedAfter,candidate_exact_narrow_adaptation:after===adapt(before),formatter_commutes_with_narrow_adaptation:formattedAfter===adapt(formattedBefore),resolved_options:options})
+}
+console.log(JSON.stringify({resource_execution:false,raw_product_modified:false,results},null,2))
+if (!results.every((r) => !r.accepted_prettier_compliant && !r.candidate_prettier_compliant && r.candidate_exact_narrow_adaptation && r.formatter_commutes_with_narrow_adaptation)) process.exitCode=1

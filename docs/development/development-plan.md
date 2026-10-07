@@ -8,6 +8,8 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：D27 [System 运行信息只读 UI](work-items/d27-system-runtime-information-ui.md)已按[验收记录](agent-team/system-runtime-information-ui-verification.md)独立接受，35 路径产品提交推送 `e1f8cefbeaf3203c4e0388f9ea9dbf11e2e2959b`、远端一致。它只读取 Central 缓存观测并提供显式重读/取消，不新增探测、写口、自动轮询或 ready 成功。原两真实失败与各阶段/分版本证据保留；本结果不改变下述模块顺序和完整门槛。D08–D28/E01 整体仍未完成，E01 未开始，Summary 待决与三项停止任务保持，当前后继以团队台账为准。
+
 规划日期：2026-10-03。计划制定时核对基线为 `fe5b833`，环境检出分支为 `work`、工作区干净；D00 已由主线程建立 `main`，后续工作沿用该分支，当前提交与进度以任务台账和 Git 为准。恢复开发时核对真实分支与基线，由主线程处理环境差异，不让子 agent 自行切换分支或创建 worktree。
 
 已存在的成果：Vue 3、TypeScript、Vite、路由与应用壳、公共组件、主题、开发专用 Debug 展示，以及主线程统筹的开发团队和项目技能。后端已完成 D02 B01 的根 Go module、基础标量、HTTP 边界和公共 schema；Central/Runner 独立入口、配置与生命周期也已完成 D02 验收；D03 数据库迁移、事务锁及 Central 数据库启动/健康/关闭已完成验收；后续 D04–D06 基础和 D07 账户/System HTTP、Profile/Avatar、SMTP/受限日志及正式根装配也已通过适用验收，B37 已提交 `022dcea`，操作文档已独立核准，D07 当前范围已完成，关闭文档已提交推送 `0ed8085`。已有前端成果应复用，D26/D27 产品页面仍待实现，不把 Debug 演示状态当成业务实现。

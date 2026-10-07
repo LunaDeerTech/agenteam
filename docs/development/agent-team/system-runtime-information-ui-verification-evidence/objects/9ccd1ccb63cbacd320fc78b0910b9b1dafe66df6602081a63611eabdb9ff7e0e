@@ -1,0 +1,434 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
+import type { SessionController } from '../composables/useSession'
+import type { SystemRuntimeInformationController } from '../composables/useSystemRuntimeInformation'
+const selected = vi.hoisted(() => ({
+  auth: null as SessionController | null,
+  instances: [] as SystemRuntimeInformationController[],
+}))
+vi.mock('../composables/useSession', async (original) => ({
+  ...(await original<typeof import('../composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+vi.mock('../composables/useSystemRuntimeInformation', async (original) => {
+  const actual = await original<typeof import('../composables/useSystemRuntimeInformation')>()
+  return {
+    ...actual,
+    useSystemRuntimeInformation: (
+      ...args: Parameters<typeof actual.useSystemRuntimeInformation>
+    ) => {
+      const instance = actual.useSystemRuntimeInformation(...args)
+      selected.instances.push(instance)
+      return instance
+    },
+  }
+})
+import { createSessionController } from '../composables/useSession'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../api/system-smtp-delivery'
+import { createSystemOutboundPolicyAPI } from '../api/system-outbound-policy'
+import { createSystemAuditAPI } from '../api/system-audit'
+import { createSystemRuntimeInformationAPI } from '../api/system-runtime-information'
+import type { Fetch } from '../api/client'
+import { router as productionRouter } from '../router'
+import { installAuthentication, safeReturnTarget } from '../router/auth'
+import { useTheme } from '../composables/useTheme'
+import App from '../App.vue'
+import SystemRuntimeInformationView from '../views/system/SystemRuntimeInformationView.vue'
+
+const endpoint = '/api/v1/system/runtime-information'
+const routePath = '/system/runtime-information'
+const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+const time = '2026-10-07T00:00:00.123456Z'
+const view = (session = 2, role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.test',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: id(session), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const sample = () => ({
+  observed_at: '2026-10-07T00:00:00.123456Z',
+  central: { version: null, safe_reason: 'build_version_not_recorded' },
+  database: {
+    status: 'available',
+    safe_reason: null as string | null,
+    last_success: {
+      checked_at: '2026-10-07T00:00:00.123459Z',
+      received_at: '2026-10-07T00:00:00.123457Z',
+      postgresql_version: ' PostgreSQL <version> & "reported" ',
+      pgvector_version: ' pgvector > & < ',
+    },
+  },
+  object_storage: {
+    backend: 'minio',
+    assessment: 'object_storage_aggregate',
+    status: 'available',
+    safe_reason: null as string | null,
+    last_success_received_at: '0000-02-29T01:02:03.000099Z',
+    details: 'not_reported',
+  },
+  readiness: { ready: false, safe_reason: 'DEPENDENCY_UNAVAILABLE' },
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code = 'DEPENDENCY_UNAVAILABLE', status = 503) =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: '<private diagnostic>',
+      instance: endpoint,
+      request_id: id(9),
+      commit_state: 'not_started',
+    },
+    status,
+  )
+function barrier<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+const releases: (() => void)[] = []
+function heldBody(value: unknown = sample()) {
+  const entered = barrier(),
+    tail = barrier()
+  let joined = false
+  const cancel = vi.fn(() => {
+    entered.resolve()
+    return tail.promise.then(() => {
+      joined = true
+    })
+  })
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(JSON.stringify(value)))
+    },
+    cancel,
+  })
+  const release = () => tail.resolve()
+  releases.push(release)
+  return {
+    entered,
+    cancel,
+    stream,
+    release,
+    joined: () => joined,
+    response: () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }),
+  }
+}
+let wrapper: VueWrapper | undefined
+const owners: SessionController[] = []
+beforeEach(() => {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((media: string) => ({
+      media,
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  )
+  // DOM focus and lifecycle evidence only; native pointer/Tab/geometry require the later browser stage.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList,
+  )
+})
+afterEach(async () => {
+  for (const release of releases.splice(0)) release()
+  wrapper?.unmount()
+  wrapper = undefined
+  for (const owner of owners) owner.leave()
+  await flushPromises()
+  expect(owners.every((owner) => !owner.state.busy)).toBe(true)
+  owners.length = 0
+  selected.auth = null
+  selected.instances.length = 0
+  document.body.innerHTML = ''
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+  vi.useRealTimers()
+  useTheme().setTheme('system')
+})
+async function app(initial = view(), target = routePath) {
+  let current = initial,
+    session: Fetch = async () => json(current)
+  let runtime: Fetch = async () => json(sample())
+  const fetcher = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === endpoint) return runtime(path, init)
+    if (path === '/api/v1/auth/bootstrap')
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path.endsWith('/logout')) {
+      session = async () => problem('SESSION_REVOKED', 401)
+      return new Response(null, { status: 204 })
+    }
+    if (path.startsWith('/api/v1/system/users')) return json({ items: [] })
+    throw new Error('Unexpected controlled route')
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetcher),
+    createSystemAccountAPI(fetcher),
+    createSystemInvitationAPI(fetcher),
+    createSystemProviderAPI(fetcher),
+    createSystemModelAPI(fetcher),
+    createSystemModelSelectionAPI(fetcher),
+    createSystemAccountSecurityAPI(fetcher),
+    createSystemSMTPSettingsAPI(fetcher),
+    createSystemSMTPDeliveryAPI(fetcher),
+    createSystemOutboundPolicyAPI(fetcher),
+    createSystemAuditAPI(fetcher),
+    createSystemRuntimeInformationAPI(fetcher),
+  )
+  selected.auth = auth
+  owners.push(auth)
+  await auth.restore()
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: productionRouter.options.routes,
+  })
+  let block = false
+  router.beforeEach(() => (block ? false : true))
+  installAuthentication(router, auth)
+  await router.push(target)
+  await router.isReady()
+  const host = document.createElement('div')
+  host.id = 'app'
+  document.body.append(host)
+  wrapper = mount(App, { attachTo: host, global: { plugins: [router] } })
+  await flushPromises()
+  return {
+    auth,
+    fetcher,
+    router,
+    wrapper,
+    setRuntime(value: Fetch) {
+      runtime = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    resetSession() {
+      session = async () => json(current)
+    },
+    blockNavigation(value: boolean) {
+      block = value
+    },
+    reads() {
+      return fetcher.mock.calls.filter(([path]) => path === endpoint)
+    },
+    sessionReads() {
+      return fetcher.mock.calls.filter(([path]) => path === '/api/v1/session')
+    },
+    writes() {
+      return fetcher.mock.calls.filter(([, init]) => init.method !== 'GET')
+    },
+  }
+}
+function button(label: string) {
+  const result = [...document.querySelectorAll<HTMLButtonElement>('button')].find(
+    (node) =>
+      node.getAttribute('aria-label') === label ||
+      (
+        node.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? node.textContent
+      )?.trim() === label,
+  )
+  expect(result, `button ${label}`).toBeTruthy()
+  return result!
+}
+async function click(label: string) {
+  button(label).click()
+  await flushPromises()
+}
+const pageHeading = () => document.querySelector<HTMLElement>('.runtime-information h1')!
+const hasPage = () => wrapper!.findComponent(SystemRuntimeInformationView).exists()
+
+
+// Two independent public-action combinations; scaffold above is copied from the fixed author
+// test for real App/factories/DTO/DOM setup only. No author test bodies are selected.
+function readOnlyRoutes(f: Awaited<ReturnType<typeof app>>) {
+  expect(f.writes()).toHaveLength(0)
+  expect(f.fetcher.mock.calls.every(([path, init]) =>
+    (path === endpoint || path === '/api/v1/session') && init.method === 'GET',
+  )).toBe(true)
+  expect(document.querySelector('[role="dialog"]')).toBeNull()
+}
+
+describe('Independent Runtime C public App combinations', () => {
+  it('A current failure removes the snapshot; refused leave joins native cancellation before explicit reread and current403 requires a new checked page', async () => {
+    const f = await app(), original = selected.instances[0]!, initial = sample()
+    expect(f.reads()).toHaveLength(1)
+    expect(f.wrapper.findAll('.runtime-sections section')).toHaveLength(4)
+    expect(f.wrapper.findAll('.runtime-information time').map(n => n.element.textContent)).toEqual([
+      initial.observed_at, initial.database.last_success.checked_at,
+      initial.database.last_success.received_at, initial.object_storage.last_success_received_at,
+    ])
+    expect(f.wrapper.findAll('.runtime-version').map(n => n.element.textContent)).toEqual([
+      initial.database.last_success.postgresql_version, initial.database.last_success.pgvector_version,
+    ])
+    f.setRuntime(async () => problem('COMMIT_UNKNOWN', 503))
+    await click('重新读取运行信息')
+    expect(original.state.phase).toBe('error')
+    expect(original.state.observation).toBeNull()
+    expect(f.wrapper.findAll('.runtime-sections section')).toHaveLength(0)
+    expect(f.wrapper.text()).toContain('运行信息读取失败')
+    expect(f.wrapper.text()).not.toContain('<private diagnostic>')
+    expect(f.wrapper.text()).not.toContain('重试原请求')
+
+    const held = heldBody(), count = f.reads().length
+    try {
+      f.setRuntime(async () => held.response())
+      await click('重新读取运行信息')
+      expect(held.stream.locked && f.auth.state.busy && original.state.phase === 'loading').toBe(true)
+      expect(f.wrapper.findAll('.runtime-sections section')).toHaveLength(0)
+      f.blockNavigation(true)
+      const refused = await f.router.push('/')
+      await flushPromises()
+      await held.entered.promise
+      expect(isNavigationFailure(refused)).toBe(true)
+      expect(f.router.currentRoute.value.path).toBe(routePath)
+      expect(hasPage() && selected.instances.length === 1 && original.isCurrent()).toBe(true)
+      expect(original.state.phase).toBe('error')
+      expect(original.state.observation).toBeNull()
+      expect(held.cancel).toHaveBeenCalledTimes(1)
+      expect(!held.joined() && f.auth.state.busy && held.stream.locked).toBe(true)
+      expect(button('重新读取运行信息').disabled).toBe(true)
+      const sentinel = document.createElement('button')
+      sentinel.textContent = 'Independent focus sentinel'
+      document.body.append(sentinel)
+      sentinel.focus()
+      held.release()
+      await flushPromises()
+      expect(held.joined() && !held.stream.locked && !f.auth.state.busy).toBe(true)
+      expect(f.reads()).toHaveLength(count + 1)
+      expect(original.state.phase).toBe('error')
+      expect(document.activeElement).toBe(sentinel)
+      f.blockNavigation(false)
+      const fresh = sample()
+      fresh.database.last_success.postgresql_version = ' Fresh <version> & reported '
+      f.setRuntime(async () => json(fresh))
+      await click('重新读取运行信息')
+      expect(original.state.phase).toBe('ready')
+      expect(f.reads()).toHaveLength(count + 2)
+      expect(f.wrapper.findAll('.runtime-version')[0]!.element.textContent).toBe(fresh.database.last_success.postgresql_version)
+      expect(document.activeElement).toBe(button('重新读取运行信息'))
+      const oldHeading = pageHeading()
+      f.setRuntime(async () => problem('FORBIDDEN', 403))
+      await click('重新读取运行信息')
+      expect(f.auth.system.denied && !hasPage() && !oldHeading.isConnected).toBe(true)
+      expect(original.state.observation === null && !original.isCurrent()).toBe(true)
+      expect(f.wrapper.text()).toContain('无权访问系统设置')
+      f.setRuntime(async () => json(fresh))
+      const readsBeforePermissionCheck = f.reads().length
+      await click('重新检查权限')
+      expect(!f.auth.system.denied && hasPage()).toBe(true)
+      expect(selected.instances).toHaveLength(2)
+      expect(selected.instances[1] !== original && selected.instances[1]!.state.phase === 'ready').toBe(true)
+      expect(f.reads()).toHaveLength(readsBeforePermissionCheck + 1)
+      expect(original.state.observation === null && !original.isCurrent()).toBe(true)
+      readOnlyRoutes(f)
+    } finally {
+      held.release()
+      f.blockNavigation(false)
+      await flushPromises()
+    }
+  })
+
+  it('B idle pageshow503 retires the instance; same identity restores once, while busy pageshow cannot inspect Session or steal a cancelled read focus', async () => {
+    const f = await app(), first = selected.instances[0]!, firstHeading = pageHeading(),
+      identity = { ...f.auth.personalContext.identity! }, pendingSession = barrier<Response>()
+    releases.push(() => pendingSession.resolve(problem()))
+    f.setSessionRequest(() => pendingSession.promise)
+    const before = f.reads().length, sessions = f.sessionReads().length
+    let held: ReturnType<typeof heldBody> | undefined
+    try {
+      window.dispatchEvent(new Event('pageshow'))
+      await flushPromises()
+      expect(f.sessionReads()).toHaveLength(sessions + 1)
+      expect(f.auth.state.phase).toBe('checking')
+      expect(!hasPage() && !firstHeading.isConnected && f.wrapper.find('.session-check').exists()).toBe(true)
+      expect(first.state.phase === 'inactive' && first.state.observation === null && !first.isCurrent()).toBe(true)
+      pendingSession.resolve(problem())
+      await flushPromises()
+      expect(f.wrapper.text()).toContain('会话尚未确认')
+      expect(f.reads()).toHaveLength(before)
+      f.resetSession()
+      await click('检查当前会话')
+      expect(f.auth.personalContext.identity).toEqual(identity)
+      expect(selected.instances).toHaveLength(2)
+      const second = selected.instances[1]!
+      expect(second !== first && second.state.phase === 'ready' && hasPage()).toBe(true)
+      expect(f.reads()).toHaveLength(before + 1)
+      expect(document.activeElement).toBe(pageHeading())
+      expect(first.state.observation === null && !first.isCurrent()).toBe(true)
+
+      held = heldBody()
+      f.setRuntime(async () => held!.response())
+      await click('重新读取运行信息')
+      const busySessions = f.sessionReads().length, busyReads = f.reads().length
+      expect(second.state.phase === 'loading' && held.stream.locked && f.auth.state.busy).toBe(true)
+      window.dispatchEvent(new Event('pageshow'))
+      await flushPromises()
+      expect(f.sessionReads()).toHaveLength(busySessions)
+      expect(f.reads()).toHaveLength(busyReads)
+      expect(selected.instances).toHaveLength(2)
+      expect(hasPage() && f.auth.state.phase === 'authenticated').toBe(true)
+      await click('取消读取')
+      await held.entered.promise
+      expect(second.state.phase === 'error' && second.state.observation === null).toBe(true)
+      expect(held.cancel).toHaveBeenCalledTimes(1)
+      expect(f.auth.state.busy && !held.joined() && held.stream.locked).toBe(true)
+      expect(button('重新读取运行信息').disabled).toBe(true)
+      expect(document.activeElement).toBe(pageHeading())
+      held.release()
+      await flushPromises()
+      expect(held.joined() && !held.stream.locked && !f.auth.state.busy).toBe(true)
+      expect(f.reads()).toHaveLength(busyReads)
+      expect(second.state.phase).toBe('error')
+      expect(document.activeElement).toBe(pageHeading())
+      f.setRuntime(async () => json(sample()))
+      await click('重新读取运行信息')
+      expect(f.reads()).toHaveLength(busyReads + 1)
+      expect(second.state.phase).toBe('ready')
+      expect(document.activeElement).toBe(button('重新读取运行信息'))
+      expect(first.state.observation === null && !first.isCurrent()).toBe(true)
+      readOnlyRoutes(f)
+    } finally {
+      pendingSession.resolve(problem())
+      held?.release()
+      await flushPromises()
+    }
+  })
+})

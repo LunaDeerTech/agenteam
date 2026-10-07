@@ -1,0 +1,1002 @@
+import { test, expect, type Page } from "@playwright/test";
+import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import type { SystemRuntimeInformation } from "../../../web/src/api/system-runtime-information";
+
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+const endpoint = "/api/v1/system/runtime-information";
+const route = "/system/runtime-information";
+type Credential = { email: string; password: string; user_id: string };
+type Session = { user_id: string; session_id: string; role: string };
+type Fact = {
+  sequence: number;
+  method: string;
+  path: string;
+  query: boolean;
+  body: boolean;
+  mutationHeaders: boolean;
+  status: number;
+  ended: boolean;
+  eof: boolean;
+  bytes: number;
+  code?: string;
+  snapshot?: SystemRuntimeInformation;
+  session?: Session;
+};
+type ObservedWindow = Window & {
+  __runtimeFacts?: Fact[];
+  __runtimeSequence?: number;
+};
+const material = (): { admin: Credential; member: Credential } =>
+  JSON.parse(
+    readFileSync(join(directory, "runtime-information-material.json"), "utf8"),
+  );
+const button = (page: Page, name: string) =>
+  page.getByRole("button", { name, exact: true });
+const heading = (page: Page, name: string) =>
+  page.getByRole("heading", { name, exact: true });
+const nav = (page: Page) =>
+  page.getByRole("navigation", { name: "系统设置", exact: true });
+const facts = (page: Page) =>
+  page.evaluate(() => (window as ObservedWindow).__runtimeFacts ?? []);
+const seq = (page: Page) =>
+  page.evaluate(() => (window as ObservedWindow).__runtimeSequence ?? 0);
+const runtimeFacts = async (page: Page) =>
+  (await facts(page)).filter((f) => f.path === endpoint);
+let ipcSequence = 0;
+async function ipc(
+  action: string,
+  fields: Record<string, unknown> = {},
+): Promise<Record<string, any>> {
+  const sequence = ++ipcSequence;
+  const request = join(directory, "runtime-information-ipc.json"),
+    ack = join(directory, `runtime-information-ack-${sequence}.json`);
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence, action, ...fields }),
+    { mode: 0o600 },
+  );
+  renameSync(request + ".tmp", request);
+  await expect.poll(() => existsSync(ack)).toBe(true);
+  const value = JSON.parse(readFileSync(ack, "utf8"));
+  expect(value.ok === true && value.sequence === sequence).toBe(true);
+  return value;
+}
+function result(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "runtime-information-result.json"),
+    JSON.stringify({ ...value, completed: true }),
+    { mode: 0o600 },
+  );
+}
+
+// Observe the same application fetch/Response/native reader without replacing
+// any Promise, taking a second reader, cloning, teeing, cancelling or awaiting.
+// EOF/ended here is an observation, not proof that the Cookie owner is released.
+function observeNative() {
+  const scope = window as ObservedWindow;
+  scope.__runtimeFacts = [];
+  scope.__runtimeSequence = 0;
+  const object = (v: unknown): Record<string, unknown> | null =>
+    v !== null && typeof v === "object" && !Array.isArray(v)
+      ? (v as Record<string, unknown>)
+      : null;
+  const closed = (v: Record<string, unknown> | null, keys: string[]) =>
+    !!v &&
+    Object.keys(v).length === keys.length &&
+    keys.every((k) => Object.hasOwn(v, k));
+  const id = (v: unknown): v is string =>
+    typeof v === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+      v,
+    );
+  const instant = (v: unknown) =>
+    typeof v === "string" &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(v);
+  const status = (v: Record<string, unknown>) =>
+    (v.status === "available" && v.safe_reason === null) ||
+    (v.status === "unavailable" && v.safe_reason === "check_unavailable") ||
+    (v.status === "stale" && v.safe_reason === "sample_stale");
+  const snapshot = (
+    v: Record<string, unknown>,
+  ): v is unknown & Record<string, unknown> => {
+    if (
+      !closed(v, [
+        "observed_at",
+        "central",
+        "database",
+        "object_storage",
+        "readiness",
+      ]) ||
+      !instant(v.observed_at)
+    )
+      return false;
+    const c = object(v.central),
+      d = object(v.database),
+      o = object(v.object_storage),
+      r = object(v.readiness),
+      h = object(d?.last_success);
+    return (
+      !!c &&
+      closed(c, ["version", "safe_reason"]) &&
+      c.version === null &&
+      c.safe_reason === "build_version_not_recorded" &&
+      !!d &&
+      closed(d, ["status", "safe_reason", "last_success"]) &&
+      status(d) &&
+      !!h &&
+      closed(h, [
+        "checked_at",
+        "received_at",
+        "postgresql_version",
+        "pgvector_version",
+      ]) &&
+      instant(h.checked_at) &&
+      instant(h.received_at) &&
+      [h.postgresql_version, h.pgvector_version].every(
+        (x) => typeof x === "string" && /^[\x20-\x7e]{1,256}$/.test(x),
+      ) &&
+      !!o &&
+      closed(o, [
+        "backend",
+        "assessment",
+        "status",
+        "safe_reason",
+        "last_success_received_at",
+        "details",
+      ]) &&
+      o.backend === "minio" &&
+      o.assessment === "object_storage_aggregate" &&
+      o.details === "not_reported" &&
+      status(o) &&
+      instant(o.last_success_received_at) &&
+      !!r &&
+      closed(r, ["ready", "safe_reason"]) &&
+      r.ready === false &&
+      ["DEPENDENCY_UNAVAILABLE", "DEPENDENCY_UNBOUND"].includes(
+        String(r.safe_reason),
+      ) &&
+      ((d.status === "available" && o.status === "available") ||
+        r.safe_reason === "DEPENDENCY_UNAVAILABLE")
+    );
+  };
+  const nativeFetch = window.fetch;
+  window.fetch = function (...args: Parameters<typeof fetch>) {
+    const original = Reflect.apply(nativeFetch, this, args) as ReturnType<
+      typeof fetch
+    >;
+    try {
+      const [input, init] = args,
+        url = new URL(
+          input instanceof Request ? input.url : String(input),
+          location.origin,
+        );
+      if (
+        url.origin !== location.origin ||
+        !url.pathname.startsWith("/api/v1/")
+      )
+        return original;
+      const headers = new Headers(
+        init?.headers ?? (input instanceof Request ? input.headers : undefined),
+      );
+      const fact: Fact = {
+        sequence: ++scope.__runtimeSequence!,
+        method:
+          init?.method ?? (input instanceof Request ? input.method : "GET"),
+        path: url.pathname,
+        query: url.search !== "",
+        body:
+          init?.body != null ||
+          (input instanceof Request && input.body !== null),
+        mutationHeaders:
+          headers.has("X-CSRF-Token") || headers.has("Idempotency-Key"),
+        status: 0,
+        ended: false,
+        eof: false,
+        bytes: 0,
+      };
+      scope.__runtimeFacts!.push(fact);
+      const runtime = url.pathname === "/api/v1/system/runtime-information",
+        session = url.pathname === "/api/v1/session";
+      const finish = () => {
+        fact.ended = true;
+      };
+      void original
+        .then((response) => {
+          fact.status = response.status;
+          if (!runtime && !session) return;
+          const body = response.body;
+          const media = response.headers
+            .get("Content-Type")
+            ?.split(";", 1)[0]
+            ?.trim()
+            .toLowerCase();
+          if (
+            !body ||
+            media !==
+              (response.status === 200
+                ? "application/json"
+                : "application/problem+json")
+          ) {
+            finish();
+            return;
+          }
+          let text = "",
+            collect = true;
+          const decoder = new TextDecoder("utf-8", { fatal: true }),
+            bound = runtime && response.status === 200 ? 16384 : 600000;
+          const project = () => {
+            if (!collect) return;
+            const v = object(JSON.parse(text + decoder.decode()));
+            if (!v) return;
+            if (response.status !== 200) {
+              if (
+                typeof v.code === "string" &&
+                [
+                  "FORBIDDEN",
+                  "SESSION_REVOKED",
+                  "UNAUTHENTICATED",
+                  "DEPENDENCY_UNAVAILABLE",
+                ].includes(v.code)
+              )
+                fact.code = v.code;
+            } else if (runtime && snapshot(v))
+              fact.snapshot = v as unknown as SystemRuntimeInformation;
+            else if (session) {
+              const user = object(v.user),
+                current = object(v.session);
+              if (
+                closed(v, ["user", "session", "csrf_token"]) &&
+                user &&
+                current &&
+                id(user.id) &&
+                id(current.id) &&
+                (user.role === "admin" || user.role === "user")
+              )
+                fact.session = {
+                  user_id: user.id,
+                  session_id: current.id,
+                  role: user.role,
+                };
+            }
+          };
+          const nativeGet = body.getReader;
+          Object.defineProperty(body, "getReader", {
+            configurable: true,
+            writable: true,
+            value: function (
+              this: ReadableStream<Uint8Array>,
+              ...args: unknown[]
+            ) {
+              const reader = Reflect.apply(
+                nativeGet,
+                this,
+                args,
+              ) as ReadableStreamDefaultReader<Uint8Array>;
+              try {
+                Object.defineProperty(body, "getReader", { value: nativeGet });
+                const nativeRead = reader.read;
+                Object.defineProperty(reader, "read", {
+                  configurable: true,
+                  writable: true,
+                  value: function (
+                    this: ReadableStreamDefaultReader<Uint8Array>,
+                    ...args: unknown[]
+                  ) {
+                    const original = Reflect.apply(
+                      nativeRead,
+                      this,
+                      args,
+                    ) as Promise<ReadableStreamReadResult<Uint8Array>>;
+                    void original
+                      .then(
+                        ({ done, value }) => {
+                          try {
+                            if (value) {
+                              fact.bytes += value.byteLength;
+                              if (fact.bytes > bound) {
+                                text = "";
+                                collect = false;
+                              } else if (collect)
+                                text += decoder.decode(value, { stream: true });
+                            }
+                            if (done) {
+                              fact.eof = true;
+                              try {
+                                project();
+                              } finally {
+                                text = "";
+                                collect = false;
+                                finish();
+                              }
+                            }
+                          } catch {
+                            text = "";
+                            collect = false;
+                            if (done) finish();
+                          }
+                        },
+                        () => {
+                          text = "";
+                          collect = false;
+                          finish();
+                        },
+                      )
+                      .catch(() => {
+                        text = "";
+                        collect = false;
+                      });
+                    return original;
+                  },
+                });
+              } catch {
+                text = "";
+                collect = false;
+              }
+              return reader;
+            },
+          });
+        }, finish)
+        .catch(() => undefined);
+    } catch {
+      /* Observation cannot change application fetch/read/cancel. */
+    }
+    return original;
+  };
+}
+
+async function factAfter(
+  page: Page,
+  after: number,
+  predicate: (f: Fact) => boolean,
+) {
+  let found: Fact | undefined;
+  try {
+    await expect
+      .poll(
+        async () =>
+          !!(found = (await facts(page)).find(
+            (f) => f.sequence > after && predicate(f),
+          )),
+      )
+      .toBe(true);
+  } catch (error) {
+    console.log(
+      "runtime-safe-response-facts",
+      JSON.stringify(
+        (await facts(page))
+          .filter((f) => f.sequence > after)
+          .slice(-12)
+          .map((f) => ({
+            method: f.method,
+            path:
+              f.path === endpoint
+                ? "runtime"
+                : f.path === "/api/v1/session"
+                  ? "session"
+                  : "other",
+            status: f.status,
+            ended: f.ended,
+            eof: f.eof,
+            code: f.code ?? null,
+          })),
+      ),
+    );
+    throw error;
+  }
+  return found!;
+}
+async function login(page: Page, who: "admin" | "member" = "admin") {
+  const credential = material()[who],
+    after = await seq(page);
+  await page.locator("#login-email").fill(credential.email);
+  try {
+    await page.locator("#login-password").fill(credential.password);
+  } catch {
+    throw new Error("owned private login input unavailable");
+  }
+  await button(page, "登录").click();
+  const current = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.status === 200 &&
+      f.eof &&
+      f.ended &&
+      f.session?.user_id === credential.user_id &&
+      f.session.role === (who === "admin" ? "admin" : "user"),
+  );
+  await expect(button(page, "退出登录")).toBeEnabled();
+  return current.session!;
+}
+async function ready(page: Page, after = 0) {
+  const value = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === endpoint &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.eof &&
+      f.ended &&
+      !!f.snapshot,
+  );
+  expect(
+    !value.query &&
+      !value.body &&
+      !value.mutationHeaders &&
+      value.bytes > 0 &&
+      value.bytes <= 16384,
+  ).toBe(true);
+  await expect(page.locator(".runtime-sections > section")).toHaveCount(4);
+  await expect(button(page, "重新读取运行信息")).toBeEnabled();
+  return value;
+}
+async function compareSnapshot(page: Page, value: SystemRuntimeInformation) {
+  const checks = await page
+    .locator(".runtime-information")
+    .evaluate((region, v) => {
+      const byHeading = (name: string) =>
+        Array.from(region.querySelectorAll("section")).find(
+          (s) => s.querySelector("h2")?.textContent === name,
+        );
+      const central = byHeading("Central"),
+        database = byHeading("数据库"),
+        storage = byHeading("对象存储（MinIO）聚合观测"),
+        readiness = byHeading("就绪状态");
+      const statuses = {
+        available: "可用：服务端最近样本可用",
+        unavailable: "不可用：最近聚合检查未能确认可用",
+        stale: "样本陈旧：服务端判定样本已陈旧",
+      };
+      const times = Array.from(region.querySelectorAll("time"));
+      const expected = [
+        v.observed_at,
+        v.database.last_success.checked_at,
+        v.database.last_success.received_at,
+        v.object_storage.last_success_received_at,
+      ];
+      const versions = Array.from(
+        database?.querySelectorAll(".runtime-version") ?? [],
+      ).map((n) => n.textContent);
+      return {
+        all_sections: !!central && !!database && !!storage && !!readiness,
+        timestamps:
+          times.length === 4 &&
+          times.every(
+            (node, n) =>
+              node.textContent === expected[n] &&
+              node.getAttribute("datetime") === expected[n],
+          ),
+        versions:
+          versions.length === 2 &&
+          versions[0] === v.database.last_success.postgresql_version &&
+          versions[1] === v.database.last_success.pgvector_version,
+        central:
+          v.central.version === null &&
+          v.central.safe_reason === "build_version_not_recorded" &&
+          central?.textContent?.includes("未知：尚未记录构建版本"),
+        database:
+          database?.textContent?.includes(statuses[v.database.status]) &&
+          database.textContent.includes("属于历史成功信息"),
+        storage:
+          v.object_storage.backend === "minio" &&
+          v.object_storage.assessment === "object_storage_aggregate" &&
+          v.object_storage.details === "not_reported" &&
+          storage?.textContent?.includes(statuses[v.object_storage.status]) &&
+          storage.textContent.includes("未提供版本和逐项诊断"),
+        readiness:
+          v.readiness.ready === false &&
+          readiness?.textContent?.includes("尚未就绪") &&
+          readiness.textContent.includes(
+            v.readiness.safe_reason === "DEPENDENCY_UNAVAILABLE"
+              ? "至少一项基础依赖不可用或样本陈旧。"
+              : "仍有必需运行能力未绑定。",
+          ),
+      };
+    }, value);
+  expect(checks).toEqual({
+    all_sections: true,
+    timestamps: true,
+    versions: true,
+    central: true,
+    database: true,
+    storage: true,
+    readiness: true,
+  });
+}
+async function refresh(page: Page) {
+  const after = await seq(page);
+  await button(page, "重新读取运行信息").click();
+  const value = await ready(page, after);
+  await compareSnapshot(page, value.snapshot!);
+  return value;
+}
+async function noSnapshot(page: Page) {
+  await expect(page.locator(".runtime-sections,.runtime-observed")).toHaveCount(
+    0,
+  );
+}
+async function joined() {
+  await expect
+    .poll(async () => {
+      const c = await ipc("counts");
+      return c.held === c.joined && c.server_started === c.server_finished;
+    })
+    .toBe(true);
+}
+async function hold(page: Page) {
+  const counts = await ipc("counts"),
+    after = await seq(page);
+  await ipc("arm-hold");
+  await button(page, "重新读取运行信息").click();
+  await expect
+    .poll(async () => (await ipc("counts")).held)
+    .toBe(counts.held + 1);
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === endpoint &&
+      f.status === 200 &&
+      f.bytes > 0 &&
+      !f.eof &&
+      !f.ended,
+  );
+  await expect(heading(page, "正在读取运行信息")).toBeVisible();
+  await noSnapshot(page);
+  return after;
+}
+async function zeroWritesAndProbes(page: Page) {
+  const values = await facts(page);
+  expect(
+    values
+      .filter((f) => f.path === endpoint)
+      .every(
+        (f) => f.method === "GET" && !f.query && !f.body && !f.mutationHeaders,
+      ),
+  ).toBe(true);
+  expect(
+    values.filter(
+      (f) => f.method !== "GET" && f.path !== "/api/v1/sessions/login",
+    ).length,
+  ).toBe(0);
+  expect(
+    values.some((f) =>
+      /(?:health|readyz|diagnostics|runtime-information\/)/.test(f.path),
+    ),
+  ).toBe(false);
+}
+
+test("[read] formal cached Runtime snapshot, ordinary permission, read errors and exact Session Logout", async ({
+  page,
+  browser,
+}) => {
+  await page.addInitScript(observeNative);
+  await page.goto(route);
+  await login(page);
+  const first = await ready(page);
+  await compareSnapshot(page, first.snapshot!);
+  const count = (await runtimeFacts(page)).length;
+  await refresh(page);
+  expect((await runtimeFacts(page)).length).toBe(count + 1);
+  expect((await ipc("permissions")).ordinary_forbidden).toBe(true);
+  const context = await browser.newContext({
+      baseURL: process.env.AGENTEAM_AUTH_WEB_ORIGIN,
+    }),
+    ordinary = await context.newPage();
+  try {
+    await ordinary.addInitScript(observeNative);
+    await ordinary.goto(route);
+    await login(ordinary, "member");
+    await expect(heading(ordinary, "需要系统管理员权限")).toBeVisible();
+    await expect(ordinary).toHaveURL(
+      (url) => url.pathname === route && !url.search && !url.hash,
+    );
+    expect((await runtimeFacts(ordinary)).length).toBe(0);
+    await noSnapshot(ordinary);
+    await zeroWritesAndProbes(ordinary);
+  } finally {
+    await context.close();
+  }
+  let after = await seq(page);
+  await ipc("read-fail");
+  await button(page, "重新读取运行信息").click();
+  await factAfter(
+    page,
+    after,
+    (f) => f.path === endpoint && f.status === 503 && f.ended,
+  );
+  await expect(heading(page, "运行信息读取失败")).toBeVisible();
+  await noSnapshot(page);
+  expect((await ipc("counts")).read_failures).toBe(1);
+  await refresh(page);
+  after = await seq(page);
+  await ipc("arm-cut");
+  await button(page, "重新读取运行信息").click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === endpoint &&
+      f.status === 200 &&
+      f.ended &&
+      !f.eof &&
+      !f.snapshot,
+  );
+  await expect(heading(page, "运行信息读取失败")).toBeVisible();
+  await noSnapshot(page);
+  expect((await ipc("counts")).cuts).toBe(1);
+  await refresh(page);
+  const old = (await facts(page)).filter((f) => f.session).at(-1)!.session!;
+  after = await hold(page);
+  try {
+    const revoked = await ipc("logout", { session_id: old.session_id });
+    expect(revoked.revoked === true && revoked.logout_audit === true).toBe(
+      true,
+    );
+    await button(page, "取消读取").click();
+    await joined();
+    await ipc("release");
+    await factAfter(
+      page,
+      after,
+      (f) => f.path === endpoint && f.ended && !f.eof && !f.snapshot,
+    );
+    after = await seq(page);
+    await button(page, "重新读取运行信息").click();
+    await factAfter(
+      page,
+      after,
+      (f) =>
+        f.path === endpoint &&
+        f.status === 401 &&
+        f.ended &&
+        f.code === "SESSION_REVOKED",
+    );
+    await expect(page.locator("#login-email")).toBeVisible();
+    await expect(page).toHaveURL(/\/login(?:\?|$)/);
+    await noSnapshot(page);
+    const loginURL = new URL(page.url()),
+      query = [...loginURL.searchParams.entries()];
+    expect(loginURL.pathname === "/login" && loginURL.hash === "").toBe(true);
+    if (query.length) expect(query).toEqual([["return", route]]);
+    const fresh = await login(page, "member");
+    expect(
+      fresh.user_id === material().member.user_id &&
+        fresh.user_id !== old.user_id &&
+        fresh.session_id !== old.session_id,
+    ).toBe(true);
+    await expect(page).toHaveURL(
+      (url) =>
+        url.pathname === (query.length ? route : "/") &&
+        !url.search &&
+        !url.hash,
+    );
+    if (query.length)
+      await expect(heading(page, "需要系统管理员权限")).toBeVisible();
+    else {
+      await expect(heading(page, "首页")).toBeVisible();
+      await expect(
+        page
+          .getByRole("navigation", { name: "系统导航", exact: true })
+          .getByRole("link", { name: "系统设置", exact: true }),
+      ).toHaveCount(0);
+    }
+    await noSnapshot(page);
+    expect(
+      (await runtimeFacts(page)).filter((f) => f.sequence > after).length,
+    ).toBe(1);
+  } finally {
+    await ipc("release");
+    await joined();
+  }
+  await zeroWritesAndProbes(page);
+  result({
+    same_response_projection: true,
+    unknown_and_not_ready: true,
+    explicit_read: true,
+    ordinary_forbidden: true,
+    read_error_and_cut: true,
+    formal_logout: true,
+    late_identity_isolation: true,
+    zero_runtime_writes: true,
+  });
+});
+
+async function pageshowRecovery(page: Page) {
+  const current = (await facts(page)).filter((f) => f.session).at(-1)!.session!,
+    after = await seq(page);
+  await ipc("session-fail");
+  // Synthetic event invokes the real installed listener; this is not BFCache.
+  const checking = await page.evaluate(async () => {
+    let observer: MutationObserver | undefined;
+    try {
+      return await new Promise<boolean>((resolve) => {
+        observer = new MutationObserver(() => {
+          if (document.querySelector(".session-check"))
+            resolve(
+              !document.querySelector(
+                ".runtime-information,.runtime-sections,.runtime-observed",
+              ) &&
+                !document.querySelector(".ui-overlay") &&
+                document.body.style.overflow !== "hidden",
+            );
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        window.dispatchEvent(new Event("pageshow"));
+      });
+    } finally {
+      observer?.disconnect();
+    }
+  });
+  expect(checking).toBe(true);
+  await expect(button(page, "检查当前会话")).toBeEnabled();
+  await noSnapshot(page);
+  expect(
+    (await runtimeFacts(page)).filter((f) => f.sequence > after).length,
+  ).toBe(0);
+  await button(page, "检查当前会话").click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.status === 200 &&
+      f.eof &&
+      f.ended &&
+      f.session?.user_id === current.user_id &&
+      f.session.session_id === current.session_id &&
+      f.session.role === current.role,
+  );
+  const next = await ready(page, after);
+  await compareSnapshot(page, next.snapshot!);
+  expect(
+    (await runtimeFacts(page)).filter((f) => f.sequence > after).length,
+  ).toBe(1);
+  expect((await ipc("counts")).session_failures).toBe(1);
+}
+async function focusContained(page: Page) {
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  for (let n = 0; n < 12; n++) {
+    await page.keyboard.press(n % 2 ? "Shift+Tab" : "Tab");
+    expect(
+      await dialog.evaluate((node) => node.contains(document.activeElement)),
+    ).toBe(true);
+  }
+}
+async function layout(page: Page, width: number) {
+  const geometry = await page
+    .locator(".runtime-information")
+    .evaluate((region, width) => {
+      const fail = (category: string, index = -1, a = 0, b = 0) => ({
+        ok: false,
+        category,
+        index,
+        a,
+        b,
+      });
+      if (document.documentElement.scrollWidth > innerWidth + 1)
+        return fail(
+          "document-overflow",
+          -1,
+          document.documentElement.scrollWidth,
+          innerWidth,
+        );
+      if (document.body.scrollWidth > innerWidth + 1)
+        return fail("body-overflow", -1, document.body.scrollWidth, innerWidth);
+      const bounds = region.getBoundingClientRect();
+      if (bounds.left < -1 || bounds.right > innerWidth + 1)
+        return fail("page-bounds", -1, bounds.left, bounds.right);
+      const sections = Array.from(region.querySelectorAll("section"));
+      if (sections.length !== 4)
+        return fail("section-count", -1, sections.length, 4);
+      for (const [index, node] of Array.from(
+        region.querySelectorAll("h1,h2,p,dt,dd,time,button"),
+      ).entries()) {
+        const rect = node.getBoundingClientRect();
+        if (
+          rect.width <= 0 ||
+          rect.height <= 0 ||
+          rect.left < bounds.left - 1 ||
+          rect.right > bounds.right + 1
+        )
+          return fail("field-bounds", index, rect.left, rect.right);
+        if (
+          node.scrollWidth > node.clientWidth + 1 &&
+          getComputedStyle(node).display !== "inline"
+        )
+          return fail(
+            "field-overflow",
+            index,
+            node.scrollWidth,
+            node.clientWidth,
+          );
+      }
+      if (
+        width <= 760 &&
+        sections.some(
+          (node) =>
+            Math.abs(
+              node.getBoundingClientRect().left -
+                sections[0]!.getBoundingClientRect().left,
+            ) > 1,
+        )
+      )
+        return fail("narrow-not-single-column");
+      return { ok: true, category: "none", index: -1, a: 0, b: 0 };
+    }, width);
+  if (!geometry.ok)
+    console.log("runtime-layout-safe-diagnostic", JSON.stringify(geometry));
+  expect(geometry.ok).toBe(true);
+}
+test("[navigation] ten leaves, four groups, fourteenth return, native cancellation and page lifetimes", async ({
+  page,
+}) => {
+  await page.addInitScript(observeNative);
+  await page.goto(route);
+  await expect(page).toHaveURL(/\/login(?:\?|$)/);
+  expect([...new URL(page.url()).searchParams.entries()]).toEqual([
+    ["return", route],
+  ]);
+  await login(page);
+  let current = await ready(page);
+  await compareSnapshot(page, current.snapshot!);
+  await page.goto("/system");
+  await expect(page).toHaveURL(/\/system\/users$/);
+  await expect(nav(page).getByRole("link")).toHaveCount(10);
+  await expect(nav(page).locator(".settings-group-toggle")).toHaveCount(4);
+  expect(
+    await nav(page)
+      .getByRole("link")
+      .evaluateAll((links) => links.map((n) => n.getAttribute("href"))),
+  ).toEqual([
+    "/system/users",
+    "/system/invitations",
+    "/system/providers",
+    "/system/models",
+    "/system/model-selection",
+    "/system/audit",
+    "/system/account-security",
+    "/system/smtp",
+    "/system/outbound-policy",
+    route,
+  ]);
+  const group = nav(page).getByRole("button", {
+    name: "平台配置",
+    exact: true,
+  });
+  await group.focus();
+  await page.keyboard.press("Space");
+  await expect(group).toHaveAttribute("aria-expanded", "false");
+  await page.keyboard.press("Space");
+  await expect(group).toHaveAttribute("aria-expanded", "true");
+  let after = await seq(page);
+  await nav(page).getByRole("link", { name: "运行信息", exact: true }).click();
+  current = await ready(page, after);
+  await expect(
+    nav(page).getByRole("link", { name: "运行信息", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
+  await compareSnapshot(page, current.snapshot!);
+  after = await hold(page);
+  try {
+    const beforePageshow = await seq(page);
+    await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+    await expect(heading(page, "正在读取运行信息")).toBeVisible();
+    expect(
+      (await facts(page)).filter(
+        (f) => f.sequence > beforePageshow && f.path === "/api/v1/session",
+      ).length,
+    ).toBe(0);
+    await button(page, "取消读取").click();
+    await expect(heading(page, "运行信息读取失败")).toBeVisible();
+    await noSnapshot(page);
+    await expect(heading(page, "运行信息")).toBeFocused();
+    await factAfter(
+      page,
+      after,
+      (f) => f.path === endpoint && f.ended && !f.eof && !f.snapshot,
+    );
+    await joined();
+    await ipc("release");
+    await expect(button(page, "重新读取运行信息")).toBeEnabled();
+    expect(
+      (await runtimeFacts(page)).filter((f) => f.sequence > after).length,
+    ).toBe(1);
+    current = await refresh(page);
+    await expect(button(page, "重新读取运行信息")).toBeFocused();
+  } finally {
+    await ipc("release");
+    await joined();
+  }
+  after = await hold(page);
+  try {
+    await nav(page).getByRole("link", { name: "用户", exact: true }).click();
+    await expect(page).toHaveURL(/\/system\/users$/);
+    await noSnapshot(page);
+    await expect(page.locator(".ui-overlay")).toHaveCount(0);
+    await factAfter(
+      page,
+      after,
+      (f) => f.path === endpoint && f.ended && !f.eof && !f.snapshot,
+    );
+    await joined();
+    await ipc("release");
+    // Route restore may briefly remount the old route before commit. Any such
+    // accepted new-instance read must finish/cancel and never outlive the route.
+    const settled = await seq(page);
+    await page.evaluate(() => Promise.resolve());
+    expect(
+      (await runtimeFacts(page)).filter((f) => f.sequence > settled).length,
+    ).toBe(0);
+    after = await seq(page);
+    await nav(page)
+      .getByRole("link", { name: "运行信息", exact: true })
+      .click();
+    current = await ready(page, after);
+    await compareSnapshot(page, current.snapshot!);
+  } finally {
+    await ipc("release");
+    await joined();
+  }
+  await pageshowRecovery(page);
+  let layouts = 0;
+  for (const theme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    for (const width of [1440, 1024, 768, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await layout(page, width);
+      if (width === 390) {
+        const toggle = button(page, "系统设置栏目");
+        await toggle.click();
+        await expect(page.getByRole("dialog").getByRole("link")).toHaveCount(
+          10,
+        );
+        await expect(
+          page.getByRole("dialog").locator(".settings-group-toggle"),
+        ).toHaveCount(4);
+        await focusContained(page);
+        await page.keyboard.press("Escape");
+        await expect(page.locator(".ui-overlay")).toHaveCount(0);
+        await expect(toggle).toBeFocused();
+        await toggle.click();
+        await page
+          .locator(".ui-overlay")
+          .last()
+          .click({ position: { x: width - 3, y: 3 } });
+        await expect(page.locator(".ui-overlay")).toHaveCount(0);
+        await expect(toggle).toBeFocused();
+      }
+      await expect(
+        page.locator(".ui-overlay,input[type=password],textarea"),
+      ).toHaveCount(0);
+      await heading(page, "运行信息").scrollIntoViewIfNeeded();
+      await page.screenshot({
+        path: join(
+          process.env.AGENTEAM_AUTH_WEB_IMAGES!,
+          `runtime-information-${theme}-${width}.png`,
+        ),
+        fullPage: false,
+      });
+      layouts++;
+    }
+  }
+  await zeroWritesAndProbes(page);
+  await joined();
+  result({
+    ten_leaves_four_groups: true,
+    fourteenth_return: true,
+    cancel_join: true,
+    leave_join: true,
+    busy_pageshow: true,
+    checking_new_page: true,
+    local_focus: true,
+    drawer: true,
+    no_overflow: true,
+    zero_runtime_writes: true,
+    layouts,
+  });
+});

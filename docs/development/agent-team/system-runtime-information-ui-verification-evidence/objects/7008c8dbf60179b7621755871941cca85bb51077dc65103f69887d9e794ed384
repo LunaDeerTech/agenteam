@@ -1,0 +1,14 @@
+{
+  "original": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/driver01.py",
+  "original_sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62",
+  "new_sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36",
+  "limits_cleanup_and_process_supervision": "unchanged",
+  "narrow_changes": [
+    "product baseline",
+    "four exact group mappings",
+    "short runtime prefix",
+    "explicit Git/Docker/shell tool paths and fixed child PATH"
+  ],
+  "not_executed": true,
+  "preparation_note": "first assembler assertion wrongly expected PATH git=/usr/bin/git; actual PATH git is /usr/local/bin/git. No driver was written then. Final driver explicitly selects existing /usr/bin/git and its SHA will be bound."
+}

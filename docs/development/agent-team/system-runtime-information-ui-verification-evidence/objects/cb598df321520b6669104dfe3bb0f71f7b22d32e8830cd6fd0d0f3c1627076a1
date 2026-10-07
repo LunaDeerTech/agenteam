@@ -1,0 +1,12 @@
+import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
+export default defineConfig({
+  root: new URL('./source/web/', import.meta.url).pathname,
+  cacheDir: new URL('./cache01/', import.meta.url).pathname,
+  plugins: [vue()],
+  test: {
+    environment: 'jsdom', include: ['src/tests/independent-runtime-app01.spec.ts'],
+    restoreMocks: true, maxWorkers: 1, fileParallelism: false, pool: 'forks',
+    testTimeout: 10000, hookTimeout: 5000, reporters: ['default'],
+  },
+})

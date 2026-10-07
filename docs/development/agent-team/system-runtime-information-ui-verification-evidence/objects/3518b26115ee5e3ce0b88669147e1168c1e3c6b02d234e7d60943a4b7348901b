@@ -1,0 +1,225 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {setImmediate as turn} from 'node:timers/promises';
+import {AccountFailure, accountTransport} from '../workspace/web/src/api/client.ts';
+import {parseSystemInstant} from '../workspace/web/src/api/system-account.ts';
+import {
+  createSystemRuntimeInformationAPI as api,
+  parseSystemRuntimeInformation as parse,
+} from '../workspace/web/src/api/system-runtime-information.ts';
+
+const endpoint = '/api/v1/system/runtime-information';
+const requestID = '0199b76b-1234-7000-8000-000000000001';
+const zero = '0001-01-01T00:00:00.000000Z';
+const encode = (s) => new TextEncoder().encode(s);
+const signal = () => new AbortController().signal;
+const json = (s) => new Response(s, {headers: {'Content-Type': 'application/json'}});
+const golden = () => ({
+  observed_at: '0000-02-29T23:59:59.999999Z',
+  central: {version: null, safe_reason: 'build_version_not_recorded'},
+  database: {
+    status: 'available', safe_reason: null,
+    last_success: {
+      checked_at: '9999-12-31T23:59:59.999999Z',
+      received_at: '0099-01-01T00:00:00.000001Z',
+      postgresql_version: ' ' + '<>&"\\'.repeat(51),
+      pgvector_version: ' ',
+    },
+  },
+  object_storage: {
+    backend: 'minio', assessment: 'object_storage_aggregate',
+    status: 'available', safe_reason: null,
+    last_success_received_at: '0001-01-01T00:00:00.000001Z', details: 'not_reported',
+  },
+  readiness: {ready: false, safe_reason: 'DEPENDENCY_UNBOUND'},
+});
+const invalid = (e) => e instanceof AccountFailure && e.kind === 'invalid-response';
+function frozen(value) {
+  if (value && typeof value === 'object') {
+    assert.equal(Object.isFrozen(value), true);
+    for (const nested of Object.values(value)) frozen(nested);
+  }
+}
+function deferred() {
+  let resolve;
+  const promise = new Promise((r) => { resolve = r; });
+  return {promise, resolve};
+}
+function observed(promise) {
+  let settled = false;
+  const result = promise.then(
+    (value) => { settled = true; return {value}; },
+    (error) => { settled = true; return {error}; },
+  );
+  return {result, settled: () => settled};
+}
+async function until(predicate) {
+  for (let n = 0; n < 500; n++) {
+    if (predicate()) return;
+    await turn();
+  }
+  assert.fail('controlled native barrier was not reached');
+}
+function padded(value, size) {
+  const text = JSON.stringify(value);
+  assert.ok(encode(text).length <= size);
+  return text + ' '.repeat(size - encode(text).length);
+}
+
+test('A: strict immutable snapshot and narrow fixed wire agree with accepted runtime contract', async () => {
+  const raw = golden(), expected = structuredClone(raw);
+  assert.equal(raw.database.last_success.postgresql_version.length, 256);
+  const result = parse(raw);
+  assert.deepEqual(result, expected);
+  frozen(result);
+  raw.database.last_success.pgvector_version = 'changed';
+  raw.object_storage.status = 'unavailable';
+  assert.deepEqual(result, expected);
+  assert.equal(parseSystemInstant(zero), zero);
+  let rejected = 0;
+  const bad = (mutate) => {
+    const value = golden(); mutate(value);
+    assert.throws(() => parse(value), invalid);
+    rejected++;
+  };
+  for (const keys of [
+    ['observed_at'], ['database', 'last_success', 'checked_at'],
+    ['database', 'last_success', 'received_at'], ['object_storage', 'last_success_received_at'],
+  ]) bad((v) => { let p = v; for (const key of keys.slice(0, -1)) p = p[key]; p[keys.at(-1)] = zero; });
+  bad((v) => { v.database.last_success.checked_at = '1900-02-29T00:00:00.000000Z'; });
+  bad((v) => { v.database.last_success.received_at = '2000-02-29T00:00:00.00000Z'; });
+  bad((v) => { v.central.version = 'not part of this contract'; });
+  bad((v) => { delete v.database.last_success; });
+  bad((v) => { v.object_storage.details = 'additional detail'; });
+  bad((v) => { v.database.last_success.endpoint = 'unexpected'; });
+  bad((v) => { v.readiness.ready = true; });
+  bad((v) => { v.database.status = 'stale'; v.database.safe_reason = 'sample_stale'; });
+  bad((v) => { v.object_storage.status = 'unavailable'; v.object_storage.safe_reason = null; });
+  for (const version of ['x'.repeat(257), 'x\n', 'x\r\n', 'x\u2028', 'é', '\x7f'])
+    bad((v) => { v.database.last_success.pgvector_version = version; });
+  const retained = golden();
+  retained.database.status = 'unavailable'; retained.database.safe_reason = 'check_unavailable';
+  retained.object_storage.status = 'stale'; retained.object_storage.safe_reason = 'sample_stale';
+  retained.readiness.safe_reason = 'DEPENDENCY_UNAVAILABLE';
+  assert.deepEqual(parse(retained), retained);
+  const otherDependency = golden(); otherDependency.readiness.safe_reason = 'DEPENDENCY_UNAVAILABLE';
+  assert.deepEqual(parse(otherDependency), otherDependency);
+  let calls = 0;
+  const abort = new AbortController();
+  const client = api(async (path, init) => {
+    calls++;
+    assert.equal(path, endpoint);
+    assert.deepEqual(init, {
+      method: 'GET', headers: {Accept: 'application/json, application/problem+json'},
+      credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: abort.signal,
+    });
+    return json(JSON.stringify(expected));
+  });
+  assert.deepEqual(await client.get(abort.signal), expected);
+  assert.equal(calls, 1);
+  const transport = accountTransport(async () => { calls++; assert.fail('invalid options reached fetch'); });
+  for (const extra of [{csrf: 'synthetic'}, {body: {}}, {query: {}}, {responseBudget: 99999}])
+    await assert.rejects(transport('getSystemRuntimeInformation', parse, {signal: signal(), ...extra}),
+      (e) => e instanceof AccountFailure && e.kind === 'invalid-input');
+  assert.equal(calls, 1);
+  console.log(JSON.stringify({combination: 'A', strict_rejections: rejected, helper_unchanged: true,
+    deep_frozen_detached: true, fixed_get_without_mutation_material: true}));
+});
+
+test('B: 16KiB requires actual EOF and every native cancellation tail joins before return', async () => {
+  const value = golden(), exact = encode(padded(value, 16384));
+  let control, closed = false;
+  const stream = new ReadableStream({start(c) { control = c; c.enqueue(exact.slice(0, 500)); }});
+  const abort = new AbortController();
+  const job = observed(api(async () => new Response(stream, {
+    headers: {'Content-Type': 'application/json', 'Content-Length': '1'},
+  })).get(abort.signal));
+  try {
+    await until(() => stream.locked);
+    control.enqueue(exact.slice(500));
+    await turn();
+    assert.equal(job.settled(), false);
+    control.close(); closed = true;
+    const result = await job.result;
+    assert.equal(result.error, undefined);
+    assert.deepEqual(result.value, value);
+    assert.equal(stream.locked, false);
+  } finally {
+    abort.abort();
+    if (!closed) { try { control.close(); } catch {} }
+    await job.result;
+  }
+
+  for (const mode of ['oversize', 'aborted-read', 'unread-media']) {
+    const release = deferred();
+    let cancelStarted = false, readStarted = false, readEnded = false, acquired = false;
+    const body = new ReadableStream({
+      start(c) { if (mode === 'oversize') c.enqueue(encode(padded(value, 16385))); },
+      cancel() { cancelStarted = true; return release.promise; },
+    });
+    const originalGet = body.getReader.bind(body);
+    body.getReader = (...args) => {
+      acquired = true;
+      const reader = originalGet(...args), originalRead = reader.read.bind(reader);
+      reader.read = (...readArgs) => {
+        readStarted = true;
+        const p = originalRead(...readArgs);
+        void p.then(() => { readEnded = true; }, () => { readEnded = true; });
+        return p;
+      };
+      return reader;
+    };
+    const cancel = new AbortController();
+    const pending = observed(api(async () => new Response(body, {headers: {
+      'Content-Type': mode === 'unread-media' ? 'text/plain' : 'application/json',
+      'Content-Length': '1',
+    }})).get(cancel.signal));
+    try {
+      if (mode === 'aborted-read') {
+        await until(() => readStarted);
+        assert.equal(readEnded, false);
+        cancel.abort();
+      }
+      await until(() => cancelStarted);
+      if (mode !== 'unread-media') await until(() => readEnded);
+      assert.equal(pending.settled(), false);
+      assert.equal(acquired, mode !== 'unread-media');
+      assert.equal(body.locked, mode !== 'unread-media');
+      release.resolve();
+      const result = await pending.result;
+      assert.equal(result.value, undefined);
+      assert.ok(result.error instanceof AccountFailure);
+      assert.equal(result.error.kind, mode === 'aborted-read' ? 'cancelled' : 'invalid-response');
+      assert.equal(body.locked, false);
+      console.log(JSON.stringify({combination: 'B', mode, cancel_started: true,
+        native_read_ended: readEnded, actual_tail_joined: true, lock_released: true}));
+    } finally {
+      release.resolve(); cancel.abort(); await pending.result;
+    }
+  }
+  const malformed = new ReadableStream({start(c) {
+    c.enqueue(encode(JSON.stringify(value))); c.enqueue(new Uint8Array([0xc3])); c.close();
+  }});
+  await assert.rejects(api(async () => new Response(malformed, {
+    headers: {'Content-Type': 'application/json'},
+  })).get(signal()), invalid);
+  assert.equal(malformed.locked, false);
+  const problem = {type: 'urn:agenteam:problem:request-failed', title: 'Request failed',
+    detail: 'Request failed.', instance: '/api/v1', status: 503, code: 'COMMIT_UNKNOWN',
+    request_id: requestID, commit_state: 'unknown', retry_hint: 'lookup_then_retry'};
+  await assert.rejects(api(async () => new Response(padded(problem, 600000), {status: 503,
+    headers: {'Content-Type': 'application/problem+json', 'X-Request-ID': requestID},
+  })).get(signal()), (e) => e instanceof AccountFailure && e.kind === 'problem' &&
+    e.problem.code === 'COMMIT_UNKNOWN' && e.problem.commit_state === 'unknown');
+  // Raw transport identities establish old byte-budget branches, not domain DTO validity.
+  for (const [endpointName, maximum, options] of [
+    ['bootstrap', 600000, {}], ['listSystemAudit', 1048576, {audit: {}}],
+    ['listProviders', 2097152, {providers: {}}],
+  ]) {
+    const raw = accountTransport(async () => json(padded({}, maximum)));
+    assert.deepEqual(await raw(endpointName, (v) => v, {signal: signal(), ...options}), {});
+  }
+  console.log(JSON.stringify({combination: 'B', eof_exact_bytes: 16384, overflow_bytes: 16385,
+    malformed_utf8_rejected: true, runtime_problem_600000_preserved: true,
+    old_success_budget_branches: [600000, 1048576, 2097152]}));
+});

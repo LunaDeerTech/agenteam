@@ -1,0 +1,40 @@
+--- state-pure01/system-runtime-information-state.spec.ts
++++ owner-stage01/system-runtime-information-state.spec.ts
+@@ -331,7 +331,7 @@
+         held = nativeHold('text/plain')
+       let signal: AbortSignal | undefined
+       const fetcher: Fetch = async (_path, init) => {
+-        signal = init.signal
++        signal = init.signal ?? undefined
+         return held.response()
+       }
+       f.setOther(fetcher)
+@@ -466,7 +466,10 @@
+       else f.setOutbound(oldFetch)
+       const random = vi.spyOn(crypto, 'randomUUID')
+       const owner = domain === 'smtp-settings' ? f.auth.system.smtp : f.auth.system.outboundPolicy
+-      if (domain === 'smtp-settings') f.auth.system.smtp.setMaterial(' private synthetic password ')
++      if (domain === 'smtp-settings') {
++        await f.auth.system.smtp.get()
++        f.auth.system.smtp.setMaterial(' private synthetic password ')
++      }
+       const pending = resultOf(
+         domain === 'smtp-settings'
+           ? f.auth.system.smtp.startUpdate({
+@@ -479,6 +482,7 @@
+       )
+       try {
+         await flushPromises()
++        expect(f.writes().length === 1 && f.auth.state.busy).toBe(true)
+         const original = f.writes()[0]![1]
+         f.auth.system.runtimeInformation.abandon()
+         await expect(f.auth.system.runtimeInformation.get()).rejects.toMatchObject({ kind: 'busy' })
+@@ -749,7 +753,7 @@
+         held = nativeHold('text/plain')
+       let signal: AbortSignal | undefined
+       f.setOther(async (_p, init) => {
+-        signal = init.signal
++        signal = init.signal ?? undefined
+         return held.response()
+       })
+       const old = resultOf(f.auth.system.audit.list({}))

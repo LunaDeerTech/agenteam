@@ -1,0 +1,102 @@
+{
+  "accepted_A": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/manifest.json",
+    "sha256": "b3e9089698859ba102da6587d6e12deadecd8b44cf8c6fd3b700f559bf764bb6",
+    "source": {
+      "web/src/api/client.ts": "c7c894e8b9baf762823ea5c1b5385d4bf48b76aae33fa9890ad696494bb29526",
+      "web/src/api/system-runtime-information.ts": "7126e4a1d17260a6c8f467372f65f6d1749ffe7880a5d1099036fa8fc46254ec",
+      "web/src/tests/system-runtime-information-client.spec.ts": "82047e045ee00a4110dea1c92a43a9ddf411e6dbe2eb334f04b41f90a21b5d6c"
+    }
+  },
+  "at_utc": "2026-10-07T04:26:49.960308+00:00",
+  "candidates": [
+    "web/src/composables/useSession.ts",
+    "web/src/composables/useSystemRuntimeInformation.ts",
+    "web/src/tests/system-runtime-information-state.spec.ts"
+  ],
+  "copied_tree": false,
+  "fixed_files": {
+    "web/src/api/account.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "43eb1e384093014945d3e7dcf5a87f31567bb795",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    "web/src/api/outbound-rules.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "5e5031c25c24b3c7b698087fd5d7ccc874e48c7b",
+      "sha256": "7b41d4af381520fb95c824dfeda079d0bb36af82f4ec614967c2346f56a38466"
+    },
+    "web/src/api/system-account-security.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "f387f76b3c622245f651a3a529cdf9d384649435",
+      "sha256": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb"
+    },
+    "web/src/api/system-account.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "b1126fd95c23db81300d4edb85a01076a9e4729d",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    "web/src/api/system-audit-metadata.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "a59dcfe2cc4b428e7c967b9f139220ea4c536bd6",
+      "sha256": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630"
+    },
+    "web/src/api/system-audit.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "731f56c598a6aa3ec44bd84a4b860b287662a1e3",
+      "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f"
+    },
+    "web/src/api/system-invitations.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "07692ec91b2e3c1153831a4c2e508182b9a24fce",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+    },
+    "web/src/api/system-model-selection.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "06b161b77678aa88a38a18804cff2c38f392688f",
+      "sha256": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca"
+    },
+    "web/src/api/system-models.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "44853010a843477f0fa0cf02ef73e641e48f0d32",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    "web/src/api/system-outbound-policy.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "e8ec076e7e1d60ac48aba33266c8a7f6fc8410bd",
+      "sha256": "6dff6c0b696b334799abd7779ac52b12b8ceabc3f6b7861ee639ae1823d9123e"
+    },
+    "web/src/api/system-providers.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "708df5e70262c060ba0d7a1ac24386851fda53f5",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    "web/src/api/system-smtp-delivery.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "157a28979b0104e1ad3c9b046a43bf9c1a654ab2",
+      "sha256": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd"
+    },
+    "web/src/api/system-smtp-settings.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "135bab893c01a05908802d2d4d619bd1c0afdd27",
+      "sha256": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311"
+    },
+    "web/src/composables/useSession.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "293fa2ae0bb6f2008a364abad3419023a9ae0319",
+      "sha256": "63148d3ef0ea2ecf15b1bf14fc1168e3c0f1657db0f40fb0bedd3bc9b7e92879"
+    },
+    "web/src/composables/useSystemAudit.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "bad714a76d8aeab2bd39f229b4d94edc36e1b620",
+      "sha256": "a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04"
+    },
+    "web/src/composables/useTheme.ts": {
+      "git": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+      "git_blob": "106e927337ba5e00f29876a45f78eb73e80796aa",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    }
+  },
+  "product_base": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "resource_execution": false
+}

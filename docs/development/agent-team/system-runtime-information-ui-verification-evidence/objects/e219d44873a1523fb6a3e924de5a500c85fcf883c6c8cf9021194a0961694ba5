@@ -1,0 +1,85 @@
+{
+  "at_utc": "2026-10-07T06:47:59.858853+00:00",
+  "reviewer": "directory_frontend",
+  "run": "old-outbound-navigation01",
+  "images": [
+    {
+      "file": "outbound-policy-dark-1024.png",
+      "sha256": "84e443db69f251424ee88804c6aceb0bd84e08bd5ec21898d9ab70b5025c7d5d",
+      "bytes": 147286,
+      "width": 1024,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "outbound-policy-dark-1440.png",
+      "sha256": "90f26cad315beed84e9b252a1552908368eaea48518f49aeff62cb842f09e28f",
+      "bytes": 153377,
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "outbound-policy-dark-390.png",
+      "sha256": "ad87e3e0895fae10511da2592011852be8bd8d28f6b4641060dae1c73d5149da",
+      "bytes": 57749,
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "outbound-policy-dark-768.png",
+      "sha256": "345543f361061585f0110e8aad0f410a8f44f01c73a0d7c6ce1da95752c7662c",
+      "bytes": 107570,
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "outbound-policy-light-1024.png",
+      "sha256": "2ef25e9fde8b62a26f31fa55ffdd944b17520953ed8e0812c36e6329043fe9ae",
+      "bytes": 146454,
+      "width": 1024,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "outbound-policy-light-1440.png",
+      "sha256": "decde29157b49ca781af0f0f24a4e51bdc4c46b0aad983032f89efe77f09ae3c",
+      "bytes": 152447,
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "outbound-policy-light-390.png",
+      "sha256": "b1ed076d499141f5d4c01b90b9a84c61f1a13c1c59dc01a39d0fd300f76d7633",
+      "bytes": 57148,
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "outbound-policy-light-768.png",
+      "sha256": "76901796349515ebdfa6b71dd965d4582867306f62e154d03278dca9414775dd",
+      "bytes": 107035,
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": false
+    }
+  ],
+  "author_review_scope": [
+    "outbound-policy-dark-1440.png",
+    "outbound-policy-light-390.png"
+  ],
+  "observations": {
+    "outbound-policy-light-390.png": "Drawer trigger and rule labels are legible; long CIDR and ports wrap within the narrow viewport. No visible horizontal overflow.",
+    "outbound-policy-dark-1440.png": "Sidebar includes Runtime navigation and the three rule columns remain distinct; long CIDR and port list wrap within their columns. No visible horizontal overflow."
+  },
+  "conclusion": "No visual regression identified in the two affected representatives.",
+  "limits": [
+    "All eight original screenshots retained; only the two listed representatives were actually viewed by the author.",
+    "900px viewport captures, not full page; the long port list continues below the crop, which does not cover lower editing or error sections."
+  ],
+  "root_review": "No root review of these old-run images reported at record time."
+}

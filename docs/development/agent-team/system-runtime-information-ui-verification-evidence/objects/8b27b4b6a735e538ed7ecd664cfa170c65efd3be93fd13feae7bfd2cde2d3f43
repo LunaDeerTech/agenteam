@@ -1,0 +1,31 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/usr/bin/sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountSystemAuditWebNavigationAndLayouts)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace",
+  "ended_utc": "2026-10-07T06:43:15.147122+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/old-audit-navigation01/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtrun-ktu6v5kx",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/old-audit-navigation01/runtime"
+  },
+  "exit": 0,
+  "seconds": 74.353,
+  "started_utc": "2026-10-07T06:42:00.794075+00:00"
+}

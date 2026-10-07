@@ -1,0 +1,76 @@
+--- startup-plan01.json
++++ startup-plan02.json
+@@ -9,7 +9,7 @@
+   "before_every_authorized_run": [
+     "unused name",
+     "fresh >=5368709120 available bytes (the preparation scan is not future permission)",
+-    "34 source/42 dist/957 fixed accepted/794 runtime tool-file gate",
++    "34 source/42 dist/957 fixed accepted/2892 installed runtime and actual Go graph-source dependency gate",
+     "fresh exact two-container/four-network baseline including full Mount objects, not historical IDs",
+     "task nonce and exact IDs; never touch baseline resources"
+   ],
+@@ -21,12 +21,16 @@
+     "sha256": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36"
+   },
+   "frozen_manifest": {
+-    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input01/manifest.json",
+-    "sha256": "b1e7ff33e0531c239b66a155756b96b8d2fdb048d6d3262a06b12368303a6ffd"
++    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json",
++    "sha256": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179"
+   },
+   "graphs": {
+     "actual_race_Go_graph": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runtime-graph02.json",
+     "dynamic_build_artifacts_metadata": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/offline-dynamic-build01",
++    "external_Go_sources": {
++      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/external-go-sources.json",
++      "sha256": "b71511bc0a3d1fa845dc0b340991c1991235b7cc7e194544b529c4602f6aa776"
++    },
+     "fixed_script_16_roots": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-runtime-closure02.json"
+   },
+   "groups": {
+@@ -42,7 +46,7 @@
+         "--group",
+         "navigation",
+         "--frozen",
+-        "input01/manifest.json",
++        "input02/manifest.json",
+         "--modcache",
+         "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+       ]
+@@ -59,7 +63,7 @@
+         "--group",
+         "old-audit-navigation",
+         "--frozen",
+-        "input01/manifest.json",
++        "input02/manifest.json",
+         "--modcache",
+         "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+       ]
+@@ -76,7 +80,7 @@
+         "--group",
+         "old-outbound-navigation",
+         "--frozen",
+-        "input01/manifest.json",
++        "input02/manifest.json",
+         "--modcache",
+         "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+       ]
+@@ -93,7 +97,7 @@
+         "--group",
+         "read",
+         "--frozen",
+-        "input01/manifest.json",
++        "input02/manifest.json",
+         "--modcache",
+         "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+       ]
+@@ -103,7 +107,8 @@
+     "Runtime preparation01 non-import string mistaken for package; exit1 retained, corrected tokenizer in revision02",
+     "First driver assembler assumed PATH git=/usr/bin/git; assertion before driver creation. Current driver explicitly binds existing /usr/bin/git. Original tool output retained",
+     "runtime-list01 was non-race metadata; runtime-list02 is the final -race/-tags=integration metadata, neither executes tests",
+-    "All C and D checks/failures remain in their original stages"
++    "All C and D checks/failures remain in their original stages",
++    "input01 omitted external Go source hashes; input02 adds only actual race JSON sources and five actual non-race dynamic-build source differences. Original input01/gate01 unchanged."
+   ],
+   "original_limits": {
+     "browser_retries": 0,

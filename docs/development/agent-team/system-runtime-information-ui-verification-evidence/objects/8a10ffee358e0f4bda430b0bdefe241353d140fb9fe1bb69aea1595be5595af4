@@ -1,0 +1,29 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (../../state-stage.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web
+
+ ❯ src/tests/system-runtime-information-state.spec.ts (40 tests | 1 failed) 130ms
+     × preserves the original smtp-settings unknown material through Runtime reads and local abandonment 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-runtime-information-state.spec.ts > Runtime Information is the optional twelfth API on the actual Cookie owner > preserves the original smtp-settings unknown material through Runtime reads and local abandonment
+TypeError: Cannot read properties of undefined (reading '1')
+ ❯ src/tests/system-runtime-information-state.spec.ts:482:39
+    480|       try {
+    481|         await flushPromises()
+    482|         const original = f.writes()[0]![1]
+       |                                       ^
+    483|         f.auth.system.runtimeInformation.abandon()
+    484|         await expect(f.auth.system.runtimeInformation.get()).rejects.t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 39 passed (40)
+   Start at  04:35:19
+   Duration  1.28s (transform 406ms, setup 0ms, import 549ms, tests 130ms, environment 446ms)
+

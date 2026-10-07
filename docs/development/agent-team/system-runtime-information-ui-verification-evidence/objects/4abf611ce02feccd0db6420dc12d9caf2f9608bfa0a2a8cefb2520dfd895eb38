@@ -1,0 +1,31 @@
+# Runtime UI C 独立验收
+
+结论：**有界 PASS**。固定页面/导航静审无阻断；两个独立真实 App/router/factory 的离线组合首轮 **2/2 PASS**，actual exit0，外层 2.208942s，测试体300ms。未追加矩阵或业务资源轮。
+
+固定来源为 `/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01`，manifest `ddc91856eadae403e1f7d4e56421fc642f19b9fa8e1ea17c7de3da4f5446c755`、source.diff `ae82eea98d7ca8c1bba2dcfda129f3d5d46c0d8f91c58eaa897d52e4d5e8ff21`、report `5adbe0e78c77405067a51491fdc80e31f549bc9167908f43c936431cf02ca310`。30候选=原 A/B6+本阶段24，42dist及160声明依赖逐SHA核对，A/B6保持原字节。实际仅复制递归 App/router 所需110文件，复用2086锁定工具文件；没有复制完整仓库或 node_modules。来源绑定见 `input-binding01.json`，精确30源/42产物见 `delivery30.json`。
+
+独立测试沿冻结作者测试的 App/factory/DTO/DOM helper 前缀搭建，两个测试体独立编写；作者业务测试体未选。未改生产 App、API、owner/controller 或 View。唯一函数替身为向真实组件提供受控 Session 实例及旁路记录原 controller 构造返回值，12个 API factory、生产路由与守卫照常调用。
+
+- **组合 A**：完整成功快照及四微秒时间、原样转义版本展示；当前 COMMIT_UNKNOWN503 读取错误清除全部旧区域且没有 write intent/原请求重试；公开重新读取获得原生无EOF的 Response，再由真实路由离页触发本页取消、后置 guard 拒绝导航。页面仍可见且为error，reader/cancel Promise 未终局时全局busy/按钮阻止；实际release后解锁、零自动重读，旧continuation不夺走本地焦点，显式重读才呈现新值。随后当前403销毁观察和旧标题，显式权限检查只创建一个新合格实例和一次本口GET。
+- **组合 B**：空闲 pageshow 发起 Session 检查并卸载退休旧实例；Session503不展示旧观察、不额外Runtime GET。显式同完整identity恢复只创建第二实例/一次GET。其原生读取在途时 pageshow 不检查Session、不重建页面；公开取消后error/标题焦点、ownerbusy及reader锁保持至cancel Promise实际release。释放不自动读，只有显式新读取成功；旧实例仍无观察/无资格。
+
+两组合均硬验所有请求仅本口与Session的GET、零写及零业务dialog。原生指Node Response/ReadableStream及真实 cancel Promise，不是HTTP/TCP/浏览器网络。焦点只证明jsdom中身份/代次/connected/disabled约束，未证明原生指针、Tab、布局或BFCache。
+
+静审四产品差量为新路由、exact return、菜单叶与Runtime View。10叶/4组/14return只追加固定目标；App及其它协调器未改，View离页先cancel且true通过自身guard、unmount再dispose，晚回调核实例/完整identity与focus generation。19旧测试差量仅菜单/return/标题及Audit count换行；旧业务断言保持，Audit原协议keys未改。页面对缓存历史、未知Central、ready=false作明确展示，不推本地时钟健康、不轮询或补诊断请求。
+
+## 原件与终局
+
+执行输入 `execution01.json` SHA `a28e16c85009ccd53c305a62e19327492062438e73e5fb456e1c134bfeb0218b`，probe `source/web/src/tests/independent-runtime-app01.spec.ts` SHA `9ccd1ccb63cbacd320fc78b0910b9b1dafe66df6602081a63611eabdb9ff7e0e`。实际监督入口：`/usr/bin/python3 /workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/run_offline.py /workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/execution01.json`；内部锁定绝对 Node/Vitest CLI、45s上限、1worker、无并行。实际argv/cwd/env及wait见 `runs/app01/command.json`。
+
+- raw `e5b49da93e433bb661881f5560ed49a5cbabd9b110af54c89ff0e01de09b2878`。
+- result `baa53f708d49f8054a8cb5254f5ca1f77ee86fa0c49ae9e0d7c3572623d86e0c`。
+- cleanup `bd1c106845ec5910cdf201dfa383ff791c73a1dd3447ea11876a00d5ec5710ae`。
+- 输入前后SHA均 `ea3db0997c404a385cc2142ae9fb456f954e915d6ba7798ce7cb107fd23217a2`；2449文件及两symlink完全相同。
+
+supervisor先设subreaper，直接子进程已actualwait；owned PID/start为741383/3217689、741426/3217722，0 adopted wait，两扫均空，私有TMP已删除。工具session44196实际exit0关闭。没有监听、浏览器、Docker、PG、真实HTTP、主树/Git修改或委派。
+
+## 复用与历史限制
+
+A解析、B第12owner与页面controller按六源原SHA复用已接受独立报告；本轮没有重跑其矩阵。作者完整1875/type/build、App8、旧9type/list沿冻结报告分列复用，不称独立重跑或旧浏览器实测。原旧type CLI遗漏 DOM.Iterable/@types/node的exit2、Outbound既有format warning、Audit count仅换行及原AST误纳SourceFile.text的exit1均保留，不洗成首轮全绿。三个作者format/AST辅助脚本有最终manifest SHA与原argv/raw，但原逐轮gate未绑定脚本SHA；不补造运行前绑定或因该局限增业务检查。最终旧差量已直接静读，纯排版不改语义。
+
+独立准备中一次直接读取B文件的路径不存在，已按manifest原archive定位；一次只读元数据打印有括号SyntaxError，均在产品测试启动前且无资源，记于 `preparation-ready01.json`。本轮独立测试无首红。C阶段通过不代表整卡已接受，D真实harness/原生布局/权限终局仍须另冻、另授；原三项安全停止不变。

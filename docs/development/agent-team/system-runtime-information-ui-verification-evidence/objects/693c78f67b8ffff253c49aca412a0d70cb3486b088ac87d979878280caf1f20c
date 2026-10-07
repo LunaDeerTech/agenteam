@@ -1,0 +1,8 @@
+{
+  "source": "record_state01.py",
+  "source_sha256": "463db482b500bffbe3e82422181e7225fa73a915d05e14bc6554e02f6c515340",
+  "target": "record_page01.py",
+  "target_sha256": "54a5e76d07658ff0f8dac810743f5d4695c3dcb3d3d1bfabca5224b67d10cff9",
+  "diff_sha256": "11a222e7a5a0c0e4528a3c7d82e5143e53af02406eb17703ec48d9303b2a4ee0",
+  "semantics": "same 45s offline actual wait/subreaper/double cleanup; fixed accepted full web check closure and C candidates"
+}

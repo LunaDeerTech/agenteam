@@ -1,0 +1,85 @@
+{
+  "at_utc": "2026-10-07T06:44:20.116988+00:00",
+  "reviewer": "directory_frontend",
+  "run": "old-audit-navigation01",
+  "images": [
+    {
+      "file": "audit-dark-1024.png",
+      "sha256": "ba6f7bdeb542641b9af0e4b21cda551a2a848d1da4502e5f277d4fbc946544a0",
+      "bytes": 106490,
+      "width": 1024,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "audit-dark-1440.png",
+      "sha256": "9c9e19cad97d083faf5543203be48d47a7d05ac3f868c016334df0355180353a",
+      "bytes": 109536,
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "audit-dark-390.png",
+      "sha256": "5cc406a00528f68eeb4f2eb8d289e3a4e4bd6cb6f0c9bbf639b1c12b15aa76db",
+      "bytes": 54389,
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "audit-dark-768.png",
+      "sha256": "cd58c736fd43314c25821a6901719bb9775b777dac960754d5a89f2cbab04d1e",
+      "bytes": 104000,
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "audit-light-1024.png",
+      "sha256": "b2ee058f84590ea2d22f45a59aaef8e4f846670fd6a7493784c5aa56bb99383d",
+      "bytes": 87811,
+      "width": 1024,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "audit-light-1440.png",
+      "sha256": "a6bc9fe9e41dcd1d14cdc2ab881a5dc4c487c0adbd85892485e0e89906a4e87c",
+      "bytes": 91174,
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": false
+    },
+    {
+      "file": "audit-light-390.png",
+      "sha256": "5b416a21c9135171ead893b4210710a275c55e63d0f6dcf3a69a205cd8dc1d16",
+      "bytes": 46470,
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": true
+    },
+    {
+      "file": "audit-light-768.png",
+      "sha256": "a67f96619ba41aa460bc5f3d7073a16167269a7de721b96ab4713ee91241566a",
+      "bytes": 81561,
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": false
+    }
+  ],
+  "author_review_scope": [
+    "audit-dark-1440.png",
+    "audit-light-390.png"
+  ],
+  "observations": {
+    "audit-light-390.png": "Scrolled viewport shows filter controls and audit-list card with readable wrapped fields, no visible horizontal overflow. It does not include the page top or complete row.",
+    "audit-dark-1440.png": "Sidebar ten-leaf navigation and inline detail fields are readable; labels/values remain aligned without visible horizontal overflow. Lower detail content extends below the viewport."
+  },
+  "conclusion": "No visual regression identified in these two affected representatives.",
+  "limits": [
+    "All eight original screenshots retained; only the two listed representatives were actually viewed by the author.",
+    "900px viewport captures, not full page; no claim about unpictured areas."
+  ],
+  "root_review": "No root review of these old-run images reported at record time."
+}

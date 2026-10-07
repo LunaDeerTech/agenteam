@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/@types",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/e2e/independent-runtime-information.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+  "env": {
+    "CI": "1",
+    "NO_COLOR": "1"
+  },
+  "inputs_path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/offline-inputs02.json",
+  "inputs_sha256": "0f49493f89c4bcb7b83815c415f8fc6099999deae2d599b7e7e893f16c3a6337",
+  "outer_limit_seconds": 45,
+  "outputs": [],
+  "run_name": "type01",
+  "scope": "No business test body/browser/listener/resource execution",
+  "task": "Runtime UI independent preparation; explicit offline grant required"
+}

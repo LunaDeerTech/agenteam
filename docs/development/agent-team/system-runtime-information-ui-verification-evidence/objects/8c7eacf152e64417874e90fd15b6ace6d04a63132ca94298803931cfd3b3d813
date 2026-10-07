@@ -1,0 +1,22 @@
+import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import ts from './workspace/web/node_modules/typescript/lib/typescript.js'
+const root = new URL('.', import.meta.url)
+const path = 'tests/account-captcha-web/e2e/system-audit.spec.ts'
+const before = readFileSync(new URL('runs/old-browser-type02/source/' + path, root), 'utf8')
+const after = readFileSync(new URL('workspace/' + path, root), 'utf8')
+const hash = (value) => createHash('sha256').update(value).digest('hex')
+function syntax(text) {
+  const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  if (source.parseDiagnostics.length) throw new Error('SYNTAX_ERROR')
+  function visit(node) {
+    const children = []
+    ts.forEachChild(node, (child) => { children.push(visit(child)) })
+    return [node.kind, typeof node.text === 'string' ? node.text : null, children]
+  }
+  return JSON.stringify(visit(source))
+}
+const a = syntax(before), b = syntax(after)
+const result = {before_sha256:hash(before),after_sha256:hash(after),syntax_tree_equal:a===b,syntax_sha256:hash(a),scope:'Only line wrap and optional argument trailing comma on the already changed count10 assertion; positions/trivia/NodeArray.hasTrailingComma are excluded, all AST child kinds and identifier/literal texts are retained.',resource_execution:false}
+console.log(JSON.stringify(result,null,2))
+if (a!==b) process.exitCode=1

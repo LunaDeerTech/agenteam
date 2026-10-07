@@ -1,0 +1,34 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 741383,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 741383,
+      "ppid": 741380,
+      "pgid": 741383,
+      "state": "R",
+      "starttime": "3217689"
+    },
+    {
+      "pid": 741426,
+      "ppid": 741383,
+      "pgid": 741383,
+      "state": "R",
+      "starttime": "3217722"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-runtime-ui-app-offline-2h_syx01",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

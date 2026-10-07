@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：System 运行信息只读 UI 三十五路径接受
+
+- 产品已独立验收、主线程采纳并提交推送 `e1f8cefbeaf3203c4e0388f9ea9dbf11e2e2959b`，核远端一致；[验证报告](system-runtime-information-ui-verification.md)与[工作卡](../work-items/d27-system-runtime-information-ui.md)记录 35 路径交付。1079 原件路径归档为 610 新对象并复用固定 Git，35 源路径/53 保存版本、42 dist 指纹和 24 图可追溯。
+- 作者原 read01/read02 两轮 FAIL 保留；read03、navigation01、旧 Audit/Outbound 导航四组最终通过。独立两 top 同轮 actual0/118.972s、7 IDs/136 PID/8 adopted waits 双清；原 mount 顺序差量按完整多重集合核同，历史僵尸不倒填回收。原 1875/check 与后续测试差量复用分列，非最终全量重跑。
+- 作者实际图审 12 张、主线程仅新 light390/dark768 两张；全部 900px 局部图。只读缓存、无探测/写口/轮询；旧规格历史与接续§1–36保留，见[接续§37](recovery-2026-10-06-continuation.md#37-system运行信息只读ui三十五路径接受)。完整 D08–D28/E01 未完、E01 未开始，Summary 待决、ready503 和 Object/tools/SPA publication 三停止不变。
+
 ## 2026-10-07：OpenAI Embeddings float wire规格接受与有限A阶段启动
 
 - [正式卡rev1](../work-items/d09-openai-embeddings-wire.md)已独立完整STATIC PASS、主线程采纳并提交推送`15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597`，核远端一致；[规格报告](openai-embeddings-wire-spec-verification.md)保存27逻辑原件/26对象，作者31项Git输入与独审追加1项分列，技术`1320107d…53133`保持。

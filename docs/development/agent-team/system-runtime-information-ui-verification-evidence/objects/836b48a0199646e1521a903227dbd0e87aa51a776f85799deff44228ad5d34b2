@@ -1,0 +1,38 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "/usr/bin/env",
+    "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/list-only-private",
+    "AGENTEAM_AUTH_WEB_CHROMIUM=/list-only/no-browser",
+    "AGENTEAM_RUNTIME_INFORMATION_WEB_CASE=read",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node_modules/playwright/cli.js",
+    "test",
+    "--config",
+    "system-runtime-information.config.js",
+    "--list"
+  ],
+  "child_pid": 752447,
+  "cwd": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/tests/account-captcha-web",
+  "duration_seconds": 0.964,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T05:33:09.992365+00:00",
+  "input_after_sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85",
+  "input_before_sha256": "bd76a96075bcf29d16efcd025daee7f07d4d87f220f3e25abaa0b99698198b85",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "ca8af5bb2b0178050e3f9682b8c98a7a660ba1bedd65adeb2726fafdb848b93c",
+  "readonly_dependencies_unchanged": true,
+  "resource_execution": false,
+  "runner_sha256": "265086132322425360337c0b142a2fd513c8827757bd476d5dd95b407fb51c66",
+  "started_at_utc": "2026-10-07T05:33:09.028122+00:00",
+  "timed_out": false
+}

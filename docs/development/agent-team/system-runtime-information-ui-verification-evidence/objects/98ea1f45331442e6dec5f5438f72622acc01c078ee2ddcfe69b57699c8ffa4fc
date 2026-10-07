@@ -1,0 +1,76 @@
+{
+  "baseline_resources_not_inspected": true,
+  "driver_reuse_proposal": {
+    "narrow_changes": [
+      "fixed a0e73bd product binding, four selector groups, Runtime run prefix/labels",
+      "34 candidates/42 dist and final accepted runtime closure manifest",
+      "pin Node PATH for fixture executable to the locked Node/Playwright graph"
+    ],
+    "sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62",
+    "source": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/driver01.py",
+    "unchanged_supervision": [
+      "actual Popen wait and adopted-child wait",
+      "nonce/exact IDs and PID/starttime",
+      "two cleanup scans and source/dist/tool before-after gate",
+      "Mounts compare as full-object multiset; retain raw snapshots and canonical diffs",
+      "fresh 2-container/4-network baseline; never reuse old IDs",
+      "fresh >=5GiB before execution"
+    ]
+  },
+  "dynamic_builds_not_run": true,
+  "evidence_limits": [
+    "proxy held/cut body follows formal upstream EOF/Close; no backend transaction-tail/health probe claim",
+    "synthetic pageshow invokes production listener, not BFCache",
+    "C covers controlled native owner waiting/retirement; this future real pair will prove browser/HTTP/actual proxy tail only",
+    "no new target/health/readyz/diagnostics request; no fake successful DTO"
+  ],
+  "expected_owned_resources_per_group": 7,
+  "future_individual_groups": {
+    "navigation": [
+      "TestAccountSystemRuntimeInformationWebNavigationAndLifecycle"
+    ],
+    "old-audit-navigation": [
+      "TestAccountSystemAuditWebNavigationAndLayouts"
+    ],
+    "old-outbound-navigation": [
+      "TestAccountSystemOutboundPolicyWebNavigationAndLayouts"
+    ],
+    "read": [
+      "TestAccountSystemRuntimeInformationWebReadAndAuthority"
+    ]
+  },
+  "limits": {
+    "browser_retries": 0,
+    "browser_seconds": 45,
+    "browser_workers": 1,
+    "count": 1,
+    "offline_command_seconds": 45,
+    "package_seconds": 360,
+    "race": true,
+    "top_seconds": 120
+  },
+  "product_base": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "runtime_closure_pending": [
+    "scripts/test-security.sh and every invoked script/fixture/helper command from fixed product",
+    "actual Go package graph compiled/executed by that script, not just tests/account",
+    "TestMain dynamic cmd/agenteam and cmd/agenteam-runner non-test recursion/embed",
+    "tests/testsupport/smtp/cmd/server non-test recursion/embed (fixed accepted dynamic target; not an SMTP-resource claim for these four selected tops)"
+  ],
+  "screenshots": {
+    "full_page": false,
+    "height": 900,
+    "matrix": [
+      "light",
+      "dark"
+    ],
+    "review_requirement": "author must actually view all 8 after authorized real navigation; no current visual acceptance",
+    "widths": [
+      390,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "smtp_pair_required": false,
+  "status": "offline harness ready for independent static review; no resource authorization or executable driver created"
+}

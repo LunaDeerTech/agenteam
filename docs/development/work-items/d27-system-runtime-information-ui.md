@@ -1,6 +1,6 @@
 # D27：System 运行信息只读页面
 
-修订：rev2。状态：规格已独立完整STATIC PASS、主线程采纳并提交推送`2aceadfef6e7a214bc631822317ccf4283bcabc0`，核远端一致；[永久规格记录](../agent-team/system-runtime-information-ui-spec-verification.md)保存受审输入与计划。唯一前端已实际启动API A三源私有实施/离线自测；owner/page/harness/README尚未开始，独立仅计划冻结，无独立实现接受或真实资源。本页首不表示产品验收通过。
+修订：rev2。状态：本卡35路径已独立验收、主线程采纳并提交推送 `e1f8cefbeaf3203c4e0388f9ea9dbf11e2e2959b`，核远端一致。[永久产品验证记录](../agent-team/system-runtime-information-ui-verification.md)保存阶段复用、原两轮真实失败、四组作者最终通过与两组独立同轮 actual0/118.972s、双清及局部图审范围；README第35路径已随产品交付。[永久规格记录](../agent-team/system-runtime-information-ui-spec-verification.md)保留当时审查与计划。下列技术§1–7及候选时态原文保持，当前产品接受状态以本页首和产品报告为准；不表示完整D27/D28/E01或三项停止任务完成。
 
 固定完整产品/源码输入 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`：Runtime HTTP十四路径结果已在 `9b074f809df4603923faa68d963cb30a5fe4d7eb` 独立接受，Audit UI三十六路径结果已在 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1` 独立接受；均经主线程提交推送。现从这个固定Git读取实际签名、路由、菜单、测试与HTTP契约，不再消费待验阶段副本或活动归档。Runtime HTTP技术 SHA `aeb4222baf0e2d4547abf13277dc7789f4157e8c3d98843c73377e00d31d2bab` 保持。
 

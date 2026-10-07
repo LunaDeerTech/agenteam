@@ -1,0 +1,15 @@
+--- record_page01.py
++++ record_navigation01.py
+@@ -10,10 +10,10 @@
+  expected={p:row['sha256'] for p,row in prep['fixed_files'].items() if p not in FILES}
+  expected.update(prep['accepted_AB'])
+  actual={p:sha(W/p) for p in expected}
+- tools=json.loads((S/'tools-page01.json').read_text())
++ tools=json.loads((S/'tools-navigation01.json').read_text())
+  tool_actual={p:sha(Path(p)) for p in tools['files']}
+  config=sha(S/'page-stage.config.ts')
+- return {'all_exact':actual==expected and tool_actual==tools['files'] and config==tools['config_sha256'],'fixed_count':len(actual),'tools_count':len(tool_actual),'preparation_C_sha256':sha(S/'preparation-c01.json'),'tools_sha256':sha(S/'tools-page01.json'),'actual':actual,'tools_actual':tool_actual,'config_sha256':config}
++ return {'all_exact':actual==expected and tool_actual==tools['files'] and config==tools['config_sha256'],'fixed_count':len(actual),'tools_count':len(tool_actual),'preparation_C_sha256':sha(S/'preparation-c01.json'),'tools_sha256':sha(S/'tools-navigation01.json'),'actual':actual,'tools_actual':tool_actual,'config_sha256':config}
+ 
+ def snapshot():return {p:sha(W/p) for p in FILES if (W/p).is_file()}
+ p=argparse.ArgumentParser();p.add_argument('--name',required=True);p.add_argument('--cwd',default='workspace/web');p.add_argument('argv',nargs=argparse.REMAINDER);a=p.parse_args();r=S/'runs'/a.name;r.mkdir(parents=True,exist_ok=False)

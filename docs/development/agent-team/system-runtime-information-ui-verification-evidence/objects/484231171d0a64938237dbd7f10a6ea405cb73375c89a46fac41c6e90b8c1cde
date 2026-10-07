@@ -1,0 +1,9 @@
+# Runtime browser cancellation premise repair
+
+Only the Runtime browser spec changed: three cancellation/leave predicates retain `ended && !snapshot` without requiring native `done` to stay false; the read group additionally requires the exact error heading and no rendered snapshot. The observer implementation, original fetch/read/cancel Promises, hold and cut conditions, actual proxy join, explicit fresh 401/SESSION_REVOKED and identity assertions are unchanged.
+
+The original read01 actual exit 1 / 109.734 s and safe `ended=true,eof=true` failure remain frozen with the exact preimage. Its later 401/new-login assertions were not reached. Navigation's matching premise was found statically; no Navigation run has occurred.
+
+Offline checks: harness-type03 0/3.127 s; harness-format04 0/2.179 s; harness-list-read03 0/3.006 s and harness-list-navigation02 0/3.002 s, each listing exactly one test. execution-gate03 actual 0/2.198 s. Every command had actual child wait, unchanged recorded inputs and two empty owned-PID scans, with zero adopted waits. No Go compile, product build or real-resource execution was repeated.
+
+input03 changes only one candidate SHA and stage/time metadata. The other 33 candidates, 42 dist files, 957 accepted Git files, 2,892 external dependencies and driver are unchanged. All source writing and commands have stopped; read02 needs root authorization.

@@ -1,0 +1,17 @@
+{"combination":"A","strict_rejections":19,"helper_unchanged":true,"deep_frozen_detached":true,"fixed_get_without_mutation_material":true}
+(node:704396) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ A: strict immutable snapshot and narrow fixed wire agree with accepted runtime contract (27.801331ms)
+{"combination":"B","mode":"oversize","cancel_started":true,"native_read_ended":true,"actual_tail_joined":true,"lock_released":true}
+{"combination":"B","mode":"aborted-read","cancel_started":true,"native_read_ended":true,"actual_tail_joined":true,"lock_released":true}
+{"combination":"B","mode":"unread-media","cancel_started":true,"native_read_ended":false,"actual_tail_joined":true,"lock_released":true}
+{"combination":"B","eof_exact_bytes":16384,"overflow_bytes":16385,"malformed_utf8_rejected":true,"runtime_problem_600000_preserved":true,"old_success_budget_branches":[600000,1048576,2097152]}
+✔ B: 16KiB requires actual EOF and every native cancellation tail joins before return (18.066894ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 185.779077

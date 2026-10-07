@@ -1,0 +1,11 @@
+--- source01/independent-runtime-information.spec.ts
++++ source02/independent-runtime-information.spec.ts
+@@ -690,7 +690,7 @@
+     await expect(heading(page, "运行信息读取失败")).toBeVisible();
+     await noSnapshot(page);
+     await expect(heading(page, "运行信息")).toBeFocused();
+-    await factAfter(page, heldAfter, (f) => f.path === endpoint && f.status === 200 && f.ended && !f.eof && !f.snapshot);
++    await factAfter(page, heldAfter, (f) => f.path === endpoint && f.status === 200 && f.ended && !f.snapshot);
+     await joined();
+     await ipc("release");
+     await expect(button(page, "重新读取运行信息")).toBeEnabled();

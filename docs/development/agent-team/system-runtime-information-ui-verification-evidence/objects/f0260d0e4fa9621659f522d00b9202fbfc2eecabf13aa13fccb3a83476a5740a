@@ -1,0 +1,145 @@
+{
+  "status": "Independent PASS for frozen 34 source files; README final path is outside this source acceptance",
+  "author_input04": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input04/manifest.json",
+    "sha256": "1e41477c2810d5ba78e78021528f7048563ce43245c8de88e50ecb4973f9b9e7"
+  },
+  "files": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": {
+      "sha256": "dbe32ef20f1f2d3afdacbb78cfa66fa5e2544bcd16e7945a588b80b9eaa2c9b5",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-account-security.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-audit.spec.ts": {
+      "sha256": "634b25e67606412d188466f9c0636df1b02361bfd631329ae9be0f6c5f9316c2",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-audit.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": {
+      "sha256": "1e9c50919f90cb86db1239e929830faf4549037668a5dc31db4fbfae3cb1051e",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-invitations.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": {
+      "sha256": "c0f01fc54974ea2ffe3cd8be2c3c57dbc4cd3b5265c5fe6cd9b75ac255a328fc",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-model-selection.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-models.spec.ts": {
+      "sha256": "3a4a0d80e62838da11de9859ba79dba6905eaf6589366161e8e44b5d9efce473",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-models.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": {
+      "sha256": "761af119ace877ccafce0ae06ea994c19b92c4a21f60d2d3740ca06c6d3c5190",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": {
+      "sha256": "d1252dc547eaeaa763021ff0ccfd43e963234bc9b2924ca8777c8c93d5da0daf",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-providers.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": {
+      "sha256": "7989df08a4cf6e32a61e4341ca059826279ceae4e641c08ed1f02fd3e21831d8",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source/tests/account-captcha-web/e2e/system-runtime-information.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": {
+      "sha256": "9d822a309e13206b7fe5be749bf1c405eae5563786c806c6bba3e987c24b1ee4",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts"
+    },
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": {
+      "sha256": "65e1dd27035d9394a19dcb3d4ae53c6a0594743e2422e8028720aa2ce7f23f3d",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts"
+    },
+    "tests/account-captcha-web/system-runtime-information.config.js": {
+      "sha256": "cc98919ddb3ca76b4e5df9f078050427da573b2aaaf08d449ace39d921c5e373",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account-captcha-web/system-runtime-information.config.js"
+    },
+    "tests/account/system_runtime_information_web_fixture_test.go": {
+      "sha256": "218d66218871f5f088806565357ae28efdaf2146965818b393c305a75b3cadee",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account/system_runtime_information_web_fixture_test.go"
+    },
+    "tests/account/system_runtime_information_web_test.go": {
+      "sha256": "d0ff7c71af3cac638031507c9f3f502bfcacdec23335294ff8b40ce512a9b121",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/source/tests/account/system_runtime_information_web_test.go"
+    },
+    "web/src/api/client.ts": {
+      "sha256": "c7c894e8b9baf762823ea5c1b5385d4bf48b76aae33fa9890ad696494bb29526",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/api/client.ts"
+    },
+    "web/src/api/system-runtime-information.ts": {
+      "sha256": "7126e4a1d17260a6c8f467372f65f6d1749ffe7880a5d1099036fa8fc46254ec",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/api/system-runtime-information.ts"
+    },
+    "web/src/composables/useSession.ts": {
+      "sha256": "c3b4c9a18ac4d3601af6d4bed83d182d39dbe6734e2b89044c263c7bcf757ec1",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/owner-stage01/source/web/src/composables/useSession.ts"
+    },
+    "web/src/composables/useSystemRuntimeInformation.ts": {
+      "sha256": "729872b477e04375ee699ddbff833a58b3ada6534e7cb2ca415ac024ee2feb4d",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/owner-stage01/source/web/src/composables/useSystemRuntimeInformation.ts"
+    },
+    "web/src/router/auth.ts": {
+      "sha256": "bdc8db93bfd9222a5d1d079f2f6b868d0c00200edb892a517ae28e1f9f725715",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/router/auth.ts"
+    },
+    "web/src/router/index.ts": {
+      "sha256": "b38c47c9965fb22a0366e9af73137725d3648ce6f4ce786b5f5d6d059c9c71f0",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/router/index.ts"
+    },
+    "web/src/tests/personal-settings.spec.ts": {
+      "sha256": "81057f7de02d1676d2025fed4004a7dce63ea7d88c2adf97b47b1553bb565547",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/personal-settings.spec.ts"
+    },
+    "web/src/tests/system-account-security.spec.ts": {
+      "sha256": "3a5b4a7433be84fc4048b40ff368163b1cccce59e1c6dddc34b5a4c2dad9c5bd",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-account-security.spec.ts"
+    },
+    "web/src/tests/system-audit.spec.ts": {
+      "sha256": "6657b6121077caf0b210d990821db05a6faa8ed55ed1eb7fa46fb456de4e7342",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-audit.spec.ts"
+    },
+    "web/src/tests/system-invitations.spec.ts": {
+      "sha256": "1e957fb3d8290207eb080ba57148e59b62cd5861233a8f187af3b8ce8306b05d",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-invitations.spec.ts"
+    },
+    "web/src/tests/system-model-selection.spec.ts": {
+      "sha256": "ce3579d9cc4a6032f7469308f2696965e1f6bccb3d9eb8aba293cf6ebb7fb006",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-model-selection.spec.ts"
+    },
+    "web/src/tests/system-models.spec.ts": {
+      "sha256": "c93487eea21313da1198823786b50a97091ad3ef8d9193b96c95a6eb6cd950b5",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-models.spec.ts"
+    },
+    "web/src/tests/system-outbound-policy.spec.ts": {
+      "sha256": "7d29910fba4c54aa87bb1f105520a36832105d92908c4c013ce5d1ea1839ded5",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-outbound-policy.spec.ts"
+    },
+    "web/src/tests/system-providers.spec.ts": {
+      "sha256": "d8e5cbec1ae825972003cd8de28b7f09f2a1d98f02fcd8a83905fc251ca9dbd8",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-providers.spec.ts"
+    },
+    "web/src/tests/system-runtime-information-client.spec.ts": {
+      "sha256": "82047e045ee00a4110dea1c92a43a9ddf411e6dbe2eb334f04b41f90a21b5d6c",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/api-stage01/source/web/src/tests/system-runtime-information-client.spec.ts"
+    },
+    "web/src/tests/system-runtime-information-state.spec.ts": {
+      "sha256": "86751a17fdab31e388a4c97ea77fffc937ae49ebc3dac81583d910aaeac46215",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/owner-stage01/source/web/src/tests/system-runtime-information-state.spec.ts"
+    },
+    "web/src/tests/system-runtime-information.spec.ts": {
+      "sha256": "c991923b28057a9e8913bf6d8af4f4810df40a75bbca96744890043a3a7910d0",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-runtime-information.spec.ts"
+    },
+    "web/src/tests/system-smtp-settings.spec.ts": {
+      "sha256": "8f169fb62ce4c18cde17848914140401a71e73990dd239f3d1acf58e6ad0012e",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-smtp-settings.spec.ts"
+    },
+    "web/src/tests/system-user-directory.spec.ts": {
+      "sha256": "0b895b48f2f79cb08f11e03d723bef2129edeed0009f12bc1c57b18f44995f65",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/tests/system-user-directory.spec.ts"
+    },
+    "web/src/views/system/SystemRuntimeInformationView.vue": {
+      "sha256": "b0f67f59236b15584f2e688847dab1c016b9f84774de88d722a56799546f0150",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/views/system/SystemRuntimeInformationView.vue"
+    },
+    "web/src/views/system/SystemSettingsView.vue": {
+      "sha256": "e78bf2340485f185e3a2c40b7945d1c9f8a836845e33350f4465bf7a0bc38b66",
+      "source_path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/source/web/src/views/system/SystemSettingsView.vue"
+    }
+  }
+}

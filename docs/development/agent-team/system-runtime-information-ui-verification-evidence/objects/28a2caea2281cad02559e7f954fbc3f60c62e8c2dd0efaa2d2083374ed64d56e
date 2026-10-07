@@ -1,0 +1,68 @@
+{
+  "stage": "source preparation only; execution and final driver pending",
+  "author_harness": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/manifest.json",
+    "sha256": "88ab0e91abf1532f8a1e70839567d267345683b50c210f99d97c053417584275"
+  },
+  "author_final_input": "PENDING frozen input02; input01 is explicitly not accepted as final runtime closure",
+  "source_only_root": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+  "groups": {
+    "read": [
+      "TestIndependentRuntimeInformationCurrentProjection"
+    ],
+    "lifecycle": [
+      "TestIndependentRuntimeInformationCancellationAndSession"
+    ],
+    "both": [
+      "TestIndependentRuntimeInformationCurrentProjection",
+      "TestIndependentRuntimeInformationCancellationAndSession"
+    ]
+  },
+  "package": "./tests/account",
+  "expected_topology": "unchanged complete seven owned resources, no SMTP pair; exact topology inherited from final fixed author driver",
+  "future_go_overlay": {
+    "replace_exact_fixture": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account/system_runtime_information_web_fixture_test.go",
+    "add_test_top": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account/runtime_information_independent_test.go",
+    "actual_keys": "Resolved only to final frozen execution cwd after input02 is provided."
+  },
+  "browser": {
+    "config": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account-captcha-web/independent-runtime-information.config.js",
+    "testDir": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account-captcha-web/e2e",
+    "testMatch": "independent-runtime-information.spec.ts",
+    "modes": [
+      "independent-read",
+      "independent-lifecycle"
+    ],
+    "each_expected_list": 1,
+    "module_resolution": "Private node_modules link to final locked browser runtime will be created and fingerprinted only after final input02. No runtime source consulted now."
+  },
+  "driver_delta_allowed": [
+    "private root/default paths and final manifest reference",
+    "two exact new top selectors / no automatic original or extra groups",
+    "Go overlay argument and private input fingerprints/config binding",
+    "no cleanup/resource/timeout logic weakening"
+  ],
+  "unchanged_requirements": [
+    "Go1.27.1 readonly/offline",
+    "fresh disk >=5GiB and exact nonce IDs",
+    "full baseline Mounts raw/canonical comparison",
+    "PID/starttime and subreaper direct/adopted actualwait",
+    "double owned resource/PID cleanup and input before/after",
+    "browser45s/worker1/retry0",
+    "top2m/pkg6m/race/count1",
+    "absolute locked Python/Node/Playwright CLI"
+  ],
+  "dynamic_targets_to_bind": [
+    "cmd/agenteam",
+    "cmd/agenteam-runner",
+    "tests/testsupport/smtp/cmd/server"
+  ],
+  "not_authorized_now": [
+    "type",
+    "format command",
+    "Go compile/vet/list",
+    "Playwright discovery",
+    "driver gate execution",
+    "listeners or any business/resource test body"
+  ]
+}

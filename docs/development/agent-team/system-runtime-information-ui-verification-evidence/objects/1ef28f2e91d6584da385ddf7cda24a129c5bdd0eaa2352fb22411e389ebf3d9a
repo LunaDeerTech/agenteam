@@ -1,0 +1,13 @@
+//go:build integration
+
+package account_test
+
+import "testing"
+
+func TestIndependentRuntimeInformationCurrentProjection(t *testing.T) {
+	runRuntimeInformationWeb(t, "independent-read", "same_response_projection", "failed_read_clears", "explicit_new_read", "ordinary_http_forbidden", "ordinary_page_no_runtime_get", "zero_runtime_writes")
+}
+
+func TestIndependentRuntimeInformationCancellationAndSession(t *testing.T) {
+	runRuntimeInformationWeb(t, "independent-lifecycle", "native_cancel_read_ended", "proxy_actual_join", "busy_pageshow_no_session_read", "explicit_new_read", "idle_503_same_session_once", "retired_dom_disconnected", "current_page_native_focus", "zero_runtime_writes")
+}

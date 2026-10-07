@@ -1,0 +1,34 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 704390,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 704390,
+      "ppid": 704367,
+      "pgid": 704390,
+      "state": "S",
+      "starttime": "2879433"
+    },
+    {
+      "pid": 704396,
+      "ppid": 704390,
+      "pgid": 704390,
+      "state": "R",
+      "starttime": "2879437"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-audit-offline-oop5jssi",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

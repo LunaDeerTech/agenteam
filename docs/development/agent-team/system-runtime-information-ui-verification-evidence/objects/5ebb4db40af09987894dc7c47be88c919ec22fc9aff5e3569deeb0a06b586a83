@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/workspace/web/node_modules/@types",
+    "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/e2e/independent-runtime-information.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-runtime-independent-offline-b670sxul",
+    "GOTMPDIR": "/tmp/agt-runtime-independent-offline-b670sxul",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CI": "1",
+    "NO_COLOR": "1"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "a3cf9979fb288ece4496a081757b7dc0f9261f91fd53b6643eb21a1af6e72b2f",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 810666,
+  "actual_exit": 0,
+  "seconds": 1.1334649849959533,
+  "timeout": false
+}

@@ -1,0 +1,60 @@
+{
+  "status": "bounded PASS",
+  "report_md": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/verification-report.md",
+  "report_sha256": "4abf611ce02feccd0db6420dc12d9caf2f9608bfa0a2a8cefb2520dfd895eb38",
+  "input_manifest": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/web-stage01/manifest.json",
+  "input_manifest_sha256": "ddc91856eadae403e1f7d4e56421fc642f19b9fa8e1ea17c7de3da4f5446c755",
+  "execution": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/execution01.json",
+  "execution_sha256": "a28e16c85009ccd53c305a62e19327492062438e73e5fb456e1c134bfeb0218b",
+  "probe_sha256": "9ccd1ccb63cbacd320fc78b0910b9b1dafe66df6602081a63611eabdb9ff7e0e",
+  "actual_result": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 2.208941937002237,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "owned_processes_observed": 2,
+    "adopted_wait_count": 0,
+    "raw_sha256": "e5b49da93e433bb661881f5560ed49a5cbabd9b110af54c89ff0e01de09b2878",
+    "cleanup_sha256": "bd1c106845ec5910cdf201dfa383ff791c73a1dd3447ea11876a00d5ec5710ae"
+  },
+  "records": {
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/runs/app01/command.json",
+      "sha256": "8e3ef521bfbd39acc79abc09edf7d666f81d7f90c9a97159f69caa06703dfa84"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/runs/app01/raw.log",
+      "sha256": "e5b49da93e433bb661881f5560ed49a5cbabd9b110af54c89ff0e01de09b2878"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/runs/app01/result.json",
+      "sha256": "baa53f708d49f8054a8cb5254f5ca1f77ee86fa0c49ae9e0d7c3572623d86e0c"
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/runs/app01/cleanup.json",
+      "sha256": "bd1c106845ec5910cdf201dfa383ff791c73a1dd3447ea11876a00d5ec5710ae"
+    },
+    "input-before.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/runs/app01/input-before.json",
+      "sha256": "ea3db0997c404a385cc2142ae9fb456f954e915d6ba7798ce7cb107fd23217a2"
+    },
+    "input-after.json": {
+      "path": "/workspace/scratch/agenteam-runtime-ui-page-independent-jixabyh2/runs/app01/input-after.json",
+      "sha256": "ea3db0997c404a385cc2142ae9fb456f954e915d6ba7798ce7cb107fd23217a2"
+    }
+  },
+  "delivery30_sha256": "83c54212b7e92872c0e3fdaa2415411b15dd00e758de698a0e8617a22fdb1465",
+  "author_report_sha256": "5adbe0e78c77405067a51491fdc80e31f549bc9167908f43c936431cf02ca310",
+  "AB6_unchanged": true,
+  "static_old_test_files": 19,
+  "dynamic_tests": 2,
+  "dynamic_native_browser": false,
+  "HTTP_services_started": false,
+  "main_or_git_changes": false,
+  "author_auxiliary_scripts_preexecution_fingerprint_gap_preserved": true,
+  "scope": "C only; all native focus/layout/resource evidence pending D"
+}

@@ -1,0 +1,11 @@
+--- private-driver01
++++ private-driver02
+@@ -247,7 +247,7 @@
+     if sum(row['kind']=='container' for row in baseline.values()) != 2 or sum(row['kind']=='network' for row in baseline.values()) != 4:
+         raise RuntimeError('current pre-run resource baseline is not the required two containers/four networks')
+     env = os.environ.copy()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(ROOT / 'overlay01.json')
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(ROOT / 'overlay02.json')
+     env.update({'PATH': '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin',
+                 'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',

@@ -1,0 +1,15 @@
+# Runtime UI D 四源独立静审
+
+结论：**STATIC PASS**。完整读四个新增源、冻结差量、计划与报告，未发现需要返修的静态阻断。仅可继续完整运行闭包/driver 准备，当前没有资源授权或独立动态结果。
+
+固定输入：`/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/manifest.json`，SHA `88ab0e91abf1532f8a1e70839567d267345683b50c210f99d97c053417584275`；差量 `e5553f99642aa17ebbdecb16c3cc1194d2f885a4c9b5b4912a92694b3321d82f`；有限来源及实核结果见 [input01.json](input01.json)。四源实际字节、已接受 C 的 30 源和 42 dist 均符合冻结 SHA；5 个必要正式 Git 来源取固定 `a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`，不消费活动工作区。
+
+正式 `app.Run` 使用原 monitor/cache 与 Account 配置；普通账号通过正式 Invitation/inspect/redeem/Login 建立。Logout 使用捕获的精确 Session Cookie/CSRF、合法空 JSON 与 Content-Type，严格 204/EOF/Close/空体后以只读 SQL 核 revoked/logout 与唯一 Audit；显式 text/uuid 参数符合正式字段。未直接写数据库或制造成功 DTO。
+
+原生观察器返回原 fetch Promise、原 Response/reader 及原 read Promise，不 clone、tee、二次消费或替换 cancel。只在实际 EOF 后投影有限字段；same-GET UI 比对四分区、四时间与版本。其观测 shape 检查不替代已验完整 API 解析。503 明确是非 JSON 失败；hold/cut 使用正式上游完整 EOF/Close 后保存的原响应字节，cut 保留原长度并截断连接。取消检验 native read 结束、held/joined 和 server handler 计数，不把此代理尾部等同于后台事务或健康探针。
+
+两 browser 主体覆盖普通用户权限、精确 Logout 后 401、新身份/bare-login 或精确 return 分支，及 10 叶/4 组/第 14 return、busy pageshow 不检查、idle 503 后同身份显式恢复一次读取、取消/离页、原生焦点/Drawer 和 8 个部分视口布局。凭据仅私有文件；错误日志屏蔽私有材料。新 top 各 2m、browser 45s/1 worker/0 retry；包 6m/race/count1 与两旧精确 Audit/Outbound selector 已在计划限定。浏览器进程实际 Wait、代理/root 清理都有显式等待分支；未来 driver 必须补 exact ID/PID-start/subreaper 实际 wait 与双扫，不能由静态推定发生。
+
+作者冻结记录显示最终 type/read-list/nav-list/format、race 编译（35.393s）和 vet（15.928s）通过；这里未复跑。编译产物未执行，439 Account Go 编译输入加 160 C 依赖不是完整 runtime 闭包。driver 目前只有 proposal，须后续绑定 TestMain 动态构建 target、脚本包图、工具、34 源/42 dist 和资源基线后再审。最初 recorder 相对 dist 路径错误属 pre-spawn 准备失败，独立 raw 缺失按原限制保留，不补造成业务失败或动态通过。格式改动的 input_unchanged=false 原轮也保持。
+
+限制：本次无产品测试、构建、listener、浏览器、PG、Docker 或 Object 生命周期执行；布局/native focus/真实取消与最终资源清零尚待授权实际轮。A/B/C 已接受证据按同源复用，不扩旧矩阵或停止任务。

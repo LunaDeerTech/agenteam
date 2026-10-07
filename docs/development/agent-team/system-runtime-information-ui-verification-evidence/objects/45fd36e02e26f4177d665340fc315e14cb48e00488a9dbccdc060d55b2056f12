@@ -1,0 +1,660 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/app"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+)
+
+// The formal app.Run cache is the only Runtime source. The proxy may hold or
+// truncate one exact Runtime response only after its upstream EOF/Close; that
+// owned response tail is not a database transaction or a new health probe.
+const runtimeInformationWebPath = "/api/v1/system/runtime-information"
+
+type runtimeInformationWebSession struct{ cookie, csrf, user string }
+type runtimeInformationWebFixture struct {
+	*authenticationWebFixture
+	setup                                                        *personalWebFixture
+	mode                                                         string
+	admin, member                                                personalWebCredential
+	adminClient, memberClient                                    *http.Client
+	csrf, memberCSRF                                             string
+	sessions                                                     map[string]runtimeInformationWebSession
+	mu                                                           sync.Mutex
+	hold, cut                                                    bool
+	release                                                      chan struct{}
+	releaseOnce                                                  sync.Once
+	held, joined, cuts                                           int
+	failSession, failRead                                        atomic.Bool
+	sessionFailures, readFailures, serverStarted, serverFinished atomic.Int64
+}
+type runtimeInformationWebCut struct {
+	header http.Header
+	prefix []byte
+	length int
+}
+
+func (*runtimeInformationWebCut) Error() string {
+	return "owned Runtime response intentionally truncated"
+}
+
+// This single body is read by the original ReverseProxy. Upstream has already
+// ended. No additional request, clone, backend hook or invented DTO is involved.
+type runtimeInformationWebHeldBody struct {
+	data    []byte
+	offset  int
+	ctx     context.Context
+	release <-chan struct{}
+	joined  func()
+	once    sync.Once
+}
+
+func (b *runtimeInformationWebHeldBody) Read(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	}
+	if b.offset >= len(b.data) {
+		return 0, io.EOF
+	}
+	prefix := len(b.data) / 2
+	if b.offset >= prefix {
+		select {
+		case <-b.ctx.Done():
+			return 0, b.ctx.Err()
+		case <-b.release:
+		}
+	}
+	end := len(b.data)
+	if b.offset < prefix {
+		end = prefix
+	}
+	n := copy(p, b.data[b.offset:end])
+	b.offset += n
+	return n, nil
+}
+func (b *runtimeInformationWebHeldBody) Close() error {
+	b.once.Do(func() { clear(b.data); b.data = nil; b.joined() })
+	return nil
+}
+
+func (f *runtimeInformationWebFixture) controlResponse(response *http.Response) error {
+	r := response.Request
+	if r == nil || r.Method != "GET" {
+		return nil
+	}
+	if r.URL.Path == "/api/v1/session" && response.StatusCode == 200 {
+		raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
+		closed := response.Body.Close()
+		defer clear(raw)
+		var value struct {
+			User struct {
+				ID string `json:"id"`
+			} `json:"user"`
+			Session struct {
+				ID string `json:"id"`
+			} `json:"session"`
+			CSRF string `json:"csrf_token"`
+		}
+		if err != nil || closed != nil || len(raw) > 600000 || json.Unmarshal(raw, &value) != nil || value.Session.ID == "" || value.CSRF == "" {
+			return errors.New("owned Session observation invalid")
+		}
+		f.mu.Lock()
+		f.sessions[value.Session.ID] = runtimeInformationWebSession{cookie: r.Header.Get("Cookie"), csrf: value.CSRF, user: value.User.ID}
+		f.mu.Unlock()
+		response.Body = io.NopCloser(bytes.NewReader(append([]byte(nil), raw...)))
+		return nil
+	}
+	if r.URL.Path != runtimeInformationWebPath || response.StatusCode != 200 {
+		return nil
+	}
+	f.mu.Lock()
+	hold, cut, release := f.hold, f.cut, f.release
+	if hold {
+		f.hold = false
+		f.held++
+	}
+	if cut {
+		f.cut = false
+		f.cuts++
+	}
+	f.mu.Unlock()
+	if !hold && !cut {
+		return nil
+	}
+	raw, err := io.ReadAll(io.LimitReader(response.Body, 16385))
+	closed := response.Body.Close()
+	if err != nil || closed != nil || len(raw) > 16384 || len(raw) < 2 {
+		clear(raw)
+		return errors.New("owned control requires complete formal Runtime response")
+	}
+	if cut {
+		defer clear(raw)
+		return &runtimeInformationWebCut{header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
+	}
+	response.Body = &runtimeInformationWebHeldBody{data: raw, ctx: r.Context(), release: release, joined: func() { f.mu.Lock(); f.joined++; f.mu.Unlock() }}
+	response.ContentLength = int64(len(raw))
+	return nil
+}
+func (f *runtimeInformationWebFixture) private(name string, value any) {
+	raw, err := json.Marshal(value)
+	if err != nil {
+		f.t.Fatal("private Runtime information IPC encoding failed")
+	}
+	defer clear(raw)
+	file := filepath.Join(f.directory, name)
+	if os.WriteFile(file+".tmp", raw, 0600) != nil || os.Rename(file+".tmp", file) != nil {
+		f.t.Fatal("private Runtime information IPC transfer failed")
+	}
+}
+
+func (f *runtimeInformationWebFixture) releaseRead() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.release != nil {
+		f.releaseOnce.Do(func() { close(f.release) })
+	}
+}
+
+func (f *runtimeInformationWebFixture) official(ctx context.Context, client *http.Client, method, path string, body any, csrf string, status int) map[string]any {
+	var reader io.Reader
+	raw, err := json.Marshal(body)
+	if err != nil {
+		f.t.Fatal("owned formal body encoding failed")
+	}
+	defer clear(raw)
+	if body != nil {
+		reader = bytes.NewReader(raw)
+	}
+	request, err := http.NewRequestWithContext(ctx, method, f.origin+path, reader)
+	if err != nil {
+		f.t.Fatal("owned formal request invalid")
+	}
+	request.Header.Set("Origin", f.origin)
+	request.Header.Set("Sec-Fetch-Site", "same-origin")
+	if body != nil {
+		request.Header.Set("Content-Type", "application/json")
+	}
+	if method != "GET" {
+		request.Header.Set("X-CSRF-Token", csrf)
+		request.Header.Set("Idempotency-Key", id[struct{}](f.t).String())
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		f.t.Fatal("owned formal HTTP failed")
+	}
+	data, readErr := io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+	closeErr := response.Body.Close()
+	defer clear(data)
+	if response.StatusCode != status || readErr != nil || closeErr != nil || len(data) > 1<<20 {
+		f.t.Fatalf("owned formal HTTP terminal mismatch method=%s status=%d expected=%d", method, response.StatusCode, status)
+	}
+	if status == 204 {
+		if len(data) != 0 {
+			f.t.Fatal("owned empty receipt mismatch")
+		}
+		return nil
+	}
+	var value map[string]any
+	if json.Unmarshal(data, &value) != nil {
+		f.t.Fatal("owned formal JSON invalid")
+	}
+	return value
+}
+
+func (f *runtimeInformationWebFixture) loginAs(ctx context.Context, who personalWebCredential) (*http.Client, string) {
+	client := f.setup.setupClient()
+	anon := f.official(ctx, client, "GET", "/api/v1/auth/bootstrap", nil, "", 200)
+	f.official(ctx, client, "POST", "/api/v1/sessions/login", map[string]string{"email": who.Email, "password": who.Password}, httpString(f.t, anon, "csrf_token"), 200)
+	current := f.official(ctx, client, "GET", "/api/v1/session", nil, "", 200)
+	if httpString(f.t, httpObject(f.t, current, "user"), "id") != who.UserID {
+		f.t.Fatal("owned formal login identity mismatch")
+	}
+	return client, httpString(f.t, current, "csrf_token")
+}
+
+func newRuntimeInformationWebFixture(t *testing.T, ctx context.Context, mode string) *runtimeInformationWebFixture {
+	f := &runtimeInformationWebFixture{mode: mode, sessions: map[string]runtimeInformationWebSession{}}
+	f.authenticationWebFixture = newRuntimeInformationWebRoot(t, ctx, f)
+	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
+	f.adminClient, f.csrf = f.loginAs(ctx, f.admin)
+	f.member = f.setup.inviteMember(ctx, f.adminClient, f.csrf, "runtime-owned-member@example.com", "runtime-member")
+	f.memberClient, f.memberCSRF = f.loginAs(ctx, f.member)
+	f.private("runtime-information-material.json", map[string]any{"admin": f.admin, "member": f.member})
+	t.Cleanup(func() {
+		f.releaseRead()
+		for _, secret := range []string{f.admin.Password, f.member.Password, f.csrf, f.memberCSRF} {
+			if secret != "" && f.log.contains(secret) {
+				t.Error("Runtime setup material escaped restricted transfer")
+			}
+		}
+		f.mu.Lock()
+		clear(f.sessions)
+		f.mu.Unlock()
+		f.admin.Password, f.member.Password, f.csrf, f.memberCSRF = "", "", "", ""
+	})
+	return f
+}
+
+type runtimeInformationWebIPC struct {
+	Sequence  int    `json:"sequence"`
+	Action    string `json:"action"`
+	SessionID string `json:"session_id"`
+}
+
+func (f *runtimeInformationWebFixture) ipc(ctx context.Context, r runtimeInformationWebIPC) map[string]any {
+	value := map[string]any{"sequence": r.Sequence, "ok": true}
+	switch r.Action {
+	case "arm-hold", "arm-cut":
+		f.mu.Lock()
+		if f.hold || f.cut || f.held != f.joined {
+			f.mu.Unlock()
+			f.t.Fatal("owned Runtime response control overlap")
+		}
+		if r.Action == "arm-hold" {
+			f.hold = true
+			f.release = make(chan struct{})
+			f.releaseOnce = sync.Once{}
+		} else {
+			f.cut = true
+		}
+		f.mu.Unlock()
+	case "release":
+		f.releaseRead()
+	case "counts":
+		f.mu.Lock()
+		value["held"], value["joined"], value["cuts"] = f.held, f.joined, f.cuts
+		f.mu.Unlock()
+		value["session_failures"], value["read_failures"] = f.sessionFailures.Load(), f.readFailures.Load()
+		value["server_started"], value["server_finished"] = f.serverStarted.Load(), f.serverFinished.Load()
+	case "session-fail":
+		f.failSession.Store(true)
+	case "read-fail":
+		f.failRead.Store(true)
+	case "permissions":
+		problem := f.official(ctx, f.memberClient, "GET", runtimeInformationWebPath, nil, "", 403)
+		if problem["code"] != "FORBIDDEN" {
+			f.t.Fatal("formal ordinary Runtime rejection mismatch")
+		}
+		value["ordinary_forbidden"] = true
+	case "logout":
+		f.mu.Lock()
+		session, ok := f.sessions[r.SessionID]
+		f.mu.Unlock()
+		if !ok || session.user != f.admin.UserID || session.cookie == "" {
+			f.t.Fatal("exact owned browser Session unavailable")
+		}
+		request, err := http.NewRequestWithContext(ctx, "POST", f.origin+"/api/v1/sessions/logout", strings.NewReader(`{}`))
+		if err != nil {
+			f.t.Fatal("owned Logout request invalid")
+		}
+		request.Header.Set("Cookie", session.cookie)
+		request.Header.Set("Origin", f.origin)
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Sec-Fetch-Site", "same-origin")
+		request.Header.Set("X-CSRF-Token", session.csrf)
+		request.Header.Set("Idempotency-Key", id[struct{}](f.t).String())
+		transport := &http.Transport{Proxy: nil}
+		client := &http.Client{Transport: transport, Timeout: 10 * time.Second}
+		response, err := client.Do(request)
+		if err != nil {
+			transport.CloseIdleConnections()
+			f.t.Fatal("formal exact browser Logout failed")
+		}
+		raw, e := io.ReadAll(io.LimitReader(response.Body, 600001))
+		closeErr := response.Body.Close()
+		transport.CloseIdleConnections()
+		complete := response.StatusCode == 204 && e == nil && closeErr == nil && len(raw) == 0
+		clear(raw)
+		if !complete {
+			f.t.Fatal("formal exact browser Logout terminal mismatch")
+		}
+		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+		var revoked bool
+		var audits int
+		err = conn.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND revoked_reason='logout',(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='account.logout' AND metadata->>'session_id'=$1::text AND outcome='success') FROM agenteam_account.sessions WHERE id=$1::uuid AND user_id=$2`, r.SessionID, session.user).Scan(&revoked, &audits)
+		closeConnection()
+		if err != nil || !revoked || audits != 1 {
+			f.t.Fatalf("formal exact Session Logout facts missing: err_present=%t revoked=%t audit_count=%d", err != nil, revoked, audits)
+		}
+		value["revoked"], value["logout_audit"] = true, true
+	default:
+		f.t.Fatal("owned Runtime IPC action rejected")
+	}
+	return value
+}
+func (f *runtimeInformationWebFixture) browserRuntimeInformation(ctx context.Context) map[string]any {
+	root, err := filepath.Abs("../account-captcha-web")
+	if err != nil {
+		f.t.Fatal("locked browser root unavailable")
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/independent-runtime-information.config.js")
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_RUNTIME_INFORMATION_WEB_") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_RUNTIME_INFORMATION_WEB_CASE="+f.mode, "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("owned Runtime information image directory must be absolute")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if cmd.Start() != nil {
+		f.t.Fatal("locked Runtime information browser runner could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		f.releaseRead()
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		cmd.Env = nil
+	}()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	sequence := 0
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-tick.C:
+			raw, e := os.ReadFile(filepath.Join(f.directory, "runtime-information-ipc.json"))
+			if errors.Is(e, os.ErrNotExist) {
+				continue
+			}
+			var request runtimeInformationWebIPC
+			decode := json.Unmarshal(raw, &request)
+			clear(raw)
+			if e != nil || decode != nil || request.Sequence < 1 || request.Sequence > 128 {
+				f.t.Error("private Runtime information IPC rejected")
+				_ = cmd.Cancel()
+				continue
+			}
+			if request.Sequence <= sequence {
+				continue
+			}
+			if request.Sequence != sequence+1 {
+				f.t.Error("private Runtime information sequence invalid")
+				_ = cmd.Cancel()
+				continue
+			}
+			reply := f.ipc(ctx, request)
+			sequence = request.Sequence
+			f.private("runtime-information-ack-"+strconv.Itoa(sequence)+".json", reply)
+		}
+	}
+	// Browser assertions compare only safe booleans/counts. Do not publish its
+	// raw output until all private material and captured Session tokens are masked.
+	safe := output.String()
+	for _, secret := range []string{f.admin.Password, f.member.Password, f.admin.Email, f.member.Email, f.csrf, f.memberCSRF} {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Lock()
+	for sid, s := range f.sessions {
+		for _, secret := range []string{sid, s.cookie, s.csrf, s.user} {
+			if secret != "" {
+				safe = strings.ReplaceAll(safe, secret, "[redacted]")
+			}
+		}
+	}
+	f.mu.Unlock()
+	// Playwright can include a fill argument or an accessible-name locator in a
+	// failed action's call log. Retain the original error/line and safe booleans,
+	// but remove owned record/association IDs, timestamps and action arguments.
+	safe = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`).ReplaceAllString(safe, "[owned-id]")
+	safe = regexp.MustCompile(`sha256:[0-9a-f]{64}`).ReplaceAllString(safe, "[owned-digest]")
+	safe = regexp.MustCompile(`[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+(?:Z|[+-][0-9]{2}:[0-9]{2})`).ReplaceAllString(safe, "[owned-instant]")
+	lines := strings.Split(safe, "\n")
+	for n, line := range lines {
+		if strings.Contains(line, "filling ") || strings.Contains(line, "selectOption(") {
+			lines[n] = "[owned field argument omitted]"
+		}
+	}
+	safe = strings.Join(lines, "\n")
+	f.t.Log(safe)
+	if runErr != nil {
+		f.t.Fatalf("actual Runtime information production browser failed: %v", runErr)
+	}
+	raw, err := os.ReadFile(filepath.Join(f.directory, "runtime-information-result.json"))
+	if err != nil {
+		f.t.Fatal("safe Runtime information result missing")
+	}
+	defer clear(raw)
+	var result map[string]any
+	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
+		f.t.Fatal("safe Runtime information result invalid")
+	}
+	return result
+}
+func newRuntimeInformationWebRoot(t *testing.T, ctx context.Context, own *runtimeInformationWebFixture) *authenticationWebFixture {
+	t.Helper()
+	db := pgfixture.NewDatabase(t)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("owned frontend listener unavailable")
+	}
+	t.Cleanup(func() { _ = listener.Close() })
+	origin := "http://" + listener.Addr().String()
+	inputs := accountenv.New(t)
+	objects, err := objectfixture.Environment(ctx, db.Name)
+	if err != nil {
+		t.Fatal("owned object fixture unavailable")
+	}
+	values := inputs.Values()
+	for _, v := range objects {
+		k, value, _ := strings.Cut(v, "=")
+		values[k] = value
+	}
+	for k, v := range map[string]string{
+		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
+		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
+		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
+		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
+	} {
+		values[config.Prefix+k] = v
+	}
+	var environment []string
+	for k, v := range values {
+		environment = append(environment, k+"="+v)
+	}
+	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
+	if err != nil {
+		t.Fatal("owned root configuration invalid")
+	}
+	output := &httpFixtureLog{listening: make(chan string, 1)}
+	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rootCtx, cancel := context.WithCancel(ctx)
+	rootDone := make(chan error, 1)
+	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case err := <-rootDone:
+			if err != nil {
+				t.Error("full runtime-information root shutdown failed", err)
+			}
+		case <-time.After(5 * time.Second):
+			t.Error("full root did not join within its original shutdown budget")
+		}
+	})
+	var address string
+	select {
+	case address = <-output.listening:
+	case err := <-rootDone:
+		rootDone <- err
+		t.Fatal("full root initialization failed", err)
+	case <-ctx.Done():
+		t.Fatal("shared browser budget ended during root startup")
+	}
+	backend, err := url.Parse("http://" + address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport := &http.Transport{Proxy: nil}
+	proxy := httputil.NewSingleHostReverseProxy(backend)
+	proxy.Transport = transport // Preserve the original same-origin Host.
+	proxy.FlushInterval = -1    // Deliver the formal prefix before the controlled body tail.
+	proxy.ModifyResponse = own.controlResponse
+	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
+		var lost *runtimeInformationWebCut
+		if !errors.As(err, &lost) {
+			http.Error(w, "owned API unavailable", 502)
+			return
+		}
+		defer clear(lost.prefix)
+		for name, values := range lost.header {
+			w.Header()[name] = append([]string(nil), values...)
+		}
+		w.Header().Del("Transfer-Encoding")
+		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
+		w.Header().Set("Connection", "close")
+		w.WriteHeader(200)
+		_, _ = w.Write(lost.prefix)
+		_ = http.NewResponseController(w).Flush()
+		if hijacker, ok := w.(http.Hijacker); ok {
+			if conn, _, e := hijacker.Hijack(); e == nil {
+				_ = conn.Close()
+			}
+		}
+	}
+	root, err := filepath.Abs("../../web/dist")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
+		t.Fatal("formal production dist must be built before browser execution")
+	}
+	assets := http.FileServer(http.Dir(root))
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false) {
+			own.sessionFailures.Add(1)
+			http.Error(w, "owned bounded session read unavailable", 503)
+			return
+		}
+		if r.Method == "GET" && r.URL.Path == runtimeInformationWebPath && own.failRead.CompareAndSwap(true, false) {
+			own.readFailures.Add(1)
+			http.Error(w, "owned bounded Runtime read unavailable", 503)
+			return
+		}
+		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			if r.Method == "GET" && r.URL.Path == runtimeInformationWebPath {
+				own.serverStarted.Add(1)
+				defer own.serverFinished.Add(1)
+			}
+			proxy.ServeHTTP(w, r)
+			return
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "method unavailable", 405)
+			return
+		}
+		clean := filepath.Clean("/" + r.URL.Path)
+		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
+			assets.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		http.ServeFile(w, r, filepath.Join(root, "index.html"))
+	})}
+	serverDone := make(chan error, 1)
+	go func() { serverDone <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		if err := server.Shutdown(shutdown); err != nil {
+			t.Error("frontend server did not drain")
+			_ = server.Close()
+		}
+		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
+			t.Error("owned frontend server failed", err)
+		}
+		transport.CloseIdleConnections()
+	})
+	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
+		t.Fatal("explicit short task-owned browser runtime is required")
+	}
+	directory, err := os.MkdirTemp(runtimeRoot, "run-")
+	if err != nil {
+		t.Fatal("private browser runtime creation failed")
+	}
+	if err := os.Chmod(directory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(directory); err != nil {
+			t.Error("private browser runtime cleanup failed")
+		}
+		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
+			t.Error("private browser runtime still exists")
+		}
+	})
+	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
+	entry := old.record("bootstrap", "admin@mail.com", "")
+	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
+	if err != nil {
+		t.Fatal("private bootstrap encoding failed")
+	}
+	defer clear(material)
+	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
+		t.Fatal("private bootstrap transfer failed")
+	}
+	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
+	t.Cleanup(func() {
+		if output.contains(entry.Password) {
+			t.Error("bootstrap material escaped the restricted recovery log")
+		}
+	})
+	return f
+}

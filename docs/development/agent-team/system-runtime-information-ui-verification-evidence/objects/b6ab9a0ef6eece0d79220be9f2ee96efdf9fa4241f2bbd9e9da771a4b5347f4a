@@ -1,0 +1,57 @@
+{
+  "changed_source": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/source/tests/account-captcha-web/e2e/system-runtime-information.spec.ts",
+    "sha256": "8352368be00dbdbbaed3a5b0cb47383cb81de21d2c306f5b59a43d439f4b4e81"
+  },
+  "checks": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/checks.json",
+    "sha256": "ad8a9cf478b39cec2e6c40fce87404af7f001a287836fcb66c0ddebe9a70a6fe"
+  },
+  "files": {
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": "8352368be00dbdbbaed3a5b0cb47383cb81de21d2c306f5b59a43d439f4b4e81",
+    "tests/account-captcha-web/system-runtime-information.config.js": "cc98919ddb3ca76b4e5df9f078050427da573b2aaaf08d449ace39d921c5e373",
+    "tests/account/system_runtime_information_web_fixture_test.go": "218d66218871f5f088806565357ae28efdaf2146965818b393c305a75b3cadee",
+    "tests/account/system_runtime_information_web_test.go": "d0ff7c71af3cac638031507c9f3f502bfcacdec23335294ff8b40ce512a9b121"
+  },
+  "frozen_at_utc": "2026-10-07T06:16:06.984500+00:00",
+  "native_affected_read_and_navigation_not_rerun": true,
+  "origin": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/origin.json",
+    "sha256": "7c6f07bda310d356b0328f308b15718b74910065f30062447d9cb88fe638ed86"
+  },
+  "preserved_failure": {
+    "cleanup": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read01/cleanup.json",
+      "sha256": "5d2ba031521fe2f16239426865ca63e05bdeb6492d0053664667f182ffe0c628"
+    },
+    "raw": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read01/raw.log",
+      "sha256": "57e0274e90356e762908a4436292a347ac4d45030f5b601e347082335e915523"
+    },
+    "result": {
+      "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/runs/read01/result.json",
+      "sha256": "21c4d1db93e51f18f7c5aef4358370b4ca1568f0bbe4b17e6841ba7731701af1"
+    }
+  },
+  "previous_D": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage01/manifest.json",
+    "sha256": "88ab0e91abf1532f8a1e70839567d267345683b50c210f99d97c053417584275"
+  },
+  "previous_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input02/manifest.json",
+    "sha256": "877b85606cb3d30cdfab0007eba5b26ab995541169ce04f784296c1b66cd2179"
+  },
+  "product_base": "a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1",
+  "resource_execution": false,
+  "scope": "Test-only: three explicit cancel/leave predicates remove !eof but retain ended and !snapshot; read adds exact error heading/noSnapshot. Observer implementation unchanged; comment clarifies native done. Hold, cut, joins, 401 and identity checks remain.",
+  "source_diff": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage02/source.diff",
+    "sha256": "7849852cc0a7bcd62fc71e472d1d505f4a23a0c18f1291f095e1cb46dfff5745"
+  },
+  "unchanged_counts": {
+    "accepted_Git": 957,
+    "dist": 42,
+    "external_dependencies": 2892,
+    "other_candidate_sources": 33
+  }
+}

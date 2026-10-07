@@ -1,0 +1,13 @@
+# Runtime UI execution preparation — frozen
+
+No tests, test binaries, Central/Runner/SMTP servers, listeners, browser, PG, MinIO or Docker resources were started. Read-only Docker metadata inventory is separate from execution. D four sources and C thirty sources/forty-two dist files remain unchanged.
+
+The fixed script chain is test-security → test-objects → outbound fixture → test-postgres → its sixteen package roots (twenty package directories). The accepted import/embed graph and the three dynamic Central/Runner/SMTP server build targets are bound to a0e73bd: 797 Go/script/testdata files plus 160 C inputs, 957 accepted files in total. The final race-tag go list returned 458 package objects; all 783 local compilation inputs match the frozen source or fixed Git files. Twenty generated test-main metadata files are Go outputs, not invented accepted source.
+
+Actual offline results: race list exit0/1.802s; Central build exit0/2.009s, Runner exit0/1.463s, SMTP server exit0/1.734s. Every artifact was hashed, then removed without execution. Read-only baseline exit0/1.915s: two containers/four networks in both scans, complete Mount multiset comparison equal, free 6,281,617,408 → 6,281,605,120 bytes. Dry driver gate exit0/2.147s: all 34 candidates, 42 dist, 957 accepted files and 794 explicit-tool/locked Playwright/Chromium runtime file fingerprints match, no extra/missing paths. Each check has actual wait and two empty owned PID/starttime scans.
+
+The driver preserves the accepted Audit supervision, limits, nonce/resource ownership, direct/adopted waits and cleanup conditions. Its exact diff changes only product/group/prefix bindings, explicit Git/Docker/shell executables and the child PATH for the locked Node. The 794 fingerprints contain no dependency copies; they bind installed executables, Chromium launcher/runtime data, the three locked Playwright packages and their entry points.
+
+Preparation01's regex package false positive and the first assembler PATH assumption are retained as preparation failures before resources; their original output remains in the tool transcript and the scripts/notes are referenced. The final script tokenizes Go imports. Non-race list01 is retained; final list02 adds the actual race build mode. No previous evidence is rewritten.
+
+startup-plan01.json supplies exactly four individual group commands. Root approval is still required before resources, with a fresh disk threshold and full baseline at that time. This preparation does not imply live permission, visual/HTTP success, full D27 or production hosting.

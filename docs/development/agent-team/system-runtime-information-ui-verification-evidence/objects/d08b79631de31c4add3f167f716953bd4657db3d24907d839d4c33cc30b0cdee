@@ -1,0 +1,29 @@
+{
+  "changed_metadata": [
+    "frozen_at_utc",
+    "source_stages.D"
+  ],
+  "changed_sources": {
+    "tests/account-captcha-web/e2e/system-runtime-information.spec.ts": {
+      "after": "7989df08a4cf6e32a61e4341ca059826279ceae4e641c08ed1f02fd3e21831d8",
+      "before": "8352368be00dbdbbaed3a5b0cb47383cb81de21d2c306f5b59a43d439f4b4e81"
+    }
+  },
+  "new_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input04/manifest.json",
+    "sha256": "1e41477c2810d5ba78e78021528f7048563ce43245c8de88e50ecb4973f9b9e7"
+  },
+  "previous_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/input03/manifest.json",
+    "sha256": "08cdb619603e5b4bd21ff7ec8cd6582ef8e56d619b53010eb73ef542c453961f"
+  },
+  "source_diff": {
+    "path": "/workspace/scratch/agenteam-runtime-information-frontend-9mta6tmj/harness-stage03/source.diff",
+    "sha256": "bc02c9753eb0795e0d56367cf537e6089435f2b62694bcf472dfc1ba4613d9b7"
+  },
+  "unchanged_accepted_Git": 957,
+  "unchanged_dependencies": 2892,
+  "unchanged_dist": 42,
+  "unchanged_driver": "7eb0c66335e6440dd0f3887299a54d7d0f4fca1d45e627b9001bc12e92884c36",
+  "unchanged_other_sources": 33
+}

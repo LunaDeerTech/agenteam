@@ -1,0 +1,16 @@
+--- author/system-runtime-information.config.js
++++ private/independent-runtime-information.config.js
+@@ -13,11 +13,11 @@
+   url.origin !== origin
+ )
+   throw new Error("EXACT_OWNED_ORIGIN_REQUIRED");
+-if (!["read", "navigation"].includes(selected))
++if (!["independent-read", "independent-lifecycle"].includes(selected))
+   throw new Error("EXACT_RUNTIME_INFORMATION_CASE_REQUIRED");
+ export default defineConfig({
+   testDir: "./e2e",
+-  testMatch: "system-runtime-information.spec.ts",
++  testMatch: "independent-runtime-information.spec.ts",
+   grep: new RegExp(`\\[${selected}\\]`),
+   timeout: 45_000,
+   workers: 1,

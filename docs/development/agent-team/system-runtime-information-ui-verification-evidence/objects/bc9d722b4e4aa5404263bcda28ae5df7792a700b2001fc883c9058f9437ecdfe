@@ -1,0 +1,171 @@
+<script setup lang="ts">
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiState from '../../components/ui/UiState.vue'
+import { useSystemRuntimeInformation } from '../../composables/useSystemRuntimeInformation'
+import type { RuntimeInformationStatus } from '../../api/system-runtime-information'
+
+const runtime = useSystemRuntimeInformation(), state = runtime.state
+const heading = ref<HTMLElement | null>(null)
+let alive = true, focusGeneration = 0
+const current = (generation: number) => alive && runtime.isCurrent() && generation === focusGeneration
+const statuses: Record<RuntimeInformationStatus['status'], string> = {
+  available: '可用：服务端最近样本可用',
+  unavailable: '不可用：最近聚合检查未能确认可用',
+  stale: '样本陈旧：服务端判定样本已陈旧',
+}
+function focusHeading() {
+  if (heading.value?.isConnected) heading.value.focus()
+}
+async function refresh(event: Event) {
+  const own = ++focusGeneration, trigger = event.currentTarget
+  await runtime.refresh()
+  if (!current(own)) return
+  await nextTick()
+  if (!current(own)) return
+  if (trigger instanceof HTMLButtonElement && trigger.isConnected && !trigger.disabled)
+    trigger.focus()
+  else focusHeading()
+}
+async function cancel() {
+  const own = ++focusGeneration
+  runtime.cancel()
+  await nextTick()
+  if (current(own)) focusHeading()
+}
+onMounted(async () => {
+  const own = focusGeneration
+  await nextTick()
+  if (current(own)) focusHeading()
+})
+onBeforeRouteLeave(() => {
+  ++focusGeneration
+  runtime.leave()
+  return true
+})
+onBeforeUnmount(() => {
+  alive = false
+  ++focusGeneration
+  runtime.dispose()
+})
+</script>
+<template>
+  <div class="runtime-information">
+    <h1 ref="heading" tabindex="-1">运行信息</h1>
+    <p class="meta">读取服务端已记录的缓存快照。重新读取不会触发健康检查或修复，页面不会自动刷新。</p>
+    <div class="runtime-actions">
+      <UiButton :disabled="runtime.blocked.value" @click="refresh">重新读取运行信息</UiButton>
+      <UiButton v-if="runtime.reading.value" variant="ghost" @click="cancel">取消读取</UiButton>
+    </div>
+    <UiState v-if="state.phase === 'waiting'" kind="loading" title="等待读取运行信息"
+      description="正在等待上一请求实际结束。可以取消本次等待读取。" />
+    <UiState v-else-if="state.phase === 'loading'" kind="loading" title="正在读取运行信息" />
+    <UiState v-else-if="state.phase === 'error'" kind="error" title="运行信息读取失败"
+      :description="state.message" />
+    <UiState v-else-if="state.phase === 'forbidden'" kind="error" title="无权读取运行信息"
+      description="需要当前系统管理员权限。" />
+    <UiState v-else-if="state.phase === 'inactive'" kind="error" title="当前读取已停止"
+      description="请确认当前身份后重新进入本页。" />
+    <template v-else-if="state.phase === 'ready' && state.observation">
+      <p class="runtime-observed">本次观察时刻（UTC）：
+        <time :datetime="state.observation.observed_at">{{ state.observation.observed_at }}</time>
+      </p>
+      <div class="runtime-sections">
+        <section aria-labelledby="runtime-central-heading">
+          <h2 id="runtime-central-heading">Central</h2>
+          <p>未知：尚未记录构建版本</p>
+        </section>
+        <section aria-labelledby="runtime-database-heading">
+          <h2 id="runtime-database-heading">数据库</h2>
+          <p>{{ statuses[state.observation.database.status] }}</p>
+          <p class="meta">以下为最近成功检查记录的版本与时间，属于历史成功信息。</p>
+          <dl>
+            <dt>PostgreSQL</dt>
+            <dd class="runtime-version">{{ state.observation.database.last_success.postgresql_version }}</dd>
+            <dt>pgvector</dt>
+            <dd class="runtime-version">{{ state.observation.database.last_success.pgvector_version }}</dd>
+            <dt>最近成功检查完成时间（UTC）</dt>
+            <dd><time :datetime="state.observation.database.last_success.checked_at">{{ state.observation.database.last_success.checked_at }}</time></dd>
+            <dt>最近成功记录的 root 接收时间（UTC）</dt>
+            <dd><time :datetime="state.observation.database.last_success.received_at">{{ state.observation.database.last_success.received_at }}</time></dd>
+          </dl>
+        </section>
+        <section aria-labelledby="runtime-storage-heading">
+          <h2 id="runtime-storage-heading">对象存储（MinIO）聚合观测</h2>
+          <p>{{ statuses[state.observation.object_storage.status] }}</p>
+          <dl>
+            <dt>最近成功接收时间（UTC）</dt>
+            <dd><time :datetime="state.observation.object_storage.last_success_received_at">{{ state.observation.object_storage.last_success_received_at }}</time></dd>
+          </dl>
+          <p class="meta">未提供版本和逐项诊断。以上时间是历史成功记录。</p>
+        </section>
+        <section aria-labelledby="runtime-readiness-heading">
+          <h2 id="runtime-readiness-heading">就绪状态</h2>
+          <p>尚未就绪</p>
+          <p>{{ state.observation.readiness.safe_reason === 'DEPENDENCY_UNAVAILABLE'
+            ? '至少一项基础依赖不可用或样本陈旧。'
+            : '仍有必需运行能力未绑定。' }}</p>
+        </section>
+      </div>
+    </template>
+  </div>
+</template>
+<style scoped>
+.runtime-information {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  padding: var(--space);
+}
+.runtime-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.runtime-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.runtime-sections section {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.runtime-sections dl {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+}
+.runtime-sections dt {
+  color: var(--muted);
+}
+.runtime-sections dd {
+  min-width: 0;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.runtime-version {
+  white-space: pre-wrap;
+}
+.runtime-observed, .runtime-sections p, .runtime-sections h2, .runtime-sections time {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.runtime-information time {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .runtime-sections {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>

@@ -1,0 +1,31 @@
+{
+  "status": "FROZEN only authorized cancellation-predicate correction; all checks UNRUN; final author input03 binding pending",
+  "source01": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source/tests/account-captcha-web/e2e/independent-runtime-information.spec.ts",
+    "sha256": "ee4915e60a2ba6f7a35a2fcba4ff312af87e5341ea2047ae42929c569d62b108"
+  },
+  "source02": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source02/tests/account-captcha-web/e2e/independent-runtime-information.spec.ts",
+    "sha256": "9ce7e4662fd1f2a4572664168acff58904a1e3364a22196825fca50a9146113e"
+  },
+  "source_delta": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/probe01-to02.diff",
+    "sha256": "a0053bfd38471289c1c1d97f2c28253144a346076ad48a97f88cefebfe64dc04"
+  },
+  "source_freeze01": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/source-freeze01.json",
+    "sha256": "ac7146c9d1990c597e4415a3475d60130ec55e0fc825693be3d2a3cb5648f415"
+  },
+  "execution01": {
+    "path": "/workspace/scratch/agenteam-runtime-ui-real-independent-ao3yzohp/execution01.json",
+    "sha256": "b8bf872c9d64cffdf6b6b4b13b0931f232a341cccaf0891739768e813137867a",
+    "executed": false
+  },
+  "unchanged": [
+    "all copied helper/observer code",
+    "entire independent-read body",
+    "all other lifecycle actions/strong assertions",
+    "Go top file and author proxy/IPC logic"
+  ],
+  "next": "Bind private config/fixture/overlay paths and final author input03 once frozen; submit exact six offline commands; no execution grant"
+}
