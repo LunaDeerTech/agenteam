@@ -1,5 +1,10 @@
 # 团队任务台账
 
+## 2026-10-07：Summary S2/S3 规格接受与实施准备
+
+- [S2规格归档](system-meeting-summary-settings-spec-verification.md)绑定已接受并推送 `0b13445e5ad8dd1a430528cef559b5f4451ffeac`，rev1四项原问题/修订与rev2独审均保留；[S3规格归档](system-meeting-summary-resolution-spec-verification.md)对应规格 `bd94a184`、归档 `31c76610`，亦已接受推送。规格通过不等于产品验收。
+- S3 `next_frontier` 16路径、S2后端 `fixture_recovery` #1–13及前端/browser `usage_backend` #14–29均已实际ACK并开始源编辑/格式/准备，S3四contract封闭包离线Go list/pure及race compile/run/vet窗口已单独授权并实际进行、尚未接受；S2 Go、S3 model/app/integration/runtime执行、真实资源与README末件仍未授，实际共享依赖图共同freeze要求不变。S2/S3产品未接受、D24未绑定；S1/Usage限定接受和原边界、系统统一Summary规则、Invocations=nil、ready503、D08–D28/E01未完成、E01未开始及原三停止保持。以下历史原文不改。
+
 ## 2026-10-07：系统会议 Summary S1 完整结果接受
 
 - [S1 验收归档](system-meeting-summary-selection-verification.md)记录技术独立 PASS；后端 README 末件亦已独立通过，root 已采纳完整产品 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并提交推送、确认远端一致。本次为29个产品变更路径（含README）；35技术路径范围包含此前已接受的4契约和3个未改旧测试，不是35个新增文件。

@@ -1,0 +1,22 @@
+{
+  "card": "docs/development/work-items/d09-system-meeting-summary-settings.md",
+  "revision": "rev2",
+  "state": "frozen; awaiting independent delta STATIC; no implementation authorization",
+  "rev1_sha256": "1734a1a7e0074db41cc1e3171f805e7107a35efc789d6c2b78437cfb54ae9772",
+  "rev2_sha256": "c4d37672116ce6b376e8cd01c637d964035ebf2ad680a53458e31553e0365be2",
+  "review_sha256": "418ef187b660c4834ce21b90ff878c82deb31c11aa8ee40a955d813853204eb4",
+  "fixed_product_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "corrections": [
+    "B1",
+    "B2",
+    "D1",
+    "D2"
+  ],
+  "candidate_paths_unchanged": 31,
+  "links_fragments_checked": 11,
+  "utf8_lf_markdown_whitespace": "PASS",
+  "git_diff_no_index_check": "PASS",
+  "patch_sha256": "6513275205cfc1aa8bbd9f617b0ce3855f85c4dc726487000e8d128fd3f15c23",
+  "inputs": "reuse frozen rev1 inputs/review; no active S3 product source read or rehash",
+  "no_product_tests_resources_git_mutation": true
+}

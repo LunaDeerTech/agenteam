@@ -1,0 +1,86 @@
+{
+  "source_roots": {
+    "author": "/workspace/scratch/recovery-docs/summary-s2-spec",
+    "independent": "/workspace/scratch/summary-verification"
+  },
+  "stored": {
+    "author/rev1.md.txt": {
+      "sha256": "1734a1a7e0074db41cc1e3171f805e7107a35efc789d6c2b78437cfb54ae9772",
+      "bytes": 32716,
+      "source_relative": "rev1.md"
+    },
+    "author/rev1-freeze.json": {
+      "sha256": "9f54ab5d7c55ab72f1f6a21752df86e177e30dc6bb197fb327ec41a3587e8a41",
+      "bytes": 1413,
+      "source_relative": "freeze.json"
+    },
+    "author/inputs.json": {
+      "sha256": "6592e1abfd518795d0bac9d1b117a684b2223ab572140a6cc2d4377db496ea84",
+      "bytes": 7113
+    },
+    "author/rev1-to-rev2.patch": {
+      "sha256": "6513275205cfc1aa8bbd9f617b0ce3855f85c4dc726487000e8d128fd3f15c23",
+      "bytes": 12404
+    },
+    "author/rev2.md.txt": {
+      "sha256": "c4d37672116ce6b376e8cd01c637d964035ebf2ad680a53458e31553e0365be2",
+      "bytes": 34622,
+      "source_relative": "rev2.md"
+    },
+    "author/rev2-freeze.json": {
+      "sha256": "14b705b15a10291ff7f6439517b2643874c4f59be4c8f4ed37a24c54cb57d69c",
+      "bytes": 960
+    },
+    "author/rev2-adoption-header.patch": {
+      "sha256": "4440abc5804505a09075d10cc2bd5b8a3c0497609f5f72acc24cccd3788341fd",
+      "bytes": 1815
+    },
+    "author/rev2-adoption-freeze.json": {
+      "sha256": "3183e6de90b61c4502f4c34fd4ef169d1be45f3d30d425a9f7de1f853c4f0a9b",
+      "bytes": 476
+    },
+    "independent/S2-prep/inputs.json": {
+      "sha256": "a1aeb074452b103aee68cace927a77ac42957d43ec8497a9590372a74cf65941",
+      "bytes": 2681
+    },
+    "independent/S2-prep/freeze.json": {
+      "sha256": "d69e0f4253a18d5db011987a5c82d0f9aeb536e3d787f77a90299ff668f096b8",
+      "bytes": 170
+    },
+    "independent/S2-prep/notes.md": {
+      "sha256": "4e990cbeaca4af67beedd716cffb81bfd147f3b233bb27768dd9b3e6d7c578f0",
+      "bytes": 4723
+    },
+    "independent/S2-static-rev1/review.md": {
+      "sha256": "418ef187b660c4834ce21b90ff878c82deb31c11aa8ee40a955d813853204eb4",
+      "bytes": 5831
+    },
+    "independent/S2-static-rev1/inputs-check.json": {
+      "sha256": "801a4f3eebec08192d2d7dbbd96a8b01a695798f6756a99d60de201515fb342b",
+      "bytes": 3476
+    },
+    "independent/S2-static-rev1/freeze.json": {
+      "sha256": "1845c31261cb6a04015124e38badb0d9b369fbe2747260951bf23c04a6401c1b",
+      "bytes": 177
+    },
+    "independent/S2-static-rev2/review.md": {
+      "sha256": "cf8d26efb9613ce2be12eb1329218759a330cf4a2031bea5bd889f5d6cdfe1b2",
+      "bytes": 2611
+    },
+    "independent/S2-static-rev2/inputs-check.json": {
+      "sha256": "d5b465bb7028142d7ec0f1d2d165510bc83a4f5db0d19eb7d2fafc020bcc876e",
+      "bytes": 2897
+    },
+    "independent/S2-static-rev2/freeze.json": {
+      "sha256": "8d5b51ff1a6975ed02791c76cbff70068b0573a3c40af0c370f798a9f15c0313",
+      "bytes": 813
+    }
+  },
+  "fixed_git": {
+    "product_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+    "specification": "0b13445e5ad8dd1a430528cef559b5f4451ffeac",
+    "specification_path": "docs/development/work-items/d09-system-meeting-summary-settings.md",
+    "adopted_card_sha256": "d78311c3c3cdff53c3329c4ca60ee8106d514ee16b4956afd7a8296ea6a2a259"
+  },
+  "scope": "17 small original static-review/specification records; fixed product sources reused via original manifests and Git; no product tree, active S3 sources, caches, binaries or reconstructed tool-call logs."
+}

@@ -1,0 +1,68 @@
+{
+  "card_sha256": "1734a1a7e0074db41cc1e3171f805e7107a35efc789d6c2b78437cfb54ae9772",
+  "manifest_sha256": "9f54ab5d7c55ab72f1f6a21752df86e177e30dc6bb197fb327ec41a3587e8a41",
+  "paths": [
+    "internal/central/model/http.go",
+    "internal/central/model/http_meeting_summary.go",
+    "internal/central/model/http_meeting_summary_test.go",
+    "internal/central/model/http_meeting_summary_native_test.go",
+    "api/openapi/model-system.json",
+    "internal/central/app/account.go",
+    "internal/central/app/project_usage.go",
+    "internal/central/app/project_usage_test.go",
+    "internal/central/app/model_test.go",
+    "tests/model/meeting_summary_http_test.go",
+    "tests/model/meeting_summary_settings_http_test.go",
+    "tests/model/meeting_summary_settings_root_test.go",
+    "tests/model/meeting_summary_settings_fixture_test.go",
+    "web/src/api/client.ts",
+    "web/src/api/system-model-selection.ts",
+    "web/src/api/system-meeting-summary.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/composables/useSystemModelSelection.ts",
+    "web/src/composables/useMeetingSummarySettings.ts",
+    "web/src/views/system/SystemModelSelectionView.vue",
+    "web/src/views/system/SystemMeetingSummarySettings.vue",
+    "web/src/tests/system-model-selection-client.spec.ts",
+    "web/src/tests/system-model-selection-state.spec.ts",
+    "web/src/tests/system-model-selection.spec.ts",
+    "tests/account/system_meeting_summary_web_test.go",
+    "tests/account/system_meeting_summary_web_fixture_test.go",
+    "tests/account-captcha-web/system-meeting-summary.config.js",
+    "tests/account-captcha-web/e2e/system-meeting-summary.spec.ts",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+    "docs/development/backend/README.md",
+    "docs/development/frontend/README.md"
+  ],
+  "links_checked": [
+    "../agent-team/system-meeting-summary-selection-verification.md",
+    "d09-system-meeting-summary-selection.md#7-后继边界与完成",
+    "../../architecture/platform-infrastructure/model-system/model-configuration.md#系统-meeting-summary-model",
+    "../../frontend-design/layouts/system-settings.md#3-模型与-provider",
+    "d27-system-model-selection-ui.md",
+    "recovery-d09-system-model-http.md",
+    "../agent-team/project-usage-read-http-root-verification.md",
+    "../../../.agents/skills/agenteam-go-development/SKILL.md",
+    "../../../.agents/skills/agenteam-vue-development/SKILL.md",
+    "../../../.agents/skills/agenteam-verification/SKILL.md",
+    "../agent-team/README.md"
+  ],
+  "matching_source_entries": 57,
+  "input_exceptions": [
+    {
+      "path": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "expected": "941bccfd7cd1c87d5709900d0d83849512b5aaa4f244ff35b8703272fc826dd4",
+      "actual": "e87c1833c3eca52761f377cf817a012e5ce13332b131119b3843fd3fa4bb882f"
+    }
+  ],
+  "authorized_header_delta": [
+    {
+      "path": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "before": "941bccfd7cd1c87d5709900d0d83849512b5aaa4f244ff35b8703272fc826dd4",
+      "after": "e87c1833c3eca52761f377cf817a012e5ce13332b131119b3843fd3fa4bb882f",
+      "scope": "root accepted archival current-header update; technical/historical suffix unchanged from c210d249",
+      "technical_suffix_sha256": "977c6124cd0b54a9776a3a135a0ab47dc3a85ddaf0637d6aa582db2a9f018a04"
+    }
+  ],
+  "execution": "static reads/hash/link/path validation only; no tests/resources/Git mutation"
+}

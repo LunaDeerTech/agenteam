@@ -1,0 +1,47 @@
+--- docs/development/work-items/d09-system-meeting-summary-settings.md (rev1)
++++ docs/development/work-items/d09-system-meeting-summary-settings.md (rev2)
+@@ -1,5 +1,7 @@
+ # D09：系统会议 Summary 设置 HTTP、同页表单与根初始化
+ 
+-修订：rev1，2026-10-07，**待独立完整 STATIC 审查及 root 采纳；本卡不授予实施、测试或资源权限。** 唯一规格写入为本页。S1 产品已由 root 接受、提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并确认远端一致；35 技术路径中 29 路径实际改动，后端 README 末件亦已独立通过，见[S1 验收归档](../agent-team/system-meeting-summary-selection-verification.md)。文档接续已推送至 `72f48d2724f55b0dfed559b6f7120429f78c0c01`；本页不冒称执行过 S1 或 S2 测试。
++修订：rev2，2026-10-07，**rev1 完整 STATIC 后四项窄修，待独立差量复核及 root 采纳；本卡不授予实施、测试或资源权限。** 唯一规格写入为本页。S1 产品已由 root 接受、提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并确认远端一致；技术候选共 35 路径，实际改动 28 技术路径，加独立通过的后端 README 末件共 29 改动路径，见[S1 验收归档](../agent-team/system-meeting-summary-selection-verification.md)。文档接续已推送至 `72f48d2724f55b0dfed559b6f7120429f78c0c01`；本页不冒称执行过 S1 或 S2 测试。
++
++rev2 仅落实独审 B1/B2/D1/D2：原生 beforeunload 与应用内确认分离、新 HTTP handler 完整输出/Flush 后退休 deadline、S1 改动计数及 Usage 初始化 helper 白名单。31 候选路径及其它契约不扩，固定 c210d249 来源，不消费活动 S3 候选。
+ 
+ 来源：[S1 rev1 §7](d09-system-meeting-summary-selection.md#7-后继边界与完成)、[Model 配置](../../architecture/platform-infrastructure/model-system/model-configuration.md#系统-meeting-summary-model)、[系统设置布局](../../frontend-design/layouts/system-settings.md#3-模型与-provider)、[原四用途 UI](d27-system-model-selection-ui.md)、[原 System HTTP](recovery-d09-system-model-http.md)、[Usage 根装配](../agent-team/project-usage-read-http-root-verification.md)。实施者分别读 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[前端技能](../../../.agents/skills/agenteam-vue-development/SKILL.md)和相关测试参考；验收者读[验收技能](../../../.agents/skills/agenteam-verification/SKILL.md)。分工及交窗沿[团队流程](../agent-team/README.md)。
+@@ -43,5 +45,7 @@
+ 沿原 `CheckRequest` 的安全 headers、精确 Host/Origin/Fetch-Metadata、规范 path/RawPath 检查和单层外部 middleware。新口随后在 `RequireSystem` 之前开始 min(parent,now+3s) 的 GET/HEAD 总预算、min(parent,now+30s) 的 PUT 总预算，覆盖前置 Session/admin、解码、S1 服务、序列化和实际 I/O 收尾。服务同 Tx 重核当前 System 权限；HTTP 通过不能替代它。S1 Get 内部 3s 只能取更早期限，不能重开窗口。原 lookup 沿原预算和行为，不据本卡宣称其新增 3s/30s 保证。
+ 
+-`model/http.go` 只对精确新 route 分派专门的有界处理；其它 route 的 dispatch 不改。新处理器使用本包私有 native deadline/收尾接缝，参考已接受 Usage/outbound 实际模式，**不修改它们的 helper 或导出通用框架**：设置读/写 deadline，取消 callback 只推进 deadline；所有 body read/Close、服务、response write、callback 都实际结束后返回。正常成功须先停止或 join callback、清除 deadline，再由外层 cancel，避免成功 keepalive 后续响应被延迟 callback 截断。失败/超时须限制 drain 并实际收尾；不支持 deadline 的 writer 在业务派发前安全失败，不能静默省略或启动脱离 owner 的 body goroutine。受控 writer/native HTTP 分别证明能力，不能仅用 context/select 超时冒充 join。
++`model/http.go` 只对精确新 route 分派专门的有界 handler，调用后**立即 return**；其它 route 的 dispatch 不改。新 handler 独占序列化、成功 WriteJSON、Problem 写入及 `http.ResponseController.Flush()`，包括 HEAD headers 的实际 Flush；不得返回原 dispatch 让它补写或二次投影。`WriteJSON` 返回并不证明 net/http 缓冲已发出。参考已接受 Usage/outbound 实际模式，使用本包私有 native deadline/收尾接缝，**不修改它们的 helper 或导出通用框架**：设置读/写 deadline，取消 callback 只推进 deadline；body read/Close、服务、完整 Write+Flush 与 callback 都须实际完成。完整 Write+Flush 且 ctx 仍有效后，才停止或 join callback、清除 deadline，最后由外层 cancel；不能先退休 deadline 再写响应/Flush，也不能让成功 keepalive 后续响应被迟到 callback 截断。
++
++失败/超时须限制 drain 并实际收尾；不支持 deadline 的 writer 在业务派发前安全失败，不能静默省略或启动脱离 owner 的 body goroutine。partial/short write、Flush 错误或 panic 均走实际失败收尾并以 `http.ErrAbortHandler` 中止，不能交外层 Recover 再补一份无预算 Problem；已经写入的响应尤其不得二次投影。受控 writer/native HTTP 分别证明能力，不能仅用 context/select 超时或 Write 返回冒充 I/O 已完成。
+ 
+ GET 只有完整 Committed 且 context 仍有效才发布完整 DTO；Unknown/取消/损坏事实零候选。PUT 只调用原服务一次，不在 HTTP 中自动重试或重新 GET 后覆盖 receipt。服务内原 Unknown 确认若成功，200 返回原 receipt；最终仍 Unknown 才沿 503/`retry_hint=lookup`。超时后不新造“未开始/未提交”；传输已失效可按原安全惯例 abort，客户端保留未确认。任何 partial/short write 不追加第二份 Problem。
+@@ -89,5 +93,7 @@
+ App 仍只创建/provide 现有 selection 页面 owner，现有 navigation hook、logout、dispose 入口不新增第二链。`useSystemModelSelection` 在其内部组合独立 Summary controller，旧四项局部编辑/取消/重读只作用四项；Summary 局部操作只作用 Summary。保持旧四项 Dialog，新 Summary 使用同页内联 form，两个未保存草稿可以共存；modal 焦点阻塞和实际 Cookie I/O 串行不等于数据互为前置。
+ 
+-页面级 dirty 是两区 dirty/进行中/未确认写的并集。离页、退出、beforeunload 与主动全页离开使用 **一次聚合确认**，精确说明会放弃哪些本地草稿/请求跟踪：在用户确认前两槽均不 discard；继续编辑/关闭确认保留两槽；确认后核同身份、页面代次及捕获的两槽状态，再一次同步退休本次覆盖的状态。不得先清第一槽、再询问第二槽，亦不得清理确认打开后产生的新意图；若捕获状态失效，中止原导航而不自动同意。丢弃只放弃本地跟踪，不撤销可能已经提交的服务器配置。
++页面级 dirty 是两区 dirty/进行中/未确认写的并集。应用内 route 离页、logout 及页面内显式导航操作使用 **一次聚合自定义确认**，精确说明会放弃哪些本地草稿/请求跟踪：在用户确认前两槽均不 discard；继续编辑/关闭确认保留两槽；确认后核同身份、页面代次及捕获的两槽状态，再一次同步退休本次覆盖的状态。不得先清第一槽、再询问第二槽，亦不得清理确认打开后产生的新意图；若捕获状态失效，中止原导航而不自动同意。丢弃只放弃本地跟踪，不撤销可能已经提交的服务器配置。
++
++浏览器 `beforeunload` 独立使用上述 dirty 并集触发原生离页保护。原生提示不能自定义实际文案，也没有可靠的确认/取消结果回调；本 handler 不建立自定义 Dialog/Promise、不据此退休任一槽、不声称收到用户确认结果。页面仍存活时不能预先清理状态，取消原生离开后两个草稿/intent 保持；不把原生保护复用为应用内聚合确认的异步入口。
+ 
+ 仍只有 View 末尾一个确认 Dialog 宿主，放在旧业务 Dialog 与新 section 之后；局部重读/取消与页面级确认区分作用范围，同一时刻只保留一个确认 Promise。checking 卸载 View 时 App 期两区草稿、确认及原 Promise 留存，同完整identity恢复后原序重挂、无新 PUT/自动回答；真实离页/新身份/失权/dispose以 false 结算旧确认且清理 overlay/inert/滚动锁。焦点恢复仅在 View 仍挂载、当前目标可用、无更高 modal 时执行，沿已接受 fallback；不能全局查询/手动抢焦点修复层序。
+@@ -139,5 +145,5 @@
+ | 31 | `docs/development/frontend/README.md` | 前端接受后末件：同页两区/实际命令/恢复与部署限制 |
+ 
+-App.vue、router、菜单、通用 Dialog、旧四项 Editor、Account boundary、common schema、所有迁移、S1 library/contract、脚本/lockfile/共享 fixture、Usage产品及Resolver保持只读。前端可在HTTP契约冻结后离线实施，真实联验须消费已固定的后端；后端与前端分别唯一作者，web Go fixture的全部权归指定browser作者，不能两个作者争写。31项由root逐文件实际交接，不因表中“新”自动获写权；README仅最后串行授权。独立验证者不参与对应实现，STATIC通过与产品PASS分开记录。
++App.vue、router、菜单、通用 Dialog、旧四项 Editor、Account boundary、common schema、所有迁移、S1 library/contract、脚本/lockfile/共享 fixture及Resolver保持只读。Usage 仅有 #7/#8 白名单例外：`project_usage.go` 的原 startup helper 参数/顺序及其对应测试适配；Usage 业务服务、HTTP、DTO、schema、端口、授权、预算语义和其它产品源保持只读，不能借接线改变业务行为。前端可在HTTP契约冻结后离线实施，真实联验须消费已固定的后端；后端与前端分别唯一作者，web Go fixture的全部权归指定browser作者，不能两个作者争写。31项由root逐文件实际交接，不因表中“新”自动获写权；README仅最后串行授权。独立验证者不参与对应实现，STATIC通过与产品PASS分开记录。
+ 
+ ## 6. 验收与停止条件
+@@ -148,8 +154,8 @@
+ 
+ - GET/PUT 与 schema/client 的 required/null、未知/重复键、数字/前导零/int64边界、>2^53版本、错误singleton/Model/receipt、16KiB/600000B和流式超限；旧四项字节/lookup闭集不变。
+-- Summary新口3s/30s或更早parent在授权前生效，受控认证/body/service/response尾部未完成不得返回；真实native慢body/慢读/取消/不支持deadline/清除失败/keepalive成功路径，callback实际join、零遗留，不以fake writer证明socket已完。
++- Summary新口3s/30s或更早parent在授权前生效，受控认证/body/service/response尾部未完成不得返回；成功/Problem及HEAD headers均须实际Flush后才退休deadline，精确新分支不回旧dispatch二次写。真实native慢body/慢读/取消/partial-write/Flush失败/panic/不支持deadline/清除失败/keepalive成功路径，callback实际join、零遗留，不以fake writer或Write返回证明socket已完。
+ - root纯顺序及同ctx，Secret/Model/Summary任一步错或取消不运行后继；构造零SQL、不重复初始化、新 Summary失败不能让Usage或listener成功继续。
+ - 同槽/跨槽两个未决intent，各自key/body/id/version不变；A取消/abandon/错误/lookup不能改变B。一个可见超时仍占owner到实际完成；另槽及login/logout/个人/Model不得越过尾部。当前/迟到401/403/CSRF、同身份重验/新Session、App.dispose均有精确断言。
+-- 仅本区重读/取消、双草稿一次导航确认、确认前零discard、cancel全保留、确认后精确清理、checking卸载重挂、旧Promise不能在新身份续行；失效读取可显式恢复，旧四项未配置/错误不挡Summary及反向。
++- 仅本区重读/取消、双草稿一次应用内导航确认、确认前零discard、cancel全保留、确认后精确清理、checking卸载重挂、旧Promise不能在新身份续行；beforeunload仅原生dirty保护、零自定义Promise/槽退休，取消后草稿保持。失效读取可显式恢复，旧四项未配置/错误不挡Summary及反向。
+ 
+ ### 6.2 真实 HTTP/root 和浏览器

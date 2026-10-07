@@ -1,0 +1,70 @@
+{
+  "baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "mode": "fixed read-only preparation; active S2 card not read",
+  "inputs": {
+    "internal/central/model/http.go": {
+      "sha256": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc",
+      "bytes": 5386
+    },
+    "internal/central/model/http_configuration.go": {
+      "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+      "bytes": 7189
+    },
+    "internal/central/model/http_management.go": {
+      "sha256": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc",
+      "bytes": 2332
+    },
+    "internal/central/model/meeting_summary.go": {
+      "sha256": "39e83ad8f0bde6ec6eaa32afaf9dcb5c0b85c3d7c34aa6f353eb35551ff4189f",
+      "bytes": 3900
+    },
+    "internal/central/app/model.go": {
+      "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+      "bytes": 837
+    },
+    "internal/central/app/account.go": {
+      "sha256": "7cf981e59507f27bb6aac57378acb65ee109ec2f4a1f73d554a0ddb877e380ba",
+      "bytes": 14551
+    },
+    "internal/central/app/project_usage.go": {
+      "sha256": "de5dfb03150ccc7fc3a875c871e5dfef150eb838d4173b392a6ed397b3550144",
+      "bytes": 2679
+    },
+    "web/src/api/client.ts": {
+      "sha256": "c7c894e8b9baf762823ea5c1b5385d4bf48b76aae33fa9890ad696494bb29526",
+      "bytes": 33396
+    },
+    "web/src/api/system-model-selection.ts": {
+      "sha256": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+      "bytes": 7361
+    },
+    "web/src/composables/useSystemModelSelection.ts": {
+      "sha256": "1a4dbe6f1c0eb7dbdf885fbdc7495c9468bc33a7b8fd7b5082eb45f6c2cc3883",
+      "bytes": 33405
+    },
+    "web/src/composables/useSession.ts": {
+      "sha256": "c3b4c9a18ac4d3601af6d4bed83d182d39dbe6734e2b89044c263c7bcf757ec1",
+      "bytes": 141103
+    },
+    "web/src/views/system/SystemModelSelectionView.vue": {
+      "sha256": "3276ec40d8468ee3cac1785c90f47d906b0b38a7a8848aeb451558a0f0e94683",
+      "bytes": 8634
+    },
+    "web/src/views/system/SystemModelSelectionEditor.vue": {
+      "sha256": "b27430f537ab2e59946cc7f9f843a1c2f5ae4afdcf19455becebb230c39113cd",
+      "bytes": 13160
+    },
+    "web/src/router/auth.ts": {
+      "sha256": "bdc8db93bfd9222a5d1d079f2f6b868d0c00200edb892a517ae28e1f9f725715",
+      "bytes": 8785
+    },
+    "web/src/App.vue": {
+      "sha256": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b",
+      "bytes": 9412
+    },
+    "docs/development/work-items/d09-system-meeting-summary-selection.md": {
+      "sha256": "941bccfd7cd1c87d5709900d0d83849512b5aaa4f244ff35b8703272fc826dd4",
+      "bytes": 30070
+    }
+  }
+}

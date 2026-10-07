@@ -53,3 +53,7 @@ Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三
 六个真实轮各有七资源实际 wait 与 owned 链双清；daemon 每轮增加四个、最终 24 个 PID1 shim zombie 未获 task wait，不宣称全机清零，也不倒填旧 native wrapper 或历史 zombie 的清理。生产 Invocations 仍为真正 nil，不交付 Runtime Facts、Project 初始化/生命周期、Usage UI 或 Execution Summary；ready503、完整 D08/D09/E01 未完成、E01 未开始及 Object runtime join/OpenAI tools 独立验证/SPA concurrent-publication 三停止保持。
 
 root 已恢复[会议 Summary S1](../work-items/d09-system-meeting-summary-selection.md)实施分工：`next_frontier` 持有后端 31 路径范围，其中四份契约已在 `e6cb70bd` 接受；`usage_backend` 转为前端唯一四兼容路径作者。当前只授权实施与离线准备，尚未授权资源运行，完整 S1 未验收，S2/S3 尚未授权。用户确认的系统管理员统一配置 initial/update（含首轮标题）模型、Project 消费系统选择且不 override/复制初值的规则保持；既定 Agent compaction 与 Execution Summary read model 不改。本次只同步四入口并保留上述历史原字节，未执行产品或旧脚本。
+
+## Summary S2/S3 规格接受与当前实施准备
+
+[S2规格归档](system-meeting-summary-settings-spec-verification.md)绑定已推送 `0b13445e5ad8dd1a430528cef559b5f4451ffeac`，rev1完整审查与rev2四项差量共同形成STATIC接受；[S3规格归档](system-meeting-summary-resolution-spec-verification.md)对应已推送规格 `bd94a184` 和归档 `31c76610`。root已授S3 `next_frontier` 16路径、S2后端 `fixture_recovery` #1–13、前端/browser `usage_backend` #14–29，均已实际ACK开始源编辑/格式/准备；S3四contract封闭包离线Go list/pure及race compile/run/vet窗口已单独授权并实际进行、尚未接受；S2 Go、S3 model/app/integration/runtime执行、真实资源与README末件仍未授，实际共享依赖图共同freeze要求不变。S1 `c210d249` 与Usage的既有限定接受保持，S2/S3产品仍未接受、D24消费未绑定；系统统一initial/update含首轮标题、不override/复制初值、Invocations=nil、ready503、完整D08–D28/E01未完成及E01未开始不变，Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。上述历史原字节不改，本次没有产品或测试执行。

@@ -1,0 +1,181 @@
+# D09：系统会议 Summary 设置 HTTP、同页表单与根初始化
+
+修订：rev2，2026-10-07，**rev1 完整 STATIC 后四项窄修，待独立差量复核及 root 采纳；本卡不授予实施、测试或资源权限。** 唯一规格写入为本页。S1 产品已由 root 接受、提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并确认远端一致；技术候选共 35 路径，实际改动 28 技术路径，加独立通过的后端 README 末件共 29 改动路径，见[S1 验收归档](../agent-team/system-meeting-summary-selection-verification.md)。文档接续已推送至 `72f48d2724f55b0dfed559b6f7120429f78c0c01`；本页不冒称执行过 S1 或 S2 测试。
+
+rev2 仅落实独审 B1/B2/D1/D2：原生 beforeunload 与应用内确认分离、新 HTTP handler 完整输出/Flush 后退休 deadline、S1 改动计数及 Usage 初始化 helper 白名单。31 候选路径及其它契约不扩，固定 c210d249 来源，不消费活动 S3 候选。
+
+来源：[S1 rev1 §7](d09-system-meeting-summary-selection.md#7-后继边界与完成)、[Model 配置](../../architecture/platform-infrastructure/model-system/model-configuration.md#系统-meeting-summary-model)、[系统设置布局](../../frontend-design/layouts/system-settings.md#3-模型与-provider)、[原四用途 UI](d27-system-model-selection-ui.md)、[原 System HTTP](recovery-d09-system-model-http.md)、[Usage 根装配](../agent-team/project-usage-read-http-root-verification.md)。实施者分别读 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[前端技能](../../../.agents/skills/agenteam-vue-development/SKILL.md)和相关测试参考；验收者读[验收技能](../../../.agents/skills/agenteam-verification/SKILL.md)。分工及交窗沿[团队流程](../agent-team/README.md)。
+
+## 1. 完整结果与真实接缝
+
+系统管理员在现有 `/system/model-selection`“平台模型用途”页独立读取、选择并保存会议 Summary Model。仅允许 enabled System Provider 下的 enabled System chat Model，用于 Meeting Rolling Summary initial/update（含首轮标题）；不要求 json_schema、tools 或 reasoning。Project 消费系统选择，不提供 override、不复制创建初值、不增加 Project 设置口。初始未配置明确显示，不猜默认；选择后没有清空，停用保留引用，删除须沿 S1 原子替换。保存确认只证明配置命令接受，不证明生成或外部调用可用。
+
+| 静态核对的现状 | S2 的限定接线 |
+| --- | --- |
+| S1 独立 `MeetingSummarySelection`、Get/Update/Initialize、原 `model.selection.update` receipt/lookup、00020、引用与删除替换均在上述产品基线 | 消费原服务，不另建 singleton、命令名、迁移、引用实现或配置事实 |
+| `app/model.go:systemModelRoutes` 按 `/api/v1/system/model-selection` 完整根及其 `/` 子路径转交原 Model handler | 新子路径已经属于此 dispatcher；不新增路由根、不改 path/RawPath、不使旧四项路径成为前缀写口 |
+| `model/http.go` 原表只有四项 GET/PUT；原 lookup 已允许读取 Summary 的同 kind 历史 receipt | 增加独立 GET/HEAD/PUT；原 lookup 路由、command 闭集和身份不改 |
+| `app/account.go` 在 Secret 成功后调用 `initializeModelsAndUsage(ctx, models.Initialize, usage.Initialize)` | 同一实际服务和原 startup context 显式插入 Summary 初始化，顺序见 §4 |
+| `createSessionController` 已有 12 个 API 依赖，第六项为 selectionAPI；唯一 Cookie owner、selection revisions/intent 与 App 期页面 controller 已存在 | 扩原第六接口及 selection 域内部状态；不追加第十三依赖、不新 Cookie 域、owner、队列或导航叶子 |
+| `useSystemModelSelection` 目前只有一个四项 intent，View 承载四项业务 Dialog 和末尾确认 Dialog | 两个配置保留独立私有 intent/草稿/观察，统一页面生命周期和一次导航确认；不能把新命令塞进原单槽覆盖旧写 |
+
+设计读取的 S1 `candidate04.json` SHA 为 `da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2`；27 后端源及四份既有契约逐项与固定 snapshot/当前字节一致。候选原清单中的“待真实验证”是其冻结时点，不能覆盖 root 后续 c210d249 接受事实。实施前复核 c210d249、S1 最终归档及本卡精确路径，依赖漂移先交 root；本卡静态检查不代替独立审查。
+
+S2 完整结果包括 HTTP、默认 root 初始化、同页独立表单、原请求恢复、真实浏览器和旧四项兼容。S3 current-resolution、D24 生成/标题/Usage/业务重试另责；本卡不绑定 Resolver、Meeting consumer、Runtime Facts 或生产 Invocations。ready503、完整 D08/D09/D24/D27/E01 未完成及 Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三停止保持。
+
+## 2. 唯一 HTTP 契约
+
+| 方法及路径 | 输入与 200 输出 |
+| --- | --- |
+| `GET /api/v1/system/model-selection/meeting-summary` | 无 query/body；当前 System Read，调用原 `GetMeetingSummarySelection`；输出恰 `{id,version,model}` |
+| `HEAD` 同路径 | 与 GET 相同的当前授权、完整读取及错误状态/headers，无响应 body；不提供页面 HEAD 操作 |
+| `PUT` 同路径 | body 恰 `{id,expected_version,model}`；当前 System Mutate，唯一合法 `Idempotency-Key` 和当前 CSRF；构造原 `UpdateMeetingSummarySelectionRequest{CommandMeta,SelectionID:id,ExpectedVersion,Model}`；输出原安全 receipt |
+| `POST /api/v1/system/model-commands/lookup`（原口） | body 仍恰 `{command:"model.selection.update"}`，带捕获的原 key、当前有效同身份 CSRF；intent=Read 但 unsafe POST 仍检查 CSRF；输出原 `{found,receipt}` |
+
+新 GET 的三个字段全部 required、`additionalProperties:false`：`id` 是 canonical UUIDv7，`version` 是 `[1,9223372036854775807]` 的 canonical 十进制字符串，`model` 必须显式为 null 或 canonical Model UUIDv7。null 仅表示已初始化但从未配置；未初始化返回 `DEPENDENCY_UNBOUND`，坏事实/缺表等沿 S1 `DEPENDENCY_UNAVAILABLE`，不能投影为 null。停用或后来不可用于新生成仍返回已保存 ModelID。HTTP DTO 不加 Provider、Project、reasoning、内部 plan 或材料。
+
+PUT 三字段全部 required，`model` 不能 null/空/遗漏；expected_version 是有合法后继的正 int64 字符串。输入 id 是 Summary singleton，不能用四用途 ID 或由浏览器生成；scope/actor/user/command/key 不进入 body。只把受信 Account actor、SystemScope 和原 key 放入 CommandMeta。新 GET/HEAD/PUT 均拒绝 query/ForceQuery；GET/HEAD 拒绝 body，包括不合法 framing 和实际非空体。PUT 使用原严格 `DecodeJSON`，本新口上限 **16 KiB**，拒绝未知/重复/大小写别名/尾随 JSON、非 UTF-8、错误 media/encoding、数值版本及非法 null；不改变旧口 1 MiB 服务端上限。
+
+receipt 恰 `{kind,resource_id,version,affected_references}`：kind=`model.selection.update`，resource_id=原 Summary ID，version=原 expected_version+1，affected_references 为字符串 `"0"`。lookup 的 false 必须 receipt:null；true 仍严格核上述捕获的目标/版本。历史 receipt 可以早于独立 GET 的当前版本，不得用当前版本覆盖历史结果。原四项及 Summary 同属 `model.system/[UserID]/model.selection.update/key`；同 key 异义仍为 `IDEMPOTENCY_KEY_REUSED`，不另造命令身份或把 lookup 观察当写权限/同义证明。
+
+`api/openapi/model-system.json` 仅增加此 path 的 GET/HEAD/PUT、闭合 `MeetingSummarySelection`/`MeetingSummarySelectionInput` schema、对应 cookie/CSRF/key/错误和历史 receipt 描述；复用公共 UUID/string-version/Problem 与原 Receipt/CommandLookup。旧 Selection/SelectionInput 字段、七种 command、旧 deletion-impact 闭集均保持。schema 与严格前端应对同一真实安全 body 验证，不能只断言 schema 文件含某字段。
+
+### 2.1 安全、预算与实际完成
+
+沿原 `CheckRequest` 的安全 headers、精确 Host/Origin/Fetch-Metadata、规范 path/RawPath 检查和单层外部 middleware。新口随后在 `RequireSystem` 之前开始 min(parent,now+3s) 的 GET/HEAD 总预算、min(parent,now+30s) 的 PUT 总预算，覆盖前置 Session/admin、解码、S1 服务、序列化和实际 I/O 收尾。服务同 Tx 重核当前 System 权限；HTTP 通过不能替代它。S1 Get 内部 3s 只能取更早期限，不能重开窗口。原 lookup 沿原预算和行为，不据本卡宣称其新增 3s/30s 保证。
+
+`model/http.go` 只对精确新 route 分派专门的有界 handler，调用后**立即 return**；其它 route 的 dispatch 不改。新 handler 独占序列化、成功 WriteJSON、Problem 写入及 `http.ResponseController.Flush()`，包括 HEAD headers 的实际 Flush；不得返回原 dispatch 让它补写或二次投影。`WriteJSON` 返回并不证明 net/http 缓冲已发出。参考已接受 Usage/outbound 实际模式，使用本包私有 native deadline/收尾接缝，**不修改它们的 helper 或导出通用框架**：设置读/写 deadline，取消 callback 只推进 deadline；body read/Close、服务、完整 Write+Flush 与 callback 都须实际完成。完整 Write+Flush 且 ctx 仍有效后，才停止或 join callback、清除 deadline，最后由外层 cancel；不能先退休 deadline 再写响应/Flush，也不能让成功 keepalive 后续响应被迟到 callback 截断。
+
+失败/超时须限制 drain 并实际收尾；不支持 deadline 的 writer 在业务派发前安全失败，不能静默省略或启动脱离 owner 的 body goroutine。partial/short write、Flush 错误或 panic 均走实际失败收尾并以 `http.ErrAbortHandler` 中止，不能交外层 Recover 再补一份无预算 Problem；已经写入的响应尤其不得二次投影。受控 writer/native HTTP 分别证明能力，不能仅用 context/select 超时或 Write 返回冒充 I/O 已完成。
+
+GET 只有完整 Committed 且 context 仍有效才发布完整 DTO；Unknown/取消/损坏事实零候选。PUT 只调用原服务一次，不在 HTTP 中自动重试或重新 GET 后覆盖 receipt。服务内原 Unknown 确认若成功，200 返回原 receipt；最终仍 Unknown 才沿 503/`retry_hint=lookup`。超时后不新造“未开始/未提交”；传输已失效可按原安全惯例 abort，客户端保留未确认。任何 partial/short write 不追加第二份 Problem。
+
+沿真实 foundation 映射：400 参数，401 未认证/Session 撤销，403 当前管理员/CSRF/Origin 拒绝，404 错 selector/目标或未知路由，405 非 GET/HEAD/PUT（`Allow: GET, HEAD, PUT`），409 版本/异义 key/非法状态，413 体积，415 media，422 已定能力/schema，429 限流，503 依赖/最终 Unknown，500 原 InternalError。保留原 commit_state/cause 分类，不能把 PG 锁错误统一重标 503。Problem 不回显 body/key/CSRF/raw SQL。规范路径外无 redirect、CORS、匿名或 SPA fallback；旧四项 GET/PUT、通用 lookup、管理读、Account/Usage/diagnostics 路由均保留。
+
+## 3. 同页独立表单与安全恢复
+
+### 3.1 可见状态和选择
+
+沿原“平台模型用途”叶子、URL、菜单计数与精确 return 闭集；同页追加“会议 Summary”独立 section/内联 form，原四项保留原整组 Dialog/PUT，不改成五项一次保存。独立显示 Summary 版本、未配置/已保存 ID、完整安全 Model/Provider 名称和停用状态，提供显式编辑、保存、取消、重读。说明用于初始/更新及首轮标题，配置保存不代表生成运行可用；不展示设置 reasoning/tools、连接测试或生成按钮。
+
+候选沿已接受 Provider 分页→该 Provider Model 分页，每页25、按原 cursor/history 规则，仅当前主动候选页；复用完整 Provider/Model 严格解析。合法候选只需 enabled System Provider + enabled System chat 及原合法配置，不要求 Memory 的 json_schema，不能因 S3 尚未支持某 wire 将此配置选择缩窄。无 Model 引导既有管理叶子，空当前页不推断全域不存在；不用任意 UUID 输入、不嵌入创建/编辑 Model，不预取全部候选。
+
+初始 null 允许直接配置 Summary，即使原四项 configured=null 或其分区读取失败；反方向同理。已保存引用停用或详情失败仍保留 ID，明确“当前详情不可用/不可选”；当前 Model→Provider 两 GET 组合沿原 `getSavedModel` 完整校验、同一 signal/owner/30s 预算、零半成品公开，不由 Summary 页面直接 fetch。新保存要求已确认当前 singleton/版本及完整合法目标详情；无变化零 PUT、浏览不选中、不自动保存。仅取消未派发草稿不会写 null；已选后的“不配置/清空”动作不存在。
+
+两区读取、草稿、版本、反馈、历史 receipt、requiresReload 和候选分页互不覆盖。页面进入的两项当前读取有界顺序协调：每区至多一次初始派发，前一实际 owner 结束后再派下一项；一个普通读取失败不跳过另一项，401/当前403则按身份规则共同失效。沿既有有限已保存引用补读，最多四项加 Summary 一项，不扫描候选目录、不重试失败请求、不新建通用队列。owner 忙时可保留一个尚未派发的初始/显式读取意向，页面/身份/代次失效即退休；取消或失败后只能显式重读。取消的局部 loading 退休为可重读状态，不能永久 loading，也不能清掉另一分区已完成观察。
+
+### 3.2 固定 API 与两个私有 intent
+
+扩原 `SystemModelSelectionAPI` 第六依赖，增加具体 `getMeetingSummary(signal)`、`updateMeetingSummary(command,write)`、`lookupMeetingSummaryCommand(command,write)`；前三者仅用 §2 固定路径，lookup 复用原固定 transport。新增独立类型 `MeetingSummaryState{id,version,model:string|null}` 与 `MeetingSummaryCommand{kind:"model.selection.update",id,expected_version,model:string}`，纯捕获/strict parser 可放新文件后由原 API 组合。旧 `SelectionPurpose`/`SelectionCommand`/`SelectionState` 不扩字段或 union 含义。现接口工厂增加方法，不改变 12 项依赖顺序、不创建另一个 API domain。transport 仅将两新 endpoint 加入原 SelectionEndpoint 的受限 GET/PUT 分类；无任意 URL/options。
+
+请求在生成 key/intent 前严格捕获，序列化 body≤16KiB；响应和 Problem 沿 600000B、已有 listProviders 成功200的2097152B例外，取消/超限 read/cancel 尾部实际 join。版本用字符串/BigInt 精确检查，不能 Number 损失 >2^53；拒错字段、null/遗漏、错 ID/receipt kind/版本、溢出。两种 receipt 都须绑定捕获的本区原命令，不能仅因 kind 相同接受另一 singleton 的结果。
+
+在既有 selection 域内部显式分 `platform` 与 `meeting-summary` 两槽：各自的 read/action revisions、固定 identity `{userID,sessionID,epoch}`、singleton ID、expected_version、不可变 body、CSRF、唯一 key、uncertain/checked/keyConflict、receipt/lookup observation 独立。原 `auth.system.selection` 四项方法保持原调用语义，增加固定 `.meetingSummary` facade，不让旧方法默认为“当前选中的槽”。开始/继续某槽操作不得覆盖/abandon/改变另一槽的 key/body/版本。两个未确认 intent 可以共存；没有实际在途 owner 时，另一槽可独立读写，不能以其它槽尚未配置/失败/未确认作为保存门槛。
+
+具体 facade 为 `auth.system.selection.meetingSummary`，具有 `get/getSavedModel/listProviders/getProvider/listModels/abandonRead/abandon/start/checkOriginal/retryOriginal/progress`，参数及返回沿上述独立类型和原分页/WriteOptions。其 action 闭集为 `meeting-summary-state`、`meeting-summary-reference`、`meeting-summary-providers`、`meeting-summary-provider`、`meeting-summary-models`、`meeting-summary-write`、`meeting-summary-lookup`；纳入原 SelectionAction 分类，旧五 read/action 字符串不改。旧 `selection.abandon()` 只清 platform，新增 facade 的 abandon 只清 Summary；身份失效的内部全 selection 清理显式清两槽。不能将一份 `selectionIntent` 按最近页面动作切换，或让原全域 clear 被局部按钮误调用。
+
+唯一 Cookie owner 仍覆盖两槽及所有原域，任一实际 I/O 未 join 时不得启动第二请求，30s 可见超时/abandon 不提前归还。selection action 必须显式携带或编码槽，runAuthorized 的 revision、cancel、CSRF_FAILED、current403、restore 同身份保留、全局清理分支完整纳入，不能落入 Provider/个人默认分支。局部 abandon/read-cancel 仅退休自己槽当前 action；全局失权/注销/新Session/dispose才清两槽。旧与新槽对个人、Provider 两步、Model、邀请等既有域仍双向隔离，旧迟到结果/403不能污染新身份或另一代次。
+
+### 3.3 原命令、当前观察与导航
+
+| 事件 | 必须保留的行为 |
+| --- | --- |
+| 本地未派发或可确认业务拒绝 | 不冒称 Unknown；本区保留草稿、显示参数/版本/目标状态错误，另一分区不受影响 |
+| 断连、超时、非法/截断响应、取消、最终 COMMIT_UNKNOWN | 本区原 intent 不可变、结果未确认；不自动生成新 key/重写 body/改 expected_version/补偿/重试 |
+| “检查原请求” | 先正式 Session 重验，同完整 identity/admin/CSRF 才保留原 intent；POST 原 lookup 的 found/missing/failed 只是该命令身份的历史观察，不能确认本次 body，也不能把 missing 当原 writer 已回滚 |
+| “重试原请求” | 与原 selection 同规则：成功重验上下文、无 keyConflict 且实际 owner 空闲后，用户显式执行本区原 PUT；原 key/id/version/model 完全相同。即使 lookup 失败，只要上下文已确认仍可显式原重放；不以当前 GET 相同、旧Model已删/停用或版本已推进阻止合法历史重放 |
+| 原 Execute 返回严格匹配 receipt | 只确认该次历史保存；随后本区 GET 失败不撤销确认、不重发写，仅提供重读。当前配置可能已被别的管理员/删除替换改变 |
+| VERSION_CONFLICT/目标变化 | 保留本区草稿，显式“读取最新并核对”后才能建立新 intent；不能自动合并/升级版本。已有未确认性不被后续拒绝或 lookup missing 抹去 |
+| IDEMPOTENCY_KEY_REUSED | 标明原身份异义冲突，禁原重试；用户明确放弃本区跟踪并重新读/核对后才允许新命令，不挪用另一槽 receipt |
+
+当前401/CSRF失效沿唯一 Cookie纪律；当前403清两个系统私有槽并设身份绑定拒绝，正式 Session 重验后恢复。另一 admin 相同裸 key 不能查原 User receipt；服务允许同 User 新合法 Session 查历史，不意味着 UI 可把旧完整identity私有intent跨Session迁移。原请求、key、CSRF 不进 URL/storage/log/公开 reactive state。
+
+App 仍只创建/provide 现有 selection 页面 owner，现有 navigation hook、logout、dispose 入口不新增第二链。`useSystemModelSelection` 在其内部组合独立 Summary controller，旧四项局部编辑/取消/重读只作用四项；Summary 局部操作只作用 Summary。保持旧四项 Dialog，新 Summary 使用同页内联 form，两个未保存草稿可以共存；modal 焦点阻塞和实际 Cookie I/O 串行不等于数据互为前置。
+
+页面级 dirty 是两区 dirty/进行中/未确认写的并集。应用内 route 离页、logout 及页面内显式导航操作使用 **一次聚合自定义确认**，精确说明会放弃哪些本地草稿/请求跟踪：在用户确认前两槽均不 discard；继续编辑/关闭确认保留两槽；确认后核同身份、页面代次及捕获的两槽状态，再一次同步退休本次覆盖的状态。不得先清第一槽、再询问第二槽，亦不得清理确认打开后产生的新意图；若捕获状态失效，中止原导航而不自动同意。丢弃只放弃本地跟踪，不撤销可能已经提交的服务器配置。
+
+浏览器 `beforeunload` 独立使用上述 dirty 并集触发原生离页保护。原生提示不能自定义实际文案，也没有可靠的确认/取消结果回调；本 handler 不建立自定义 Dialog/Promise、不据此退休任一槽、不声称收到用户确认结果。页面仍存活时不能预先清理状态，取消原生离开后两个草稿/intent 保持；不把原生保护复用为应用内聚合确认的异步入口。
+
+仍只有 View 末尾一个确认 Dialog 宿主，放在旧业务 Dialog 与新 section 之后；局部重读/取消与页面级确认区分作用范围，同一时刻只保留一个确认 Promise。checking 卸载 View 时 App 期两区草稿、确认及原 Promise 留存，同完整identity恢复后原序重挂、无新 PUT/自动回答；真实离页/新身份/失权/dispose以 false 结算旧确认且清理 overlay/inert/滚动锁。焦点恢复仅在 View 仍挂载、当前目标可用、无更高 modal 时执行，沿已接受 fallback；不能全局查询/手动抢焦点修复层序。
+
+## 4. 默认 root 的显式初始化
+
+继续由 `app/account.go` 创建的同一个 Model Service 提供 HTTP 与两个 selector。在原 `deps.secret(ctx,...)` 的 Secret 成功和 ctx 检查后，将原 helper 扩为明确的 `initializeModelsAndUsage(ctx, models, summary, usageSchema)`：逐项调用 `models.Initialize(ctx)` → `models.InitializeMeetingSummarySelection(ctx)` → `projectUsage.reader.Initialize(ctx)`，每一步开始前检查同一个 ctx；任何错误/取消立即返回，后继不执行。总顺序为 **Secret→Model→Summary→Usage**，不 WithTimeout/Background 派生新启动预算，不从旧 `Service.Initialize` 隐式调用 Summary。
+
+构造仍无 I/O。Summary 方法只做 S1 的技术 singleton 初始化，version="1"/model=null、与旧 ID 不同；重启/并发沿 S1 幂等保留原 ID/version/值，不猜 Model、不写命令/Audit/Event、不初始化 Project或生产Facts、不启动worker/Resolver。生产库必须已按正式迁移应用00020；缺表/损坏/旧技术行缺失导致启动失败，不能自动DDL或降级成功。未配置合法且服务可启动，ready仍503；不能将“运行已启动”解释为Meeting生成已就绪。原 Outbound/Object/Outbox 后继顺序和停止/join契约不变。
+
+真实默认 `app.Run` 必须证明新口已经可达，不能在测试root注入私有 handler、额外 summary Initialize 回调或预置 Summary 行来替代正式接线。启动失败测试可使用受控注入/真实受阻依赖作反证，成功链必须来自候选生产路径。原 keepalive/Account/Model/Usage/diagnostics/root shutdown 适用回归继续验证。
+
+## 5. 精确候选路径与所有权
+
+下表 **31 路径**是经 STATIC 采纳后可由 root 移交的候选，当前只允许写本规格；不为凑数量触碰无需变化的文件。S1 接受源、其它任务活动源、共享运行资源在交接前均核冻结；需增加路径先报告修卡。
+
+| # | 路径 | 唯一用途/作者 |
+| --- | --- | --- |
+| 1 | `internal/central/model/http.go` | 后端：两 route 与精确新口有界分派，旧 dispatch 保持 |
+| 2 | 新 `internal/central/model/http_meeting_summary.go` | 后端：closed DTO/服务适配、新口预算与实际 I/O 收尾 |
+| 3 | 新 `internal/central/model/http_meeting_summary_test.go` | 后端：严格输入/错误/授权顺序/受控尾部 |
+| 4 | 新 `internal/central/model/http_meeting_summary_native_test.go` | 后端：真实 native body/response/取消及成功 keepalive 回归 |
+| 5 | `api/openapi/model-system.json` | 后端：§2 新 path/schema，既有形状不改 |
+| 6 | `internal/central/app/account.go` | 后端：同实例显式 Summary 初始化参数 |
+| 7 | `internal/central/app/project_usage.go` | 后端：原 helper 增一明确 Summary 步骤，同ctx/失败闭合 |
+| 8 | `internal/central/app/project_usage_test.go` | 后端：旧纯测适配并核四段顺序/相同ctx/失败阻断 |
+| 9 | `internal/central/app/model_test.go` | 后端：原dispatcher新子路径/前缀近似/原请求保持 |
+| 10 | `tests/model/meeting_summary_http_test.go` | 后端：仅 S1 原“新GET/PUT仍404”断言按S2真实契约更新，其余旧七组/混合/lookup/替代断言保留；历史报告不改 |
+| 11 | 新 `tests/model/meeting_summary_settings_http_test.go` | 后端：真实新HTTP、当前授权/版本/原命令恢复/旧口组合 |
+| 12 | 新 `tests/model/meeting_summary_settings_root_test.go` | 后端：默认app.Run初始化、重启/失败/旧链真实组合 |
+| 13 | 新 `tests/model/meeting_summary_settings_fixture_test.go` | 后端：任务自有正式准备与可控响应，复用原helper不改共享fixture |
+| 14 | `web/src/api/client.ts` | 前端：原selection分类内两固定endpoint与原限额 |
+| 15 | `web/src/api/system-model-selection.ts` | 前端：原第六API组合新三方法、旧七方法保持 |
+| 16 | 新 `web/src/api/system-meeting-summary.ts` | 前端：独立readonly DTO/command捕获/receipt严格解析，不另造transport owner |
+| 17 | `web/src/composables/useSession.ts` | 前端：同selection域两个私有槽、权限/CSRF/revision/恢复隔离 |
+| 18 | `web/src/composables/useSystemModelSelection.ts` | 前端：原页面owner内部组合、一次聚合确认、局部动作隔离 |
+| 19 | 新 `web/src/composables/useMeetingSummarySettings.ts` | 前端：Summary观察/草稿/分页/历史与反馈，不拥有Cookie/key |
+| 20 | `web/src/views/system/SystemModelSelectionView.vue` | 前端：同页section和一个确认宿主、标题/焦点/挂载 |
+| 21 | 新 `web/src/views/system/SystemMeetingSummarySettings.vue` | 前端：内联独立form与显式Provider/Model选择，无嵌套确认框架 |
+| 22 | `web/src/tests/system-model-selection-client.spec.ts` | 前端：旧DTO不变、新严格shape/限额/真实body联验 |
+| 23 | `web/src/tests/system-model-selection-state.spec.ts` | 前端：两个未决槽/唯一owner/真实尾部/撤权/原请求恢复 |
+| 24 | `web/src/tests/system-model-selection.spec.ts` | 前端：App/router实组合、双草稿/确认cohost/身份与焦点 |
+| 25 | 新 `tests/account/system_meeting_summary_web_test.go` | 前端/browser作者：§6真实browser顶层与事实旁证 |
+| 26 | 新 `tests/account/system_meeting_summary_web_fixture_test.go` | 同上：正式root+生产dist、专属fixture/有界响应代理 |
+| 27 | 新 `tests/account-captcha-web/system-meeting-summary.config.js` | 同上：显式case/原浏览器/私有输出/固定预算 |
+| 28 | 新 `tests/account-captcha-web/e2e/system-meeting-summary.spec.ts` | 同上：实际浏览器双区配置/恢复/导航/布局 |
+| 29 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 同上：仅新增section后的旧六组页面定位/准备兼容；旧动作/强断言/预算不能删弱 |
+| 30 | `docs/development/backend/README.md` | 后端接受后末件：新口/初始化与未绑定生成边界 |
+| 31 | `docs/development/frontend/README.md` | 前端接受后末件：同页两区/实际命令/恢复与部署限制 |
+
+App.vue、router、菜单、通用 Dialog、旧四项 Editor、Account boundary、common schema、所有迁移、S1 library/contract、脚本/lockfile/共享 fixture及Resolver保持只读。Usage 仅有 #7/#8 白名单例外：`project_usage.go` 的原 startup helper 参数/顺序及其对应测试适配；Usage 业务服务、HTTP、DTO、schema、端口、授权、预算语义和其它产品源保持只读，不能借接线改变业务行为。前端可在HTTP契约冻结后离线实施，真实联验须消费已固定的后端；后端与前端分别唯一作者，web Go fixture的全部权归指定browser作者，不能两个作者争写。31项由root逐文件实际交接，不因表中“新”自动获写权；README仅最后串行授权。独立验证者不参与对应实现，STATIC通过与产品PASS分开记录。
+
+## 6. 验收与停止条件
+
+### 6.1 必要离线与协议检查
+
+纯/race/vet、完整 integration compile/list、两 cmd 实际 build、前端严格client/state/component/type/format/production build按真实闭包固定；Go list/TestMain动态构建/embed、候选与工具/hash在前后匹配，过滤 -run 不免除进程入口闭包。schema用真实安全body核完整closed字段，原失败与输入保留。没有明确实际运行的步骤不标PASS。
+
+- GET/PUT 与 schema/client 的 required/null、未知/重复键、数字/前导零/int64边界、>2^53版本、错误singleton/Model/receipt、16KiB/600000B和流式超限；旧四项字节/lookup闭集不变。
+- Summary新口3s/30s或更早parent在授权前生效，受控认证/body/service/response尾部未完成不得返回；成功/Problem及HEAD headers均须实际Flush后才退休deadline，精确新分支不回旧dispatch二次写。真实native慢body/慢读/取消/partial-write/Flush失败/panic/不支持deadline/清除失败/keepalive成功路径，callback实际join、零遗留，不以fake writer或Write返回证明socket已完。
+- root纯顺序及同ctx，Secret/Model/Summary任一步错或取消不运行后继；构造零SQL、不重复初始化、新 Summary失败不能让Usage或listener成功继续。
+- 同槽/跨槽两个未决intent，各自key/body/id/version不变；A取消/abandon/错误/lookup不能改变B。一个可见超时仍占owner到实际完成；另槽及login/logout/个人/Model不得越过尾部。当前/迟到401/403/CSRF、同身份重验/新Session、App.dispose均有精确断言。
+- 仅本区重读/取消、双草稿一次应用内导航确认、确认前零discard、cancel全保留、确认后精确清理、checking卸载重挂、旧Promise不能在新身份续行；beforeunload仅原生dirty保护、零自定义Promise/槽退休，取消后草稿保持。失效读取可显式恢复，旧四项未配置/错误不挡Summary及反向。
+
+### 6.2 真实 HTTP/root 和浏览器
+
+| 新顶层 | 必须证明的行为 |
+| --- | --- |
+| `TestModelMeetingSummarySettingsHTTP` | 正式Session/admin与当前Tx授权、GET/HEAD/null/PUT/同值/竞争/错ID/禁清空、旧四项独立与同key异义、独立schema安全body；前置认证后正式撤权仍拒绝，完整receipt/canonical/reference/Audit/Event旁证 |
+| `TestModelMeetingSummarySettingsRecovery` | 真实已接受响应截断及原Unknown链，generic lookup仅观察、原PUT重放、后来停用/删除替换/更高版本仍返回原receipt、无重复副作用；另一admin/新Session界限与原四项receipt同kind隔离 |
+| `TestModelMeetingSummarySettingsRoot` | 默认app.Run从正式迁移20无Summary行启动，Secret→Model→Summary→Usage，null不阻塞；配置后真实停机/重启保留ID/version/model；受阻/坏存储启动失败实际收尾，新口及原路由/ready503/keepalive兼容 |
+| `TestAccountSystemMeetingSummaryWebLifecycle` | 冻结生产dist+真实root：四项未配置时首次Summary、普通text chat无json_schema可选、不清空、保存/重读/停用保引用、四项独立保存不改变Summary；无Provider调用/生成事实 |
+| `TestAccountSystemMeetingSummaryWebRecovery` | 实际浏览器两区未确认intent共存；捕获服务器已接受后截断、独立检查与原重放、错key隔离/版本替换、已确认后GET失败、取消本区不清另一槽；服务旁证唯一命令/Audit/Event |
+| `TestAccountSystemMeetingSummaryWebAuthorityNavigation` | 正式撤权/Logout与新Session、当前403、双草稿/未确认的一次确认、继续/放弃、checking重挂/退出/返回、未join尾部阻挡新请求、真实焦点与无残留遮罩 |
+| `TestAccountSystemMeetingSummaryWebReadLayouts` | Provider/Model真实跨页≥26、空页/非法cursor/慢读/半组合拒绝/停用详情；light/dark及390/768/1280/1440宽度、键盘/缩放与水平溢出、按钮/错误/长ID；保存不新增页面/菜单叶子 |
+
+真实HTTP可受控httptest组合与native/root证据分别标识；浏览器必须使用任务自有服务器托管冻结生产dist并反代完整Central，不使用route mock代替正式业务。允许有界故障代理截断真实响应，但保留上游真实接受旁证和对应输入；不能测试端伪造成功body。身份主链用正式Bootstrap/invitation/redeem/login/Logout，若辅助fixture仍SQL seed须明示，不能宣称全身份E2E。真实删除替换沿正式Model口，不直接改canonical/reference制造“保存成功”。
+
+新真实Go顶层2m、原包6m/race/count1/p=1；browser每case45s、workers1/retries0，外层watchdog从精确RUN到最终PASS/FAIL覆盖Cleanup。若所需完整场景无法在既定预算内闭合，先报告拆分完整顶层，不静默延长或删断言。截图按矩阵实际保存并由执行者查看，记录谁看了哪些；CSS缩放与原生浏览器zoom分开，不互冒通过。
+
+旧回归按受影响固定输入至少覆盖：原四用途 browser Lifecycle/OutcomeRecovery/AuthorityAndIdentity/NavigationAndLayouts及分页/竞争适用场景、`TestModelMeetingSummaryExistingHTTP`、`TestModelSystemHTTPSelectionAndReferenceDeletion`、`TestModelSystemHTTPCurrentAdministrator`、`TestModelSystemHTTPBoundaryAndStrictWire`、`TestModelProjectUsageHTTPRootBinding`，以及Account启动/Model根、selection取消读与共享确认恢复的已有强断言。先精确list实际名称；旧测试若仅因新增section/新口存在性需窄适配，记录差量，不能删除旧行为证明或声称原字节测试已重跑。
+
+独立至少A（真实HTTP/currentSystem、根初始化/失败、Unknown与原lookup/旧口）和B（真实browser双intent/owner尾部/导航identity及四项组合）两完整结果；不能只重放作者断言或用离线build代替真实运行。先逐阶段冻结，最终整合再核候选与依赖字节，未变通过证据可按版本复用，不能写成最终全套重跑。
+
+资源每轮另由root交唯一窗口；固定Go/Node/浏览器/PG镜像/MinIO原来源，完整labels/Mount基线、七资源精确ID（拓扑如需变化先核）、PID/starttime、actual exit/direct/adopted wait、双清和输入前后hash按既有规则。任务owned链与PID1 daemon/历史zombie分列，不称全机清零，不重试三停止任务。业务/源码/命令/自有资源停止、独审完成、最终指南核准并由root采纳提交后，才标本卡S2接受；S3/D24与生产SPA仍不因此授权或完成。

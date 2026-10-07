@@ -1,0 +1,27 @@
+{
+  "card": "docs/development/work-items/d09-system-meeting-summary-settings.md",
+  "card_sha256": "1734a1a7e0074db41cc1e3171f805e7107a35efc789d6c2b78437cfb54ae9772",
+  "bytes": 32716,
+  "lines": 175,
+  "status": "rev1 frozen; pending independent full STATIC and root adoption; no implementation authorization",
+  "product_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "documentation_baseline": "72f48d2724f55b0dfed559b6f7120429f78c0c01",
+  "candidate04_sha256": "da01aba5921573ff03acaf9e4d24df047bd2306f82c24936a90f5343a2311fe2",
+  "s1_source_hashes_match": 31,
+  "candidate_paths_count": 31,
+  "read_dependencies_count": 27,
+  "input_administrative_updates": [
+    {
+      "path": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "before": "941bccfd7cd1c87d5709900d0d83849512b5aaa4f244ff35b8703272fc826dd4",
+      "after": "e87c1833c3eca52761f377cf817a012e5ce13332b131119b3843fd3fa4bb882f",
+      "scope": "root accepted archival current-header update; technical/historical suffix unchanged from c210d249",
+      "technical_suffix_sha256": "977c6124cd0b54a9776a3a135a0ab47dc3a85ddaf0637d6aa582db2a9f018a04"
+    }
+  ],
+  "links_and_fragments_checked": 11,
+  "utf8_lf_markdown_whitespace": "PASS",
+  "git_no_index_diff_check": "PASS",
+  "patch_sha256": "ed4832f8e4dd50e4625a78d344ad98e32fd83891a72e201502ef77fef0e775e4",
+  "no_product_tests_resources_git_mutations": true
+}
