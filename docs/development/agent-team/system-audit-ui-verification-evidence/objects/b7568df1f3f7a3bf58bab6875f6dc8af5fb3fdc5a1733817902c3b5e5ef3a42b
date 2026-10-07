@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage04-go.py"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "TMPDIR": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/tmp"
+  },
+  "resource_execution": false,
+  "runner_sha256": "bfd84522ff8aaef55a1ee79ca8b90209a6e287be5fb19e75d8528133b0e7fe61",
+  "started_at_utc": "2026-10-07T02:10:51.075614+00:00"
+}

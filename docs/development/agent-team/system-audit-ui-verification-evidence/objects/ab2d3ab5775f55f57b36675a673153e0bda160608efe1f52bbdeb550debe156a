@@ -1,0 +1,47 @@
+# System Audit UI — final independent PASS
+
+独立验收通过，范围为最终 **input08 的35个候选源及40个dist**。固定作者根 `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot`，input08 manifest SHA `f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17`。前端基线1ff0442、后端契约基线b124650及已接受MIME修订保持分列；未改主树、Git、产品或README。
+
+精确35路径/SHA/冻结源副本在本目录 `delivery35.json`，SHA `db0ee190a271bc3601fa47348eaa57930abcdc47499d8ee9d2c1dea3b6edc0a5`。证据索引 `verification-report.json` SHA `297c9473cda50ba87d71a8b77ece114337c232a1d9e0d833462af10d7e69a3aa`。第36项README由作者/主线程最后处理，不在本报告写入范围。
+
+## 最终独立真实结果
+
+`runs/independent01` 为唯一实际独立业务轮，两精确top均通过：
+
+| Selector | Go top | Browser |
+| --- | ---: | ---: |
+| TestIndependentAuditReadFilterPagingProjection | 10.53s | 5.5s |
+| TestIndependentAuditCancelAuthorityFreshInstance | 9.17s | 4.6s |
+
+监督工具session12530实际返回exit0；原命令actual wait完成，exit0/76.226s。执行使用 `execution03.json` SHA `79f7427e20901a1e3b3cd49ade0572efb8d972d707c3d3d46e198142457c2aad` 和未变 `driver01.py` SHA `4b25b616a9dbff92a8212d4c30c53c328cdb6ad5ff9fe2a1758f9aecdd389d4d`。原45s/browser、2m/top、6m/pkg、race/count1、worker1/retry0均保持，无自动重跑。
+
+A 实际通过原生页面公开操作，验证捕获的applied条件与未提交草稿分离、精确cursor分页/换页目标、上一页重新读取、完整DTO对照正式DB投影、inline详情及返回列表不新读、正式Profile/Outbound记录与typed metadata，以及浏览器只读请求零写/零mutation材料。
+
+B 实际通过受控原生详情读取取消、原操作结束后显式新seq/200/EOF恢复、详情与返回焦点及原生Tab；idle pageshow经Session503后显式同完整身份恢复，旧标题断开、新实例默认50且只读一次；通过原fixture正式Logout及持久事实旁证，随后公开导航得到SESSION_REVOKED并进入登录页，旧Audit内容/后继Audit和User读取均为零。所有Go所需安全结果字段在测试体完成后核验，原native观察纪律不变。
+
+7个exact资源ID两扫全部absent；98个owned PID/starttime记录两扫为空，8个adopted child均有实际wait，monitor错误0；runtime和短浏览器目录均清空，原基线保持。35源/40dist/943接受依赖/18工具/15私有输入/7604运行时文件前后相同。手动启动前空间6,000,697,344B，driver再次执行原5GiB门禁；结束后5,975,109,632B。历史进程和非本轮资源未处理。实际窗口已交回主线程。
+
+关键原件均在 `runs/independent01`：
+
+- command：`26c6182dd38a5ddeeb94dfb99c17b32e7fdba2def8236dd628c8ebf55986c01f`。
+- raw：`cca5ac7bd730b6dc9dc1152799a5b709619e5845e04c0f5a37fa31fb834adf39`。
+- result：`4d69a931a923227eff8d681985980ef640fa223f78c870a1dff160c949ed9b06`。
+- cleanup：`06407698c317089c46359bd93fba3217b094683429fd1cd4c7c75216eafbc003`。
+- input-before/after：同为`17d635846e21bf4680503cc6d26a7f3952730b134f8ac8498f14b8524f9e9e2c`。
+- adopted-waits：`918dc3b9b7b5da8c910b1db763b5c5625d82a5aa68d830ef888d985822229a20`。
+
+## 阶段与作者结果复用
+
+A五源和B三源与最终input08逐SHA相同，C的31源只有SystemAuditView的两处局部CSS变化。独立已接受来源：
+
+- API：`/workspace/scratch/agenteam-audit-ui-api-independent-l1hqm4hf/verification-report.md`，SHA `8bb46eab457417da83b7715d5528ef9fad588f7f7be6e8c801ff09c17498a5b8`。正式Go有界oracle + Node两组合，含严格DTO/整页拒绝、两个GET的1MiB实际EOF和三种held cancel实际join。1MiB是合法DTO加空白，不宣称生产最大记录。
+- Owner：`/workspace/scratch/agenteam-audit-owner-independent-pbczeg66/verification-report.md`，SHA `ba390c30bdd4959d1f1de8b42f4728e8870850d0f92d8c2149e11f5fe8f77ace`。两组合0/0.293447s，十旧域正向隔离、四域独立反向尾部加其余作者证据、当前安全配对、virtual30s与实际tail、页面永久退休/新实例只读一次。
+- App：`/workspace/scratch/agenteam-audit-page-independent-q5uly54i/verification-report.md`，SHA `b4a1421f060f94ce147f9770fd987d5a37b22a9164ace128e779c30ab0428a2f`。两组合0/2.649926s，真实App/router/factory与受控native流；保留checking后合法旧route新实例GET的精确顺序、实际cancel尾部与身份隔离。jsdom焦点不冒原生结论。
+
+作者分版本真实结果由主线程逐轮核定接受：read03/input03 0/58.030s；authority03/input05 0/58.495s；navigation04/input08 0/65.192s；旧Outbound Navigation/input08 0/70.225s；旧SMTP Delivery Navigation/input08 0/70.845s。这些是作者证据，不合并称单轮input08全测。读模式后的fixture改动仅Logout前提，权限模式后的harness改动仅失败布局诊断；最终产品变动仅本页caption padding0与>760px详情列120px。作者原12定向页面测试、type/build和最终新旧Navigation覆盖这些局部变化，本轮独立A/B消费最终40dist。八张新布局图由作者逐图检查、主线程代表检查；本独立轮未重复八图，也未读取仍在写的旧Delivery视觉附记。
+
+## 原失败与限界
+
+所有历史原件保留：read01动态构建闭包缺口及DTO/DB same失败；read02仅两个summary差异的安全输出，静核fixture漏三个rotation映射，未倒填未记录的row action/value；authority01 Logout缺JSON请求体/媒体、authority02 SQL参数text/uuid前提，原raw未分项时不补造返回码/SQL错误。两Authority原cleanupfalse与后续恢复清理分别保存，不改旧轮结果。navigation01只有aggregate false/零图；navigation02实际caption1×8；navigation03实际768px首行详情格76/68并仅两张部分图。两处产品CSS最小修复、原强断言不变和最终Navigation通过分别记录于既有静审/归因报告，精确链接在JSON索引。
+
+取消hold是在上游成功读取/Close之后的同源响应控制，实际browser terminal与proxy join不代表DB事务被hold；更强受控owner尾部由前阶段报告补充。pageshow使用真实监听器的显式事件，不声称完成浏览器物理BFCache往返。未选Go包的no-tests/build成功不是旧业务矩阵通过。未新增Object生命周期/故障、停止任务、外网目标或生产托管验证。本报告冻结后不再执行额外测试。

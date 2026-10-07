@@ -1,0 +1,90 @@
+{
+  "input": {
+    "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/read01-read02-diagnosis01/input.json",
+    "sha256": "1b2abc694e6bf2b1b22b31c30adc8497b8cf5cee7e4f3104b25d760dee1dddb4"
+  },
+  "mapping_mismatches": [
+    {
+      "action": "secret.master.rotation.complete",
+      "fixture_summary": "Audit event",
+      "formal_summary": "Master key rotation completed"
+    },
+    {
+      "action": "secret.master.rotation.failed",
+      "fixture_summary": "Audit event",
+      "formal_summary": "Master key rotation failed"
+    },
+    {
+      "action": "secret.master.rotation.start",
+      "fixture_summary": "Audit event",
+      "formal_summary": "Master key rotation started"
+    }
+  ],
+  "no_product_red_established": true,
+  "no_resources_or_product_execution": true,
+  "review": {
+    "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/read01-read02-diagnosis01/review.md",
+    "sha256": "cea6f1a99b678e126d7238f74c4c4eb96ce7d7917e487deafe225acec1e76722"
+  },
+  "runs": {
+    "read01": {
+      "actual_exit": 1,
+      "actual_wait_completed": true,
+      "adopted_waits": 4,
+      "baseline_unchanged_both": true,
+      "exact_ids_absent_both": 7,
+      "owned_pid_count": 118,
+      "pid_runtime_browser_empty_both": true,
+      "references": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/cleanup.json",
+          "sha256": "c963f1d0a612d0334dd35c20e955361f2e272108955aa195996b8708f6b88e8b"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/command.json",
+          "sha256": "7b4c528088fda97f5de0a0dfc75488fb8a9162d92e241a954d3596bbf645398f"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/raw.log",
+          "sha256": "8ccac9fb6176a1452c20b6d8a4eb3980ca21f5f2ff3defdc33688c52fd743303"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/result.json",
+          "sha256": "ae0e482c50e0ab303897246f97a4e13ac95c596e816638d636f154d21ad1de3e"
+        }
+      },
+      "seconds": 92.919,
+      "source_and_inputs_unchanged": true
+    },
+    "read02": {
+      "actual_exit": 1,
+      "actual_wait_completed": true,
+      "adopted_waits": 4,
+      "baseline_unchanged_both": true,
+      "exact_ids_absent_both": 7,
+      "owned_pid_count": 86,
+      "pid_runtime_browser_empty_both": true,
+      "references": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/cleanup.json",
+          "sha256": "efe00e52ed9c31ac9a5cd81947b72b2c9e7485afb4cba93550363f35ffdef1ba"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/command.json",
+          "sha256": "339c7b5ac209d437b901fee91183c7b993b5a3b62480ec48427783283ea95316"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/raw.log",
+          "sha256": "a824ce8d451f2218d2a7fa8d462e9bf6fc9665219c053141182813f77ec2a4e8"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/result.json",
+          "sha256": "e194025fe1dfca0724cfd6166d2fa752747639c5a1c496a80f5c3acc773846f0"
+        }
+      },
+      "seconds": 58.18,
+      "source_and_inputs_unchanged": true
+    }
+  },
+  "verdict": "CONFIRMED_FIXTURE_PROJECTION_GAP"
+}

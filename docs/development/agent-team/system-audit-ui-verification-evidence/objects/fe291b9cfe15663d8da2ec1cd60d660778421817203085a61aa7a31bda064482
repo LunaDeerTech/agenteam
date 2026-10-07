@@ -1,0 +1,13 @@
+//go:build integration
+
+package account_test
+
+import "testing"
+
+func TestIndependentAuditReadFilterPagingProjection(t *testing.T) {
+	runAuditWeb(t, "independent-read", "applied_not_draft", "cursor_target", "previous_refetch", "detail_projection", "back_no_read", "formal_profile_policy", "zero_mutations")
+}
+
+func TestIndependentAuditCancelAuthorityFreshInstance(t *testing.T) {
+	runAuditWeb(t, "independent-authority", "cancel_actual_end", "explicit_reread", "native_focus_tab", "checking_new_instance", "same_identity", "formal_logout", "no_stale_reads", "zero_mutations")
+}

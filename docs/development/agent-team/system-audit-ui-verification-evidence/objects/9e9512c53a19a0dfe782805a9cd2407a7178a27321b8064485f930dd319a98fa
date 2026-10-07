@@ -1,0 +1,54 @@
+--- harness-stage01/tests/account-captcha-web/e2e/system-audit.spec.ts
++++ harness-stage02/tests/account-captcha-web/e2e/system-audit.spec.ts
+@@ -1050,6 +1050,13 @@
+     await nav(page).getByRole("link", { name: "用户", exact: true }).click();
+     await expect(page.locator("#login-email")).toBeVisible();
+     await expect(page).toHaveURL(/\/login(?:\?|$)/);
++    const loginURL = new URL(page.url());
++    expect(loginURL.pathname).toBe("/login");
++    expect(loginURL.hash).toBe("");
++    const loginQuery = [...loginURL.searchParams.entries()];
++    const memberTarget = loginQuery.length === 0 ? "/" : "/system/users";
++    if (loginQuery.length !== 0)
++      expect(loginQuery).toEqual([["return", "/system/users"]]);
+     await factAfter(
+       page,
+       after,
+@@ -1067,8 +1074,26 @@
+     expect(
+       (await auditFacts(page)).filter((f) => f.sequence > after).length,
+     ).toBe(1);
+-    await login(page, "member");
+-    await expect(heading(page, "需要系统管理员权限")).toBeVisible();
++    const memberSession = await login(page, "member");
++    expect(
++      memberSession.user_id === material().member.user_id &&
++        memberSession.user_id !== currentSession.user_id &&
++        memberSession.session_id !== currentSession.session_id,
++    ).toBe(true);
++    await expect(page).toHaveURL(
++      (url) =>
++        url.pathname === memberTarget && url.search === "" && url.hash === "",
++    );
++    if (memberTarget === "/") {
++      await expect(heading(page, "首页")).toBeVisible();
++      await expect(
++        page
++          .getByRole("navigation", { name: "系统导航", exact: true })
++          .getByRole("link", { name: "系统设置", exact: true }),
++      ).toHaveCount(0);
++    } else {
++      await expect(heading(page, "需要系统管理员权限")).toBeVisible();
++    }
+     expect(
+       await page.locator(".system-audit,.audit-table,.detail-fields").count(),
+     ).toBe(0);
+@@ -1287,7 +1312,7 @@
+   expect(!!mime).toBe(true);
+   // Keep exactly the formal Object record and its associated long IDs visible.
+   await fillFilters(page, {
+-    resource_kind: "object",
++    resource_kind: "stored_object",
+     resource_id: material().object_id,
+     limit: "2",
+   });

@@ -1,0 +1,11 @@
+--- /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage06/source/tests/account/system_audit_web_fixture_test.go
++++ /workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/source/fixture02.go
+@@ -482,7 +482,7 @@
+ 	if err != nil {
+ 		f.t.Fatal("locked browser root unavailable")
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-audit.config.js"))
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.config.mjs")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }

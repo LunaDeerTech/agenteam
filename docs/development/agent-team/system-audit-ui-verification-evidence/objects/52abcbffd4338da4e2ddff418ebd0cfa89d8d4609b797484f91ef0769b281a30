@@ -1,0 +1,14 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-audit-page-independent-q5uly54i/source/web
+
+independent-A {"appliedPreserved":true,"detailNoPartial":true,"rejectedLeaveExplicitRecovery":true,"busyPageshowNoRestore":true,"threeCancelTailsJoined":true,"freshInstanceWaitsThenOneDefaultRead":true,"staleHeadingNotFocused":true,"zeroWrites":true,"jsdomOnly":true}
+independent-B-navigation [{"method":"GET","path":"/api/v1/session","phase":"checking","personalPhase":"checking","route":"/system/audit"},{"method":"GET","path":"/api/v1/system/audit?limit=50","phase":"authenticated","personalPhase":"current","role":"admin","route":"/system/audit"}]
+independent-B {"checkingRetiredOldInstance":true,"sameSessionFreshDefaultReadOnce":true,"current403ClearedDraft":true,"guardFreshReadAllowed":true,"native403CancelTailJoined":true,"identityNotPoisoned":true,"zeroSuccessorsAndWrites":true,"jsdomOnly":true}
+ ✓ src/tests/independent-audit-app01.spec.ts (2 tests) 607ms
+     ✓ A keeps applied filters and local focus through cancellation, rejected leave, and a fresh instance waiting for the old tail  401ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  00:31:11
+   Duration  2.24s (transform 966ms, setup 0ms, import 1.10s, tests 607ms, environment 421ms)
+

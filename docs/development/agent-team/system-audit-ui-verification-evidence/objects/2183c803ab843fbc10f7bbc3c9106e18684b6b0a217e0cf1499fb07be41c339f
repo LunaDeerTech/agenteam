@@ -1,0 +1,107 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.34.236.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=6fc2945ebc5302b409c38784a3dc8699
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=a7e3a3fdee6ac3a7ea217f2c724e655e
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.067s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+=== RUN   TestAccountSystemAuditWebNavigationAndLayouts
+    system_audit_web_fixture_test.go:585: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:606680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:606680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/system-audit.spec.ts:864:1 › [navigation] ninth leaf, thirteenth return, page lifetimes and eight real layouts
+        [1A[2Ke2e/system-audit.spec.ts:864:1 › [navigation] ninth leaf, thirteenth return, page lifetimes and eight real layouts
+        audit-layout-safe-diagnostic {"width":768,"detailMode":false,"diagnostic":{"category":"content-overflow","index":38,"tag":"TD","scroll_width":76,"client_width":68}}
+        
+        [1A[2K  1) e2e/system-audit.spec.ts:864:1 › [navigation] ninth leaf, thirteenth return, page lifetimes and eight real layouts 
+        
+            Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+        
+            Expected: [32mtrue[39m
+            Received: [31mfalse[39m
+        
+              1455 |       JSON.stringify({ width, detailMode, diagnostic }),
+              1456 |     );
+            > 1457 |   expect(safe).toBe(true);
+                   |                ^
+              1458 |   if (detailMode) {
+              1459 |     await page.locator(".detail-fields dd").last().scrollIntoViewIfNeeded();
+              1460 |     await expect(page.locator(".detail-fields dd").last()).toBeInViewport();
+                at layout (/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/e2e/system-audit.spec.ts:1457:16)
+                at /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/e2e/system-audit.spec.ts:1567:7
+        
+        
+        [1A[2K  1 failed
+            e2e/system-audit.spec.ts:864:1 › [navigation] ninth leaf, thirteenth return, page lifetimes and eight real layouts 
+        
+    system_audit_web_fixture_test.go:587: actual Audit production browser failed: exit status 1
+--- FAIL: TestAccountSystemAuditWebNavigationAndLayouts (11.68s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	11.705s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce edcad980e229f2db566c4a5d85b89e37
+D04 outbound fixture cleanup checked for nonce a7e3a3fdee6ac3a7ea217f2c724e655e
+D05 object fixture exact resource cleanup checked nonce=6fc2945ebc5302b409c38784a3dc8699

@@ -1,0 +1,34 @@
+# Audit UI 独立最终 A/B 离线准备
+
+OFFLINE READY；两个真实测试体均未执行，没有启动浏览器、端口、PG、Docker或业务资源。真实窗口仍须root另授。当前绑定作者input05；作者后续几何诊断若改变正式候选清单，需差量重绑，不将本轮门禁称为未来输入通过。
+
+- 作者 `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input05/manifest.json`：`6ab3605a803b2854c54126e7bc1bd56be4de17010b03890cc526366a201ba5c2`。35源、40dist、943固定Git闭包，backend b124650/frontend1ff0442；不隐式切Runtime或主树新HEAD。
+- [execution01.json](execution01.json)：`a8ba35af13cde76863a7962a7e38e882f90e6d1ea34ecb0be60803ce38422fa8`；[driver01.py](driver01.py)：`4b25b616a9dbff92a8212d4c30c53c328cdb6ad5ff9fe2a1758f9aecdd389d4d`。
+- [driver-author-to-independent01.diff](driver-author-to-independent01.diff)仅固定readonly作者cwd、两精确top/组、private/runtime/tool指纹与独立执行显式门禁、overlay；原7资源拓扑/完整Mounts对照/nonce/exactID/PIDstart/direct和adoptwait/双扫清理保持。
+- [fixture-author-to-independent01.diff](fixture-author-to-independent01.diff)仅替换Playwright config绝对路径，源来自harness06，已含正式Logout `{}`+JSON媒体及两SQL参数cast；IPC/proxy/服务事实原字节。新Go入口仅调用原runAuditWeb两模式，原每top2m、browser45s、pkg6m/race/count1/worker1/retry0。
+- [browser/independent.spec.ts](browser/independent.spec.ts)沿real-focus02：A captured applied与未应用draft、小页cursor/上一页重读、精确Profile/Outbound完整DTO与summary、返回不读/显式首页；B native详情cancel/error零候选→实际结束再显式200EOF、真实本地focus/Tab、503→同user/session/role的200EOF和全空默认新页一次、正式Logout当前401/旧内容与后继请求零。旧矩阵、producer及控制协议不扩。
+
+原观察器前缀复用，返回原fetch/Response/reader/read Promise，无clone/tee或旁路cancel。私有cancel helper仅增加错误页零detail候选和未完成响应零DTO断言；finally仍release/join。proxy hold位于正式服务完整200/Close后，不称事务尾部屏障；浏览器结束观察与proxy/server joined分列。Session503不要求伪EOF，恢复200必须新序号EOF。pageshow是合成事件，不称BFCache。无trace/video/自动截图，无八图复制；材料只进程内比较，输出safe布尔/计数。
+
+| 离线命令 | 实际结果 | 监督 |
+|---|---|---|
+| format01 | 0 / 0.432s | wait、前后输入同、PID双空 |
+| closure01 | 0 / 0.534s | wait、前后输入同、PID双空 |
+| type01 | 0 / 1.141s | wait、前后输入同、PID双空 |
+| compile01 | 0 / 33.125s | wait、前后输入同、PID双空 |
+| list02 | 0 / 1.019s | wait、前后输入同、PID双空 |
+| discover-a01 | 0 / 1.261s | wait、前后输入同、PID双空 |
+| discover-b01 | 0 / 1.095s | wait、前后输入同、PID双空 |
+| gate01 | 0 / 1.508s | wait、前后输入同、PID双空 |
+
+完整argv/环境、输入beforeafter、raw/result/cleanup见 [preparation-ready01.json](preparation-ready01.json) 与各 `runs/`。全部外层45s，未延长预算。Go `-c -race`只编译；随后已绑定binary SHA的list02精确发现两top，A/B Playwright `--list`各1，不执行测试体。list01是未执行准备稿，list02补入实际compiled artifact指纹后执行；不混为失败或重复动态。48,133,581B私有/tmp编译输出已在记录SHA后移除，见 [compiled-cleanup01.json](compiled-cleanup01.json)。没有删除cache/modcache或原件。
+
+实际 `go list -deps -test -tags integration -overlay`发现456包，含原脚本16根、4fixture helper及Central/Runner/SMTP三非test动态build目标；未遗漏TestMain动态编译入口。绑定4287 Go运行输入、3319 Node/tool输入，去重7604及13私有文件。Node私有testDir与fixture绝对CLI解析为同一锁定Playwright包，strict TS通过。Go依赖与Node锁为只读；复用既有bi81编译cache，真实driver保留已验SMTP cache路径，不复制源码树或另造大cache。
+
+预定命令（尚未授权运行）：
+
+```text
+/usr/bin/python3 /workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/driver01.py --name independent01 --group both --frozen /workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution01.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```
+
+实际启动前需另存fresh df≥5GiB手动记录；driver再做一次fresh≥5GiB门禁，再核完整源/产物/工具与2c4n baseline。首红先actual终局与原cleanup，不自动重跑。原作者authority01/02及各恢复清理、导航未知几何均按原分层保留，本准备不替其改写结论。

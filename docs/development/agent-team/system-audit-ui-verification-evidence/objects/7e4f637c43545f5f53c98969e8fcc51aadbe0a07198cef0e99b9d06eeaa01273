@@ -1,0 +1,9 @@
+# System Audit harness stage03
+
+The original read01 remains exit1: tests/process TestMain could not build the absent cmd/agenteam target, and the selected Audit top separately failed its first complete DTO-to-DB equality assertion. Its raw log has only true/false, not field differences. No specific DTO cause or product defect is established.
+
+Only the new browser spec changes: the same equality failure branch emits at most 20 row indices, closed DTO/metadata paths, type labels and missing/value-different flags. Paths never come from incoming keys. No field values, IDs, Session material, metadata content, body, headers or keys are logged. The original same assertion, observation, business flow and budgets remain unchanged. Format, strict typecheck and the read-only Playwright read listing passed. The other three harness sources, accepted ABC31 and dist40 remain exact.
+
+The runtime dependency addition is five unchanged files from fixed b124650: both command mains, runner app/config and the SMTP server main. tests/process has the only TestMain in the selected package closure and unconditionally builds both commands. The SMTP helper's server build is needed by the already planned old Delivery top; its missing target was found statically and was not an additional real failure. Each of the three targets was built offline within its own 45-second supervised command, its binary SHA and length recorded, and the binary removed without execution. Existing runtime import-graph evidence is retained and supplemented by this dynamic-target inventory and actual builds, not rewritten.
+
+Original read01 completed actual wait and double cleanup: 7 exact IDs absent, 118 owned PID/start pairs gone, 4 adopted waits, empty runtime directories, baseline and source inputs unchanged. Its input01 and every original failure remain immutable. No real rerun was authorized or started during this preparation.

@@ -1,0 +1,77 @@
+package audithttp
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+	"os"
+	"strings"
+	"testing"
+
+	c "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+func TestIndependentAuditUIOracle(t *testing.T) {
+	const id = "01980000-0000-7000-8000-000000000011"
+	type sample struct { Name string `json:"name"`; Accepted bool `json:"accepted"`; Body map[string]any `json:"body"`; MetadataBytes int `json:"metadata_bytes"` }
+	rows := []sample{}
+	makeRow := func(name, action, kind, meta string, service identity.ServiceName, outcome c.Outcome, want bool) {
+		t.Helper()
+		var raw map[string]any
+		if json.Unmarshal([]byte(strings.ReplaceAll(meta,"$ID",id)), &raw)!=nil {t.Fatal("private metadata JSON")}
+		resourceID:=id;if kind=="outbound_policy" {resourceID=""}
+		resource,err:=c.NewResource(c.ResourceKind(kind),resourceID);if err!=nil {t.Fatal("private resource")}
+		user,_:=foundation.ParseID[identity.User](id);session,_:=foundation.ParseID[identity.Session](id)
+		actor,err:=identity.NewHuman(user,session);if err!=nil {t.Fatal("private human")}
+		summary:=c.ActorSummary{Kind:identity.Human,ID:id}
+		actorWire:=map[string]any{"kind":"human","id":id}
+		if service!="" {
+			registration,e:=identity.RegisterService(service);if e!=nil {t.Fatal("private service")}
+			actor,e=registration.Actor("sha256:"+strings.Repeat("f",64),identity.SystemScope());if e!=nil {t.Fatal("private cause")}
+			summary=c.ActorSummary{Kind:identity.Service,Service:service,CauseRef:actor.Details().CauseRef}
+			actorWire=map[string]any{"kind":"service","service":string(service),"cause_ref":actor.Details().CauseRef}
+		}
+		aid,_:=foundation.ParseID[c.Record](id);at,_:=foundation.ParseInstant("0000-02-29T23:59:59.123456Z")
+		label,exists:=actionSummary(c.Action(action));if !exists {t.Fatal("private action")}
+		body:=map[string]any{"audit_id":id,"created_at":at.String(),"scope":"system","actor":actorWire,"action":action,"outcome":string(outcome),"resource":resource.Details(),"metadata":raw,"associations":map[string]any{},"summary":label}
+		encodedMetadata,_:=json.Marshal(raw)
+		metadata,err:=c.DecodeMetadata(c.Action(action),encodedMetadata)
+		var entry c.Entry
+		if err==nil {entry,err=c.NewEntry(c.EntryFields{Scope:identity.SystemScope(),Actor:actor,Action:c.Action(action),Outcome:outcome,Resource:resource,Metadata:metadata})}
+		accepted:=err==nil
+		if accepted {
+			f:=entry.Fields();record:=c.SafeRecord{AppendReceipt:c.AppendReceipt{AuditID:aid,CreatedAt:at},Scope:f.Scope,Actor:summary,Action:f.Action,Outcome:f.Outcome,Resource:f.Resource,Metadata:f.Metadata,Associations:f.Associations,Summary:"discard-untrusted"}
+			wire,e:=encodeRecord(record);if e!=nil || json.Unmarshal(wire,&body)!=nil {t.Fatal("formal wire rejected accepted Entry")}
+			encodedMetadata=metadata.JSON()
+		}
+		if accepted!=want {t.Fatalf("formal prerequisite differs: %s",name)}
+		rows=append(rows,sample{name,accepted,body,len(encodedMetadata)})
+	}
+	makeRow("secret-optional-reason","secret.resolve","secret",`{"lease_id":"$ID","consumer":"smtp","reason":"permission_denied"}`,"",c.Denied,true)
+	makeRow("login-rejected-no-user","account.login","account_attempt",`{"version":"1","phase":"rejected","attempt_id":"$ID","reason":"session_invalid"}`,identity.AccountAuth,c.Denied,true)
+	makeRow("model-replacement-int64","model.delete","model_config",`{"provider_id":"$ID","model_id":"$ID","version":"9223372036854775807","changed_fields":["deleted","replacement"],"affected_count":"9007199254740993","replacement_id":"$ID"}`,"",c.Success,true)
+	makeRow("object-agent-initiator","object.upload.failed","stored_object",`{"object_id":"$ID","initiator_kind":"agent_run","initiator_id":"$ID","initiator_execution_id":"$ID","media_type":"{x}/{y}; charset=us-ascii","byte_size":"9223372036854775807","sent_bytes":"9007199254740993","phase":"failed","reason":"cancelled"}`,identity.ObjectService,c.Unknown,true)
+	makeRow("outbox-current-cycle","outbox.delivery.requeue","outbox_delivery",`{"delivery_id":"$ID","event_id":"$ID","handler_id":"safe.handler-v2","from_state":"dead_letter","redrive_cycle":"9223372036854775807","reason_code":"dependency_restored"}`,"",c.Success,true)
+	makeRow("delivery-unknown-omitted-initiator","smtp.delivery","mail_job",`{"version":"2","phase":"unknown","job_id":"$ID","attempt_id":"$ID","channel":"log","reason":"delivery_unknown"}`,identity.AccountMail,c.Unknown,true)
+	makeRow("policy-nonsuccess-legal","outbound.policy.update","outbound_policy",`{"version":"2","rule_count":"256"}`,"",c.Unknown,true)
+	makeRow("model-int64-overflow","model.delete","model_config",`{"provider_id":"$ID","model_id":"$ID","version":"9223372036854775808","changed_fields":["deleted"],"affected_count":"0"}`,"",c.Success,false)
+	makeRow("model-unmatched-replacement","model.delete","model_config",`{"provider_id":"$ID","model_id":"$ID","version":"1","changed_fields":["deleted"],"affected_count":"0","replacement_id":"$ID"}`,"",c.Success,false)
+	makeRow("object-missing-execution","object.upload.failed","stored_object",`{"object_id":"$ID","initiator_kind":"agent_run","initiator_id":"$ID","media_type":"text","byte_size":"7","sent_bytes":"3","phase":"failed","reason":"cancelled"}`,identity.ObjectService,c.Failed,false)
+	makeRow("outbox-service-actor","outbox.delivery.requeue","outbox_delivery",`{"delivery_id":"$ID","event_id":"$ID","handler_id":"safe.handler-v2","from_state":"failed","redrive_cycle":"1","reason_code":"operator_retry"}`,identity.AccountMail,c.Success,false)
+	makeRow("delivery-phase-outcome-mismatch","smtp.delivery","mail_job",`{"version":"2","phase":"unknown","job_id":"$ID","attempt_id":"$ID","channel":"smtp","reason":"delivery_unknown"}`,identity.AccountMail,c.Success,false)
+	instants:=[]map[string]any{}
+	for _,value:=range []string{"0000-02-29T23:59:59.123456Z","0099-12-31T12:00:00.000001-12:00","2026-10-06T12:34:56.123456+05:45","2026-10-06T12:34:56.1-00:30","9999-12-31T23:59:59.999999Z","0000-01-01T00:00:00+00:01","9999-12-31T23:59:59-00:01","1900-02-29T00:00:00Z","2000-02-29T00:00:00Z","2026-10-06T12:34:56.1234567Z","2026-10-06T24:00:00Z","2026-10-06T12:34:56+24:00"} {
+		instant,e:=foundation.ParseInstant(value);row:=map[string]any{"input":value,"accepted":e==nil};if e==nil {row["canonical"]=instant.String()};instants=append(instants,row)
+	}
+	filters:=[]map[string]any{}
+	complete:=map[string]string{"from":"0000-02-29T23:59:59.123456Z","to":"2026-10-06T00:00:00.000000Z","actor_kind":"agent_run","actor_id":id,"action":"artifact.read","outcome":"success","resource_kind":"artifact","resource_id":id,"tool_id":id,"execution_id":id,"operation_id":id,"approval_id":id,"runner_id":id,"agent_id":id,"limit":"2","cursor":"safe.opaque_-"}
+	for index,change:=range []map[string]string{{},{"actor_kind":"service"},{"to":"0000-02-29T23:59:59.123456Z"},{"limit":"01"},{"actor_kind":"service","actor_id":""},{"cursor":strings.Repeat("a",8193)}} {
+		v:=map[string]string{};for k,x:=range complete {v[k]=x};for k,x:=range change {v[k]=x};encoded:=url.Values{};for k,x:=range v {encoded.Set(k,x)}
+		f,p,e:=query(encoded.Encode(),false);row:=map[string]any{"name":fmt.Sprintf("filter-%d",index),"input":v,"accepted":e==nil};if e==nil {row["limit"]=p.Limit;row["from"]=f.From.String();row["to"]=f.To.String()};filters=append(filters,row)
+	}
+	out:=map[string]any{"records":rows,"instants":instants,"filters":filters}
+	b,e:=json.MarshalIndent(out,"","  ");if e!=nil {t.Fatal("oracle marshal")};dest:=os.Getenv("AUDIT_UI_ORACLE_OUTPUT");if dest=="" {t.Fatal("oracle output missing")};if os.WriteFile(dest,append(b,'\n'),0600)!=nil {t.Fatal("oracle write")}
+	t.Logf("formal_records=%d instant_vectors=%d filter_vectors=%d no_resources=true",len(rows),len(instants),len(filters))
+}

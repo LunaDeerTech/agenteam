@@ -1,0 +1,14 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit.spec.ts -t has one protected|handles current403
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+audit-current403-navigation [{"method":"GET","path":"/api/v1/session","phase":"checking","personalPhase":"checking","route":"/system/audit"},{"method":"GET","path":"/api/v1/system/audit?limit=50","phase":"authenticated","personalPhase":"current","role":"admin","route":"/system/audit"}]
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 8 skipped (10)
+   Start at  00:20:07
+   Duration  1.84s (transform 898ms, setup 0ms, import 1.02s, tests 327ms, environment 375ms)
+

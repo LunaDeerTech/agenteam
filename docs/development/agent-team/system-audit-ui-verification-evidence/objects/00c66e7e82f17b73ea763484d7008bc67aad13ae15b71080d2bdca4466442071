@@ -1,0 +1,31 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "npm",
+    "run",
+    "test:unit",
+    "--",
+    "src/tests/system-audit-state.spec.ts",
+    "-t",
+    "cannot enter while|blocks all ten domains|leaves pending"
+  ],
+  "child_pid": 368631,
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web",
+  "duration_seconds": 1.609,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "96c4cfb94a3a8f68aff2d78ae520d72975f885db20caad32503c4fe163b8f69e",
+  "input_before_sha256": "96c4cfb94a3a8f68aff2d78ae520d72975f885db20caad32503c4fe163b8f69e",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "df7716654569c576c1ebf1530b831efdad13ee422b5ed2fe365f44a753cf9c23",
+  "resource_execution": false,
+  "runner_sha256": "8395c6d958d699bf107800544e6f1557c0323fdf89e507978bde5b222843ed13",
+  "timed_out": false
+}

@@ -1,0 +1,236 @@
+{
+  "accepted_type_closure": {
+    "all_exact": true,
+    "checked_files": 152,
+    "inventory_path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/preparation.json",
+    "inventory_sha256": "082861cf55c92718db8d610716d4d1515db561d664a2749e7f9d5bdfe3853b06",
+    "limitation": "original offline runner captures candidate files pre/post; full fixed accepted web inventory checked at stage freeze, not claimed to be a separate per-command pre/post sweep"
+  },
+  "backend_contract_base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "backend_reference": {
+    "all_exact": true,
+    "checked_files": 25,
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/backend-reference.json",
+    "sha256": "560562d161a7157163b9dea3a037e17f494f8d6529e91fee7316f88c78a41c71"
+  },
+  "format": {
+    "before_format_product_equal_first_red": {
+      "web/src/api/client.ts": true,
+      "web/src/api/system-audit-metadata.ts": true,
+      "web/src/api/system-audit.ts": true
+    },
+    "product_after_format_hash_changed": true,
+    "scope": "Prettier only; formatter command and before/after candidate snapshots preserved; no claim of unchanged bytes across formatting."
+  },
+  "front_base": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+  "limits": [
+    "No owner, controller, App, native browser, HTTP/PG/Docker, or production SPA acceptance.",
+    "OpenAPI from b124 is narrower for formal MIME; root authorized separate schema-only repair. Current parser follows unchanged typed Go contract. New accepted schema SHA will be bound separately.",
+    "32KiB RawQuery is a defensive encoded ceiling; legal fixed-filter maxima plus 8192-byte cursor are below it; no assertion that exact32KiB is constructible.",
+    "1MiB boundary exercised on fixed two transport operations with native streams; full DTO tests separately validate whole pages and bad final rows.",
+    "4096 metadata count uses Go HTML/U+2028/U+2029 escaping; exact4096/4097 generic counter probes do not claim formal producer can create maximal shape."
+  ],
+  "lock_sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+  "node_modules_readonly": "/workspace/agenteam/web/node_modules",
+  "oracles": {
+    "oracle01/mime-report.json": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/oracle01/mime-report.json",
+      "sha256": "4e42a6cb1a6574d4a2e8ab5187c157e215ff76933b761c474f79fd8667d41904"
+    },
+    "oracle01/mime-vectors.json": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/oracle01/mime-vectors.json",
+      "sha256": "52523d0af73f14208f90b54bc00906c89342e21ba7689adcb54cd90732b6d472"
+    },
+    "oracle02/input.json": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/oracle02/input.json",
+      "sha256": "8daab070441562567f18a21c4f279cbb0a930e13d207022c494eac1fe28aac0b"
+    },
+    "oracle02/output.json": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/oracle02/output.json",
+      "sha256": "39aef8449c7c16882c06b1cca549f8b5825440c3d343592971623ff731e43fea"
+    }
+  },
+  "original_red": {
+    "api-pure01": "178 PASS / 2 fixture-premise FAIL: undefined cursor converted to null by test helper default; oversize cancellation cleanup actively aborted before actual join and changed classification. Sources/raw preserved. Native cancel promises resolved and pending operations awaited in original finally. No production semantic repair.",
+    "api-pure02": "5 affected PASS after exact test corrections and meaningful Problem byte-bound assertion; remaining original passing cases reused then all 180 rerun api-pure03."
+  },
+  "readonly_dependencies": {
+    "web/.prettierignore": "0b737e348f781f0573ef62ae5f68f984eca718f732a9fb9c95054f57363e1a50",
+    "web/.prettierrc.json": "247948f37fa595cc5c84503e35dcb06706b874f01777807691e11a4fc8ee4431",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  },
+  "runner_sha256": "59415ba6e78ab062b5eee48f8981f0993c01e9df2a6705a3d2c17ed8b9b0a9a9",
+  "runs": {
+    "api-format-check01": {
+      "actual_wait": true,
+      "duration_seconds": 1.258,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "70377ff2f1ff47c65cf55f23c7df11361d638a4a153e8e584e0d2a54a63d196b",
+        "input-after.json": "dbeecf0e9b839ba7c44586b891658a9deb04656f2f4ab3d63d7e85e0bb5e79a6",
+        "input-before.json": "dbeecf0e9b839ba7c44586b891658a9deb04656f2f4ab3d63d7e85e0bb5e79a6",
+        "observed-processes.json": "4c8c08d81e2d8ca3ae623d464d2d873c83fa92fa130cacbb94fa65711ab7574d",
+        "raw.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+        "result.json": "2fd1b1ab08f45589297e8bb32c0ed3e3f2561c28ef43b9c014fe190c826c857e"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/api-format-check01"
+    },
+    "api-format01": {
+      "actual_wait": true,
+      "duration_seconds": 0.605,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "9ffdbd036fc6586fad8dc071ce35a0fdf60ea5ee5c242d3d9a13bea7a991aafe",
+        "input-after.json": "dbeecf0e9b839ba7c44586b891658a9deb04656f2f4ab3d63d7e85e0bb5e79a6",
+        "input-before.json": "8101aa65e5492b1e48c1a23c284389ec4cceafdc948149da672f0fa1eaf0048d",
+        "observed-processes.json": "643eecd089188bf3f2cfed0790e4e3106a51d5d784a93381064b9f2d6937fae9",
+        "raw.log": "726db056a7ce397c07e210627a367fa7a3df7609c56efc123163ca16b480cb5c",
+        "result.json": "fd78c98c020e44e44548d30fd7ff6452104fc85927798bd5cfc2f3a2718a3b26"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/api-format01"
+    },
+    "api-pure01": {
+      "actual_wait": true,
+      "duration_seconds": 1.685,
+      "exit": 1,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "a17c34942d88547e67f12f5679ece7e37e4b6b75a63bfd2b960d863450fe8f97",
+        "input-after.json": "52bdd6156154ac02e1d05755187c79a59516f4a76afde3a5fc4a08e3302c224b",
+        "input-before.json": "52bdd6156154ac02e1d05755187c79a59516f4a76afde3a5fc4a08e3302c224b",
+        "observed-processes.json": "95cfad21c9031e6fb48789da19f06e09f577772ed885efac41f7bd627a33865d",
+        "raw.log": "f7e68665ddc7a51433940a91bfef5cc7e69149e9b85b784a818c5df85b4e5846",
+        "result.json": "124dbccf6afad1fafdd7d4b4fe6a118e90531f96190457ef950b6bb8bf54ae0d"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/api-pure01"
+    },
+    "api-pure02": {
+      "actual_wait": true,
+      "duration_seconds": 1.235,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "375247a8ccaa6df071ed96fe002c98c1f038ff3cafd9679e45c1c4cfd0f30aa1",
+        "input-after.json": "5f6ab18be66adabb176a2f8f06f53e3b9246a1a0f0e43d54e76620328eca7769",
+        "input-before.json": "5f6ab18be66adabb176a2f8f06f53e3b9246a1a0f0e43d54e76620328eca7769",
+        "observed-processes.json": "123e408040d78cb40d0afc051c25842a4ed4c86ddd0d1fd89db68180d829a936",
+        "raw.log": "ee8da7450f615554c041235c31edae8b0e5df69f53cbd262448686a57ca2b91d",
+        "result.json": "27e0a4a9638e23b9bebd8aa4504f1a3b1fe782a087a3ed166d8a8f7b40ea457f"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/api-pure02"
+    },
+    "api-pure03": {
+      "actual_wait": true,
+      "duration_seconds": 1.919,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "a17c34942d88547e67f12f5679ece7e37e4b6b75a63bfd2b960d863450fe8f97",
+        "input-after.json": "dbeecf0e9b839ba7c44586b891658a9deb04656f2f4ab3d63d7e85e0bb5e79a6",
+        "input-before.json": "dbeecf0e9b839ba7c44586b891658a9deb04656f2f4ab3d63d7e85e0bb5e79a6",
+        "observed-processes.json": "095ef14099447b7a824f016659f3d29b91e073d140c39d76a18d25946eeef3a4",
+        "raw.log": "f8ce4a61f4ad88808a4ad1bcef643f260a1e8f06c76c26df483e694eabd4c9b0",
+        "result.json": "e02bbfecb196b2a568b25d246b380cd2d8ec407bf6997ef49a46227fece5fc78"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/api-pure03"
+    },
+    "api-type01": {
+      "actual_wait": true,
+      "duration_seconds": 8.184,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "59c494e98efd9d8498ba481e453ecbf27cdea4ba1c78af6feab5225f74579cc2",
+        "input-after.json": "52bdd6156154ac02e1d05755187c79a59516f4a76afde3a5fc4a08e3302c224b",
+        "input-before.json": "52bdd6156154ac02e1d05755187c79a59516f4a76afde3a5fc4a08e3302c224b",
+        "observed-processes.json": "f6237aa03b5bee70cc7f5cd30e01a21168534922a83299493e0cca6b1da2c89a",
+        "raw.log": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+        "result.json": "2442e9c98f57d5eb8b5d54395007c6b275bc0721835d6637182755e85d5c9a6f"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/api-type01"
+    },
+    "api-type02": {
+      "actual_wait": true,
+      "duration_seconds": 8.052,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "59c494e98efd9d8498ba481e453ecbf27cdea4ba1c78af6feab5225f74579cc2",
+        "input-after.json": "dbeecf0e9b839ba7c44586b891658a9deb04656f2f4ab3d63d7e85e0bb5e79a6",
+        "input-before.json": "dbeecf0e9b839ba7c44586b891658a9deb04656f2f4ab3d63d7e85e0bb5e79a6",
+        "observed-processes.json": "58a9445943e8fd6ac5f40323e4b9f58da5adabbc965d6dac917d5e3a71ab5fda",
+        "raw.log": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+        "result.json": "bb34a6630a513b07149e7c7c127b4a29508f02cf3fe73c510042a22761555ca9"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/api-type02"
+    },
+    "contract-oracle02": {
+      "actual_wait": true,
+      "duration_seconds": 0.334,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "ee92650857e4a3712eb5608fa471cfec891c3e5989a8180ea918e1f42497fa50",
+        "input-after.json": "5df178dd107cf19fa4bd5b9e7ca7c747d59a495a0343430d167062c8e9fa9813",
+        "input-before.json": "5df178dd107cf19fa4bd5b9e7ca7c747d59a495a0343430d167062c8e9fa9813",
+        "observed-processes.json": "418e3624f5ef07fc9362f3903b1d06f32a143a697a14b52edc270551b332854b",
+        "raw.log": "6f911bf51f15fa12497f67dc1357593f392a0d6d81fc5b2f02c7df31ee4e342f",
+        "result.json": "791cc60614c2cd6d2c423764d711ad8c590d4899dd90210082cdf69418c8f143"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/contract-oracle02"
+    },
+    "mime-oracle01": {
+      "actual_wait": true,
+      "duration_seconds": 1.302,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "acf4c7a8954a461245a34646fb3515380e4843c8d08101689d98c4cbb55d69da",
+        "input-after.json": "9ef3e80968bb04e572fa7e71625fe731e51c5b8aacce7d736042b40292cdecbb",
+        "input-before.json": "9ef3e80968bb04e572fa7e71625fe731e51c5b8aacce7d736042b40292cdecbb",
+        "observed-processes.json": "90ecc92ea61dfe169e617c8f7f23cf294948bf9d4b585ba750687d00a81c8ecc",
+        "raw.log": "f132cced445a9f47cb4439a72aa0512cc2b45f13f370233f75e14d56956bb0bf",
+        "result.json": "f9f6d34ecedd018fa8cc4ec0fda8f44bdcb4a81c393fb323ab44126190c8f574"
+      },
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/mime-oracle01"
+    }
+  },
+  "source": {
+    "web/src/api/client.ts": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3",
+    "web/src/api/system-audit-metadata.ts": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630",
+    "web/src/api/system-audit.ts": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+    "web/src/tests/system-audit-client.spec.ts": "52a8200c89ed6e7e91559aea19ade4024ab5265bb34b05ff0cd61b62a52c8a83",
+    "web/src/tests/system-audit-metadata.spec.ts": "c0ea3b9b581354310262e3b8a6a63b57a5037ac4da5d50a4fd18d9b4b556ec7f"
+  },
+  "source_diff_sha256": "efca001a8d1e18ed0a17287e900189d0db62d8cb4153388ab672f2914e87ed8c",
+  "spec_commit": "a7a29c34acbe392d9a1375967309123b9a74ec16",
+  "spec_path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/card.md",
+  "spec_sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1",
+  "stage": "A/API-stage01",
+  "status": "author offline PASS; independent review pending; upstream MIME schema acceptance binding pending"
+}

@@ -1,0 +1,151 @@
+{
+  "accepted_baseline_files": 943,
+  "candidate_sources": 35,
+  "commands": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-tags",
+        "integration",
+        "-overlay",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/overlay01.json",
+        "-o",
+        "/tmp/agt-audit-independent-compile-aabj87i1/account.test",
+        "./tests/account"
+      ],
+      "name": "compile01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-compile01.json",
+      "sha256": "8e8aa8031518adb401d281827dabd656d37dceb42de33c791507ed8b3b6a90c5"
+    },
+    {
+      "argv": [
+        "/tmp/agt-audit-independent-compile-aabj87i1/account.test",
+        "-test.list",
+        "^(TestIndependentAuditReadFilterPagingProjection|TestIndependentAuditCancelAuthorityFreshInstance)$"
+      ],
+      "name": "list01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-list01.json",
+      "sha256": "804a7067a6f019258ce67803cbdf24a0c1251f58aa37bc26459ca40cec5bf34b"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/driver01.py",
+        "--name",
+        "gate01",
+        "--group",
+        "both",
+        "--frozen",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution01.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "name": "gate01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-gate01.json",
+      "sha256": "92548a2571382835b92033357fac88b887408c75d535abae20e74176670edcc3"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/format01.py"
+      ],
+      "name": "format01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-format01.json",
+      "sha256": "1bb194a32f94e68a4c8791d58d9fe813a67ca74d47a63498ab4c0e3d3339a598"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-test",
+        "-tags=integration",
+        "-overlay",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/overlay01.json",
+        "-json",
+        "./internal/central/postgres/...",
+        "./tests/database/...",
+        "./internal/central/app/...",
+        "./tests/process/...",
+        "./tests/security/...",
+        "./tests/outbox/...",
+        "./internal/central/outbox/...",
+        "./tests/account/...",
+        "./tests/accountmail/...",
+        "./internal/central/accountmail/...",
+        "./internal/central/recoverylog/...",
+        "./tests/project/...",
+        "./internal/central/model/...",
+        "./tests/model/...",
+        "./tests/objects/...",
+        "./internal/central/object/...",
+        "./tests/testsupport/postgres/cmd/fixture",
+        "./tests/testsupport/objectstore/cmd/fixture",
+        "./tests/testsupport/outbound/cmd/fixture",
+        "./tests/testsupport/outbound/cmd/server",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner",
+        "./tests/testsupport/smtp/cmd/server"
+      ],
+      "name": "closure01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-closure01.json",
+      "sha256": "cac5649e64619ffaa64577391c1a932b036ecd20fb5637ef0aeda14121b59811"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/node_modules/typescript/bin/tsc",
+        "--project",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/tsconfig.json"
+      ],
+      "name": "type01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-type01.json",
+      "sha256": "130e7a1f3bdfd98e78cab242ba8041deb28f5a63311c7d93e52bb02d645916b9"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.config.mjs",
+        "--list"
+      ],
+      "name": "discover-a01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-discover-a01.json",
+      "sha256": "e19600b4b8c6ba00b09a16fe38548ee77b75c6f62f810c77395b1ab730972b85"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.config.mjs",
+        "--list"
+      ],
+      "name": "discover-b01",
+      "outer_limit_seconds": 45,
+      "plan": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/offline-discover-b01.json",
+      "sha256": "0031e94c915294011067abc555c454c1e6193bc2cba8d820c79fc07e9ee3f55e"
+    }
+  ],
+  "dist": 40,
+  "execution_sha256": "a8ba35af13cde76863a7962a7e38e882f90e6d1ea34ecb0be60803ce38422fa8",
+  "private_files": 13,
+  "resources": false,
+  "runtime_go_files": 4287,
+  "runtime_node_files": 3319,
+  "runtime_total": 7604
+}

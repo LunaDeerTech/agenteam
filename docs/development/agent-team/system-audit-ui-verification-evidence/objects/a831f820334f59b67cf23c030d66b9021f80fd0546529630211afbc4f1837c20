@@ -1,0 +1,218 @@
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import shutil
+import stat
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+
+sys.dont_write_bytecode = True
+S = Path(__file__).resolve().parent
+R = S / 'runs/authority02'
+OUT = S / 'recovery03'
+TARGET = Path('/tmp/agtaud-7kf9y7cw/run-885545408')
+BROWSER = TARGET.parent
+assert not OUT.exists()
+OUT.mkdir(mode=0o700)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def ref(path):
+    return {'path': str(path), 'sha256': sha(path)}
+
+
+def save(name, value):
+    (OUT / name).write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+started = time.monotonic()
+save('command.json', {'argv': sys.argv, 'cwd': str(Path.cwd()), 'started_utc': utc(),
+                      'source': ref(Path(__file__)), 'purpose': 'exact owned residue cleanup only; no test or service launch'})
+shutil.copyfile(__file__, OUT / 'source.py.txt')
+save('previous-recovery.json', {'directory': str(S / 'recovery02'), 'result': ref(S / 'recovery02/result.json'), 'source': ref(S / 'recovery02/source.py.txt'), 'note': 'Root-approved exact-owned cleanup method reused for authority02; earlier evidence remains unchanged.'})
+original_names = ['command.json', 'cleanup.json', 'result.json', 'observed-processes.json',
+                  'adopted-waits.json', 'frozen-input.json', 'baseline.json']
+original = {name: ref(R / name) for name in original_names}
+save('original-evidence.json', original)
+driver_path = S / 'driver01.py'
+assert sha(driver_path) == 'cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62'
+spec = importlib.util.spec_from_file_location('audit_driver_recovery_readonly', driver_path)
+driver = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(driver)
+read_commands = []
+
+
+def read_command(argv, allow_absent=False):
+    start = time.monotonic()
+    p = subprocess.run(argv, cwd=driver.REPO, capture_output=True, text=True, timeout=20)
+    read_commands.append({'argv': argv, 'cwd': str(driver.REPO), 'exit': p.returncode,
+                          'actual_wait': True, 'seconds': time.monotonic() - start,
+                          'stdout': p.stdout, 'stderr': p.stderr})
+    save('resource-read-commands.json', read_commands)
+    if p.returncode and not allow_absent:
+        raise RuntimeError('read-only resource command failed')
+    return p
+
+
+def driver_read_command(argv):
+    return read_command(argv).stdout
+
+
+driver.command = driver_read_command
+owned = json.loads((R / 'observed-processes.json').read_text())
+adopted = json.loads((R / 'adopted-waits.json').read_text())
+baseline = json.loads((R / 'baseline.json').read_text())
+cleanup = json.loads((R / 'cleanup.json').read_text())
+command = json.loads((R / 'command.json').read_text())
+frozen = json.loads((R / 'frozen-input.json').read_text())
+observed_resources = json.loads((R / 'observed-resources.json').read_text())
+assert command['actual_wait_completed'] is True and command['exit'] == 1
+assert command['env']['AGENTEAM_AUTH_WEB_RUNTIME'] == str(BROWSER)
+assert len(adopted) == 6 and all(row['actual_wait'] for row in adopted)
+assert all(row['browser_runtime'] == str(BROWSER) and row['browser_runtime_entries'] == [TARGET.name] for row in cleanup)
+assert sha(R / 'frozen-input.json') == sha(S / 'input04/manifest.json')
+fixture = driver.REPO / 'tests/account/system_audit_web_fixture_test.go'
+assert sha(fixture) == frozen['files']['tests/account/system_audit_web_fixture_test.go']
+assert frozen['driver_sha256'] == sha(driver_path)
+assert len(observed_resources) == 7
+save('ownership.json', {'original_manifest': ref(R / 'frozen-input.json'), 'fixture': ref(fixture),
+    'driver': ref(driver_path), 'command': ref(R / 'command.json'),
+    'original_cleanup': ref(R / 'cleanup.json'), 'owned_processes': ref(R / 'observed-processes.json'),
+    'adopted_waits': ref(R / 'adopted-waits.json'), 'target': str(TARGET), 'browser_runtime': str(BROWSER),
+    'chain': 'Frozen driver creates unique agtaud root and passes exact environment; frozen fixture creates run-* there; both original scans record this sole child. No content of residue read.'})
+
+
+def process_snapshot():
+    processes = driver.processes()
+    remaining = [row for row in owned.values()
+                 if row['pid'] in processes and processes[row['pid']]['starttime'] == row['starttime']]
+    users, errors, limits = [], [], []
+    for pid, row in processes.items():
+        if pid == os.getpid():
+            continue
+        root = Path('/proc') / str(pid)
+        if row['state'] == 'Z':
+            limits.append({'pid': pid, 'starttime': row['starttime'], 'scope': 'non-owned zombie, no active file descriptors; not reaped by this recovery'})
+            continue
+        try:
+            uid_line = next(line for line in (root / 'status').read_text().splitlines() if line.startswith('Uid:'))
+            effective_uid = int(uid_line.split()[2])
+        except (OSError, StopIteration, ValueError):
+            limits.append({'pid': pid, 'starttime': row['starttime'], 'scope': 'non-owned UID unavailable'})
+            continue
+        if effective_uid != os.geteuid():
+            limits.append({'pid': pid, 'starttime': row['starttime'], 'scope': 'non-owned different UID; FD/maps not inspected'})
+            continue
+        reasons = []
+        if str(BROWSER).encode() in row['raw']:
+            reasons.append('command_path')
+        for name in ['cwd', 'root']:
+            try:
+                value = os.readlink(root / name)
+                if value == str(BROWSER) or value.startswith(str(BROWSER) + '/'):
+                    reasons.append(name + '_path')
+            except FileNotFoundError:
+                pass
+            except PermissionError:
+                limits.append({'pid': pid, 'scope': name})
+        try:
+            for fd in (root / 'fd').iterdir():
+                try:
+                    value = os.readlink(fd)
+                    if value == str(BROWSER) or value.startswith(str(BROWSER) + '/'):
+                        reasons.append('open_fd_path')
+                except FileNotFoundError:
+                    pass
+                except PermissionError:
+                    limits.append({'pid': pid, 'scope': 'fd_link'})
+        except FileNotFoundError:
+            pass
+        except PermissionError:
+            limits.append({'pid': pid, 'scope': 'fd_directory'})
+        try:
+            if str(BROWSER) in (root / 'maps').read_text():
+                reasons.append('mapped_path')
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+        except PermissionError:
+            limits.append({'pid': pid, 'scope': 'maps'})
+        if reasons:
+            users.append({'pid': pid, 'starttime': row['starttime'], 'references': sorted(set(reasons))})
+    return {'utc': utc(), 'remaining_original_pid_start': remaining, 'path_users': users,
+            'access_errors': errors, 'non_owned_proc_inspection_limits': limits, 'inspected_effective_uid': os.geteuid(), 'original_observed_count': len(owned), 'actual_adopted_waits': len(adopted)}
+
+
+def metadata():
+    entries = []
+    assert BROWSER.is_dir() and not BROWSER.is_symlink()
+    assert TARGET.is_dir() and not TARGET.is_symlink() and TARGET.resolve() == TARGET
+    assert sorted(p.name for p in BROWSER.iterdir()) == [TARGET.name]
+    for root, dirs, files in os.walk(TARGET, followlinks=False):
+        for name in sorted(dirs + files):
+            path = Path(root) / name
+            st = path.lstat()
+            assert not stat.S_ISLNK(st.st_mode), 'unexpected symlink in owned residue'
+            assert stat.S_ISDIR(st.st_mode) or stat.S_ISREG(st.st_mode), 'unexpected special file'
+            entries.append({'relative_path': str(path.relative_to(TARGET)), 'size': st.st_size,
+                            'kind': 'directory' if stat.S_ISDIR(st.st_mode) else 'regular_file'})
+    return entries
+
+
+try:
+    before = process_snapshot()
+    save('process-before.json', before)
+    assert not before['remaining_original_pid_start'] and not before['path_users'] and not before['access_errors'], 'residue not proven unused'
+    entries = metadata()
+    save('residue-metadata.json', {'target': str(TARGET), 'entries': entries, 'content_read': False})
+    fresh = process_snapshot()
+    save('process-before-delete.json', fresh)
+    assert not fresh['remaining_original_pid_start'] and not fresh['path_users'] and not fresh['access_errors']
+    assert metadata() == entries, 'residue metadata changed before deletion'
+    shutil.rmtree(TARGET)
+    BROWSER.rmdir()
+    save('deletion.json', {'utc': utc(), 'removed_exact_target': str(TARGET),
+                           'removed_empty_owned_parent': str(BROWSER), 'business_content_read': False})
+    sweeps = []
+    for _ in range(2):
+        current = driver.resources()
+        absent = {}
+        for resource_id, row in observed_resources.items():
+            p = read_command(['docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], True)
+            absent[resource_id] = {'absent': p.returncode != 0 and ('No such' in p.stderr or 'not found' in p.stderr), 'exit': p.returncode}
+        processes = process_snapshot()
+        sweeps.append({'utc': utc(), 'current_resources': current,
+            'baseline_unchanged': driver.canonical_resources(current) == driver.canonical_resources(baseline),
+            'exact_absent': absent, 'remaining_new': sorted(set(current) - set(baseline)),
+            'processes': processes, 'browser_runtime_exists': BROWSER.exists(), 'target_exists': TARGET.exists(),
+            'runtime_entries': sorted(p.name for p in (R / 'runtime').iterdir())})
+        save('cleanup.json', sweeps)
+    originals_same = all(ref(Path(value['path'])) == value for value in original.values())
+    passed = originals_same and all(row['baseline_unchanged'] and not row['remaining_new']
+        and all(x['absent'] for x in row['exact_absent'].values())
+        and not row['processes']['remaining_original_pid_start'] and not row['processes']['path_users']
+        and not row['processes']['access_errors'] and not row['browser_runtime_exists']
+        and not row['target_exists'] and not row['runtime_entries'] for row in sweeps)
+    result = {'exit': 0 if passed else 1, 'seconds': time.monotonic() - started, 'ended_utc': utc(),
+              'two_post_recovery_sweeps_pass': passed, 'original_evidence_unchanged': originals_same,
+              'original_driver_result_remains_failure': True, 'original_double_cleanup_remains_false': True,
+              'resources_started': False, 'business_content_read': False}
+except Exception as error:
+    result = {'exit': 1, 'seconds': time.monotonic() - started, 'ended_utc': utc(),
+              'safe_failure_class': type(error).__name__, 'resources_started': False}
+    save('result.json', result)
+    raise
+save('result.json', result)
+(OUT / 'raw.log').write_text(json.dumps(result) + '\n')
+print(json.dumps(result), flush=True)
+raise SystemExit(result['exit'])

@@ -1,0 +1,38 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit.spec.ts -t handles.current403
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+audit-current403-navigation [{"method":"GET","path":"/api/v1/session","phase":"checking","personalPhase":"checking","route":"/system/audit"},{"method":"GET","path":"/api/v1/system/audit?limit=50","phase":"authenticated","personalPhase":"current","role":"admin","route":"/system/audit"}]
+ ❯ src/tests/system-audit.spec.ts (10 tests | 1 failed | 9 skipped) 263ms
+     × handles current403 using the system permission view and leaves the read-only page without an added confirmation 262ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-audit.spec.ts > Audit page uses the production App, route records, authentication guard and factory > handles current403 using the system permission view and leaves the read-only page without an added confirmation
+AssertionError: expected [ [ …(2) ], [ …(2) ], [ …(2) ] ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/tests/system-audit.spec.ts:288:23
+    286|     ])
+    287|     expect(sequence.at(-1)?.phase === 'authenticated' && sequence.at(-…
+    288|     expect(f.reads()).toHaveLength(reads)
+       |                       ^
+    289|     await flushPromises()
+    290|     expect(f.observations).toHaveLength(checkpoint + 2)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 skipped (10)
+   Start at  00:18:46
+   Duration  1.78s (transform 879ms, setup 0ms, import 1.01s, tests 263ms, environment 401ms)
+

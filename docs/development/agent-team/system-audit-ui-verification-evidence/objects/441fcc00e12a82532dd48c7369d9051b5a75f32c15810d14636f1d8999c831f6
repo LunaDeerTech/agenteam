@@ -1,0 +1,10 @@
+--- input06/web/src/views/system/SystemAuditView.vue
++++ web-stage02/web/src/views/system/SystemAuditView.vue
+@@ -354,6 +354,7 @@
+   position: absolute;
+   width: 1px;
+   height: 1px;
++  padding: 0;
+   overflow: hidden;
+   clip-path: inset(50%);
+ }

@@ -1,0 +1,58 @@
+package main
+
+import (
+ "encoding/json"
+ "fmt"
+ "os"
+ c "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+type row struct {
+ Name string `json:"name"`
+ Action c.Action `json:"action"`
+ Metadata json.RawMessage `json:"metadata"`
+ Resource c.ResourceDetails `json:"resource"`
+ Outcome c.Outcome `json:"outcome"`
+ Actor struct { Kind string `json:"kind"`; ID string `json:"id,omitempty"`; Service id.ServiceName `json:"service,omitempty"`; Cause string `json:"cause_ref,omitempty"` } `json:"actor"`
+ Associations c.Associations `json:"associations"`
+}
+func must(err error, label string) { if err!=nil {panic("oracle fixture: "+label)} }
+func main() {
+ if len(os.Args)!=3 {panic("oracle args")}
+ var input struct {Records []row `json:"records"`; Instants []string `json:"instants"`; Actions []c.Action `json:"actions"`; Kinds []c.ResourceKind `json:"resource_kinds"`}
+ data,err:=os.ReadFile(os.Args[1]);must(err,"input")
+ must(json.Unmarshal(data,&input),"json")
+ type projection struct {row; MetadataBytes int `json:"metadata_bytes"`; EntryAccepted bool `json:"entry_accepted"`}
+ records:=make([]projection,0,len(input.Records))
+ for _,value:=range input.Records {
+  metadata,err:=c.DecodeMetadata(value.Action,value.Metadata);must(err,value.Name+" metadata")
+  resource,err:=c.NewResource(value.Resource.Kind,value.Resource.ID);must(err,value.Name+" resource")
+  var actor id.Actor
+  if value.Actor.Kind=="human" {
+   user,e:=f.ParseID[id.User](value.Actor.ID);must(e,"user")
+   session,e:=f.ParseID[id.Session]("01970000-0000-7000-8000-000000000009");must(e,"session")
+   actor,err=id.NewHuman(user,session)
+  } else {
+   registration,e:=id.RegisterService(value.Actor.Service);must(e,"service")
+   actor,err=registration.Actor(value.Actor.Cause,id.SystemScope())
+  };must(err,"actor")
+  entry,err:=c.NewEntry(c.EntryFields{Scope:id.SystemScope(),Actor:actor,Action:value.Action,Outcome:value.Outcome,Resource:resource,Metadata:metadata,Associations:value.Associations});must(err,value.Name+" entry")
+  must(entry.Validate(),"entry validate")
+  value.Metadata=metadata.JSON()
+  records=append(records,projection{value,len(metadata.JSON()),true})
+ }
+ type instant struct {Input string `json:"input"`; Accepted bool `json:"accepted"`; Canonical string `json:"canonical"`}
+ instants:=make([]instant,0,len(input.Instants))
+ for _,value:=range input.Instants { parsed,e:=f.ParseInstant(value);canonical:="";if e==nil{canonical=parsed.String()};instants=append(instants,instant{value,e==nil,canonical}) }
+ for _,action:=range input.Actions { if !action.Valid(){panic("oracle invalid action")} }
+ for _,kind:=range input.Kinds { if !kind.Valid(){panic("oracle invalid resource kind")} }
+ htmlValues:=[]string{"<>&\u2028\u2029", "&", "é", "\\u2028", "\n\t\"\\"}
+ type bytesCase struct {Value string `json:"value"`; Bytes int `json:"bytes"`}
+ encodings:=make([]bytesCase,0,len(htmlValues))
+ for _,value:=range htmlValues { b,e:=json.Marshal(map[string]string{"value":value});must(e,"encoding");encodings=append(encodings,bytesCase{value,len(b)}) }
+ output:=struct{Records []projection `json:"records"`; Instants []instant `json:"instants"`; Actions []c.Action `json:"actions"`; Kinds []c.ResourceKind `json:"resource_kinds"`; Encodings []bytesCase `json:"encodings"`}{records,instants,input.Actions,input.Kinds,encodings}
+ data,err=json.MarshalIndent(output,"","  ");must(err,"output")
+ must(os.WriteFile(os.Args[2],append(data,'\n'),0600),"write")
+ fmt.Printf("formal typed oracle: records=%d actions=%d filter_actions=%d filter_resources=%d instant_cases=%d; all reconstructed entries valid; no resources started\n",len(records),37,len(input.Actions),len(input.Kinds),len(instants))
+}

@@ -1,0 +1,8 @@
+{
+  "read_only_inspection": {
+    "exit": 1,
+    "reason": "attempted slicing execution.files dictionary as a list",
+    "actual_tests_started": false,
+    "correction": "read dictionary via list(items), no source or probe edit"
+  }
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/gofmt",
+      "-d",
+      "tests/account/system_audit_web_fixture_test.go"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exact_lines": []
+  },
+  {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-race",
+      "-tags=integration",
+      "-o",
+      "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/audit-account-stage04.test",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace"
+  },
+  {
+    "argv": [
+      "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/audit-account-stage04.test",
+      "-test.list",
+      "^(TestAccountSystemAuditWebReadAndFilters|TestAccountSystemAuditWebAuthorityAndOwnership|TestAccountSystemAuditWebNavigationAndLayouts)$"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account",
+    "exact_lines": [
+      "TestAccountSystemAuditWebReadAndFilters",
+      "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "TestAccountSystemAuditWebNavigationAndLayouts"
+    ]
+  }
+]

@@ -1,0 +1,163 @@
+--- harness-stage06/tests/account-captcha-web/e2e/system-audit.spec.ts
++++ harness-stage07/tests/account-captcha-web/e2e/system-audit.spec.ts
+@@ -1311,8 +1311,22 @@
+   }
+ }
+ async function layout(page: Page, detailMode: boolean, width: number) {
+-  const safe = await page.locator(".system-audit").evaluate(
++  const { safe, diagnostic } = await page.locator(".system-audit").evaluate(
+     (region, { detailMode, width }) => {
++      const tag = (node: Element) =>
++        [
++          "TD",
++          "DD",
++          "P",
++          "DIV",
++          "LABEL",
++          "FIELDSET",
++          "LEGEND",
++          "INPUT",
++          "SELECT",
++        ].includes(node.tagName)
++          ? node.tagName
++          : "OTHER";
+       const bound = region.getBoundingClientRect();
+       if (
+         document.documentElement.scrollWidth > innerWidth + 1 ||
+@@ -1320,16 +1334,50 @@
+         bound.right > innerWidth + 1 ||
+         region.scrollWidth > region.clientWidth + 1
+       )
+-        return false;
++        return {
++          safe: false,
++          diagnostic: {
++            category: "region",
++            viewport_width: innerWidth,
++            document_scroll_width: document.documentElement.scrollWidth,
++            left: bound.left,
++            right: bound.right,
++            scroll_width: region.scrollWidth,
++            client_width: region.clientWidth,
++          },
++        };
++      let nodeIndex = 0;
+       for (const node of region.querySelectorAll<HTMLElement>(
+         "td,dd,p,.ui-field,legend",
+-      ))
+-        if (node.scrollWidth > node.clientWidth + 1) return false;
+-      if (detailMode)
+-        return (
++      )) {
++        if (node.scrollWidth > node.clientWidth + 1)
++          return {
++            safe: false,
++            diagnostic: {
++              category: "content-overflow",
++              index: nodeIndex,
++              tag: tag(node),
++              scroll_width: node.scrollWidth,
++              client_width: node.clientWidth,
++            },
++          };
++        nodeIndex++;
++      }
++      if (detailMode) {
++        const safe =
+           !!region.querySelector(".detail-fields") &&
+-          !region.querySelector("table")
+-        );
++          !region.querySelector("table");
++        return {
++          safe,
++          diagnostic: safe
++            ? null
++            : {
++                category: "detail-structure",
++                detail_present: !!region.querySelector(".detail-fields"),
++                table_present: !!region.querySelector("table"),
++              },
++        };
++      }
+       const table = region.querySelector("table"),
+         caption = region.querySelector("caption");
+       if (
+@@ -1340,27 +1388,72 @@
+         caption.getBoundingClientRect().width > 2 ||
+         caption.getBoundingClientRect().height > 2
+       )
+-        return false;
++        return {
++          safe: false,
++          diagnostic: {
++            category: "table-structure",
++            table_present: !!table,
++            caption_present: !!caption,
++            header_count: table?.querySelectorAll("thead th").length ?? 0,
++            scroll_width: table?.scrollWidth ?? 0,
++            client_width: table?.clientWidth ?? 0,
++            caption_width: caption?.getBoundingClientRect().width ?? 0,
++            caption_height: caption?.getBoundingClientRect().height ?? 0,
++          },
++        };
+       if (
+         width <= 760 &&
+         [...table.querySelectorAll("td")].some(
+           (cell) => getComputedStyle(cell).display !== "block",
+         )
+-      )
+-        return false;
++      ) {
++        const cells = [...table.querySelectorAll("td")];
++        const index = cells.findIndex(
++          (cell) => getComputedStyle(cell).display !== "block",
++        );
++        return {
++          safe: false,
++          diagnostic: {
++            category: "mobile-cell-display",
++            index,
++            tag: "TD",
++            scroll_width: cells[index]?.scrollWidth ?? 0,
++            client_width: cells[index]?.clientWidth ?? 0,
++          },
++        };
++      }
++      let inputIndex = 0;
+       for (const input of region.querySelectorAll<HTMLInputElement>(
+         "input,select",
+-      ))
++      )) {
+         if (
+           !input.labels?.length ||
+           input.getBoundingClientRect().width < 50 ||
+           input.getBoundingClientRect().right > bound.right + 1
+         )
+-          return false;
+-      return true;
++          return {
++            safe: false,
++            diagnostic: {
++              category: "control",
++              index: inputIndex,
++              tag: tag(input),
++              label_count: input.labels?.length ?? 0,
++              width: input.getBoundingClientRect().width,
++              right: input.getBoundingClientRect().right,
++              region_right: bound.right,
++            },
++          };
++        inputIndex++;
++      }
++      return { safe: true, diagnostic: null };
+     },
+     { detailMode, width },
+   );
++  if (!safe)
++    console.log(
++      "audit-layout-safe-diagnostic",
++      JSON.stringify({ width, detailMode, diagnostic }),
++    );
+   expect(safe).toBe(true);
+   if (detailMode) {
+     await page.locator(".detail-fields dd").last().scrollIntoViewIfNeeded();

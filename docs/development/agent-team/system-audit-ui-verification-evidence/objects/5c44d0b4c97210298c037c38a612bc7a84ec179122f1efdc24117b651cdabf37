@@ -1,0 +1,60 @@
+import fnmatch, hashlib, json, re, subprocess
+from pathlib import Path
+from datetime import datetime, timezone
+S=Path(__file__).resolve().parent; W=S/'workspace'; R=Path('/workspace/agenteam')
+BASE='b124650aee095b26191bc181dc8cf5d6e0f977f5'; PREFIX='github.com/LunaDeerTech/agenteam/'
+OUT=S/'dynamic-closure01.json'; assert not OUT.exists()
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+old=json.loads((S/'input01/manifest.json').read_text())
+old_files={p:v['sha256'] for p,v in old['accepted_baseline']['files'].items()}
+assert all(sha(W/p)==v for p,v in old_files.items())
+c=json.loads((S/'web-stage01/manifest.json').read_text());d=json.loads((S/'harness-stage02/manifest.json').read_text())
+assert all(sha(W/p)==v for p,v in c['source'].items()) and all(sha(W/p)==v for p,v in c['dist'].items())
+assert all(sha(W/p)==v for p,v in d['source'].items() if p!='tests/account-captcha-web/e2e/system-audit.spec.ts')
+before={p:sha(W/p) for p in old['files']}|{p:sha(W/p) for p in old['dist']}
+raw_tree=subprocess.check_output(['git','ls-tree','-r','-z',BASE],cwd=R)
+entries={}
+for raw in raw_tree.split(b'\0'):
+ if not raw:continue
+ head,name=raw.split(b'\t',1);mode,kind,blob=head.decode().split();entries[name.decode()]={'mode':mode,'kind':kind,'git_blob':blob}
+paths=set(entries);cache={}
+def read(p):
+ if p not in cache:cache[p]=subprocess.check_output(['git','show',BASE+':'+p],cwd=R)
+ return cache[p]
+def imports(source):
+ tokens=re.findall(r'//[^\n]*|/\*[\s\S]*?\*/|"(?:\\.|[^"\\])*"|`[^`]*`|[A-Za-z_][A-Za-z_0-9]*|[^\s]',source)
+ tokens=[x for x in tokens if not x.startswith(('//','/*'))]
+ result=[]
+ for i,t in enumerate(tokens):
+  if t!='import':continue
+  j=i+1
+  if tokens[j]=='(':
+   j+=1
+   while j<len(tokens) and tokens[j]!=')':
+    if tokens[j].startswith(('"','`')):result.append(tokens[j][1:-1])
+    j+=1
+  else:
+   if not tokens[j].startswith(('"','`')):j+=1
+   if tokens[j].startswith(('"','`')):result.append(tokens[j][1:-1])
+ return [p[len(PREFIX):] for p in result if p.startswith(PREFIX)]
+roots=['cmd/agenteam','cmd/agenteam-runner','tests/testsupport/smtp/cmd/server'];queue=list(roots);seen=set();selected=set()
+while queue:
+ package=queue.pop()
+ if package in seen:continue
+ seen.add(package)
+ files=sorted(p for p in paths if str(Path(p).parent)==package and p.endswith('.go') and not p.endswith('_test.go'))
+ assert files,package
+ for p in files:
+  selected.add(p);source=read(p).decode();queue.extend(imports(source))
+  for directive in re.findall(r'^//go:embed\s+([^\n]+)',source,re.M):
+   for pattern in directive.split():
+    pattern=pattern.removeprefix('all:');selected.update(q for q in paths if fnmatch.fnmatch(q,package+'/'+pattern) or q.startswith(package+'/'+pattern+'/'))
+new={};fixed={}
+for p in sorted(selected):
+ data=read(p);digest=hashlib.sha256(data).hexdigest();fixed[p]=entries[p]|{'sha256':digest};target=W/p
+ if target.exists():assert not target.is_symlink() and target.read_bytes()==data,p
+ else:
+  target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data);new[p]=fixed[p]
+assert all(sha(W/p)==v for p,v in before.items()) and all(sha(W/p)==v for p,v in old_files.items())
+OUT.write_text(json.dumps({'created_at_utc':datetime.now(timezone.utc).isoformat(),'base':BASE,'roots':roots,'reason':'formal dynamic go-build roots outside go-list import graph: tests/process TestMain builds both commands even with no selected tests; the existing SMTP helper builds its server for old Delivery navigation','git_tree_sha256':hashlib.sha256(raw_tree).hexdigest(),'selected_non_test_packages':sorted(seen),'dependency_files':fixed,'added_files':new,'original_35_sources_40_dist_and_938_accepted_unchanged':True,'original_read01':'retained exit1; no field differences were recorded at its DTO assertion'},indent=2,sort_keys=True)+'\n')
+print(json.dumps({'selected_files':len(fixed),'added_count':len(new),'added_files':list(new),'manifest_sha256':sha(OUT)}))

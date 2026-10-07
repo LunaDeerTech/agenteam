@@ -1,0 +1,8 @@
+{
+  "recorded_at_utc": "2026-10-07T01:43:44.249793+00:00",
+  "existing_completed_run": "runs/runtime-closure02",
+  "existing_completed_go_list": "runs/runtime-go-list01",
+  "repeat_wrapper_failed_before_spawn": "FileExistsError: runs/runtime-closure02 already exists",
+  "limitation": "During resumed preparation the unfrozen prepare_runtime_closure02.py utility was overwritten before the already-completed run was discovered. No exact original utility snapshot was located. Existing command/raw/result and source inventories were not changed. The overwritten utility is preserved separately as prepare_runtime_closure03-unexecuted.py and is not claimed as original or executed.",
+  "candidates_unchanged": true
+}

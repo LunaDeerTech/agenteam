@@ -1,0 +1,15 @@
+--- harness-stage05/tests/account/system_audit_web_fixture_test.go
++++ harness-stage06/tests/account/system_audit_web_fixture_test.go
+@@ -465,10 +465,10 @@
+ 		conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+ 		var revoked bool
+ 		var audits int
+-		err = conn.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND revoked_reason='logout',(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='account.logout' AND metadata->>'session_id'=$1 AND outcome='success') FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`, r.SessionID, session.user).Scan(&revoked, &audits)
++		err = conn.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND revoked_reason='logout',(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='account.logout' AND metadata->>'session_id'=$1::text AND outcome='success') FROM agenteam_account.sessions WHERE id=$1::uuid AND user_id=$2`, r.SessionID, session.user).Scan(&revoked, &audits)
+ 		closeConnection()
+ 		if err != nil || !revoked || audits != 1 {
+-			f.t.Fatal("formal exact Session Logout facts missing")
++			f.t.Fatalf("formal exact Session Logout facts missing: err_present=%t revoked=%t audit_count=%d", err != nil, revoked, audits)
+ 		}
+ 		value["revoked"], value["logout_audit"] = true, true
+ 	default:

@@ -1,0 +1,27 @@
+# System Audit UI — B owner/state author handoff
+
+Frozen on 2026-10-07 UTC. Author offline checks pass; independent B acceptance is pending. No C page, App/router integration, build, browser, HTTP server, PG/Docker, or README work was started.
+
+The stage contains only `useSession.ts`, `useSystemAudit.ts`, and `system-audit-state.spec.ts`. `source/` preserves the exact three files; `source.diff` compares the existing Session owner against accepted frontend `1ff044264a54c948e512db9aafad24ec5e0aa3c2` and the two new files against absence. The accepted A five files are unchanged, referenced by exact path and SHA in `manifest.json`; their original stage and MIME append-only binding remain intact. Eighteen minimal accepted API/theme/config/lock dependencies are copied under `dependencies/`. All other 151 accepted frontend files were checked against the original fixed inventory at this freeze.
+
+`createSessionController` appends the optional eleventh Audit API without moving its ten accepted arguments. Audit list/detail use the existing single Cookie owner with an explicit `audit-read` kind and separate revision. They synchronously capture their targets and have no write body, key, CSRF, intent, or lookup operation. Audit abandon only retires Audit; actual transport tails continue to hold the owner. Legal current security failures use the existing identity/system cleanup, while retired failures and invalid status/code pairings cannot affect a new identity.
+
+The page-scoped controller separates the raw filter draft, applied query, complete list observation and complete detail observation. It keeps visited cursor history, handles explicit apply/reset/retry/first-page actions, and treats cancellation as a stable error requiring explicit reread. Only a fresh instance may wait for an existing owner and then issue one initial default read. Checking, identity loss and disposal retire the old instance. A route-leave cancellation keeps a surviving instance subscribed and explicitly refreshable if a later guard prevents navigation; final disposal clears its state. These are controller checks, not claims that the future View lifecycle is wired or native focus is verified.
+
+The final 46 tests use the production Session factory and Audit controller with controlled Fetch/native Response barriers. They cover all ten old API domains in both ownership directions, actual EOF/cancel tails, visible timeout, scoped abandon, current/late security errors, SMTP configuration private material and pending delivery/Outbound intents, explicit filter/cursor/detail operations, cancelled-instance versus fresh-instance behavior, and route-leave versus disposal. The 30-second deadline is tested with a virtual clock plus actual native promise barriers, not 30 seconds of elapsed wall time.
+
+| Original run | Actual result | Meaning |
+| --- | --- | --- |
+| `owner-state-type01` | Exit 2 / 8.347s | Observation literal inference was too narrow; fixtures also used the wrong Model protocol, missing abandon scope, unsupported SMTP action, and an overly narrow generic helper type. |
+| `owner-state-pure01` | Exit 1 / 6.828s; 43 pass, 3 fail | Formal API fixture prerequisites were wrong. In particular, the Model call failed locally before the native cancel barrier and its test waited to timeout. That original representative did **not** establish actual cancel/join. |
+| `owner-state-pure02` | Exit 0 / 1.609s; 14 pass, 32 skipped | Affected representatives pass after correcting formal protocol/scopes and SMTP keep/private-material inputs. Ownership and cancellation assertions remain. |
+| `owner-state-format01` | Exit 0 / 0.859s | Prettier formatted only the three B paths; candidate hash changes are intentional. |
+| `owner-state-type02` | Exit 0 / 7.908s | Final complete frontend type check. |
+| `owner-state-pure03` | Exit 0 / 2.062s; 46/46 pass | Final B combination. |
+| `owner-state-format-check01` | Exit 0 / 1.083s | Final three-path formatting check. |
+
+All rows have original `command.json`, `raw.log`, `result.json`, `input-before.json`, `input-after.json`, exact eight-file source snapshots, PID/starttime inventory, adopted-wait records and two empty cleanup sweeps under `../runs/<run>/`. Each command actually exited and was waited; the two outer tool sessions for the final type/pure runs also returned exit 0. No original failure is overwritten. The process cleanup result of the first pure run does not retroactively establish the unreachable Model cancellation barrier.
+
+`premise-type-repair.diff` preserves the first repair before formatting. The only product edit in that repair is explicit return annotations for the two observation constructors; the Session product was unchanged. `format-only.diff` separately records formatting. Both versions of the actual offline runner are saved under `runners/` and match command fingerprints. Runner 02 adds actual UTC start/end timestamps for the final runs; earlier metadata was not backfilled. Every command captured the eight A/B source files before/after; the full accepted type closure was verified at stage freeze, not claimed as a per-command whole-closure sweep.
+
+The exact command arguments, environment, source and evidence hashes are in `manifest.json`. Reproduction uses the existing read-only locked `web/node_modules`; no lock or dependency tree was modified. B source is now stopped for independent review. A broader product or whole-card PASS is not claimed.

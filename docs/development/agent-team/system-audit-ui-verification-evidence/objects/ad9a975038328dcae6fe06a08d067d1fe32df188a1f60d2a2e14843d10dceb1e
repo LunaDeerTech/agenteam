@@ -1,0 +1,562 @@
+// Independent combinations; formal DTO/factory mounting scaffold is reused from frozen author C.
+// Only the two test bodies below are independent; real production App/routes/controllers are retained.
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
+import type { SessionController } from '../composables/useSession'
+import type { SystemAuditController, AuditFilterDraft } from '../composables/useSystemAudit'
+const selected = vi.hoisted(() => ({
+  auth: null as SessionController | null,
+  instances: [] as {
+    controller: SystemAuditController
+    initialDraft: AuditFilterDraft
+    initialLimit: string | undefined
+  }[],
+}))
+vi.mock('../composables/useSession', async (original) => ({
+  ...(await original<typeof import('../composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+vi.mock('../composables/useSystemAudit', async (original) => {
+  const actual = await original<typeof import('../composables/useSystemAudit')>()
+  return {
+    ...actual,
+    useSystemAudit: (...args: Parameters<typeof actual.useSystemAudit>) => {
+      const controller = actual.useSystemAudit(...args)
+      selected.instances.push({
+        controller,
+        initialDraft: { ...controller.draft },
+        initialLimit: controller.state.applied.limit,
+      })
+      return controller
+    },
+  }
+})
+import { createSessionController } from '../composables/useSession'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../api/system-smtp-delivery'
+import { createSystemOutboundPolicyAPI } from '../api/system-outbound-policy'
+import {
+  createSystemAuditAPI,
+  auditFilterActions,
+  auditFilterResourceKinds,
+} from '../api/system-audit'
+import { type Fetch } from '../api/client'
+import { router as productionRouter } from '../router'
+import { installAuthentication, safeReturnTarget } from '../router/auth'
+import { useTheme } from '../composables/useTheme'
+import App from '../App.vue'
+import SystemAuditView from '../views/system/SystemAuditView.vue'
+
+const endpoint = '/api/v1/system/audit'
+const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+const time = '2026-10-07T00:00:00.123456Z'
+const view = (session = 2, role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.test',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: id(session), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const record = (n = 100) => ({
+  audit_id: id(n),
+  created_at: time,
+  scope: 'system',
+  actor: { kind: 'human', id: id(1) },
+  action: 'secret.create',
+  outcome: 'success',
+  resource: { kind: 'secret', id: id(2) },
+  metadata: { version: '1', changed_fields: ['value'] },
+  associations: { request_id: id(8) },
+  summary: 'Secret created',
+})
+const page = (n = 100, count = 1, cursor: string | null = null) => ({
+  items: Array.from({ length: count }, (_, i) => record(n - i)),
+  next_cursor: cursor,
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code = 'DEPENDENCY_UNAVAILABLE', status = 503) =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: '<private diagnostic>',
+      instance: endpoint,
+      request_id: id(9),
+      commit_state: 'not_started',
+    },
+    status,
+  )
+function barrier<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+const releases: (() => void)[] = []
+function heldBody(value: unknown, status = 200) {
+  const entered = barrier(),
+    joined = barrier()
+  const cancel = vi.fn(() => {
+    entered.resolve()
+    return joined.promise
+  })
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(JSON.stringify(value)))
+    },
+    cancel,
+  })
+  const release = () => joined.resolve()
+  releases.push(release)
+  return {
+    entered,
+    cancel,
+    stream,
+    release,
+    response: () =>
+      new Response(stream, {
+        status,
+        headers: {
+          'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+          'X-Request-ID': id(9),
+        },
+      }),
+  }
+}
+let wrapper: VueWrapper | undefined
+const owners: SessionController[] = []
+beforeEach(() => {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((media: string) => ({
+      media,
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  )
+  // DOM focus/state only. Pointer defaults, Tab, geometry and visual layouts remain real-browser checks.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList,
+  )
+})
+afterEach(async () => {
+  for (const release of releases.splice(0)) release()
+  wrapper?.unmount()
+  wrapper = undefined
+  for (const owner of owners) owner.leave()
+  await flushPromises()
+  expect(owners.every((owner) => !owner.state.busy)).toBe(true)
+  owners.length = 0
+  selected.auth = null
+  selected.instances.length = 0
+  document.body.innerHTML = ''
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+  vi.useRealTimers()
+  useTheme().setTheme('system')
+})
+async function app(initial = view(), target = '/system/audit') {
+  const observations: {
+    method: string
+    path: string
+    phase: string | undefined
+    personalPhase: string | undefined
+    role: string | undefined
+    route: string
+  }[] = []
+  let currentRoute = () => ''
+  let current = initial,
+    session: Fetch = async () => json(current)
+  let audit: Fetch = async (path) =>
+    json(path.startsWith(endpoint + '/') ? record(Number.parseInt(path.slice(-12), 16)) : page())
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    observations.push({
+      method: init.method!,
+      path,
+      phase: selected.auth?.state.phase,
+      personalPhase: selected.auth?.personalContext.phase,
+      role: selected.auth?.state.user?.role,
+      route: currentRoute(),
+    })
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === endpoint || path.startsWith(endpoint + '?') || path.startsWith(endpoint + '/'))
+      return audit(path, init)
+    if (path === '/api/v1/auth/bootstrap')
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path.endsWith('/logout')) {
+      session = async () => problem('SESSION_REVOKED', 401)
+      return new Response(null, { status: 204 })
+    }
+    if (path.startsWith('/api/v1/system/users')) return json({ items: [] })
+    if (path === '/api/v1/system/smtp')
+      return json({
+        id: id(10),
+        version: '1',
+        configured: false,
+        host: '',
+        port: 0,
+        encryption: '',
+        username: '',
+        sender_email: '',
+        sender_name: '',
+        credential_present: false,
+        auto_retry_count: '0',
+        retry_interval_seconds: '10',
+      })
+    throw new Error('Unexpected controlled route')
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    createSystemModelAPI(fetch),
+    createSystemModelSelectionAPI(fetch),
+    createSystemAccountSecurityAPI(fetch),
+    createSystemSMTPSettingsAPI(fetch),
+    createSystemSMTPDeliveryAPI(fetch),
+    createSystemOutboundPolicyAPI(fetch),
+    createSystemAuditAPI(fetch),
+  )
+  selected.auth = auth
+  owners.push(auth)
+  await auth.restore()
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: productionRouter.options.routes,
+  })
+  currentRoute = () => router.currentRoute.value.path
+  let blockNavigation = false
+  router.beforeEach(() => (blockNavigation ? false : true))
+  installAuthentication(router, auth)
+  await router.push(target)
+  await router.isReady()
+  const host = document.createElement('div')
+  host.id = 'app'
+  document.body.append(host)
+  wrapper = mount(App, { attachTo: host, global: { plugins: [router] } })
+  await flushPromises()
+  return {
+    auth,
+    fetch,
+    router,
+    wrapper,
+    observations,
+    setAudit(value: Fetch) {
+      audit = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    resetSession() {
+      session = async () => json(current)
+    },
+    blockNavigation(value: boolean) {
+      blockNavigation = value
+    },
+    reads() {
+      return fetch.mock.calls.filter(
+        ([path]) =>
+          path === endpoint || path.startsWith(endpoint + '?') || path.startsWith(endpoint + '/'),
+      )
+    },
+    sessionReads() {
+      return fetch.mock.calls.filter(([path]) => path === '/api/v1/session')
+    },
+    writes() {
+      return fetch.mock.calls.filter(([, init]) => init.method !== 'GET')
+    },
+  }
+}
+function button(label: string, root: ParentNode = document) {
+  const result = [...root.querySelectorAll<HTMLButtonElement>('button')].find(
+    (node) =>
+      node.getAttribute('aria-label') === label ||
+      (
+        node.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? node.textContent
+      )?.trim() === label,
+  )
+  expect(result, `button ${label}`).toBeTruthy()
+  return result!
+}
+async function click(label: string) {
+  button(label).click()
+  await flushPromises()
+}
+function field(label: string) {
+  const node = [...document.querySelectorAll<HTMLLabelElement>('label')].find(
+    (node) => node.textContent?.trim() === label,
+  )
+  expect(node, `field ${label}`).toBeTruthy()
+  return document.getElementById(node!.htmlFor) as HTMLInputElement | HTMLSelectElement
+}
+async function change(label: string, value: string) {
+  const input = field(label)
+  input.value = value
+  input.dispatchEvent(
+    new Event(input instanceof HTMLSelectElement ? 'change' : 'input', { bubbles: true }),
+  )
+  await flushPromises()
+}
+async function apply() {
+  const submitter = button('应用筛选')
+  submitter.form!.dispatchEvent(
+    new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }),
+  )
+  await flushPromises()
+}
+const detailButton = (n = 100) => '查看详情 ' + id(n)
+
+describe('Independent Audit C: actual App and public router', () => {
+  it('A keeps applied filters and local focus through cancellation, rejected leave, and a fresh instance waiting for the old tail', async () => {
+    const f = await app()
+    const first = selected.instances[0]!.controller
+    const initialReads = f.reads().length
+    expect(initialReads).toBe(1)
+    await change('动作', 'secret.create')
+    await change('每页数量', '1')
+    expect(f.reads().length).toBe(initialReads)
+    expect(f.wrapper.text()).toContain('筛选已修改，尚未应用')
+    await apply()
+    const applied = new URL(f.reads().at(-1)![0], 'https://app.invalid').searchParams
+    expect([...applied.entries()]).toEqual([['action', 'secret.create'], ['limit', '1']])
+    expect(f.wrapper.find('[aria-label="系统审计列表"]').exists()).toBe(true)
+
+    const detail = heldBody(record())
+    f.setAudit(async () => detail.response())
+    await click(detailButton())
+    const retiredDetailHeading = document.getElementById('audit-detail-heading')!
+    expect(document.activeElement).toBe(retiredDetailHeading)
+    expect(f.wrapper.text()).toContain('正在读取审计详情')
+    expect(f.wrapper.text()).not.toContain('结构化证据')
+    const oldHeadingFocus = vi.spyOn(retiredDetailHeading, 'focus')
+    const beforeBack = f.reads().length
+    try {
+      await click('返回列表')
+      await detail.entered.promise
+      expect(!retiredDetailHeading.isConnected && f.auth.state.busy).toBe(true)
+      expect(first.state.mode).toBe('list')
+      expect(f.reads().length).toBe(beforeBack)
+      expect(detail.cancel).toHaveBeenCalledTimes(1)
+      expect(button(detailButton()).disabled).toBe(true)
+      expect(document.activeElement).toBe(document.getElementById('audit-list-heading'))
+    } finally {
+      detail.release()
+      await flushPromises()
+    }
+    expect(!f.auth.state.busy && !detail.stream.locked).toBe(true)
+    expect(oldHeadingFocus).not.toHaveBeenCalled()
+    expect(f.reads().length).toBe(beforeBack)
+    expect(document.activeElement).toBe(document.getElementById('audit-list-heading'))
+
+    const list = heldBody(page())
+    f.setAudit(async () => list.response())
+    await click('刷新第一页')
+    const beforePageshow = f.sessionReads().length
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    expect(f.sessionReads().length).toBe(beforePageshow)
+    f.blockNavigation(true)
+    try {
+      expect(isNavigationFailure(await f.router.push('/system/users'))).toBe(true)
+      await list.entered.promise
+      await flushPromises()
+      expect(f.router.currentRoute.value.path).toBe('/system/audit')
+      expect(first.isCurrent()).toBe(true)
+      expect(first.state.list.phase).toBe('error')
+      expect(f.wrapper.text()).toContain('本页读取已停止')
+      expect(f.auth.state.busy && button('刷新第一页').disabled).toBe(true)
+      expect(field('动作').value).toBe('secret.create')
+      expect(field('每页数量').value).toBe('1')
+    } finally {
+      list.release()
+      await flushPromises()
+    }
+    const afterCancelled = f.reads().length
+    expect(!f.auth.state.busy && !list.stream.locked).toBe(true)
+    expect(first.state.list.phase).toBe('error')
+    await flushPromises()
+    expect(f.reads().length).toBe(afterCancelled)
+    f.blockNavigation(false)
+    f.setAudit(async () => json(page()))
+    await click('刷新第一页')
+    expect(f.reads().length).toBe(afterCancelled + 1)
+    const retried = new URL(f.reads().at(-1)![0], 'https://app.invalid').searchParams
+    expect([...retried.entries()]).toEqual([...applied.entries()])
+    expect(first.state.list.phase).toBe('ready')
+
+    const retiring = heldBody(page())
+    f.setAudit(async () => retiring.response())
+    await click('刷新第一页')
+    await f.router.push('/')
+    await flushPromises()
+    await retiring.entered.promise
+    expect(f.wrapper.findComponent(SystemAuditView).exists()).toBe(false)
+    expect(!first.isCurrent() && first.draft.action === '').toBe(true)
+    const beforeRemount = f.reads().length
+    f.setAudit(async () => json(page()))
+    try {
+      await f.router.push('/system/audit')
+      await flushPromises()
+      expect(f.router.currentRoute.value.path).toBe('/system/audit')
+      expect(selected.instances).toHaveLength(2)
+      const next = selected.instances[1]!
+      expect(next.controller !== first && next.controller.isCurrent()).toBe(true)
+      expect(next.initialDraft.action).toBe('')
+      expect(next.initialLimit).toBe('50')
+      expect(f.wrapper.text()).toContain('等待当前请求结束')
+      expect(f.auth.state.busy).toBe(true)
+      expect(f.reads().length).toBe(beforeRemount)
+    } finally {
+      retiring.release()
+      await flushPromises()
+    }
+    expect(!f.auth.state.busy && !retiring.stream.locked).toBe(true)
+    expect(f.reads().length).toBe(beforeRemount + 1)
+    expect(f.reads().at(-1)![0]).toBe(endpoint + '?limit=50')
+    await flushPromises()
+    expect(f.reads().length).toBe(beforeRemount + 1)
+    expect(oldHeadingFocus).not.toHaveBeenCalled()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(f.writes()).toHaveLength(0)
+    process.stdout.write('independent-A ' + JSON.stringify({
+      appliedPreserved: true, detailNoPartial: true, rejectedLeaveExplicitRecovery: true,
+      busyPageshowNoRestore: true, threeCancelTailsJoined: true,
+      freshInstanceWaitsThenOneDefaultRead: true, staleHeadingNotFocused: true,
+      zeroWrites: true, jsdomOnly: true,
+    }) + '\n')
+  })
+
+  it('B retires the idle page across Session503, then cancels the permitted current403 navigation instance without poisoning identity', async () => {
+    const f = await app()
+    const old = selected.instances[0]!.controller
+    await change('Tool ID', id(80))
+    await change('每页数量', '2')
+    await apply()
+    await click(detailButton())
+    const oldHeading = document.getElementById('audit-detail-heading')!
+    const oldFocus = vi.spyOn(oldHeading, 'focus')
+    const oldIdentity = f.auth.personalContext.identity!
+    const beforeCheck = f.reads().length
+    const pendingSession = barrier<Response>()
+    releases.push(() => pendingSession.resolve(problem()))
+    f.setSessionRequest(() => pendingSession.promise)
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    expect(f.auth.state.phase).toBe('checking')
+    expect(f.wrapper.findComponent(SystemAuditView).exists()).toBe(false)
+    expect(!old.isCurrent() && !oldHeading.isConnected).toBe(true)
+    expect(old.draft.tool_id === '' && old.draft.limit === '50').toBe(true)
+    expect(f.reads().length).toBe(beforeCheck)
+    pendingSession.resolve(problem())
+    await flushPromises()
+    expect(f.wrapper.text()).toContain('会话尚未确认')
+    expect(f.wrapper.findComponent(SystemAuditView).exists()).toBe(false)
+    expect(f.reads().length).toBe(beforeCheck)
+    f.resetSession()
+    await click('检查当前会话')
+    expect(f.auth.personalContext.identity?.userID).toBe(oldIdentity.userID)
+    expect(f.auth.personalContext.identity?.sessionID).toBe(oldIdentity.sessionID)
+    expect(f.auth.personalContext.identity?.epoch).toBe(oldIdentity.epoch)
+    expect(selected.instances).toHaveLength(2)
+    const recovered = selected.instances[1]!
+    expect(recovered.controller !== old).toBe(true)
+    expect(Object.entries(recovered.initialDraft).every(([k, v]) => v === (k === 'limit' ? '50' : ''))).toBe(true)
+    expect(field('Tool ID').value).toBe('')
+    expect(field('每页数量').value).toBe('50')
+    expect(f.reads().length).toBe(beforeCheck + 1)
+    expect(f.reads().at(-1)![0]).toBe(endpoint + '?limit=50')
+    expect(f.wrapper.find('[aria-labelledby="audit-detail-heading"]').exists()).toBe(false)
+    expect(oldFocus).not.toHaveBeenCalled()
+
+    await change('Tool ID', id(81))
+    f.setAudit(async () => problem('FORBIDDEN', 403))
+    await click('刷新第一页')
+    expect(f.auth.system.denied).toBe(true)
+    expect(f.wrapper.get('h1').text()).toBe('无权访问系统设置')
+    expect(!recovered.controller.isCurrent() && recovered.controller.draft.tool_id === '').toBe(true)
+    expect(f.wrapper.findComponent(SystemAuditView).exists()).toBe(false)
+    const current403 = heldBody({
+      type: 'urn:agenteam:problem:test', title: 'Failure', status: 403,
+      code: 'FORBIDDEN', detail: '', instance: endpoint, request_id: id(9),
+      commit_state: 'not_started',
+    }, 403)
+    f.setAudit(async () => current403.response())
+    const checkpoint = f.observations.length
+    const beforeLeave = f.reads().length
+    try {
+      await f.router.push('/')
+      await flushPromises()
+      await current403.entered.promise
+      expect(f.router.currentRoute.value.path).toBe('/')
+      const sequence = f.observations.slice(checkpoint)
+      expect(sequence.map(({ method, path, route }) => ({ method, path, route }))).toEqual([
+        { method: 'GET', path: '/api/v1/session', route: '/system/audit' },
+        { method: 'GET', path: endpoint + '?limit=50', route: '/system/audit' },
+      ])
+      expect(sequence.at(-1)?.phase === 'authenticated' && sequence.at(-1)?.personalPhase === 'current' && sequence.at(-1)?.role === 'admin').toBe(true)
+      expect(selected.instances).toHaveLength(3)
+      const transient = selected.instances[2]!
+      expect(transient.controller !== recovered.controller).toBe(true)
+      expect(Object.entries(transient.initialDraft).every(([k, v]) => v === (k === 'limit' ? '50' : ''))).toBe(true)
+      expect(transient.initialLimit).toBe('50')
+      expect(!transient.controller.isCurrent() && transient.controller.state.list.phase === 'inactive').toBe(true)
+      expect(f.reads().length).toBe(beforeLeave + 1)
+      expect(current403.cancel).toHaveBeenCalledTimes(1)
+      expect(f.auth.state.busy && !f.auth.system.denied).toBe(true)
+      expect(button('退出登录').disabled).toBe(true)
+      expect(f.wrapper.findComponent(SystemAuditView).exists()).toBe(false)
+      process.stdout.write('independent-B-navigation ' + JSON.stringify(sequence) + '\n')
+    } finally {
+      current403.release()
+      await flushPromises()
+    }
+    expect(!f.auth.state.busy && !current403.stream.locked && !f.auth.system.denied).toBe(true)
+    expect(f.auth.state.phase).toBe('authenticated')
+    expect(f.auth.personalContext.identity?.sessionID).toBe(oldIdentity.sessionID)
+    expect(f.auth.personalContext.identity?.epoch).toBe(oldIdentity.epoch)
+    expect(f.observations).toHaveLength(checkpoint + 2)
+    expect(oldFocus).not.toHaveBeenCalled()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(f.writes()).toHaveLength(0)
+    process.stdout.write('independent-B ' + JSON.stringify({
+      checkingRetiredOldInstance: true, sameSessionFreshDefaultReadOnce: true,
+      current403ClearedDraft: true, guardFreshReadAllowed: true,
+      native403CancelTailJoined: true, identityNotPoisoned: true,
+      zeroSuccessorsAndWrites: true, jsdomOnly: true,
+    }) + '\n')
+  })
+})

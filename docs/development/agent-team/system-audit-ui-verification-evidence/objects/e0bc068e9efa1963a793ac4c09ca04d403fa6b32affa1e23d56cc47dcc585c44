@@ -1,0 +1,12 @@
+# Audit UI D02 独立差量复核
+
+STATIC PASS：harness-stage01 两个静态测试前提缺口已按限定范围关闭；没有执行浏览器或业务资源，不构成真实验收或完整 driver 启动许可。
+
+固定输入 `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage02/manifest.json` SHA `e2667af4929346ebcf2f6fb5c159e82cd453091c741a7370d4815023bbdfe791`；`source.diff` SHA `9e9512c53a19a0dfe782805a9cd2407a7178a27321b8064485f930dd319a98fa`。新 spec SHA `fc03cf6e77fe48bbe12f526acb00eed70b49ee1ff078a70e5517df8b2d98311d`。四源实核，仅这一 browser 源改变；另三源及已接受31源/40dist清单与原绑定完全相同。
+
+1. MIME record 过滤值改为正式 `stored_object`，原精确 resource_id、元数据和布局验收不变。
+2. 登录前仅允许无 query 的 `/login` 或唯一 `return=/system/users`，拒绝其他 query、重复项和 hash。登录后精确路由对应首页或用户权限页；两分支都核新 member 的 user/session 与旧 admin 不同。bare 分支只核首页与系统设置入口0，不声称导航到系统。原旧 Audit DOM0、后继 Audit 请求0（保留已发那一次原请求）、取消/Logout/迟到隔离、零写以及 finally release/join 均保持；没有 goto/reload。普通用户直接 Audit 拒绝仍由同 top 开头的已有正式流程证明。
+
+此前建议勘误 `review-erratum01.md` SHA `5f659aff6bf0997d58bc7d8286adc42034cc47d3577a13a99f61177e9900d057` 与原 review 全部保留。两处缺口是运行前 STATIC 前提，不记录为实际产品 RED。
+
+已读取并逐 SHA 核作者受影响检查原件：format/type、authority/nav各精确list1，actual0/3.241s、actual wait、双扫PID空、输入前后相同；raw SHA `c85e5fc3d56cc049419ffd35c1355c96304e281370d2f42a5a93d429b8b64048`。未重复运行检查。原 Go 编译证据按未变两 Go 源复用。driver与完整运行闭包仍需单独冻结、审查及root授权。

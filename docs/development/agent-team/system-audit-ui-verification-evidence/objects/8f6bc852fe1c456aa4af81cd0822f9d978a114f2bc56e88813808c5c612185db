@@ -1,0 +1,88 @@
+{
+  "checks": {
+    "harness-stage04-go": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "directory": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/harness-stage04-go",
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "b7568df1f3f7a3bf58bab6875f6dc8af5fb3fdc5a1733817902c3b5e5ef3a42b",
+        "dependencies-after.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "dependencies-before.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "input-after.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input-before.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "observed-processes.json": "6b2b6b75625c6eae468b29416002c6657a5ced4541d7acf5e348b159ec6bca10",
+        "raw.log": "2ed54779f49c3b08989f0c69b8598723f0c93ca0ebe22e411545e6fa6adb9b14",
+        "result.json": "954dc3e4c7293165a279daa4d1180c222350521f6b1b5072afb173cb3cc559fc"
+      },
+      "four_candidates_unchanged": true,
+      "pid_double_empty": true,
+      "readonly_dependencies_unchanged": true,
+      "seconds": 8.745
+    },
+    "summary-oracle04": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "directory": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/summary-oracle04",
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "07f621791c0b28c72cb3a30b2ddedb1eaaaad10bdcb192f456c422977c376cb6",
+        "dependencies-after.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "dependencies-before.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "input-after.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input-before.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "observed-processes.json": "0d1132e9e872fe49c3d9380e389a12e33d08172bb357eb9f5de00e55842eca8f",
+        "raw.log": "8b07483f3810f020e8a6e92e02c105ddc1a75854370211429da894efadadc923",
+        "result.json": "4a6630bbed6341ea5fe5df897110d9c39f85552a3c6e98d37ea0549260bdc0e6"
+      },
+      "four_candidates_unchanged": true,
+      "pid_double_empty": true,
+      "readonly_dependencies_unchanged": true,
+      "seconds": 0.459
+    }
+  },
+  "fixed_inputs": [
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage04/manifest.json",
+      "sha256": "0a7c7926f789a4f2ed74c854e45b9fe79d5645ec8e8ea27efaf2b671dbf0df82"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage04/source.diff",
+      "sha256": "da8c3d481481c8e937f4e752aa3c35b334e8c85b1618aaed511ef69cb1708546"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage04/report.md",
+      "sha256": "5120b7b7e3d25154adb9ef2758b7598e6d7126cbb51a0763380d10aad0d992eb"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/manifest.json",
+      "sha256": "50a36559dee52961eaa34dcf5e150f36512e7550e1d41aa4c5d4c22f05cf36ea"
+    }
+  ],
+  "independent_tests_or_resources_executed": false,
+  "input03_read": false,
+  "old_read_failures_preserved": true,
+  "only_change_exact_six_lines": true,
+  "oracle_inputs": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/summary-oracle04/inputs.json",
+    "sha256": "05f816da4a0ba69124bace308ff5e2adb5ad7a724ee4ef72b3c85c1b9555b162"
+  },
+  "oracle_source": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/summary-oracle04/main.go",
+    "sha256": "f00e074fc08d2d8eb315d732187a17d15d64efe9421f6bdadda562cae3ba05f8"
+  },
+  "review": {
+    "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/stage04-review.md",
+    "sha256": "78dd4c692922948eaf8c69a297066239024feee87b16aad72f5be755acc6f683"
+  },
+  "source": {
+    "tests/account-captcha-web/e2e/system-audit.spec.ts": "cefdc89f1e500d9973c8dbe3ab4fd853ef2a4cafb9c550e68e36ec1a7a4338e3",
+    "tests/account-captcha-web/system-audit.config.js": "2599a25482d5bacde02c242679d1835c233ce40012b0ea43e1df65ed824db9de",
+    "tests/account/system_audit_web_fixture_test.go": "bbb925a5b5425e787c791d71dca83d0430dd971a89dae59f3b53f08cf914e022",
+    "tests/account/system_audit_web_test.go": "ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f"
+  },
+  "unchanged_ABC31_dist40_manifest": true,
+  "verdict": "STATIC_PASS_MINIMAL_FIXTURE_MAPPING_DELTA"
+}

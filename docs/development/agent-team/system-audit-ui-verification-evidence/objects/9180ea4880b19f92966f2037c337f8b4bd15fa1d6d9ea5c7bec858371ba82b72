@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-vet=off",
+    "-count=1",
+    "-timeout=45s",
+    "-overlay=/workspace/scratch/agenteam-audit-ui-api-independent-l1hqm4hf/overlay01.json",
+    "-run",
+    "^TestIndependentAuditUIOracle$",
+    "-v",
+    "./internal/central/audit/http"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-mime-schema-author-9LFs9mkG/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-27kplwef",
+    "GOTMPDIR": "/tmp/agt-audit-offline-27kplwef",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOENV": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "CGO_ENABLED": "1",
+    "AUDIT_UI_ORACLE_OUTPUT": "/workspace/scratch/agenteam-audit-ui-api-independent-l1hqm4hf/runs/oracle01/output.json"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "7b581ae31b0e35a0e8d835df308b60ade1c36c915825403ddb8048e9263b24db",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 355454,
+  "actual_exit": 0,
+  "seconds": 2.544462457000918,
+  "timeout": false
+}

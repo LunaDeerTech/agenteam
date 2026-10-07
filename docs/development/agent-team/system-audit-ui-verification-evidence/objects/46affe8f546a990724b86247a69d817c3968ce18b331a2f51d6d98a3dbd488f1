@@ -1,0 +1,21 @@
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+for item in json.loads((root / 'harness-browser-list-plan02.json').read_text()):
+    assert item['argv'][-1] == '--list'
+    print(json.dumps({'command': item}, ensure_ascii=False), flush=True)
+    env = os.environ.copy()
+    env.update(item['env'])
+    child = subprocess.run(item['argv'], cwd=item['cwd'], env=env, capture_output=True, text=True)
+    print(child.stdout, end='', flush=True)
+    print(child.stderr, end='', file=sys.stderr, flush=True)
+    matched = re.search(r'Total: (\d+) tests? in (\d+) files?', child.stdout)
+    exact = matched is not None and int(matched[1]) == item['expected_count'] and int(matched[2]) == 1
+    print(json.dumps({'actual_wait': True, 'exit_code': child.returncode, 'exact_one_test': exact}), flush=True)
+    if child.returncode != 0 or not exact:
+        sys.exit(1)

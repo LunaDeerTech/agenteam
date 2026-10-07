@@ -1,0 +1,15 @@
+# System Audit UI — API-stage01
+
+Author offline PASS only. Five candidate paths are frozen under `source/`; eight minimal frontend dependencies are under `dependencies/`. Product base `1ff044264a54c948e512db9aafad24ec5e0aa3c2`, formal Audit contract `b124650aee095b26191bc181dc8cf5d6e0f977f5`. Main, backend, locks and resources were not changed.
+
+The final two API/metadata suites passed **180/180** (`api-pure03`, actual exit 0 / 1.919 s); type check passed (`api-type02`, actual exit 0 / 8.052 s); all five paths passed Prettier. Each command includes exact argv/cwd/env/runner SHA, before/after candidates, raw/result and two owned PID/starttime cleanup scans. Final candidates remained unchanged during checks. Full accepted type dependency inventory was verified at freeze; this is not mislabeled as an original per-command full-inventory sweep.
+
+Coverage includes all 37 typed output actions and 53 legal constructor representatives, conditional fields/actor/resource/outcome associations, exact 53/25 input domains, 14 filters captured once, Go Instant years/offsets/microseconds, immutable whole pages, 200 items, malformed last rows and detail target equality. Real native streams prove exact 1MiB EOF, 1MiB+1 overflow, abort and wrong-media cancel joins. Problem remains 600000 bytes and Provider list remains 2MiB. All actions are read-only.
+
+Original `api-pure01` is **178 PASS / 2 premise FAIL**, retained with original sources. The helper's default parameter turned an explicit undefined cursor into null; the oversize probe's cleanup aborted before joining, changing classification. Only tests were corrected; three product files were byte-identical through that correction, then all five files were formatted. Product hashes therefore changed for formatting, not a semantic repair. `api-pure02` passed the five affected cases; final 180 combine is `api-pure03`.
+
+MIME oracle01 proved the old OpenAPI pattern narrower than the formal Go typed contract (single token and braces). Root assigned upstream schema-only repair; the frontend consumes formal grammar and does not add the old restriction. Do not call the schema revision accepted until root supplies its committed SHA. Oracle02 reconstructed every representative via DecodeMetadata/typed constructors/NewEntry and independently recorded Go default JSON byte counts and 22 Instant vectors. Both Go runs exited 0 and double-cleaned their owned processes. No Object service or producer ran.
+
+No owner/page/browser/real backend conclusion is claimed. The 32KiB encoded query guard and 4096-byte metadata ceiling remain defenses; the generic exact byte-count probes do not claim a real producer yields maximal metadata. Original evidence and vectors are permanent and are not rewritten.
+
+Manifest SHA: `b2a2ef591ed81a0fb98031b7c09a8125e04ac6a9d04dc2a403b4d3346a7ed904`. All original command paths and SHA values are indexed there. Frozen `source.diff` contains the exact five-path delivery.

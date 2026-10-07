@@ -1,0 +1,33 @@
+{
+  "adopted_waits": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/adopted-waits.json",
+    "sha256": "41a7a085187d9fb6bc982e5334c89a4ca5e7ea2a4ae655d78d0844ad15419784"
+  },
+  "browser_runtime": "/tmp/agtaud-7kf9y7cw",
+  "chain": "Frozen driver creates unique agtaud root and passes exact environment; frozen fixture creates run-* there; both original scans record this sole child. No content of residue read.",
+  "command": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/command.json",
+    "sha256": "d6d088330f1675acdab777ebefbb804459955958b7132dbbb09a1d9a991a7a49"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/driver01.py",
+    "sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62"
+  },
+  "fixture": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account/system_audit_web_fixture_test.go",
+    "sha256": "2b6cac6f5c8dd6223d0cbc4247b67e69991e125889fb40d7804a8eb595263b13"
+  },
+  "original_cleanup": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/cleanup.json",
+    "sha256": "785525773d147be39d2121db326b9971c15af1a4878184b02a4d86adc29cdff9"
+  },
+  "original_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/frozen-input.json",
+    "sha256": "f75c0d0f18a03fbfdfe085f338a98bf6ba931c4f90ba7dcfa8c94897acb57dc5"
+  },
+  "owned_processes": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/observed-processes.json",
+    "sha256": "40736be546515efe94ca2301da663337114dfff7f32bf3285d7822226dc3e571"
+  },
+  "target": "/tmp/agtaud-7kf9y7cw/run-885545408"
+}

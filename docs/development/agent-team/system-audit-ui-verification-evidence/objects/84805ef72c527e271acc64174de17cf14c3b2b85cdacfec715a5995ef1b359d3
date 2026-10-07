@@ -1,0 +1,18 @@
+# Audit UI harness07 diagnostic fidelity — STATIC PASS
+
+This is a narrow read-only review. No product test, browser, server, listener or resource was started; independent real preparation remains frozen at input05/execution01.
+
+Frozen author root: `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot`.
+
+- `harness-stage07/manifest.json`: `dc9fe49e77e1a8a7f973ac1b3934630c9071b4124ebd38dbab71440e9821dfef`.
+- `harness-stage07/source.diff`: `4e47e5eafc67b1fe3958454d0df256ae7fb0df0ffe8433739c4f4eec13543ba4`.
+- `input06/manifest.json`: `420e50093fba526c37607b8c2fe4bbabf6cc91bf12dc6c62686e0a9dc1f953c8`.
+- New browser source: `3729ce36f852c913c1b52a551c352106e917db79a5d16713f15d8236566daed2`.
+
+The complete diff changes only the layout helper's return shape and failure-only logging. All original Boolean predicates, thresholds and traversal order remain. The six failure categories are closed: region, content-overflow, detail-structure, table-structure, mobile-cell-display and control. Output is limited to geometry, counts, indices, presence Booleans, the caller's width/mode, and a fixed tag whitelist. It does not emit text, HTML, identifiers, field values, DTOs, headers or private material. Additional geometry reads occur only after the original failure decision; they do not replace that decision. `expect(safe).toBe(true)` remains unchanged.
+
+Direct comparison verified the complete source prefix before layout and the complete suffix from the original expect through EOF are byte-identical. All four frozen harness files match their manifest SHA. Comparing input05/input06 manifests shows only the new browser candidate changed; the other 34 candidates, 40 dist entries, 943 baseline entries, 18 dependencies and driver hashes are unchanged. This is a manifest/source comparison, not a new full runtime gate.
+
+Author offline evidence was read and its recorded file hashes checked: `runs/harness-stage07-browser/{raw.log,result.json,cleanup.json}`. Format, strict type and exact one Navigation discovery passed; wrapper actual exit 0 in 2.601s, input/dependency hashes unchanged, both owned-process scans empty. Raw SHA `2e5a9ee8f727ecb697b0a36845f203175d272b241e6a3551ba6ea0487e154f10`; result SHA `76313839c04deaf49b387cde5157c70edc277413070ff3e0618527cb8730b60f`; cleanup SHA `77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3`. These checks were not rerun by this reviewer.
+
+The preserved navigation01 safe=false had no geometry detail and zero screenshots. This review does not infer its failing category, product cause or future diagnostic result. No blocking diagnostic-fidelity issue was found. Actual diagnostic execution still requires root's separate grant; independent A/B input rebinding waits for the layout conclusion.

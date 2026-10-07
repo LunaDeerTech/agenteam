@@ -1,0 +1,39 @@
+[
+  {
+    "argv": [
+      "./node_modules/.bin/prettier",
+      "--check",
+      "../tests/account-captcha-web/e2e/system-audit.spec.ts"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web"
+  },
+  {
+    "argv": [
+      "./node_modules/.bin/tsc",
+      "--noEmit",
+      "--strict",
+      "--skipLibCheck",
+      "--target",
+      "ES2022",
+      "--module",
+      "ESNext",
+      "--moduleResolution",
+      "Bundler",
+      "--lib",
+      "ES2022,DOM,DOM.Iterable",
+      "--types",
+      "node",
+      "--typeRoots",
+      "../../web/node_modules/@types",
+      "e2e/system-audit.spec.ts"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web"
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness_browser_list03.py"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web"
+  }
+]

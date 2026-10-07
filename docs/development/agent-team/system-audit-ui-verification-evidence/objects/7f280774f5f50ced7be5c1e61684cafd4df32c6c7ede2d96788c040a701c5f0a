@@ -1,0 +1,123 @@
+{
+  "conclusion": "HARNESS_STAGE01_STATIC_BLOCKED_BY_TWO_TEST_PREMISES; FULL_RUNTIME_DRIVER_PENDING",
+  "scope": "read-only four-source D review; no dynamic execution",
+  "inputs": [
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/manifest.json",
+      "sha256": "4133eccac0b1e93481af0017cabdde59388afc31198e9bbc1c552e87c4a3d0e6"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/source.diff",
+      "sha256": "30d04b5c9148dfac96725db7003fe59c365f1ee0f0832e992430ea8277766853"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/execution-plan.json",
+      "sha256": "52ecdbac57d425d75da2a54ab20bd98342b965394142a95cf8e16b273660931e"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/report.md",
+      "sha256": "0aedeb8f5fdb5a826b0db1fcfbc51ff4c4593dc568eff50097196d080d254d5f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/source/tests/account-captcha-web/e2e/system-audit.spec.ts",
+      "sha256": "e718c2b013392aecce6e016074e990fb930a751122867cdcb18de9dd7548dc07"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/source/tests/account-captcha-web/system-audit.config.js",
+      "sha256": "2599a25482d5bacde02c242679d1835c233ce40012b0ea43e1df65ed824db9de"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/source/tests/account/system_audit_web_fixture_test.go",
+      "sha256": "69bf020a367c55c012477b04cdc15a842aa5187a086cc7cba9fc1b79004b1d9c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage01/source/tests/account/system_audit_web_test.go",
+      "sha256": "ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/dependencies/web/src/App.vue",
+      "sha256": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/dependencies/web/src/views/auth/LoginView.vue",
+      "sha256": "58197b6ca69b7e1b4fc2f94a1990a21497d9a0ace613f1a222b8e8e6715f7643"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/api/client.ts",
+      "sha256": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/api/system-audit-metadata.ts",
+      "sha256": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/router/auth.ts",
+      "sha256": "49a2f794d00b66908afdd79c45783106f581070fe2b93b8de14dce4aec75d2b0"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/views/system/SystemAuditView.vue",
+      "sha256": "b11ae46e854fa8ad918b8f13536d1fe354d968949205d77d6935807f8bb9ea51"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/views/system/SystemAuditFilters.vue",
+      "sha256": "1808936872ed7936adb43d6e9f6d317b87d51067c234f36670e7294679903d7d"
+    },
+    {
+      "fixed_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/types.go",
+      "private_copy": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/basis/internal/central/audit/contract/types.go",
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d"
+    },
+    {
+      "fixed_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/http/wire.go",
+      "private_copy": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/basis/internal/central/audit/http/wire.go",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4"
+    },
+    {
+      "fixed_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/account/http_profile.go",
+      "private_copy": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/basis/internal/central/account/http_profile.go",
+      "sha256": "d7405c213f6f7013838a0f70916da022c80486c24d0ff6739e2505bf787d5e34"
+    },
+    {
+      "fixed_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "db/migrations/00010_account_session_smtp.sql",
+      "private_copy": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/basis/db/migrations/00010_account_session_smtp.sql",
+      "sha256": "5a24fb23d01d706bf0548b8d667dc4754a3e7e558ef6fb104d396763d084a7ed"
+    },
+    {
+      "fixed_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "private_copy": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/basis/tests/account/personal_settings_web_fixture_test.go",
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b"
+    }
+  ],
+  "findings": [
+    {
+      "id": "H-AUDIT-UI-D-01",
+      "file": "tests/account-captcha-web/e2e/system-audit.spec.ts",
+      "line": 1290,
+      "kind": "static invalid filter option",
+      "actual_failure_run": false
+    },
+    {
+      "id": "H-AUDIT-UI-D-02",
+      "file": "tests/account-captcha-web/e2e/system-audit.spec.ts",
+      "line": 1070,
+      "kind": "post-login navigation premise not established",
+      "actual_failure_run": false
+    }
+  ],
+  "accepted_source31_dist40_equal": true,
+  "author_offline_checks_reused": {
+    "browser_seconds": 5.759,
+    "go_seconds": 8.952,
+    "actual_exit": 0,
+    "actual_wait": true,
+    "double_empty": true
+  },
+  "resource_execution": false,
+  "active_driver_read": false,
+  "review_sha256": "a7174bd64b8a40366c941a2bcf95f44f383797a9f05c02839050241874c33ce8"
+}

@@ -1,0 +1,150 @@
+package main
+import("encoding/json";"fmt";"os")
+type Action string
+const(
+AccessDeny Action = "outbound.access.deny"
+AccountAvatarUpdate Action = "account.avatar.update"
+AccountBootstrap Action = "account.bootstrap"
+AccountInviteCreate Action = "account.invite.create"
+AccountInviteRedeem Action = "account.invite.redeem"
+AccountInviteRevoke Action = "account.invite.revoke"
+AccountLogin Action = "account.login"
+AccountLogout Action = "account.logout"
+AccountPasswordChange Action = "account.password.change"
+AccountPasswordResetComplete Action = "account.password.reset.complete"
+AccountPasswordResetRequest Action = "account.password.reset.request"
+AccountProfileUpdate Action = "account.profile.update"
+AccountSettingsUpdate Action = "account.settings.update"
+ArtifactCreate Action = "artifact.create"
+ArtifactDownload Action = "artifact.download"
+ArtifactList Action = "artifact.list"
+ArtifactRead Action = "artifact.read"
+MasterRegister Action = "secret.master.register"
+ModelCreate Action = "model.create"
+ModelDelete Action = "model.delete"
+ModelSelectionUpdate Action = "model.selection.update"
+ModelUpdate Action = "model.update"
+ObjectDelete Action = "object.delete"
+ObjectTransferComplete Action = "object.transfer.complete"
+ObjectTransferIssue Action = "object.transfer.issue"
+ObjectTransferRevoke Action = "object.transfer.revoke"
+ObjectUploadComplete Action = "object.upload.complete"
+ObjectUploadFailed Action = "object.upload.failed"
+OutboxDeliveryRequeue Action = "outbox.delivery.requeue"
+PolicyUpdate Action = "outbound.policy.update"
+ProviderCreate Action = "provider.create"
+ProviderDelete Action = "provider.delete"
+ProviderUpdate Action = "provider.update"
+RotationComplete Action = "secret.master.rotation.complete"
+RotationFailed Action = "secret.master.rotation.failed"
+RotationStart Action = "secret.master.rotation.start"
+SMTPDelivery Action = "smtp.delivery"
+SMTPDeliveryRetry Action = "smtp.delivery.retry"
+SMTPSettingsUpdate Action = "smtp.settings.update"
+SMTPTestRequest Action = "smtp.test.request"
+SecretCreate Action = "secret.create"
+SecretDelete Action = "secret.delete"
+SecretResolve Action = "secret.resolve"
+SecretUpdate Action = "secret.update"
+)
+func actionSummary(action Action) (string, bool) {
+	switch action {
+	case SecretCreate:
+		return "Secret created", true
+	case SecretUpdate:
+		return "Secret updated", true
+	case SecretDelete:
+		return "Secret deleted", true
+	case SecretResolve:
+		return "Secret use recorded", true
+	case MasterRegister:
+		return "Master key registered", true
+	case RotationStart:
+		return "Master key rotation started", true
+	case RotationComplete:
+		return "Master key rotation completed", true
+	case RotationFailed:
+		return "Master key rotation failed", true
+	case PolicyUpdate:
+		return "Outbound policy updated", true
+	case AccessDeny:
+		return "Outbound access denied", true
+	case ObjectUploadComplete, ObjectUploadFailed, ObjectDelete, OutboxDeliveryRequeue:
+		return "Audit event", true
+	default:
+		return "Audit event", AccountAction(action) || ModelAction(action)
+	}
+}
+func AccountAction(a Action) bool {
+	switch a {
+	case AccountBootstrap, AccountLogin, AccountLogout, AccountInviteCreate, AccountInviteRevoke, AccountInviteRedeem, AccountPasswordChange, AccountPasswordResetRequest, AccountPasswordResetComplete, AccountProfileUpdate, AccountAvatarUpdate, AccountSettingsUpdate, SMTPSettingsUpdate, SMTPTestRequest, SMTPDelivery, SMTPDeliveryRetry:
+		return true
+	}
+	return false
+}
+func ModelAction(a Action) bool {
+	switch a {
+	case ProviderCreate, ProviderUpdate, ProviderDelete, ModelCreate, ModelUpdate, ModelDelete, ModelSelectionUpdate:
+		return true
+	}
+	return false
+}
+func oldFixture(action string) string {
+		summary := "Audit event"
+		switch action {
+		case "secret.master.register":
+			summary = "Master key registered"
+		case "outbound.policy.update":
+			summary = "Outbound policy updated"
+		case "outbound.access.deny":
+			summary = "Outbound access denied"
+		case "secret.create":
+			summary = "Secret created"
+		case "secret.update":
+			summary = "Secret updated"
+		case "secret.delete":
+			summary = "Secret deleted"
+		case "secret.resolve":
+			summary = "Secret use recorded"
+		}
+return summary
+}
+func candidateFixture(action string) string {
+		summary := "Audit event"
+		switch action {
+		case "secret.master.register":
+			summary = "Master key registered"
+		case "secret.master.rotation.start":
+			summary = "Master key rotation started"
+		case "secret.master.rotation.complete":
+			summary = "Master key rotation completed"
+		case "secret.master.rotation.failed":
+			summary = "Master key rotation failed"
+		case "outbound.policy.update":
+			summary = "Outbound policy updated"
+		case "outbound.access.deny":
+			summary = "Outbound access denied"
+		case "secret.create":
+			summary = "Secret created"
+		case "secret.update":
+			summary = "Secret updated"
+		case "secret.delete":
+			summary = "Secret deleted"
+		case "secret.resolve":
+			summary = "Secret use recorded"
+		}
+return summary
+}
+
+var actions=[]string{"secret.create","secret.update","secret.delete","secret.resolve","secret.master.register","secret.master.rotation.start","secret.master.rotation.complete","secret.master.rotation.failed","outbound.policy.update","outbound.access.deny","object.upload.complete","object.upload.failed","object.delete","outbox.delivery.requeue","account.bootstrap","account.login","account.logout","account.invite.create","account.invite.revoke","account.invite.redeem","account.password.change","account.password.reset.request","account.password.reset.complete","account.profile.update","account.avatar.update","account.settings.update","smtp.settings.update","smtp.test.request","smtp.delivery.retry","smtp.delivery","provider.create","provider.update","provider.delete","model.create","model.update","model.delete","model.selection.update"}
+func main(){
+ rows:=make([]map[string]any,0,len(actions));oldMismatch:=[]string{};failures:=[]string{}
+ for _,a:=range actions{formal,ok:=actionSummary(Action(a));oldSame:=oldFixture(a)==formal;newSame:=candidateFixture(a)==formal
+  if !oldSame{oldMismatch=append(oldMismatch,a)};if !ok||!newSame{failures=append(failures,a)}
+  rows=append(rows,map[string]any{"action":a,"formal_accepted":ok,"old_equal":oldSame,"candidate_equal":newSame})
+ }
+ expected:=[]string{"secret.master.rotation.start","secret.master.rotation.complete","secret.master.rotation.failed"}
+ exactOld:=len(oldMismatch)==len(expected);if exactOld{for i:=range expected{if oldMismatch[i]!=expected[i]{exactOld=false}}}
+ json.NewEncoder(os.Stdout).Encode(map[string]any{"vectors":rows,"count":len(actions),"candidate_mismatches":failures,"old_static_mapping_mismatches":oldMismatch,"expected_old_drift_exact":exactOld,"scope":"extracted exact summary functions only; no original failing-row action inference"})
+ if len(actions)!=37||len(failures)!=0||!exactOld{fmt.Fprintln(os.Stderr,"summary mapping mismatch");os.Exit(1)}
+}

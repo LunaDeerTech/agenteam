@@ -1,0 +1,129 @@
+import copy
+import difflib
+import hashlib
+import json
+import shutil
+from datetime import datetime, timezone
+from pathlib import Path
+
+S = Path(__file__).resolve().parent
+W = S / 'workspace'
+stage = S / 'web-stage03'
+out = S / 'input08'
+plan_path = S / 'startup-plan08.json'
+assert not stage.exists() and not out.exists() and not plan_path.exists()
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def ref(path):
+    return {'path': str(path), 'sha256': sha(path)}
+
+
+def save(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+old_path = S / 'input07/manifest.json'
+assert sha(old_path) == 'e62a3e5e0efa15bb7e89430bc7e63b5bb800f186d80866669290bbf32517d726'
+old = json.loads(old_path.read_text())
+target = 'web/src/views/system/SystemAuditView.vue'
+source = {path: sha(W / path) for path in old['files']}
+assert [path for path in source if source[path] != old['files'][path]] == [target]
+before = Path(old['source_archives'][target]['path']).read_text()
+after = (W / target).read_text()
+anchor = '@media (max-width: 760px) {'
+assert before.count(anchor) == 1 and '  padding: 0;\n' in before
+expected = before.replace(anchor, '@media (min-width: 761px) {\n  thead th:last-child {\n    width: 120px;\n  }\n}\n' + anchor, 1)
+assert after == expected
+for path, row in old['accepted_baseline']['files'].items():
+    assert sha(W / path) == row['sha256'], path
+for path, row in old['dependencies'].items():
+    assert str(Path(path).resolve(strict=True)) == row['realpath'] and sha(Path(path)) == row['sha256'], path
+for group in ['source_archives', 'dist_archives']:
+    for row in old[group].values():
+        assert sha(Path(row['path'])) == row['sha256']
+assert sha(S / 'driver01.py') == old['driver_sha256']
+assert sha(S / 'harness-stage07/manifest.json') == 'dc9fe49e77e1a8a7f973ac1b3934630c9071b4124ebd38dbab71440e9821dfef'
+checks = {}
+for name in ['web-stage03-format', 'web-stage03-page', 'web-stage03-build']:
+    r = S / 'runs' / name
+    result = json.loads((r / 'result.json').read_text())
+    assert result['exit_code'] == 0 and result['actual_wait'] and not result['timed_out']
+    assert result['owned_processes_double_empty'] and result['input_unchanged'] and result['readonly_dependencies_unchanged']
+    checks[name] = {'directory': str(r), 'result': result, 'files': {p.name: sha(p) for p in r.iterdir() if p.is_file()}}
+dist = {str(p.relative_to(W)): sha(p) for p in sorted((W / 'web/dist').rglob('*')) if p.is_file()}
+assert len(dist) == 40
+stage.mkdir()
+archived = stage / 'source' / target
+archived.parent.mkdir(parents=True)
+shutil.copyfile(W / target, archived)
+for path in dist:
+    destination = stage / 'artifacts' / path
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(W / path, destination)
+(stage / 'source.diff').write_text(''.join(difflib.unified_diff(before.splitlines(True), after.splitlines(True), fromfile='input07/' + target, tofile='web-stage03/' + target)))
+prep = stage / 'preparation'
+prep.mkdir()
+for name in ['record_page02.py', 'freeze_web03_input08.py']:
+    shutil.copyfile(S / name, prep / name)
+original_navigation = {run: {name: ref(S / 'runs' / run / name) for name in ['command.json', 'raw.log', 'result.json', 'cleanup.json']} for run in ['navigation03']}
+(stage / 'report.md').write_text("# Audit desktop details-column repair\n\nOnly SystemAuditView.vue adds a scoped min-width: 761px media rule setting the last thead th to width: 120px. The original max-width: 760px stacked layout and the earlier caption padding: 0 are retained. No shared button/global CSS, other six columns' wrapping, overflow behavior, semantics or browser predicate changes. The other 34 candidate sources, harness-stage07, 943 accepted Git dependencies, 18 tools and driver01 match input07. Only one source among the historical accepted 31-source web-stage01 is revised.\n\nnavigation03 actually exited 1/55.748s, top 11.68s, with the original safe diagnostic at width 768/list: TD index 38, scrollWidth 76 and clientWidth 68. Static template traversal maps that index to the first row's details cell; the raw diagnostic did not output its column name or button dimensions/computedStyle. Seven equal fixed-layout columns at this width and the accepted button's content/padding provide the static repair basis. No hidden dimensions are claimed as observed. Original navigation01/02/03 failures and cleanup records are preserved. Only the two light1440/light1024 partial 900px captures from navigation03 exist; the author reviewed both under the separate frozen visual-review record. They are not the 768px failure scene and do not substitute for six missing images.\n\nThe changed View passed Prettier. The unchanged existing Audit visible-filters/inline-observations/local-focus group passed 12 tests with eight other tests skipped; production build including vue-tsc and Vite passed. All three offline commands used the original 45-second budget and have actual waits, unchanged source/dependencies and empty PID double scans. Full rebuilt 40-file dist is archived and individually hashed. No full test-matrix repetition, Go compilation, browser or real resource ran for this repair. input08/navigation04 remains a plan for separate review and resource authorization; native geometry has not yet been rerun.\n")
+stage_manifest = {
+    'stage': 'web-stage03 single-source desktop details-column width repair',
+    'frozen_at_utc': datetime.now(timezone.utc).isoformat(),
+    'previous_input': ref(old_path),
+    'previous_accepted_web': ref(S / 'web-stage01/manifest.json'),
+    'source': {target: source[target]},
+    'current_all_source': source,
+    'source_count': len(source),
+    'unchanged_other_source_count': 34,
+    'unchanged_accepted_web_source_count': 30,
+    'harness07_unchanged': ref(S / 'harness-stage07/manifest.json'),
+    'source_diff': ref(stage / 'source.diff'),
+    'dist': dist,
+    'checks': checks,
+    'original_navigation': original_navigation,
+    'report': ref(stage / 'report.md'),
+    'preparation_sources': {p.name: sha(p) for p in prep.iterdir()},
+    'resource_execution': False,
+}
+save(stage / 'manifest.json', stage_manifest)
+manifest = copy.deepcopy(old)
+manifest['stage'] = 'Audit real-startup input08; desktop details-column width repair; navigation04 not executed'
+manifest['frozen_at_utc'] = datetime.now(timezone.utc).isoformat()
+manifest['previous_manifest'] = ref(old_path)
+manifest['files'] = source
+manifest['source_archives'][target] = ref(archived)
+manifest['dist'] = dist
+manifest['dist_archives'] = {path: ref(stage / 'artifacts' / path) for path in dist}
+manifest['stages']['C03'] = ref(stage / 'manifest.json')
+manifest['original_navigation03'] = original_navigation['navigation03']
+out.mkdir()
+save(out / 'manifest.json', manifest)
+shutil.copyfile(Path(__file__), out / 'freeze-source.py.txt')
+shutil.copyfile(S / 'driver01.py', out / 'driver01.py')
+save(out / 'delta.json', {
+    'previous': ref(old_path), 'current': ref(out / 'manifest.json'),
+    'changed_candidates': {target: {'before': old['files'][target], 'after': source[target]}},
+    'candidate_diff': ref(stage / 'source.diff'), 'affected_checks': checks,
+    'unchanged_candidate_count': 34, 'rebuilt_dist_count': len(dist),
+    'unchanged_accepted_count': len(old['accepted_baseline']['files']),
+    'unchanged_external_tool_count': len(old['dependencies']),
+    'driver_unchanged_sha256': sha(S / 'driver01.py'),
+    'resource_execution': False,
+})
+plan = json.loads((S / 'startup-plan07.json').read_text())
+plan['status'] = 'navigation04 affected rerun plan only; separate root resource grant required'
+plan['manifest'] = ref(out / 'manifest.json')
+assert len(plan['plans']) == 1 and plan['plans'][0]['group'] == 'navigation'
+plan['plans'][0]['name'] = 'navigation04'
+args = plan['plans'][0]['argv']
+args[args.index('--name') + 1] = 'navigation04'
+args[args.index('--frozen') + 1] = 'input08/manifest.json'
+save(plan_path, plan)
+free = shutil.disk_usage(S).free
+save(out / 'disk-preparation.json', {'utc': datetime.now(timezone.utc).isoformat(), 'free_bytes': free, 'required_for_actual_start': 5368709120, 'passes_now': free >= 5368709120, 'startup_must_repeat': True})
+print(json.dumps({'web_manifest': sha(stage / 'manifest.json'), 'source_diff': sha(stage / 'source.diff'), 'view': source[target], 'input08': sha(out / 'manifest.json'), 'delta': sha(out / 'delta.json'), 'plan': sha(plan_path), 'source_count': len(source), 'dist_count': len(dist), 'free_bytes': free}, indent=2))

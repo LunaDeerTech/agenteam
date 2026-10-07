@@ -1,0 +1,99 @@
+{
+  "3b2f8c2f58a8bca82756022ceda9719a2b49438c850a899aad42eeabe56808de": {
+    "bind_mounts": [],
+    "kind": "network",
+    "mounts_within_task_runtime": true,
+    "nonce_present": true,
+    "nonces": {
+      "agenteam.d04.networkfixture": "b2fcde13c9e3c64af6cd14ee92d6ee38"
+    }
+  },
+  "3c156a1dfa2d39fecca9d41f19054d68687c3bafd48ce2b1c104b5db0f7545c8": {
+    "bind_mounts": [
+      {
+        "destination": "/fixture",
+        "rw": false,
+        "source": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/runtime/agenteam-d05-object-e9068e69d5a5b680ed396b383daa6711/agenteam-d04-net-b2fcde13c9e3c64af6cd14ee92d6ee38-162747691/agenteam-d03-66b4284485bfe300f0b90b5dc22bc349-1841436898",
+        "type": "bind"
+      }
+    ],
+    "kind": "container",
+    "mounts_within_task_runtime": true,
+    "nonce_present": true,
+    "nonces": {
+      "agenteam.d03.fixture": "66b4284485bfe300f0b90b5dc22bc349"
+    }
+  },
+  "5caddc0f1d9e50fb0504bcd2af13f82bc573a8c11ed73fb072ac274971f2941c": {
+    "bind_mounts": [],
+    "kind": "network",
+    "mounts_within_task_runtime": true,
+    "nonce_present": true,
+    "nonces": {
+      "agenteam.d03.fixture": "66b4284485bfe300f0b90b5dc22bc349"
+    }
+  },
+  "9f266cedd7ebf912079a3a01bc1d7c1c83b8e582e98f3eb69fda8eb73a1a4994": {
+    "bind_mounts": [
+      {
+        "destination": "/fixture/data",
+        "rw": true,
+        "source": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/runtime/agenteam-d05-object-e9068e69d5a5b680ed396b383daa6711/data",
+        "type": "bind"
+      },
+      {
+        "destination": "/fixture",
+        "rw": false,
+        "source": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/runtime/agenteam-d05-object-e9068e69d5a5b680ed396b383daa6711",
+        "type": "bind"
+      }
+    ],
+    "kind": "container",
+    "mounts_within_task_runtime": true,
+    "nonce_present": true,
+    "nonces": {
+      "agenteam.d05.objectfixture": "e9068e69d5a5b680ed396b383daa6711"
+    }
+  },
+  "ab2fd573a3dc48426e0fc7949fcd5097178979f93c4053d21a767f19baa3d889": {
+    "bind_mounts": [],
+    "kind": "network",
+    "mounts_within_task_runtime": true,
+    "nonce_present": true,
+    "nonces": {
+      "agenteam.d05.objectfixture": "e9068e69d5a5b680ed396b383daa6711"
+    }
+  },
+  "fa5229710b349dcb30f29d37a50b62d72921ded0d55a9d7dbca655f0803345f3": {
+    "bind_mounts": [
+      {
+        "destination": "/fixture",
+        "rw": false,
+        "source": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/runtime/agenteam-d05-object-e9068e69d5a5b680ed396b383daa6711/agenteam-d04-net-b2fcde13c9e3c64af6cd14ee92d6ee38-162747691",
+        "type": "bind"
+      }
+    ],
+    "kind": "container",
+    "mounts_within_task_runtime": true,
+    "nonce_present": true,
+    "nonces": {
+      "agenteam.d04.networkfixture": "b2fcde13c9e3c64af6cd14ee92d6ee38"
+    }
+  },
+  "fe40f0a373b49cc6371bd2d762fc3ba958b8a4acd1c51f5eebbf8ee1e4ca7317": {
+    "bind_mounts": [
+      {
+        "destination": "/fixture",
+        "rw": false,
+        "source": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/runtime/agenteam-d05-object-e9068e69d5a5b680ed396b383daa6711/agenteam-d04-net-b2fcde13c9e3c64af6cd14ee92d6ee38-162747691/agenteam-d03-66b4284485bfe300f0b90b5dc22bc349-1841436898",
+        "type": "bind"
+      }
+    ],
+    "kind": "container",
+    "mounts_within_task_runtime": true,
+    "nonce_present": true,
+    "nonces": {
+      "agenteam.d03.fixture": "66b4284485bfe300f0b90b5dc22bc349"
+    }
+  }
+}

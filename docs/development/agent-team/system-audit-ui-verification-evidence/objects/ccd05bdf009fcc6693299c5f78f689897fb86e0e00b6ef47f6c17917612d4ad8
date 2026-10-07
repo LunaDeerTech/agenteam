@@ -1,0 +1,404 @@
+{
+  "accepted_dependency_count": 943,
+  "deferred_readme": "docs/development/frontend/README.md",
+  "dist": {
+    "web/dist/assets/AppearanceSettings-YdHvGn3y.js": "d7ed462f83914aa42071426ef41129432a9b043710cf12366b6b4d069e59b340",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/ForgotPasswordView-DvRK3pnj.js": "b36f1b847973c0c649dc7184a23b4013047175da49ad3983d21c9326fb3a433c",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/InvitationView-DSOcEuMJ.js": "622b86f63683202d7ab248292d9012c3044085e3c9928e8207d2e92fe2025b24",
+    "web/dist/assets/PasswordSettings-7M89OiBh.js": "334de0b3e8f6c0158fa849a13de055d0f3ff9b5ac29e4aeb87a70df6291761b9",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/PersonalSettingsView-C4hoKwto.js": "d148b7c1100f3d23b50744f4b4ffc5819efee109b9b7d129460cce49f3da1c86",
+    "web/dist/assets/ProfileSettings-BMa6qCWt.js": "c0636d4bf3831d3ca249178f554a251251b13837ae4015ef6168c2f9d0f4ed2c",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/ResetPasswordView-DxU79H32.js": "8f875ee8d8979496629e9506ec66fca02b9192f3a54cbde0fbf1eac9441684ab",
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "web/dist/assets/SettingsShell-DxeT10XA.js": "ee74e0736f0384aa040fbf5f03be10a35db354121e1329da07b364f89e97cf6b",
+    "web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css": "8c0710c7f46cdaa82fd01031381969c02672f16825b06eea24840a2770b25e7e",
+    "web/dist/assets/SystemAccountSecurityView-DWBDyKkZ.js": "ee2c980a161452c6267aaa6c2a514f88cf898729c2b4f6648b327eb134922e02",
+    "web/dist/assets/SystemAuditView-CVK5-pDL.css": "2edefd2a2162a58c6951f4a77dba66ee4dcddffb2cf2a432cde21b60e8637310",
+    "web/dist/assets/SystemAuditView-Jn095vvP.js": "242e07285264e02e26cb0a8bf6d8e8dbf12073a9d5b0f8fe5e865bed4f2abfb9",
+    "web/dist/assets/SystemInvitationsView-CUaLbi2k.js": "4a929453be8bc5fe171d0eedb8e9c71e857b432210c05c116ac1cef7dec7e48d",
+    "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+    "web/dist/assets/SystemModelSelectionView-CMMrgzya.js": "07caed847d9fff81da45b325d679e37e4505f02e74d07d707e08d0777dae067c",
+    "web/dist/assets/SystemModelSelectionView-Dpau881F.css": "3db921aee5324ed2c41c87284a1ef1ae79f34a9f4bee83ceac7cc05412398edb",
+    "web/dist/assets/SystemModelsView-6nzUQodS.css": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f",
+    "web/dist/assets/SystemModelsView-DnX9j_ee.js": "c690cba9e6a0fe20720136e93ac1025dbd36acaeb84d5401c2bbdae23a4bd9b1",
+    "web/dist/assets/SystemOutboundPolicyView-DJf4zBnk.js": "c01ee892eb810041afd5153f2c3b7076a7d2492036a735517ba8edf53ace9ce2",
+    "web/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css": "19d8278ceeaa3ceffd43362ac75240f8aa1514a2da4bc131270cfd6225f778b3",
+    "web/dist/assets/SystemProvidersView-CBj6ci51.js": "95bd7320b19688fcdfd2205979947b9a64e79b57585fb896bcafd4bdff547642",
+    "web/dist/assets/SystemProvidersView-elJ_-cRG.css": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c",
+    "web/dist/assets/SystemSMTPSettingsView-Cj1sSq79.js": "e39a88adcca517c36eccb566f3ec90110c85d378a98b382a9dad3bc8ecfbdcb7",
+    "web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css": "c29e8ce53af05f7e736565081e3e4e6cf4bb61e3cdabd73d5e7911842dddc531",
+    "web/dist/assets/SystemSettingsView-DderE2fs.css": "b795a799a3cc0a265606aa4973d37008260b99a9a763ecbab73821afd3531c3e",
+    "web/dist/assets/SystemSettingsView-VFXPyx7Q.js": "627ad5df41d44e1123e15571f08f568fd833c344bfadbac6ea4ed3be3e5b5abd",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/SystemUsersView-BI9QU23D.js": "81cae9953191145f5f71baac914fb83cd6832a61f3ef171497ec8a62e84211b1",
+    "web/dist/assets/UiButton-Cwqvp0EG.js": "ee1915fd6cb786f3b136edcb4ddc408a8957b08023af74010264189dabf78236",
+    "web/dist/assets/UiCheckbox-CHF0V48Z.js": "3225a9b23b32a27ce6121e0a0ee412a2f9e82cee1940b7bbe09bf404a57e7841",
+    "web/dist/assets/UiSelect-DjmN3rC5.js": "f61ddc0350d9f6c9b40f3bc49cb9a1fc30a968a1bd05c02153c236842331c1fd",
+    "web/dist/assets/index-BIm3SWDo.js": "3a51debff7328c0676915c045b5ba304b2f6a73233b7def3f47defe203947611",
+    "web/dist/assets/index-BcO4xeOJ.css": "5b5fbe63615b2238d8da9ac9df12964271f9477fa75d2135e3438a52aacdc8aa",
+    "web/dist/index.html": "8c7abc0a139fd045847b47d6ef1f3323aa0b8a8446f20bd9c92c647fe9424d3e"
+  },
+  "dist_archives": {
+    "web/dist/assets/AppearanceSettings-YdHvGn3y.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/AppearanceSettings-YdHvGn3y.js",
+      "sha256": "d7ed462f83914aa42071426ef41129432a9b043710cf12366b6b4d069e59b340"
+    },
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ForgotPasswordView-DJSF_FFM.css",
+      "sha256": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2"
+    },
+    "web/dist/assets/ForgotPasswordView-DvRK3pnj.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ForgotPasswordView-DvRK3pnj.js",
+      "sha256": "b36f1b847973c0c649dc7184a23b4013047175da49ad3983d21c9326fb3a433c"
+    },
+    "web/dist/assets/InvitationView-B4wTz1D4.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/InvitationView-B4wTz1D4.css",
+      "sha256": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177"
+    },
+    "web/dist/assets/InvitationView-DSOcEuMJ.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/InvitationView-DSOcEuMJ.js",
+      "sha256": "622b86f63683202d7ab248292d9012c3044085e3c9928e8207d2e92fe2025b24"
+    },
+    "web/dist/assets/PasswordSettings-7M89OiBh.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/PasswordSettings-7M89OiBh.js",
+      "sha256": "334de0b3e8f6c0158fa849a13de055d0f3ff9b5ac29e4aeb87a70df6291761b9"
+    },
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/PersonalSettingsView-BLWru9en.css",
+      "sha256": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5"
+    },
+    "web/dist/assets/PersonalSettingsView-C4hoKwto.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/PersonalSettingsView-C4hoKwto.js",
+      "sha256": "d148b7c1100f3d23b50744f4b4ffc5819efee109b9b7d129460cce49f3da1c86"
+    },
+    "web/dist/assets/ProfileSettings-BMa6qCWt.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ProfileSettings-BMa6qCWt.js",
+      "sha256": "c0636d4bf3831d3ca249178f554a251251b13837ae4015ef6168c2f9d0f4ed2c"
+    },
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ProfileSettings-Bofqo8m5.css",
+      "sha256": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303"
+    },
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ResetPasswordView-DSiu2awb.css",
+      "sha256": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527"
+    },
+    "web/dist/assets/ResetPasswordView-DxU79H32.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ResetPasswordView-DxU79H32.js",
+      "sha256": "8f875ee8d8979496629e9506ec66fca02b9192f3a54cbde0fbf1eac9441684ab"
+    },
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SettingsShell-D9S1S_aF.css",
+      "sha256": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e"
+    },
+    "web/dist/assets/SettingsShell-DxeT10XA.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SettingsShell-DxeT10XA.js",
+      "sha256": "ee74e0736f0384aa040fbf5f03be10a35db354121e1329da07b364f89e97cf6b"
+    },
+    "web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css",
+      "sha256": "8c0710c7f46cdaa82fd01031381969c02672f16825b06eea24840a2770b25e7e"
+    },
+    "web/dist/assets/SystemAccountSecurityView-DWBDyKkZ.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAccountSecurityView-DWBDyKkZ.js",
+      "sha256": "ee2c980a161452c6267aaa6c2a514f88cf898729c2b4f6648b327eb134922e02"
+    },
+    "web/dist/assets/SystemAuditView-CVK5-pDL.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAuditView-CVK5-pDL.css",
+      "sha256": "2edefd2a2162a58c6951f4a77dba66ee4dcddffb2cf2a432cde21b60e8637310"
+    },
+    "web/dist/assets/SystemAuditView-Jn095vvP.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAuditView-Jn095vvP.js",
+      "sha256": "242e07285264e02e26cb0a8bf6d8e8dbf12073a9d5b0f8fe5e865bed4f2abfb9"
+    },
+    "web/dist/assets/SystemInvitationsView-CUaLbi2k.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemInvitationsView-CUaLbi2k.js",
+      "sha256": "4a929453be8bc5fe171d0eedb8e9c71e857b432210c05c116ac1cef7dec7e48d"
+    },
+    "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemInvitationsView-QSKOYHWH.css",
+      "sha256": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f"
+    },
+    "web/dist/assets/SystemModelSelectionView-CMMrgzya.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelSelectionView-CMMrgzya.js",
+      "sha256": "07caed847d9fff81da45b325d679e37e4505f02e74d07d707e08d0777dae067c"
+    },
+    "web/dist/assets/SystemModelSelectionView-Dpau881F.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelSelectionView-Dpau881F.css",
+      "sha256": "3db921aee5324ed2c41c87284a1ef1ae79f34a9f4bee83ceac7cc05412398edb"
+    },
+    "web/dist/assets/SystemModelsView-6nzUQodS.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelsView-6nzUQodS.css",
+      "sha256": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f"
+    },
+    "web/dist/assets/SystemModelsView-DnX9j_ee.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelsView-DnX9j_ee.js",
+      "sha256": "c690cba9e6a0fe20720136e93ac1025dbd36acaeb84d5401c2bbdae23a4bd9b1"
+    },
+    "web/dist/assets/SystemOutboundPolicyView-DJf4zBnk.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemOutboundPolicyView-DJf4zBnk.js",
+      "sha256": "c01ee892eb810041afd5153f2c3b7076a7d2492036a735517ba8edf53ace9ce2"
+    },
+    "web/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css",
+      "sha256": "19d8278ceeaa3ceffd43362ac75240f8aa1514a2da4bc131270cfd6225f778b3"
+    },
+    "web/dist/assets/SystemProvidersView-CBj6ci51.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemProvidersView-CBj6ci51.js",
+      "sha256": "95bd7320b19688fcdfd2205979947b9a64e79b57585fb896bcafd4bdff547642"
+    },
+    "web/dist/assets/SystemProvidersView-elJ_-cRG.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemProvidersView-elJ_-cRG.css",
+      "sha256": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c"
+    },
+    "web/dist/assets/SystemSMTPSettingsView-Cj1sSq79.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSMTPSettingsView-Cj1sSq79.js",
+      "sha256": "e39a88adcca517c36eccb566f3ec90110c85d378a98b382a9dad3bc8ecfbdcb7"
+    },
+    "web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css",
+      "sha256": "c29e8ce53af05f7e736565081e3e4e6cf4bb61e3cdabd73d5e7911842dddc531"
+    },
+    "web/dist/assets/SystemSettingsView-DderE2fs.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSettingsView-DderE2fs.css",
+      "sha256": "b795a799a3cc0a265606aa4973d37008260b99a9a763ecbab73821afd3531c3e"
+    },
+    "web/dist/assets/SystemSettingsView-VFXPyx7Q.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSettingsView-VFXPyx7Q.js",
+      "sha256": "627ad5df41d44e1123e15571f08f568fd833c344bfadbac6ea4ed3be3e5b5abd"
+    },
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemUsersView-B41TxT1D.css",
+      "sha256": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3"
+    },
+    "web/dist/assets/SystemUsersView-BI9QU23D.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemUsersView-BI9QU23D.js",
+      "sha256": "81cae9953191145f5f71baac914fb83cd6832a61f3ef171497ec8a62e84211b1"
+    },
+    "web/dist/assets/UiButton-Cwqvp0EG.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/UiButton-Cwqvp0EG.js",
+      "sha256": "ee1915fd6cb786f3b136edcb4ddc408a8957b08023af74010264189dabf78236"
+    },
+    "web/dist/assets/UiCheckbox-CHF0V48Z.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/UiCheckbox-CHF0V48Z.js",
+      "sha256": "3225a9b23b32a27ce6121e0a0ee412a2f9e82cee1940b7bbe09bf404a57e7841"
+    },
+    "web/dist/assets/UiSelect-DjmN3rC5.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/UiSelect-DjmN3rC5.js",
+      "sha256": "f61ddc0350d9f6c9b40f3bc49cb9a1fc30a968a1bd05c02153c236842331c1fd"
+    },
+    "web/dist/assets/index-BIm3SWDo.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/index-BIm3SWDo.js",
+      "sha256": "3a51debff7328c0676915c045b5ba304b2f6a73233b7def3f47defe203947611"
+    },
+    "web/dist/assets/index-BcO4xeOJ.css": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/index-BcO4xeOJ.css",
+      "sha256": "5b5fbe63615b2238d8da9ac9df12964271f9477fa75d2135e3438a52aacdc8aa"
+    },
+    "web/dist/index.html": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/index.html",
+      "sha256": "8c7abc0a139fd045847b47d6ef1f3323aa0b8a8446f20bd9c92c647fe9424d3e"
+    }
+  },
+  "dist_count": 40,
+  "driver": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/driver01.py",
+    "sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62"
+  },
+  "external_tool_count": 18,
+  "front_base": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+  "frozen_at_utc": "2026-10-07T03:17:21.003541+00:00",
+  "input": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input08/manifest.json",
+    "sha256": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17"
+  },
+  "product_base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "resource_execution": false,
+  "source": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": "995b5fba8700a605eedf5a044aa1b6be22c405a832e52938d3f2f62a2aed79fc",
+    "tests/account-captcha-web/e2e/system-audit.spec.ts": "3729ce36f852c913c1b52a551c352106e917db79a5d16713f15d8236566daed2",
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "bec2de5459b232cdfa7ee92faffadc9c151240a2b9af2df22010cb6459451b5a",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "47a164055594b67c2753499ac428263bdc3532660df9fbb66434a7da94e1a228",
+    "tests/account-captcha-web/e2e/system-models.spec.ts": "61ad1cc8809ee58ecf1ae615c64e1fab53383c37aa722d560481ea6a5f084209",
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": "228a5ff2e1334efef89e42107f562b7ded279dd24549b5395e06b33935964424",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "4d6cc776456cd587677fac6df4893a4abf2f28095e6b43547c0e637450b40584",
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "528442de4491a3d9fc4baf27b12a99260428d7ef66a9f1209b7ed0dcd93e973b",
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": "1de992019efe026cea0cd158c228fb7a9506ddcc40a478fb41bc13aba49b39b8",
+    "tests/account-captcha-web/system-audit.config.js": "2599a25482d5bacde02c242679d1835c233ce40012b0ea43e1df65ed824db9de",
+    "tests/account/system_audit_web_fixture_test.go": "1dba89baa7a0c828ce297df1bfbafb555d7a10d8eeb576b35fc5f4f6faf4cc1f",
+    "tests/account/system_audit_web_test.go": "ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f",
+    "web/src/api/client.ts": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3",
+    "web/src/api/system-audit-metadata.ts": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630",
+    "web/src/api/system-audit.ts": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+    "web/src/composables/useSession.ts": "63148d3ef0ea2ecf15b1bf14fc1168e3c0f1657db0f40fb0bedd3bc9b7e92879",
+    "web/src/composables/useSystemAudit.ts": "a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04",
+    "web/src/router/auth.ts": "49a2f794d00b66908afdd79c45783106f581070fe2b93b8de14dce4aec75d2b0",
+    "web/src/router/index.ts": "a768a5d88800af3de74fcda06d48d5d38a3837471e996982b5e8c492b7bac02a",
+    "web/src/tests/personal-settings.spec.ts": "e7cd73413e3ac8ff52d02fd8258fc1b05cc3ad0064c2b7ad74d8cea6b11bcc86",
+    "web/src/tests/system-account-security.spec.ts": "5918a2252defb3d246b7d4b476b21f182d7e88908b29836416a23d109edc7a35",
+    "web/src/tests/system-audit-client.spec.ts": "52a8200c89ed6e7e91559aea19ade4024ab5265bb34b05ff0cd61b62a52c8a83",
+    "web/src/tests/system-audit-metadata.spec.ts": "c0ea3b9b581354310262e3b8a6a63b57a5037ac4da5d50a4fd18d9b4b556ec7f",
+    "web/src/tests/system-audit-state.spec.ts": "ff9b0474438c7266bb0d979063a884a18b475f5ea0b3843591c10592ba098fa8",
+    "web/src/tests/system-audit.spec.ts": "9a531df46a5b9063c0df0336a37103e679bcb4e66fe1dca26020e26a6026937d",
+    "web/src/tests/system-invitations.spec.ts": "22e4862cca8fe5e8e11d6709fcb069e5df9be2eb7fd7ded85e02a7715ca884ed",
+    "web/src/tests/system-model-selection.spec.ts": "01f9e3f6d342f17bd0595a8af5d2472ef32639d26c17d996f7151b5b6cc40a4d",
+    "web/src/tests/system-models.spec.ts": "9a78cc78082a2e423645c9f9aaefd775454bc73a97ca767225fc36e1ade830f7",
+    "web/src/tests/system-outbound-policy.spec.ts": "76fc0f58dec8495cecb2294d216ca61e24dc4c2a775e824c8007cea1ab4311ca",
+    "web/src/tests/system-providers.spec.ts": "91e12a2cb4766283438c4a1f37dd776a2b353011801df14f66a9c4d0419aa0f1",
+    "web/src/tests/system-smtp-settings.spec.ts": "73abaa8c418a43e87cc2822baa0e16e4bffd53a61ce51e844e97e857e500aef5",
+    "web/src/tests/system-user-directory.spec.ts": "c1a63db8c01f7001f2f544e0d6dced4d65c3e6bbbd5fa1d5531d0e7cfe0feae4",
+    "web/src/views/system/SystemAuditFilters.vue": "1808936872ed7936adb43d6e9f6d317b87d51067c234f36670e7294679903d7d",
+    "web/src/views/system/SystemAuditView.vue": "f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba",
+    "web/src/views/system/SystemSettingsView.vue": "24bd26fbde890d08d300b52b93ef7c4c5081bcf78dbf4acb4808b8fecd2a2883"
+  },
+  "source_archives": {
+    "tests/account-captcha-web/e2e/system-account-security.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-account-security.spec.ts",
+      "sha256": "995b5fba8700a605eedf5a044aa1b6be22c405a832e52938d3f2f62a2aed79fc"
+    },
+    "tests/account-captcha-web/e2e/system-audit.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage07/source/tests/account-captcha-web/e2e/system-audit.spec.ts",
+      "sha256": "3729ce36f852c913c1b52a551c352106e917db79a5d16713f15d8236566daed2"
+    },
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "sha256": "bec2de5459b232cdfa7ee92faffadc9c151240a2b9af2df22010cb6459451b5a"
+    },
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-model-selection.spec.ts",
+      "sha256": "47a164055594b67c2753499ac428263bdc3532660df9fbb66434a7da94e1a228"
+    },
+    "tests/account-captcha-web/e2e/system-models.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-models.spec.ts",
+      "sha256": "61ad1cc8809ee58ecf1ae615c64e1fab53383c37aa722d560481ea6a5f084209"
+    },
+    "tests/account-captcha-web/e2e/system-outbound-policy.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-outbound-policy.spec.ts",
+      "sha256": "228a5ff2e1334efef89e42107f562b7ded279dd24549b5395e06b33935964424"
+    },
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "sha256": "4d6cc776456cd587677fac6df4893a4abf2f28095e6b43547c0e637450b40584"
+    },
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "sha256": "528442de4491a3d9fc4baf27b12a99260428d7ef66a9f1209b7ed0dcd93e973b"
+    },
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/tests/account-captcha-web/e2e/system-smtp-settings.spec.ts",
+      "sha256": "1de992019efe026cea0cd158c228fb7a9506ddcc40a478fb41bc13aba49b39b8"
+    },
+    "tests/account-captcha-web/system-audit.config.js": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage07/source/tests/account-captcha-web/system-audit.config.js",
+      "sha256": "2599a25482d5bacde02c242679d1835c233ce40012b0ea43e1df65ed824db9de"
+    },
+    "tests/account/system_audit_web_fixture_test.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage07/source/tests/account/system_audit_web_fixture_test.go",
+      "sha256": "1dba89baa7a0c828ce297df1bfbafb555d7a10d8eeb576b35fc5f4f6faf4cc1f"
+    },
+    "tests/account/system_audit_web_test.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage07/source/tests/account/system_audit_web_test.go",
+      "sha256": "ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f"
+    },
+    "web/src/api/client.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/api/client.ts",
+      "sha256": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3"
+    },
+    "web/src/api/system-audit-metadata.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/api/system-audit-metadata.ts",
+      "sha256": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630"
+    },
+    "web/src/api/system-audit.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/api/system-audit.ts",
+      "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f"
+    },
+    "web/src/composables/useSession.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/composables/useSession.ts",
+      "sha256": "63148d3ef0ea2ecf15b1bf14fc1168e3c0f1657db0f40fb0bedd3bc9b7e92879"
+    },
+    "web/src/composables/useSystemAudit.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/composables/useSystemAudit.ts",
+      "sha256": "a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04"
+    },
+    "web/src/router/auth.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/router/auth.ts",
+      "sha256": "49a2f794d00b66908afdd79c45783106f581070fe2b93b8de14dce4aec75d2b0"
+    },
+    "web/src/router/index.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/router/index.ts",
+      "sha256": "a768a5d88800af3de74fcda06d48d5d38a3837471e996982b5e8c492b7bac02a"
+    },
+    "web/src/tests/personal-settings.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/personal-settings.spec.ts",
+      "sha256": "e7cd73413e3ac8ff52d02fd8258fc1b05cc3ad0064c2b7ad74d8cea6b11bcc86"
+    },
+    "web/src/tests/system-account-security.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-account-security.spec.ts",
+      "sha256": "5918a2252defb3d246b7d4b476b21f182d7e88908b29836416a23d109edc7a35"
+    },
+    "web/src/tests/system-audit-client.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-audit-client.spec.ts",
+      "sha256": "52a8200c89ed6e7e91559aea19ade4024ab5265bb34b05ff0cd61b62a52c8a83"
+    },
+    "web/src/tests/system-audit-metadata.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-audit-metadata.spec.ts",
+      "sha256": "c0ea3b9b581354310262e3b8a6a63b57a5037ac4da5d50a4fd18d9b4b556ec7f"
+    },
+    "web/src/tests/system-audit-state.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-audit-state.spec.ts",
+      "sha256": "ff9b0474438c7266bb0d979063a884a18b475f5ea0b3843591c10592ba098fa8"
+    },
+    "web/src/tests/system-audit.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-audit.spec.ts",
+      "sha256": "9a531df46a5b9063c0df0336a37103e679bcb4e66fe1dca26020e26a6026937d"
+    },
+    "web/src/tests/system-invitations.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-invitations.spec.ts",
+      "sha256": "22e4862cca8fe5e8e11d6709fcb069e5df9be2eb7fd7ded85e02a7715ca884ed"
+    },
+    "web/src/tests/system-model-selection.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-model-selection.spec.ts",
+      "sha256": "01f9e3f6d342f17bd0595a8af5d2472ef32639d26c17d996f7151b5b6cc40a4d"
+    },
+    "web/src/tests/system-models.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-models.spec.ts",
+      "sha256": "9a78cc78082a2e423645c9f9aaefd775454bc73a97ca767225fc36e1ade830f7"
+    },
+    "web/src/tests/system-outbound-policy.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-outbound-policy.spec.ts",
+      "sha256": "76fc0f58dec8495cecb2294d216ca61e24dc4c2a775e824c8007cea1ab4311ca"
+    },
+    "web/src/tests/system-providers.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-providers.spec.ts",
+      "sha256": "91e12a2cb4766283438c4a1f37dd776a2b353011801df14f66a9c4d0419aa0f1"
+    },
+    "web/src/tests/system-smtp-settings.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-smtp-settings.spec.ts",
+      "sha256": "73abaa8c418a43e87cc2822baa0e16e4bffd53a61ce51e844e97e857e500aef5"
+    },
+    "web/src/tests/system-user-directory.spec.ts": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/tests/system-user-directory.spec.ts",
+      "sha256": "c1a63db8c01f7001f2f544e0d6dced4d65c3e6bbbd5fa1d5531d0e7cfe0feae4"
+    },
+    "web/src/views/system/SystemAuditFilters.vue": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/views/system/SystemAuditFilters.vue",
+      "sha256": "1808936872ed7936adb43d6e9f6d317b87d51067c234f36670e7294679903d7d"
+    },
+    "web/src/views/system/SystemAuditView.vue": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/source/web/src/views/system/SystemAuditView.vue",
+      "sha256": "f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba"
+    },
+    "web/src/views/system/SystemSettingsView.vue": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/views/system/SystemSettingsView.vue",
+      "sha256": "24bd26fbde890d08d300b52b93ef7c4c5081bcf78dbf4acb4808b8fecd2a2883"
+    }
+  },
+  "source_count": 35,
+  "stage": "Audit author final35 candidate delivery; README36 deferred",
+  "status": "Author new3/old2 version-composed PASS; independent final acceptance pending. No main integration or complete D27 claim."
+}

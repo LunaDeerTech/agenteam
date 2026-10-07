@@ -1,0 +1,224 @@
+{
+  "accepted_A_and_mime_refs": {
+    "/workspace/scratch/agenteam-audit-ui-api-independent-l1hqm4hf/verification-report.md": "8bb46eab457417da83b7715d5528ef9fad588f7f7be6e8c801ff09c17498a5b8",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/api-stage01-mime-binding01/binding.json": "9b6e092506208faae03d72a6d74bdc10e0b02402835371a672003ad7288dfb23",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/api-stage01/manifest.json": "b2a2ef591ed81a0fb98031b7c09a8125e04ac6a9d04dc2a403b4d3346a7ed904"
+  },
+  "accepted_A_source": {
+    "web/src/api/client.ts": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3",
+    "web/src/api/system-audit-metadata.ts": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630",
+    "web/src/api/system-audit.ts": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+    "web/src/tests/system-audit-client.spec.ts": "52a8200c89ed6e7e91559aea19ade4024ab5265bb34b05ff0cd61b62a52c8a83",
+    "web/src/tests/system-audit-metadata.spec.ts": "c0ea3b9b581354310262e3b8a6a63b57a5037ac4da5d50a4fd18d9b4b556ec7f"
+  },
+  "accepted_A_source_root": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/api-stage01/source",
+  "accepted_mime_schema_commit": "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5",
+  "accepted_type_closure": {
+    "all_exact": true,
+    "checked_files": 151,
+    "inventory_path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/preparation.json",
+    "inventory_sha256": "082861cf55c92718db8d610716d4d1515db561d664a2749e7f9d5bdfe3853b06",
+    "limitation": "Eight candidate/A files have per-command before/after hashes and exact source snapshots. The full fixed accepted type closure was verified at stage freeze, not represented as original per-command whole-closure sweeps."
+  },
+  "backend_contract_base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "final_checks": {
+    "format": "owner-state-format-check01 PASS",
+    "state": "46/46 PASS, owner-state-pure03",
+    "type": "owner-state-type02 PASS"
+  },
+  "format_diff_sha256": "b7aef60f4d08d8db0ae890ef0866067d7983a0011f94cdab8f8c6ff9741ac079",
+  "front_base": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+  "frozen_at_utc": "2026-10-07T00:04:05.613149+00:00",
+  "limits": [
+    "Controller/native Fetch/Response combinations only; no App/router/View/browser/focus acceptance.",
+    "30-second visible deadline uses virtual timer plus actual native fetch/cancel Promise barriers, not 30 seconds of wall-clock execution.",
+    "No resource, network server, PG/Docker/browser, harness, build or README stage executed.",
+    "Earlier runs retain original metadata without backfilled UTC. Runner02 records actual 2026-10-07 UTC timestamps.",
+    "Original Model native cancel barrier in pure01 was not reached; process exit and registered cleanup do not retroactively prove that canceled operation existed."
+  ],
+  "lock_sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+  "node_modules_readonly": "/workspace/agenteam/web/node_modules",
+  "original_failures": {
+    "owner-state-pure01": "43 PASS / 3 FAIL, actual exit1. Model invalid protocol failed locally before native cancel entry and timed out waiting for its test barrier; reverse abandon omitted required read scope; SMTP fixture used unsupported credential_action and failed before write. This does not prove an original Model cancel/join reached. Original eight sources, raw, command and process cleanup retained.",
+    "owner-state-pure02": "14 affected PASS / 32 skipped, actual exit0. Formal protocol, scoped abandon and keep/private-material SMTP inputs corrected; original ownership/cancel assertions retained.",
+    "owner-state-type01": "actual exit2: literal-inferred observation types plus fixture protocol/scope/SMTP credential_action/helper union types. Only observation annotations changed in product; exact repair and format diffs are preserved."
+  },
+  "readonly_dependencies": {
+    "web/.prettierignore": "0b737e348f781f0573ef62ae5f68f984eca718f732a9fb9c95054f57363e1a50",
+    "web/.prettierrc.json": "247948f37fa595cc5c84503e35dcb06706b874f01777807691e11a4fc8ee4431",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "web/src/api/outbound-rules.ts": "7b41d4af381520fb95c824dfeda079d0bb36af82f4ec614967c2346f56a38466",
+    "web/src/api/system-account-security.ts": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "web/src/api/system-invitations.ts": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e",
+    "web/src/api/system-model-selection.ts": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+    "web/src/api/system-models.ts": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+    "web/src/api/system-outbound-policy.ts": "6dff6c0b696b334799abd7779ac52b12b8ceabc3f6b7861ee639ae1823d9123e",
+    "web/src/api/system-providers.ts": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/composables/useTheme.ts": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+    "web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  },
+  "repair_diff_sha256": "73265d794790f9386853e5b9949886867d3040844f9a667c7b2ebc80c7f698ef",
+  "runners": {
+    "record_owner_state01.py": "8395c6d958d699bf107800544e6f1557c0323fdf89e507978bde5b222843ed13",
+    "record_owner_state02.py": "7f5252698bb9e018b24f5129dbf47639646a209c2a0bd09fc1185ae67acc9d8d"
+  },
+  "runs": {
+    "owner-state-format-check01": {
+      "actual_wait": true,
+      "duration_seconds": 1.083,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "094c2c9b2794dd2a92888feb6aed1edb18e848396428291ac335bd600c992057",
+        "input-after.json": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+        "input-before.json": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+        "observed-processes.json": "f0841fdf8c24d9fe72747b8c4a675c0a9f11beb4bfb02a6461acf3d790ac1cc3",
+        "raw.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+        "result.json": "87464852b7eace06ec7ea0ad10904bc467109279f8091668adaa6607deebc1ef"
+      },
+      "input_source_count": 8,
+      "input_unchanged": true,
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-format-check01",
+      "runner_sha256": "7f5252698bb9e018b24f5129dbf47639646a209c2a0bd09fc1185ae67acc9d8d"
+    },
+    "owner-state-format01": {
+      "actual_wait": true,
+      "duration_seconds": 0.859,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "acebcc08b7ccfe520ff0c92609c93a098523dec302f19bec27a509f90f1daa0a",
+        "input-after.json": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+        "input-before.json": "96c4cfb94a3a8f68aff2d78ae520d72975f885db20caad32503c4fe163b8f69e",
+        "observed-processes.json": "871d5ba3ff7c05de8cc94bbe91fbd06029cfc27417cc4bab4f15869eae61ddc9",
+        "raw.log": "2fd8f81138cf963690c97e839a3c168f62a67ed4823fc3059aec6a905d9edae6",
+        "result.json": "523a2e6ff90d24a9e12a1cce69e70bc2948dffdc4e5d036851b93eda369f6b42"
+      },
+      "input_source_count": 8,
+      "input_unchanged": false,
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-format01",
+      "runner_sha256": "7f5252698bb9e018b24f5129dbf47639646a209c2a0bd09fc1185ae67acc9d8d"
+    },
+    "owner-state-pure01": {
+      "actual_wait": true,
+      "duration_seconds": 6.828,
+      "exit": 1,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "537327780f74452517d40c15e1f4b8de860ed527aebec766cf3dd998440910f6",
+        "input-after.json": "3ae62c7f5f62701e3c38552599756c186d08ec6c66eb53edc4e094e8050766a5",
+        "input-before.json": "3ae62c7f5f62701e3c38552599756c186d08ec6c66eb53edc4e094e8050766a5",
+        "observed-processes.json": "ea37a17fff574a65a2211837ead3acb6acd80b83509e8d570ff6139a6d1e6d03",
+        "raw.log": "0589f241de8679bed913270ebfd1b2860f2aac7304748575402f96f64deb3dc8",
+        "result.json": "492e63cff945655188d4f655d48122653a971ac3ec15c39b93804c96ff113084"
+      },
+      "input_source_count": 8,
+      "input_unchanged": true,
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure01",
+      "runner_sha256": "8395c6d958d699bf107800544e6f1557c0323fdf89e507978bde5b222843ed13"
+    },
+    "owner-state-pure02": {
+      "actual_wait": true,
+      "duration_seconds": 1.609,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "3c8679652a158ea4af8e4631775d9ac2011d0eeab6f19328438b31a043d3d7af",
+        "input-after.json": "96c4cfb94a3a8f68aff2d78ae520d72975f885db20caad32503c4fe163b8f69e",
+        "input-before.json": "96c4cfb94a3a8f68aff2d78ae520d72975f885db20caad32503c4fe163b8f69e",
+        "observed-processes.json": "1b1874e78d39d1b0a217d368bbada4dab6e9bcd6eabbfd3523cb1173578c6daf",
+        "raw.log": "df7716654569c576c1ebf1530b831efdad13ee422b5ed2fe365f44a753cf9c23",
+        "result.json": "00c66e7e82f17b73ea763484d7008bc67aad13ae15b71080d2bdca4466442071"
+      },
+      "input_source_count": 8,
+      "input_unchanged": true,
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure02",
+      "runner_sha256": "8395c6d958d699bf107800544e6f1557c0323fdf89e507978bde5b222843ed13"
+    },
+    "owner-state-pure03": {
+      "actual_wait": true,
+      "duration_seconds": 2.062,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "4f07e67d4bd7d385d2bd09a57a91ceb05840a05847de5eea51a16ca1737a5b50",
+        "input-after.json": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+        "input-before.json": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+        "observed-processes.json": "0d4aa38979a6b2e1d586024b1137c3140bffda468cc43bb92be33d1557fb8345",
+        "raw.log": "c7ab30020c54e3acb679f09bd6261138f0d944b32b2451ac938dcd711de463ac",
+        "result.json": "073e6e0b6318ea8e2409915c2f630cf1beb6f028851b93f7412f085526df52b9"
+      },
+      "input_source_count": 8,
+      "input_unchanged": true,
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure03",
+      "runner_sha256": "7f5252698bb9e018b24f5129dbf47639646a209c2a0bd09fc1185ae67acc9d8d"
+    },
+    "owner-state-type01": {
+      "actual_wait": true,
+      "duration_seconds": 8.347,
+      "exit": 2,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "59246ed1e2a02dadbb551cc63900b24a83952996a56c84c7cf6c2124b44ac6f6",
+        "input-after.json": "3ae62c7f5f62701e3c38552599756c186d08ec6c66eb53edc4e094e8050766a5",
+        "input-before.json": "3ae62c7f5f62701e3c38552599756c186d08ec6c66eb53edc4e094e8050766a5",
+        "observed-processes.json": "a844bd4c65808b282dc302a1a29ae9b2c7d85cdc77d4b05f591a76e4d8540a54",
+        "raw.log": "6301b32c1e577d1ee3a4259a3f869ef2ffce8216090b641429d0096506d7e044",
+        "result.json": "92ca91233dccc90b77a8f515b092cbbe5043ab0d6bddc0d17ce6662c78ad0363"
+      },
+      "input_source_count": 8,
+      "input_unchanged": true,
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-type01",
+      "runner_sha256": "8395c6d958d699bf107800544e6f1557c0323fdf89e507978bde5b222843ed13"
+    },
+    "owner-state-type02": {
+      "actual_wait": true,
+      "duration_seconds": 7.908,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "1e4e669b253f1a37ac4c9a2554012a6d3059dbf6cb1336b902bdb1001d17b762",
+        "input-after.json": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+        "input-before.json": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+        "observed-processes.json": "6b54511dccb86b1f2ef378402a4685b621b0bbe8951abd3a7781690674f18651",
+        "raw.log": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+        "result.json": "aa11af0119f90cddeb80da3ba7c112477b5ef2e9d80471a12313d9b104dd76af"
+      },
+      "input_source_count": 8,
+      "input_unchanged": true,
+      "owned_double_empty": true,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-type02",
+      "runner_sha256": "7f5252698bb9e018b24f5129dbf47639646a209c2a0bd09fc1185ae67acc9d8d"
+    }
+  },
+  "source": {
+    "web/src/composables/useSession.ts": "63148d3ef0ea2ecf15b1bf14fc1168e3c0f1657db0f40fb0bedd3bc9b7e92879",
+    "web/src/composables/useSystemAudit.ts": "a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04",
+    "web/src/tests/system-audit-state.spec.ts": "ff9b0474438c7266bb0d979063a884a18b475f5ea0b3843591c10592ba098fa8"
+  },
+  "source_diff_sha256": "6a94fdbe4e7ed67460388a416622033ad73ee3031b56b367880bec936a23929c",
+  "spec_commit": "a7a29c34acbe392d9a1375967309123b9a74ec16",
+  "spec_path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/card.md",
+  "spec_sha256": "a22e10e8ba0531b043afdf5aae214a66dcda58a37088ae220c2654ee1077cac1",
+  "stage": "B/owner-state-stage01",
+  "status": "author offline PASS; independent review pending; no C started"
+}

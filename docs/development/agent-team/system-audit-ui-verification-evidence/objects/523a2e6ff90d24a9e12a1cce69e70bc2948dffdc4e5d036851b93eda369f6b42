@@ -1,0 +1,31 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "./node_modules/.bin/prettier",
+    "--write",
+    "src/composables/useSession.ts",
+    "src/composables/useSystemAudit.ts",
+    "src/tests/system-audit-state.spec.ts"
+  ],
+  "child_pid": 369249,
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web",
+  "duration_seconds": 0.859,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T00:01:10.552788+00:00",
+  "input_after_sha256": "9e5a797592d90284811aaca7fa7d817d27c24de547013183ad2f31aaa553d2b9",
+  "input_before_sha256": "96c4cfb94a3a8f68aff2d78ae520d72975f885db20caad32503c4fe163b8f69e",
+  "input_unchanged": false,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "2fd8f81138cf963690c97e839a3c168f62a67ed4823fc3059aec6a905d9edae6",
+  "resource_execution": false,
+  "runner_sha256": "7f5252698bb9e018b24f5129dbf47639646a209c2a0bd09fc1185ae67acc9d8d",
+  "started_at_utc": "2026-10-07T00:01:09.693728+00:00",
+  "timed_out": false
+}

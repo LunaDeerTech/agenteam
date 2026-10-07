@@ -1,0 +1,11 @@
+# Desktop detail-column repair — STATIC PASS
+
+Frozen author root: `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot`. `web-stage03/manifest.json` SHA `eb42d65e4d848182ebae9545691c61d3c7dc52ec7c7bd4a894e2c858fc8012fa`; `input08/manifest.json` SHA `f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17`; source diff SHA `a553203a5cd1cb7875c67c5372ad635b95131fe33f99fa3b8ae9e5b03dbe10c4`.
+
+Direct full-source comparison proves exactly the five-line insertion: scoped `@media (min-width: 761px) { thead th:last-child { width: 120px; } }`. View SHA `f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba`. The caption padding reset, existing <=760px stack, other six columns' wrapping, shared button/global rules, markup and browser predicates remain unchanged. The last header cell supplies the final column width under the existing fixed table layout, addressing the diagnosed detail-control width without clipping or weakening the test.
+
+All 40 new archived dist files match the stage and input08 hashes. Built `SystemAuditView-CVK5-pDL.css` SHA `2edefd2a2162a58c6951f4a77dba66ee4dcddffb2cf2a432cde21b60e8637310` contains the scoped width>=761px/last-header/120px rule and retains caption padding:0. Input07/input08 comparison confirms the remaining34 candidates,943 accepted baseline entries,18 dependencies,driver and runtime graph are unchanged.
+
+Author recorded check files were verified against their frozen hashes. Format/page/build actual exits are0 in0.481s/3.163s/8.688s, with actual waits, unchanged inputs and empty owned-process double scans. Page result covers the existing12 tests with8 explicitly skipped; it is not a full-suite repetition. Result SHAs respectively: `116c49cac8d645405d65e1160fd405d07fbbb4b47886206ccb42d5d0989a444b`, `d8de4f3bff9fb762b71224df65382ecc47937983f99d2e05df0256b227c16e76`, `42801e41f93fc5c81ed993f0464b0510a821a9b5d80aad029b34a0f3495838ba`.
+
+This static review performed no new test, compilation, runtime gate or resource action. Navigation03's original failure and two partial captures remain distinct from future native results; corrected geometry, remaining columns and all eight layouts still require the original Navigation. Independent execution02 remains frozen against input07, pending one final rebind/gate after the author resource rounds and root's instruction.

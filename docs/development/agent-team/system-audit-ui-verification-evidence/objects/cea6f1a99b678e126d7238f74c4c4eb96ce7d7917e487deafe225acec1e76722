@@ -1,0 +1,21 @@
+# Audit UI read01/read02 独立归因
+
+结论：确认新 Go fixture 的摘要投影有三项静态缺口；未发现本次证据支持的产品缺陷。最小返修仅补 fixture 三项正式映射，完整 DTO `same` 强断言、安全诊断及原预算保持。未执行测试、浏览器、数据库或其他资源，未改作者源或主树。
+
+固定正式依据为 Git `b124650aee095b26191bc181dc8cf5d6e0f977f5`。`internal/central/audit/query.go:126–149` 与 `internal/central/audit/http/wire.go:293–319` 的十项特殊摘要完全相同；wire 接受的另外27个 System action（16 Account、7 Model、3 Object 与1 Outbox）均为 `Audit event`。固定 fixture `tests/account/system_audit_web_fixture_test.go:346–362` 只有七项特殊映射，其余默认 `Audit event`；在全部37种正式 System action 上，差集恰为下表。input01/input02 清单所指固定 fixture 与 harness-stage03 实核同字节。
+
+| action（正式源码常量，非运行行值） | 正式摘要 | 原 fixture |
+|---|---|---|
+| secret.master.rotation.start | Master key rotation started | Audit event |
+| secret.master.rotation.complete | Master key rotation completed | Audit event |
+| secret.master.rotation.failed | Master key rotation failed | Audit event |
+
+read01 实际 exit1/92.919s，原 raw 只证明初次完整 DTO 对比 false，没有字段级值；其 facts 随原 cleanup 删除，不能补造。同轮 `tests/process` 的动态构建缺 `cmd/agenteam` 是独立运行闭包前提缺口。input02 增补固定构建依赖后，read02 的 `tests/process` 为 2.139s `[no tests to run]`，只证明该准备构建通过，不是 process 业务测试通过。
+
+read02 实际 exit1/58.180s，Audit top 6.50s FAIL。原 raw:44 只有4条安全诊断：零基 row_index 25/26 的整 record 及其 summary 不同；summary 两侧均 string、均非 missing。记录未达20条上限；没有 action 值、summary 值或原数据库行。可把这个局部实际差异与已证三项 fixture 缺口关联为最小修复依据，不能把两行具体 rotation 类型或值倒填为实测，更不能倒填 read01。保留原完整比较失败；尚未到达的后续 filter/详情场景不计通过。
+
+两轮 command 均记录 actual_wait_completed=true；read01 118个 owned PID、read02 86个，分别4次 adopted wait。各自两扫7个精确资源ID均 absent，owned PID/运行目录/浏览器目录均空，原 baseline 与输入前后不变。未补跑或改写这两轮原件。
+
+建议作者仅在 fixture 加三项正式摘要，另冻精确差量；用不含运行材料的37种 action 静态/纯投影对照核齐，再按 root 单独授权实际复验原 read top。不得改 HTTP/查询/UI 生产实现，不删 summary 比较、不将观察器改为重写响应、不扩大预算或把失败轮改为通过。
+
+精确输入、正式源码 SHA、两轮 raw/command/result/cleanup SHA、安全诊断原条目及37项映射差集固定于同目录 `input.json`。本报告是在 root 授权 read02 实际终局之后读取；未读取任何在途 run。

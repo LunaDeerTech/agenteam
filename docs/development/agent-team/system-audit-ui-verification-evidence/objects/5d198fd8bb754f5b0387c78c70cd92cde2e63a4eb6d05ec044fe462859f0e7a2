@@ -1,0 +1,111 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {setImmediate as turn} from 'node:timers/promises';
+import {AccountFailure,accountTransport,auditFilterActions,auditFilterFields,auditFilterResourceKinds} from '../workspace/web/src/api/client.ts';
+import {captureAuditInstant,captureAuditQuery,createSystemAuditAPI,parseSystemAuditPage,parseSystemAuditRecord} from '../workspace/web/src/api/system-audit.ts';
+import {systemAuditActions,systemAuditResourceKinds,auditServices,auditAssociationFields,auditMetadataJSONBytes,auditMediaType} from '../workspace/web/src/api/system-audit-metadata.ts';
+
+const read=(path)=>JSON.parse(readFileSync(new URL(path,import.meta.url),'utf8'));
+const oracle=read('../runs/oracle01/output.json');
+const schema=read('../backend-reference/api/openapi/audit.json');
+const schemas=schema.components.schemas;
+const good=oracle.records.find(x=>x.accepted).body;
+const copy=x=>structuredClone(x);
+const failure=(fn,kind='invalid-response')=>assert.throws(fn,e=>e instanceof AccountFailure&&e.kind===kind);
+const jsonResponse=(value,extra={})=>new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'},...extra});
+const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve};};
+const track=p=>{let settled=false;const promise=p.then(value=>({value}),error=>({error})).finally(()=>settled=true);return {promise,get settled(){return settled;}};};
+const bound=async p=>{let timer;try{return await Promise.race([p,new Promise((_,reject)=>timer=setTimeout(()=>reject(new Error('private barrier was not reached')),2000))]);}finally{clearTimeout(timer);}};
+const equalSet=(a,b)=>assert.deepEqual([...new Set(a)].sort(),[...new Set(b)].sort());
+
+test('A: formal Go projection, canonical capture and indivisible page', {timeout:15000}, async()=>{
+  const branches=schemas.SystemAuditRecord.oneOf.map(x=>schemas[x.$ref.split('/').at(-1)]);
+  equalSet(systemAuditActions,branches.map(x=>x.properties.action.const));assert.equal(systemAuditActions.length,37);
+  equalSet(auditServices,schemas.ServiceActor.properties.service.enum);assert.equal(auditServices.length,13);
+  equalSet(auditAssociationFields,Object.keys(schemas.Associations.properties));assert.equal(auditAssociationFields.length,5);
+  const resourceKinds=[];const walk=x=>{if(!x||typeof x!=='object')return;if(x.properties?.kind?.const)resourceKinds.push(x.properties.kind.const);for(const v of Object.values(x))if(v&&typeof v==='object')Array.isArray(v)?v.forEach(walk):walk(v);};
+  branches.forEach(x=>walk(x.properties.resource));equalSet(systemAuditResourceKinds,resourceKinds);assert.equal(systemAuditResourceKinds.length,17);
+  const parameters=schema.paths['/api/v1/system/audit'].get.parameters;
+  equalSet(auditFilterActions,parameters.find(x=>x.name==='action').schema.enum.filter(Boolean));assert.equal(auditFilterActions.length,53);
+  equalSet(auditFilterResourceKinds,parameters.find(x=>x.name==='resource_kind').schema.enum.filter(Boolean));assert.equal(auditFilterResourceKinds.length,25);
+  equalSet(auditFilterFields,parameters.map(x=>x.name).filter(x=>x!=='cursor'&&x!=='limit'));assert.equal(auditFilterFields.length,14);
+  for(const row of oracle.records){
+    if(!row.accepted){failure(()=>parseSystemAuditRecord(row.body));continue;}
+    const parsed=parseSystemAuditRecord(row.body);
+    assert.deepEqual(parsed,row.body,row.name);
+    assert.equal(auditMetadataJSONBytes(parsed.metadata),row.metadata_bytes,row.name);
+    assert(Object.isFrozen(parsed)&&Object.isFrozen(parsed.metadata)&&Object.isFrozen(parsed.actor)&&Object.isFrozen(parsed.resource)&&Object.isFrozen(parsed.associations));
+    for(const value of Object.values(parsed.metadata))if(Array.isArray(value))assert(Object.isFrozen(value));
+  }
+  for(const row of oracle.instants) row.accepted?assert.equal(captureAuditInstant(row.input),row.canonical):failure(()=>captureAuditInstant(row.input),'invalid-input');
+  for(const row of oracle.filters){
+    if(!row.accepted){failure(()=>captureAuditQuery(row.input),'invalid-input');continue;}
+    const query=captureAuditQuery(row.input);assert(Object.isFrozen(query));assert.equal(query.from,row.from);assert.equal(query.to,row.to);assert.equal(Number(query.limit),row.limit);
+  }
+  // MIME already has a separate independent formal/ECMA suite; only bind the two non-obvious legal forms here.
+  assert.equal(auditMediaType('text'),'text');assert.equal(auditMediaType('{x}/{y}; charset=us-ascii'),'{x}/{y}; charset=us-ascii');
+  let reads=0,from='2026-10-06T12:34:56.123456+05:45';
+  const source={get from(){reads++;return from;},action:'artifact.read',limit:'2',cursor:'safe.opaque_-'};
+  const captured=captureAuditQuery(source);assert.equal(reads,1);from='bad';source.action='secret.delete';
+  const calls=[];
+  const api=createSystemAuditAPI(async(path,init)=>{calls.push({path,init});return jsonResponse({items:[],next_cursor:null});});
+  await api.list(captured,new AbortController().signal);
+  const sent=new URL(calls[0].path,'https://local.invalid');assert.equal(sent.pathname,'/api/v1/system/audit');assert.equal(sent.searchParams.get('from'),'2026-10-06T06:49:56.123456Z');assert.equal(sent.searchParams.get('action'),'artifact.read');assert.equal(sent.searchParams.get('cursor'),'safe.opaque_-');assert.equal(reads,1);
+  assert.equal(calls[0].init.method,'GET');assert.equal(calls[0].init.credentials,'same-origin');assert.equal(calls[0].init.cache,'no-store');assert.equal(calls[0].init.redirect,'error');assert.equal(calls[0].init.body,undefined);assert(!Object.keys(calls[0].init.headers).some(x=>/csrf|idempotency/i.test(x)));
+  for(const bad of [{cursor:'x%2F'},{cursor:'x'.repeat(8193)},{scope:'system'},{limit:'01'}]) await assert.rejects(api.list(bad,new AbortController().signal),e=>e.kind==='invalid-input');
+  assert.equal(calls.length,1);
+  let attempts=0;const transport=accountTransport(async()=>{attempts++;throw new Error('unexpected fetch');});
+  await assert.rejects(transport('listSystemAudit',x=>x,{signal:new AbortController().signal,audit:{},key:'private-key'}),e=>e.kind==='invalid-input');assert.equal(attempts,0);
+  const second=copy(good);second.audit_id='01980000-0000-7000-8000-000000000010';
+  const rawPage={items:[copy(good),second],next_cursor:'safe.opaque_-'};
+  const page=parseSystemAuditPage(rawPage,2);rawPage.items[0].metadata.consumer='bad';assert.equal(page.items[0].metadata.consumer,'smtp');assert(Object.isFrozen(page)&&Object.isFrozen(page.items));
+  for(const candidate of [
+    {items:[good,{...second,summary:'forged'}],next_cursor:null},
+    {items:[good,good],next_cursor:null},
+    {items:[second,good],next_cursor:null},
+    {items:[good],next_cursor:'next'},
+    {items:[],next_cursor:undefined},
+    {items:[],next_cursor:null,hidden:true},
+  ])failure(()=>parseSystemAuditPage(candidate,2));
+  const detail=createSystemAuditAPI(async()=>jsonResponse(good));
+  await assert.rejects(detail.get(second.audit_id,new AbortController().signal),e=>e.kind==='invalid-response');
+  failure(()=>parseSystemAuditRecord({...good,associations:{operation_id:good.audit_id}}));
+  console.log(JSON.stringify({case:'A',formalRows:oracle.records.length,instants:oracle.instants.length,filters:oracle.filters.length,closedSets:[37,13,17,5,53,25,14],queryCapturedOnce:true,badFinalRowRejected:true,wrongDetailRejected:true}));
+});
+
+test('B: exact 1MiB native streams require EOF and actual cancel join', {timeout:15000}, async()=>{
+  const maximum=1024*1024,encoder=new TextEncoder();
+  const packed=value=>{const text=JSON.stringify(value);return encoder.encode(text+' '.repeat(maximum-encoder.encode(text).byteLength));};
+  const signal=()=>new AbortController().signal;
+  for(const endpoint of ['list','get']){
+    let controller,closed=false;const value=endpoint==='list'?{items:[],next_cursor:null}:good;
+    const body=new ReadableStream({start(c){controller=c;c.enqueue(packed(value));}});
+    const response=new Response(body,{headers:{'Content-Type':'application/json'}});
+    const api=createSystemAuditAPI(async()=>response);const observed=track(endpoint==='list'?api.list({},signal()):api.get(good.audit_id,signal()));
+    try{await turn();await turn();assert(!observed.settled);assert(body.locked);controller.close();closed=true;const result=await bound(observed.promise);assert(!result.error);assert.deepEqual(result.value,value);assert(!body.locked);}finally{if(!closed){try{controller.close();}catch{}}await observed.promise;}
+  }
+  const facts=[];
+  for(const mode of ['overflow','abort','wrong-media']){
+    const entered=deferred(),release=deferred();let parseCalls=0,cancelCalls=0;
+    const abort=new AbortController();
+    const body=new ReadableStream({start(c){if(mode==='overflow')c.enqueue(new Uint8Array(maximum+1).fill(32));},cancel(){cancelCalls++;entered.resolve();return release.promise;}});
+    const response=new Response(body,{headers:{'Content-Type':mode==='wrong-media'?'text/plain':'application/json'}});
+    const transport=accountTransport(async()=>response);
+    const observed=track(transport('listSystemAudit',value=>{parseCalls++;return parseSystemAuditPage(value);},{signal:abort.signal,audit:{}}));
+    try{
+      if(mode==='abort'){await turn();assert(body.locked);abort.abort();}
+      await bound(entered.promise);await turn();assert(!observed.settled);assert.equal(parseCalls,0);assert.equal(body.locked,mode!=='wrong-media');assert.equal(cancelCalls,1);
+      release.resolve();const result=await bound(observed.promise);assert.equal(result.error?.kind,mode==='abort'?'cancelled':'invalid-response');assert(!body.locked);assert.equal(parseCalls,0);
+      facts.push({mode,actualCancelJoined:true,lockReleased:true,parserCalls:parseCalls});
+    }finally{release.resolve();await observed.promise;}
+  }
+  for(const bytes of [new Uint8Array([0x7b,0x22,0xff,0x22,0x7d]),encoder.encode('{"items":[],"next_cursor":')]){
+    const response=new Response(bytes,{headers:{'Content-Type':'application/json'}});
+    await assert.rejects(createSystemAuditAPI(async()=>response).list({},signal()),e=>e.kind==='invalid-response');assert(!response.body.locked);
+  }
+  // A failure response still has the original 600000B cap, not the successful Audit allowance.
+  let parsed=0;const largeProblem=new Response(' '.repeat(600001),{status:503,headers:{'Content-Type':'application/problem+json'}});
+  await assert.rejects(accountTransport(async()=>largeProblem)('listSystemAudit',x=>{parsed++;return x;},{signal:signal(),audit:{}}),e=>e.kind==='invalid-response');assert.equal(parsed,0);assert(!largeProblem.body.locked);
+  console.log(JSON.stringify({case:'B',successBytes:maximum,bothEndpointsWaitedForEOF:true,cancellation:facts,invalidUTF8AndTruncationRejected:true,problemCapStill600000:true,networkOrServer:false}));
+});

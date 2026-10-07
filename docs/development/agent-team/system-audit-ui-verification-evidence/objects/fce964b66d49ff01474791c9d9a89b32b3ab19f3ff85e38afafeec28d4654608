@@ -1,0 +1,567 @@
+{
+  "filters": [
+    {
+      "accepted": true,
+      "from": "0000-02-29T23:59:59.123456Z",
+      "input": {
+        "action": "artifact.read",
+        "actor_id": "01980000-0000-7000-8000-000000000011",
+        "actor_kind": "agent_run",
+        "agent_id": "01980000-0000-7000-8000-000000000011",
+        "approval_id": "01980000-0000-7000-8000-000000000011",
+        "cursor": "safe.opaque_-",
+        "execution_id": "01980000-0000-7000-8000-000000000011",
+        "from": "0000-02-29T23:59:59.123456Z",
+        "limit": "2",
+        "operation_id": "01980000-0000-7000-8000-000000000011",
+        "outcome": "success",
+        "resource_id": "01980000-0000-7000-8000-000000000011",
+        "resource_kind": "artifact",
+        "runner_id": "01980000-0000-7000-8000-000000000011",
+        "to": "2026-10-06T00:00:00.000000Z",
+        "tool_id": "01980000-0000-7000-8000-000000000011"
+      },
+      "limit": 2,
+      "name": "filter-0",
+      "to": "2026-10-06T00:00:00.000000Z"
+    },
+    {
+      "accepted": false,
+      "input": {
+        "action": "artifact.read",
+        "actor_id": "01980000-0000-7000-8000-000000000011",
+        "actor_kind": "service",
+        "agent_id": "01980000-0000-7000-8000-000000000011",
+        "approval_id": "01980000-0000-7000-8000-000000000011",
+        "cursor": "safe.opaque_-",
+        "execution_id": "01980000-0000-7000-8000-000000000011",
+        "from": "0000-02-29T23:59:59.123456Z",
+        "limit": "2",
+        "operation_id": "01980000-0000-7000-8000-000000000011",
+        "outcome": "success",
+        "resource_id": "01980000-0000-7000-8000-000000000011",
+        "resource_kind": "artifact",
+        "runner_id": "01980000-0000-7000-8000-000000000011",
+        "to": "2026-10-06T00:00:00.000000Z",
+        "tool_id": "01980000-0000-7000-8000-000000000011"
+      },
+      "name": "filter-1"
+    },
+    {
+      "accepted": false,
+      "input": {
+        "action": "artifact.read",
+        "actor_id": "01980000-0000-7000-8000-000000000011",
+        "actor_kind": "agent_run",
+        "agent_id": "01980000-0000-7000-8000-000000000011",
+        "approval_id": "01980000-0000-7000-8000-000000000011",
+        "cursor": "safe.opaque_-",
+        "execution_id": "01980000-0000-7000-8000-000000000011",
+        "from": "0000-02-29T23:59:59.123456Z",
+        "limit": "2",
+        "operation_id": "01980000-0000-7000-8000-000000000011",
+        "outcome": "success",
+        "resource_id": "01980000-0000-7000-8000-000000000011",
+        "resource_kind": "artifact",
+        "runner_id": "01980000-0000-7000-8000-000000000011",
+        "to": "0000-02-29T23:59:59.123456Z",
+        "tool_id": "01980000-0000-7000-8000-000000000011"
+      },
+      "name": "filter-2"
+    },
+    {
+      "accepted": false,
+      "input": {
+        "action": "artifact.read",
+        "actor_id": "01980000-0000-7000-8000-000000000011",
+        "actor_kind": "agent_run",
+        "agent_id": "01980000-0000-7000-8000-000000000011",
+        "approval_id": "01980000-0000-7000-8000-000000000011",
+        "cursor": "safe.opaque_-",
+        "execution_id": "01980000-0000-7000-8000-000000000011",
+        "from": "0000-02-29T23:59:59.123456Z",
+        "limit": "01",
+        "operation_id": "01980000-0000-7000-8000-000000000011",
+        "outcome": "success",
+        "resource_id": "01980000-0000-7000-8000-000000000011",
+        "resource_kind": "artifact",
+        "runner_id": "01980000-0000-7000-8000-000000000011",
+        "to": "2026-10-06T00:00:00.000000Z",
+        "tool_id": "01980000-0000-7000-8000-000000000011"
+      },
+      "name": "filter-3"
+    },
+    {
+      "accepted": true,
+      "from": "0000-02-29T23:59:59.123456Z",
+      "input": {
+        "action": "artifact.read",
+        "actor_id": "",
+        "actor_kind": "service",
+        "agent_id": "01980000-0000-7000-8000-000000000011",
+        "approval_id": "01980000-0000-7000-8000-000000000011",
+        "cursor": "safe.opaque_-",
+        "execution_id": "01980000-0000-7000-8000-000000000011",
+        "from": "0000-02-29T23:59:59.123456Z",
+        "limit": "2",
+        "operation_id": "01980000-0000-7000-8000-000000000011",
+        "outcome": "success",
+        "resource_id": "01980000-0000-7000-8000-000000000011",
+        "resource_kind": "artifact",
+        "runner_id": "01980000-0000-7000-8000-000000000011",
+        "to": "2026-10-06T00:00:00.000000Z",
+        "tool_id": "01980000-0000-7000-8000-000000000011"
+      },
+      "limit": 2,
+      "name": "filter-4",
+      "to": "2026-10-06T00:00:00.000000Z"
+    },
+    {
+      "accepted": false,
+      "input": {
+        "action": "artifact.read",
+        "actor_id": "01980000-0000-7000-8000-000000000011",
+        "actor_kind": "agent_run",
+        "agent_id": "01980000-0000-7000-8000-000000000011",
+        "approval_id": "01980000-0000-7000-8000-000000000011",
+        "cursor": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "execution_id": "01980000-0000-7000-8000-000000000011",
+        "from": "0000-02-29T23:59:59.123456Z",
+        "limit": "2",
+        "operation_id": "01980000-0000-7000-8000-000000000011",
+        "outcome": "success",
+        "resource_id": "01980000-0000-7000-8000-000000000011",
+        "resource_kind": "artifact",
+        "runner_id": "01980000-0000-7000-8000-000000000011",
+        "to": "2026-10-06T00:00:00.000000Z",
+        "tool_id": "01980000-0000-7000-8000-000000000011"
+      },
+      "name": "filter-5"
+    }
+  ],
+  "instants": [
+    {
+      "accepted": true,
+      "canonical": "0000-02-29T23:59:59.123456Z",
+      "input": "0000-02-29T23:59:59.123456Z"
+    },
+    {
+      "accepted": true,
+      "canonical": "0100-01-01T00:00:00.000001Z",
+      "input": "0099-12-31T12:00:00.000001-12:00"
+    },
+    {
+      "accepted": true,
+      "canonical": "2026-10-06T06:49:56.123456Z",
+      "input": "2026-10-06T12:34:56.123456+05:45"
+    },
+    {
+      "accepted": true,
+      "canonical": "2026-10-06T13:04:56.100000Z",
+      "input": "2026-10-06T12:34:56.1-00:30"
+    },
+    {
+      "accepted": true,
+      "canonical": "9999-12-31T23:59:59.999999Z",
+      "input": "9999-12-31T23:59:59.999999Z"
+    },
+    {
+      "accepted": false,
+      "input": "0000-01-01T00:00:00+00:01"
+    },
+    {
+      "accepted": false,
+      "input": "9999-12-31T23:59:59-00:01"
+    },
+    {
+      "accepted": false,
+      "input": "1900-02-29T00:00:00Z"
+    },
+    {
+      "accepted": true,
+      "canonical": "2000-02-29T00:00:00.000000Z",
+      "input": "2000-02-29T00:00:00Z"
+    },
+    {
+      "accepted": false,
+      "input": "2026-10-06T12:34:56.1234567Z"
+    },
+    {
+      "accepted": false,
+      "input": "2026-10-06T24:00:00Z"
+    },
+    {
+      "accepted": false,
+      "input": "2026-10-06T12:34:56+24:00"
+    }
+  ],
+  "records": [
+    {
+      "name": "secret-optional-reason",
+      "accepted": true,
+      "body": {
+        "action": "secret.resolve",
+        "actor": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "human"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "consumer": "smtp",
+          "lease_id": "01980000-0000-7000-8000-000000000011",
+          "reason": "permission_denied"
+        },
+        "outcome": "denied",
+        "resource": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "secret"
+        },
+        "scope": "system",
+        "summary": "Secret use recorded"
+      },
+      "metadata_bytes": 98
+    },
+    {
+      "name": "login-rejected-no-user",
+      "accepted": true,
+      "body": {
+        "action": "account.login",
+        "actor": {
+          "cause_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "kind": "service",
+          "service": "account-auth"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "attempt_id": "01980000-0000-7000-8000-000000000011",
+          "phase": "rejected",
+          "reason": "session_invalid",
+          "version": "1"
+        },
+        "outcome": "denied",
+        "resource": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "account_attempt"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 113
+    },
+    {
+      "name": "model-replacement-int64",
+      "accepted": true,
+      "body": {
+        "action": "model.delete",
+        "actor": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "human"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "affected_count": "9007199254740993",
+          "changed_fields": [
+            "deleted",
+            "replacement"
+          ],
+          "model_id": "01980000-0000-7000-8000-000000000011",
+          "provider_id": "01980000-0000-7000-8000-000000000011",
+          "replacement_id": "01980000-0000-7000-8000-000000000011",
+          "version": "9223372036854775807"
+        },
+        "outcome": "success",
+        "resource": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "model_config"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 271
+    },
+    {
+      "name": "object-agent-initiator",
+      "accepted": true,
+      "body": {
+        "action": "object.upload.failed",
+        "actor": {
+          "cause_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "kind": "service",
+          "service": "object"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "byte_size": "9223372036854775807",
+          "initiator_execution_id": "01980000-0000-7000-8000-000000000011",
+          "initiator_id": "01980000-0000-7000-8000-000000000011",
+          "initiator_kind": "agent_run",
+          "media_type": "{x}/{y}; charset=us-ascii",
+          "object_id": "01980000-0000-7000-8000-000000000011",
+          "phase": "failed",
+          "reason": "cancelled",
+          "sent_bytes": "9007199254740993"
+        },
+        "outcome": "unknown",
+        "resource": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "stored_object"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 344
+    },
+    {
+      "name": "outbox-current-cycle",
+      "accepted": true,
+      "body": {
+        "action": "outbox.delivery.requeue",
+        "actor": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "human"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "delivery_id": "01980000-0000-7000-8000-000000000011",
+          "event_id": "01980000-0000-7000-8000-000000000011",
+          "from_state": "dead_letter",
+          "handler_id": "safe.handler-v2",
+          "reason_code": "dependency_restored",
+          "redrive_cycle": "9223372036854775807"
+        },
+        "outcome": "success",
+        "resource": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "outbox_delivery"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 236
+    },
+    {
+      "name": "delivery-unknown-omitted-initiator",
+      "accepted": true,
+      "body": {
+        "action": "smtp.delivery",
+        "actor": {
+          "cause_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "kind": "service",
+          "service": "account-mail"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "attempt_id": "01980000-0000-7000-8000-000000000011",
+          "channel": "log",
+          "job_id": "01980000-0000-7000-8000-000000000011",
+          "phase": "unknown",
+          "reason": "delivery_unknown",
+          "version": "2"
+        },
+        "outcome": "unknown",
+        "resource": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "mail_job"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 177
+    },
+    {
+      "name": "policy-nonsuccess-legal",
+      "accepted": true,
+      "body": {
+        "action": "outbound.policy.update",
+        "actor": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "human"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "rule_count": "256",
+          "version": "2"
+        },
+        "outcome": "unknown",
+        "resource": {
+          "kind": "outbound_policy"
+        },
+        "scope": "system",
+        "summary": "Outbound policy updated"
+      },
+      "metadata_bytes": 34
+    },
+    {
+      "name": "model-int64-overflow",
+      "accepted": false,
+      "body": {
+        "action": "model.delete",
+        "actor": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "human"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "affected_count": "0",
+          "changed_fields": [
+            "deleted"
+          ],
+          "model_id": "01980000-0000-7000-8000-000000000011",
+          "provider_id": "01980000-0000-7000-8000-000000000011",
+          "version": "9223372036854775808"
+        },
+        "outcome": "success",
+        "resource": {
+          "kind": "model_config",
+          "id": "01980000-0000-7000-8000-000000000011"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 186
+    },
+    {
+      "name": "model-unmatched-replacement",
+      "accepted": false,
+      "body": {
+        "action": "model.delete",
+        "actor": {
+          "id": "01980000-0000-7000-8000-000000000011",
+          "kind": "human"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "affected_count": "0",
+          "changed_fields": [
+            "deleted"
+          ],
+          "model_id": "01980000-0000-7000-8000-000000000011",
+          "provider_id": "01980000-0000-7000-8000-000000000011",
+          "replacement_id": "01980000-0000-7000-8000-000000000011",
+          "version": "1"
+        },
+        "outcome": "success",
+        "resource": {
+          "kind": "model_config",
+          "id": "01980000-0000-7000-8000-000000000011"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 224
+    },
+    {
+      "name": "object-missing-execution",
+      "accepted": false,
+      "body": {
+        "action": "object.upload.failed",
+        "actor": {
+          "cause_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "kind": "service",
+          "service": "object"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "byte_size": "7",
+          "initiator_id": "01980000-0000-7000-8000-000000000011",
+          "initiator_kind": "agent_run",
+          "media_type": "text",
+          "object_id": "01980000-0000-7000-8000-000000000011",
+          "phase": "failed",
+          "reason": "cancelled",
+          "sent_bytes": "3"
+        },
+        "outcome": "failed",
+        "resource": {
+          "kind": "stored_object",
+          "id": "01980000-0000-7000-8000-000000000011"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 226
+    },
+    {
+      "name": "outbox-service-actor",
+      "accepted": false,
+      "body": {
+        "action": "outbox.delivery.requeue",
+        "actor": {
+          "cause_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "kind": "service",
+          "service": "account-mail"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "delivery_id": "01980000-0000-7000-8000-000000000011",
+          "event_id": "01980000-0000-7000-8000-000000000011",
+          "from_state": "failed",
+          "handler_id": "safe.handler-v2",
+          "reason_code": "operator_retry",
+          "redrive_cycle": "1"
+        },
+        "outcome": "success",
+        "resource": {
+          "kind": "outbox_delivery",
+          "id": "01980000-0000-7000-8000-000000000011"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 208
+    },
+    {
+      "name": "delivery-phase-outcome-mismatch",
+      "accepted": false,
+      "body": {
+        "action": "smtp.delivery",
+        "actor": {
+          "cause_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "kind": "service",
+          "service": "account-mail"
+        },
+        "associations": {},
+        "audit_id": "01980000-0000-7000-8000-000000000011",
+        "created_at": "0000-02-29T23:59:59.123456Z",
+        "metadata": {
+          "attempt_id": "01980000-0000-7000-8000-000000000011",
+          "channel": "smtp",
+          "job_id": "01980000-0000-7000-8000-000000000011",
+          "phase": "unknown",
+          "reason": "delivery_unknown",
+          "version": "2"
+        },
+        "outcome": "success",
+        "resource": {
+          "kind": "mail_job",
+          "id": "01980000-0000-7000-8000-000000000011"
+        },
+        "scope": "system",
+        "summary": "Audit event"
+      },
+      "metadata_bytes": 178
+    }
+  ]
+}

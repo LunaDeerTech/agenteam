@@ -1,0 +1,22 @@
+# System Audit UI B — independent bounded PASS
+
+Frozen input: `owner-state-stage01/manifest.json`, SHA256 `3ad58e8e7c0aac08fcee65e1c29c8fb43bc7617f7fc597fd0199af5091e1ca6e`. Full Session delta and page controller were reviewed. The three B sources and 18 accepted dependencies match the manifest; the five accepted A sources are unchanged. No product blocker was found.
+
+The independent Node run `runs/owner01` passed both risk combinations, with no skip: actual exit 0 in **0.293447s**, under the original 45s outer budget. It used the production Session factory, all eleven API arguments, actual Vue 3.5.43 and controlled Fetch with native Response/ReadableStream. The subreaper was active before startup; both observed PID/starttime pairs are absent in both final sweeps, 0 adopted waits, private TMP removed. All 248 bound inputs match before and after. No service, listener, browser or Docker resource ran.
+
+- **Owner/security:** ten old domains remain blocked and cannot abandon an Audit operation while its native cancellation tail is held. The independent reverse direction runs native tails in personal, SMTP settings, SMTP delivery and Outbound; the remaining six reverse cases retain the author's fixed evidence and static branch review. A virtual 30000ms visible deadline cancels the visible result but keeps the actual owner until native cancellation settles. Audit Unknown and invalid security pairings preserve three existing write intents/private material, with no Audit key/body/CSRF/lookup. Legal current 403/FORBIDDEN and 401/SESSION_REVOKED clear safely even with unknown commit state.
+- **Page lifetime:** complete JSON bytes without EOF never publish. Cancel/leave reach stable errors, preserve the permitted query context and require explicit reread after actual join. Dispose/checking permanently retire the old instance. A fresh waiting instance issues one default read only after the previous actual tail ends; same-Session restoration cannot revive retired drafts. A controlled already-parsed late401 rejection cannot poison the identity established after its tail joins.
+
+The 30s check is virtual time plus actual Promise barriers, not 30s wall time. The late401 representative is a controlled parsed-API failure, not native parsing after abort. These checks do not establish App/router/View wiring, browser focus or whole-card readiness. Node type stripping is not a typecheck; the author's final actual type check is reused separately. No additional API matrix was run.
+
+Author history remains unchanged: pure01 actually exited 1 with 43 pass/3 fixture failures, type01 exited 2. The original Model call failed before the native cancellation barrier; neither process exit nor registered cleanup proves that original join. Corrected affected tests passed 14 with 32 skipped, final pure03 passed 46/46 and final type02 exited 0. Exact original raw/results and repair/format diff fingerprints were checked. `author-history-verified02.json` uses the actual `exit_code` field; its initial metadata-extraction draft is retained with null fields, not a changed test result.
+
+Exact submitted B sources:
+
+| Path | SHA256 |
+| --- | --- |
+| `web/src/composables/useSession.ts` | `63148d3ef0ea2ecf15b1bf14fc1168e3c0f1657db0f40fb0bedd3bc9b7e92879` |
+| `web/src/composables/useSystemAudit.ts` | `a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04` |
+| `web/src/tests/system-audit-state.spec.ts` | `ff9b0474438c7266bb0d979063a884a18b475f5ea0b3843591c10592ba098fa8` |
+
+Reproduction and permanent evidence are local to this directory: `execution01.json` contains the exact Node argv/cwd/environment and all hashes; `probe01/owner.spec.mjs` is the unchanged first-run probe; `runs/owner01/{command,raw,result,cleanup,input-before,input-after}` record actual execution. The JSON report supplies full exact fingerprints and author evidence links. All files are now stopped; no product/main/Git changes were made.

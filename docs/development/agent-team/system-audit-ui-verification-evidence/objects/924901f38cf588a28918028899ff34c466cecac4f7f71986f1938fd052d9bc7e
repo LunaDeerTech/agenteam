@@ -1,0 +1,7 @@
+# System Audit harness stage07
+
+The new browser layout helper alone now returns its original safe Boolean plus the first failing closed category in the same evaluate call. Original predicates, thresholds and traversal order remain intact. Failure-only output contains viewport/mode, geometry or presence/count values and one bounded node index/whitelisted tag. No text, HTML, class values, field values, IDs, raw DTOs, headers or private material is emitted. The same expect(safe).toBe(true), all reachability checks after it and all caller flow/screenshots are unchanged. Prefix, suffix and post-expect source bytes were compared exactly.
+
+navigation01 actually exited1/56.441s with layout safe=false at the first light1440 list check after local limit validation. It retained no failing geometry or DOM projection and generated zero screenshots. No product or locator cause is asserted. Original 7-ID/84-PID/4-adopt double cleanup and unchanged inputs remain preserved.
+
+Formatting completed with its before/after input recorded. Strict typecheck, format check and exact Navigation single-test Playwright list passed offline with actual wait, unchanged fixed dependencies and PID double cleanup. The other 34 source files, 40 dist files, 943 accepted Git dependencies, 18 tools and driver remain exact. Go fixture and prior compile are reused without rerun. This preparation does not launch a browser, service or database. navigation02 is a diagnostic plan awaiting separate authorization.

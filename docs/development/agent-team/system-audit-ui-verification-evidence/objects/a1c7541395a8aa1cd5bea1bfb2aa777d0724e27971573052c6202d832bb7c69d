@@ -1,0 +1,29 @@
+# Audit independent final binding — OFFLINE READY
+
+Final author input is `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input08/manifest.json`, SHA `f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17`. Only SystemAuditView's desktop detail-column width and its rebuilt40-file dist differ from the prior independent execution02/input07. Earlier caption padding:0 and harness07 safe diagnostics remain. Original execution01/02 and all prior evidence are preserved.
+
+- `execution03.json`: `79f7427e20901a1e3b3cd49ade0572efb8d972d707c3d3d46e198142457c2aad`.
+- `binding04.json`: `40cc397d6b78904bc3de7068e59151ff99785c17b3d3b47a5bbead99bf7dfd91`.
+- `execution02-to03.diff`: `267bdb93b1eff951c5b8c8d4da96d5c12869ef4813a8d233575559bb84137fa6`.
+- `source02-to03.json`: `c6e6b8fbbbf5f0195b22c2669b72c70bd3f065bba7a411c8972c6ef2cdc06d73`.
+- Unchanged `driver01.py`: `4b25b616a9dbff92a8212d4c30c53c328cdb6ad5ff9fe2a1758f9aecdd389d4d`.
+- Unchanged original `driver-author-to-independent01.diff`: `8b07b6d0b40bbc86fc4efc1e6de7702e6041a2eb98cae01a8307e38dd2517760`; no new driver delta exists.
+- Unchanged private Go/browser/fixture/config/overlay source hashes remain recorded in execution03; no test body or fixture-control semantics changed. The earlier compiler/type/discovery evidence in preparation-ready01 is reused without rerun.
+
+Only the necessary read-only gate was executed via the unchanged subreaper offline runner: `offline-gate03.json` SHA `f22526c015ae7ccecf73851b79d9975ff9d3fb1068b3e2b7de17dc8762f72bcc`, outer budget45s. `runs/gate03/command.json` records the absolute `/usr/bin/python3 driver01.py ... --frozen execution03.json --check-input-only` argv and actual wait. Actual exit0/1.3892842199966253s, two owned PID/starttime observations, zero adopted children, both scans empty, temporary directory removed and unchanged before/after fingerprints. No listener, service, Docker or browser started.
+
+- Gate command SHA `d8c4bf0168537d2134807c1873a1cfe3022d523dd91b8cc1be8f5269c61dd571`.
+- Raw SHA `570fb1eedcc428bd7da84c9ae7577b58c85edfe512a1c578411106f2723dd4e6`.
+- Result SHA `50a438193ca15c6052869708658af33f44efd27ffbc7357512d43f86cf726c11`.
+- Cleanup SHA `855e8483d0c270f1cf10aa20ea16c9ecc57ee78695db799be1f7d5e98db0851f`.
+- Before/after SHA `99928cfa98c7aeaf4144aa7121bd436895e9da85a95ccdb2264de551fe929dd6`.
+
+The gate binds35 candidates,40 dist,943 accepted baseline files,18 dependencies,15 private files (including both additive rebinding records) and7,604 runtime files. Missing/unexpected/mismatch/error lists are empty. The private2-top selectors, seven-resource topology, original45s browser/2m top/6m package/race count1/worker1/retry0, fresh5GiB disk gates, complete Mounts comparison, actual direct/adopted waits and owned-ID/PID-starttime double cleanup remain unchanged.
+
+Exact proposed real command, **awaiting a separate root grant**:
+
+```sh
+/usr/bin/python3 /workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/driver01.py --name independent01 --group both --frozen /workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution03.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```
+
+This selects only `TestIndependentAuditReadFilterPagingProjection` and `TestIndependentAuditCancelAuthorityFreshInstance`. Author read03/input03, authority03/input05, Navigation04/input08 and two old Navigation/input08 results are version-specific author evidence accepted by root; this preparation does not relabel them as independent or as one input08 run. The active author visual addendum was not read. Independent actual business acceptance remains pending.

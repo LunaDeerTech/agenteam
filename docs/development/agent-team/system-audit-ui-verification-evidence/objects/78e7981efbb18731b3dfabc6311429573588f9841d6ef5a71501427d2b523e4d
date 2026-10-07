@@ -1,0 +1,5 @@
+=== RUN   TestIndependentAuditUIOracle
+    independent_audit_ui_oracle_test.go:76: formal_records=12 instant_vectors=12 filter_vectors=6 no_resources=true
+--- PASS: TestIndependentAuditUIOracle (0.01s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/http	1.024s

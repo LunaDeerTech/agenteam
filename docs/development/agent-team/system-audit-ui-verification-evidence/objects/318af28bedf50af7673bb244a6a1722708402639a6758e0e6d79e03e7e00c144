@@ -1,0 +1,21 @@
+[
+  {
+    "argv": [
+      "node",
+      "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/system-audit.config.js",
+      "--list"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web",
+    "env": {
+      "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+      "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-discovery/audit-navigation",
+      "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only",
+      "AGENTEAM_AUDIT_WEB_CASE": "navigation"
+    },
+    "expected_count": 1,
+    "mode": "offline discovery only; no browser or resources"
+  }
+]

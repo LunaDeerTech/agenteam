@@ -1,0 +1,26 @@
+# Audit UI D harness-stage01 独立静审
+
+**该冻结版暂不具备开窗条件：两处新 browser 前提需窄修，完整 driver/实际执行闭包另待冻结。** 除下列两处及既知启动材料缺项，四源审查未发现新增阻断；不是产品 RED，也没有执行浏览器/HTTP/PG/任何真实资源。
+
+固定 `harness-stage01/manifest.json` SHA `4133eccac0b1e93481af0017cabdde59388afc31198e9bbc1c552e87c4a3d0e6`；source.diff `30d04b5c9148dfac96725db7003fe59c365f1ee0f0832e992430ea8277766853`；execution-plan `52ecdbac57d425d75da2a54ab20bd98342b965394142a95cf8e16b273660931e`。四源逐 SHA 核对；已接受 C 的31源/40dist全71项一致。只消费冻结四源、固定 C 和 b124650 必要依据，未读活动 driver。
+
+## 两处静态前提
+
+1. 新 spec **1290行** `resource_kind:"object"` 无合法 option。正式 `audit/contract/types.go:77` 的 ObjectResource 是 `stored_object`，固定 client 的过滤闭集与返回 DTO 同值。`fillFilters` 调用 selectOption，不能执行到后续 MIME/8图。最小改该测试值，保留精确 resource_id/MIME/布局断言；没有实际 timeout/RED原件。
+2. 新 spec **1052/1070行附近**仅匹配 `/login`（可有 query），随后 member 登录直接期待系统权限页。固定 App.vue 135–141 在 anonymous 且空闲时可主动 `replace('/login')`；LoginView.vue:118 使用 `safeReturnTarget`，无 return 合法回首页。该测试没有建立必回系统页的前提。需精确绑定实际 URL/query：无 return 则先验证首页、新身份及旧内容/旧 Audit 请求/写入零，再真实 UI 新导航进入系统门禁；仅 `/system/users` 的精确 return 则对应用户页门禁，其他 query 不接受。保留原取消/Logout/迟到隔离和零写，不 reload/goto 清除内存。本轮仅静态证明有合法路径与前提冲突，不声称实际已回首页或唯一竞态顺序。root 已授作者同一新 spec 窄修，旧输入保持。
+
+## 其余审查结果
+
+正式 root 使用原 app.Run/Account、私有同源代理及 production dist。准备 Profile 四次 PATCH、Outbound PUT、正式邀请兑换普通用户、同 root 已捕获 cookie/当前 CSRF 的 Logout；头像 MIME 只由已允许的 Account PUT 自有 PNG 产生。If-Match、Content-Type、返回 avatar/media_type 与正式 handler 一致；没有直接调用 Object/Audit Append，也没有 SQL 改权限/业务状态。SQL snapshot 字段与实际 schema相符，以 DecodeMetadata 的正式 canonical JSON 对照完整 wire；Logout 的 revoked_reason/session_id 和唯一 logout Audit只读检查相符。
+
+read 覆盖14个过滤字段加 limit；53 actions+空项、25 resource kinds+空项与固定控件一致。正式 Profile 分页/上一页/首刷、六关联 ID 合法空结果、未知范围内合法 action 空结果和非法 service+actor_id 零 GET；列表/详情与 DB完整字段对照，三类型详情和 MIME直接可见。不把真实少数类型当37 metadata全集，A既有严格解析证据按原SHA复用。
+
+hold/cut只匹配两个 Audit GET 族的真实200，先 bounded读完并 Close原服务响应，再代理持有或截断真实正文，未伪造成功 DTO/权限。held/joined、server callback started/finished、浏览器 read EOF/error 分开检查；不以 observer ended 当 owner释放，跨域下一 GET 顺序再结合已接受 owner 实际尾部证据。此处 hold 是已读完后代理等待，不称数据库事务 held tail。单次 text/plain Session503是明确命名控制，恢复硬等新seq200 EOF同Session、新默认50一次；不要求503伪EOF。
+
+原 native fetch Promise、Response/body/reader/read Promise身份返回，观察侧不 clone/tee/另读/cancel。成功 Audit上限1MiB，Problem/Session600000B；仅安全投影，敏感字段不进入输出，私人IPC0700目录/0600文件，trace/video/自动截图关闭。最终8张显式图只 Audit列表/详情，无密码输入/遮罩。caption/宽度/移动卡片、原生Tab/ShiftTab/Escape与focus均为待运行强断言，不能由静审认定视觉通过。
+
+三新每轮7资源、旧Outbound导航7/旧SMTP投递导航9为计划；45s/browser、2m/top、6m/pkg、race/count1、worker1/retry0保持。Go browser子进程实际 Wait和进程组终止，root/server cleanup为原有界Shutdown/实际等待；真正开窗还必须绑定完整通用脚本编译/runtime闭包、精确ID/nonce/原基线、subreaper/owned PID starttime/adopt wait与两扫、输入前后及TMP终局。现444依赖仅Account最小编译闭包，不能替代该门槛。
+
+作者最终两offline原件逐SHA核：browser type/format/五selector各1 actual0/5.759s，Go race compile/vet/五top list actual0/8.952s，均 actual wait/双扫与输入相同。这里仅引用作者记录，没有独立重跑；compile/list并不证明上述前提可执行。原两旧top业务断言沿C已审的窠菜单适配，不扩旧矩阵。
+
+本报告已停写。后续只需冻结修订的精确测试delta和必要type/list，以及完整启动输入；当前不授/不执行资源。独立最终最多两代表仍沿原风险计划，待固定 D 与作者实际结果后绑定。

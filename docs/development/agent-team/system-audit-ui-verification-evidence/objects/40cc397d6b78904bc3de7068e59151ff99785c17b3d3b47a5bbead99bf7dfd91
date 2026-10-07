@@ -1,0 +1,36 @@
+{
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input08/manifest.json",
+    "sha256": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17"
+  },
+  "changed_author_candidates": {
+    "web/src/views/system/SystemAuditView.vue": {
+      "after": "f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba",
+      "before": "8ff5dc65401c6a894ee275b81bbc607a97ec5333bccd94b2f021a9bf1dbd9aef"
+    }
+  },
+  "new_dist_files": 40,
+  "previous_author_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input07/manifest.json",
+    "sha256": "e62a3e5e0efa15bb7e89430bc7e63b5bb800f186d80866669290bbf32517d726"
+  },
+  "previous_execution": {
+    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution02.json",
+    "sha256": "f1494561f60eae922651004b494b9489e35ddcdd96704a268b2342254f1ce5ac"
+  },
+  "private_source_changes": [],
+  "product_change": "Only scoped min-width:761px last-header width120px, retaining prior caption padding:0",
+  "resource_execution": false,
+  "reuse": "Existing compile/closure/type/format/exact top list/two browser discoveries for identical private bodies and tools; only full input gate rerun. Author business results remain version-specific and separate.",
+  "unchanged_driver": {
+    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/driver01.py",
+    "sha256": "4b25b616a9dbff92a8212d4c30c53c328cdb6ad5ff9fe2a1758f9aecdd389d4d"
+  },
+  "unchanged_private_source_hashes": {
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.config.mjs": "c9a00e43358b8efdca9e677af87077a91d1abd02d5bb684acf3c8a049d7cdc26",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.spec.ts": "683d1bc90f9f0a0596e073a07dfecdc7133d0ab7671c7527328224784cfc421d",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/source/fixture02.go": "77a5d21d7dbba302ddcba1a3233cc882ebeeb1b552a02f01df3d91ac4fb54065",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/source/independent_test.go": "fe291b9cfe15663d8da2ec1cd60d660778421817203085a61aa7a31bda064482"
+  }
+}

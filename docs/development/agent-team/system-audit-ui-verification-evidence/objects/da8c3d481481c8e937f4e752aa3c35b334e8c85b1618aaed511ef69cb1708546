@@ -1,0 +1,15 @@
+--- harness-stage03/tests/account/system_audit_web_fixture_test.go
++++ harness-stage04/tests/account/system_audit_web_fixture_test.go
+@@ -347,6 +347,12 @@
+ 		switch action {
+ 		case "secret.master.register":
+ 			summary = "Master key registered"
++		case "secret.master.rotation.start":
++			summary = "Master key rotation started"
++		case "secret.master.rotation.complete":
++			summary = "Master key rotation completed"
++		case "secret.master.rotation.failed":
++			summary = "Master key rotation failed"
+ 		case "outbound.policy.update":
+ 			summary = "Outbound policy updated"
+ 		case "outbound.access.deny":

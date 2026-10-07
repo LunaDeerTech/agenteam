@@ -1,0 +1,50 @@
+import hashlib,json,re,shutil
+from pathlib import Path
+S=Path(__file__).resolve().parent;W=S/'workspace';out=S/'summary-oracle04';out.mkdir(exist_ok=False)
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+fixed=json.loads((S/'input02/manifest.json').read_text());inputs={}
+for n in ['internal/central/audit/http/wire.go','internal/central/audit/contract/types.go','internal/central/audit/contract/account.go','internal/central/audit/contract/model.go']:
+ assert sha(W/n)==fixed['accepted_baseline']['files'][n]['sha256']
+ inputs[n]={'sha256':sha(W/n),'git_blob':fixed['accepted_baseline']['files'][n]['git_blob']}
+ q=out/'source'/n;q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(W/n,q)
+metadata=S/'web-stage01/source/web/src/api/system-audit-metadata.ts'
+actions=re.findall(r"^  '([a-z_.]+)':",metadata.read_text(),re.M);assert len(actions)==len(set(actions))==37
+inputs['accepted_metadata_action_set']={'path':str(metadata),'sha256':sha(metadata),'count':len(actions)}
+def function(source,name):
+ start=source.index('func '+name+'(');brace=source.index('{',start);depth=1;end=brace+1
+ while depth:
+  if source[end]=='{':depth+=1
+  elif source[end]=='}':depth-=1
+  end+=1
+ return source[start:end]
+wire=(W/'internal/central/audit/http/wire.go').read_text()
+formal=function(wire,'actionSummary').replace('c.','')
+account=(W/'internal/central/audit/contract/account.go').read_text();model=(W/'internal/central/audit/contract/model.go').read_text()
+constants={}
+for n in ['types.go','account.go','model.go']:
+ for name,value in re.findall(r'^\s*(\w+)\s+Action\s*=\s*("[^"]+")',(W/'internal/central/audit/contract'/n).read_text(),re.M):
+  assert name not in constants;constants[name]=value
+p='tests/account/system_audit_web_fixture_test.go';old=S/'harness-stage03/source'/p;new=W/p
+snippets=[]
+for label,path in [('oldFixture',old),('candidateFixture',new)]:
+ source=path.read_text();start=source.index('\t\tsummary := "Audit event"');end=source.index('\n\t\tinstant, err := foundation.NewInstant(at)',start)
+ snippet=source[start:end];snippets.append('func '+label+'(action string) string {\n'+snippet+'\nreturn summary\n}\n')
+ q=out/(label+'-source.go.txt');q.write_bytes(path.read_bytes());inputs[label]={'path':str(path),'sha256':sha(path),'extracted_switch_sha256':hashlib.sha256(snippet.encode()).hexdigest()}
+body='''package main
+import("encoding/json";"fmt";"os")
+type Action string
+const(\n'''+''.join(name+' Action = '+value+'\n' for name,value in sorted(constants.items()))+')\n'+formal+'\n'+function(account,'AccountAction')+'\n'+function(model,'ModelAction')+'\n'+''.join(snippets)+'\nvar actions=[]string{'+','.join(json.dumps(a) for a in actions)+'}\n'+'''func main(){
+ rows:=make([]map[string]any,0,len(actions));oldMismatch:=[]string{};failures:=[]string{}
+ for _,a:=range actions{formal,ok:=actionSummary(Action(a));oldSame:=oldFixture(a)==formal;newSame:=candidateFixture(a)==formal
+  if !oldSame{oldMismatch=append(oldMismatch,a)};if !ok||!newSame{failures=append(failures,a)}
+  rows=append(rows,map[string]any{"action":a,"formal_accepted":ok,"old_equal":oldSame,"candidate_equal":newSame})
+ }
+ expected:=[]string{"secret.master.rotation.start","secret.master.rotation.complete","secret.master.rotation.failed"}
+ exactOld:=len(oldMismatch)==len(expected);if exactOld{for i:=range expected{if oldMismatch[i]!=expected[i]{exactOld=false}}}
+ json.NewEncoder(os.Stdout).Encode(map[string]any{"vectors":rows,"count":len(actions),"candidate_mismatches":failures,"old_static_mapping_mismatches":oldMismatch,"expected_old_drift_exact":exactOld,"scope":"extracted exact summary functions only; no original failing-row action inference"})
+ if len(actions)!=37||len(failures)!=0||!exactOld{fmt.Fprintln(os.Stderr,"summary mapping mismatch");os.Exit(1)}
+}
+'''
+(out/'main.go').write_text(body)
+(out/'inputs.json').write_text(json.dumps({'fixed_base':fixed['product_base'],'inputs':inputs,'generated_main_sha256':sha(out/'main.go'),'transforms':'formal c qualifier removed with unchanged Action string constants and AccountAction/ModelAction bodies; candidate/old summary switch bodies copied exactly and returned; no HTTP or database execution'},indent=2,sort_keys=True)+'\n')
+print(json.dumps({'oracle':str(out),'sha256':sha(out/'main.go'),'actions':len(actions)}))

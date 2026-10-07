@@ -1,0 +1,29 @@
+# System Audit UI — C author handoff
+
+Frozen 2026-10-07 UTC. C author offline checks pass; independent C acceptance is pending. Source and production build are stopped. There are no active commands or real resources, and no D harness or README work has started.
+
+`manifest.json` binds 31 candidate files: 23 web files (including the accepted, unchanged A five and B three) and eight old browser specifications. The C delta is exactly 23 paths: two router files, the existing System settings menu, two new Audit views, the new App/interaction test, nine old pure navigation tests and eight old browser count adaptations. `source.diff` is the C-only diff against fixed frontend `1ff044264a54c948e512db9aafad24ec5e0aa3c2`; `source/` holds exact candidate bytes. `artifacts/web/dist/` holds the 40 final build files. A/B manifests and the accepted MIME binding remain unchanged.
+
+The new `/system/audit` leaf is under the existing protection metadata. The Audit group sits between Models/Providers and Platform configuration, giving nine leaves and four groups. The thirteenth exact safe return target is appended without changing prior targets or navigation order. The old tests change only their authorized counts, leaf/group sets, exact Audit return cases and descriptions of current totals; their business, focus and cancellation assertions remain.
+
+The View creates and disposes its own Audit controller. Fourteen labelled filters plus page size are controlled inputs, with all 53 action and 25 resource choices. Only explicit apply/reset/read actions dispatch. Lists and inline detail render complete validated fields and fixed metadata labels as text, without JSON dumps, relationship fetches or new dialogs. Local references and live identity/instance checks guard focus continuations. The component leave guard retires the read before global authentication, while a later rejected navigation leaves the surviving controller explicitly refreshable. Checking unmounts the old View; recovery mounts a fresh instance. App, shared Ui, global CSS, old business controllers, backend and locks are unchanged.
+
+| Run | Actual result | Evidence boundary |
+| --- | --- | --- |
+| `page-type01` | Exit 0 / 8.228s | Initial six-path types. |
+| `page-app01` | Exit 1 / 3.905s; 8 pass, 2 fail | Wrong menu selector/expansion premise, and an overstrict total-GET premise during current403 navigation. Original 14 files retained. |
+| `page-app02` | Exit 0 / 2.584s; 2 pass, 8 skipped | Correct menu and stronger sequence assertions; console.info was absent from raw, so this is not the recorded trace proof. |
+| `page-app03` | Exit 1 / 2.352s; 1 fail, 9 skipped | Restored original total-GET assertion plus actual safe stdout sequence. |
+| `page-app04` | Exit 0 / 2.459s; 2 pass, 8 skipped | Accepted exact new-instance premise plus actual native cancellation tail. |
+| `page-interaction01` | Exit 0 / 2.922s; 12 pass, 8 skipped | Filters, pagination, invalid inputs/last row, explicit retries, inline detail and local DOM focus. |
+| `page-format01` | Exit 0 / 1.424s | Formats only the 15 authorized C web paths; intentional byte changes recorded. |
+| `page-check01` | Exit 0 / 37.367s | Full `npm run check`: format, 46 files / 1763 tests, type and production build all pass. |
+| `old-browser-type01` | Exit 2 / 0.851s | Tool prerequisite failure: the browser harness lock lacks Node type declarations; source checking had not begun. |
+| `old-browser-type02` | Exit 0 / 2.363s | Same eight specifications with explicit readonly `../../web/node_modules/@types`; no install or source repair. |
+| `old-browser-list01` | Exit 0 / 7.821s | Each of eight original navigation selectors discovers exactly one test. `--list` only; no browser, listener or fixture. |
+
+The current403 trace records a Session GET in checking on `/system/audit`, followed by one default Audit GET in authenticated/current/admin while the router still has the old path. Root accepted the card's checking-to-new-instance rule: the prior permission failure already unmounted the old View, then the guard's Session restoration mounted a new instance before the route commit. This is not a proved product defect. The final test observes the original constructor without changing its arguments/result: the old Tool draft was cleared, the new controller is distinct with empty fields and limit 50, and home navigation disposes it. A held native 403 body then enters cancellation; the Cookie owner stays busy until the actual cancellation promise resolves, after which the stream unlocks without denying the current identity or issuing a successor. There are no writes, added dialogs, or post-leave reads. Original `page-app01` has no such trace and is not retrospectively labelled as having observed it.
+
+All runs retain original command/environment, raw, result, candidate fingerprints/source snapshots, PID/starttime inventory, adopted waits and two empty cleanup sweeps under `../runs/<name>/`. Final runner 02 checks all 31 candidates and all 150 fixed readonly inputs before/after. Earlier runner 01 captured the 14 current candidate files, with no backfilled whole-closure claim. `runners/` preserves both executed runner versions and the exact offline browser discovery plan. Dependencies copied for review are the recursive frontend import closure from the actual App/router/main and candidate sources plus necessary fixed config/lock/style documentation; no dependency installation or whole repository copy was made.
+
+The 20 final Audit App/interaction cases exercise production route records, authentication guard, App and Session factory with controlled Fetch/native Response. DOM focus assertions in jsdom do not establish native pointer behavior, Tab, responsive layout, visual overflow or BFCache. No formal Audit HTTP/PG/browser producer facts or real resource cleanup are claimed. Those remain later stages after explicit authorization.

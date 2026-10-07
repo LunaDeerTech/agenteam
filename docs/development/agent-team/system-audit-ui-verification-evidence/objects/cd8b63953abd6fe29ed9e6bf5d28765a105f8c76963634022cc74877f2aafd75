@@ -1,0 +1,34 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 393161,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 393161,
+      "ppid": 393158,
+      "pgid": 393161,
+      "state": "R",
+      "starttime": "1492496"
+    },
+    {
+      "pid": 393185,
+      "ppid": 393161,
+      "pgid": 393161,
+      "state": "Z",
+      "starttime": "1492533"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-audit-offline-x0l2_zu5",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

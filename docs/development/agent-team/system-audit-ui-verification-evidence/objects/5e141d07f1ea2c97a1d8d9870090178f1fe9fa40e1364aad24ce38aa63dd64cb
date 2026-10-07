@@ -1,0 +1,11 @@
+# Caption repair — STATIC PASS
+
+Frozen author `web-stage02/manifest.json` SHA `76e3faa7c95b9d400694349182ade95873beb713ed7fe120e9972b0c5ac5fb3e`; `input07/manifest.json` SHA `e62a3e5e0efa15bb7e89430bc7e63b5bb800f186d80866669290bbf32517d726`, under `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot`.
+
+Direct source comparison proves the only product change is `padding: 0` in SystemAuditView's scoped `.sr-only` rule. View SHA: `8ff5dc65401c6a894ee275b81bbc607a97ec5333bccd94b2f021a9bf1dbd9aef`; exact source diff SHA: `441fcc00e12a82532dd48c7369d9051b5a75f32c15810d14636f1d8999c831f6`. Caption markup/semantics, shared CSS, all browser predicates and thresholds remain unchanged. This addresses the documented 8px border-box padding floor without weakening the test.
+
+All 40 archived distribution files were hashed and match both manifests. The actual rebuilt View CSS includes `.sr-only[data-v-0d3b0c64]{clip-path:inset(50%);width:1px;height:1px;padding:0;position:absolute;overflow:hidden}`; CSS SHA `b0ea4e8e9b3f116f0b91da4486e98401a92210cf2e5046a9dc2bb6020cebfde6`. The other 34 source entries, 943 accepted baseline entries, 18 dependency entries, runtime graph and driver match input06.
+
+Author format/page/build recorded files were hashed against the frozen manifest. Actual exits are 0 in 0.482s, 2.995s and 8.860s, with actual waits, unchanged inputs and owned-process double cleanup. The page check is the existing 12 tests with 8 explicitly skipped; it is not a full-suite rerun. Result SHAs respectively: `e1280e4d277944bf1bbcef135b399c24a3e6a8fc86d4cfb828e5bc190671bc52`, `e6f420169b6c72e7a708e8616e4015161e27e7ff93bc760e0d4a2d61ffdcae96`, `79fd4a242e855ea0852fc0f02cb95139522c3863c7cd99953f4d0e652c9613ae`.
+
+No additional tests, compilation or resources were executed for this static review. Original navigation01/02 failures remain; native geometry and later layouts still await the original authorized Navigation run. Independent A/B may rebind input07 and the new dist with its unchanged bodies/Go/driver plus the necessary read-only gate; its old execution01 remains preserved.

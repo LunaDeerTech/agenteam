@@ -1,0 +1,29 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-final-browser01.py"
+  ],
+  "child_pid": 409040,
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+  "duration_seconds": 5.759,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T00:48:48.911672+00:00",
+  "input_after_sha256": "186073abfd2a49db832c807b77d72a5e3bb522864ba9c6d451bd9adca326ed5e",
+  "input_before_sha256": "186073abfd2a49db832c807b77d72a5e3bb522864ba9c6d451bd9adca326ed5e",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "d375b814e005ae7abdac37237d8b0d485e96f900c8bc360b53ec56e9c5022c11",
+  "readonly_dependencies_unchanged": true,
+  "resource_execution": false,
+  "runner_sha256": "bfd84522ff8aaef55a1ee79ca8b90209a6e287be5fb19e75d8528133b0e7fe61",
+  "started_at_utc": "2026-10-07T00:48:43.152642+00:00",
+  "timed_out": false
+}

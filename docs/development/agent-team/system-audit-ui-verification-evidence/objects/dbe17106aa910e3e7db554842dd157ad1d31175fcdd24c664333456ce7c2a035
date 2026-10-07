@@ -1,0 +1,84 @@
+{
+  "accepted_dependency_additions": {},
+  "affected_checks": {
+    "harness-stage05-go": {
+      "directory": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/harness-stage05-go",
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "fc82dcbd439c24fafa927800d544a4a7d6c861b8c84d2538eac24fad70456821",
+        "dependencies-after.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "dependencies-before.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "input-after.json": "bc0a8797952c1c5fe2a244041fbc703b3db625064122f1de60fd2cde9735f2ee",
+        "input-before.json": "bc0a8797952c1c5fe2a244041fbc703b3db625064122f1de60fd2cde9735f2ee",
+        "observed-processes.json": "481820a53a7097e24de8c1dd77adad6d9bee22ce28088838775898d71a413ff2",
+        "raw.log": "8d4dc3e8ed8d1d3b07636947b101c2f89693aefddeedeae2f3eb04e326a8ea62",
+        "result.json": "490c10563319baaab207088e096079d3293f1f9d924a86ac2268b40163bc4657"
+      },
+      "result": {
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "argv": [
+          "/usr/bin/python3",
+          "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage05-go.py"
+        ],
+        "child_pid": 546594,
+        "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+        "duration_seconds": 8.473,
+        "env": {
+          "CGO_ENABLED": "1",
+          "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+          "GOENV": "off",
+          "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+          "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOTOOLCHAIN": "local",
+          "GOWORK": "off",
+          "HOME": "/home/agent",
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "TMPDIR": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/tmp"
+        },
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-07T02:26:26.888144+00:00",
+        "input_after_sha256": "bc0a8797952c1c5fe2a244041fbc703b3db625064122f1de60fd2cde9735f2ee",
+        "input_before_sha256": "bc0a8797952c1c5fe2a244041fbc703b3db625064122f1de60fd2cde9735f2ee",
+        "input_unchanged": true,
+        "owned_processes_double_empty": true,
+        "raw_sha256": "8d4dc3e8ed8d1d3b07636947b101c2f89693aefddeedeae2f3eb04e326a8ea62",
+        "readonly_dependencies_unchanged": true,
+        "resource_execution": false,
+        "runner_sha256": "bfd84522ff8aaef55a1ee79ca8b90209a6e287be5fb19e75d8528133b0e7fe61",
+        "started_at_utc": "2026-10-07T02:26:18.414857+00:00",
+        "timed_out": false
+      }
+    }
+  },
+  "candidate_diff": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage05/source.diff",
+    "sha256": "32a6a4130aecbd1019b0312268fb4449515fb95e52a6473a4f34f2890f2ffab8"
+  },
+  "changed_candidates": {
+    "tests/account/system_audit_web_fixture_test.go": {
+      "after": "2b6cac6f5c8dd6223d0cbc4247b67e69991e125889fb40d7804a8eb595263b13",
+      "before": "bbb925a5b5425e787c791d71dca83d0430dd971a89dae59f3b53f08cf914e022"
+    }
+  },
+  "current": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input04/manifest.json",
+    "sha256": "f75c0d0f18a03fbfdfe085f338a98bf6ba931c4f90ba7dcfa8c94897acb57dc5"
+  },
+  "driver_unchanged_sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62",
+  "preserved_evidence": "authority01 and original cleanup=false remain unchanged; HTTP status/code was not observed. recovery01 prerequisite failure and successful recovery02 remain separate.",
+  "previous": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input03/manifest.json",
+    "sha256": "21c28beeeeb88a16137e6d472ff940150d2ba93060db642458bca0208134b42f"
+  },
+  "resource_execution": false,
+  "unchanged_accepted_count": 943,
+  "unchanged_candidate_count": 34,
+  "unchanged_dist_count": 40,
+  "unchanged_external_tool_count": 18
+}

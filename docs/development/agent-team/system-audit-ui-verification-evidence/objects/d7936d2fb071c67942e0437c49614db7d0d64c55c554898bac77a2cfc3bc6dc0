@@ -1,0 +1,198 @@
+import { computed, readonly, shallowReactive, shallowRef, watch } from 'vue'
+import { AccountFailure } from '../api/client'
+import {
+  AuditQueryFailure,
+  auditFilterFields,
+  captureAuditQuery,
+  type AuditQuery,
+  type AuditQueryField,
+  type SystemAuditRecord,
+} from '../api/system-audit'
+import { useSession, type PersonalIdentity, type SessionController } from './useSession'
+
+export type AuditFilterDraft = Record<(typeof auditFilterFields)[number] | 'limit', string>
+export type AuditReadPhase = 'waiting' | 'loading' | 'ready' | 'empty' | 'error' | 'forbidden' | 'inactive'
+type ListTarget = Readonly<{ index: number; query: AuditQuery }>
+type ActiveRead = Readonly<{ generation: number; kind: 'list' | 'detail' }>
+const emptyRows: readonly SystemAuditRecord[] = Object.freeze([])
+const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) => !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+const keys = [...auditFilterFields, 'limit'] as const
+const defaults = (): AuditFilterDraft => Object.fromEntries(keys.map((key) => [key, key === 'limit' ? '50' : ''])) as AuditFilterDraft
+const initialList = (phase: AuditReadPhase) => Object.freeze({phase, items: emptyRows, message: '', cursorInvalid: false, hasPrevious: false, hasNext: false, page: 1})
+const initialDetail = () => Object.freeze({phase: 'inactive' as AuditReadPhase | 'not-found', target: null as string | null, record: null as SystemAuditRecord | null, message: ''})
+
+// This instance owns observations only. Actual Cookie ownership and cancellation
+// tails stay in useSession. A retired instance never recovers across checking.
+export function useSystemAudit(auth: SessionController = useSession()) {
+  const draft = shallowReactive(defaults())
+  const appliedDraft = shallowRef<Readonly<AuditFilterDraft>>(Object.freeze(defaults()))
+  const state = shallowReactive({
+    mode: 'list' as 'list' | 'detail',
+    applied: captureAuditQuery({limit: '50'}),
+    list: initialList('waiting'),
+    detail: initialDetail(),
+    fieldErrors: Object.freeze({}) as Readonly<Partial<Record<AuditQueryField, string>>>,
+    filterMessage: '',
+  })
+  const identity = auth.personalContext.identity
+  let generation = 0, initial = true, disposed = false, retired = false
+  let active: ActiveRead | null = null, listTarget: ListTarget | null = null
+  let history: (string | undefined)[] = [], index = 0, nextCursor: string | null = null
+  const authorized = () => auth.state.phase === 'authenticated' && auth.personalContext.phase === 'current' && auth.state.user?.role === 'admin' && !auth.system.denied && same(identity, auth.personalContext.identity)
+  const live = () => !disposed && !retired && authorized()
+  const blocked = computed(() => !live() || auth.state.busy || state.list.phase === 'loading' || state.detail.phase === 'loading')
+  const dirty = computed(() => keys.some((key) => draft[key] !== appliedDraft.value[key]))
+  const reading = computed(() => state.list.phase === 'loading' || state.list.phase === 'waiting' || state.detail.phase === 'loading')
+  function retireRead() {
+    ++generation
+    const wasActive = active !== null
+    active = null
+    if (wasActive) auth.system.audit.abandon()
+  }
+  function clearHistory() { history = []; index = 0; nextCursor = null }
+  function invalidate() {
+    retired = true
+    initial = false
+    retireRead()
+    clearHistory()
+    listTarget = null
+    Object.assign(draft, defaults())
+    appliedDraft.value = Object.freeze(defaults())
+    state.applied = captureAuditQuery({limit: '50'})
+    state.mode = 'list'
+    state.list = initialList(auth.state.phase === 'authenticated' && auth.personalContext.phase === 'current' && same(identity, auth.personalContext.identity) && (auth.state.user?.role === 'user' || auth.system.denied) ? 'forbidden' : 'inactive')
+    state.detail = initialDetail()
+    state.fieldErrors = Object.freeze({})
+    state.filterMessage = ''
+  }
+  const readError = (error: unknown) => {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    return {e, message: e.kind === 'cancelled' ? '本次读取已取消或等待超时，请在请求结束后重新读取。' : e.kind === 'invalid-response' ? '审计响应无法确认，请重新读取。' : '暂时无法读取系统审计，请重新读取。'}
+  }
+  async function readList(target: ListTarget) {
+    if (blocked.value) return
+    initial = false
+    const own = ++generation, capturedIdentity = auth.personalContext.identity
+    const current = () => live() && generation === own && same(capturedIdentity, auth.personalContext.identity)
+    active = {generation: own, kind: 'list'}
+    listTarget = target
+    state.mode = 'list'
+    state.detail = initialDetail()
+    state.list = Object.freeze({...initialList('loading'),page:target.index+1})
+    try {
+      const page = await auth.system.audit.list(target.query)
+      if (!current()) return
+      history = [...history.slice(0,target.index),target.query.cursor]
+      index = target.index
+      nextCursor = page.next_cursor
+      state.list = Object.freeze({phase: page.items.length ? 'ready' : 'empty',items:page.items,message:'',cursorInvalid:false,hasPrevious:index>0,hasNext:nextCursor!==null,page:index+1})
+    } catch (error) {
+      if (!current()) return
+      const {e,message} = readError(error)
+      const cursorInvalid = e.kind === 'problem' && e.problem?.status === 400 && e.problem.code === 'CURSOR_INVALID'
+      if (cursorInvalid) clearHistory()
+      state.list = Object.freeze({...initialList('error'),page:target.index+1,cursorInvalid,message:cursorInvalid?'分页链接已失效，返回第一页。':message})
+    } finally { if (active?.generation === own) active = null }
+  }
+  async function readDetail(target: string) {
+    if (blocked.value) return
+    initial = false
+    const own = ++generation, capturedIdentity = auth.personalContext.identity
+    const current = () => live() && generation === own && same(capturedIdentity, auth.personalContext.identity)
+    active = {generation:own,kind:'detail'}
+    state.mode = 'detail'
+    state.detail = Object.freeze({phase:'loading',target,record:null,message:''})
+    try {
+      const record = await auth.system.audit.get(target)
+      if (current()) state.detail = Object.freeze({phase:'ready',target,record,message:''})
+    } catch (error) {
+      if (!current()) return
+      const {e,message} = readError(error)
+      const missing = e.kind === 'problem' && e.problem?.status === 404 && e.problem.code === 'NOT_FOUND'
+      state.detail = Object.freeze({phase:missing?'not-found':'error',target,record:null,message:missing?'记录不存在或不可访问。':message})
+    } finally { if (active?.generation === own) active = null }
+  }
+  function firstPage() {
+    if (blocked.value) return Promise.resolve()
+    clearHistory()
+    return readList(Object.freeze({index:0,query:state.applied}))
+  }
+  function applyDraft() {
+    if (blocked.value) return Promise.resolve()
+    let captured: AuditQuery
+    try { captured = captureAuditQuery(draft) } catch (error) {
+      const invalidFields = error instanceof AuditQueryFailure ? error.fields : []
+      state.fieldErrors = Object.freeze(Object.fromEntries(invalidFields.map((field) => [field,
+        field === 'limit' ? '每页数量应为 1–200 的完整十进制整数。' : field === 'from' || field === 'to' ? '请检查完整时区、公历日期、微秒及起止顺序。' : field === 'actor_kind' || field === 'actor_id' ? '请检查操作者类型与规范 UUIDv7；service 不能同时指定操作者 ID。' : field.endsWith('_id') ? '请输入规范的小写 UUIDv7。' : '请选择有效选项。',
+      ])))
+      state.filterMessage = '筛选尚未应用，请核对标记字段。'
+      return Promise.resolve()
+    }
+    state.applied = captured
+    appliedDraft.value = Object.freeze({...draft})
+    state.fieldErrors = Object.freeze({})
+    state.filterMessage = ''
+    return firstPage()
+  }
+  const stop = watch(
+    () => [auth.state.phase,auth.personalContext.phase,auth.personalContext.identity,auth.state.user?.role,auth.system.denied,auth.state.busy] as const,
+    () => {
+      if (disposed || retired) return
+      if (!authorized()) {invalidate();return}
+      if (initial && !auth.state.busy) {initial=false;void firstPage()}
+    },
+    {immediate:true,flush:'sync'},
+  )
+  return {
+    state:readonly(state),draft:readonly(draft),blocked,dirty,reading,
+    isCurrent:live,
+    updateFilter(field: keyof AuditFilterDraft,value:string) {
+      if (!live() || !keys.includes(field) || typeof value!=='string') return
+      draft[field]=value
+      if (state.fieldErrors[field]) { const errors={...state.fieldErrors};delete errors[field];state.fieldErrors=Object.freeze(errors) }
+    },
+    apply:applyDraft,
+    reset() { if (blocked.value) return Promise.resolve();Object.assign(draft,defaults());return applyDraft() },
+    refresh:firstPage,
+    previous() { return state.mode==='list' && state.list.hasPrevious ? readList(Object.freeze({index:index-1,query:captureAuditQuery({...state.applied,...(history[index-1]===undefined?{}:{cursor:history[index-1]})})})) : Promise.resolve() },
+    next() { return state.mode==='list' && state.list.hasNext && nextCursor!==null ? readList(Object.freeze({index:index+1,query:captureAuditQuery({...state.applied,cursor:nextCursor})})) : Promise.resolve() },
+    retry() { return state.mode==='list' && state.list.phase==='error' && !state.list.cursorInvalid && listTarget ? readList(listTarget) : Promise.resolve() },
+    openDetail:readDetail,
+    retryDetail() { return state.mode==='detail' && state.detail.target && ['error','not-found','ready'].includes(state.detail.phase) ? readDetail(state.detail.target) : Promise.resolve() },
+    backToList() {
+      if (!live() || state.mode!=='detail') return
+      retireRead()
+      state.detail=initialDetail()
+      state.mode='list'
+    },
+    cancel() {
+      if (!live() || !reading.value) return
+      initial=false
+      retireRead()
+      const message='本次读取已取消，请在请求结束后重新读取。'
+      if (state.mode==='detail') state.detail=Object.freeze({...state.detail,phase:'error',record:null,message})
+      else {
+        listTarget ??= Object.freeze({index:0,query:state.applied})
+        state.list=Object.freeze({...initialList('error'),page:listTarget.index+1,message})
+      }
+    },
+    leave() {
+      if (!live()) return
+      initial=false
+      retireRead()
+      clearHistory()
+      state.mode='list'
+      state.detail=initialDetail()
+      listTarget=Object.freeze({index:0,query:state.applied})
+      state.list=Object.freeze({...initialList('error'),message:'本页读取已停止，可显式刷新第一页。'})
+    },
+    dispose() {
+      if (disposed) return
+      disposed=true
+      stop()
+      invalidate()
+      state.list=initialList('inactive')
+    },
+  }
+}
+export type SystemAuditController = ReturnType<typeof useSystemAudit>

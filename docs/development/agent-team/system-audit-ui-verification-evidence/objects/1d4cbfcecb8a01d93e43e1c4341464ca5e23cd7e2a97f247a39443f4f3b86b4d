@@ -1,0 +1,87 @@
+{
+  "images": [
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "List view: seven columns, wrapped IDs/codes and the details button are visible within the captured table; no visible outer horizontal overflow or overlay.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-light-1440.png",
+      "sha256": "366e104339338cadc0567c9cc11c47dfdd46774856968ec79911c14eea736010",
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "List view: seven columns, wrapped IDs/codes and the details button are visible within the captured table; no visible outer horizontal overflow or overlay.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-light-1024.png",
+      "sha256": "3ed04e6e3e25597b1068a6eaa63d7878eb9547ea1ebd9ee5c2432d77d459c24c",
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "List view: seven columns, wrapped IDs/codes and the details button are visible within the captured table; no visible outer horizontal overflow or overlay. The first six columns are dense and long identifiers span many short lines; the dedicated details column remains clear.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-light-768.png",
+      "sha256": "fec5e65e0f5eaf747b742fd430ca8d99b1ec1b10b264012215e9c80f4af97f6f",
+      "width": 768
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "List view: the visible filters and record fields use a single-column stacked layout without visible outer horizontal overflow or overlay. The lower record fields/details button fall below this partial viewport; their reachability is separately covered by the passing test.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-light-390.png",
+      "sha256": "6ef059ec263a4b9524b2399eb83c911dfa5e69a9e7daeb9c977cc8ca808088f0",
+      "width": 390
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "Inline detail: labels and values are aligned in two columns, the return/refresh controls are visible, and long values fit or wrap without visible outer horizontal overflow or overlay.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-dark-1440.png",
+      "sha256": "ed3251d5cfd1479262c01ecf3dfd3cdbdc815dc1785325eacac14c3dd8996e00",
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "Inline detail: labels and values are aligned in two columns, the return/refresh controls are visible, and long values fit or wrap without visible outer horizontal overflow or overlay.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-dark-1024.png",
+      "sha256": "858c4da0a5c208d5fb4de245f5232d86cb23f552ea037daf7f10c635d9934d2b",
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "Inline detail: labels and values are aligned in two columns, the return/refresh controls are visible, and long values fit or wrap without visible outer horizontal overflow or overlay.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-dark-768.png",
+      "sha256": "76b03e85d3e1026432d338b1675e9f071b80b84551a8e2ce7aa121dedb22dfca",
+      "width": 768
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "observation": "Inline detail: labels/values are stacked, both return/refresh controls are visible, and the settings-menu trigger has a visible focus ring. No visible outer horizontal overflow or overlay; lower metadata lies below the partial viewport.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation04/images/audit-dark-390.png",
+      "sha256": "2187e9628fc7e6373123a3ecd7ee1d77e00d03837defc5dd8344a5bdf755b18d",
+      "width": 390
+    }
+  ],
+  "input_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input08/manifest.json",
+    "sha256": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17"
+  },
+  "limits": [
+    "All images are partial 900px viewport captures, not full-page images. Light list captures are scrolled and omit upper controls; dark details may omit lower metadata.",
+    "The light768 table remains dense, with substantial line wrapping. Image review is distinct from the original geometry/reachability assertions.",
+    "The images do not establish whole-page coverage, native browser zoom, BFCache, production SPA or complete D27.",
+    "Original navigation01/02/03 failures and diagnostic limitations remain unchanged. No extra browser, screenshot or resource round was started."
+  ],
+  "main_thread_reported_review_only": [
+    "audit-light-390.png",
+    "audit-light-768.png",
+    "audit-dark-768.png"
+  ],
+  "recorded_at_utc": "2026-10-07T03:10:08.058734+00:00",
+  "result": "All eight existing images actually viewed; no additional product repair requested from the captured portions. Native test PASS is recorded separately in the run command/raw/result.",
+  "reviewer": "/root/directory_frontend",
+  "run": "navigation04"
+}

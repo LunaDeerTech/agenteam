@@ -1,0 +1,104 @@
+--- /workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.py
++++ /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/driver01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only an explicitly authorized frozen Outbound policy UI group in a private fixed workspace."""
++"""Run only an explicitly authorized frozen System Audit UI group in a private fixed workspace."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -11,17 +11,18 @@
+ from pathlib import Path
+ import re
+ import subprocess
++import sys
+ import time
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'workspace'
+ GIT_OBJECT_REPO = Path('/workspace/agenteam')
+-BASE = '213cf5c3f552e6b05b541ce02afc1dd65ce9db93'
++BASE = 'b124650aee095b26191bc181dc8cf5d6e0f977f5'
+ FROZEN = {}
+-# Original offline timeout orphan remains owned by this task; it cannot be
+-# reaped by this later process and is never reported as recovered or unowned.
+-PRIOR_TASK_ORPHAN = {'pid':89884,'starttime':'540243','origin':'runtime-go-compile01','state_at_original_post_scan':'Z','ppid_at_original_post_scan':1}
++# The earlier Outbound task owns this historical offline-timeout orphan.
++# This Audit driver does not claim it as new, recovered, or ownerless.
++PRIOR_TASK_ORPHAN = {'pid':89884,'starttime':'540243','origin':'/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/runs/runtime-go-compile01','state_at_original_post_scan':'Z','ppid_at_original_post_scan':1}
+ 
+ 
+ def utc():
+@@ -161,22 +162,25 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new','read','mutation','authority','navigation','old','old-settings-outcome','old-delivery-outcome','old-delivery-navigation'], required=True)
++    parser.add_argument('--group', choices=['read','authority','navigation','old-outbound-navigation','old-delivery-navigation'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    new_names={'read':'RulesAndRead','mutation':'MutationAndRecovery','authority':'AuthorityAndOwnership','navigation':'NavigationAndLayouts'}
+-    groups={key:['TestAccountSystemOutboundPolicyWeb'+value] for key,value in new_names.items()}
+-    groups.update({
+-      'new':[v[0] for v in groups.values()],
+-      'old':['TestAccountSystemSMTPDeliveryWebNavigationAndLayouts','TestAccountSystemSMTPSettingsWebOutcomeRecovery','TestAccountSystemSMTPDeliveryWebOutcomeRecovery'],
+-      'old-settings-outcome':['TestAccountSystemSMTPSettingsWebOutcomeRecovery'],
+-      'old-delivery-outcome':['TestAccountSystemSMTPDeliveryWebOutcomeRecovery'],
+-      'old-delivery-navigation':['TestAccountSystemSMTPDeliveryWebNavigationAndLayouts'],
+-    })
++    groups = {
++      'read': ['TestAccountSystemAuditWebReadAndFilters'],
++      'authority': ['TestAccountSystemAuditWebAuthorityAndOwnership'],
++      'navigation': ['TestAccountSystemAuditWebNavigationAndLayouts'],
++      'old-outbound-navigation': ['TestAccountSystemOutboundPolicyWebNavigationAndLayouts'],
++      'old-delivery-navigation': ['TestAccountSystemSMTPDeliveryWebNavigationAndLayouts'],
++    }
++    if Path(args.modcache).resolve(strict=True) != Path('/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache'):
++        raise ValueError('unexpected module cache; use the fixed read-only cache')
++    inherited = sorted(key for key in os.environ if key.startswith('AGENTEAM_') and key not in {'AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY'})
++    if inherited:
++        raise RuntimeError('unexpected inherited fixture/browser controls: ' + ', '.join(inherited))
+     # Seven outer PG/MinIO/Outbound resources, plus one container and network
+     # for every selected SMTP-owning top. Each fixture verifies nonce/exact IDs.
+     smtp_tops=sum(name.startswith('TestAccountSystemSMTPDeliveryWeb') for name in groups[args.group])
+@@ -185,6 +189,8 @@
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     frozen_bytes = args.frozen.read_bytes()
+     FROZEN = json.loads(frozen_bytes)
++    if Path(sys.executable).resolve(strict=True) != Path('/usr/bin/python3').resolve(strict=True):
++        raise RuntimeError('run this frozen driver with the pinned /usr/bin/python3 interpreter')
+     if FROZEN['product_base'] != BASE:
+         raise ValueError('wrong accepted backend baseline')
+     if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != FROZEN['driver_sha256']:
+@@ -201,12 +207,15 @@
+         return 0 if same and accepted else 1
+     if (ROOT/'runs'/args.name).exists():
+         raise RuntimeError('run name already exists; preserve original evidence')
+-    if shutil.disk_usage(ROOT).free < 2*1024**3:
+-        raise RuntimeError('less than 2 GiB free before starting owned resources')
++    disk = shutil.disk_usage(ROOT)
++    disk_before = {'time': utc(), 'total': disk.total, 'used': disk.used, 'free': disk.free, 'required_free': 5*1024**3}
++    if disk.free < 5*1024**3:
++        raise RuntimeError('less than 5 GiB free before starting owned resources')
+     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+         raise RuntimeError('cannot become task child subreaper')
+     run = ROOT / 'runs' / args.name
+     run.mkdir(parents=True, mode=0o700)
++    write(run / 'disk-before.json', disk_before)
+     driver_bytes = Path(__file__).read_bytes()
+     (run / 'driver.py.txt').write_bytes(driver_bytes)
+     verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest()}
+@@ -220,7 +229,7 @@
+     if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+-    browser_runtime = Path(tempfile.mkdtemp(prefix='agtout-', dir='/tmp'))
++    browser_runtime = Path(tempfile.mkdtemp(prefix='agtaud-', dir='/tmp'))
+     if len(str(browser_runtime)) > 45:
+         raise RuntimeError('browser runtime is not short')
+     images = run / 'images'

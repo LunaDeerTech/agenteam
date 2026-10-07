@@ -1,0 +1,34 @@
+{
+  "disk": [
+    {
+      "argv": [
+        "df",
+        "-B1",
+        "--output=avail",
+        "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot"
+      ],
+      "exit": 0,
+      "free_bytes": 6021177344,
+      "raw": "     Avail\n6021177344\n",
+      "utc": "2026-10-07T03:07:37.732481+00:00"
+    },
+    {
+      "argv": [
+        "df",
+        "-B1",
+        "--output=avail",
+        "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot"
+      ],
+      "exit": 0,
+      "free_bytes": 6021177344,
+      "raw": "     Avail\n6021177344\n",
+      "utc": "2026-10-07T03:07:37.733520+00:00"
+    }
+  ],
+  "driver_sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62",
+  "manifest_sha256": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17",
+  "name_unused": true,
+  "plan_sha256": "877ea0fbde8c4285ef0acccb7506fad93b7c3cc0800d521d0fa0ed11724e04a6",
+  "resource_execution": false,
+  "utc": "2026-10-07T03:07:37.733528+00:00"
+}

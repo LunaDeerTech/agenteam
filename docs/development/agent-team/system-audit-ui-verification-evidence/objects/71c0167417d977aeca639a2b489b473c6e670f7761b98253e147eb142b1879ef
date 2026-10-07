@@ -1,0 +1,31 @@
+# Audit UI navigation02 — local caption CSS diagnosis
+
+The preserved failure is explained by a missing local padding reset in SystemAuditView's visually hidden caption. Recommend only `padding: 0` in that View's scoped `.sr-only` rule. Keep the semantic caption, original `<= 2px` predicate, traversal, layout flow and shared styles unchanged. This review makes no product change and runs no test or resource.
+
+## Observed facts
+
+Frozen input06 manifest SHA: `420e50093fba526c37607b8c2fe4bbabf6cc91bf12dc6c62686e0a9dc1f953c8`. Author root: `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot`.
+
+`runs/navigation02/raw.log` reports the first 1440px list layout as `table-structure`: table/caption present, seven headers, table scroll/client widths both 798, caption width 1 and height 8. The original assertion then fails; the top lasts 8.80s. No screenshot was reached. The other conditions in this failure branch are satisfied; the caption height exceeds the unchanged 2px bound.
+
+Original command actual wait completed with exit 1 in 52.054s. Result and both cleanup records show seven exact IDs absent, 83 observed PID/starttime records cleared, four adopted waits, empty owned-process/runtime/browser-runtime scans, unchanged baseline and inputs. This remains a failed business run with completed cleanup.
+
+- Raw: `0c711294e12596a4107b9bf568d051167ec405931e00fe4db364e466a25e9aa6`.
+- Command: `cedfcd62edc5a745f5a1f75938ca878c0b2acaac93c1b2b1e416070371fe5672`.
+- Result: `960e38979e5be27c5e8b08fa54498d7689757a5799a0b09e3ed479922f8d984d`.
+- Cleanup: `953654f5b2a31b16a4ff795a5cf831beee9146530172bf53e669d914959facaf`.
+
+## Fixed CSS chain
+
+All paths below are fixed `web-stage01` copies; their hashes match its manifest.
+
+- `source/web/src/views/system/SystemAuditView.vue` (`b11ae46e854fa8ad918b8f13536d1fe354d968949205d77d6935807f8bb9ea51`): lines 187–190 render `<caption class="sr-only">`; lines 353–359 set absolute position, width/height 1px, overflow hidden and clip-path inset(50%), with no padding override.
+- `dependencies/web/src/styles/base.css` (`95406edff72418d7ca07d37f638b0718ec8ad711eab9b6c579cd4e1cebe55b72`): lines 1–3 apply `box-sizing: border-box` universally.
+- `dependencies/web/src/styles/components.css` (`0f8289238b3f4af109e233cea7f76a3759d79c45f737c575467af771b05d96eb`): lines 538–543 apply `padding-bottom: 8px` to caption.
+- `dependencies/web/src/main.ts` (`c4cfe7e4375cc1e7c75475e8ac1fa0113567849f47158ceaa7a91ecbba614613`) imports both styles. Frozen global CSS asset `index-BcO4xeOJ.css` (`5b5fbe63615b2238d8da9ac9df12964271f9477fa75d2135e3438a52aacdc8aa`) contains that same caption padding; frozen View CSS `SystemAuditView-Dr3fFaJe.css` (`677b0411bb7cfe8b63144ce07a8b8c0315a445d95af13dba5dbfaf0a123288ba`) contains the same local rule without a reset.
+
+These rules cascade independently: setting height does not reset padding. Under border-box sizing the content box cannot become negative, so an 8px padding extent sets an 8px minimum border-box height despite `height: 1px`. Absolute positioning does not remove the element's padding, and clip-path changes painting rather than the rectangle returned by getBoundingClientRect. The fixed rules therefore account for the observed 1×8 rectangle without invoking a different caption semantic or changing a test threshold.
+
+This is static CSS reasoning matched to an actual safe rectangle, not an unrecorded computed-style observation. The old navigation01 aggregate safe=false still has no geometry attribution; navigation02 does not retroactively fill that missing observation. No post-fix outcome, screenshot quality or later layout is claimed.
+
+The smallest affected verification is the same original Navigation and layouts against a newly frozen View/dist after an authorized local CSS edit. No API/owner change or repeated successful pure/Go matrix is indicated. Independent A/B sources and execution01 remain frozen at input05 until the final author input is supplied; no rebinding or new gate was performed here.

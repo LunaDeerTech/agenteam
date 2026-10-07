@@ -1,0 +1,51 @@
+import hashlib, json, re, subprocess
+from pathlib import Path
+
+S = Path(__file__).resolve().parent
+W = S / 'workspace'
+REPO = Path('/workspace/agenteam')
+BASE = 'b124650aee095b26191bc181dc8cf5d6e0f977f5'
+PREFIX = 'github.com/LunaDeerTech/agenteam/'
+paths = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BASE], cwd=REPO, text=True).splitlines()
+cache = {}
+def read(path):
+    if path not in cache:
+        cache[path] = subprocess.check_output(['git', 'show', BASE + ':' + path], cwd=REPO)
+    return cache[path]
+selected = {'go.mod', 'go.sum'}
+pending = ['tests/account', 'tests/testsupport/postgres/cmd/fixture', 'tests/testsupport/objectstore/cmd/fixture', 'tests/testsupport/outbound/cmd/fixture']
+seen = set()
+while pending:
+    directory = pending.pop()
+    if directory in seen:
+        continue
+    seen.add(directory)
+    package = [p for p in paths if str(Path(p).parent) == directory and p.endswith('.go') and (directory == 'tests/account' or not p.endswith('_test.go'))]
+    if not package:
+        raise RuntimeError('missing fixed package: ' + directory)
+    for p in package:
+        selected.add(p)
+        source = read(p).decode()
+        for imp in re.findall(r'"(github\.com/LunaDeerTech/agenteam/[^"\n]+)"', source):
+            pending.append(imp[len(PREFIX):])
+        for pattern in re.findall(r'^//go:embed\s+([^\n]+)', source, re.M):
+            for glob in pattern.split():
+                glob = glob.removeprefix('all:')
+                import fnmatch
+                selected.update(q for q in paths if fnmatch.fnmatch(q, directory + '/' + glob))
+# Runtime helpers use fixed source scripts and fixed accepted image fixtures.
+selected.update(p for p in paths if p.startswith('scripts/') and p.endswith('.sh'))
+selected.update(p for p in paths if p.startswith('internal/central/account/testdata/b04-avatar/'))
+selected.update(p for p in paths if p.startswith('tests/account/testdata/challenge/'))
+inventory = {}
+for p in sorted(selected):
+    data = read(p)
+    target = W / p
+    if target.exists() and target.read_bytes() != data:
+        raise RuntimeError('existing fixed dependency mismatch: ' + p)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists():
+        target.write_bytes(data)
+    inventory[p] = hashlib.sha256(data).hexdigest()
+(S / 'harness-closure01.json').write_text(json.dumps({'base': BASE, 'purpose': 'Account package compile/import closure plus selected fixtures runtime helpers; no execution', 'source': inventory}, indent=2) + '\n')
+print(json.dumps({'files': len(inventory), 'bytes': sum(len(read(p)) for p in selected), 'packages': len(seen)}))

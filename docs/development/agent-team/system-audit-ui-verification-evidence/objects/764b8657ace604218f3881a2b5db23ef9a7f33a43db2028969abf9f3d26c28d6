@@ -1,0 +1,17 @@
+# Audit UI main 整合编译兼容
+
+**限定 PASS。** main `86a882472bc128cb4607898b839781c483b13b07` 上主线程精确复制的 Audit UI 35源与作者 delivery35 `ccd05bdf009fcc6693299c5f78f689897fb86e0e00b6ef47f6c17917612d4ad8`、input08/source archives逐SHA一致。Runtime已接受 `9b074f809df4603923faa68d963cb30a5fe4d7eb` 的13技术源相同；149份前端非候选依赖与作者固定 `1ff044264a54c948e512db9aafad24ec5e0aa3c2` SHA/blob一致，无新差异。未读取作者仍在编写的 README。
+
+| 原命令 | 实际退出 | 秒 |
+| --- | --- | --- |
+| graph01 | 0 | 0.114 |
+| account-compile01 | 0 | 6.462 |
+| account-list01 | 0 | 1.021 |
+
+仅 Account 包 integration 的实际 Go graph、`go test -c -race -vet=off -tags=integration` 以及产物的单次 `-test.list`。三个 exact 名为 `TestAccountSystemAuditWebReadAndFilters`、`TestAccountSystemAuditWebAuthorityAndOwnership`、`TestAccountSystemAuditWebNavigationAndLayouts`，实际输出恰这三项且顺序相同。没有运行测试体、Central/Runner 构建、完整 check-go、前端检查、listener、Docker/PG/MinIO/browser；既有独立动态接受由主线程持有，本轮不冒称 main UI 动态验收。
+
+各命令45s上限，Go1.27.1、GOTOOLCHAIN=local、GOPROXY/GOSUMDB=off、GOFLAGS=-mod=readonly -buildvcs=false -p=1，沿原锁定 modcache/既有独立 GOCACHE。实际依赖图393 packages/31 modules；805本地核验路径包含静态绑定的35候选/前端依赖/Runtime13及实际Go图，另3501外部与来源指纹，不称全部805都是编译输入。只保存必要清单/原日志，不复制主树或缓存。
+
+三命令均实际 Popen wait，6个 owned PID/starttime联集逐轮双扫空，0 adopted wait，输入前后及末次逐SHA均相同。外层工具session39198实际退出0。48,393,108B test binary SHA `eb40519c5eb839dafe7dcf172f6f714f7fe94f159639ed1440d93f72ff461a01`，发现后已删除，私有tmp空。没有 main/source/Git 写入。
+
+精确 argv/env/raw/输入与清理SHA见 report.json、input.json、preflight.json及各子目录原件。本目录至此永久冻结，无活动命令或资源。

@@ -1,0 +1,139 @@
+{
+  "accepted_dependency_additions": {},
+  "affected_checks": {
+    "harness-stage04-go": {
+      "directory": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/harness-stage04-go",
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "b7568df1f3f7a3bf58bab6875f6dc8af5fb3fdc5a1733817902c3b5e5ef3a42b",
+        "dependencies-after.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "dependencies-before.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "input-after.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input-before.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "observed-processes.json": "6b2b6b75625c6eae468b29416002c6657a5ced4541d7acf5e348b159ec6bca10",
+        "raw.log": "2ed54779f49c3b08989f0c69b8598723f0c93ca0ebe22e411545e6fa6adb9b14",
+        "result.json": "954dc3e4c7293165a279daa4d1180c222350521f6b1b5072afb173cb3cc559fc"
+      },
+      "result": {
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "argv": [
+          "/usr/bin/python3",
+          "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage04-go.py"
+        ],
+        "child_pid": 518379,
+        "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+        "duration_seconds": 8.745,
+        "env": {
+          "CGO_ENABLED": "1",
+          "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+          "GOENV": "off",
+          "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+          "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOTOOLCHAIN": "local",
+          "GOWORK": "off",
+          "HOME": "/home/agent",
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "TMPDIR": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/tmp"
+        },
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-07T02:10:59.821343+00:00",
+        "input_after_sha256": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input_before_sha256": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input_unchanged": true,
+        "owned_processes_double_empty": true,
+        "raw_sha256": "2ed54779f49c3b08989f0c69b8598723f0c93ca0ebe22e411545e6fa6adb9b14",
+        "readonly_dependencies_unchanged": true,
+        "resource_execution": false,
+        "runner_sha256": "bfd84522ff8aaef55a1ee79ca8b90209a6e287be5fb19e75d8528133b0e7fe61",
+        "started_at_utc": "2026-10-07T02:10:51.075614+00:00",
+        "timed_out": false
+      }
+    },
+    "summary-oracle04": {
+      "directory": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/summary-oracle04",
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "77d66573fbd41e849e615f781956e697ccdb1280c0b845b37fbd9fcbd754cec3",
+        "command.json": "07f621791c0b28c72cb3a30b2ddedb1eaaaad10bdcb192f456c422977c376cb6",
+        "dependencies-after.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "dependencies-before.json": "5ecd05af6369836b1911afeee69f1301a3a294e8d86a31f2b515f87685c25d2d",
+        "input-after.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input-before.json": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "observed-processes.json": "0d1132e9e872fe49c3d9380e389a12e33d08172bb357eb9f5de00e55842eca8f",
+        "raw.log": "8b07483f3810f020e8a6e92e02c105ddc1a75854370211429da894efadadc923",
+        "result.json": "4a6630bbed6341ea5fe5df897110d9c39f85552a3c6e98d37ea0549260bdc0e6"
+      },
+      "result": {
+        "actual_wait": true,
+        "adopted_waits": 0,
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "run",
+          "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/summary-oracle04/main.go"
+        ],
+        "child_pid": 518380,
+        "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+        "duration_seconds": 0.459,
+        "env": {
+          "CGO_ENABLED": "1",
+          "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+          "GOENV": "off",
+          "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+          "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOTOOLCHAIN": "local",
+          "GOWORK": "off",
+          "HOME": "/home/agent",
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "TMPDIR": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/tmp"
+        },
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-07T02:10:51.535159+00:00",
+        "input_after_sha256": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input_before_sha256": "6d869e8d871d7f95118e15099666e4c3a5c979beb8e9cd01e4a719b245ce8450",
+        "input_unchanged": true,
+        "owned_processes_double_empty": true,
+        "raw_sha256": "8b07483f3810f020e8a6e92e02c105ddc1a75854370211429da894efadadc923",
+        "readonly_dependencies_unchanged": true,
+        "resource_execution": false,
+        "runner_sha256": "bfd84522ff8aaef55a1ee79ca8b90209a6e287be5fb19e75d8528133b0e7fe61",
+        "started_at_utc": "2026-10-07T02:10:51.075669+00:00",
+        "timed_out": false
+      }
+    }
+  },
+  "candidate_diff": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage04/source.diff",
+    "sha256": "da8c3d481481c8e937f4e752aa3c35b334e8c85b1618aaed511ef69cb1708546"
+  },
+  "changed_candidates": {
+    "tests/account/system_audit_web_fixture_test.go": {
+      "after": "bbb925a5b5425e787c791d71dca83d0430dd971a89dae59f3b53f08cf914e022",
+      "before": "69bf020a367c55c012477b04cdc15a842aa5187a086cc7cba9fc1b79004b1d9c"
+    }
+  },
+  "current": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input03/manifest.json",
+    "sha256": "21c28beeeeb88a16137e6d472ff940150d2ba93060db642458bca0208134b42f"
+  },
+  "driver_unchanged_sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62",
+  "preserved_evidence": "read01/read02 and their original inputs remain unchanged; the actual failing rows did not disclose their action values",
+  "previous": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input02/manifest.json",
+    "sha256": "e16d115788261e69d984fcf3f515139036ff72f72250dc505518809be9b16d8e"
+  },
+  "resource_execution": false,
+  "unchanged_accepted_count": 943,
+  "unchanged_candidate_count": 34,
+  "unchanged_dist_count": 40,
+  "unchanged_external_tool_count": 18
+}

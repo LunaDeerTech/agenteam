@@ -1,0 +1,13 @@
+{"command": {"argv": ["./node_modules/.bin/prettier", "--check", "../tests/account-captcha-web/e2e/system-audit.spec.ts"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web"}}
+Checking formatting...
+All matched files use Prettier code style!
+{"actual_wait": true, "exit_code": 0, "duration_seconds": 0.4084945879985753, "exact_discovery": true}
+{"command": {"argv": ["./node_modules/.bin/tsc", "--noEmit", "--strict", "--skipLibCheck", "--target", "ES2022", "--module", "ESNext", "--moduleResolution", "Bundler", "--lib", "ES2022,DOM,DOM.Iterable", "--types", "node", "--typeRoots", "../../web/node_modules/@types", "e2e/system-audit.spec.ts"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web"}}
+{"actual_wait": true, "exit_code": 0, "duration_seconds": 1.0115089409991924, "exact_discovery": true}
+{"command": {"argv": ["/usr/bin/python3", "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness_browser_list03.py"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web"}}
+{"command": {"argv": ["node", "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/system-audit.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-discovery/audit-read", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_AUDIT_WEB_CASE": "read"}, "expected_count": 1, "mode": "offline discovery only; no browser or resources"}}
+Listing tests:
+  system-audit.spec.ts:422:1 › [read] formal complete Audit projections, typed families and fourteen explicit filters
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"actual_wait": true, "exit_code": 0, "duration_seconds": 0.9509964870012482, "exact_discovery": true}

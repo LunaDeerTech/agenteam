@@ -1,0 +1,11 @@
+# Audit UI harness-stage04 独立窄复核
+
+STATIC PASS：三项 fixture 摘要缺口按授权关闭。未执行任何测试或资源，未读仍在准备的 input03；本结论不替代 read03 真实验收或最终运行闭包门禁。
+
+固定 manifest SHA `0a7c7926f789a4f2ed74c854e45b9fe79d5645ec8e8ea27efaf2b671dbf0df82`，source.diff `da8c3d481481c8e937f4e752aa3c35b334e8c85b1618aaed511ef69cb1708546`。仅 `tests/account/system_audit_web_fixture_test.go` 新增六行 rotation start/complete/failed 的正式摘要，文件 SHA `bbb925a5b5425e787c791d71dca83d0430dd971a89dae59f3b53f08cf914e022`。移除这六行后逐字还原 stage03；其余三个 harness 源、ABC31源和40dist清单一致，原 fullsame、安全失败诊断、正式数据准备、proxy/取消/权限/预算不变。
+
+已静核 summary-oracle04：正式来源为固定 b124650，四个原始 Go 文件与固定 Git 字节相同；actionSummary 仅去 `c.` 限定，Action 常量与 AccountAction/ModelAction 函数原字节/值保持；旧/新 fixture switch 从各自完整冻结源精确提取。37 action 集合与独立前次正式闭集一致。原件实际0/0.459s，37项新映射均与正式值相等，旧映射恰三项差异。oracle 源 SHA `f00e074fc08d2d8eb315d732187a17d15d64efe9421f6bdadda562cae3ba05f8`，raw `8b07483f3810f020e8a6e92e02c105ddc1a75854370211429da894efadadc923`。这是公开常量/摘要纯验，不是原 read01/read02 行 action 的实测证明。
+
+已核受影响 Go 原件实际0/8.745s：gofmt 无差异、race integration 编译、三个新 top 精确各发现一次；raw `2ed54779f49c3b08989f0c69b8598723f0c93ca0ebe22e411545e6fa6adb9b14`。两次检查均 actual wait，子PID两扫为空，四候选与只读依赖前后指纹相同；oracle 源及来源另由冻结清单绑定。编译/list没有运行这三个业务 top。browser type/list及三动态 build 准备沿不变输入复用，没有独立重复执行。
+
+read01/read02 实际失败及信息限制全部保留，尤其 read01 无字段现场、read02 只见两行 summary 字符串不同而无 action/值。原归因位于 `read01-read02-diagnosis01/review.md`（SHA `cea6f1a99b678e126d7238f74c4c4eb96ce7d7917e487deafe225acec1e76722`）。当前仅需后续 input03 完整门禁冻结和 root 独占授权后，实际复验原 read top；本报告不改其结论。

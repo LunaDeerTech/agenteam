@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "./node_modules/.bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "../../web/node_modules/@types",
+    "e2e/system-invitations.spec.ts",
+    "e2e/system-providers.spec.ts",
+    "e2e/system-models.spec.ts",
+    "e2e/system-model-selection.spec.ts",
+    "e2e/system-account-security.spec.ts",
+    "e2e/system-smtp-settings.spec.ts",
+    "e2e/system-smtp-delivery.spec.ts",
+    "e2e/system-outbound-policy.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web",
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "resource_execution": false,
+  "runner_sha256": "952c764f9b047bb968d6166d1c1c8a11259c90ff5e5f4ff2d4b2283dd6db2236",
+  "started_at_utc": "2026-10-07T00:24:01.976450+00:00"
+}

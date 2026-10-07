@@ -1,0 +1,76 @@
+import difflib
+import hashlib
+import json
+import shutil
+from datetime import datetime, timezone
+from pathlib import Path
+
+S = Path(__file__).resolve().parent
+W = S / 'workspace'
+old = S / 'harness-stage06'
+out = S / 'harness-stage07'
+assert not out.exists()
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def ref(path):
+    return {'path': str(path), 'sha256': sha(path)}
+
+
+previous = json.loads((old / 'manifest.json').read_text())
+full = json.loads((S / 'input05/manifest.json').read_text())
+source = {path: sha(W / path) for path in previous['source']}
+changed = [path for path in full['files'] if sha(W / path) != full['files'][path]]
+assert changed == ['tests/account-captcha-web/e2e/system-audit.spec.ts']
+assert all(sha(W / path) == value for path, value in full['dist'].items())
+path = changed[0]
+before = (old / 'source' / path).read_text()
+after = (W / path).read_text()
+start = 'async function layout(page: Page, detailMode: boolean, width: number) {'
+end = 'test("[navigation] ninth leaf, thirteenth return, page lifetimes and eight real layouts"'
+assert before[:before.index(start)] == after[:after.index(start)]
+assert before[before.index(end):] == after[after.index(end):]
+tail = '  expect(safe).toBe(true);'
+assert before[before.index(tail, before.index(start)):before.index(end)] == after[after.index(tail, after.index(start)):after.index(end)]
+checks = {}
+for name in ['harness-stage07-format', 'harness-stage07-browser']:
+    r = S / 'runs' / name
+    result = json.loads((r / 'result.json').read_text())
+    assert result['exit_code'] == 0 and result['actual_wait'] and result['owned_processes_double_empty']
+    assert result['readonly_dependencies_unchanged']
+    if name.endswith('browser'):
+        assert result['input_unchanged']
+    checks[name] = {'directory': str(r), 'files': {p.name: sha(p) for p in r.iterdir() if p.is_file()}, 'result': result}
+out.mkdir()
+for path in source:
+    target = out / 'source' / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(W / path, target)
+path = changed[0]
+(out / 'source.diff').write_text(''.join(difflib.unified_diff(before.splitlines(True), after.splitlines(True), fromfile='harness-stage06/' + path, tofile='harness-stage07/' + path)))
+prep = out / 'preparation'
+prep.mkdir()
+for name in ['record_harness01.py', 'harness-stage07-browser.py', 'harness-stage07-browser.json', 'harness_browser_list07.py', 'harness-browser-list-plan07.json', 'freeze_harness07.py']:
+    shutil.copyfile(S / name, prep / name)
+(out / 'report.md').write_text('''# System Audit harness stage07
+
+The new browser layout helper alone now returns its original safe Boolean plus the first failing closed category in the same evaluate call. Original predicates, thresholds and traversal order remain intact. Failure-only output contains viewport/mode, geometry or presence/count values and one bounded node index/whitelisted tag. No text, HTML, class values, field values, IDs, raw DTOs, headers or private material is emitted. The same expect(safe).toBe(true), all reachability checks after it and all caller flow/screenshots are unchanged. Prefix, suffix and post-expect source bytes were compared exactly.
+
+navigation01 actually exited1/56.441s with layout safe=false at the first light1440 list check after local limit validation. It retained no failing geometry or DOM projection and generated zero screenshots. No product or locator cause is asserted. Original 7-ID/84-PID/4-adopt double cleanup and unchanged inputs remain preserved.
+
+Formatting completed with its before/after input recorded. Strict typecheck, format check and exact Navigation single-test Playwright list passed offline with actual wait, unchanged fixed dependencies and PID double cleanup. The other 34 source files, 40 dist files, 943 accepted Git dependencies, 18 tools and driver remain exact. Go fixture and prior compile are reused without rerun. This preparation does not launch a browser, service or database. navigation02 is a diagnostic plan awaiting separate authorization.
+''')
+manifest = {'stage': 'D harness-stage07 safe layout diagnostic only',
+    'frozen_at_utc': datetime.now(timezone.utc).isoformat(), 'previous_manifest': ref(old / 'manifest.json'),
+    'source': source, 'source_diff_sha256': sha(out / 'source.diff'), 'report_sha256': sha(out / 'report.md'),
+    'accepted_ABC': previous['accepted_ABC'], 'checks': checks,
+    'scope_check': {'before_layout_exact': True, 'after_layout_exact': True, 'original_expect_and_reachability_tail_exact': True},
+    'unchanged_go_reuse': previous['checks']['harness-stage06-go'],
+    'preparation_sources': {p.name: sha(p) for p in prep.iterdir()},
+    'original_navigation01': {name: ref(S / 'runs/navigation01' / name) for name in ['command.json', 'raw.log', 'result.json', 'cleanup.json']}}
+(out / 'manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'manifest_sha256': sha(out / 'manifest.json'), 'diff_sha256': sha(out / 'source.diff'),
+                  'report_sha256': sha(out / 'report.md'), 'browser_sha256': source[changed[0]]}, indent=2))

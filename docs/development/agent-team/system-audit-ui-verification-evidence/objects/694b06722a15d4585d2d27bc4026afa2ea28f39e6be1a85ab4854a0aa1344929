@@ -1,0 +1,58 @@
+{
+  "accepted_dependency_additions": {
+    "cmd/agenteam-runner/main.go": {
+      "git_blob": "afb614f13f0148147586b0c431aa912187fa2ffc",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "e4341598318b791e6bd03b2cff75a1a6280adea2b4efa68736bb323f3e70aa66"
+    },
+    "cmd/agenteam/main.go": {
+      "git_blob": "1345651a64a24833421f22b21bdb80a2b6df559c",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "4412cc0e4d838b076d1447ea3ec9137f1eb0dffc01f95d8ff54c5756e305198a"
+    },
+    "internal/runner/app/app.go": {
+      "git_blob": "f1351a9c73e3cd3fb6fa20615d04d8abead040e4",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "b31aa6a2d0208235c8fef9f336ec1774020d8f3cedcb0df3e1436058dbb4e984"
+    },
+    "internal/runner/config/config.go": {
+      "git_blob": "67ef6fd6724ee117e83f860b7f6a902aa3df8871",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "aca1c6bd1c6d0273fb1468c67815594f8e03cd0175038f21610e67de4bb95437"
+    },
+    "tests/testsupport/smtp/cmd/server/main.go": {
+      "git_blob": "92c5381de0b769a5a27f9217286d9bbedfe6a99f",
+      "kind": "blob",
+      "mode": "100644",
+      "sha256": "0c67c9cb015e76b5c35c857a4628fdaecdf569516fd8b29c11cf06a47ded2773"
+    }
+  },
+  "candidate_diff": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/source.diff",
+    "sha256": "8597c3dae7ab660badeb20309d49b5ca12fa1702e7f923dfcde36dcec87ee99e"
+  },
+  "changed_candidates": {
+    "tests/account-captcha-web/e2e/system-audit.spec.ts": {
+      "after": "cefdc89f1e500d9973c8dbe3ab4fd853ef2a4cafb9c550e68e36ec1a7a4338e3",
+      "before": "fc03cf6e77fe48bbe12f526acb00eed70b49ee1ff078a70e5517df8b2d98311d"
+    }
+  },
+  "current": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input02/manifest.json",
+    "sha256": "e16d115788261e69d984fcf3f515139036ff72f72250dc505518809be9b16d8e"
+  },
+  "driver_unchanged_sha256": "cb0265ad5b060ed6e946e97c0bf4461c0bff4196ff553d4c4244c519d99f5f62",
+  "no_test_execution": "three offline builds only; no binaries, browser, server, Docker or PG were launched",
+  "previous": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input01/manifest.json",
+    "sha256": "e748a3589e869cb809632b3cf693e46a04179ef54c096c3d25d2df77b2a7101d"
+  },
+  "unchanged_accepted_count": 938,
+  "unchanged_candidate_count": 34,
+  "unchanged_dist_count": 40,
+  "unchanged_external_tool_count": 18
+}

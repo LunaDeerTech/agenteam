@@ -1,0 +1,58 @@
+--- before/web/src/composables/useSystemAudit.ts
++++ after/web/src/composables/useSystemAudit.ts
+@@ -12,14 +12,22 @@
+ 
+ export type AuditFilterDraft = Record<(typeof auditFilterFields)[number] | 'limit', string>
+ export type AuditReadPhase = 'waiting' | 'loading' | 'ready' | 'empty' | 'error' | 'forbidden' | 'inactive'
++export type AuditListObservation = Readonly<{
++  phase: AuditReadPhase; items: readonly SystemAuditRecord[]; message: string;
++  cursorInvalid: boolean; hasPrevious: boolean; hasNext: boolean; page: number
++}>
++export type AuditDetailObservation = Readonly<{
++  phase: AuditReadPhase | 'not-found'; target: string | null;
++  record: SystemAuditRecord | null; message: string
++}>
+ type ListTarget = Readonly<{ index: number; query: AuditQuery }>
+ type ActiveRead = Readonly<{ generation: number; kind: 'list' | 'detail' }>
+ const emptyRows: readonly SystemAuditRecord[] = Object.freeze([])
+ const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) => !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+ const keys = [...auditFilterFields, 'limit'] as const
+ const defaults = (): AuditFilterDraft => Object.fromEntries(keys.map((key) => [key, key === 'limit' ? '50' : ''])) as AuditFilterDraft
+-const initialList = (phase: AuditReadPhase) => Object.freeze({phase, items: emptyRows, message: '', cursorInvalid: false, hasPrevious: false, hasNext: false, page: 1})
+-const initialDetail = () => Object.freeze({phase: 'inactive' as AuditReadPhase | 'not-found', target: null as string | null, record: null as SystemAuditRecord | null, message: ''})
++const initialList = (phase: AuditReadPhase): AuditListObservation => Object.freeze({phase, items: emptyRows, message: '', cursorInvalid: false, hasPrevious: false, hasNext: false, page: 1})
++const initialDetail = (): AuditDetailObservation => Object.freeze({phase: 'inactive' as AuditReadPhase | 'not-found', target: null as string | null, record: null as SystemAuditRecord | null, message: ''})
+ 
+ // This instance owns observations only. Actual Cookie ownership and cancellation
+ // tails stay in useSession. A retired instance never recovers across checking.
+--- before/web/src/tests/system-audit-state.spec.ts
++++ after/web/src/tests/system-audit-state.spec.ts
+@@ -55,15 +55,15 @@
+  {name:'account-personal',read:(a:SessionController)=>a.personal.getProfile(),abandon:(a:SessionController)=>a.personal.abandon()},
+  {name:'directory',read:(a:SessionController)=>a.system.listUsers({}),abandon:(a:SessionController)=>a.system.abandon()},
+  {name:'invitation',read:(a:SessionController)=>a.system.listInvitations({}),abandon:(a:SessionController)=>a.system.abandonInvitationRead()},
+- {name:'provider',read:(a:SessionController)=>a.system.providers.list({}),abandon:(a:SessionController)=>a.system.providers.abandonRead()},
+- {name:'model',read:(a:SessionController)=>a.system.models.get({id:id(3),provider_id:id(2),protocol:'openai'}),abandon:(a:SessionController)=>a.system.models.abandonRead()},
+- {name:'selection',read:(a:SessionController)=>a.system.selection.get(),abandon:(a:SessionController)=>a.system.selection.abandonRead()},
++ {name:'provider',read:(a:SessionController)=>a.system.providers.list({}),abandon:(a:SessionController)=>a.system.providers.abandonRead('provider-list')},
++ {name:'model',read:(a:SessionController)=>a.system.models.get({id:id(3),provider_id:id(2),protocol:'openai-chat-completions'}),abandon:(a:SessionController)=>a.system.models.abandonRead('model-detail')},
++ {name:'selection',read:(a:SessionController)=>a.system.selection.get(),abandon:(a:SessionController)=>a.system.selection.abandonRead('selection-state')},
+  {name:'account-security',read:(a:SessionController)=>a.system.accountSecurity.get(),abandon:(a:SessionController)=>a.system.accountSecurity.abandonRead()},
+  {name:'smtp-settings',read:(a:SessionController)=>a.system.smtp.get(),abandon:(a:SessionController)=>a.system.smtp.abandonRead()},
+  {name:'smtp-delivery',read:(a:SessionController)=>a.system.smtpDelivery.list(),abandon:(a:SessionController)=>a.system.smtpDelivery.abandonRead()},
+  {name:'outbound',read:(a:SessionController)=>a.system.outboundPolicy.get(),abandon:(a:SessionController)=>a.system.outboundPolicy.abandonRead()},
+ ] as const
+-const resultOf=<T>(pending:Promise<T>)=>pending.then(value=>({value}), (error:unknown)=>({error}))
++const resultOf=(pending:Promise<unknown>)=>pending.then(value=>({value}), (error:unknown)=>({error}))
+ afterEach(async()=>{
+  for(const release of releases.splice(0))release()
+  for(const page of pages.splice(0))page.dispose()
+@@ -158,7 +158,7 @@
+   const random=vi.spyOn(crypto,'randomUUID')
+   if(domain==='smtp-settings')f.auth.system.smtp.setMaterial('  exact private password  ')
+   if(domain==='smtp-settings')f.setSMTP(held);else if(domain==='smtp-delivery')f.setDelivery(held);else f.setOutbound(held)
+-  const start=()=>domain==='smtp-settings'?f.auth.system.smtp.startUpdate({version:'1',...smtpFields(),credential_action:'replace'}):domain==='smtp-delivery'?f.auth.system.smtpDelivery.startTest({recipient:'target@example.test'}):f.auth.system.outboundPolicy.startUpdate({expected_version:'1',rules:[]})
++  const start=()=>domain==='smtp-settings'?f.auth.system.smtp.startUpdate({version:'1',...smtpFields(),username:'smtp-user',credential_action:'keep'}):domain==='smtp-delivery'?f.auth.system.smtpDelivery.startTest({recipient:'target@example.test'}):f.auth.system.outboundPolicy.startUpdate({expected_version:'1',rules:[]})
+   const progress=()=>domain==='smtp-settings'?f.auth.system.smtp.progress:domain==='smtp-delivery'?f.auth.system.smtpDelivery.progress:f.auth.system.outboundPolicy.progress
+   const pending=resultOf(start())
+   try {

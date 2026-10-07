@@ -1,0 +1,9 @@
+# Audit caption padding repair
+
+Only SystemAuditView.vue's scoped .sr-only rule adds padding: 0. Caption markup, text, accessibility semantics, global CSS, browser predicates and thresholds are unchanged. The other 30 sources in accepted web-stage01, all four harness sources including harness-stage07, 943 accepted Git dependencies, 18 external tools and driver01 retain their input06 bytes. The changed View is a new product revision; the prior 31-source stage is not claimed wholly unchanged.
+
+navigation01 remains the original Boolean layout failure with no failing field measurements and zero screenshots. navigation02 actually failed at light/1440/list with caption width 1 and height 8; table/caption were present, seven headers were present, and table scroll/client widths were both 798. Static global border-box plus caption padding-bottom: 8px explains the missing local padding reset. Neither round recorded computedStyle, and none is backfilled. Both original failures and their complete cleanup remain unchanged.
+
+The changed file's Prettier check passed. The existing Audit visible-filters/inline-observations/local-focus group passed 12 tests, with the other eight tests explicitly skipped. Production build includes vue-tsc and Vite and passed. All three commands completed within the existing 45-second offline budget with actual waits, unchanged source/dependencies and empty owned-process double scans. These are offline regression/build results, not evidence that native caption geometry now passes. The full rebuilt 40-file dist is archived and individually hashed. No full 1763-test repetition, browser, service or database ran for this repair.
+
+input07 and navigation03 are prepared for separate root review/resource authorization. Original input06 and all earlier sources, distributions, failures and cleanup records remain frozen.

@@ -1,0 +1,62 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+ ❯ src/tests/system-audit.spec.ts (10 tests | 2 failed) 1453ms
+     × has one protected Audit leaf, nine leaves/four groups and thirteen exact return targets 232ms
+     × handles current403 using the system permission view and leaves the read-only page without an added confirmation 92ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-audit.spec.ts > Audit page uses the production App, route records, authentication guard and factory > has one protected Audit leaf, nine leaves/four groups and thirteen exact return targets
+AssertionError: expected [] to deeply equal [ '/system/users', …(8) ]
+
+- Expected
++ Received
+
+- [
+-   "/system/users",
+-   "/system/invitations",
+-   "/system/providers",
+-   "/system/models",
+-   "/system/model-selection",
+-   "/system/audit",
+-   "/system/account-security",
+-   "/system/smtp",
+-   "/system/outbound-policy",
+- ]
++ []
+
+ ❯ src/tests/system-audit.spec.ts:142:90
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/tests/system-audit.spec.ts > Audit page uses the production App, route records, authentication guard and factory > handles current403 using the system permission view and leaves the read-only page without an added confirmation
+AssertionError: expected [ [ …(2) ], [ …(2) ], [ …(2) ] ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/tests/system-audit.spec.ts:274:23
+    272|     await f.router.push('/'); await flushPromises()
+    273|     expect(f.router.currentRoute.value.path).toBe('/')
+    274|     expect(f.reads()).toHaveLength(reads)
+       |                       ^
+    275|     expect(document.querySelector('[role="dialog"]')).toBeNull()
+    276|     expect(f.writes()).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  00:17:37
+   Duration  3.26s (transform 1.09s, setup 0ms, import 1.21s, tests 1.45s, environment 447ms)
+

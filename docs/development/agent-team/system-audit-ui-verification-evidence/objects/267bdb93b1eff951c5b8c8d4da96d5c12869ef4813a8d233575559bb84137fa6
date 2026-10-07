@@ -1,0 +1,440 @@
+--- execution02.json
++++ execution03.json
+@@ -5751,8 +5751,8 @@
+     "sha256": "d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b"
+   },
+   "author_frozen_input": {
+-    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input07/manifest.json",
+-    "sha256": "e62a3e5e0efa15bb7e89430bc7e63b5bb800f186d80866669290bbf32517d726"
++    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input08/manifest.json",
++    "sha256": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17"
+   },
+   "authority_recovery02": {
+     "cleanup.json": {
+@@ -5890,207 +5890,207 @@
+     }
+   },
+   "dist": {
+-    "web/dist/assets/AppearanceSettings-D3hs13_E.js": "1a9580aa2e9e4e54fb47df7d2068331d7e982c1231b0cb4f733b8793f2dfe0bb",
+-    "web/dist/assets/ForgotPasswordView-BxI_yyk9.js": "cf99b0a2da2c4b7bcaa8f2b16a37372a2bb94ea5645781868d5e32db50e3f122",
++    "web/dist/assets/AppearanceSettings-YdHvGn3y.js": "d7ed462f83914aa42071426ef41129432a9b043710cf12366b6b4d069e59b340",
+     "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
++    "web/dist/assets/ForgotPasswordView-DvRK3pnj.js": "b36f1b847973c0c649dc7184a23b4013047175da49ad3983d21c9326fb3a433c",
+     "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+-    "web/dist/assets/InvitationView-p_RNfo2k.js": "639527bf90a7e0909468addc407293768043afe0329eef0ca23862e2a722ed4f",
+-    "web/dist/assets/PasswordSettings-OSUYGsWv.js": "dd550c2407602ed33d75c6ec33aa1e6068ddfbe44ce15d1e9169fe43bec14430",
++    "web/dist/assets/InvitationView-DSOcEuMJ.js": "622b86f63683202d7ab248292d9012c3044085e3c9928e8207d2e92fe2025b24",
++    "web/dist/assets/PasswordSettings-7M89OiBh.js": "334de0b3e8f6c0158fa849a13de055d0f3ff9b5ac29e4aeb87a70df6291761b9",
+     "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+-    "web/dist/assets/PersonalSettingsView-C1WT3LjS.js": "e8882f4fa0526bb0a29d9bbea1a414d685f67ecca1b4cba6c88ba660c5e67555",
++    "web/dist/assets/PersonalSettingsView-C4hoKwto.js": "d148b7c1100f3d23b50744f4b4ffc5819efee109b9b7d129460cce49f3da1c86",
++    "web/dist/assets/ProfileSettings-BMa6qCWt.js": "c0636d4bf3831d3ca249178f554a251251b13837ae4015ef6168c2f9d0f4ed2c",
+     "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+-    "web/dist/assets/ProfileSettings-Db4IsTUp.js": "1e01b3710db94430e9e5311177d861c7789c2031ef01a9f475689888c1f2a8c3",
+-    "web/dist/assets/ResetPasswordView-D6ww5m3E.js": "46f4c7daac479804cc1e9f3db16088536e336732251b9b87842574b76132f367",
+     "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+-    "web/dist/assets/SettingsShell-BBrfDkdN.js": "33b6466f3ea65267410ca8ff5f60f76e3d5a7ecfb4c2a516e320353f9accc82b",
++    "web/dist/assets/ResetPasswordView-DxU79H32.js": "8f875ee8d8979496629e9506ec66fca02b9192f3a54cbde0fbf1eac9441684ab",
+     "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
++    "web/dist/assets/SettingsShell-DxeT10XA.js": "ee74e0736f0384aa040fbf5f03be10a35db354121e1329da07b364f89e97cf6b",
+     "web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css": "8c0710c7f46cdaa82fd01031381969c02672f16825b06eea24840a2770b25e7e",
+-    "web/dist/assets/SystemAccountSecurityView-x0z5pDXC.js": "8e2f52c2b81f1daefd7048b63d9c615336bfccd3333cdbcdbc0cb6cb26e100a2",
+-    "web/dist/assets/SystemAuditView-CBZThKBe.js": "f2991c4b4ddf6961004d9dc9eb607cfdb9ffcfd5aa8754dd9a4b04b1999e7736",
+-    "web/dist/assets/SystemAuditView-DayNIkg-.css": "b0ea4e8e9b3f116f0b91da4486e98401a92210cf2e5046a9dc2bb6020cebfde6",
+-    "web/dist/assets/SystemInvitationsView-CajDG2xL.js": "ad82b6dda1807819addac36a23c6d84eb886d48a245e14d03d9f50b33503c24a",
++    "web/dist/assets/SystemAccountSecurityView-DWBDyKkZ.js": "ee2c980a161452c6267aaa6c2a514f88cf898729c2b4f6648b327eb134922e02",
++    "web/dist/assets/SystemAuditView-CVK5-pDL.css": "2edefd2a2162a58c6951f4a77dba66ee4dcddffb2cf2a432cde21b60e8637310",
++    "web/dist/assets/SystemAuditView-Jn095vvP.js": "242e07285264e02e26cb0a8bf6d8e8dbf12073a9d5b0f8fe5e865bed4f2abfb9",
++    "web/dist/assets/SystemInvitationsView-CUaLbi2k.js": "4a929453be8bc5fe171d0eedb8e9c71e857b432210c05c116ac1cef7dec7e48d",
+     "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+-    "web/dist/assets/SystemModelSelectionView-D9rUw-Q_.js": "7928ca014aa9c6db4dbd128e8f55c9667f8a2a7b480c40542506965d7eb795e9",
++    "web/dist/assets/SystemModelSelectionView-CMMrgzya.js": "07caed847d9fff81da45b325d679e37e4505f02e74d07d707e08d0777dae067c",
+     "web/dist/assets/SystemModelSelectionView-Dpau881F.css": "3db921aee5324ed2c41c87284a1ef1ae79f34a9f4bee83ceac7cc05412398edb",
+     "web/dist/assets/SystemModelsView-6nzUQodS.css": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f",
+-    "web/dist/assets/SystemModelsView-D6VTn5o8.js": "a07b22076f2da05a74b25742dd68c75bca7d0e6e009d0f3f1f36ac68dfac490e",
+-    "web/dist/assets/SystemOutboundPolicyView-BrB-j6Uu.js": "00520172aa252d8f5dc3de8af87310805eb78a0b8dc3b0204745353c76b9fd3f",
++    "web/dist/assets/SystemModelsView-DnX9j_ee.js": "c690cba9e6a0fe20720136e93ac1025dbd36acaeb84d5401c2bbdae23a4bd9b1",
++    "web/dist/assets/SystemOutboundPolicyView-DJf4zBnk.js": "c01ee892eb810041afd5153f2c3b7076a7d2492036a735517ba8edf53ace9ce2",
+     "web/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css": "19d8278ceeaa3ceffd43362ac75240f8aa1514a2da4bc131270cfd6225f778b3",
+-    "web/dist/assets/SystemProvidersView-B6gtPkHz.js": "9b96f231eb7a6551d57ad273bcc4ee3a33ce59b2e59a00ca76602d1b4e90ce97",
++    "web/dist/assets/SystemProvidersView-CBj6ci51.js": "95bd7320b19688fcdfd2205979947b9a64e79b57585fb896bcafd4bdff547642",
+     "web/dist/assets/SystemProvidersView-elJ_-cRG.css": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c",
+-    "web/dist/assets/SystemSMTPSettingsView-CPtVuhJ-.js": "a8591d8fc3699744e8a2905bd9c89166ff0336b4c7239d3389874ce610d8386a",
++    "web/dist/assets/SystemSMTPSettingsView-Cj1sSq79.js": "e39a88adcca517c36eccb566f3ec90110c85d378a98b382a9dad3bc8ecfbdcb7",
+     "web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css": "c29e8ce53af05f7e736565081e3e4e6cf4bb61e3cdabd73d5e7911842dddc531",
+-    "web/dist/assets/SystemSettingsView-D9YYyGMe.js": "0c0b3d79f3d87f7eac60919dc177064ed936f383ab4d30b453fe122e07f66f5c",
+     "web/dist/assets/SystemSettingsView-DderE2fs.css": "b795a799a3cc0a265606aa4973d37008260b99a9a763ecbab73821afd3531c3e",
++    "web/dist/assets/SystemSettingsView-VFXPyx7Q.js": "627ad5df41d44e1123e15571f08f568fd833c344bfadbac6ea4ed3be3e5b5abd",
+     "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+-    "web/dist/assets/SystemUsersView-BB8jnvRJ.js": "a8902176693d4714978a362a547969b875a1c4bc23e91ec52819e00fc3d6ad15",
++    "web/dist/assets/SystemUsersView-BI9QU23D.js": "81cae9953191145f5f71baac914fb83cd6832a61f3ef171497ec8a62e84211b1",
+     "web/dist/assets/UiButton-Cwqvp0EG.js": "ee1915fd6cb786f3b136edcb4ddc408a8957b08023af74010264189dabf78236",
+-    "web/dist/assets/UiCheckbox-D45QWTwd.js": "450eab8b1781971c145e200a3f796688102df3e7f4bca698e553736a296dc389",
+-    "web/dist/assets/UiSelect-yeOGH4ir.js": "966a18c564297b6538aec4531d68599978e14b8f8e4595d3f078d891f6f42aa4",
++    "web/dist/assets/UiCheckbox-CHF0V48Z.js": "3225a9b23b32a27ce6121e0a0ee412a2f9e82cee1940b7bbe09bf404a57e7841",
++    "web/dist/assets/UiSelect-DjmN3rC5.js": "f61ddc0350d9f6c9b40f3bc49cb9a1fc30a968a1bd05c02153c236842331c1fd",
++    "web/dist/assets/index-BIm3SWDo.js": "3a51debff7328c0676915c045b5ba304b2f6a73233b7def3f47defe203947611",
+     "web/dist/assets/index-BcO4xeOJ.css": "5b5fbe63615b2238d8da9ac9df12964271f9477fa75d2135e3438a52aacdc8aa",
+-    "web/dist/assets/index-Q11RePrp.js": "a736d25cde849264478857f913e6af5bd4315330a339d7ca275ca2ee4037335a",
+-    "web/dist/index.html": "bdd2278f67d8c08b42493c9ef42c05532fb94d1ee6f7fb89fdf45a24040dcd32"
++    "web/dist/index.html": "8c7abc0a139fd045847b47d6ef1f3323aa0b8a8446f20bd9c92c647fe9424d3e"
+   },
+   "dist_archives": {
+-    "web/dist/assets/AppearanceSettings-D3hs13_E.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/AppearanceSettings-D3hs13_E.js",
+-      "sha256": "1a9580aa2e9e4e54fb47df7d2068331d7e982c1231b0cb4f733b8793f2dfe0bb"
+-    },
+-    "web/dist/assets/ForgotPasswordView-BxI_yyk9.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/ForgotPasswordView-BxI_yyk9.js",
+-      "sha256": "cf99b0a2da2c4b7bcaa8f2b16a37372a2bb94ea5645781868d5e32db50e3f122"
++    "web/dist/assets/AppearanceSettings-YdHvGn3y.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/AppearanceSettings-YdHvGn3y.js",
++      "sha256": "d7ed462f83914aa42071426ef41129432a9b043710cf12366b6b4d069e59b340"
+     },
+     "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/ForgotPasswordView-DJSF_FFM.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ForgotPasswordView-DJSF_FFM.css",
+       "sha256": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2"
+     },
++    "web/dist/assets/ForgotPasswordView-DvRK3pnj.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ForgotPasswordView-DvRK3pnj.js",
++      "sha256": "b36f1b847973c0c649dc7184a23b4013047175da49ad3983d21c9326fb3a433c"
++    },
+     "web/dist/assets/InvitationView-B4wTz1D4.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/InvitationView-B4wTz1D4.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/InvitationView-B4wTz1D4.css",
+       "sha256": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177"
+     },
+-    "web/dist/assets/InvitationView-p_RNfo2k.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/InvitationView-p_RNfo2k.js",
+-      "sha256": "639527bf90a7e0909468addc407293768043afe0329eef0ca23862e2a722ed4f"
+-    },
+-    "web/dist/assets/PasswordSettings-OSUYGsWv.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/PasswordSettings-OSUYGsWv.js",
+-      "sha256": "dd550c2407602ed33d75c6ec33aa1e6068ddfbe44ce15d1e9169fe43bec14430"
++    "web/dist/assets/InvitationView-DSOcEuMJ.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/InvitationView-DSOcEuMJ.js",
++      "sha256": "622b86f63683202d7ab248292d9012c3044085e3c9928e8207d2e92fe2025b24"
++    },
++    "web/dist/assets/PasswordSettings-7M89OiBh.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/PasswordSettings-7M89OiBh.js",
++      "sha256": "334de0b3e8f6c0158fa849a13de055d0f3ff9b5ac29e4aeb87a70df6291761b9"
+     },
+     "web/dist/assets/PersonalSettingsView-BLWru9en.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/PersonalSettingsView-BLWru9en.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/PersonalSettingsView-BLWru9en.css",
+       "sha256": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5"
+     },
+-    "web/dist/assets/PersonalSettingsView-C1WT3LjS.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/PersonalSettingsView-C1WT3LjS.js",
+-      "sha256": "e8882f4fa0526bb0a29d9bbea1a414d685f67ecca1b4cba6c88ba660c5e67555"
++    "web/dist/assets/PersonalSettingsView-C4hoKwto.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/PersonalSettingsView-C4hoKwto.js",
++      "sha256": "d148b7c1100f3d23b50744f4b4ffc5819efee109b9b7d129460cce49f3da1c86"
++    },
++    "web/dist/assets/ProfileSettings-BMa6qCWt.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ProfileSettings-BMa6qCWt.js",
++      "sha256": "c0636d4bf3831d3ca249178f554a251251b13837ae4015ef6168c2f9d0f4ed2c"
+     },
+     "web/dist/assets/ProfileSettings-Bofqo8m5.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/ProfileSettings-Bofqo8m5.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ProfileSettings-Bofqo8m5.css",
+       "sha256": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303"
+     },
+-    "web/dist/assets/ProfileSettings-Db4IsTUp.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/ProfileSettings-Db4IsTUp.js",
+-      "sha256": "1e01b3710db94430e9e5311177d861c7789c2031ef01a9f475689888c1f2a8c3"
+-    },
+-    "web/dist/assets/ResetPasswordView-D6ww5m3E.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/ResetPasswordView-D6ww5m3E.js",
+-      "sha256": "46f4c7daac479804cc1e9f3db16088536e336732251b9b87842574b76132f367"
+-    },
+     "web/dist/assets/ResetPasswordView-DSiu2awb.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/ResetPasswordView-DSiu2awb.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ResetPasswordView-DSiu2awb.css",
+       "sha256": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527"
+     },
+-    "web/dist/assets/SettingsShell-BBrfDkdN.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SettingsShell-BBrfDkdN.js",
+-      "sha256": "33b6466f3ea65267410ca8ff5f60f76e3d5a7ecfb4c2a516e320353f9accc82b"
++    "web/dist/assets/ResetPasswordView-DxU79H32.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/ResetPasswordView-DxU79H32.js",
++      "sha256": "8f875ee8d8979496629e9506ec66fca02b9192f3a54cbde0fbf1eac9441684ab"
+     },
+     "web/dist/assets/SettingsShell-D9S1S_aF.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SettingsShell-D9S1S_aF.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SettingsShell-D9S1S_aF.css",
+       "sha256": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e"
+     },
++    "web/dist/assets/SettingsShell-DxeT10XA.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SettingsShell-DxeT10XA.js",
++      "sha256": "ee74e0736f0384aa040fbf5f03be10a35db354121e1329da07b364f89e97cf6b"
++    },
+     "web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css",
+       "sha256": "8c0710c7f46cdaa82fd01031381969c02672f16825b06eea24840a2770b25e7e"
+     },
+-    "web/dist/assets/SystemAccountSecurityView-x0z5pDXC.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemAccountSecurityView-x0z5pDXC.js",
+-      "sha256": "8e2f52c2b81f1daefd7048b63d9c615336bfccd3333cdbcdbc0cb6cb26e100a2"
+-    },
+-    "web/dist/assets/SystemAuditView-CBZThKBe.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemAuditView-CBZThKBe.js",
+-      "sha256": "f2991c4b4ddf6961004d9dc9eb607cfdb9ffcfd5aa8754dd9a4b04b1999e7736"
+-    },
+-    "web/dist/assets/SystemAuditView-DayNIkg-.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemAuditView-DayNIkg-.css",
+-      "sha256": "b0ea4e8e9b3f116f0b91da4486e98401a92210cf2e5046a9dc2bb6020cebfde6"
+-    },
+-    "web/dist/assets/SystemInvitationsView-CajDG2xL.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemInvitationsView-CajDG2xL.js",
+-      "sha256": "ad82b6dda1807819addac36a23c6d84eb886d48a245e14d03d9f50b33503c24a"
++    "web/dist/assets/SystemAccountSecurityView-DWBDyKkZ.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAccountSecurityView-DWBDyKkZ.js",
++      "sha256": "ee2c980a161452c6267aaa6c2a514f88cf898729c2b4f6648b327eb134922e02"
++    },
++    "web/dist/assets/SystemAuditView-CVK5-pDL.css": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAuditView-CVK5-pDL.css",
++      "sha256": "2edefd2a2162a58c6951f4a77dba66ee4dcddffb2cf2a432cde21b60e8637310"
++    },
++    "web/dist/assets/SystemAuditView-Jn095vvP.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemAuditView-Jn095vvP.js",
++      "sha256": "242e07285264e02e26cb0a8bf6d8e8dbf12073a9d5b0f8fe5e865bed4f2abfb9"
++    },
++    "web/dist/assets/SystemInvitationsView-CUaLbi2k.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemInvitationsView-CUaLbi2k.js",
++      "sha256": "4a929453be8bc5fe171d0eedb8e9c71e857b432210c05c116ac1cef7dec7e48d"
+     },
+     "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemInvitationsView-QSKOYHWH.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemInvitationsView-QSKOYHWH.css",
+       "sha256": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f"
+     },
+-    "web/dist/assets/SystemModelSelectionView-D9rUw-Q_.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemModelSelectionView-D9rUw-Q_.js",
+-      "sha256": "7928ca014aa9c6db4dbd128e8f55c9667f8a2a7b480c40542506965d7eb795e9"
++    "web/dist/assets/SystemModelSelectionView-CMMrgzya.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelSelectionView-CMMrgzya.js",
++      "sha256": "07caed847d9fff81da45b325d679e37e4505f02e74d07d707e08d0777dae067c"
+     },
+     "web/dist/assets/SystemModelSelectionView-Dpau881F.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemModelSelectionView-Dpau881F.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelSelectionView-Dpau881F.css",
+       "sha256": "3db921aee5324ed2c41c87284a1ef1ae79f34a9f4bee83ceac7cc05412398edb"
+     },
+     "web/dist/assets/SystemModelsView-6nzUQodS.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemModelsView-6nzUQodS.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelsView-6nzUQodS.css",
+       "sha256": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f"
+     },
+-    "web/dist/assets/SystemModelsView-D6VTn5o8.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemModelsView-D6VTn5o8.js",
+-      "sha256": "a07b22076f2da05a74b25742dd68c75bca7d0e6e009d0f3f1f36ac68dfac490e"
+-    },
+-    "web/dist/assets/SystemOutboundPolicyView-BrB-j6Uu.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemOutboundPolicyView-BrB-j6Uu.js",
+-      "sha256": "00520172aa252d8f5dc3de8af87310805eb78a0b8dc3b0204745353c76b9fd3f"
++    "web/dist/assets/SystemModelsView-DnX9j_ee.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemModelsView-DnX9j_ee.js",
++      "sha256": "c690cba9e6a0fe20720136e93ac1025dbd36acaeb84d5401c2bbdae23a4bd9b1"
++    },
++    "web/dist/assets/SystemOutboundPolicyView-DJf4zBnk.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemOutboundPolicyView-DJf4zBnk.js",
++      "sha256": "c01ee892eb810041afd5153f2c3b7076a7d2492036a735517ba8edf53ace9ce2"
+     },
+     "web/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css",
+       "sha256": "19d8278ceeaa3ceffd43362ac75240f8aa1514a2da4bc131270cfd6225f778b3"
+     },
+-    "web/dist/assets/SystemProvidersView-B6gtPkHz.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemProvidersView-B6gtPkHz.js",
+-      "sha256": "9b96f231eb7a6551d57ad273bcc4ee3a33ce59b2e59a00ca76602d1b4e90ce97"
++    "web/dist/assets/SystemProvidersView-CBj6ci51.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemProvidersView-CBj6ci51.js",
++      "sha256": "95bd7320b19688fcdfd2205979947b9a64e79b57585fb896bcafd4bdff547642"
+     },
+     "web/dist/assets/SystemProvidersView-elJ_-cRG.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemProvidersView-elJ_-cRG.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemProvidersView-elJ_-cRG.css",
+       "sha256": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c"
+     },
+-    "web/dist/assets/SystemSMTPSettingsView-CPtVuhJ-.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemSMTPSettingsView-CPtVuhJ-.js",
+-      "sha256": "a8591d8fc3699744e8a2905bd9c89166ff0336b4c7239d3389874ce610d8386a"
++    "web/dist/assets/SystemSMTPSettingsView-Cj1sSq79.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSMTPSettingsView-Cj1sSq79.js",
++      "sha256": "e39a88adcca517c36eccb566f3ec90110c85d378a98b382a9dad3bc8ecfbdcb7"
+     },
+     "web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css",
+       "sha256": "c29e8ce53af05f7e736565081e3e4e6cf4bb61e3cdabd73d5e7911842dddc531"
+     },
+-    "web/dist/assets/SystemSettingsView-D9YYyGMe.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemSettingsView-D9YYyGMe.js",
+-      "sha256": "0c0b3d79f3d87f7eac60919dc177064ed936f383ab4d30b453fe122e07f66f5c"
+-    },
+     "web/dist/assets/SystemSettingsView-DderE2fs.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemSettingsView-DderE2fs.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSettingsView-DderE2fs.css",
+       "sha256": "b795a799a3cc0a265606aa4973d37008260b99a9a763ecbab73821afd3531c3e"
+     },
++    "web/dist/assets/SystemSettingsView-VFXPyx7Q.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemSettingsView-VFXPyx7Q.js",
++      "sha256": "627ad5df41d44e1123e15571f08f568fd833c344bfadbac6ea4ed3be3e5b5abd"
++    },
+     "web/dist/assets/SystemUsersView-B41TxT1D.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemUsersView-B41TxT1D.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemUsersView-B41TxT1D.css",
+       "sha256": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3"
+     },
+-    "web/dist/assets/SystemUsersView-BB8jnvRJ.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/SystemUsersView-BB8jnvRJ.js",
+-      "sha256": "a8902176693d4714978a362a547969b875a1c4bc23e91ec52819e00fc3d6ad15"
++    "web/dist/assets/SystemUsersView-BI9QU23D.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/SystemUsersView-BI9QU23D.js",
++      "sha256": "81cae9953191145f5f71baac914fb83cd6832a61f3ef171497ec8a62e84211b1"
+     },
+     "web/dist/assets/UiButton-Cwqvp0EG.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/UiButton-Cwqvp0EG.js",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/UiButton-Cwqvp0EG.js",
+       "sha256": "ee1915fd6cb786f3b136edcb4ddc408a8957b08023af74010264189dabf78236"
+     },
+-    "web/dist/assets/UiCheckbox-D45QWTwd.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/UiCheckbox-D45QWTwd.js",
+-      "sha256": "450eab8b1781971c145e200a3f796688102df3e7f4bca698e553736a296dc389"
+-    },
+-    "web/dist/assets/UiSelect-yeOGH4ir.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/UiSelect-yeOGH4ir.js",
+-      "sha256": "966a18c564297b6538aec4531d68599978e14b8f8e4595d3f078d891f6f42aa4"
++    "web/dist/assets/UiCheckbox-CHF0V48Z.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/UiCheckbox-CHF0V48Z.js",
++      "sha256": "3225a9b23b32a27ce6121e0a0ee412a2f9e82cee1940b7bbe09bf404a57e7841"
++    },
++    "web/dist/assets/UiSelect-DjmN3rC5.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/UiSelect-DjmN3rC5.js",
++      "sha256": "f61ddc0350d9f6c9b40f3bc49cb9a1fc30a968a1bd05c02153c236842331c1fd"
++    },
++    "web/dist/assets/index-BIm3SWDo.js": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/index-BIm3SWDo.js",
++      "sha256": "3a51debff7328c0676915c045b5ba304b2f6a73233b7def3f47defe203947611"
+     },
+     "web/dist/assets/index-BcO4xeOJ.css": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/index-BcO4xeOJ.css",
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/assets/index-BcO4xeOJ.css",
+       "sha256": "5b5fbe63615b2238d8da9ac9df12964271f9477fa75d2135e3438a52aacdc8aa"
+     },
+-    "web/dist/assets/index-Q11RePrp.js": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/assets/index-Q11RePrp.js",
+-      "sha256": "a736d25cde849264478857f913e6af5bd4315330a339d7ca275ca2ee4037335a"
+-    },
+     "web/dist/index.html": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/artifacts/web/dist/index.html",
+-      "sha256": "bdd2278f67d8c08b42493c9ef42c05532fb94d1ee6f7fb89fdf45a24040dcd32"
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/artifacts/web/dist/index.html",
++      "sha256": "8c7abc0a139fd045847b47d6ef1f3323aa0b8a8446f20bd9c92c647fe9424d3e"
+     }
+   },
+   "driver_origin": {
+@@ -6134,11 +6134,11 @@
+     "web/src/tests/system-smtp-settings.spec.ts": "73abaa8c418a43e87cc2822baa0e16e4bffd53a61ce51e844e97e857e500aef5",
+     "web/src/tests/system-user-directory.spec.ts": "c1a63db8c01f7001f2f544e0d6dced4d65c3e6bbbd5fa1d5531d0e7cfe0feae4",
+     "web/src/views/system/SystemAuditFilters.vue": "1808936872ed7936adb43d6e9f6d317b87d51067c234f36670e7294679903d7d",
+-    "web/src/views/system/SystemAuditView.vue": "8ff5dc65401c6a894ee275b81bbc607a97ec5333bccd94b2f021a9bf1dbd9aef",
++    "web/src/views/system/SystemAuditView.vue": "f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba",
+     "web/src/views/system/SystemSettingsView.vue": "24bd26fbde890d08d300b52b93ef7c4c5081bcf78dbf4acb4808b8fecd2a2883"
+   },
+   "front_base": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+-  "frozen_at_utc": "2026-10-07T02:57:00.217696+00:00",
++  "frozen_at_utc": "2026-10-07T03:05:59.675446+00:00",
+   "groups": {
+     "authority": [
+       "TestIndependentAuditCancelAuthorityFreshInstance"
+@@ -6170,7 +6170,7 @@
+     "path": "/workspace/scratch/agenteam-audit-ui-independent-plan-gf1bc662/real-focus02.md",
+     "sha256": "091e4c4956336850693e04c8d7bb6e1f86a2dfc5591080c4821148962a07cc80"
+   },
+-  "independent_rebound_utc": "2026-10-07T03:00:02.826477+00:00",
++  "independent_rebound_utc": "2026-10-07T03:15:38.201774+00:00",
+   "original_authority01": {
+     "cleanup.json": {
+       "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority01/cleanup.json",
+@@ -6243,6 +6243,24 @@
+       "sha256": "960e38979e5be27c5e8b08fa54498d7689757a5799a0b09e3ed479922f8d984d"
+     }
+   },
++  "original_navigation03": {
++    "cleanup.json": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation03/cleanup.json",
++      "sha256": "8a2b3cd601462fec477f8070bba0509211642ab7080c1b7ca9d2b6d6bbddd5eb"
++    },
++    "command.json": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation03/command.json",
++      "sha256": "de81918f71cfcef66d385612a7b76bd62b2b3929a0997284ab4f399e987b5267"
++    },
++    "raw.log": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation03/raw.log",
++      "sha256": "2183c803ab843fbc10f7bbc3c9106e18684b6b0a217e0cf1499fb07be41c339f"
++    },
++    "result.json": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation03/result.json",
++      "sha256": "4284142e0bd043bd2ac0cddc5f40342868578a35caf4e08942b792649bfecaa0"
++    }
++  },
+   "original_read01": {
+     "cleanup.json": {
+       "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/cleanup.json",
+@@ -6280,16 +6298,17 @@
+     }
+   },
+   "previous_independent_execution": {
+-    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution01.json",
+-    "sha256": "a8ba35af13cde76863a7962a7e38e882f90e6d1ea34ecb0be60803ce38422fa8"
++    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution02.json",
++    "sha256": "f1494561f60eae922651004b494b9489e35ddcdd96704a268b2342254f1ce5ac"
+   },
+   "previous_manifest": {
+-    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input06/manifest.json",
+-    "sha256": "420e50093fba526c37607b8c2fe4bbabf6cc91bf12dc6c62686e0a9dc1f953c8"
++    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input07/manifest.json",
++    "sha256": "e62a3e5e0efa15bb7e89430bc7e63b5bb800f186d80866669290bbf32517d726"
+   },
+   "private_files": {
+     "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/binding02.json": "1ae49694a8183c91a6a847586762c142dbf2c155a23d812f0e8ff9913427ed16",
+     "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/binding03.json": "29d58ce7dc4033ba426234958d49f63f864ae3f168ddb3376501293d4c568f28",
++    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/binding04.json": "40cc397d6b78904bc3de7068e59151ff99785c17b3d3b47a5bbead99bf7dfd91",
+     "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.config.mjs": "c9a00e43358b8efdca9e677af87077a91d1abd02d5bb684acf3c8a049d7cdc26",
+     "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.spec.ts": "683d1bc90f9f0a0596e073a07dfecdc7133d0ab7671c7527328224784cfc421d",
+     "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/tsconfig.json": "36aa42744069dbc2ff7e0e34b9e6167fca1baf7ed7d8e440a79397222cb8c566",
+@@ -36874,15 +36893,15 @@
+       "sha256": "1808936872ed7936adb43d6e9f6d317b87d51067c234f36670e7294679903d7d"
+     },
+     "web/src/views/system/SystemAuditView.vue": {
+-      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/source/web/src/views/system/SystemAuditView.vue",
+-      "sha256": "8ff5dc65401c6a894ee275b81bbc607a97ec5333bccd94b2f021a9bf1dbd9aef"
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/source/web/src/views/system/SystemAuditView.vue",
++      "sha256": "f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba"
+     },
+     "web/src/views/system/SystemSettingsView.vue": {
+       "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/views/system/SystemSettingsView.vue",
+       "sha256": "24bd26fbde890d08d300b52b93ef7c4c5081bcf78dbf4acb4808b8fecd2a2883"
+     }
+   },
+-  "stage": "Independent Audit A/B execution02: author input07 caption padding repair plus harness07 safe diagnostics; private bodies unchanged",
++  "stage": "Independent Audit final execution03: author input08 desktop detail-column repair, private bodies/Go/driver unchanged; separate real grant required",
+   "stages": {
+     "ABC": {
+       "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/manifest.json",
+@@ -36891,6 +36910,10 @@
+     "C02": {
+       "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage02/manifest.json",
+       "sha256": "76e3faa7c95b9d400694349182ade95873beb713ed7fe120e9972b0c5ac5fb3e"
++    },
++    "C03": {
++      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage03/manifest.json",
++      "sha256": "eb42d65e4d848182ebae9545691c61d3c7dc52ec7c7bd4a894e2c858fc8012fa"
+     },
+     "D02": {
+       "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage02/manifest.json",

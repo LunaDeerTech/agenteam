@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit.spec.ts -t Audit visible
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+
+ Test Files  1 passed (1)
+      Tests  12 passed | 8 skipped (20)
+   Start at  00:21:11
+   Duration  2.32s (transform 816ms, setup 0ms, import 939ms, tests 928ms, environment 344ms)
+

@@ -1,0 +1,12 @@
+from pathlib import Path
+import subprocess,sys
+R=Path(__file__).resolve().parent
+for rel in ["browser/independent.spec.ts","browser/independent.config.mjs","source/independent_test.go","source/fixture02.go"]:
+ (R/rel).write_bytes((R/"preformat01"/rel).read_bytes())
+commands=[
+ ["/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node","/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs","--config",str(R/"format-config01.json"),"--write",str(R/"browser/independent.spec.ts"),str(R/"browser/independent.config.mjs")],
+ ["/workspace/toolchains/go1.27.1/bin/gofmt","-w",str(R/"source/independent_test.go"),str(R/"source/fixture02.go")],
+]
+for argv in commands:
+ result=subprocess.run(argv,cwd=R)
+ if result.returncode:sys.exit(result.returncode)

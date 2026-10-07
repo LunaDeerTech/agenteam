@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-audit-page-independent-q5uly54i/vitest.config.mts",
+    "--maxWorkers=1",
+    "--no-file-parallelism"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-page-independent-q5uly54i",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-x0l2_zu5",
+    "GOTMPDIR": "/tmp/agt-audit-offline-x0l2_zu5",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "AGENTEAM_DEV_API_TARGET": ""
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "27551a48d289a63b10f79227f113fec71ec081d3cb9c9e1f55d9c618dfacf8ff",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 393161,
+  "actual_exit": 0,
+  "seconds": 2.649925825000537,
+  "timeout": false
+}

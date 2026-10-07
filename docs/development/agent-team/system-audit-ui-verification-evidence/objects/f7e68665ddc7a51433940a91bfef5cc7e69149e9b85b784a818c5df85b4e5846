@@ -1,0 +1,54 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit-client.spec.ts src/tests/system-audit-metadata.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+ ❯ src/tests/system-audit-client.spec.ts (42 tests | 2 failed) 89ms
+     × requires a full page for a bounded safe cursor and distinguishes null from missing 3ms
+     × joins actual oversize cancellation before settling and releasing the native lock 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-audit-client.spec.ts > complete page validation > requires a full page for a bounded safe cursor and distinguishes null from missing
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/tests/system-audit-client.spec.ts:97:133
+     95|  })
+     96|  it('requires a full page for a bounded safe cursor and distinguishes …
+     97|   for(const cursor of ['', 'x'.repeat(8193),'é','x%2F','x/y',42,undefi…
+       |                                                                                                                                     ^
+     98|   expect(()=>parseSystemAuditPage(page([],'next'),1)).toThrow('invalid…
+     99|   expect(()=>parseSystemAuditPage(page([row()],'next'),2)).toThrow('in…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/tests/system-audit-client.spec.ts > Audit-only 1MiB native response budget > joins actual oversize cancellation before settling and releasing the native lock
+AssertionError: expected 'cancelled' to be 'invalid-response' // Object.is equality
+
+Expected: "invalid-response"
+Received: "cancelled"
+
+ ❯ src/tests/system-audit-client.spec.ts:129:96
+    127|    await Promise.race([entered.promise,new Promise<never>((_,reject)=>…
+    128|    await flushPromises();expect(settled).toBe(false);expect(parser).no…
+    129|   } finally {if(timer)clearTimeout(timer);joined.resolve();abort.abort…
+       |                                                                                                ^
+    130|  })
+    131|  it('leaves Problem and ordinary GET at 600000 while Provider list rem…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 178 passed (180)
+   Start at  23:30:07
+   Duration  988ms (transform 261ms, setup 0ms, import 417ms, tests 126ms, environment 958ms)
+

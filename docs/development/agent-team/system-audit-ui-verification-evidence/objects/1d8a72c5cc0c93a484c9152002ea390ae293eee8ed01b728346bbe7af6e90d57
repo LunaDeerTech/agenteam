@@ -1,0 +1,30 @@
+{
+  "images": [
+    {
+      "actually_viewed": true,
+      "height": 900,
+      "observations": "Seven table columns and the details action are visible in the captured portion. Long codes and IDs wrap. No outer horizontal overflow or confirmation overlay is visible.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation03/images/audit-light-1440.png",
+      "sha256": "d84e1cfbcb11206c48a430ce85c63793b22b94dda9cf402fdad33a6fc25bb056",
+      "width": 1440
+    },
+    {
+      "actually_viewed": true,
+      "height": 900,
+      "observations": "Seven table columns and the details action are visible in the captured portion. Long codes and IDs wrap. No outer horizontal overflow or confirmation overlay is visible. At 1024px the details label wraps within its button.",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/navigation03/images/audit-light-1024.png",
+      "sha256": "63ff0f9a5e0c12448ea5b8d200db275408cc54a563b257848f9de4c5e166cb9a",
+      "width": 1024
+    }
+  ],
+  "limits": [
+    "Each image is a scrolled partial 900px viewport, not a whole-page capture. The upper filters/header and other offscreen content are not covered.",
+    "These are light1440/light1024 captures made before the 768px failure; neither is the failure scene.",
+    "The other six planned screenshots were not generated. No new screenshots or resources were created for this review.",
+    "Main-thread visual review is not asserted. Original raw/result/cleanup and all source/dist inputs are unchanged."
+  ],
+  "recorded_at_utc": "2026-10-07T03:03:02.409407+00:00",
+  "result": "FAIL; this is only a review of two already-produced partial screenshots",
+  "reviewer": "/root/directory_frontend",
+  "run": "navigation03"
+}

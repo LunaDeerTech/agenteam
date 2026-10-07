@@ -1,0 +1,16 @@
+# Audit UI C 独立阶段结论
+
+**PASS（有界静审与离线 App 两组合）。** 固定作者 `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01`，manifest `44e7b61bb61e53878ecdb8469d69e749d28021380ede640e1fbc08cd4675aae0`；31 源、114 依赖、40 dist 逐 SHA 匹配，A/B 的 8 源逐字未变并复用已接受证据。候选精确清单在原 manifest 及本目录 `verification-report.json`，未读取活动 D 源。
+
+C 仅增加 Audit 路由、精确 safe return、审计菜单组及两个本地 View；原 App、共享 UI、旧业务 controller 与认证 guard 逻辑不变。九个旧纯测试和八个旧 browser 适配仅更改已授权的菜单计数/集合、Audit 精确返回路径与描述，未删旧业务、焦点或取消断言。完整结构化字段以文本渲染；inline 详情不引入新 Dialog，焦点使用当前实例、身份与本地代次门禁。
+
+独立 `app01` **2/2 PASS，actual exit 0 / 2.649925825s**，45s 外层限时未触发。执行真实 App、生产 route records/认证 guard、11 个真实 API factory，只替换可控 Fetch；正式 DTO/挂载 helper 复用作者冻结脚手架，两测试体独立编写。构造观察器原参数调用原函数并返回同一实例。
+
+- A：筛选草稿与 applied 分离；无 EOF 的 inline 详情不半发布；返回列表的 native cancel 真实尾部、busy pageshow 不恢复；本页 leave 先取消、后继 guard 拒绝仍保留 applied 与稳定 error，仅显式刷新恢复；旧实例卸载、新实例等待旧尾部实际结束后仅一次默认 limit=50 读取。三次 cancel Promise 均实际释放、reader 解锁，旧标题没有迟到 focus，零写/零 Dialog。
+- B：idle pageshow 的 pending Session/503 使旧实例永久退出并清草稿；同完整 user/session/epoch 恢复后新实例全空/默认50且仅一次读取。当前403清旧草稿后，公开导航的 Session guard 在旧 Audit 路径上合法创建新实例并发一次默认 GET；安全 stdout 精确记录该顺序。这个临时 GET 的403 body/cancel被真实屏障持有，home导航已完成但 owner 仍 busy，实际 release 后解锁，身份未被迟到403污染，无后续读写或 Dialog。
+
+原始 argv/cwd/监督事实见 `runs/app01/command.json`（SHA `c640cac14c41024ab12bc0cbf26c9867e11fdc2629f15c111ae7038d49a1b8e1`）。2 个 owned PID/starttime 两次扫描均空，0 adopted，child 实际 wait，TMP 已删除；2425 个受控文件前后指纹相同。raw `52abcbffd4338da4e2ddff418ebd0cfa89d8d4609b797484f91ef0769b281a30`；result `9900dc7613a3868a4f4802a73b25534b8e63575d25e8bf0779f7d7be6af3129e`；cleanup `cd8b63953abd6fe29ed9e6bf5d28765a105f8c76963634022cc74877f2aafd75`。执行输入 `execution01.json` SHA `27551a48d289a63b10f79227f113fec71ec081d3cb9c9e1f55d9c618dfacf8ff`；独立 probe SHA `ad9a975038328dcae6fe06a08d067d1fe32df188a1f60d2a2e14843d10dceb1e`。
+
+作者 page-app01/03 的真实退出1保留。01 没有现场 trace，不补填唯一动态因果；03 才记录 checking→current/admin→默认 GET。02 的 console.info 没有进入原 raw，04 才提供新实例/取消尾部增强事实。原旧 browser 类型检查缺 Node types 的 exit2 另列，后续 type/list 通过不算真实 browser。作者完整1763项通过仅按其固定原件引用，不由本轮重跑。
+
+限制：jsdom 的 getClientRects 前提只验证本地 focus 调用与代次防护，不证明原生 Tab、指针、布局、BFCache 或视觉。未启动 HTTP、PG、browser、Docker、监听或任何业务资源；未改产品、主树、Git。C 阶段可接受，整卡真实验收仍待后续授权。

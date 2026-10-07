@@ -1,0 +1,38 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "/usr/bin/python3",
+    "driver01.py",
+    "--name",
+    "authority03",
+    "--group",
+    "authority",
+    "--frozen",
+    "input05/manifest.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "child_pid": 561357,
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot",
+  "duration_seconds": 1.026,
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T02:35:38.456071+00:00",
+  "input_after_sha256": "48474f1be6ccab53f7b304c8d67a8632b424cdeee11d1768fc068bdcb06a029b",
+  "input_before_sha256": "48474f1be6ccab53f7b304c8d67a8632b424cdeee11d1768fc068bdcb06a029b",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "570fb1eedcc428bd7da84c9ae7577b58c85edfe512a1c578411106f2723dd4e6",
+  "readonly_dependencies_unchanged": true,
+  "resource_execution": false,
+  "runner_sha256": "bfd84522ff8aaef55a1ee79ca8b90209a6e287be5fb19e75d8528133b0e7fe61",
+  "started_at_utc": "2026-10-07T02:35:37.430159+00:00",
+  "timed_out": false
+}

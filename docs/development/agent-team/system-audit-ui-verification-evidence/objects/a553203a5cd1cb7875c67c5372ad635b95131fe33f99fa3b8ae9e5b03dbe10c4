@@ -1,0 +1,14 @@
+--- input07/web/src/views/system/SystemAuditView.vue
++++ web-stage03/web/src/views/system/SystemAuditView.vue
+@@ -410,6 +410,11 @@
+   grid-template-columns: minmax(130px, 1fr) minmax(0, 3fr);
+   gap: 12px 20px;
+ }
++@media (min-width: 761px) {
++  thead th:last-child {
++    width: 120px;
++  }
++}
+ @media (max-width: 760px) {
+   table,
+   tbody,

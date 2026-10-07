@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit-state.spec.ts -t cannot enter while|blocks all ten domains|leaves pending
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+
+ Test Files  1 passed (1)
+      Tests  14 passed | 32 skipped (46)
+   Start at  00:00:13
+   Duration  995ms (transform 309ms, setup 0ms, import 409ms, tests 61ms, environment 390ms)
+

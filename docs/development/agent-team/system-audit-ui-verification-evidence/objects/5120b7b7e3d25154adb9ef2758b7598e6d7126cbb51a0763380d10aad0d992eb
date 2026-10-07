@@ -1,0 +1,9 @@
+# System Audit harness stage04
+
+Only six added lines in the new Go fixture's snapshot summary switch: the three formal Master-key rotation start/complete/failed summaries. All accepted ABC31 sources, the other three harness files including the complete DTO assertion and bounded diagnostic, and all 40 dist files remain exact.
+
+The fixed b124650 HTTP summary function, Action constants, AccountAction and ModelAction predicate bodies were extracted into a standalone Go-only oracle. The candidate and prior fixture switch bodies were also copied exactly. The only mechanical formal-source adjustment is removal of its package qualifier; declared Action string values are unchanged. All 37 accepted System Audit output actions match the formal summary after the fix. The prior fixture differs only for the three rotation actions. This is a pure mapping comparison, not a claim that either original failing row had a particular action. Sources, transformations and full public vectors are preserved under summary-oracle04.
+
+Actual oracle exit0/0.459s and affected gofmt/race compilation/exact three-Go-top discovery exit0/8.745s completed with original command/raw/result, actual waits, unchanged inputs and PID double cleanup. Browser type/list from unchanged stage03, other earlier checks and the five fixed dynamic-build dependencies remain reusable. No server, browser, database or Docker ran in this preparation.
+
+read01's missing dynamic-build target and Boolean-only DTO mismatch are retained. read02 crossed that target and recorded only two summary string differences, then exited1/58.180s with full actual wait and double cleanup. Their raw logs, original inputs and limitations remain unchanged. read03 still requires a separate resource-window grant.

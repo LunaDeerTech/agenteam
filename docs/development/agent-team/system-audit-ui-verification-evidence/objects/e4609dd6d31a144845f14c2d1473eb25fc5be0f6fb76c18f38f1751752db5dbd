@@ -1,0 +1,144 @@
+{
+  "adopted_waits": 0,
+  "binary": {
+    "bytes": 48393108,
+    "deleted_after_discovery": true,
+    "exact_discovered": [
+      "TestAccountSystemAuditWebReadAndFilters",
+      "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "TestAccountSystemAuditWebNavigationAndLayouts"
+    ],
+    "path": "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/account.test",
+    "sha256": "eb40519c5eb839dafe7dcf172f6f714f7fe94f159639ed1440d93f72ff461a01",
+    "test_bodies_executed": false
+  },
+  "central_runner_builds_executed": false,
+  "checks": [
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-race",
+        "-deps",
+        "-test",
+        "-tags=integration",
+        "-json=Dir,ImportPath,Module,Error,DepsErrors,GoFiles,CgoFiles,CFiles,CXXFiles,MFiles,HFiles,FFiles,SFiles,SwigFiles,SwigCXXFiles,SysoFiles,EmbedFiles,TestGoFiles,XTestGoFiles,TestEmbedFiles,XTestEmbedFiles",
+        "./tests/account"
+      ],
+      "double_cleanup": true,
+      "evidence": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "12212399e8121ef306fe1b2d3a14739a68988209bd03207e1cd60e9ffab257f8",
+        "command.json": "4a76314e460f555104749b04366f1736e749a2fe72b6e5b17e9bc44e34ea67fb",
+        "input-after.json": "2370bd3b92ac7724b3e9cf8bbe4cbcb592f506b1a42fb39fb29aeeff6100aa72",
+        "input-before.json": "2370bd3b92ac7724b3e9cf8bbe4cbcb592f506b1a42fb39fb29aeeff6100aa72",
+        "observed-processes.json": "bafa1fd09e33f880eed620888cfd67304a875663c0c7bec9d69a039b7ef2b10a",
+        "raw.log": "08b4a9f3b35b812808cafc95e95c95153148c594bece14885e2ea7fa730cb814",
+        "result.json": "b86da85c7f2811ea9267e50c524dfcae821131ffa42dbc1935bb52fd419c6a08"
+      },
+      "exit": 0,
+      "input_unchanged": true,
+      "name": "graph01",
+      "observed_pids": 1,
+      "seconds": 0.114
+    },
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-vet=off",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/account.test",
+        "./tests/account"
+      ],
+      "double_cleanup": true,
+      "evidence": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "1cd759a7fe92141bb505e18b1877244b75b6e427ae1c0210b1e674ca418a96df",
+        "command.json": "7cb5ae40da16149ee2146093f4297a3d1dc19d62214de6db8b7d46f65b4fd4ba",
+        "input-after.json": "1671fea16b7149a8833950c47692b57498de546ead685e6fe1ad698b359c0153",
+        "input-before.json": "1671fea16b7149a8833950c47692b57498de546ead685e6fe1ad698b359c0153",
+        "observed-processes.json": "0e35bb5b90aac0df806016c6bb91973fd9ee7c02074fc4f72ddea0fc819eab23",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "734457060c00bb89756d3e8db169dd75de5de9ab31d61497540d8bfc730644eb"
+      },
+      "exit": 0,
+      "input_unchanged": true,
+      "name": "account-compile01",
+      "observed_pids": 4,
+      "seconds": 6.462
+    },
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/account.test",
+        "-test.list",
+        "^(TestAccountSystemAuditWebReadAndFilters|TestAccountSystemAuditWebAuthorityAndOwnership|TestAccountSystemAuditWebNavigationAndLayouts)$"
+      ],
+      "double_cleanup": true,
+      "evidence": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "1e71e191a2f614b24d4a9b367a32911293bd3f94dfa4f7de06c3c87aee6a7a92",
+        "command.json": "a444c2bb8578fa6d7f70b70a84eb03bf05724de9dab7f254684e8a70ed02f90a",
+        "input-after.json": "1c16229c65d5a3a3e559b8f3d1e13c250edcbbfa051625579f15b0b91062417e",
+        "input-before.json": "1c16229c65d5a3a3e559b8f3d1e13c250edcbbfa051625579f15b0b91062417e",
+        "observed-processes.json": "b9ced20019cc8c329d9a28c4af74e8256e586b08ecb6f1631cc7437cef4ea8a4",
+        "raw.log": "4dbdb53c67d2a65e80215d50843549a74997aeed76817623967d1424e1c7abf6",
+        "result.json": "389a941a1eee9ec2468d6873c0b68914acc3b72dfbb4fbe6e49d9fe8835f7e38"
+      },
+      "exit": 0,
+      "input_unchanged": true,
+      "name": "account-list01",
+      "observed_pids": 1,
+      "seconds": 1.021
+    }
+  ],
+  "conclusion": "PASS: accepted Audit UI main integration compilation compatibility only; not a main dynamic UI rerun",
+  "delivery35_sha256": "ccd05bdf009fcc6693299c5f78f689897fb86e0e00b6ef47f6c17917612d4ad8",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/tmp"
+  },
+  "front_base": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+  "front_non_candidate_count": 149,
+  "front_non_candidates_match": true,
+  "input08_sha256": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17",
+  "input_sha256": "023e84e6ffe469a2c1dc50210e4cc9f8b936a7a0732af336c193b403db04b53e",
+  "inputs_final_match": true,
+  "listeners_or_fixtures_started": false,
+  "main_head": "86a882472bc128cb4607898b839781c483b13b07",
+  "outer_result_sha256": "183ef669cfa58a6f4e4f59cc165c91f467d1dc851eb9fe99f607727d96d9b75d",
+  "owned_pid_starttime_union": 6,
+  "preflight_sha256": "9684f5e3dceea90c37c22c68a73fe7f9345830479833f746926f454afb2c62aa",
+  "readme_read": false,
+  "result_sha256": "760d8208e8a11e56db13658339cb2222d0f308f5a9dfc2c5de0cded89fabf0aa",
+  "runner_sha256": "caf56581c5a7b20f6b780d12a4a303559bdf0d4b8f1e80e48f98656f80bafd48",
+  "runtime13_match": true,
+  "runtime_commit": "9b074f809df4603923faa68d963cb30a5fe4d7eb",
+  "scope_counts": {
+    "external_and_provenance_files": 3501,
+    "go_packages": 393,
+    "local_verified_paths_including_static_ui_and_runtime_files": 805,
+    "modules": 31
+  },
+  "source_writes": false,
+  "test_bodies_executed": false,
+  "tmp_empty": true
+}

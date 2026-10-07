@@ -1,0 +1,7 @@
+# harness-stage05 / input04 窄复核
+
+STATIC PASS。仅 fixture Logout 的 nil body 改 `{}`，新增 application/json。与已核正式 decoder/account.ts 契约一致；原 browser Session/Cookie/CSRF/key、204/EOF/Close/空正文及 DB revoked/唯一 Audit 强断言不变。没有产品差量。
+
+input04 SHA f75c0d0f18a03fbfdfe085f338a98bf6ba931c4f90ba7dcfa8c94897acb57dc5，harness05 manifest c62bb799790bae6b15b4ce5075794b1bac4759ed95bbe939b8da9d02baf23e11，source.diff 32a6a4130aecbd1019b0312268fb4449515fb95e52a6473a4f34f2890f2ffab8；新 fixture 2b6cac6f5c8dd6223d0cbc4247b67e69991e125889fb40d7804a8eb595263b13。与 input03 比较仅1候选改变，其余34源/40dist/dependencies/accepted_baseline/driver均相等。
+
+作者受影响 compile/list 记录实际0/8.473s、actual wait、输入前后同与 owned PID双空；本次只读差量，不新增测试或资源。原 authority01 terminal mismatch 无实际HTTP状态观察的限制与 double_cleanup=false 保持。后续恢复清理是独立事实，不回填原轮；本窄核未读取业务残留。真实Authority复验仍由root另授；独立A/B准备改绑此版，控制协议原字节。

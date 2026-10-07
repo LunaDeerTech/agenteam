@@ -1,0 +1,9 @@
+{"command": {"argv": ["/workspace/toolchains/go1.27.1/bin/gofmt", "-d", "tests/account/system_audit_web_fixture_test.go"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace", "exact_lines": []}}
+{"actual_wait": true, "exit_code": 0, "duration_seconds": 0.012052752001181943, "exact_discovery": true}
+{"command": {"argv": ["/workspace/toolchains/go1.27.1/bin/go", "test", "-c", "-race", "-tags=integration", "-o", "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/audit-account-stage04.test", "./tests/account"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace"}}
+{"actual_wait": true, "exit_code": 0, "duration_seconds": 7.53605440300089, "exact_discovery": true}
+{"command": {"argv": ["/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/audit-account-stage04.test", "-test.list", "^(TestAccountSystemAuditWebReadAndFilters|TestAccountSystemAuditWebAuthorityAndOwnership|TestAccountSystemAuditWebNavigationAndLayouts)$"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account", "exact_lines": ["TestAccountSystemAuditWebReadAndFilters", "TestAccountSystemAuditWebAuthorityAndOwnership", "TestAccountSystemAuditWebNavigationAndLayouts"]}}
+TestAccountSystemAuditWebReadAndFilters
+TestAccountSystemAuditWebAuthorityAndOwnership
+TestAccountSystemAuditWebNavigationAndLayouts
+{"actual_wait": true, "exit_code": 0, "duration_seconds": 1.0152421040002082, "exact_discovery": true}

@@ -1,0 +1,14 @@
+{"case":"A","formalRows":12,"instants":12,"filters":6,"closedSets":[37,13,17,5,53,25,14],"queryCapturedOnce":true,"badFinalRowRejected":true,"wrongDetailRejected":true}
+(node:360905) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ A: formal Go projection, canonical capture and indivisible page (33.456227ms)
+{"case":"B","successBytes":1048576,"bothEndpointsWaitedForEOF":true,"cancellation":[{"mode":"overflow","actualCancelJoined":true,"lockReleased":true,"parserCalls":0},{"mode":"abort","actualCancelJoined":true,"lockReleased":true,"parserCalls":0},{"mode":"wrong-media","actualCancelJoined":true,"lockReleased":true,"parserCalls":0}],"invalidUTF8AndTruncationRejected":true,"problemCapStill600000":true,"networkOrServer":false}
+✔ B: exact 1MiB native streams require EOF and actual cancel join (10.683163ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 184.225581

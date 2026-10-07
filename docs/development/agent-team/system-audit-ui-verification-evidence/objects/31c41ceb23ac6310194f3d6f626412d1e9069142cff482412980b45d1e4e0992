@@ -1,0 +1,74 @@
+{
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input04/manifest.json",
+    "sha256": "f75c0d0f18a03fbfdfe085f338a98bf6ba931c4f90ba7dcfa8c94897acb57dc5"
+  },
+  "fixed_sources": {
+    "db/migrations/00002_audit.sql": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/db/migrations/00002_audit.sql",
+      "sha256": "89afdb623e7293dc83a189ff0cbed3a3a407794d0a2bd0ae26167d7d9517a45c",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:db/migrations/00002_audit.sql"
+    },
+    "db/migrations/00010_account_session_smtp.sql": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/db/migrations/00010_account_session_smtp.sql",
+      "sha256": "5a24fb23d01d706bf0548b8d667dc4754a3e7e558ef6fb104d396763d084a7ed",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:db/migrations/00010_account_session_smtp.sql"
+    },
+    "internal/central/account/logout.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/internal/central/account/logout.go",
+      "sha256": "f1db049b537254dfa044d8dca49873d26061196fa534882fe81c505af753e5a2",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/account/logout.go"
+    },
+    "internal/central/audit/service.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/internal/central/audit/service.go",
+      "sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/service.go"
+    },
+    "internal/central/audit/contract/account.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/internal/central/audit/contract/account.go",
+      "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/account.go"
+    },
+    "internal/central/audit/contract/types.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/internal/central/audit/contract/types.go",
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:internal/central/audit/contract/types.go"
+    },
+    "tests/testsupport/postgres/fixture.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/testsupport/postgres/fixture.go",
+      "sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:tests/testsupport/postgres/fixture.go"
+    },
+    "tests/account/system_invitations_web_fixture_test.go": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account/system_invitations_web_fixture_test.go",
+      "sha256": "18c40b3eb66c4c363ef1321fcdcbb076757e791dfb9b6b57f7b0b41faf9b47c6",
+      "git_ref": "b124650aee095b26191bc181dc8cf5d6e0f977f5:tests/account/system_invitations_web_fixture_test.go"
+    }
+  },
+  "run_evidence": {
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/raw.log",
+      "sha256": "2985dec1da65048066fd52072611b15fae13fa65baff9640c805c95ea409d3fd"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/command.json",
+      "sha256": "d6d088330f1675acdab777ebefbb804459955958b7132dbbb09a1d9a991a7a49"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/result.json",
+      "sha256": "5e35498a01f02c0afee9bb49f61d50b72a3c54c5cbc992165ffd068bc249fe71"
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/authority02/cleanup.json",
+      "sha256": "785525773d147be39d2121db326b9971c15af1a4878184b02a4d86adc29cdff9"
+    }
+  },
+  "candidate_fixture": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage05/source/tests/account/system_audit_web_fixture_test.go",
+    "sha256": "2b6cac6f5c8dd6223d0cbc4247b67e69991e125889fb40d7804a8eb595263b13"
+  },
+  "pgx_default_protocol": {
+    "path": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache/github.com/jackc/pgx/v5@v5.11.0/conn.go",
+    "sha256": "bab6d1f0c4519cf7c2e2d300215b2d8d1cb3748b8139e6d04fbd8545a55b7958"
+  }
+}

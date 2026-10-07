@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "./node_modules/.bin/prettier",
+    "--write",
+    "src/router/index.ts",
+    "src/router/auth.ts",
+    "src/views/system/SystemSettingsView.vue",
+    "src/views/system/SystemAuditView.vue",
+    "src/views/system/SystemAuditFilters.vue",
+    "src/tests/system-audit.spec.ts",
+    "src/tests/system-user-directory.spec.ts",
+    "src/tests/system-invitations.spec.ts",
+    "src/tests/system-providers.spec.ts",
+    "src/tests/system-models.spec.ts",
+    "src/tests/system-model-selection.spec.ts",
+    "src/tests/system-account-security.spec.ts",
+    "src/tests/system-smtp-settings.spec.ts",
+    "src/tests/system-outbound-policy.spec.ts",
+    "src/tests/personal-settings.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web",
+  "env": {
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "resource_execution": false,
+  "runner_sha256": "952c764f9b047bb968d6166d1c1c8a11259c90ff5e5f4ff2d4b2283dd6db2236",
+  "started_at_utc": "2026-10-07T00:22:52.220325+00:00"
+}

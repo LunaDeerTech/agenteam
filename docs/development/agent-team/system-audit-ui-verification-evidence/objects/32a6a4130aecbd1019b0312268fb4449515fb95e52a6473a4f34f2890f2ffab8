@@ -1,0 +1,17 @@
+--- harness-stage04/tests/account/system_audit_web_fixture_test.go
++++ harness-stage05/tests/account/system_audit_web_fixture_test.go
+@@ -437,12 +437,13 @@
+ 		if !ok || session.user != f.admin.UserID || session.cookie == "" {
+ 			f.t.Fatal("exact owned browser Session unavailable")
+ 		}
+-		request, err := http.NewRequestWithContext(ctx, "POST", f.origin+"/api/v1/sessions/logout", nil)
++		request, err := http.NewRequestWithContext(ctx, "POST", f.origin+"/api/v1/sessions/logout", strings.NewReader(`{}`))
+ 		if err != nil {
+ 			f.t.Fatal("owned Logout request invalid")
+ 		}
+ 		request.Header.Set("Cookie", session.cookie)
+ 		request.Header.Set("Origin", f.origin)
++		request.Header.Set("Content-Type", "application/json")
+ 		request.Header.Set("Sec-Fetch-Site", "same-origin")
+ 		request.Header.Set("X-CSRF-Token", session.csrf)
+ 		request.Header.Set("Idempotency-Key", id[struct{}](f.t).String())

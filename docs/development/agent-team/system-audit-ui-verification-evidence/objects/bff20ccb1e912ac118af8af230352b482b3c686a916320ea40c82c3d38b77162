@@ -1,0 +1,50 @@
+{
+  "599449:2357718": {
+    "name": "npm run build",
+    "pgrp": 599449,
+    "pid": 599449,
+    "ppid": 599446,
+    "starttime": "2357718",
+    "state": "S"
+  },
+  "599460:2357727": {
+    "name": "sh",
+    "pgrp": 599449,
+    "pid": 599460,
+    "ppid": 599449,
+    "starttime": "2357727",
+    "state": "S"
+  },
+  "599461:2357727": {
+    "name": "npm run type-ch",
+    "pgrp": 599449,
+    "pid": 599461,
+    "ppid": 599460,
+    "starttime": "2357727",
+    "state": "R"
+  },
+  "599493:2357738": {
+    "name": "sh",
+    "pgrp": 599449,
+    "pid": 599493,
+    "ppid": 599461,
+    "starttime": "2357738",
+    "state": "S"
+  },
+  "599494:2357738": {
+    "name": "MainThread",
+    "pgrp": 599449,
+    "pid": 599494,
+    "ppid": 599493,
+    "starttime": "2357738",
+    "state": "Z"
+  },
+  "599561:2358512": {
+    "name": "MainThread",
+    "pgrp": 599449,
+    "pid": 599561,
+    "ppid": 599460,
+    "starttime": "2358512",
+    "state": "R"
+  }
+}

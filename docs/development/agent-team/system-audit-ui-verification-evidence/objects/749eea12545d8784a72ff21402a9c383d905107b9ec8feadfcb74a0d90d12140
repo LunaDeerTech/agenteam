@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--import",
+    "/workspace/scratch/agenteam-audit-owner-independent-pbczeg66/probe01/loader.mjs",
+    "--test",
+    "--test-concurrency=1",
+    "/workspace/scratch/agenteam-audit-owner-independent-pbczeg66/probe01/owner.spec.mjs"
+  ],
+  "cwd": "/workspace/scratch/agenteam-audit-owner-independent-pbczeg66/workspace/web",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-rbs3nzxq",
+    "GOTMPDIR": "/tmp/agt-audit-offline-rbs3nzxq",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "NODE_ENV": "test"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "03f7a313dfa8d02088dffdcc3152d7f387f78a31637f3a0aeb433e7783e09755",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 378482,
+  "actual_exit": 0,
+  "seconds": 0.2934468970015587,
+  "timeout": false
+}

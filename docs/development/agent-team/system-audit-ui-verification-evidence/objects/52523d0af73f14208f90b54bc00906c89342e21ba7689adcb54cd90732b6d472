@@ -1,0 +1,173 @@
+[
+  {
+    "input": "text/plain",
+    "parsed": true,
+    "canonical": "text/plain",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 210
+  },
+  {
+    "input": "text",
+    "parsed": true,
+    "canonical": "text",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 204
+  },
+  {
+    "input": "text/{json}",
+    "parsed": true,
+    "canonical": "text/{json}",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 211
+  },
+  {
+    "input": "{x}",
+    "parsed": true,
+    "canonical": "{x}",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 203
+  },
+  {
+    "input": "application/x{probe}",
+    "parsed": true,
+    "canonical": "application/x{probe}",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 220
+  },
+  {
+    "input": "text\u0026x/plain",
+    "parsed": true,
+    "canonical": "text\u0026x/plain",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 217
+  },
+  {
+    "input": "text/plain; charset=utf-8",
+    "parsed": true,
+    "canonical": "text/plain; charset=utf-8",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 225
+  },
+  {
+    "input": "text/plain; charset=us-ascii",
+    "parsed": true,
+    "canonical": "text/plain; charset=us-ascii",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 228
+  },
+  {
+    "input": "Text/Plain",
+    "parsed": true,
+    "canonical": "text/plain",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/plain;charset=utf-8",
+    "parsed": true,
+    "canonical": "text/plain; charset=utf-8",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/plain; charset=\"utf-8\"",
+    "parsed": true,
+    "canonical": "text/plain; charset=utf-8",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/plain; charset=UTF-8",
+    "parsed": true,
+    "canonical": "text/plain; charset=UTF-8",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/plain; name=x",
+    "parsed": true,
+    "canonical": "text/plain; name=x",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/plain; charset=latin-1",
+    "parsed": true,
+    "canonical": "text/plain; charset=latin-1",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/",
+    "parsed": false,
+    "canonical": "",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/plain/extra",
+    "parsed": false,
+    "canonical": "",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/plain\n",
+    "parsed": true,
+    "canonical": "text/plain",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  },
+  {
+    "input": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "parsed": true,
+    "canonical": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "typed_accepted": true,
+    "decode_accepted": true,
+    "entry_accepted": true,
+    "canonical_metadata_bytes": 456
+  },
+  {
+    "input": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "parsed": true,
+    "canonical": "text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "typed_accepted": false,
+    "decode_accepted": false,
+    "entry_accepted": false,
+    "canonical_metadata_bytes": 2
+  }
+]

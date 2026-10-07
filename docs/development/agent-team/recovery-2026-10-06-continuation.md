@@ -386,3 +386,13 @@ A01跨字段实际RED保留，A02三行guard／同probeGREEN；错误作者笛�
 原native01裸python3.12与冻3.13不符，test Popen前门禁失败，无原command/raw/cleanup或actualwait；后来marker观察不能回填。两个未消费格式preimage只有hash，无重构，所有实际受测源齐。枚举及第14说明两次检查前提错误、历史非所属Z均保留。701逻辑原件去重481对象、127Git／旧永久证据引用；904固定依赖和3501→3504指纹不复制运行树。
 
 主线受测aa9ea0b＋复制13源，仅graph／两包race编译／精确list五条actual0，622local/3499runtime／396packages/31modules，27PID双清0adopt，两个binary已删而SHA保留；不是后来9b074f8的动态重验。Audit UI当前仅夹具修复未接受，不改其旧记录。Runtime UI／完整D27/D28与D08–D28/E01未完，E01未开始；Summary待决、生产未绑定／ready503及Object/tools／SPA publication三停止不变，不重试／改写／转派。
+
+## 34. System Audit只读UI接受与十三轮分版本证据
+
+主线程已接受三十六路径并提交推送`a0e73bd8fc7fa40e1f424f5817e7b1b3b281def1`、核远端一致；[永久验证报告](system-audit-ui-verification.md)与[精确索引](system-audit-ui-verification-evidence/index.json)绑定前端1ff0442、Audit HTTP b124650及MIME修复fa2d775。工作卡技术不变，旧§1–33和规格历史状态原字节保留。
+
+作者read03/input03、authority03/input05、navigation04与两旧Navigation/input08按未变行为组合通过；独立A/B同轮actual0/76.226s，7精确ID、98所属PID/starttime、8实际adopted wait双清。12作者轮中7次原FAIL保留，两Authority原cleanup=false与recovery01前提失败、后recovery02/03成功分列；不回填原HTTP码/SQLSTATE、原缺失trace或nav01几何数据。nav03原TD index38/76:68是实测，详情列身份来自固定DOM/tag推导，独立原MD/JSON与rev2勘误并存。
+
+早期C完整1763/type/build不代表最终CSS全套重跑；后续仅受影响12PASS/8skip、type/build、native导航和最终两组独立覆盖。26张900px局部图作者实际看14/root看4，不夸整页视觉。主树86a882+35仅graph/racecompile/exact3list actual0，6PID双清，Runtime13/前端149依赖相符；不是a0e73bd8动态重验。README首checker重复selector前提红保留，第二版限定新增段后通过且产品未变。
+
+本档1347逻辑原件、815新对象；36Git路径和40dist指纹可核，不复制依赖树/cache/二进制。两历史format前态、未冻结准备脚本覆盖和tool-only缺原raw边界如实保留。当前Runtime HTTP已接受、Runtime UI仅私有规格整理；完整D08–D28/E01未完、E01未开始、Summary待决、ready503和三停止任务不变，本档不接续或替代停止任务。

@@ -1,0 +1,16 @@
+{
+  "verdict": "STATIC_SQL_PARAMETER_TYPE_PRECONDITION",
+  "input": {
+    "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority02-diagnosis01/input.json",
+    "sha256": "31c41ceb23ac6310194f3d6f626412d1e9069142cff482412980b45d1e4e0992"
+  },
+  "report": {
+    "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority02-diagnosis01/review.md",
+    "sha256": "b4c6f2f0a0cc53cd56724793447ca1c804b50a1bf24fcd66dd13def5a670ca0c"
+  },
+  "actual_sqlstate_recorded": false,
+  "actual_revoked_or_audit_count_recorded": false,
+  "product_defect_proven": false,
+  "reviewer_dynamic_execution": false,
+  "residual_material_read": false
+}

@@ -1,0 +1,77 @@
+import difflib
+import hashlib
+import json
+import shutil
+from datetime import datetime, timezone
+from pathlib import Path
+
+S = Path(__file__).resolve().parent
+W = S / 'workspace'
+old = S / 'harness-stage05'
+out = S / 'harness-stage06'
+assert not out.exists()
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def ref(path):
+    return {'path': str(path), 'sha256': sha(path)}
+
+
+previous = json.loads((old / 'manifest.json').read_text())
+full = json.loads((S / 'input04/manifest.json').read_text())
+source = {path: sha(W / path) for path in previous['source']}
+changed = [path for path in full['files'] if sha(W / path) != full['files'][path]]
+assert changed == ['tests/account/system_audit_web_fixture_test.go']
+assert all(sha(W / path) == value for path, value in full['dist'].items())
+path = changed[0]
+before = (old / 'source' / path).read_text()
+expected = before.replace("metadata->>'session_id'=$1 AND outcome='success'", "metadata->>'session_id'=$1::text AND outcome='success'")
+expected = expected.replace('FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`, r.SessionID', 'FROM agenteam_account.sessions WHERE id=$1::uuid AND user_id=$2`, r.SessionID')
+expected = expected.replace('f.t.Fatal("formal exact Session Logout facts missing")', 'f.t.Fatalf("formal exact Session Logout facts missing: err_present=%t revoked=%t audit_count=%d", err != nil, revoked, audits)')
+assert (W / path).read_text() == expected
+r = S / 'runs/harness-stage06-go'
+result = json.loads((r / 'result.json').read_text())
+assert result['exit_code'] == 0 and result['actual_wait'] and result['owned_processes_double_empty']
+assert result['input_unchanged'] and result['readonly_dependencies_unchanged']
+checks = {'directory': str(r), 'files': {p.name: sha(p) for p in r.iterdir() if p.is_file()}, 'result': result}
+out.mkdir()
+for path in source:
+    target = out / 'source' / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(W / path, target)
+path = changed[0]
+(out / 'source.diff').write_text(''.join(difflib.unified_diff(before.splitlines(True), expected.splitlines(True), fromfile='harness-stage05/' + path, tofile='harness-stage06/' + path)))
+prep = out / 'preparation'
+prep.mkdir()
+for name in ['record_harness01.py', 'harness-stage06-go.py', 'harness-stage06-go.json', 'freeze_harness06.py']:
+    shutil.copyfile(S / name, prep / name)
+(out / 'report.md').write_text('''# System Audit harness stage06
+
+Only the new fixture's Logout fact query and its existing failure message change. The shared Session parameter is explicitly $1::text for JSON text metadata and $1::uuid for sessions.id. The second parameter, every predicate/count/Scan and strict assertion remain unchanged. Failure output adds only err_present, revoked and audit_count; no import/helper, SQL text, IDs, raw errors, headers or private material is added.
+
+authority02 crossed the strict formal 204/EOF/Close/empty-body boundary and failed the original composite database fact assertion. Its original log does not distinguish a query error, revoked state or Audit count and does not record a SQLSTATE. The fixed schema and formal Logout producer establish the text/UUID query mismatch; no actual SQLSTATE is inferred. The original driver exit1 and cleanup=false remain unchanged. Root-approved recovery03 removed only its exact unused Chromium profile residue and empty parent, with metadata-only inspection and two complete post-recovery sweeps; original PID/start and adopted waits were checked and unrelated /proc visibility limits recorded.
+
+The affected gofmt, race compilation and exact Authority top discovery completed successfully with actual wait, unchanged inputs and PID double cleanup; exact timing and raw commands are in the manifest. Other 34 sources, 40 dist files, 943 accepted Git dependencies, 18 tools and the driver are unchanged. Prior unchanged summary/browser/dynamic-build checks are reused. No real fixture or service was launched for this repair. authority03 requires separate resource authorization.
+''')
+formal = {}
+for name in ['db/migrations/00010_account_session_smtp.sql', 'internal/central/account/logout.go', 'internal/central/audit/contract/account.go']:
+    row = full['accepted_baseline']['files'][name]
+    assert sha(W / name) == row['sha256']
+    formal[name] = {'source': ref(W / name), 'fixed_git': row}
+manifest = {'stage': 'D harness-stage06 minimal Logout fact query typing correction',
+    'frozen_at_utc': datetime.now(timezone.utc).isoformat(), 'previous_manifest': ref(old / 'manifest.json'),
+    'source': source, 'source_diff_sha256': sha(out / 'source.diff'), 'report_sha256': sha(out / 'report.md'),
+    'accepted_ABC': previous['accepted_ABC'], 'checks': {'harness-stage06-go': checks},
+    'formal_contract': formal, 'compiled_test_binary': ref(S / 'audit-account-stage06.test'),
+    'unchanged_summary_oracle': previous['unchanged_summary_oracle'],
+    'browser_unchanged_reuse': previous['browser_unchanged_reuse'],
+    'dynamic_builds_unchanged_reuse': previous['dynamic_builds_unchanged_reuse'],
+    'preparation_sources': {p.name: sha(p) for p in prep.iterdir()},
+    'original_authority02': {name: ref(S / 'runs/authority02' / name) for name in ['command.json', 'raw.log', 'result.json', 'cleanup.json']},
+    'recovery03': {name: ref(S / 'recovery03' / name) for name in ['command.json', 'raw.log', 'result.json', 'cleanup.json', 'residue-metadata.json', 'ownership.json']}}
+(out / 'manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'manifest_sha256': sha(out / 'manifest.json'), 'diff_sha256': sha(out / 'source.diff'),
+                  'report_sha256': sha(out / 'report.md'), 'fixture_sha256': source[changed[0]]}, indent=2))

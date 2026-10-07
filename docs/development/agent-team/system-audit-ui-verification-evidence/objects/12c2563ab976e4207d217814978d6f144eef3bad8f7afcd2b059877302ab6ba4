@@ -1,0 +1,78 @@
+import difflib
+import hashlib
+import json
+import shutil
+from datetime import datetime, timezone
+from pathlib import Path
+
+S = Path(__file__).resolve().parent
+W = S / 'workspace'
+old = S / 'harness-stage04'
+out = S / 'harness-stage05'
+assert not out.exists()
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def ref(path):
+    return {'path': str(path), 'sha256': sha(path)}
+
+
+previous = json.loads((old / 'manifest.json').read_text())
+full = json.loads((S / 'input03/manifest.json').read_text())
+source = {path: sha(W / path) for path in previous['source']}
+changed = [path for path in full['files'] if sha(W / path) != full['files'][path]]
+assert changed == ['tests/account/system_audit_web_fixture_test.go']
+assert all(sha(W / path) == value for path, value in full['dist'].items())
+path = changed[0]
+before = (old / 'source' / path).read_text()
+expected = before.replace('f.origin+"/api/v1/sessions/logout", nil)', 'f.origin+"/api/v1/sessions/logout", strings.NewReader(`{}`))')
+expected = expected.replace('request.Header.Set("Cookie", session.cookie)\n\t\trequest.Header.Set("Origin", f.origin)', 'request.Header.Set("Cookie", session.cookie)\n\t\trequest.Header.Set("Origin", f.origin)\n\t\trequest.Header.Set("Content-Type", "application/json")')
+assert (W / path).read_text() == expected
+r = S / 'runs/harness-stage05-go'
+result = json.loads((r / 'result.json').read_text())
+assert result['exit_code'] == 0 and result['actual_wait'] and result['owned_processes_double_empty']
+assert result['input_unchanged'] and result['readonly_dependencies_unchanged']
+checks = {'directory': str(r), 'files': {p.name: sha(p) for p in r.iterdir() if p.is_file()}, 'result': result}
+out.mkdir()
+for path in source:
+    target = out / 'source' / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(W / path, target)
+path = changed[0]
+(out / 'source.diff').write_text(''.join(difflib.unified_diff(before.splitlines(True), expected.splitlines(True), fromfile='harness-stage04/' + path, tofile='harness-stage05/' + path)))
+prep = out / 'preparation'
+prep.mkdir()
+for name in ['record_harness01.py', 'harness-stage05-go.py', 'harness-stage05-go.json', 'freeze_harness05.py']:
+    shutil.copyfile(S / name, prep / name)
+(out / 'report.md').write_text('''# System Audit harness stage05
+
+Only the fixture's exact browser Session Logout request changes: an empty JSON object body and Content-Type application/json. The fixed formal httpLogout handler calls DecodeJSON into struct{} before the Logout command. Original Session/Cookie/CSRF/key and strict 204, read/close, empty-body, revoked-session and single Audit-row assertions remain unchanged. No production source or cleanup behavior changed.
+
+authority01 actually failed its generic Logout terminal assertion. Its HTTP status/code was not retained; this report does not infer an observed 415. Its driver exited1/58.648s and original cleanup stayed false because a private Chromium profile remained. Recovery01 rejected an overly broad whole-host /proc readability prerequisite before deletion. Root-approved recovery02 checked original PID/start absence and six original adopted actual waits, inspected readable same-UID exact-path users, recorded unrelated /proc limitations and filename/size metadata without reading contents, then removed only the owned residue and empty parent. Both new recovery sweeps passed; original authority and recovery01 failures are unchanged.
+
+Affected gofmt, race compilation and exact Authority top discovery completed exit0/8.473s with actual wait, unchanged inputs and PID double cleanup. Other 34 sources, 40 dist files, 943 accepted Git dependencies, 18 tools and the driver remain unchanged. The stage04 summary oracle and unchanged browser checks are reused. No browser/server/database or new fixture was launched for this repair. authority02 requires separate resource authorization.
+''')
+formal_paths = ['internal/central/account/http_auth.go', 'internal/central/httpapi/json.go']
+formal = {}
+for name in formal_paths:
+    row = full['accepted_baseline']['files'][name]
+    assert sha(W / name) == row['sha256']
+    formal[name] = {'source': ref(W / name), 'fixed_git': row}
+manifest = {'stage': 'D harness-stage05 minimal formal Logout JSON request correction',
+    'frozen_at_utc': datetime.now(timezone.utc).isoformat(), 'previous_manifest': ref(old / 'manifest.json'),
+    'source': source, 'source_diff_sha256': sha(out / 'source.diff'), 'report_sha256': sha(out / 'report.md'),
+    'accepted_ABC': previous['accepted_ABC'], 'checks': {'harness-stage05-go': checks},
+    'formal_contract': formal, 'compiled_test_binary': ref(S / 'audit-account-stage05.test'),
+    'unchanged_summary_oracle': previous['checks']['summary-oracle04'],
+    'browser_unchanged_reuse': previous['browser_unchanged_reuse'],
+    'dynamic_builds_unchanged_reuse': previous['dynamic_builds_unchanged_reuse'],
+    'preparation_sources': {p.name: sha(p) for p in prep.iterdir()},
+    'original_authority01': {name: ref(S / 'runs/authority01' / name) for name in ['command.json', 'raw.log', 'result.json', 'cleanup.json']},
+    'recovery01': {name: ref(S / 'recovery01' / name) for name in ['command.json', 'result.json', 'process-before.json', 'source.py.txt']},
+    'recovery02': {name: ref(S / 'recovery02' / name) for name in ['command.json', 'raw.log', 'result.json', 'cleanup.json', 'residue-metadata.json', 'ownership.json']}}
+(out / 'manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'manifest_sha256': sha(out / 'manifest.json'), 'diff_sha256': sha(out / 'source.diff'),
+                  'report_sha256': sha(out / 'report.md'), 'fixture_sha256': source[changed[0]]}, indent=2))

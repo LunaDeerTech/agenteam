@@ -1,0 +1,40 @@
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-invitations.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-invitations", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_INVITATIONS_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-invitations.spec.ts:915:1 › [navigation] dirty navigation, same Session check, dialogs, drawer and eight production layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-providers.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-providers", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_PROVIDERS_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-providers.spec.ts:936:1 › [navigation] App checking cohost, dirty and uncertain transitions, keyboard and responsive layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-models.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-models", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_MODELS_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-models.spec.ts:1319:1 › [navigation] same-session cohost recovery, real focus and eight layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-model-selection.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-model-selection", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_MODEL_SELECTION_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-model-selection.spec.ts:1252:1 › [navigation] five leaves, restored cohost focus and eight real layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-account-security.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-account-security", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_ACCOUNT_SECURITY_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-account-security.spec.ts:744:1 › [navigation] six leaves, one restored inline confirmation and eight responsive layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-smtp-settings.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-smtp-settings", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_SMTP_SETTINGS_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-smtp-settings.spec.ts:869:1 › [navigation] nine leaves, two restored confirmations and eight responsive layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-smtp-delivery.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-smtp-delivery", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_SMTP_DELIVERY_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-smtp-delivery.spec.ts:852:1 › [navigation] active section ownership, two native confirmations and eight layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}
+{"command": {"argv": ["./node_modules/.bin/playwright", "test", "--config", "system-outbound-policy.config.js", "--list"], "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web", "env": {"AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1", "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/offline-list/system-outbound-policy", "AGENTEAM_AUTH_WEB_CHROMIUM": "/not-launched-in-list-only", "AGENTEAM_OUTBOUND_POLICY_WEB_CASE": "navigation"}, "mode": "offline discovery only; no browser, server, socket, credential or fixture execution", "expected_count": 1}}
+Listing tests:
+  system-outbound-policy.spec.ts:828:1 › [navigation] nine leaves, same-identity confirmations, explicit cancellation and eight layouts
+Total: 1 test in 1 file
+{"actual_wait": true, "exit_code": 0, "exact_one_test": true}

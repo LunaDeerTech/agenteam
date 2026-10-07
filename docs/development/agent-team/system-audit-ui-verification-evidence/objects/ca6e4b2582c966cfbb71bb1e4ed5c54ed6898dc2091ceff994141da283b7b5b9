@@ -1,0 +1,11 @@
+import json,subprocess,sys,time
+from pathlib import Path
+plan=json.loads(Path(__file__).with_suffix('.json').read_text())
+for item in plan:
+ print(json.dumps({'command':item}),flush=True)
+ begin=time.monotonic()
+ child=subprocess.run(item['argv'],cwd=item['cwd'],capture_output=True,text=True)
+ print(child.stdout,end='',flush=True);print(child.stderr,end='',file=sys.stderr,flush=True)
+ exact='exact_lines' not in item or child.stdout.splitlines()==item['exact_lines']
+ print(json.dumps({'actual_wait':True,'exit_code':child.returncode,'duration_seconds':time.monotonic()-begin,'exact_discovery':exact}),flush=True)
+ if child.returncode or not exact:sys.exit(1)

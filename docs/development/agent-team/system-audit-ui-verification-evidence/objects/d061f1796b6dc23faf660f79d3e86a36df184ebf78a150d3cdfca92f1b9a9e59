@@ -1,0 +1,10 @@
+{
+  "scope": "private dependency selection script; no resource or tests run",
+  "actual_tool_session": 1837,
+  "reported_exit_code": 1,
+  "reported_error": "RuntimeError: missing fixed package: internal/runner/",
+  "source_sha256": "ae5de317c4f36b9111506e96137ab2c1423fa74271a1a8d881f5489f39e07a50",
+  "phase": "traversal before copy loop",
+  "limitation": "original error exists in tool output; no contemporaneous raw log/result file was recorded. This note does not reconstruct original raw or timestamps.",
+  "next_revision": "lex actual Go import declarations, avoiding quoted test strings"
+}

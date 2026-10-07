@@ -1,0 +1,104 @@
+{
+  "conclusion": "PASS — bounded independent Audit UI API-stage01 only; no product blocker found",
+  "input": {
+    "author_root": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/api-stage01",
+    "manifest_sha256": "b2a2ef591ed81a0fb98031b7c09a8125e04ac6a9d04dc2a403b4d3346a7ed904",
+    "frontend_product_base": "1ff044264a54c948e512db9aafad24ec5e0aa3c2",
+    "formal_contract": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+    "accepted_schema_commit": "fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5",
+    "mime_binding_sha256": "9b6e092506208faae03d72a6d74bdc10e0b02402835371a672003ad7288dfb23"
+  },
+  "delivery5": {
+    "web/src/api/client.ts": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3",
+    "web/src/api/system-audit-metadata.ts": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630",
+    "web/src/api/system-audit.ts": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+    "web/src/tests/system-audit-client.spec.ts": "52a8200c89ed6e7e91559aea19ade4024ab5265bb34b05ff0cd61b62a52c8a83",
+    "web/src/tests/system-audit-metadata.spec.ts": "c0ea3b9b581354310262e3b8a6a63b57a5037ac4da5d50a4fd18d9b4b556ec7f"
+  },
+  "static": [
+    "Complete three product sources and five-path delta reviewed; only two closed Audit GET endpoint capabilities and their separate success 1MiB budget were added. Existing read/cancel implementation and non-Audit budgets remain unchanged.",
+    "Fourteen filter capture/canonicalization, fixed endpoint/options closure, 53/25 legal filter values and 37/13/17/5 output domains agree with accepted contract and schema. No CSRF/key/body or arbitrary endpoint is introduced.",
+    "Typed metadata, field closure, actor/resource/outcome associations, Go JSON byte count, canonical integer strings, immutable all-or-nothing pages/order/uniqueness and detail target equality reviewed; representative formal parity actually executed below.",
+    "fa2d775 append-only MIME binding closes the original pending-schema dependency; original A five source hashes and 24 non-schema references unchanged."
+  ],
+  "independent_runs": {
+    "oracle01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 2.544462457000918,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 5,
+      "adopted_wait_count": 0,
+      "raw_sha256": "78e7981efbb18731b3dfabc6311429573588f9841d6ef5a71501427d2b523e4d",
+      "cleanup_sha256": "ce09e0ad9521fc36c5525188ac2c81403dd13def211de1fa33625c6d8a1cddaf",
+      "coverage": "Formal constructors/wire:12 records,12 Instants,6 Filters; race/count1/top exact, outer45s."
+    },
+    "node01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 0.21766412100078014,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 2,
+      "adopted_wait_count": 0,
+      "raw_sha256": "851d082966dbbc2377fd0aa6568795c3184f0bcc1a67f21ce4ab89aeee66d0cd",
+      "cleanup_sha256": "a36dfabe81691110740fcdc503c2e30e4d2f4f802d612ca00237019c011f2ee4",
+      "coverage": "Two risk combinations PASS. Formal parity/closed sets/capture once/all-or-nothing page; both success endpoints exact1048576B awaitEOF; overflow/abort/wrong-media actual held cancel join; malformed UTF8/truncatedJSON; Problem600000B cap."
+    }
+  },
+  "retained_history": [
+    "Author api-pure01 actual1:178PASS/2 premise failures (undefined cursor converted by helper default; cleanup abort preceded cancel join); original source/raw remain. Test correction then api-pure02 affected5PASS and final api-pure03 180PASS. Product semantic bytes unchanged through premise correction, subsequently all five files formatted, so original/final product SHA is not claimed identical.",
+    "Author full type inventory verified at freeze, not represented as an original per-command full-inventory before/after sweep.",
+    "Independent read-only metadata inspection attempted slicing a dictionary and exited1; preparation-note02 retains the premise error, no test or resource started. Actual independent Go and Node runs have no failed test."
+  ],
+  "limits": [
+    "Stage A only. No owner/singleton/identity/page/router/native browser or actual HTTP/PG/producer service validation.",
+    "Go oracle runs real accepted DecodeMetadata/NewEntry and production wire encoder, twelve representative records (seven legal/five rejected), twelve Instants and six Filter captures; it is not an independent rerun of every author constructor vector.",
+    "Native Response/ReadableStream proof is controlled in-process JavaScript, not TCP. Exact 1MiB bodies are valid DTO JSON padded with legal whitespace; no claim that formal HTTP encoding naturally produces this maximum.",
+    "Thirty-two KiB query and four-KiB metadata ceilings remain defenses; this probe does not claim a formally reachable maximal producer metadata/page sample.",
+    "Original independent MIME full nine-field/ECMAScript evidence is reused; this stage only binds two legal unusual MIME values. Owner actual-tail guarantees remain a later stage."
+  ],
+  "resources": {
+    "services": false,
+    "network": false,
+    "browser": false,
+    "docker": false,
+    "listener": false,
+    "product_or_main_mutation": false,
+    "git_mutation": false
+  },
+  "references_relative_to_this_root": {
+    "inputs01.json": "2398787772ef70fccfa1c040e9a0363dd5fcb3564c92d956b9270ac70d8411f5",
+    "input/api-stage01/manifest.json": "b2a2ef591ed81a0fb98031b7c09a8125e04ac6a9d04dc2a403b4d3346a7ed904",
+    "input/api-stage01/source.diff": "efca001a8d1e18ed0a17287e900189d0db62d8cb4153388ab672f2914e87ed8c",
+    "input/api-stage01-mime-binding01/binding.json": "9b6e092506208faae03d72a6d74bdc10e0b02402835371a672003ad7288dfb23",
+    "probe01/oracle_test.go": "47ddaca7411a2850610e1eaf1939b27aa74c21277f03c86d60eb65be81cbd14a",
+    "probe01/api.spec.mjs": "5d198fd8bb754f5b0387c78c70cd92cde2e63a4eb6d05ec044fe462859f0e7a2",
+    "probe01/loader.mjs": "edfe45e33878a1fb93784f2fd7b2b197660d82b153967ae0703165be9ecc8cbe",
+    "overlay01.json": "0c8cdd8d7ed0a6ec41c54609c6082884ef85c3697cdfeb507b2ea06014dd9416",
+    "run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "execution-oracle01.json": "7b581ae31b0e35a0e8d835df308b60ade1c36c915825403ddb8048e9263b24db",
+    "execution-node01.json": "4d0a54a6e62ae67d073a2d31bc04e9eee92cb813e3225c5d18ae0d8184991d14",
+    "runs/oracle01/output.json": "fce964b66d49ff01474791c9d9a89b32b3ab19f3ff85e38afafeec28d4654608",
+    "preparation-note02.json": "449c8ecd2d0220860cb24e842c45a95f15c81bc1407fc683a090d8aa2a0a3c0b",
+    "runs/oracle01/command.json": "9180ea4880b19f92966f2037c337f8b4bd15fa1d6d9ea5c7bec858371ba82b72",
+    "runs/oracle01/raw.log": "78e7981efbb18731b3dfabc6311429573588f9841d6ef5a71501427d2b523e4d",
+    "runs/oracle01/result.json": "a41a384aed594bf0cd6265bdc7dbd32961cec787a8dc7ef56ec7512cbedd3f12",
+    "runs/oracle01/cleanup.json": "ce09e0ad9521fc36c5525188ac2c81403dd13def211de1fa33625c6d8a1cddaf",
+    "runs/oracle01/input-before.json": "ce29a90e9f67375aa48629143f9f9fee5de45fd47fae8b2a7b4b3c6a33972c85",
+    "runs/oracle01/input-after.json": "ce29a90e9f67375aa48629143f9f9fee5de45fd47fae8b2a7b4b3c6a33972c85",
+    "runs/node01/command.json": "630a5c9cc0299c593838c878a036e5cd50d365ead0539bea2470aedfac295edc",
+    "runs/node01/raw.log": "851d082966dbbc2377fd0aa6568795c3184f0bcc1a67f21ce4ab89aeee66d0cd",
+    "runs/node01/result.json": "4e964331304c8451d441bb3636430c7aa81e9537074357aabc0212e059df171c",
+    "runs/node01/cleanup.json": "a36dfabe81691110740fcdc503c2e30e4d2f4f802d612ca00237019c011f2ee4",
+    "runs/node01/input-before.json": "70af4b4b2cd93baa808dd4135830f3486c01935b86c47b55429fea84aa888d52",
+    "runs/node01/input-after.json": "70af4b4b2cd93baa808dd4135830f3486c01935b86c47b55429fea84aa888d52"
+  }
+}

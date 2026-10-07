@@ -1,0 +1,18 @@
+# Audit UI API stage A — independent bounded PASS
+
+冻结输入为作者 `api-stage01/manifest.json` (`b2a2ef591ed81a0fb98031b7c09a8125e04ac6a9d04dc2a403b4d3346a7ed904`)，五源逐 SHA 未变；正式前端基线 `1ff0442`、Audit contract `b124650`。MIME 引用以已接受 `fa2d775` 及追加 binding `9b6e0925…dfb23` 闭合，原阶段文件未覆盖。精确五路径及全部证据 SHA 在同目录 `verification-report.json`。
+
+完整三产品源及五路径差量静审未见阻断。新增仅两个封闭 GET 与其成功响应 1MiB 预算；原 transport 读取/取消实现不改，其他成功/Problem 预算保留。14 filters、53/25 输入集合与 37 actions / 13 services / 17 resources / 5 associations 闭集、typed metadata、整数/时间规范化、整页验证和详情 ID 一致性均与固定契约相符。
+
+独立实际结果：
+
+- `runs/oracle01`：Go1.27.1 `-race -count=1` 单精确 top，actual exit0 / 2.544462s；正式 DecodeMetadata→NewEntry→原 wire encoder 对照 12 records（7 合法、5 非法）、12 Instant、6 Filter。5 自有 PID/starttime 两扫空，actual wait、TMP 移除、输入前后匹配。
+- `runs/node01`：Node v24.19.0 两风险组合 2/2 PASS，actual exit0 / 0.217664s。A 对照上述正式结果及闭集、捕获一次、无凭据只读 GET、坏最后一行/重复/乱序/游标/目标 ID 整体拒绝。B 两 GET 各 1048576B 在 EOF 前仍待决；超限、abort、错媒体三种 held cancel 均未提前完成，释放后实际 join 且 reader 锁释放，parser 零次；非法 UTF8/截断 JSON 与 Problem 原 600000B 上限通过。2 自有 PID/starttime 两扫空，actual wait、TMP 移除、输入前后匹配。
+
+两命令外层上限均为原 45s，无超时、服务、监听、网络、浏览器或 Docker；命令/原 argv、raw、result、cleanup、完整 before/after 均在对应 run。运行器先设 subreaper，记录实际 child wait 与 adopted waits（两轮均 0）。Go 使用已有 cache、固定已接受 MIME workspace 的 254 Go 输入和原工具/模块闭包，以单私有 overlay 加测试；Node 仅加载私有固定 TS 副本与原生 streams。
+
+历史保留：作者 `api-pure01` 的 178 PASS / 2 前提 FAIL 原件仍在（cursor helper 默认值及 finally abort 早于 join）；修后受影响 5 PASS、最终 180/180 和 type/format 是作者证据，未机械复跑。三产品在测试修正时语义未变，之后格式化导致最终 SHA 变化，不冒称原红与最终所有源字节相同。作者原 type 全依赖清单在 freeze 核对，不提升为原命令逐项前后门禁。独立只读准备有一次将字典当列表切片的 exit1，另存 `preparation-note02.json`；当时未启动测试。实际两独立命令均首次通过。
+
+限界：这是 API 阶段。实际 Go 对照为上述有界代表，37 全型分支由静审及作者完整 suite 补充；JS stream/cancel 是进程内原生对象，不是 TCP 或 owner 生命周期。1MiB 样本为合法 DTO 加 JSON 空白，未声称正式 producer 必然生成该最大值。32KiB query/4096B metadata 保持防御边界，未新增极大生产样本。MIME 九字段/ECMAScript 全集复用先前独立已接受报告。本阶段不接受 owner、页面、真实 HTTP 或整卡。
+
+输入/探针：`inputs01.json`、`execution-oracle01.json`、`execution-node01.json`、`probe01/oracle_test.go`、`probe01/api.spec.mjs`、`probe01/loader.mjs`。本报告及原件现停写，无需新增检查。

@@ -1,0 +1,5 @@
+# harness06/input05 窄复核
+
+STATIC PASS。实际source.diff仅`metadata->>session_id=$1::text`、外层`id=$1::uuid`及失败safe err_present/revoked/audit_count；其他谓词、用户绑定、audits==1、HTTP成功终态与IPC协议不变。没有error正文、SQL参数或材料输出。
+
+harness06 manifest 74f0065ac0a3d62a450f29d243e0d87df902f6e12138f1995afe4fe2bfc603f0；diff ec82bc3e479cb6bba03e67ff3c9504556abebe3e7492ae4bfc9b4c2ef8b6514c；input05 6ab3605a803b2854c54126e7bc1bd56be4de17010b03890cc526366a201ba5c2；fixture 1dba89baa7a0c828ce297df1bfbafb555d7a10d8eeb576b35fc5f4f6faf4cc1f。input04→05只1候选改变，其他34/40dist/dependencies/accepted_baseline/driver逐项相等。此次没有新测试或资源执行；原authority02无SQLSTATE/分项值的限制和cleanupfalse不回填。独立准备最终绑定input05。

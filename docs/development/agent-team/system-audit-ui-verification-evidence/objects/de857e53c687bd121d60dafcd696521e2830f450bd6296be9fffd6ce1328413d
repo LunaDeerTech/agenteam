@@ -1,0 +1,146 @@
+{
+  "status": "PASS — bounded Audit UI B owner/controller offline stage only",
+  "frozen_at_utc": "2026-10-07T00:12:53.619307+00:00",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/owner-state-stage01/manifest.json",
+    "sha256": "3ad58e8e7c0aac08fcee65e1c29c8fb43bc7617f7fc597fd0199af5091e1ca6e"
+  },
+  "three_source": {
+    "web/src/composables/useSession.ts": "63148d3ef0ea2ecf15b1bf14fc1168e3c0f1657db0f40fb0bedd3bc9b7e92879",
+    "web/src/composables/useSystemAudit.ts": "a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04",
+    "web/src/tests/system-audit-state.spec.ts": "ff9b0474438c7266bb0d979063a884a18b475f5ea0b3843591c10592ba098fa8"
+  },
+  "accepted_A_source_unchanged": {
+    "web/src/api/client.ts": "cfb85b0ae3226468cb64aa4d3fb9aab62bf354af0c7493863302708aa1d104e3",
+    "web/src/api/system-audit-metadata.ts": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630",
+    "web/src/api/system-audit.ts": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+    "web/src/tests/system-audit-client.spec.ts": "52a8200c89ed6e7e91559aea19ade4024ab5265bb34b05ff0cd61b62a52c8a83",
+    "web/src/tests/system-audit-metadata.spec.ts": "c0ea3b9b581354310262e3b8a6a63b57a5037ac4da5d50a4fd18d9b4b556ec7f"
+  },
+  "inputs": {
+    "candidate": 3,
+    "accepted_A": 5,
+    "fixed_dependencies": 18,
+    "runtime_readonly_files": 213,
+    "bound_files_per_command": 248
+  },
+  "independent": {
+    "tests": 2,
+    "pass": 2,
+    "skip": 0,
+    "actual": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 0.2934468970015587,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 2,
+      "adopted_wait_count": 0,
+      "raw_sha256": "b1d57b67742e593ffccd47e6400bdd20a2abf185aff0811ec261c6e854cba958",
+      "cleanup_sha256": "b4ba9f7054f5afca444ea6d15f11a908a79d63992f4582e78aad3cc0eb64aaf0"
+    },
+    "scope": [
+      "Production Session factory with all eleven API arguments and actual Vue 3.5.43; controlled Fetch with native Response/ReadableStream",
+      "Ten old domains busy/scoped-abandon checks while Audit owns actual cancel; four reverse native tails: personal, SMTP settings, delivery, outbound",
+      "Virtual 30000ms visible deadline while native body.cancel Promise remains held; actual join required before owner release",
+      "Audit Unknown and mismatched security pairs retain three old write intents/private material; no Audit key/body/CSRF/lookup/recovery intent",
+      "Current lawful 403/FORBIDDEN and 401/SESSION_REVOKED safely clear with unknown commit state",
+      "Complete JSON bytes without EOF are not published; cancel and leave settle into stable errors; only explicit rereads recover",
+      "Dispose/checking permanently retire the instance; a new instance waits actual tail and performs one default read; same-Session restore cannot revive old instances",
+      "Already-parsed late401 uses explicitly controlled API rejection, actual Promise tail, global retirement and subsequent new Session"
+    ]
+  },
+  "static": [
+    "Audit has only list/get/abandon and an explicit independent revision on the existing owner; old factory argument order retained",
+    "Current legal Problem 403 required for Audit denied cleanup; read CSRF failure is not treated as write CSRF invalidation",
+    "Page capture, applied filters, complete observations and cursor history are separated; no implicit lookup or association fetching",
+    "Source/18 dependencies/A5 fixed hashes and author repair/history verified; no immediate product blocker found"
+  ],
+  "reuse": {
+    "accepted_A_report": "/workspace/scratch/agenteam-audit-ui-api-independent-l1hqm4hf/verification-report.md",
+    "accepted_A_report_sha256": "8bb46eab457417da83b7715d5528ef9fad588f7f7be6e8c801ff09c17498a5b8",
+    "author_final_46_and_type": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/owner-state-stage01/report.md",
+    "other_six_reverse_native_domains": "Static branch review and author final native tests reused, not independently rerun"
+  },
+  "retained_history": {
+    "stage_manifest": "3ad58e8e7c0aac08fcee65e1c29c8fb43bc7617f7fc597fd0199af5091e1ca6e",
+    "checks": [
+      {
+        "name": "owner-state-pure01",
+        "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure01",
+        "actual_exit": 1,
+        "raw_sha256": "0589f241de8679bed913270ebfd1b2860f2aac7304748575402f96f64deb3dc8",
+        "result_sha256": "492e63cff945655188d4f655d48122653a971ac3ec15c39b93804c96ff113084",
+        "actual_wait": true,
+        "duration_seconds": 6.828
+      },
+      {
+        "name": "owner-state-type01",
+        "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-type01",
+        "actual_exit": 2,
+        "raw_sha256": "6301b32c1e577d1ee3a4259a3f869ef2ffce8216090b641429d0096506d7e044",
+        "result_sha256": "92ca91233dccc90b77a8f515b092cbbe5043ab0d6bddc0d17ce6662c78ad0363",
+        "actual_wait": true,
+        "duration_seconds": 8.347
+      },
+      {
+        "name": "owner-state-pure02",
+        "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure02",
+        "actual_exit": 0,
+        "raw_sha256": "df7716654569c576c1ebf1530b831efdad13ee422b5ed2fe365f44a753cf9c23",
+        "result_sha256": "00c66e7e82f17b73ea763484d7008bc67aad13ae15b71080d2bdca4466442071",
+        "actual_wait": true,
+        "duration_seconds": 1.609
+      },
+      {
+        "name": "owner-state-pure03",
+        "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure03",
+        "actual_exit": 0,
+        "raw_sha256": "c7ab30020c54e3acb679f09bd6261138f0d944b32b2451ac938dcd711de463ac",
+        "result_sha256": "073e6e0b6318ea8e2409915c2f630cf1beb6f028851b93f7412f085526df52b9",
+        "actual_wait": true,
+        "duration_seconds": 2.062
+      },
+      {
+        "name": "owner-state-type02",
+        "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-type02",
+        "actual_exit": 0,
+        "raw_sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+        "result_sha256": "aa11af0119f90cddeb80da3ba7c112477b5ef2e9d80471a12313d9b104dd76af",
+        "actual_wait": true,
+        "duration_seconds": 7.908
+      }
+    ],
+    "history_limits": {
+      "owner-state-pure01": "43 PASS / 3 FAIL, actual exit1. Model invalid protocol failed locally before native cancel entry and timed out waiting for its test barrier; reverse abandon omitted required read scope; SMTP fixture used unsupported credential_action and failed before write. This does not prove an original Model cancel/join reached. Original eight sources, raw, command and process cleanup retained.",
+      "owner-state-pure02": "14 affected PASS / 32 skipped, actual exit0. Formal protocol, scoped abandon and keep/private-material SMTP inputs corrected; original ownership/cancel assertions retained.",
+      "owner-state-type01": "actual exit2: literal-inferred observation types plus fixture protocol/scope/SMTP credential_action/helper union types. Only observation annotations changed in product; exact repair and format diffs are preserved."
+    },
+    "note": "01 was an unconsumed metadata-extraction draft with null exit fields; 02 uses the actual author exit_code field. No test result or source was changed."
+  },
+  "evidence": {
+    "inputs01.json": "c49f7ff346f99b1cca0d6e52b1607007cc035e2f88b298d75b5af651b947c3c6",
+    "execution01.json": "03f7a313dfa8d02088dffdcc3152d7f387f78a31637f3a0aeb433e7783e09755",
+    "probe01/owner.spec.mjs": "6b34176269dd48093abb6d94f57ed9111d9860b15044a9692df136aaf919c273",
+    "probe01/loader.mjs": "866621ce19243a1ea6db88560ccbad01e2a4b869be5fb655b76ca67731b32f18",
+    "run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "author-history-verified02.json": "7a936614a3922e640476e79d083369c6d68d22c05dfa398f4a2c479bb5e74165",
+    "runs/owner01/command.json": "749eea12545d8784a72ff21402a9c383d905107b9ec8feadfcb74a0d90d12140",
+    "runs/owner01/raw.log": "b1d57b67742e593ffccd47e6400bdd20a2abf185aff0811ec261c6e854cba958",
+    "runs/owner01/result.json": "507c5e7b4ce27bd519ec796d767877d683d2424a0de28852d43e4b319fd1b911",
+    "runs/owner01/cleanup.json": "b4ba9f7054f5afca444ea6d15f11a908a79d63992f4582e78aad3cc0eb64aaf0",
+    "runs/owner01/input-before.json": "36139e18f2122d34d3846ea64cd1018a0cacd1d9a74c8cb061bc8c4a10920c65",
+    "runs/owner01/input-after.json": "36139e18f2122d34d3846ea64cd1018a0cacd1d9a74c8cb061bc8c4a10920c65"
+  },
+  "limits": [
+    "No App/router/View mounting, native focus/browser, HTTP service, PG/Docker/listener or network resource acceptance",
+    "30s is virtual timer activation plus actual Promise barriers, not 30s elapsed wall time",
+    "Already-parsed late401 is not evidence that native fetch parses a response after abort",
+    "Node strips TypeScript types for these probes; final author typecheck is separately reused",
+    "Author original Model fixture never reached its native cancel barrier; process exit does not establish that original join",
+    "No product/main/Git writes; only private source copies, probes and evidence; no whole-card conclusion"
+  ]
+}

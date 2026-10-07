@@ -1,0 +1,19 @@
+# System Audit author real-stage result
+
+Author evidence is a versioned composition of three new and two required old scenarios. The final candidate is input08, 35 sources and 40 rebuilt dist files. README36 is deferred; no main integration, independent final acceptance, production SPA, Runtime connection or full D27 claim is made. No resources or product checks were started while preparing this index.
+
+| Passing group | Actual input/run | Exit / seconds | IDs / PIDs / adopted waits |
+| --- | --- | --- | --- |
+| read03 | input03 | 0 / 58.03 | 7 / 83 / 4 |
+| authority03 | input05 | 0 / 58.495 | 7 / 90 / 4 |
+| navigation04 | input08 | 0 / 65.192 | 7 / 81 / 4 |
+| old-outbound-navigation01 | input08 | 0 / 70.225 | 7 / 84 / 4 |
+| old-delivery-navigation01 | input08 | 0 / 70.845 | 9 / 89 / 4 |
+
+Each passing row has original command/raw/result, actual process waits, exact-resource/PID-starttime double cleanup, empty runtime paths and unchanged input evidence. This is not a full input08 rerun: read03's later changes were authority-only fixture fixes and navigation diagnostics/CSS; authority03's later changes were navigation diagnostics/CSS. Their API, owner, controller and original flow assertions remain unchanged. Navigation and both old representatives ran on input08.
+
+All seven failed rounds remain in index.json. Read01 had both a dynamic-build closure gap and an unlocalized full-row mismatch; read02 captured only two summary-string difference paths. Formal 37-action comparison justified the three rotation-summary fixture additions, without inventing original row actions. Authority01 had a missing JSON request prerequisite; authority02 had a text/UUID SQL parameter mismatch. Actual original response code/SQLSTATE were not recorded. Their cleanup=false remains, with exact later recovery02/03 separately recorded; recovery01's process-access premise failure is retained. Navigation01 had no geometry. Navigation02 measured caption1x8; scoped padding0 repaired the static global-padding collision. Navigation03 measured one TD76/68 at768px; the details cell was identified statically and a desktop-only120px column repaired it. No browser predicate/threshold was weakened. Navigation04 passed with both CSS fixes.
+
+The author actually viewed ten new images (navigation03 two, navigation04 eight) and four old representatives (two from each old group). All26 saved images retain hashes/dimensions; the other12 old images are not claimed visually reviewed. Main thread reported only navigation03 light1024 plus navigation04 light390/light768/dark768. All images are partial900px captures, with explicit offscreen limits; light768 remains dense. Exact per-image observations live in the four frozen visual-review files.
+
+Source paths and hashes are bound by delivery35.json and input08. The last resource command/session62652 actually exited0 and released its window; no active command or resource remains. Original histories and stage snapshots are not overwritten.

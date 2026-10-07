@@ -1,0 +1,23 @@
+{
+  "verdict": "HARNESS_PRECONDITION_CONFIRMED_STATIC",
+  "product_defect_proven": false,
+  "input": {
+    "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority01-diagnosis01/input.json",
+    "sha256": "9cc827ebdab4746ca898f61b0d9e26191f1d77d02e2030a8f308fcafa316306c"
+  },
+  "report": {
+    "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority01-diagnosis01/review.md",
+    "sha256": "9748dc29c62eeddcf6cb29c4ccbc3bdb1e61a0ec3653fa52ab4eca01e7d88a2f"
+  },
+  "actual_author_run": {
+    "exit": 1,
+    "seconds": 58.648,
+    "top_seconds": 12.55,
+    "actual_wait_completed": true,
+    "double_cleanup": false,
+    "browser_runtime_removed": false
+  },
+  "changes_or_resources_executed_by_reviewer": false,
+  "residual_material_read": false,
+  "http_status_observed_in_raw": false
+}

@@ -1,0 +1,267 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { setImmediate as turn } from 'node:timers/promises'
+import { createAccountAPI } from '../workspace/web/src/api/account.ts'
+import { AccountFailure } from '../workspace/web/src/api/client.ts'
+import { createSystemAccountAPI } from '../workspace/web/src/api/system-account.ts'
+import { createSystemInvitationAPI } from '../workspace/web/src/api/system-invitations.ts'
+import { createSystemProviderAPI } from '../workspace/web/src/api/system-providers.ts'
+import { createSystemModelAPI } from '../workspace/web/src/api/system-models.ts'
+import { createSystemModelSelectionAPI } from '../workspace/web/src/api/system-model-selection.ts'
+import { createSystemAccountSecurityAPI } from '../workspace/web/src/api/system-account-security.ts'
+import { createSystemSMTPSettingsAPI } from '../workspace/web/src/api/system-smtp-settings.ts'
+import { createSystemSMTPDeliveryAPI } from '../workspace/web/src/api/system-smtp-delivery.ts'
+import { createSystemOutboundPolicyAPI } from '../workspace/web/src/api/system-outbound-policy.ts'
+import { createSystemAuditAPI } from '../workspace/web/src/api/system-audit.ts'
+import { createSessionController } from '../workspace/web/src/composables/useSession.ts'
+import { useSystemAudit } from '../workspace/web/src/composables/useSystemAudit.ts'
+
+// Theme output only. No App, mounted DOM, listener, network or focus claim.
+globalThis.document = { documentElement: { dataset: {} } }
+const id = n => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+const instant = '2026-10-06T12:34:56.123456Z'
+const endpoint = '/api/v1/system/audit'
+const session = (sid = id(2)) => ({
+  user: { id: id(1), email: 'admin@example.test', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: sid, issued_at: instant, idle_expires_at: instant, absolute_expires_at: instant },
+  csrf_token: 'S'.repeat(43),
+})
+const record = () => ({ audit_id: id(100), created_at: instant, scope: 'system', actor: { kind: 'human', id: id(1) }, action: 'secret.create', outcome: 'success', resource: { kind: 'secret', id: id(2) }, metadata: { version: '1', changed_fields: ['value'] }, associations: {}, summary: 'Secret created' })
+const page = () => ({ items: [record()], next_cursor: null })
+const smtpFields = () => ({ host: 'mail.example', port: 587, encryption: 'starttls', username: '', sender_email: 'sender@example.test', sender_name: '', auto_retry_count: '3', retry_interval_seconds: '60' })
+const smtpSettings = () => ({ id: id(10), version: '1', configured: true, ...smtpFields(), credential_present: false })
+const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', 'X-Request-ID': id(9) } })
+const problemValue = (status, code, commit_state = 'not_started') => ({ type: 'urn:agenteam:problem:independent', title: 'Failure', status, code, detail: '', instance: endpoint, request_id: id(9), commit_state, retry_hint: 'lookup' })
+const problem = (status, code, commit = 'not_started') => json(problemValue(status, code, commit), status)
+const caught = promise => Promise.resolve(promise).then(value => ({ value }), error => ({ error }))
+async function failure(promise, kind) { const result = await caught(promise); assert.equal(result.error?.kind, kind); return result.error }
+async function until(predicate, label) { const end = Date.now() + 2000; while (!predicate()) { assert.ok(Date.now() < end, label); await turn() } }
+function deferred() { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b }); return { promise, resolve, reject } }
+function scope(t) {
+  const owners = [], pages = [], releases = []
+  t.after(async () => {
+    for (const release of releases) release()
+    for (const p of pages) p.dispose()
+    for (const a of owners) a.leave()
+    await until(() => owners.every(a => !a.state.busy), 'all actual owners joined during teardown')
+  })
+  return { owners, pages, releases }
+}
+function hold(s, value, media = 'application/json') {
+  const cancelEntered = deferred(), released = deferred()
+  let cancels = 0, closed = false
+  const stream = new ReadableStream({
+    start(controller) { if (value !== undefined) controller.enqueue(new TextEncoder().encode(JSON.stringify(value))) },
+    cancel() { ++cancels; cancelEntered.resolve(); return released.promise.then(() => { closed = true }) },
+  })
+  s.releases.push(() => released.resolve())
+  return { stream, cancelEntered, release: () => released.resolve(), get cancels() { return cancels }, get joined() { return closed }, response: () => new Response(stream, { headers: { 'Content-Type': media } }) }
+}
+async function fixture(s, auditOverride) {
+  let current = session()
+  const calls = []
+  const handlers = {
+    session: async () => json(current), audit: async path => json(path.startsWith(endpoint + '/') ? record() : page()),
+    other: async path => json(path === '/api/v1/me' ? { user: current.user, avatar: null } : { items: [], next_cursor: null }),
+    smtp: async () => json(smtpSettings()), delivery: async () => json({ items: [] }), outbound: async () => json({ version: '1', rules: [] }),
+  }
+  const fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return handlers.session(path, init)
+    if (path === '/api/v1/auth/bootstrap') return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    if (path === endpoint || path.startsWith(endpoint + '?') || path.startsWith(endpoint + '/')) return handlers.audit(path, init)
+    if (path === '/api/v1/system/outbound-policy') return handlers.outbound(path, init)
+    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs')) return handlers.delivery(path, init)
+    if (path.startsWith('/api/v1/system/smtp')) return handlers.smtp(path, init)
+    return handlers.other(path, init)
+  }
+  const auth = createSessionController(createAccountAPI(fetch), createSystemAccountAPI(fetch), createSystemInvitationAPI(fetch), createSystemProviderAPI(fetch), createSystemModelAPI(fetch), createSystemModelSelectionAPI(fetch), createSystemAccountSecurityAPI(fetch), createSystemSMTPSettingsAPI(fetch), createSystemSMTPDeliveryAPI(fetch), createSystemOutboundPolicyAPI(fetch), auditOverride ?? createSystemAuditAPI(fetch))
+  s.owners.push(auth)
+  await auth.restore()
+  assert.equal(auth.state.phase, 'authenticated')
+  return { auth, handlers, calls, setSession(value) { current = value },
+    page() { const p = useSystemAudit(auth); s.pages.push(p); return p },
+    reads() { return calls.filter(c => c.path === endpoint || c.path.startsWith(endpoint + '?') || c.path.startsWith(endpoint + '/')) },
+    writes() { return calls.filter(c => c.init.method !== 'GET') },
+  }
+}
+const domains = a => [
+  ['personal', () => a.personal.getProfile(), () => a.personal.abandon(), 'other'],
+  ['directory', () => a.system.listUsers({}), () => a.system.abandon(), 'other'],
+  ['invitation', () => a.system.listInvitations({}), () => a.system.abandonInvitationRead(), 'other'],
+  ['provider', () => a.system.providers.list({}), () => a.system.providers.abandonRead('provider-list'), 'other'],
+  ['model', () => a.system.models.get({ id: id(3), provider_id: id(2), protocol: 'openai-chat-completions' }), () => a.system.models.abandonRead('model-detail'), 'other'],
+  ['selection', () => a.system.selection.get(), () => a.system.selection.abandonRead('selection-state'), 'other'],
+  ['security', () => a.system.accountSecurity.get(), () => a.system.accountSecurity.abandonRead(), 'other'],
+  ['smtp', () => a.system.smtp.get(), () => a.system.smtp.abandonRead(), 'smtp'],
+  ['delivery', () => a.system.smtpDelivery.list(), () => a.system.smtpDelivery.abandonRead(), 'delivery'],
+  ['outbound', () => a.system.outboundPolicy.get(), () => a.system.outboundPolicy.abandonRead(), 'outbound'],
+]
+
+test('A: actual owner tails, cross-domain isolation and read-only safety classification', { timeout: 15000 }, async t => {
+  const s = scope(t), f = await fixture(s), a = f.auth
+  assert.deepEqual(Object.keys(a.system.audit).sort(), ['abandon', 'get', 'list'])
+  const h = hold(s, undefined, 'text/plain')
+  let signal, deadline
+  f.handlers.audit = async (_path, init) => { signal = init.signal; return h.response() }
+  const realSetTimeout = globalThis.setTimeout, realClearTimeout = globalThis.clearTimeout
+  const timer = { virtual: 30000 }
+  globalThis.setTimeout = (fn, ms, ...args) => { if (ms === 30000) { assert.equal(deadline, undefined); deadline = () => fn(...args); return timer } return realSetTimeout(fn, ms, ...args) }
+  globalThis.clearTimeout = value => { if (value !== timer) realClearTimeout(value) }
+  let auditTask
+  try {
+    auditTask = caught(a.system.audit.list({}))
+    await h.cancelEntered.promise
+    const before = f.calls.length
+    for (const [_name, read, abandon] of domains(a)) { abandon(); await failure(read(), 'busy') }
+    await a.restore()
+    assert.equal(f.calls.length, before)
+    assert.equal(signal.aborted, false)
+    assert.equal(a.state.busy, true)
+    assert.equal(typeof deadline, 'function')
+    deadline()
+    assert.equal((await auditTask).error?.kind, 'cancelled')
+    assert.equal(signal.aborted, true)
+    assert.equal(a.state.busy && !h.joined, true)
+    await failure(a.personal.getProfile(), 'busy')
+    h.release()
+    await until(() => !a.state.busy, 'Audit actual cancel finally released owner')
+    assert.equal(h.joined && h.cancels === 1 && !h.stream.locked, true)
+  } finally { globalThis.setTimeout = realSetTimeout; globalThis.clearTimeout = realClearTimeout; h.release(); if (auditTask) await auditTask }
+
+  // Four old-domain native tails; the remaining six scoped branches are statically
+  // checked and retain the author's actual native assertions, not re-labelled here.
+  for (const [name, read, abandon, channel] of domains(a).filter(d => ['personal', 'smtp', 'delivery', 'outbound'].includes(d[0]))) {
+    const h = hold(s, undefined, 'text/plain'), previous = f.handlers[channel]
+    let ownerSignal
+    f.handlers[channel] = async (_path, init) => { ownerSignal = init.signal; return h.response() }
+    const pending = caught(read())
+    try {
+      await h.cancelEntered.promise
+      const before = f.calls.length
+      a.system.audit.abandon()
+      await failure(a.system.audit.get(id(100)), 'busy')
+      assert.equal(!ownerSignal.aborted && a.state.busy && f.calls.length === before, true, name)
+      abandon()
+      assert.equal((await pending).error?.kind, 'cancelled')
+      assert.equal(a.state.busy && !h.joined, true)
+    } finally { h.release(); await pending; await until(() => !a.state.busy, name + ' actual cancel joined'); f.handlers[channel] = previous }
+    assert.equal(h.joined && h.cancels === 1 && !h.stream.locked, true)
+  }
+
+  await a.system.smtp.get()
+  a.system.smtp.setMaterial('private value kept solely inside fixture process')
+  const unknown = async () => problem(503, 'COMMIT_UNKNOWN', 'unknown')
+  f.handlers.smtp = f.handlers.delivery = f.handlers.outbound = unknown
+  await failure(a.system.smtp.startUpdate({ version: '1', ...smtpFields(), username: 'smtp-user', credential_action: 'keep' }), 'problem')
+  await failure(a.system.smtpDelivery.startTest({ recipient: 'target@example.test' }), 'problem')
+  await failure(a.system.outboundPolicy.startUpdate({ expected_version: '1', rules: [] }), 'problem')
+  const retained = () => a.system.smtp.material.present && [a.system.smtp, a.system.smtpDelivery, a.system.outboundPolicy].every(op => op.progress?.phase === 'uncertain')
+  assert.equal(retained(), true)
+  const writes = f.writes().length
+  for (const [status, code] of [[503, 'COMMIT_UNKNOWN'], [503, 'FORBIDDEN'], [401, 'FORBIDDEN'], [403, 'SESSION_REVOKED'], [403, 'CSRF_FAILED']]) {
+    f.handlers.audit = async () => problem(status, code, code === 'COMMIT_UNKNOWN' ? 'unknown' : 'not_started')
+    await failure(a.system.audit.list({}), 'problem')
+    a.system.audit.abandon()
+    assert.equal(a.state.phase === 'authenticated' && !a.system.denied && retained() && f.writes().length === writes && !a.state.canRetryOriginal, true)
+  }
+  for (const { init } of f.reads()) assert.equal(init.method === 'GET' && init.body === undefined && !new Headers(init.headers).has('Idempotency-Key') && !new Headers(init.headers).has('X-CSRF-Token'), true)
+  f.handlers.audit = async () => problem(403, 'FORBIDDEN', 'unknown')
+  await caught(a.system.audit.list({}))
+  await until(() => !a.state.busy, '403 actual tail joined')
+  assert.equal(a.state.phase === 'authenticated' && a.system.denied && !a.system.smtp.material.present && [a.system.smtp, a.system.smtpDelivery, a.system.outboundPolicy].every(op => op.progress === null), true)
+  const g = await fixture(s)
+  g.auth.system.smtp.setMaterial('private current-session field')
+  g.handlers.audit = async () => problem(401, 'SESSION_REVOKED', 'unknown')
+  await caught(g.auth.system.audit.get(id(100)))
+  await until(() => !g.auth.state.busy, '401 actual tail joined')
+  assert.equal(g.auth.personalContext.identity === null && g.auth.state.phase === 'unavailable' && !g.auth.system.smtp.material.present, true)
+  t.diagnostic('10 old domains blocked/scoped abandon; 4 reverse native cancel tails; virtual 30000 ms visible boundary with actual cancel finally; read Unknown preserved 3 old intents; lawful current 403/401 cleared safely. No 30-second wall-clock claim.')
+})
+
+test('B: recoverable page cancellation, permanent retirement and a single new-instance read', { timeout: 15000 }, async t => {
+  const s = scope(t), f = await fixture(s), a = f.auth, p = f.page()
+  await until(() => p.state.list.phase === 'ready' && !a.state.busy, 'initial list ready')
+  p.updateFilter('action', 'secret.create')
+  const held = hold(s, page())
+  f.handlers.audit = async () => held.response()
+  const applied = p.apply()
+  await until(() => f.reads().length === 2, 'filter read dispatched')
+  assert.equal(p.state.list.phase === 'loading' && p.state.list.items.length === 0, true)
+  p.cancel()
+  await held.cancelEntered.promise
+  const beforeCancel = f.reads().length
+  assert.equal(p.state.list.phase === 'error' && p.state.list.items.length === 0 && a.state.busy, true)
+  await p.retry(); assert.equal(f.reads().length, beforeCancel)
+  held.release(); await applied; await until(() => !a.state.busy, 'cancel actual join')
+  assert.equal(f.reads().length, beforeCancel)
+  f.handlers.audit = async () => json(page())
+  await p.retry()
+  assert.equal(p.state.list.phase === 'ready' && f.reads().length === beforeCancel + 1, true)
+  assert.equal(new URL(f.reads().at(-1).path, 'https://local.invalid').searchParams.get('action'), 'secret.create')
+
+  const detail = hold(s, record())
+  f.handlers.audit = async () => detail.response()
+  const opened = p.openDetail(id(100))
+  await until(() => p.state.detail.phase === 'loading' && a.state.busy && f.reads().at(-1).path.endsWith('/' + id(100)), 'detail read dispatched')
+  p.leave(); await detail.cancelEntered.promise
+  const beforeLeave = f.reads().length
+  assert.equal(p.state.mode === 'list' && p.state.list.phase === 'error' && p.state.detail.record === null && p.state.detail.target === null && p.state.applied.action === 'secret.create' && p.isCurrent(), true)
+  detail.release(); await opened; await until(() => !a.state.busy, 'leave actual join')
+  assert.equal(f.reads().length, beforeLeave)
+  f.handlers.audit = async () => json(page())
+  await p.refresh()
+  assert.equal(p.state.list.phase === 'ready' && f.reads().length === beforeLeave + 1, true)
+
+  const retiring = hold(s, page())
+  f.handlers.audit = async () => retiring.response()
+  const oldRead = p.refresh()
+  const oldCount = f.reads().length
+  await until(() => f.reads().length > oldCount, 'old instance read entered transport')
+  p.dispose(); await retiring.cancelEntered.promise
+  f.handlers.audit = async () => json(page())
+  const fresh = f.page(), beforeFresh = f.reads().length
+  assert.equal(fresh.state.list.phase === 'waiting' && a.state.busy && p.state.list.phase === 'inactive', true)
+  retiring.release(); await oldRead
+  await until(() => !a.state.busy && fresh.state.list.phase === 'ready', 'new instance waits old actual tail then reads once')
+  assert.equal(f.reads().length, beforeFresh + 1)
+  await p.refresh(); await turn(); assert.equal(f.reads().length, beforeFresh + 1)
+  assert.equal(new URL(f.reads().at(-1).path, 'https://local.invalid').search, '?limit=50')
+
+  fresh.updateFilter('tool_id', id(4))
+  const checking = deferred(); s.releases.push(() => checking.resolve(problem(503, 'DEPENDENCY_UNAVAILABLE')))
+  f.handlers.session = async () => checking.promise
+  const restore = a.restore()
+  await until(() => a.state.phase === 'checking', 'checking starts')
+  assert.equal(!fresh.isCurrent() && fresh.draft.tool_id === '' && fresh.state.list.items.length === 0 && fresh.state.list.phase === 'inactive', true)
+  const beforeRestore = f.reads().length
+  checking.resolve(problem(503, 'DEPENDENCY_UNAVAILABLE')); await restore
+  await fresh.refresh(); assert.equal(f.reads().length, beforeRestore)
+  f.handlers.session = async () => json(session())
+  await a.restore(); await turn()
+  assert.equal(f.reads().length, beforeRestore)
+  const sameIdentityNew = f.page()
+  await until(() => !a.state.busy && sameIdentityNew.state.list.phase === 'ready', 'same Session only a new page reads')
+  assert.equal(f.reads().length, beforeRestore + 1)
+  assert.equal(!fresh.isCurrent() && p.state.list.phase === 'inactive', true)
+
+  // Controlled already-parsed API failure, not a claim about native post-abort parsing.
+  const parsed = deferred(), entered = deferred()
+  let first = true
+  s.releases.push(() => parsed.reject(new AccountFailure('cancelled')))
+  const late = await fixture(s, { list() { if (first) { first = false; entered.resolve(); return parsed.promise } return Promise.resolve({ items: [], next_cursor: null }) }, get: () => Promise.reject(new AccountFailure('invalid-input')) })
+  const pending = caught(late.auth.system.audit.list({}))
+  await entered.promise
+  late.auth.leave()
+  assert.equal(late.auth.personalContext.identity === null && late.auth.state.busy, true)
+  const beforeBlockedRestore = late.calls.length
+  await late.auth.restore(); assert.equal(late.calls.length, beforeBlockedRestore)
+  parsed.reject(new AccountFailure('problem', problemValue(401, 'SESSION_REVOKED')))
+  await pending; await until(() => !late.auth.state.busy, 'retired parsed failure actual tail joined')
+  assert.equal(late.auth.state.phase, 'checking')
+  late.setSession(session(id(77))); await late.auth.restore()
+  assert.equal(late.auth.state.session?.id === id(77) && !late.auth.system.denied, true)
+  assert.equal(f.writes().length + late.writes().length, 0)
+  t.diagnostic('Native JSON bytes without EOF never published; cancel/leave stable error with explicit reread; disposed/checking instances never revived; successor waited actual tail and issued one default read; old parsed 401 retired before new identity. Controller only, no App or native focus.')
+})

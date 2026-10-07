@@ -1,0 +1,38 @@
+{
+  "fixed_base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "generated_main_sha256": "f00e074fc08d2d8eb315d732187a17d15d64efe9421f6bdadda562cae3ba05f8",
+  "inputs": {
+    "accepted_metadata_action_set": {
+      "count": 37,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/source/web/src/api/system-audit-metadata.ts",
+      "sha256": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630"
+    },
+    "candidateFixture": {
+      "extracted_switch_sha256": "4385f17a3aa9142d47df5a9fa8e4a8e74f6c17908b8c382f226270ffe562b8e4",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account/system_audit_web_fixture_test.go",
+      "sha256": "bbb925a5b5425e787c791d71dca83d0430dd971a89dae59f3b53f08cf914e022"
+    },
+    "internal/central/audit/contract/account.go": {
+      "git_blob": "25a8f62fc1e10295cc98032ce756ebf8cd81b0ba",
+      "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed"
+    },
+    "internal/central/audit/contract/model.go": {
+      "git_blob": "e8a764e3c1b8ef0846b7cf73a67051924a014c24",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6"
+    },
+    "internal/central/audit/contract/types.go": {
+      "git_blob": "295170e6f48788f772e03b61142afca5734393ce",
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d"
+    },
+    "internal/central/audit/http/wire.go": {
+      "git_blob": "49e8187e117cec265f548ecd798faa128069ee92",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4"
+    },
+    "oldFixture": {
+      "extracted_switch_sha256": "6ebfcc9bb6d4bbf236147e1f34d5d8a7b43719405c6873c804b9c94cc454ffeb",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/source/tests/account/system_audit_web_fixture_test.go",
+      "sha256": "69bf020a367c55c012477b04cdc15a842aa5187a086cc7cba9fc1b79004b1d9c"
+    }
+  },
+  "transforms": "formal c qualifier removed with unchanged Action string constants and AccountAction/ModelAction bodies; candidate/old summary switch bodies copied exactly and returned; no HTTP or database execution"
+}

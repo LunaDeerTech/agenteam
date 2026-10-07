@@ -1,0 +1,478 @@
+[
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "ls",
+      "-aq",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.014051105998078128,
+    "stderr": "",
+    "stdout": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\n9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.01514582400341169,
+    "stderr": "",
+    "stdout": "\"a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\"\t\"/agenteam-dev-infra-minio-1\"\t{\"com.docker.compose.config-hash\":\"0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"minio\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/minio\",\"Type\":\"bind\"},{\"Destination\":\"/var/lib/postgresql/data\",\"Driver\":\"local\",\"Mode\":\"\",\"Name\":\"5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260\",\"Propagation\":\"\",\"RW\":true,\"Source\":\"/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data\",\"Type\":\"volume\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.014635218998591881,
+    "stderr": "",
+    "stdout": "\"9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\"\t\"/agenteam-dev-infra-postgres-1\"\t{\"com.docker.compose.config-hash\":\"14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"postgres\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/postgres\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "ls",
+      "-q",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.013610604997666087,
+    "stderr": "",
+    "stdout": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\nf5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\naf11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\n9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.012928006999572972,
+    "stderr": "",
+    "stdout": "\"142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\"\t\"agenteam-dev-infra_default\"\t{\"com.docker.compose.config-hash\":\"9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1\",\"com.docker.compose.network\":\"default\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.version\":\"2.40.3\"}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.015327996999985771,
+    "stderr": "",
+    "stdout": "\"f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\"\t\"bridge\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.01114650499948766,
+    "stderr": "",
+    "stdout": "\"af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\"\t\"host\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.012745478001306765,
+    "stderr": "",
+    "stdout": "\"9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\"\t\"none\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "222fc30e51d61d5eb3e8ca3484162e32de60a7dd67af5de01fd8774a55a61410"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.0120165359985549,
+    "stderr": "Error response from daemon: No such container: 222fc30e51d61d5eb3e8ca3484162e32de60a7dd67af5de01fd8774a55a61410\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "36df4300a19971c14c60777550219b3cb8962e2bd2f4d6d0681030f80b6af94a"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.01799077100076829,
+    "stderr": "Error response from daemon: network 36df4300a19971c14c60777550219b3cb8962e2bd2f4d6d0681030f80b6af94a not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "5889147ed1e7933b12f574fd8243aacbf2f06f9f824435b1a4a483cb48027924"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.011382758999388898,
+    "stderr": "Error response from daemon: No such container: 5889147ed1e7933b12f574fd8243aacbf2f06f9f824435b1a4a483cb48027924\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "59614e3e3db002b54df4f45d47e7e42c7a5e0e3593f1df840c695b7500b2633a"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.013356270002987003,
+    "stderr": "Error response from daemon: network 59614e3e3db002b54df4f45d47e7e42c7a5e0e3593f1df840c695b7500b2633a not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "8bfb50674a81f3a5d4cf8af0fe8743e74aeb3c14c320bf1cca80f105e352fa8b"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.012593833002028987,
+    "stderr": "Error response from daemon: network 8bfb50674a81f3a5d4cf8af0fe8743e74aeb3c14c320bf1cca80f105e352fa8b not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "ed1e79ffac9a86e01d594b1e1fce4a99e2f35ea8f65b5436fe30f78b349523d2"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.011541759999090573,
+    "stderr": "Error response from daemon: No such container: ed1e79ffac9a86e01d594b1e1fce4a99e2f35ea8f65b5436fe30f78b349523d2\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "ee4d0679730088bfd9a7853b13b0fd0c5070a4bdeda90ffd7113429eeb255e05"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.012157149001723155,
+    "stderr": "Error response from daemon: No such container: ee4d0679730088bfd9a7853b13b0fd0c5070a4bdeda90ffd7113429eeb255e05\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "ls",
+      "-aq",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.01424410099934903,
+    "stderr": "",
+    "stdout": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\n9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.012926269002491608,
+    "stderr": "",
+    "stdout": "\"a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\"\t\"/agenteam-dev-infra-minio-1\"\t{\"com.docker.compose.config-hash\":\"0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"minio\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Driver\":\"local\",\"Mode\":\"\",\"Name\":\"5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260\",\"Propagation\":\"\",\"RW\":true,\"Source\":\"/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data\",\"Type\":\"volume\"},{\"Destination\":\"/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/minio\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Config.Labels}}\t{{json .Mounts}}",
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.011727092998626176,
+    "stderr": "",
+    "stdout": "\"9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\"\t\"/agenteam-dev-infra-postgres-1\"\t{\"com.docker.compose.config-hash\":\"14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"postgres\",\"com.docker.compose.version\":\"2.40.3\"}\t[{\"Destination\":\"/var/lib/postgresql/data\",\"Mode\":\"rw\",\"Propagation\":\"rprivate\",\"RW\":true,\"Source\":\"/workspace/agenteam-onboarding/infra/data/postgres\",\"Type\":\"bind\"}]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "ls",
+      "-q",
+      "--no-trunc"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.013865485998394433,
+    "stderr": "",
+    "stdout": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\nf5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\naf11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\n9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.013491459001670592,
+    "stderr": "",
+    "stdout": "\"142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\"\t\"agenteam-dev-infra_default\"\t{\"com.docker.compose.config-hash\":\"9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1\",\"com.docker.compose.network\":\"default\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.version\":\"2.40.3\"}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.01315406100184191,
+    "stderr": "",
+    "stdout": "\"f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e\"\t\"bridge\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.011896539002918871,
+    "stderr": "",
+    "stdout": "\"af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\"\t\"host\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}\t{{json .Name}}\t{{json .Labels}}\t[]",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 0,
+    "seconds": 0.011453012997662881,
+    "stderr": "",
+    "stdout": "\"9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\"\t\"none\"\t{}\t[]\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "222fc30e51d61d5eb3e8ca3484162e32de60a7dd67af5de01fd8774a55a61410"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.011396595000405796,
+    "stderr": "Error response from daemon: No such container: 222fc30e51d61d5eb3e8ca3484162e32de60a7dd67af5de01fd8774a55a61410\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "36df4300a19971c14c60777550219b3cb8962e2bd2f4d6d0681030f80b6af94a"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.011818147999292705,
+    "stderr": "Error response from daemon: network 36df4300a19971c14c60777550219b3cb8962e2bd2f4d6d0681030f80b6af94a not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "5889147ed1e7933b12f574fd8243aacbf2f06f9f824435b1a4a483cb48027924"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.013445856999169337,
+    "stderr": "Error response from daemon: No such container: 5889147ed1e7933b12f574fd8243aacbf2f06f9f824435b1a4a483cb48027924\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "59614e3e3db002b54df4f45d47e7e42c7a5e0e3593f1df840c695b7500b2633a"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.013106605001667049,
+    "stderr": "Error response from daemon: network 59614e3e3db002b54df4f45d47e7e42c7a5e0e3593f1df840c695b7500b2633a not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "network",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "8bfb50674a81f3a5d4cf8af0fe8743e74aeb3c14c320bf1cca80f105e352fa8b"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.013496826999471523,
+    "stderr": "Error response from daemon: network 8bfb50674a81f3a5d4cf8af0fe8743e74aeb3c14c320bf1cca80f105e352fa8b not found\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "ed1e79ffac9a86e01d594b1e1fce4a99e2f35ea8f65b5436fe30f78b349523d2"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.011320772999170003,
+    "stderr": "Error response from daemon: No such container: ed1e79ffac9a86e01d594b1e1fce4a99e2f35ea8f65b5436fe30f78b349523d2\n",
+    "stdout": "\n"
+  },
+  {
+    "actual_wait": true,
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}}",
+      "ee4d0679730088bfd9a7853b13b0fd0c5070a4bdeda90ffd7113429eeb255e05"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+    "exit": 1,
+    "seconds": 0.011073747999034822,
+    "stderr": "Error response from daemon: No such container: ee4d0679730088bfd9a7853b13b0fd0c5070a4bdeda90ffd7113429eeb255e05\n",
+    "stdout": "\n"
+  }
+]

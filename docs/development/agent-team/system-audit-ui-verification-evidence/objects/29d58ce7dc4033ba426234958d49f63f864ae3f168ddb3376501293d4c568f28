@@ -1,0 +1,36 @@
+{
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input07/manifest.json",
+    "sha256": "e62a3e5e0efa15bb7e89430bc7e63b5bb800f186d80866669290bbf32517d726"
+  },
+  "changed_author_candidates": {
+    "tests/account-captcha-web/e2e/system-audit.spec.ts": {
+      "after": "3729ce36f852c913c1b52a551c352106e917db79a5d16713f15d8236566daed2",
+      "before": "cefdc89f1e500d9973c8dbe3ab4fd853ef2a4cafb9c550e68e36ec1a7a4338e3"
+    },
+    "web/src/views/system/SystemAuditView.vue": {
+      "after": "8ff5dc65401c6a894ee275b81bbc607a97ec5333bccd94b2f021a9bf1dbd9aef",
+      "before": "b11ae46e854fa8ad918b8f13536d1fe354d968949205d77d6935807f8bb9ea51"
+    }
+  },
+  "harness_change": "failure-only layout geometry diagnostic; private test bodies do not use layout helper",
+  "new_dist_files": 40,
+  "previous_author_manifest": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input05/manifest.json",
+    "sha256": "6ab3605a803b2854c54126e7bc1bd56be4de17010b03890cc526366a201ba5c2"
+  },
+  "previous_execution": {
+    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution01.json",
+    "sha256": "a8ba35af13cde76863a7962a7e38e882f90e6d1ea34ecb0be60803ce38422fa8"
+  },
+  "product_change": "SystemAuditView scoped sr-only padding:0 only",
+  "resource_execution": false,
+  "reuse": "All existing format/closure/race compile/name discovery/strict type/two Playwright discovery checks remain applicable to byte-identical private bodies and tools. Only the complete input gate is rerun.",
+  "unchanged_private_source_hashes": {
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.config.mjs": "c9a00e43358b8efdca9e677af87077a91d1abd02d5bb684acf3c8a049d7cdc26",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.spec.ts": "683d1bc90f9f0a0596e073a07dfecdc7133d0ab7671c7527328224784cfc421d",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/source/fixture02.go": "77a5d21d7dbba302ddcba1a3233cc882ebeeb1b552a02f01df3d91ac4fb54065",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/source/independent_test.go": "fe291b9cfe15663d8da2ec1cd60d660778421817203085a61aa7a31bda064482"
+  }
+}

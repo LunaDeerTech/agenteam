@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/driver01.py",
+    "--name",
+    "independent01",
+    "--group",
+    "both",
+    "--frozen",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution03.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "df_actual_exit": 0,
+  "df_argv": [
+    "/bin/df",
+    "-B1",
+    "/workspace",
+    "/tmp"
+  ],
+  "df_stdout": "Filesystem       1B-blocks        Used  Available Use% Mounted on\noverlay        33770192896 26034733056 6000697344  82% /\nnone            9441349632    94515200 9346834432   2% /tmp\n",
+  "disk_free": 6000697344,
+  "disk_pass": true,
+  "disk_required": 5368709120,
+  "hashes": {
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/driver01.py": "4b25b616a9dbff92a8212d4c30c53c328cdb6ad5ff9fe2a1758f9aecdd389d4d",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution03.json": "79f7427e20901a1e3b3cd49ade0572efb8d972d707c3d3d46e198142457c2aad",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input08/manifest.json": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17"
+  },
+  "hashes_match": true,
+  "interpreter": "/usr/bin/python3",
+  "name_unused": true,
+  "phase": "manual preflight only; driver supplies second fresh disk gate and complete baseline/input gates",
+  "resources_started": false,
+  "utc": "2026-10-07T03:17:44.227213+00:00"
+}

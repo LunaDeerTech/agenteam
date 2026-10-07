@@ -1,0 +1,2998 @@
+--- a/web/src/api/client.ts
++++ b/web/src/api/client.ts
+@@ -74,6 +74,8 @@
+   inspectPasswordReset: ['POST', '/api/v1/password-resets/inspect', 200],
+   completePasswordReset: ['POST', '/api/v1/password-resets/complete', 204],
+   systemUsers: ['GET', '/api/v1/system/users', 200],
++  listSystemAudit: ['GET', '/api/v1/system/audit', 200],
++  getSystemAudit: ['GET', '/api/v1/system/audit/{id}', 200],
+   listProviders: ['GET', '/api/v1/system/model-providers', 200],
+   getProvider: ['GET', '/api/v1/system/model-providers/{id}', 200],
+   createProvider: ['POST', '/api/v1/system/model-providers', 200],
+@@ -392,7 +394,193 @@
+   'updateOutboundPolicy',
+ ]
+ 
++export const auditFilterActions = [
++  'secret.create',
++  'secret.update',
++  'secret.delete',
++  'secret.resolve',
++  'secret.master.register',
++  'secret.master.rotation.start',
++  'secret.master.rotation.complete',
++  'secret.master.rotation.failed',
++  'outbound.policy.update',
++  'outbound.access.deny',
++  'object.upload.complete',
++  'object.upload.failed',
++  'object.delete',
++  'object.transfer.issue',
++  'object.transfer.complete',
++  'object.transfer.revoke',
++  'artifact.create',
++  'artifact.list',
++  'artifact.read',
++  'artifact.download',
++  'outbox.delivery.requeue',
++  'account.bootstrap',
++  'account.login',
++  'account.logout',
++  'account.invite.create',
++  'account.invite.revoke',
++  'account.invite.redeem',
++  'account.password.change',
++  'account.password.reset.request',
++  'account.password.reset.complete',
++  'account.profile.update',
++  'account.avatar.update',
++  'account.settings.update',
++  'smtp.settings.update',
++  'smtp.test.request',
++  'smtp.delivery',
++  'smtp.delivery.retry',
++  'project.create.accepted',
++  'project.create.completed',
++  'project.update',
++  'project.archive.accepted',
++  'project.archive.completed',
++  'project.restore',
++  'project.delete.accepted',
++  'project.lifecycle.retry',
++  'provider.create',
++  'provider.update',
++  'provider.delete',
++  'model.create',
++  'model.update',
++  'model.delete',
++  'model.selection.update',
++  'knowledge.delete_subtree',
++] as const
++export const auditFilterResourceKinds = [
++  'secret',
++  'secret_master',
++  'secret_rotation',
++  'outbound_policy',
++  'agent',
++  'stored_object',
++  'object_transfer',
++  'artifact',
++  'artifact_collection',
++  'outbox_delivery',
++  'user',
++  'session',
++  'account_attempt',
++  'invitation',
++  'password_reset',
++  'account_settings',
++  'smtp_settings',
++  'mail_job',
++  'project',
++  'project_operation',
++  'project_creation',
++  'model_provider',
++  'model_config',
++  'model_selection',
++  'knowledge_document',
++] as const
++export const auditFilterFields = [
++  'from',
++  'to',
++  'actor_kind',
++  'actor_id',
++  'action',
++  'outcome',
++  'resource_kind',
++  'resource_id',
++  'tool_id',
++  'execution_id',
++  'operation_id',
++  'approval_id',
++  'runner_id',
++  'agent_id',
++] as const
++export type AuditFilterField = (typeof auditFilterFields)[number]
++export type AuditWireQuery = Readonly<
++  Partial<Record<AuditFilterField | 'limit' | 'cursor', string>>
++>
++const auditQueryKeys = [...auditFilterFields, 'limit', 'cursor'] as const
++
++function auditCanonicalTime(value: string): boolean {
++  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(value)) return false
++  const y = Number(value.slice(0, 4)),
++    m = Number(value.slice(5, 7)),
++    d = Number(value.slice(8, 10))
++  const days = [
++    31,
++    y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0) ? 29 : 28,
++    31,
++    30,
++    31,
++    30,
++    31,
++    31,
++    30,
++    31,
++    30,
++    31,
++  ]
++  return (
++    m >= 1 &&
++    m <= 12 &&
++    d >= 1 &&
++    d <= days[m - 1]! &&
++    Number(value.slice(11, 13)) <= 23 &&
++    Number(value.slice(14, 16)) <= 59 &&
++    Number(value.slice(17, 19)) <= 59
++  )
++}
++
++// The transport accepts only a captured canonical query, never raw URLs or headers.
++// The page API normalizes legal offset Instants before this independent wire gate.
++export function captureAuditWireQuery(value: unknown): AuditWireQuery {
++  try {
++    const source = shape(value, [], auditQueryKeys)
++    const result: Partial<Record<(typeof auditQueryKeys)[number], string>> = {}
++    for (const key of auditQueryKeys) {
++      if (!Object.hasOwn(source, key)) continue
++      const entry = source[key]
++      if (typeof entry !== 'string') throw new Error()
++      if (key === 'limit') {
++        if (!/^[1-9][0-9]{0,2}$/.test(entry) || Number(entry) > 200) throw new Error()
++      } else {
++        if (entry === '') continue
++        if (key === 'from' || key === 'to') {
++          if (!auditCanonicalTime(entry)) throw new Error()
++        } else if (key === 'cursor') {
++          if (!/^[A-Za-z0-9_.-]+$/.test(entry) || new TextEncoder().encode(entry).byteLength > 8192)
++            throw new Error()
++        } else if (key === 'actor_kind') {
++          if (!['human', 'agent_run', 'service'].includes(entry)) throw new Error()
++        } else if (key === 'action') {
++          if (!(auditFilterActions as readonly string[]).includes(entry)) throw new Error()
++        } else if (key === 'outcome') {
++          if (!['success', 'denied', 'failed', 'unknown'].includes(entry)) throw new Error()
++        } else if (key === 'resource_kind') {
++          if (!(auditFilterResourceKinds as readonly string[]).includes(entry)) throw new Error()
++        } else if (!uuid7.test(entry)) throw new Error()
++      }
++      result[key] = entry
++    }
++    if (result.from && result.to && result.from >= result.to) throw new Error()
++    if (result.actor_kind === 'service' && result.actor_id) throw new Error()
++    const encoded = new URLSearchParams(result).toString()
++    if (new TextEncoder().encode(encoded).byteLength > 32 * 1024) throw new Error()
++    return Object.freeze(result)
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++
++type AuditEndpoint = 'listSystemAudit' | 'getSystemAudit'
++type AuditOptions<E extends AuditEndpoint> = E extends 'listSystemAudit'
++  ? { signal: AbortSignal; audit: AuditWireQuery }
++  : { signal: AbortSignal; target: string }
++
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  function request<T, E extends AuditEndpoint>(
++    endpoint: E,
++    parse: (value: unknown) => T,
++    options: AuditOptions<E>,
++  ): Promise<T>
++
+   function request<T, E extends OutboundPolicyEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -456,6 +644,7 @@
+       | SMTPEndpoint
+       | SMTPDeliveryEndpoint
+       | OutboundPolicyEndpoint
++      | AuditEndpoint
+     >,
+     parse: (value: unknown) => T,
+     options: RequestOptions & { users?: never; invitations?: never; target?: never },
+@@ -469,13 +658,28 @@
+       providers?: Readonly<{ cursor?: string }>
+       models?: Readonly<{ provider_id: string; cursor?: string }>
+       mailJobs?: Readonly<{ cursor?: string }>
++      audit?: AuditWireQuery
+       target?: string
+     },
+   ): Promise<T> {
+     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
+     const [method, basePath, status] = endpoints[endpoint]
+     let path: string = basePath
+-    if (
++    if (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') {
++      try {
++        if (endpoint === 'listSystemAudit') {
++          shape(options, ['signal', 'audit'])
++          const encoded = new URLSearchParams(captureAuditWireQuery(options.audit)).toString()
++          if (encoded) path += '?' + encoded
++        } else {
++          shape(options, ['signal', 'target'])
++          if (!uuid7.test(string(options.target, 36, 36))) throw new Error()
++          path = basePath.replace('{id}', options.target!)
++        }
++      } catch {
++        throw new AccountFailure('invalid-input')
++      }
++    } else if (
+       providerEndpoints.includes(endpoint as ProviderEndpoint) ||
+       modelEndpoints.includes(endpoint as ModelEndpoint) ||
+       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
+@@ -563,6 +767,7 @@
+         throw new AccountFailure('invalid-input')
+       }
+     } else if (
++      Object.hasOwn(options, 'audit') ||
+       Object.hasOwn(options, 'users') ||
+       Object.hasOwn(options, 'invitations') ||
+       Object.hasOwn(options, 'providers') ||
+@@ -661,7 +866,11 @@
+         value = await readJSON(
+           response,
+           options.signal,
+-          endpoint === 'listProviders' && success ? 2 * 1024 * 1024 : 600_000,
++          endpoint === 'listProviders' && success
++            ? 2 * 1024 * 1024
++            : (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') && success
++              ? 1024 * 1024
++              : 600_000,
+         )
+       } catch {
+         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
+--- /dev/null
++++ b/web/src/api/system-audit.ts
+@@ -0,0 +1,218 @@
++import {
++  AccountFailure,
++  accountTransport,
++  auditFilterFields,
++  captureAuditWireQuery,
++  shape,
++  type AuditFilterField,
++  type AuditWireQuery,
++  type Fetch,
++} from './client'
++import { parseSystemInstant } from './system-account'
++import {
++  auditID,
++  auditOutcomes,
++  auditSummary,
++  parseAuditActor,
++  parseAuditAssociations,
++  parseAuditMetadata,
++  parseAuditResource,
++  requireAudit,
++  validateAuditRelations,
++  type AuditActor,
++  type AuditAssociations,
++  type AuditOutcome,
++  type AuditResource,
++  type TypedAuditMetadata,
++} from './system-audit-metadata'
++
++export { auditFilterActions, auditFilterFields, auditFilterResourceKinds } from './client'
++export type { AuditFilterField } from './client'
++export type AuditQuery = AuditWireQuery
++export type AuditQueryField = AuditFilterField | 'limit' | 'cursor'
++export type SystemAuditRecord = TypedAuditMetadata &
++  Readonly<{
++    audit_id: string
++    created_at: string
++    scope: 'system'
++    actor: AuditActor
++    outcome: AuditOutcome
++    resource: AuditResource
++    associations: AuditAssociations
++    summary: string
++  }>
++export type SystemAuditPage = Readonly<{
++  items: readonly SystemAuditRecord[]
++  next_cursor: string | null
++}>
++export interface SystemAuditAPI {
++  list(query: AuditQuery, signal: AbortSignal): Promise<SystemAuditPage>
++  get(id: string, signal: AbortSignal): Promise<SystemAuditRecord>
++}
++export class AuditQueryFailure extends AccountFailure {
++  readonly fields: readonly AuditQueryField[]
++  constructor(fields: readonly AuditQueryField[] = []) {
++    super('invalid-input')
++    this.fields = Object.freeze([...fields])
++  }
++}
++
++export function captureAuditInstant(value: unknown): string {
++  try {
++    if (typeof value !== 'string') throw new Error()
++    const match =
++      /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?(Z|([+-])([01]\d|2[0-3]):([0-5]\d))$/.exec(
++        value,
++      )
++    if (!match) throw new Error()
++    const fraction = (match[7] ?? '').padEnd(6, '0')
++    parseSystemInstant(
++      `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}.${fraction}Z`,
++    )
++    // Set the full year explicitly: Date.UTC treats 0000–0099 as 1900–1999.
++    // Only whole seconds enter Date; the original six microsecond digits stay separate.
++    const date = new Date(0)
++    date.setUTCFullYear(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
++    date.setUTCHours(Number(match[4]), Number(match[5]), Number(match[6]), 0)
++    const minutes =
++      match[8] === 'Z'
++        ? 0
++        : (Number(match[10]) * 60 + Number(match[11])) * (match[9] === '+' ? 1 : -1)
++    date.setTime(date.getTime() - minutes * 60_000)
++    const year = date.getUTCFullYear()
++    if (year < 0 || year > 9999) throw new Error()
++    return parseSystemInstant(`${date.toISOString().slice(0, 19)}.${fraction}Z`)
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++
++export function captureAuditQuery(value: unknown): AuditQuery {
++  let source: Record<string, unknown>
++  const keys = [...auditFilterFields, 'limit', 'cursor'] as const
++  try {
++    source = shape(value, [], keys)
++  } catch {
++    throw new AuditQueryFailure()
++  }
++  const captured: Partial<Record<AuditQueryField, string>> = {}
++  for (const key of keys) {
++    if (!Object.hasOwn(source, key)) continue
++    try {
++      const original = source[key]
++      const normalized =
++        (key === 'from' || key === 'to') && original !== ''
++          ? captureAuditInstant(original)
++          : original
++      const field = captureAuditWireQuery({ [key]: normalized })
++      if (Object.hasOwn(field, key)) captured[key] = field[key]
++    } catch {
++      throw new AuditQueryFailure([key])
++    }
++  }
++  if (captured.from && captured.to && captured.from >= captured.to)
++    throw new AuditQueryFailure(['from', 'to'])
++  if (captured.actor_kind === 'service' && captured.actor_id)
++    throw new AuditQueryFailure(['actor_kind', 'actor_id'])
++  try {
++    return captureAuditWireQuery(captured)
++  } catch {
++    throw new AuditQueryFailure()
++  }
++}
++
++export function parseSystemAuditRecord(value: unknown): SystemAuditRecord {
++  const raw = shape(value, [
++    'audit_id',
++    'created_at',
++    'scope',
++    'actor',
++    'action',
++    'outcome',
++    'resource',
++    'metadata',
++    'associations',
++    'summary',
++  ])
++  requireAudit(raw.scope === 'system')
++  const audit_id = auditID(raw.audit_id),
++    created_at = parseSystemInstant(raw.created_at)
++  const actor = parseAuditActor(raw.actor),
++    resource = parseAuditResource(raw.resource)
++  const associations = parseAuditAssociations(raw.associations)
++  requireAudit(
++    typeof raw.outcome === 'string' && (auditOutcomes as readonly string[]).includes(raw.outcome),
++  )
++  const outcome = raw.outcome as AuditOutcome
++  const typed = parseAuditMetadata(raw.action, raw.metadata)
++  requireAudit(raw.summary === auditSummary(typed.action))
++  validateAuditRelations(typed, { actor, resource, associations, outcome })
++  return Object.freeze({
++    audit_id,
++    created_at,
++    scope: 'system',
++    actor,
++    ...typed,
++    outcome,
++    resource,
++    associations,
++    summary: raw.summary as string,
++  })
++}
++export function parseSystemAuditPage(value: unknown, limit = 50): SystemAuditPage {
++  requireAudit(Number.isInteger(limit) && limit >= 1 && limit <= 200)
++  const raw = shape(value, ['items', 'next_cursor'])
++  requireAudit(Array.isArray(raw.items) && raw.items.length <= limit)
++  const ids = new Set<string>()
++  let previous: SystemAuditRecord | undefined
++  const items = raw.items.map((candidate) => {
++    const row = parseSystemAuditRecord(candidate)
++    requireAudit(!ids.has(row.audit_id))
++    requireAudit(
++      !previous ||
++        row.created_at < previous.created_at ||
++        (row.created_at === previous.created_at && row.audit_id < previous.audit_id),
++    )
++    ids.add(row.audit_id)
++    previous = row
++    return row
++  })
++  const cursor = raw.next_cursor
++  if (cursor !== null) {
++    requireAudit(
++      typeof cursor === 'string' && /^[A-Za-z0-9_.-]+$/.test(cursor) && cursor.length <= 8192,
++    )
++    requireAudit(items.length === limit)
++  }
++  return Object.freeze({ items: Object.freeze(items), next_cursor: cursor as string | null })
++}
++export function createSystemAuditAPI(fetcher?: Fetch): SystemAuditAPI {
++  const request = accountTransport(fetcher)
++  return {
++    async list(query, signal) {
++      const captured = captureAuditQuery(query)
++      const limit = captured.limit === undefined ? 50 : Number(captured.limit)
++      return request('listSystemAudit', (value) => parseSystemAuditPage(value, limit), {
++        signal,
++        audit: captured,
++      })
++    },
++    async get(id, signal) {
++      try {
++        auditID(id)
++      } catch {
++        throw new AccountFailure('invalid-input')
++      }
++      const target = id
++      return request(
++        'getSystemAudit',
++        (value) => {
++          const record = parseSystemAuditRecord(value)
++          requireAudit(record.audit_id === target)
++          return record
++        },
++        { signal, target },
++      )
++    },
++  }
++}
+--- /dev/null
++++ b/web/src/api/system-audit-metadata.ts
+@@ -0,0 +1,727 @@
++import { AccountFailure, object, shape, uuid7 } from './client'
++
++type Parser<T> = (value: unknown) => T
++type Fields = Readonly<Record<string, Parser<unknown>>>
++type Parsed<F extends Fields> = { readonly [K in keyof F]: ReturnType<F[K]> }
++export function requireAudit(valid: unknown): asserts valid {
++  if (!valid) throw new AccountFailure('invalid-response')
++}
++function oneOf<const T extends readonly string[]>(allowed: T): Parser<T[number]> {
++  return (value) => {
++    requireAudit(typeof value === 'string' && allowed.includes(value))
++    return value as T[number]
++  }
++}
++function literal<const T extends string>(expected: T): Parser<T> {
++  return oneOf([expected])
++}
++function record<R extends Fields, O extends Fields = Record<never, never>>(
++  required: R,
++  optional: O = {} as O,
++): Parser<Readonly<Parsed<R> & Partial<Parsed<O>>>> {
++  return (value) => {
++    const source = shape(value, Object.keys(required), Object.keys(optional))
++    const result: Record<string, unknown> = {}
++    for (const [key, parse] of Object.entries(required)) result[key] = parse(source[key])
++    for (const [key, parse] of Object.entries(optional)) {
++      if (Object.hasOwn(source, key)) result[key] = parse(source[key])
++    }
++    return Object.freeze(result) as Readonly<Parsed<R> & Partial<Parsed<O>>>
++  }
++}
++export const auditID: Parser<string> = (value) => {
++  requireAudit(typeof value === 'string' && uuid7.test(value))
++  return value
++}
++const maximumInt64 = '9223372036854775807'
++function integer(positive: boolean): Parser<string> {
++  return (value) => {
++    requireAudit(typeof value === 'string' && /^(0|[1-9][0-9]*)$/.test(value))
++    requireAudit(!positive || value !== '0')
++    requireAudit(value.length < 19 || (value.length === 19 && value <= maximumInt64))
++    return value
++  }
++}
++const version = integer(true),
++  progress = integer(false)
++function fields<const T extends readonly string[]>(allowed: T): Parser<readonly T[number][]> {
++  return (value) => {
++    requireAudit(Array.isArray(value) && value.length > 0 && value.length <= allowed.length)
++    const result = value.map(oneOf(allowed))
++    requireAudit(result.every((entry, index) => index === 0 || result[index - 1]! < entry))
++    return Object.freeze(result)
++  }
++}
++function exactFields<const T extends readonly string[]>(expected: T): Parser<Readonly<T>> {
++  return (value) => {
++    const parsed = fields(expected)(value)
++    requireAudit(parsed.length === expected.length && parsed.every((v, i) => v === expected[i]))
++    return parsed as Readonly<T>
++  }
++}
++
++export const auditConsumers = [
++  'model',
++  'mcp',
++  'runner',
++  'smtp',
++  'object_storage',
++  'system',
++] as const
++export const auditReasons = [
++  'permission_denied',
++  'scope_mismatch',
++  'lease_invalid',
++  'decrypt_failed',
++  'key_unavailable',
++  'ciphertext_invalid',
++  'rotation_failed',
++  'invalid_target',
++  'address_forbidden',
++  'private_not_allowed',
++  'port_denied',
++  'http_denied',
++  'tls_failed',
++  'dns_failed',
++  'redirect_denied',
++  'policy_unavailable',
++  'binding_invalid',
++  'consumer_denied',
++  'credential_denied',
++  'origin_denied',
++  'response_limit',
++  'timeout',
++  'cancelled',
++  'internal_error',
++  'storage_unavailable',
++  'payload_missing',
++  'integrity_mismatch',
++] as const
++const consumer = oneOf(auditConsumers),
++  reason = oneOf(auditReasons)
++const channel = oneOf(['smtp', 'log'] as const)
++const deliveryReason = oneOf([
++  'delivery_rejected',
++  'timeout',
++  'cancelled',
++  'delivery_unknown',
++] as const)
++const loginReason = oneOf([
++  'credentials_rejected',
++  'challenge_required',
++  'challenge_invalid',
++  'session_invalid',
++] as const)
++
++// Go's MIME grammar permits a single token and {}. Canonical Parse/Format does
++// not require a slash. Parameters remain the contract's two charset values.
++export const auditMediaType: Parser<string> = (value) => {
++  requireAudit(typeof value === 'string' && new TextEncoder().encode(value).byteLength <= 256)
++  requireAudit(
++    /^[!#$%&'*+.^_`|~{}0-9a-z-]+(?:\/[!#$%&'*+.^_`|~{}0-9a-z-]+)?(?:; charset=(?:utf-8|us-ascii))?$/.test(
++      value,
++    ),
++  )
++  return value
++}
++export function auditMetadataJSONBytes(value: unknown): number {
++  const encoded = JSON.stringify(value)
++  requireAudit(typeof encoded === 'string')
++  // Count the actual safe projection as Go's default json.Marshal would encode
++  // it, including HTML and line-separator escapes rather than JS-only bytes.
++  return new TextEncoder().encode(
++    encoded.replace(
++      /[<>&\u2028\u2029]/g,
++      (char) => '\\u' + char.charCodeAt(0).toString(16).padStart(4, '0'),
++    ),
++  ).byteLength
++}
++
++type ContentInitiator =
++  | Readonly<{ initiator_kind: 'human' | 'service'; initiator_id: string }>
++  | Readonly<{ initiator_kind: 'agent_run'; initiator_id: string; initiator_execution_id: string }>
++type ObjectMetadata<P extends string, R extends boolean> = Readonly<{
++  object_id: string
++  media_type: string
++  byte_size: string
++  sent_bytes: string
++  phase: P
++}> &
++  ContentInitiator &
++  (R extends true ? Readonly<{ reason: (typeof auditReasons)[number] }> : object)
++function content<P extends string, R extends boolean>(
++  phase: P,
++  withReason: R,
++): Parser<ObjectMetadata<P, R>> {
++  return (value) => {
++    const raw = object(value)
++    const initiator = oneOf(['human', 'agent_run', 'service'] as const)(raw.initiator_kind)
++    const parsed = record({
++      object_id: auditID,
++      initiator_kind: literal(initiator),
++      initiator_id: auditID,
++      ...(initiator === 'agent_run' ? { initiator_execution_id: auditID } : {}),
++      media_type: auditMediaType,
++      byte_size: progress,
++      sent_bytes: progress,
++      phase: literal(phase),
++      ...(withReason ? { reason } : {}),
++    })(value)
++    requireAudit(BigInt(parsed.sent_bytes) <= BigInt(parsed.byte_size))
++    return parsed as ObjectMetadata<P, R>
++  }
++}
++function login(value: unknown) {
++  const phase = object(value).phase
++  if (phase === 'authenticated')
++    return record({
++      version,
++      phase: literal('authenticated'),
++      attempt_id: auditID,
++      user_id: auditID,
++      session_id: auditID,
++    })(value)
++  return record(
++    { version, phase: literal('rejected'), attempt_id: auditID, reason: loginReason },
++    { user_id: auditID },
++  )(value)
++}
++function delivery(value: unknown) {
++  const rawPhase = object(value).phase
++  if (rawPhase === 'sent')
++    return record(
++      { version, phase: literal('sent'), job_id: auditID, attempt_id: auditID, channel },
++      { initiator_id: auditID },
++    )(value)
++  const phase = oneOf(['failed', 'unknown'] as const)(rawPhase)
++  return record(
++    {
++      version,
++      phase: literal(phase),
++      job_id: auditID,
++      attempt_id: auditID,
++      channel,
++      reason: deliveryReason,
++    },
++    { initiator_id: auditID },
++  )(value)
++}
++function modelDelete(value: unknown) {
++  const parsed = record(
++    {
++      provider_id: auditID,
++      model_id: auditID,
++      version,
++      changed_fields: fields(['deleted', 'replacement'] as const),
++      affected_count: progress,
++    },
++    { replacement_id: auditID },
++  )(value)
++  requireAudit(
++    parsed.changed_fields.join(',') === (parsed.replacement_id ? 'deleted,replacement' : 'deleted'),
++  )
++  return parsed
++}
++const providerChanges = [
++  'name',
++  'enabled',
++  'base_url',
++  'credential_ref',
++  'provider_options',
++] as const
++const modelChanges = [
++  'name',
++  'enabled',
++  'model_id',
++  'parameters',
++  'request_overwrite',
++  'header_overwrite',
++  'capabilities',
++] as const
++
++const parsers = {
++  'secret.create': record({ version, changed_fields: fields(['value', 'purpose'] as const) }),
++  'secret.update': record({ version, changed_fields: fields(['value', 'purpose'] as const) }),
++  'secret.delete': record({ version }),
++  'secret.resolve': record({ lease_id: auditID, consumer }, { reason }),
++  'secret.master.register': record({ version }),
++  'secret.master.rotation.start': record({ version, rotation_id: auditID, count: progress }),
++  'secret.master.rotation.complete': record({ version, rotation_id: auditID, count: progress }),
++  'secret.master.rotation.failed': record({
++    version,
++    rotation_id: auditID,
++    count: progress,
++    reason,
++  }),
++  'outbound.policy.update': record({
++    version,
++    rule_count: (value: unknown) => {
++      const count = progress(value)
++      requireAudit(BigInt(count) <= 256n)
++      return count
++    },
++  }),
++  'outbound.access.deny': record({ version, consumer, reason }),
++  'object.upload.complete': content('published', false),
++  'object.upload.failed': content('failed', true),
++  'object.delete': content('deleted', false),
++  'outbox.delivery.requeue': record({
++    delivery_id: auditID,
++    event_id: auditID,
++    handler_id: (value: unknown) => {
++      requireAudit(typeof value === 'string' && /^[a-z][a-z0-9_.-]{0,127}$/.test(value))
++      return value
++    },
++    from_state: oneOf(['failed', 'dead_letter'] as const),
++    redrive_cycle: version,
++    reason_code: oneOf(['operator_retry', 'schema_available', 'dependency_restored'] as const),
++  }),
++  'account.bootstrap': record({ version, phase: literal('created'), user_id: auditID }),
++  'account.login': login,
++  'account.logout': record({
++    version,
++    phase: literal('revoked'),
++    user_id: auditID,
++    session_id: auditID,
++  }),
++  'account.invite.create': record(
++    { version, phase: literal('created'), invitation_id: auditID },
++    { initiator_id: auditID, channel },
++  ),
++  'account.invite.revoke': record(
++    { version, phase: literal('revoked'), invitation_id: auditID },
++    { initiator_id: auditID },
++  ),
++  'account.invite.redeem': record({
++    version,
++    phase: literal('redeemed'),
++    user_id: auditID,
++    invitation_id: auditID,
++  }),
++  'account.password.change': record({
++    version,
++    phase: literal('updated'),
++    user_id: auditID,
++    changed_fields: exactFields(['password'] as const),
++  }),
++  'account.password.reset.request': record(
++    { version, phase: literal('accepted'), attempt_id: auditID },
++    { user_id: auditID },
++  ),
++  'account.password.reset.complete': record({
++    version,
++    phase: literal('redeemed'),
++    user_id: auditID,
++    reset_id: auditID,
++  }),
++  'account.profile.update': record({
++    version,
++    phase: literal('updated'),
++    user_id: auditID,
++    changed_fields: fields(['username', 'display_name', 'theme'] as const),
++  }),
++  'account.avatar.update': record(
++    {
++      version,
++      phase: literal('updated'),
++      user_id: auditID,
++      changed_fields: exactFields(['avatar'] as const),
++    },
++    { object_id: auditID },
++  ),
++  'account.settings.update': record(
++    {
++      version,
++      phase: literal('updated'),
++      changed_fields: fields([
++        'session_idle_seconds',
++        'session_absolute_seconds',
++        'password_reset_seconds',
++        'challenge_after_failures',
++      ] as const),
++    },
++    { initiator_id: auditID },
++  ),
++  'smtp.settings.update': record(
++    {
++      version,
++      phase: literal('updated'),
++      changed_fields: fields([
++        'host',
++        'port',
++        'tls_mode',
++        'auth_username',
++        'password',
++        'from',
++        'enabled',
++        'sender_name',
++        'auto_retry_count',
++        'retry_interval_seconds',
++      ] as const),
++    },
++    { initiator_id: auditID },
++  ),
++  'smtp.test.request': record(
++    { version, phase: literal('accepted'), job_id: auditID },
++    { initiator_id: auditID, channel },
++  ),
++  'smtp.delivery.retry': record({
++    version,
++    phase: literal('accepted'),
++    job_id: auditID,
++    initiator_id: auditID,
++  }),
++  'smtp.delivery': delivery,
++  'provider.create': record({
++    provider_id: auditID,
++    version,
++    changed_fields: exactFields(['created'] as const),
++  }),
++  'provider.update': record({
++    provider_id: auditID,
++    version,
++    changed_fields: fields(providerChanges),
++  }),
++  'provider.delete': record({
++    provider_id: auditID,
++    version,
++    changed_fields: exactFields(['deleted'] as const),
++  }),
++  'model.create': record({
++    provider_id: auditID,
++    model_id: auditID,
++    version,
++    changed_fields: exactFields(['created'] as const),
++  }),
++  'model.update': record({
++    provider_id: auditID,
++    model_id: auditID,
++    version,
++    changed_fields: fields(modelChanges),
++  }),
++  'model.delete': modelDelete,
++  'model.selection.update': record({
++    selection_id: auditID,
++    version,
++    selector_kind: literal('platform'),
++    changed_fields: exactFields(['selection'] as const),
++  }),
++} as const
++
++export type SystemAuditAction = keyof typeof parsers
++export type AuditMetadataByAction = {
++  readonly [A in SystemAuditAction]: ReturnType<(typeof parsers)[A]>
++}
++export type TypedAuditMetadata = {
++  readonly [A in SystemAuditAction]: Readonly<{ action: A; metadata: AuditMetadataByAction[A] }>
++}[SystemAuditAction]
++export const systemAuditActions = Object.freeze(Object.keys(parsers) as SystemAuditAction[])
++export function parseAuditMetadata(action: unknown, value: unknown): TypedAuditMetadata {
++  requireAudit(typeof action === 'string' && Object.hasOwn(parsers, action))
++  const parsed = parsers[action as SystemAuditAction](value)
++  requireAudit(auditMetadataJSONBytes(parsed) <= 4096)
++  return Object.freeze({ action, metadata: parsed }) as TypedAuditMetadata
++}
++
++export const auditServices = [
++  'secret',
++  'secret-maintenance',
++  'outbound',
++  'object',
++  'object-maintenance',
++  'project-lifecycle',
++  'project-initialization',
++  'outbox-delivery',
++  'account-bootstrap',
++  'account-auth',
++  'account-maintenance',
++  'account-mail',
++  'model-runtime',
++] as const
++export const systemAuditResourceKinds = [
++  'secret',
++  'secret_master',
++  'secret_rotation',
++  'outbound_policy',
++  'stored_object',
++  'outbox_delivery',
++  'user',
++  'session',
++  'account_attempt',
++  'invitation',
++  'password_reset',
++  'account_settings',
++  'smtp_settings',
++  'mail_job',
++  'model_provider',
++  'model_config',
++  'model_selection',
++] as const
++export const auditOutcomes = ['success', 'denied', 'failed', 'unknown'] as const
++export type AuditOutcome = (typeof auditOutcomes)[number]
++export type AuditActor =
++  | Readonly<{ kind: 'human'; id: string }>
++  | Readonly<{ kind: 'service'; service: (typeof auditServices)[number]; cause_ref: string }>
++export type AuditResource =
++  | Readonly<{ kind: 'secret_master' | 'outbound_policy' }>
++  | Readonly<{
++      kind: Exclude<(typeof systemAuditResourceKinds)[number], 'secret_master' | 'outbound_policy'>
++      id: string
++    }>
++export const auditAssociationFields = [
++  'tool_id',
++  'request_id',
++  'runner_id',
++  'correlation_id',
++  'http_trace_id',
++] as const
++export type AuditAssociations = Readonly<
++  Partial<Record<(typeof auditAssociationFields)[number], string>>
++>
++export function parseAuditActor(value: unknown): AuditActor {
++  if (object(value).kind === 'human') return record({ kind: literal('human'), id: auditID })(value)
++  return record({
++    kind: literal('service'),
++    service: oneOf(auditServices),
++    cause_ref: (value: unknown) => {
++      requireAudit(
++        typeof value === 'string' && (uuid7.test(value) || /^sha256:[0-9a-f]{64}$/.test(value)),
++      )
++      return value
++    },
++  })(value)
++}
++export function parseAuditResource(value: unknown): AuditResource {
++  const kind = oneOf(systemAuditResourceKinds)(object(value).kind)
++  if (kind === 'secret_master' || kind === 'outbound_policy')
++    return record({ kind: literal(kind) })(value)
++  return record({ kind: literal(kind), id: auditID })(value)
++}
++export function parseAuditAssociations(value: unknown): AuditAssociations {
++  return record(
++    {},
++    {
++      tool_id: auditID,
++      request_id: auditID,
++      runner_id: auditID,
++      correlation_id: auditID,
++      http_trace_id: auditID,
++    },
++  )(value)
++}
++export function auditSummary(action: SystemAuditAction): string {
++  const summaries: Partial<Record<SystemAuditAction, string>> = {
++    'secret.create': 'Secret created',
++    'secret.update': 'Secret updated',
++    'secret.delete': 'Secret deleted',
++    'secret.resolve': 'Secret use recorded',
++    'secret.master.register': 'Master key registered',
++    'secret.master.rotation.start': 'Master key rotation started',
++    'secret.master.rotation.complete': 'Master key rotation completed',
++    'secret.master.rotation.failed': 'Master key rotation failed',
++    'outbound.policy.update': 'Outbound policy updated',
++    'outbound.access.deny': 'Outbound access denied',
++  }
++  return summaries[action] ?? 'Audit event'
++}
++
++export function validateAuditRelations(
++  entry: TypedAuditMetadata,
++  context: Readonly<{
++    actor: AuditActor
++    outcome: AuditOutcome
++    resource: AuditResource
++    associations: AuditAssociations
++  }>,
++): void {
++  const { action, metadata: m } = entry
++  const { actor, outcome, resource, associations } = context
++  const same = (kind: string, id?: string) =>
++    resource.kind === kind && ('id' in resource ? resource.id : undefined) === id
++  if (action.startsWith('account.') || action.startsWith('smtp.')) {
++    // All branches above have already validated their distinct phase/field shape.
++    const metadata = m as AuditMetadataByAction['account.bootstrap'] &
++      Partial<{
++        attempt_id: string
++        session_id: string
++        invitation_id: string
++        reset_id: string
++        job_id: string
++      }>
++    let kind = 'user',
++      id: string | undefined = metadata.user_id
++    switch (action) {
++      case 'account.login':
++      case 'account.password.reset.request':
++        kind = 'account_attempt'
++        id = metadata.attempt_id
++        break
++      case 'account.logout':
++        kind = 'session'
++        id = metadata.session_id
++        break
++      case 'account.invite.create':
++      case 'account.invite.revoke':
++        kind = 'invitation'
++        id = metadata.invitation_id
++        break
++      case 'account.password.reset.complete':
++        kind = 'password_reset'
++        id = metadata.reset_id
++        break
++      case 'account.settings.update':
++        kind = 'account_settings'
++        id = 'id' in resource ? resource.id : undefined
++        break
++      case 'smtp.settings.update':
++        kind = 'smtp_settings'
++        id = 'id' in resource ? resource.id : undefined
++        break
++      case 'smtp.test.request':
++      case 'smtp.delivery.retry':
++      case 'smtp.delivery':
++        kind = 'mail_job'
++        id = metadata.job_id
++        break
++    }
++    const phase: string = metadata.phase
++    const expected =
++      phase === 'rejected'
++        ? 'denied'
++        : phase === 'failed'
++          ? 'failed'
++          : phase === 'unknown'
++            ? 'unknown'
++            : 'success'
++    requireAudit(
++      same(kind, id) &&
++        outcome === expected &&
++        (action !== 'smtp.delivery.retry' || actor.kind === 'human'),
++    )
++    return
++  }
++  if (action.startsWith('provider.') || action.startsWith('model.')) {
++    requireAudit(
++      actor.kind === 'human' &&
++        outcome === 'success' &&
++        !associations.tool_id &&
++        !associations.request_id &&
++        !associations.runner_id,
++    )
++    if (action === 'model.selection.update')
++      requireAudit(
++        same(
++          'model_selection',
++          (m as AuditMetadataByAction['model.selection.update']).selection_id,
++        ),
++      )
++    else if (action.startsWith('provider.'))
++      requireAudit(
++        same('model_provider', (m as AuditMetadataByAction['provider.create']).provider_id),
++      )
++    else requireAudit(same('model_config', (m as AuditMetadataByAction['model.create']).model_id))
++    return
++  }
++  switch (entry.action) {
++    case 'secret.create':
++    case 'secret.update':
++    case 'secret.delete':
++    case 'secret.resolve':
++      requireAudit(resource.kind === 'secret')
++      break
++    case 'secret.master.register':
++      requireAudit(same('secret_master') && outcome === 'success')
++      break
++    case 'secret.master.rotation.start':
++    case 'secret.master.rotation.complete':
++    case 'secret.master.rotation.failed':
++      requireAudit(
++        same('secret_rotation', entry.metadata.rotation_id) &&
++          outcome === (entry.action === 'secret.master.rotation.failed' ? 'failed' : 'success'),
++      )
++      break
++    case 'outbound.policy.update':
++      requireAudit(same('outbound_policy'))
++      break
++    case 'outbound.access.deny':
++      requireAudit(
++        (resource.kind === 'outbound_policy' || resource.kind === 'secret') && outcome === 'denied',
++      )
++      break
++    case 'object.upload.complete':
++    case 'object.upload.failed':
++    case 'object.delete':
++      requireAudit(
++        same('stored_object', entry.metadata.object_id) &&
++          actor.kind === 'service' &&
++          ['object', 'object-maintenance'].includes(actor.service),
++      )
++      requireAudit(
++        entry.action === 'object.upload.failed'
++          ? outcome === 'failed' || outcome === 'unknown'
++          : outcome === 'success',
++      )
++      break
++    case 'outbox.delivery.requeue':
++      requireAudit(
++        same('outbox_delivery', entry.metadata.delivery_id) &&
++          actor.kind === 'human' &&
++          outcome === 'success',
++      )
++      break
++    default:
++      throw new AccountFailure('invalid-response')
++  }
++}
++
++const metadataLabels = [
++  ['version', '版本'],
++  ['user_id', 'User ID'],
++  ['session_id', 'Session ID'],
++  ['attempt_id', 'Attempt ID'],
++  ['invitation_id', 'Invitation ID'],
++  ['reset_id', 'Reset ID'],
++  ['job_id', 'Job ID'],
++  ['provider_id', 'Provider ID'],
++  ['model_id', 'Model ID'],
++  ['selection_id', 'Selection ID'],
++  ['replacement_id', 'Replacement ID'],
++  ['selector_kind', '选择器类型'],
++  ['affected_count', '影响引用数'],
++  ['changed_fields', '变更字段'],
++  ['channel', '渠道'],
++  ['phase', '阶段'],
++  ['reason', '原因'],
++  ['initiator_id', 'Initiator ID'],
++  ['initiator_kind', '发起者类型'],
++  ['initiator_execution_id', '发起者 Execution ID'],
++  ['lease_id', 'Lease ID'],
++  ['consumer', '使用方'],
++  ['rotation_id', 'Rotation ID'],
++  ['count', '数量'],
++  ['rule_count', '规则数量'],
++  ['object_id', 'Object ID'],
++  ['media_type', '媒体类型'],
++  ['byte_size', '字节数'],
++  ['sent_bytes', '已传输字节数'],
++  ['delivery_id', 'Delivery ID'],
++  ['event_id', 'Event ID'],
++  ['handler_id', '处理器'],
++  ['from_state', '原状态'],
++  ['redrive_cycle', '重新投递周期'],
++  ['reason_code', '重新投递原因'],
++] as const
++export function auditMetadataFields(
++  entry: TypedAuditMetadata,
++): readonly Readonly<{ key: string; label: string; value: string }>[] {
++  const metadata = entry.metadata as Readonly<Record<string, string | readonly string[]>>
++  return Object.freeze(
++    metadataLabels.flatMap(([key, label]) => {
++      if (!Object.hasOwn(metadata, key)) return []
++      const value = metadata[key]!
++      return [
++        Object.freeze({ key, label, value: typeof value === 'string' ? value : value.join(', ') }),
++      ]
++    }),
++  )
++}
+--- /dev/null
++++ b/web/src/tests/system-audit-client.spec.ts
+@@ -0,0 +1,638 @@
++import { describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { accountTransport, captureAuditWireQuery, type Fetch } from '../api/client'
++import {
++  auditFilterActions,
++  auditFilterFields,
++  auditFilterResourceKinds,
++  captureAuditInstant,
++  captureAuditQuery,
++  createSystemAuditAPI,
++  parseSystemAuditPage,
++  type AuditQuery,
++} from '../api/system-audit'
++const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
++const signal = () => new AbortController().signal
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } })
++function row(n = 10, time = '2026-10-06T01:02:03.123456Z') {
++  return {
++    audit_id: id(n),
++    created_at: time,
++    scope: 'system',
++    actor: { kind: 'human', id: id(1) },
++    action: 'secret.create',
++    outcome: 'success',
++    resource: { kind: 'secret', id: id(2) },
++    metadata: { version: '1', changed_fields: ['value'] },
++    associations: {},
++    summary: 'Secret created',
++  }
++}
++const page = (items: unknown[] = [row()], next_cursor: unknown = null) => ({ items, next_cursor })
++function deferred<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => (resolve = r))
++  return { promise, resolve }
++}
++function problem(status: number, code: string, commit_state = 'not_started') {
++  return new Response(
++    JSON.stringify({
++      type: 'urn:agenteam:problem:request-failed',
++      title: 'Request failed',
++      status,
++      detail: 'Request failed.',
++      instance: '/api/v1/system/audit',
++      code,
++      request_id: id(99),
++      commit_state,
++    }),
++    { status, headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(99) } },
++  )
++}
++function invalidQuery(query: unknown) {
++  try {
++    captureAuditQuery(query)
++    return false
++  } catch (error) {
++    return error instanceof Error && error.message === 'invalid-input'
++  }
++}
++
++describe('System Audit two fixed GET operations', () => {
++  it('sends empty filters without a bare query, and a single validated detail target', async () => {
++    const fetch = vi.fn<Fetch>(async (path) => json(path.endsWith('/audit') ? page() : row())),
++      api = createSystemAuditAPI(fetch)
++    const current = await api.list({}, signal()),
++      detail = await api.get(id(10), signal())
++    expect(fetch.mock.calls.map(([path, init]) => [path, init.method])).toEqual([
++      ['/api/v1/system/audit', 'GET'],
++      [`/api/v1/system/audit/${id(10)}`, 'GET'],
++    ])
++    expect([current, current.items, current.items[0], detail].every(Object.isFrozen)).toBe(true)
++    for (const [, init] of fetch.mock.calls) {
++      const headers = new Headers(init.headers)
++      expect(
++        init.body === undefined &&
++          init.credentials === 'same-origin' &&
++          init.cache === 'no-store' &&
++          init.redirect === 'error',
++      ).toBe(true)
++      expect(!headers.has('X-CSRF-Token') && !headers.has('Idempotency-Key')).toBe(true)
++    }
++  })
++  it('captures all fourteen fields once, normalizes offsets without losing microseconds, and preserves the cursor', async () => {
++    const values: Record<string, string> = {
++      from: '0000-02-29T01:02:03.123456+01:02',
++      to: '0099-12-31T23:59:59.999999-00:00',
++      actor_kind: 'agent_run',
++      actor_id: id(1),
++      action: 'knowledge.delete_subtree',
++      outcome: 'unknown',
++      resource_kind: 'knowledge_document',
++      resource_id: id(2),
++      tool_id: id(3),
++      execution_id: id(4),
++      operation_id: id(5),
++      approval_id: id(6),
++      runner_id: id(7),
++      agent_id: id(8),
++      limit: '200',
++      cursor: 'v1.a_B-c.9',
++    }
++    const counts = new Map<string, number>(),
++      query: Record<string, unknown> = {}
++    for (const [key, value] of Object.entries(values))
++      Object.defineProperty(query, key, {
++        enumerable: true,
++        get() {
++          counts.set(key, (counts.get(key) ?? 0) + 1)
++          return value
++        },
++      })
++    const gate = deferred<Response>(),
++      fetch = vi.fn<Fetch>(() => gate.promise),
++      pending = createSystemAuditAPI(fetch).list(query as AuditQuery, signal())
++    try {
++      expect(fetch).toHaveBeenCalledTimes(1)
++      expect([...counts.values()].every((count) => count === 1) && counts.size === 16).toBe(true)
++      const path = fetch.mock.calls[0]![0],
++        parsed = new URL(path, 'https://same.invalid'),
++        params = parsed.searchParams
++      expect([...params.keys()].length).toBe(16)
++      expect(
++        params.get('from') === '0000-02-29T00:00:03.123456Z' &&
++          params.get('to') === values.to.replace('-00:00', 'Z'),
++      ).toBe(true)
++      expect(
++        auditFilterFields.every((key) => params.has(key)) && params.get('cursor') === values.cursor,
++      ).toBe(true)
++      expect(
++        path.includes('%3A') &&
++          !path.includes('%253A') &&
++          new TextEncoder().encode(parsed.search.slice(1)).byteLength <= 32768,
++      ).toBe(true)
++    } finally {
++      gate.resolve(json(page([])))
++      await pending
++    }
++  })
++  it('keeps the 53 action and 25 resource Filter domains, including project-only empty observations', async () => {
++    expect(auditFilterActions.length).toBe(53)
++    expect(auditFilterResourceKinds.length).toBe(25)
++    const formalActions = [
++      'secret.create',
++      'secret.update',
++      'secret.delete',
++      'secret.resolve',
++      'secret.master.register',
++      'secret.master.rotation.start',
++      'secret.master.rotation.complete',
++      'secret.master.rotation.failed',
++      'outbound.policy.update',
++      'outbound.access.deny',
++      'object.upload.complete',
++      'object.upload.failed',
++      'object.delete',
++      'object.transfer.issue',
++      'object.transfer.complete',
++      'object.transfer.revoke',
++      'artifact.create',
++      'artifact.list',
++      'artifact.read',
++      'artifact.download',
++      'outbox.delivery.requeue',
++      'account.bootstrap',
++      'account.login',
++      'account.logout',
++      'account.invite.create',
++      'account.invite.revoke',
++      'account.invite.redeem',
++      'account.password.change',
++      'account.password.reset.request',
++      'account.password.reset.complete',
++      'account.profile.update',
++      'account.avatar.update',
++      'account.settings.update',
++      'smtp.settings.update',
++      'smtp.test.request',
++      'smtp.delivery',
++      'smtp.delivery.retry',
++      'project.create.accepted',
++      'project.create.completed',
++      'project.update',
++      'project.archive.accepted',
++      'project.archive.completed',
++      'project.restore',
++      'project.delete.accepted',
++      'project.lifecycle.retry',
++      'provider.create',
++      'provider.update',
++      'provider.delete',
++      'model.create',
++      'model.update',
++      'model.delete',
++      'model.selection.update',
++      'knowledge.delete_subtree',
++    ]
++    const formalResources = [
++      'secret',
++      'secret_master',
++      'secret_rotation',
++      'outbound_policy',
++      'agent',
++      'stored_object',
++      'object_transfer',
++      'artifact',
++      'artifact_collection',
++      'outbox_delivery',
++      'user',
++      'session',
++      'account_attempt',
++      'invitation',
++      'password_reset',
++      'account_settings',
++      'smtp_settings',
++      'mail_job',
++      'project',
++      'project_operation',
++      'project_creation',
++      'model_provider',
++      'model_config',
++      'model_selection',
++      'knowledge_document',
++    ]
++    expect(
++      [...auditFilterActions].sort().join('|') === formalActions.sort().join('|') &&
++        [...auditFilterResourceKinds].sort().join('|') === formalResources.sort().join('|'),
++    ).toBe(true)
++    for (const action of auditFilterActions)
++      expect(captureAuditQuery({ action }).action === action).toBe(true)
++    for (const resource_kind of auditFilterResourceKinds)
++      expect(captureAuditQuery({ resource_kind }).resource_kind === resource_kind).toBe(true)
++    const fetch = vi.fn<Fetch>(async () => json(page([])))
++    expect(
++      (
++        await createSystemAuditAPI(fetch).list(
++          {
++            actor_kind: 'agent_run',
++            action: 'project.create.accepted',
++            resource_kind: 'agent',
++            resource_id: id(2),
++          },
++          signal(),
++        )
++      ).items.length,
++    ).toBe(0)
++    expect(fetch).toHaveBeenCalledTimes(1)
++  })
++  it('rejects invalid fields and forbidden runtime options before any request', async () => {
++    const fetch = vi.fn<Fetch>(async () => json(page())),
++      api = createSystemAuditAPI(fetch),
++      request = accountTransport(fetch)
++    const bad = [
++      null,
++      [],
++      { scope: 'system' },
++      { project_id: id(1) },
++      { headers: {} },
++      { limit: '' },
++      { limit: '0' },
++      { limit: '01' },
++      { limit: '+1' },
++      { limit: '1e2' },
++      { limit: '1.1' },
++      { limit: '201' },
++      { limit: 1 },
++      { cursor: 'x'.repeat(8193) },
++      { cursor: 'a%2Fb' },
++      { cursor: 'é' },
++      { action: 'unknown' },
++      { outcome: 'SUCCESS' },
++      { resource_kind: 'url' },
++      { actor_id: id(0xab).toUpperCase() },
++      { tool_id: ' ' + id(1) },
++      { actor_kind: 'service', actor_id: id(1) },
++      { from: '2026-01-01T00:00:00Z', to: '2026-01-01T00:00:00Z' },
++      { from: null },
++    ]
++    for (const query of bad)
++      await expect(api.list(query as AuditQuery, signal())).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    for (const target of [
++      id(10) + '/x',
++      '../' + id(10),
++      id(10) + '?a=1',
++      id(10).replace('-7000-', '-4000-'),
++      '',
++    ])
++      await expect(api.get(target, signal())).rejects.toMatchObject({ kind: 'invalid-input' })
++    for (const extra of [
++      { target: id(1) },
++      { body: {} },
++      { csrf: 'x' },
++      { key: 'x' },
++      { maximum: 2000000 },
++      { audit: { scope: 'system' } },
++    ])
++      await expect(
++        request('listSystemAudit', (v) => v, { signal: signal(), audit: {}, ...extra } as never),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      request('getSystemAudit', (v) => v, { signal: signal(), target: id(10), audit: {} } as never),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      request('profile', (v) => v, { signal: signal(), audit: {} } as never),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).not.toHaveBeenCalled()
++  })
++  it('omits only empty filters, freezes captures, accepts both page-size endpoints and validates canonical transport time independently', () => {
++    expect(
++      Object.keys(
++        captureAuditQuery(
++          Object.fromEntries([...auditFilterFields, 'cursor'].map((key) => [key, ''])),
++        ),
++      ).length,
++    ).toBe(0)
++    expect(captureAuditQuery({ limit: '1' }).limit).toBe('1')
++    expect(captureAuditQuery({ limit: '200' }).limit).toBe('200')
++    expect(Object.isFrozen(captureAuditQuery({ cursor: 'a'.repeat(8192) }))).toBe(true)
++    for (const from of [
++      '2026-01-01T00:00:00Z',
++      '2026-01-01T00:00:00.000000+00:00',
++      '2026-02-30T00:00:00.000000Z',
++    ])
++      expect(() => captureAuditWireQuery({ from })).toThrow('invalid-input')
++    expect(
++      invalidQuery({ from: '2026-01-01T00:00:00.000002Z', to: '2026-01-01T00:00:00.000001Z' }),
++    ).toBe(true)
++  })
++  it.each([
++    [400, 'CURSOR_INVALID'],
++    [401, 'SESSION_REVOKED'],
++    [403, 'PERMISSION_DENIED'],
++    [404, 'NOT_FOUND'],
++    [503, 'DEPENDENCY_UNAVAILABLE'],
++  ] as const)(
++    'preserves legal Problem status %s/code for owner classification',
++    async (status, code) => {
++      const fetch = vi.fn<Fetch>(async () => problem(status, code)),
++        api = createSystemAuditAPI(fetch)
++      await expect(api.get(id(10), signal())).rejects.toMatchObject({
++        kind: 'problem',
++        problem: { status, code, commit_state: 'not_started' },
++      })
++      expect(fetch).toHaveBeenCalledTimes(1)
++    },
++  )
++  it('rejects wrong status, media, invalid UTF8 and wrong detail identity with no follow-up request', async () => {
++    const cases = [
++      () => json(row(), 201),
++      () => new Response(JSON.stringify(row()), { headers: { 'Content-Type': 'text/plain' } }),
++      () =>
++        new Response(new Uint8Array([0xc3, 0x28]), {
++          headers: { 'Content-Type': 'application/json' },
++        }),
++      () => new Response('{', { headers: { 'Content-Type': 'application/json' } }),
++      () => json(row(11)),
++    ]
++    for (const make of cases) {
++      const fetch = vi.fn<Fetch>(async () => make())
++      await expect(createSystemAuditAPI(fetch).get(id(10), signal())).rejects.toMatchObject({
++        kind: 'invalid-response',
++      })
++      expect(fetch).toHaveBeenCalledTimes(1)
++    }
++  })
++})
++
++describe('complete page validation', () => {
++  it('accepts 200 ordered records and checks the full microsecond then UUID tuple', () => {
++    const rows = Array.from({ length: 200 }, (_, n) => row(300 - n))
++    const result = parseSystemAuditPage(page(rows, 'one.next-token'), 200)
++    expect(
++      result.items.length === 200 &&
++        result.next_cursor === 'one.next-token' &&
++        Object.isFrozen(result.items),
++    ).toBe(true)
++    const times = [
++      row(1, '0000-02-29T00:00:00.000002Z'),
++      row(5, '0000-02-29T00:00:00.000001Z'),
++      row(4, '0000-02-29T00:00:00.000001Z'),
++    ]
++    expect(parseSystemAuditPage(page(times)).items.length).toBe(3)
++  })
++  it('rejects the whole page for duplicate, reversed, missing/null, oversized or malformed-last records', async () => {
++    const rows = Array.from({ length: 200 }, (_, n) => row(300 - n)),
++      bad = [
++        null,
++        {},
++        { items: [] },
++        { items: [], next_cursor: undefined },
++        page(null as never),
++        page([null]),
++        page([row(), row()]),
++        page([row(1), row(2)]),
++        page([row(2, '2026-10-06T01:02:03.000001Z'), row(1, '2026-10-06T01:02:03.000002Z')]),
++        page([...rows, row(1)]),
++        page([
++          ...rows.slice(0, 199),
++          { ...row(1), metadata: { version: '1', changed_fields: ['value'], token: 'forbidden' } },
++        ]),
++        { ...page(), extra: true },
++      ]
++    for (const value of bad)
++      await expect(
++        createSystemAuditAPI(async () => json(value)).list({ limit: '200' }, signal()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++  it('requires a full page for a bounded safe cursor and distinguishes null from missing', () => {
++    for (const cursor of ['', 'x'.repeat(8193), 'é', 'x%2F', 'x/y', 42, undefined])
++      expect(() => parseSystemAuditPage({ items: [row()], next_cursor: cursor }, 1)).toThrow(
++        'invalid-response',
++      )
++    expect(() => parseSystemAuditPage(page([], 'next'), 1)).toThrow('invalid-response')
++    expect(() => parseSystemAuditPage(page([row()], 'next'), 2)).toThrow('invalid-response')
++    expect(parseSystemAuditPage(page([row()], 'x'.repeat(8192)), 1).next_cursor?.length).toBe(8192)
++    expect(parseSystemAuditPage(page([])).items.length).toBe(0)
++  })
++})
++
++// Actual ReadableStreams exercise EOF, reader.cancel and body.cancel joins;
++// no Response.json mock or early resolve stands in for the native tail.
++describe('Audit-only 1MiB native response budget', () => {
++  it.each(['listSystemAudit', 'getSystemAudit'] as const)(
++    'publishes %s only after the complete 1048576-byte EOF and releases its lock',
++    async (endpoint) => {
++      let controller!: ReadableStreamDefaultController<Uint8Array>
++      const encoded = new TextEncoder().encode(JSON.stringify({ pad: 'x'.repeat(1048576 - 10) }))
++      expect(encoded.byteLength).toBe(1048576)
++      const stream = new ReadableStream<Uint8Array>({
++        start(c) {
++          controller = c
++          c.enqueue(encoded.subarray(0, 600000))
++          c.enqueue(encoded.subarray(600000))
++        },
++      })
++      const parser = vi.fn((value) => value),
++        request = accountTransport(
++          async () =>
++            new Response(stream, {
++              headers: { 'Content-Type': 'application/json', 'Content-Length': '1' },
++            }),
++        ),
++        options =
++          endpoint === 'listSystemAudit'
++            ? { signal: signal(), audit: {} }
++            : { signal: signal(), target: id(10) }
++      let settled = false
++      const pending = request(endpoint as 'listSystemAudit', parser, options as never).then(
++        () => {
++          settled = true
++          return true
++        },
++        () => {
++          settled = true
++          return false
++        },
++      )
++      try {
++        await flushPromises()
++        expect(settled).toBe(false)
++        expect(parser).not.toHaveBeenCalled()
++      } finally {
++        controller.close()
++        expect(await pending).toBe(true)
++        expect(stream.locked).toBe(false)
++      }
++      expect(parser).toHaveBeenCalledTimes(1)
++    },
++  )
++  it.each(['oversize', 'abort', 'media'] as const)(
++    'joins actual %s cancellation before settling and releasing the native lock',
++    async (mode) => {
++      const entered = deferred(),
++        joined = deferred(),
++        abort = new AbortController()
++      let settled = false
++      const stream = new ReadableStream<Uint8Array>({
++        start(c) {
++          if (mode === 'oversize') c.enqueue(new Uint8Array(1048577))
++          else if (mode === 'abort') c.enqueue(new TextEncoder().encode('{'))
++        },
++        cancel() {
++          entered.resolve()
++          return joined.promise
++        },
++      })
++      const parser = vi.fn((v) => v),
++        request = accountTransport(
++          async () =>
++            new Response(stream, {
++              headers: { 'Content-Type': mode === 'media' ? 'text/plain' : 'application/json' },
++            }),
++        )
++      const pending = request('listSystemAudit', parser, { signal: abort.signal, audit: {} }).then(
++        () => {
++          settled = true
++          return 'success'
++        },
++        (error: unknown) => {
++          settled = true
++          return (error as { kind: string }).kind
++        },
++      )
++      let timer: ReturnType<typeof setTimeout> | undefined,
++        barrierReached = false
++      try {
++        if (mode === 'abort') {
++          await flushPromises()
++          abort.abort()
++        }
++        await Promise.race([
++          entered.promise,
++          new Promise<never>((_, reject) => {
++            timer = setTimeout(() => reject(new Error('cancel barrier not reached')), 1000)
++          }),
++        ])
++        barrierReached = true
++        await flushPromises()
++        expect(settled).toBe(false)
++        expect(parser).not.toHaveBeenCalled()
++      } finally {
++        if (timer) clearTimeout(timer)
++        if (!barrierReached) abort.abort()
++        joined.resolve()
++        expect(await pending).toBe(mode === 'abort' ? 'cancelled' : 'invalid-response')
++        expect(stream.locked).toBe(false)
++      }
++    },
++  )
++  it('leaves Problem and ordinary GET at 600000 while Provider list remains 2MiB', async () => {
++    for (const [endpoint, maximum, options] of [
++      ['profile', 600000, {}],
++      ['listProviders', 2097152, { providers: {} }],
++    ] as const) {
++      for (const delta of [0, 1]) {
++        const response = new Response(JSON.stringify({ pad: 'x'.repeat(maximum - 10 + delta) }), {
++            headers: { 'Content-Type': 'application/json' },
++          }),
++          request = accountTransport(async () => response)
++        const pending = request(endpoint as 'profile', (v) => v, {
++          signal: signal(),
++          ...options,
++        } as never)
++        if (delta === 0) await pending
++        else await expect(pending).rejects.toMatchObject({ kind: 'invalid-response' })
++      }
++    }
++    const encoded = JSON.stringify({
++      type: 'urn:agenteam:problem:request-failed',
++      title: 'Request failed',
++      status: 400,
++      detail: 'Request failed.',
++      instance: '/api/v1/system/audit',
++      code: 'CURSOR_INVALID',
++      request_id: id(99),
++      commit_state: 'not_started',
++    })
++    for (const bytes of [600000, 600001]) {
++      const body = ' '.repeat(bytes - new TextEncoder().encode(encoded).byteLength) + encoded,
++        parser = vi.fn((v) => v)
++      const request = accountTransport(
++        async () =>
++          new Response(body, {
++            status: 400,
++            headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(99) },
++          }),
++      )
++      await expect(
++        request('listSystemAudit', parser, { signal: signal(), audit: {} }),
++      ).rejects.toMatchObject(
++        bytes === 600000
++          ? { kind: 'problem', problem: { status: 400, code: 'CURSOR_INVALID' } }
++          : { kind: 'invalid-response' },
++      )
++      expect(parser).not.toHaveBeenCalled()
++    }
++  })
++})
++
++const instantVectors = [
++  { input: '0000-01-01T00:00:00Z', accepted: true, canonical: '0000-01-01T00:00:00.000000Z' },
++  {
++    input: '0000-02-29T00:00:00.000001Z',
++    accepted: true,
++    canonical: '0000-02-29T00:00:00.000001Z',
++  },
++  {
++    input: '0099-12-31T23:59:59.999999-00:00',
++    accepted: true,
++    canonical: '0099-12-31T23:59:59.999999Z',
++  },
++  {
++    input: '2000-02-29T23:59:59.123456+23:59',
++    accepted: true,
++    canonical: '2000-02-29T00:00:59.123456Z',
++  },
++  {
++    input: '2026-10-06T01:02:03.123456+08:30',
++    accepted: true,
++    canonical: '2026-10-05T16:32:03.123456Z',
++  },
++  {
++    input: '2026-10-06T01:02:03.1-23:59',
++    accepted: true,
++    canonical: '2026-10-07T01:01:03.100000Z',
++  },
++  {
++    input: '9999-12-31T23:59:59.999999Z',
++    accepted: true,
++    canonical: '9999-12-31T23:59:59.999999Z',
++  },
++  { input: '0000-01-01T00:00:00+00:01', accepted: false, canonical: '' },
++  { input: '9999-12-31T23:59:59-00:01', accepted: false, canonical: '' },
++  { input: '1900-02-29T00:00:00Z', accepted: false, canonical: '' },
++  { input: '2026-02-30T00:00:00Z', accepted: false, canonical: '' },
++  { input: '2026-01-01T24:00:00Z', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:60:00Z', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:00:60Z', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:00:00.1234567Z', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:00:00+24:00', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:00:00+00:60', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:00:00', accepted: false, canonical: '' },
++  { input: '2026-01-01t00:00:00z', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:00:00.Z', accepted: false, canonical: '' },
++  { input: '2026-01-01T00:00:00,1Z', accepted: false, canonical: '' },
++  { input: '+2026-01-01T00:00:00Z', accepted: false, canonical: '' },
++]
++describe('fixed foundation.Instant oracle', () => {
++  it.each(instantVectors.map((vector, index) => ({ ...vector, index })))(
++    'matches Go Gregorian/offset/microsecond vector $index',
++    ({ input, accepted, canonical }) => {
++      if (accepted) expect(captureAuditInstant(input) === canonical).toBe(true)
++      else expect(() => captureAuditInstant(input)).toThrow('invalid-input')
++    },
++  )
++})
+--- /dev/null
++++ b/web/src/tests/system-audit-metadata.spec.ts
+@@ -0,0 +1,1139 @@
++import { describe, expect, it } from 'vitest'
++import {
++  auditMetadataFields,
++  auditMetadataJSONBytes,
++  auditSummary,
++  parseAuditMetadata,
++  systemAuditActions,
++  auditMediaType,
++  auditServices,
++} from '../api/system-audit-metadata'
++import { parseSystemAuditRecord } from '../api/system-audit'
++
++const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
++type Fixture = {
++  name: string
++  action: string
++  metadata: Record<string, unknown>
++  resource: Record<string, unknown>
++  outcome: string
++  actor: Record<string, unknown>
++  bytes: number
++}
++// Fixed Go1.27.1 DecodeMetadata -> typed constructors -> NewEntry oracle.
++// Accepted contract b124650, output SHA 39aef8449c7c16882c06b1cca549f8b5825440c3d343592971623ff731e43fea.
++const vectors = [
++  [
++    'secret.create',
++    'secret.create',
++    { version: '9007199254740993', changed_fields: ['purpose', 'value'] },
++    { kind: 'secret', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    67,
++  ],
++  [
++    'secret.update',
++    'secret.update',
++    { version: '9007199254740993', changed_fields: ['purpose', 'value'] },
++    { kind: 'secret', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    67,
++  ],
++  [
++    'secret.delete',
++    'secret.delete',
++    { version: '1' },
++    { kind: 'secret', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    15,
++  ],
++  [
++    'secret.resolve',
++    'secret.resolve',
++    { lease_id: '01970000-0000-7000-8000-000000000004', consumer: 'smtp' },
++    { kind: 'secret', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    69,
++  ],
++  [
++    'secret.master.register',
++    'secret.master.register',
++    { version: '1' },
++    { kind: 'secret_master' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    15,
++  ],
++  [
++    'secret.master.rotation.start',
++    'secret.master.rotation.start',
++    { version: '2', rotation_id: '01970000-0000-7000-8000-000000000004', count: '0' },
++    { kind: 'secret_rotation', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    80,
++  ],
++  [
++    'secret.master.rotation.complete',
++    'secret.master.rotation.complete',
++    { version: '2', rotation_id: '01970000-0000-7000-8000-000000000004', count: '0' },
++    { kind: 'secret_rotation', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    80,
++  ],
++  [
++    'secret.master.rotation.failed',
++    'secret.master.rotation.failed',
++    {
++      version: '2',
++      reason: 'rotation_failed',
++      rotation_id: '01970000-0000-7000-8000-000000000004',
++      count: '0',
++    },
++    { kind: 'secret_rotation', id: '01970000-0000-7000-8000-000000000004' },
++    'failed',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    107,
++  ],
++  [
++    'outbound.policy.update',
++    'outbound.policy.update',
++    { version: '1', rule_count: '256' },
++    { kind: 'outbound_policy' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    34,
++  ],
++  [
++    'outbound.access.deny',
++    'outbound.access.deny',
++    { version: '1', consumer: 'model', reason: 'address_forbidden' },
++    { kind: 'outbound_policy' },
++    'denied',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    63,
++  ],
++  [
++    'object.upload.complete',
++    'object.upload.complete',
++    {
++      object_id: '01970000-0000-7000-8000-000000000001',
++      initiator_kind: 'human',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++      media_type: 'text/{json}; charset=utf-8',
++      byte_size: '9223372036854775807',
++      sent_bytes: '9007199254740993',
++      phase: 'published',
++    },
++    { kind: 'stored_object', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'service', service: 'object', cause_ref: '01970000-0000-7000-8000-000000000009' },
++    259,
++  ],
++  [
++    'object.upload.failed',
++    'object.upload.failed',
++    {
++      reason: 'integrity_mismatch',
++      object_id: '01970000-0000-7000-8000-000000000001',
++      initiator_kind: 'human',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++      media_type: 'text/{json}; charset=utf-8',
++      byte_size: '9223372036854775807',
++      sent_bytes: '9007199254740993',
++      phase: 'failed',
++    },
++    { kind: 'stored_object', id: '01970000-0000-7000-8000-000000000001' },
++    'failed',
++    { kind: 'service', service: 'object', cause_ref: '01970000-0000-7000-8000-000000000009' },
++    286,
++  ],
++  [
++    'object.delete',
++    'object.delete',
++    {
++      object_id: '01970000-0000-7000-8000-000000000001',
++      initiator_kind: 'human',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++      media_type: 'text/{json}; charset=utf-8',
++      byte_size: '9223372036854775807',
++      sent_bytes: '9007199254740993',
++      phase: 'deleted',
++    },
++    { kind: 'stored_object', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'service', service: 'object', cause_ref: '01970000-0000-7000-8000-000000000009' },
++    257,
++  ],
++  [
++    'outbox.delivery.requeue',
++    'outbox.delivery.requeue',
++    {
++      delivery_id: '01970000-0000-7000-8000-000000000001',
++      event_id: '01970000-0000-7000-8000-000000000002',
++      handler_id: 'safe.handler-v1',
++      from_state: 'dead_letter',
++      redrive_cycle: '1',
++      reason_code: 'operator_retry',
++    },
++    { kind: 'outbox_delivery', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    213,
++  ],
++  [
++    'account.bootstrap',
++    'account.bootstrap',
++    { user_id: '01970000-0000-7000-8000-000000000001', version: '2', phase: 'created' },
++    { kind: 'user', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    82,
++  ],
++  [
++    'account.login',
++    'account.login',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      session_id: '01970000-0000-7000-8000-000000000002',
++      attempt_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      phase: 'authenticated',
++    },
++    { kind: 'account_attempt', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    192,
++  ],
++  [
++    'account.logout',
++    'account.logout',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      session_id: '01970000-0000-7000-8000-000000000002',
++      version: '2',
++      phase: 'revoked',
++    },
++    { kind: 'session', id: '01970000-0000-7000-8000-000000000002' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    134,
++  ],
++  [
++    'account.invite.create',
++    'account.invite.create',
++    {
++      invitation_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      channel: 'smtp',
++      phase: 'created',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++    },
++    { kind: 'invitation', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    159,
++  ],
++  [
++    'account.invite.revoke',
++    'account.invite.revoke',
++    {
++      invitation_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      phase: 'revoked',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++    },
++    { kind: 'invitation', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    142,
++  ],
++  [
++    'account.invite.redeem',
++    'account.invite.redeem',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      invitation_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      phase: 'redeemed',
++    },
++    { kind: 'user', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    138,
++  ],
++  [
++    'account.password.change',
++    'account.password.change',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      version: '2',
++      changed_fields: ['password'],
++      phase: 'updated',
++    },
++    { kind: 'user', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    112,
++  ],
++  [
++    'account.password.reset.request',
++    'account.password.reset.request',
++    { attempt_id: '01970000-0000-7000-8000-000000000004', version: '2', phase: 'accepted' },
++    { kind: 'account_attempt', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    86,
++  ],
++  [
++    'account.password.reset.complete',
++    'account.password.reset.complete',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      reset_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      phase: 'redeemed',
++    },
++    { kind: 'password_reset', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    133,
++  ],
++  [
++    'account.profile.update',
++    'account.profile.update',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      version: '2',
++      changed_fields: ['display_name', 'theme', 'username'],
++      phase: 'updated',
++    },
++    { kind: 'user', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    135,
++  ],
++  [
++    'account.avatar.update',
++    'account.avatar.update',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      object_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      changed_fields: ['avatar'],
++      phase: 'updated',
++    },
++    { kind: 'user', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    161,
++  ],
++  [
++    'account.settings.update',
++    'account.settings.update',
++    {
++      version: '2',
++      changed_fields: [
++        'challenge_after_failures',
++        'password_reset_seconds',
++        'session_absolute_seconds',
++        'session_idle_seconds',
++      ],
++      phase: 'updated',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++    },
++    { kind: 'account_settings', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    208,
++  ],
++  [
++    'smtp.settings.update',
++    'smtp.settings.update',
++    {
++      version: '2',
++      changed_fields: [
++        'auth_username',
++        'auto_retry_count',
++        'enabled',
++        'from',
++        'host',
++        'password',
++        'port',
++        'retry_interval_seconds',
++        'sender_name',
++        'tls_mode',
++      ],
++      phase: 'updated',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++    },
++    { kind: 'smtp_settings', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    233,
++  ],
++  [
++    'smtp.test.request',
++    'smtp.test.request',
++    {
++      job_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      channel: 'log',
++      phase: 'accepted',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++    },
++    { kind: 'mail_job', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    152,
++  ],
++  [
++    'smtp.delivery.retry',
++    'smtp.delivery.retry',
++    {
++      job_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      phase: 'accepted',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++    },
++    { kind: 'mail_job', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    136,
++  ],
++  [
++    'smtp.delivery',
++    'smtp.delivery',
++    {
++      attempt_id: '01970000-0000-7000-8000-000000000003',
++      job_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      channel: 'smtp',
++      phase: 'sent',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++    },
++    { kind: 'mail_job', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    201,
++  ],
++  [
++    'provider.create',
++    'provider.create',
++    {
++      provider_id: '01970000-0000-7000-8000-000000000002',
++      version: '2',
++      changed_fields: ['created'],
++    },
++    { kind: 'model_provider', id: '01970000-0000-7000-8000-000000000002' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    97,
++  ],
++  [
++    'provider.update',
++    'provider.update',
++    {
++      provider_id: '01970000-0000-7000-8000-000000000002',
++      version: '2',
++      changed_fields: ['base_url', 'credential_ref', 'enabled', 'name', 'provider_options'],
++    },
++    { kind: 'model_provider', id: '01970000-0000-7000-8000-000000000002' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    151,
++  ],
++  [
++    'provider.delete',
++    'provider.delete',
++    {
++      provider_id: '01970000-0000-7000-8000-000000000002',
++      version: '2',
++      changed_fields: ['deleted'],
++    },
++    { kind: 'model_provider', id: '01970000-0000-7000-8000-000000000002' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    97,
++  ],
++  [
++    'model.create',
++    'model.create',
++    {
++      provider_id: '01970000-0000-7000-8000-000000000002',
++      model_id: '01970000-0000-7000-8000-000000000003',
++      version: '2',
++      changed_fields: ['created'],
++    },
++    { kind: 'model_config', id: '01970000-0000-7000-8000-000000000003' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    147,
++  ],
++  [
++    'model.update',
++    'model.update',
++    {
++      provider_id: '01970000-0000-7000-8000-000000000002',
++      model_id: '01970000-0000-7000-8000-000000000003',
++      version: '2',
++      changed_fields: [
++        'capabilities',
++        'enabled',
++        'header_overwrite',
++        'model_id',
++        'name',
++        'parameters',
++        'request_overwrite',
++      ],
++    },
++    { kind: 'model_config', id: '01970000-0000-7000-8000-000000000003' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    232,
++  ],
++  [
++    'model.delete',
++    'model.delete',
++    {
++      provider_id: '01970000-0000-7000-8000-000000000002',
++      model_id: '01970000-0000-7000-8000-000000000003',
++      version: '2',
++      changed_fields: ['deleted'],
++      affected_count: '0',
++    },
++    { kind: 'model_config', id: '01970000-0000-7000-8000-000000000003' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    168,
++  ],
++  [
++    'model.selection.update',
++    'model.selection.update',
++    {
++      selection_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      changed_fields: ['selection'],
++      selector_kind: 'platform',
++    },
++    { kind: 'model_selection', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    127,
++  ],
++  [
++    'login-rejected-anonymous',
++    'account.login',
++    {
++      attempt_id: '01970000-0000-7000-8000-000000000004',
++      version: '1',
++      phase: 'rejected',
++      reason: 'session_invalid',
++    },
++    { kind: 'account_attempt', id: '01970000-0000-7000-8000-000000000004' },
++    'denied',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    113,
++  ],
++  [
++    'login-rejected-user',
++    'account.login',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      attempt_id: '01970000-0000-7000-8000-000000000004',
++      version: '1',
++      phase: 'rejected',
++      reason: 'session_invalid',
++    },
++    { kind: 'account_attempt', id: '01970000-0000-7000-8000-000000000004' },
++    'denied',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    162,
++  ],
++  [
++    'delivery-failed',
++    'smtp.delivery',
++    {
++      attempt_id: '01970000-0000-7000-8000-000000000003',
++      job_id: '01970000-0000-7000-8000-000000000004',
++      version: '1',
++      channel: 'log',
++      phase: 'failed',
++      reason: 'delivery_unknown',
++    },
++    { kind: 'mail_job', id: '01970000-0000-7000-8000-000000000004' },
++    'failed',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    176,
++  ],
++  [
++    'delivery-unknown',
++    'smtp.delivery',
++    {
++      attempt_id: '01970000-0000-7000-8000-000000000003',
++      job_id: '01970000-0000-7000-8000-000000000004',
++      version: '1',
++      channel: 'log',
++      phase: 'unknown',
++      reason: 'delivery_unknown',
++    },
++    { kind: 'mail_job', id: '01970000-0000-7000-8000-000000000004' },
++    'unknown',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    177,
++  ],
++  [
++    'object-agent-and-html-bytes',
++    'object.upload.complete',
++    {
++      object_id: '01970000-0000-7000-8000-000000000001',
++      initiator_kind: 'agent_run',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++      initiator_execution_id: '01970000-0000-7000-8000-000000000003',
++      media_type:
++        '&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&',
++      byte_size: '9223372036854775807',
++      sent_bytes: '9007199254740993',
++      phase: 'published',
++    },
++    { kind: 'stored_object', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    {
++      kind: 'service',
++      service: 'object-maintenance',
++      cause_ref: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
++    },
++    1837,
++  ],
++  [
++    'object-unknown-service-initiator',
++    'object.upload.failed',
++    {
++      reason: 'storage_unavailable',
++      object_id: '01970000-0000-7000-8000-000000000001',
++      initiator_kind: 'service',
++      initiator_id: '01970000-0000-7000-8000-000000000002',
++      media_type: 'text',
++      byte_size: '9223372036854775807',
++      sent_bytes: '9007199254740993',
++      phase: 'failed',
++    },
++    { kind: 'stored_object', id: '01970000-0000-7000-8000-000000000001' },
++    'unknown',
++    { kind: 'service', service: 'object', cause_ref: '01970000-0000-7000-8000-000000000009' },
++    267,
++  ],
++  [
++    'model-delete-replacement-maximum',
++    'model.delete',
++    {
++      provider_id: '01970000-0000-7000-8000-000000000002',
++      model_id: '01970000-0000-7000-8000-000000000003',
++      version: '9223372036854775807',
++      changed_fields: ['deleted', 'replacement'],
++      replacement_id: '01970000-0000-7000-8000-000000000004',
++      affected_count: '9223372036854775807',
++    },
++    { kind: 'model_config', id: '01970000-0000-7000-8000-000000000003' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    274,
++  ],
++  [
++    'policy-non-success-permitted',
++    'outbound.policy.update',
++    { version: '1', rule_count: '0' },
++    { kind: 'outbound_policy' },
++    'unknown',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    32,
++  ],
++  [
++    'secret-resolve-optional-reason',
++    'secret.resolve',
++    {
++      lease_id: '01970000-0000-7000-8000-000000000004',
++      consumer: 'system',
++      reason: 'permission_denied',
++    },
++    { kind: 'secret', id: '01970000-0000-7000-8000-000000000001' },
++    'denied',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    100,
++  ],
++  [
++    'account.invite.create-omitted-optional',
++    'account.invite.create',
++    { invitation_id: '01970000-0000-7000-8000-000000000004', version: '2', phase: 'created' },
++    { kind: 'invitation', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    88,
++  ],
++  [
++    'account.invite.revoke-omitted-optional',
++    'account.invite.revoke',
++    { invitation_id: '01970000-0000-7000-8000-000000000004', version: '2', phase: 'revoked' },
++    { kind: 'invitation', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    88,
++  ],
++  [
++    'account.avatar.update-omitted-optional',
++    'account.avatar.update',
++    {
++      user_id: '01970000-0000-7000-8000-000000000001',
++      version: '2',
++      changed_fields: ['avatar'],
++      phase: 'updated',
++    },
++    { kind: 'user', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    110,
++  ],
++  [
++    'account.settings.update-omitted-optional',
++    'account.settings.update',
++    {
++      version: '2',
++      changed_fields: [
++        'challenge_after_failures',
++        'password_reset_seconds',
++        'session_absolute_seconds',
++        'session_idle_seconds',
++      ],
++      phase: 'updated',
++    },
++    { kind: 'account_settings', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    154,
++  ],
++  [
++    'smtp.settings.update-omitted-optional',
++    'smtp.settings.update',
++    {
++      version: '2',
++      changed_fields: [
++        'auth_username',
++        'auto_retry_count',
++        'enabled',
++        'from',
++        'host',
++        'password',
++        'port',
++        'retry_interval_seconds',
++        'sender_name',
++        'tls_mode',
++      ],
++      phase: 'updated',
++    },
++    { kind: 'smtp_settings', id: '01970000-0000-7000-8000-000000000001' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    179,
++  ],
++  [
++    'smtp.test.request-omitted-optional',
++    'smtp.test.request',
++    { job_id: '01970000-0000-7000-8000-000000000004', version: '2', phase: 'accepted' },
++    { kind: 'mail_job', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    82,
++  ],
++  [
++    'smtp.delivery-omitted-optional',
++    'smtp.delivery',
++    {
++      attempt_id: '01970000-0000-7000-8000-000000000003',
++      job_id: '01970000-0000-7000-8000-000000000004',
++      version: '2',
++      channel: 'smtp',
++      phase: 'sent',
++    },
++    { kind: 'mail_job', id: '01970000-0000-7000-8000-000000000004' },
++    'success',
++    { kind: 'human', id: '01970000-0000-7000-8000-000000000008' },
++    147,
++  ],
++] as const
++const fixtures: readonly Fixture[] = vectors.map(
++  ([name, action, metadata, resource, outcome, actor, bytes]) => ({
++    name,
++    action,
++    metadata,
++    resource,
++    outcome,
++    actor,
++    bytes,
++  }),
++)
++function row(f: Fixture) {
++  return {
++    audit_id: id(20),
++    created_at: '2026-10-06T01:02:03.123456Z',
++    scope: 'system',
++    actor: f.actor,
++    action: f.action,
++    outcome: f.outcome,
++    resource: f.resource,
++    metadata: f.metadata,
++    associations: {},
++    summary: auditSummary(f.action as Parameters<typeof auditSummary>[0]),
++  }
++}
++function fixture(action: string) {
++  return fixtures.find((entry) => entry.name === action)!
++}
++function rejects(value: unknown) {
++  try {
++    parseSystemAuditRecord(value)
++    return false
++  } catch (e) {
++    return e instanceof Error && e.message === 'invalid-response'
++  }
++}
++function rejectedMetadata(action: string, value: unknown) {
++  try {
++    parseAuditMetadata(action, value)
++    return false
++  } catch (e) {
++    return e instanceof Error && e.message === 'invalid-response'
++  }
++}
++
++describe('System Audit formal typed projection', () => {
++  it('covers exactly all 37 System actions separately from legal filter actions', () => {
++    expect(new Set(fixtures.map((entry) => entry.action)).size).toBe(37)
++    expect(
++      [...new Set(fixtures.map((entry) => entry.action))].sort().join('|') ===
++        [...systemAuditActions].sort().join('|'),
++    ).toBe(true)
++  })
++  it.each(fixtures.map((f) => ({ name: f.name, f })))(
++    'accepts formal constructor vector $name immutably',
++    ({ f }) => {
++      const parsed = parseSystemAuditRecord(row(f)),
++        fields = auditMetadataFields(parsed)
++      expect(
++        JSON.stringify(parsed.metadata) === JSON.stringify(f.metadata) ||
++          Object.keys(f.metadata).every(
++            (key) =>
++              JSON.stringify(parsed.metadata[key as keyof typeof parsed.metadata]) ===
++              JSON.stringify(f.metadata[key]),
++          ),
++      ).toBe(true)
++      expect(auditMetadataJSONBytes(parsed.metadata) === f.bytes).toBe(true)
++      expect(
++        [
++          parsed,
++          parsed.actor,
++          parsed.resource,
++          parsed.associations,
++          parsed.metadata,
++          fields,
++          ...fields,
++        ].every(Object.isFrozen),
++      ).toBe(true)
++      expect(
++        fields.length === Object.keys(f.metadata).length &&
++          fields.every((field) => field.label.length > 0 && typeof field.value === 'string'),
++      ).toBe(true)
++      if ('changed_fields' in parsed.metadata)
++        expect(Object.isFrozen(parsed.metadata.changed_fields)).toBe(true)
++    },
++  )
++  it.each(fixtures.map((f) => ({ name: f.name, f })))(
++    'rejects unknown, null, numeric, omitted-required metadata for $name',
++    ({ f }) => {
++      const first =
++        'version' in f.metadata
++          ? 'version'
++          : f.action.startsWith('object.')
++            ? 'object_id'
++            : f.action === 'secret.resolve'
++              ? 'lease_id'
++              : 'delivery_id'
++      const missing = { ...f.metadata }
++      delete missing[first]
++      const bad = [
++        null,
++        [],
++        { ...f.metadata, extra: 'unrecognized' },
++        { ...f.metadata, [first]: null },
++        { ...f.metadata, [first]: 1 },
++        missing,
++      ]
++      expect(bad.every((metadata) => rejects({ ...row(f), metadata }))).toBe(true)
++    },
++  )
++  it('requires exact outer fields, 17 resource shapes, canonical IDs and summary', () => {
++    const value = row(fixture('secret.create'))
++    const bad = [
++      null,
++      { ...value, scope: 'project' },
++      { ...value, summary: 'Audit event' },
++      { ...value, unknown: true },
++      { ...value, audit_id: id(0xab).toUpperCase() },
++      { ...value, created_at: '2026-10-06T01:02:03.123Z' },
++      { ...value, created_at: '2026-02-30T01:02:03.123456Z' },
++      { ...value, actor: { ...value.actor, session_id: id(8) } },
++      { ...value, actor: { kind: 'agent_run', id: id(8) } },
++      { ...value, resource: { kind: 'secret' } },
++      { ...value, resource: { kind: 'secret', id: null } },
++      { ...value, associations: null },
++      { ...value, associations: { execution_id: id(1) } },
++      { ...value, associations: { tool_id: null } },
++      { ...value, associations: { http_trace_id: '' } },
++    ]
++    for (const key of Object.keys(value)) {
++      const missing = { ...value } as Record<string, unknown>
++      delete missing[key]
++      bad.push(missing as typeof value)
++    }
++    expect(bad.every(rejects)).toBe(true)
++    const associations = {
++      tool_id: id(1),
++      request_id: id(2),
++      runner_id: id(3),
++      correlation_id: id(4),
++      http_trace_id: id(5),
++    }
++    expect(
++      Object.keys(parseSystemAuditRecord({ ...value, associations }).associations).length,
++    ).toBe(5)
++    for (const kind of ['secret_master', 'outbound_policy']) {
++      const f = fixture(
++        kind === 'secret_master' ? 'secret.master.register' : 'outbound.policy.update',
++      )
++      expect(rejects({ ...row(f), resource: { kind, id: id(1) } })).toBe(true)
++    }
++    for (const action of [
++      'project.update',
++      'object.transfer.issue',
++      'knowledge.delete_subtree',
++      'unexpected.action',
++    ])
++      expect(rejects({ ...value, action })).toBe(true)
++  })
++  it('allows all formal ServiceNames and both safe cause references but no credential extras', () => {
++    const value = row(fixture('secret.resolve'))
++    for (const service of auditServices) {
++      for (const cause_ref of [id(9), 'sha256:' + 'a'.repeat(64)])
++        expect(
++          parseSystemAuditRecord({ ...value, actor: { kind: 'service', service, cause_ref } }).actor
++            .kind,
++        ).toBe('service')
++    }
++    for (const actor of [
++      { kind: 'service', service: 'unknown', cause_ref: id(9) },
++      { kind: 'service', service: 'smtp', cause_ref: id(9) },
++      { kind: 'service', service: 'secret', cause_ref: 'sha256:' + 'A'.repeat(64) },
++      { kind: 'service', service: 'secret', cause_ref: id(9), id: id(1) },
++      { kind: 'human', id: id(8), cause_ref: id(9) },
++    ])
++      expect(rejects({ ...value, actor })).toBe(true)
++  })
++  it('enforces phase-specific Account fields and exact outcome/resource identity', () => {
++    const bad: unknown[] = []
++    for (const f of fixtures.filter(
++      (v) => v.action.startsWith('account.') || v.action.startsWith('smtp.'),
++    )) {
++      bad.push({ ...row(f), outcome: f.outcome === 'success' ? 'unknown' : 'success' })
++      if (!['account.settings.update', 'smtp.settings.update'].includes(f.action))
++        bad.push({ ...row(f), resource: { ...f.resource, id: id(99) } })
++      bad.push({ ...row(f), metadata: { ...f.metadata, phase: 'created-unrecognized' } })
++    }
++    for (const [name, extra] of [
++      ['account.login', { reason: 'credentials_rejected' }],
++      ['login-rejected-anonymous', { session_id: id(3) }],
++      ['account.invite.revoke', { channel: 'smtp' }],
++      ['smtp.delivery.retry', { channel: 'smtp' }],
++      ['smtp.delivery', { reason: 'timeout' }],
++      ['smtp.test.request', { attempt_id: id(3) }],
++      ['account.bootstrap', { initiator_id: id(3) }],
++      ['account.password.change', { changed_fields: ['password', 'theme'] }],
++    ] as const) {
++      const f = fixture(name)
++      bad.push({ ...row(f), metadata: { ...f.metadata, ...extra } })
++    }
++    const delivery = fixture('smtp.delivery'),
++      missingChannel = { ...delivery.metadata }
++    delete missingChannel.channel
++    bad.push({ ...row(delivery), metadata: missingChannel })
++    bad.push({
++      ...row(fixture('smtp.delivery.retry')),
++      actor: { kind: 'service', service: 'account-mail', cause_ref: id(9) },
++    })
++    expect(bad.every(rejects)).toBe(true)
++  })
++  it('enforces Model human success, replacement fields and permitted associations', () => {
++    const bad: unknown[] = []
++    for (const f of fixtures.filter(
++      (v) => v.action.startsWith('model.') || v.action.startsWith('provider.'),
++    )) {
++      bad.push(
++        { ...row(f), actor: { kind: 'service', service: 'model-runtime', cause_ref: id(9) } },
++        { ...row(f), outcome: 'denied' },
++        { ...row(f), resource: { ...f.resource, id: id(99) } },
++      )
++      for (const field of ['tool_id', 'request_id', 'runner_id'])
++        bad.push({ ...row(f), associations: { [field]: id(1) } })
++      expect(
++        Object.keys(
++          parseSystemAuditRecord({
++            ...row(f),
++            associations: { correlation_id: id(1), http_trace_id: id(2) },
++          }).associations,
++        ).length,
++      ).toBe(2)
++    }
++    const deletion = fixture('model.delete')
++    bad.push(
++      { ...row(deletion), metadata: { ...deletion.metadata, replacement_id: id(4) } },
++      {
++        ...row(deletion),
++        metadata: { ...deletion.metadata, changed_fields: ['deleted', 'replacement'] },
++      },
++      { ...row(deletion), metadata: { ...deletion.metadata, affected_count: '-1' } },
++      {
++        ...row(fixture('model.selection.update')),
++        metadata: { ...fixture('model.selection.update').metadata, selector_kind: 'project' },
++      },
++    )
++    expect(bad.every(rejects)).toBe(true)
++  })
++  it('keeps exact integer, changed-field, consumer and reason closed sets', () => {
++    const f = fixture('secret.create')
++    for (const value of ['0', '01', '+1', '1.0', '1e3', '9223372036854775808', 1, null])
++      expect(rejectedMetadata(f.action, { ...f.metadata, version: value })).toBe(true)
++    for (const changed_fields of [
++      [],
++      ['value', 'purpose'],
++      ['value', 'value'],
++      ['credential'],
++      [null],
++    ])
++      expect(rejectedMetadata(f.action, { ...f.metadata, changed_fields })).toBe(true)
++    expect(
++      parseAuditMetadata('secret.create', {
++        version: '9223372036854775807',
++        changed_fields: ['value'],
++      }).action,
++    ).toBe('secret.create')
++    for (const rule_count of ['257', '-1', '00', 0])
++      expect(rejectedMetadata('outbound.policy.update', { version: '1', rule_count })).toBe(true)
++    for (const consumer of ['external', 'SMTP', ''])
++      expect(rejectedMetadata('secret.resolve', { lease_id: id(4), consumer })).toBe(true)
++    expect(
++      rejectedMetadata('secret.resolve', {
++        lease_id: id(4),
++        consumer: 'smtp',
++        reason: 'not-known',
++      }),
++    ).toBe(true)
++  })
++  it('checks rotation, Object and outbox relationships without inventing extra constraints', () => {
++    const bad: unknown[] = []
++    const rotation = fixture('secret.master.rotation.failed')
++    bad.push(
++      { ...row(rotation), outcome: 'unknown' },
++      { ...row(rotation), resource: { kind: 'secret_rotation', id: id(99) } },
++    )
++    const object = fixture('object.upload.complete')
++    bad.push(
++      { ...row(object), actor: { kind: 'human', id: id(8) } },
++      { ...row(object), actor: { kind: 'service', service: 'outbound', cause_ref: id(9) } },
++      { ...row(object), resource: { kind: 'stored_object', id: id(99) } },
++      { ...row(object), metadata: { ...object.metadata, sent_bytes: '9223372036854775808' } },
++      { ...row(object), metadata: { ...object.metadata, byte_size: '0', sent_bytes: '1' } },
++      { ...row(object), metadata: { ...object.metadata, initiator_execution_id: id(4) } },
++      { ...row(object), metadata: { ...object.metadata, initiator_kind: 'agent_run' } },
++      { ...row(object), metadata: { ...object.metadata, reason: 'timeout' } },
++    )
++    const outbox = fixture('outbox.delivery.requeue')
++    bad.push(
++      { ...row(outbox), outcome: 'failed' },
++      { ...row(outbox), resource: { kind: 'outbox_delivery', id: id(99) } },
++      { ...row(outbox), metadata: { ...outbox.metadata, handler_id: 'unsafe/path' } },
++      { ...row(outbox), metadata: { ...outbox.metadata, redrive_cycle: '0' } },
++      { ...row(outbox), metadata: { ...outbox.metadata, reason_code: 'retry-anything' } },
++    )
++    expect(bad.every(rejects)).toBe(true)
++    expect(parseSystemAuditRecord(row(object)).action).toBe('object.upload.complete') // sent_bytes < byte_size is legal.
++    expect(parseSystemAuditRecord(row(fixture('policy-non-success-permitted'))).outcome).toBe(
++      'unknown',
++    )
++  })
++})
++
++const mimeVectors = [
++  { input: 'text/plain', accepted: true },
++  { input: 'text', accepted: true },
++  { input: 'text/{json}', accepted: true },
++  { input: '{x}', accepted: true },
++  { input: 'application/x{probe}', accepted: true },
++  { input: 'text&x/plain', accepted: true },
++  { input: 'text/plain; charset=utf-8', accepted: true },
++  { input: 'text/plain; charset=us-ascii', accepted: true },
++  { input: 'Text/Plain', accepted: false },
++  { input: 'text/plain;charset=utf-8', accepted: false },
++  { input: 'text/plain; charset="utf-8"', accepted: false },
++  { input: 'text/plain; charset=UTF-8', accepted: false },
++  { input: 'text/plain; name=x', accepted: false },
++  { input: 'text/plain; charset=latin-1', accepted: false },
++  { input: 'text/', accepted: false },
++  { input: 'text/plain/extra', accepted: false },
++  { input: 'text/plain\n', accepted: false },
++  {
++    input:
++      'text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
++    accepted: true,
++  },
++  {
++    input:
++      'text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
++    accepted: false,
++  },
++]
++const encodingVectors = [
++  { value: '<>&\u2028\u2029', bytes: 42 },
++  { value: '&', bytes: 18 },
++  { value: '\u00e9', bytes: 14 },
++  { value: '\\u2028', bytes: 19 },
++  { value: '\n\t"\\', bytes: 20 },
++]
++describe('formal Go MIME and metadata encoding bounds', () => {
++  it.each(mimeVectors.map((vector, index) => ({ ...vector, index })))(
++    'matches typed MIME vector $index',
++    ({ input, accepted }) => {
++      let actual = false
++      try {
++        actual = auditMediaType(input) === input
++      } catch {
++        /* expected closed rejection */
++      }
++      expect(actual === accepted).toBe(true)
++    },
++  )
++  it.each(encodingVectors.map((vector, index) => ({ ...vector, index })))(
++    'counts Go default escaping vector $index',
++    ({ value, bytes }) => {
++      expect(auditMetadataJSONBytes({ value }) === bytes).toBe(true)
++    },
++  )
++  it('retains each HTML escape in the 4096-byte budget without treating literal escapes as characters', () => {
++    expect(auditMetadataJSONBytes({ value: 'a'.repeat(4084) })).toBe(4096)
++    expect(auditMetadataJSONBytes({ value: 'a'.repeat(4085) })).toBe(4097)
++    expect(auditMetadataJSONBytes({ value: '&'.repeat(680) })).toBe(4092)
++    expect(auditMetadataJSONBytes({ value: '&'.repeat(681) })).toBe(4098)
++  })
++})

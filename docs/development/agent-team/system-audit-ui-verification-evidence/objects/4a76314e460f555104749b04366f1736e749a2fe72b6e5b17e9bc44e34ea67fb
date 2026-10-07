@@ -1,0 +1,34 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-race",
+    "-deps",
+    "-test",
+    "-tags=integration",
+    "-json=Dir,ImportPath,Module,Error,DepsErrors,GoFiles,CgoFiles,CFiles,CXXFiles,MFiles,HFiles,FFiles,SFiles,SwigFiles,SwigCXXFiles,SysoFiles,EmbedFiles,TestGoFiles,XTestGoFiles,TestEmbedFiles,XTestEmbedFiles",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T03:23:58.314433+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/tmp"
+  },
+  "exit": 0,
+  "limit_seconds": 45,
+  "main_head": "86a882472bc128cb4607898b839781c483b13b07",
+  "seconds": 0.114,
+  "started_utc": "2026-10-07T03:23:58.200222+00:00",
+  "timed_out": false
+}

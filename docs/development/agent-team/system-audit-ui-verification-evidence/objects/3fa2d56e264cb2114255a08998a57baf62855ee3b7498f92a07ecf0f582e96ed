@@ -1,0 +1,72 @@
+{
+  "images": [
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-dark-1024.png",
+      "sha256": "4971a93dc9de5c4a55488f70bfcba2cee0f2f162277b613c9c042537917b0a1d",
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-dark-1440.png",
+      "sha256": "115ef24c65747687ad6755df13e90cb5d5bdd27394d21dc8800550d5207ec261",
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-dark-390.png",
+      "sha256": "ad87e3e0895fae10511da2592011852be8bd8d28f6b4641060dae1c73d5149da",
+      "width": 390
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-dark-768.png",
+      "sha256": "d23c783ef2ba41654d126cd12961cd0856a0a71af07e4ed98c73778625a422e9",
+      "width": 768
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-light-1024.png",
+      "sha256": "eb8bcb5e7becfdfcccdc26c2d1d46ee4933cdeee20bbd23fb597c8772bac53c0",
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-light-1440.png",
+      "sha256": "b60cf1249d2b9b0d1b78be38ccb236f85f3d373260cccc39a148cc867d603783",
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-light-390.png",
+      "sha256": "b1ed076d499141f5d4c01b90b9a84c61f1a13c1c59dc01a39d0fd300f76d7633",
+      "width": 390
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-outbound-navigation01/images/outbound-policy-light-768.png",
+      "sha256": "56470b531ad0a0ac4b08f2c61bc5c15497149c2e3b8f1ae07ebdcac3864d5bdf",
+      "width": 768
+    }
+  ],
+  "limits": [
+    "Only two authorized affected representatives were actually viewed; six other original images are preserved and hashed but not claimed visually reviewed.",
+    "All are partial 900px viewport images. The long port list continues below the viewport; lower editor/errors are not covered by these images.",
+    "No root visual review is asserted. Native navigation/geometry assertions are separately recorded by the passing test. No extra screenshot or resource was created."
+  ],
+  "observations": {
+    "outbound-policy-dark-1440.png": "Sidebar includes the new Audit group and leaf while Outbound remains active; current-rule table wraps long CIDR/ports, without visible horizontal overflow or overlay.",
+    "outbound-policy-light-390.png": "Single-column current rules, long CIDR/ports wrap within the visible viewport. Settings-menu trigger focus is visible; no overlay or visible horizontal overflow."
+  },
+  "recorded_at_utc": "2026-10-07T03:12:36.784935+00:00",
+  "reviewer": "/root/directory_frontend",
+  "run": "old-outbound-navigation01"
+}

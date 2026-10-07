@@ -1,0 +1,7 @@
+# System Audit harness stage02
+
+Only the new browser spec changes. Independent STATIC review found two unexecuted prerequisites: the formal MIME record filter is `stored_object`, and the current 401 navigation can reach either bare `/login` or its exact `/system/users` return. These are not real-test REDs.
+
+The login observation rejects all other query keys, values, multiplicities and fragments. Both allowed branches prove the new member user and Session differ from the retired administrator, retain the old Audit-content/request/write assertions, and do not reload or goto. Bare login proves home and the absent system-settings entry; it does not claim to visit the denied system page. The explicit return branch proves the user-page route and denied UI. The existing top's separate ordinary direct-Audit login still proves Audit denial and zero reads. This follows fixed SystemNav's administrator-only entry and SystemSettingsView's allowed-only menu.
+
+All 31 accepted A/B/C sources, 40 dist files and the other three D files are unchanged. Formatting, strict TypeScript and exact authority/navigation Playwright list passed with actual waits and owned-PID double cleanup. Prior final Go compile/vet/list is reused because both Go files are unchanged. No browser, server, socket, database or Docker resource ran. Stage01 and every earlier check remain immutable. The final runtime driver/input are still being prepared and require separate startup approval.

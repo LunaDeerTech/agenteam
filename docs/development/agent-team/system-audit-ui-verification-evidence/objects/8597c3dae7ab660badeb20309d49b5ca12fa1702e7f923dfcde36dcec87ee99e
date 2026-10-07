@@ -1,0 +1,133 @@
+--- harness-stage02/tests/account-captcha-web/e2e/system-audit.spec.ts
++++ harness-stage03/tests/account-captcha-web/e2e/system-audit.spec.ts
+@@ -536,6 +536,130 @@
+   const database = (
+     await ipc("snapshot", { ids: value.items.map((row) => row.audit_id) })
+   ).records;
++  if (!same(value.items, database)) {
++    // Only closed DTO paths and types may reach diagnostics, never values,
++    // arbitrary incoming keys, Session material or whole metadata objects.
++    const metadataKeys = [
++      "version",
++      "changed_fields",
++      "lease_id",
++      "consumer",
++      "reason",
++      "rotation_id",
++      "count",
++      "rule_count",
++      "object_id",
++      "initiator_kind",
++      "initiator_id",
++      "initiator_execution_id",
++      "media_type",
++      "byte_size",
++      "sent_bytes",
++      "phase",
++      "delivery_id",
++      "event_id",
++      "handler_id",
++      "from_state",
++      "redrive_cycle",
++      "reason_code",
++      "user_id",
++      "session_id",
++      "attempt_id",
++      "invitation_id",
++      "reset_id",
++      "job_id",
++      "channel",
++      "provider_id",
++      "model_id",
++      "replacement_id",
++      "affected_count",
++      "selection_id",
++      "selector_kind",
++    ];
++    const paths = [
++      ...[
++        "audit_id",
++        "created_at",
++        "scope",
++        "action",
++        "outcome",
++        "summary",
++      ].map((key) => [key]),
++      ...Object.entries({
++        actor: ["kind", "id", "service", "cause_ref"],
++        resource: ["kind", "id"],
++        associations: [
++          "tool_id",
++          "request_id",
++          "runner_id",
++          "correlation_id",
++          "http_trace_id",
++        ],
++        metadata: metadataKeys,
++      }).flatMap(([parent, keys]) => [
++        [parent],
++        ...keys.map((key) => [parent, key]),
++      ]),
++    ];
++    const missing = Symbol("missing");
++    const at = (row: unknown, path: string[]) => {
++      let current = row;
++      for (const key of path) {
++        if (
++          !current ||
++          typeof current !== "object" ||
++          !Object.hasOwn(current, key)
++        )
++          return missing;
++        current = (current as Record<string, unknown>)[key];
++      }
++      return current;
++    };
++    const kind = (value: unknown) =>
++      value === missing
++        ? "missing"
++        : value === null
++          ? "null"
++          : Array.isArray(value)
++            ? "array"
++            : typeof value;
++    const differences: Record<string, string | number | boolean>[] = [];
++    const note = (
++      index: number,
++      path: string,
++      observed: unknown,
++      stored: unknown,
++    ) => {
++      if (differences.length < 20 && !same(observed, stored))
++        differences.push({
++          row_index: index,
++          path,
++          observed_type: kind(observed),
++          stored_type: kind(stored),
++          observed_missing: observed === missing,
++          stored_missing: stored === missing,
++          value_different: true,
++        });
++    };
++    if (!Array.isArray(database)) note(-1, "items", value.items, database);
++    else {
++      if (value.items.length !== database.length)
++        note(-1, "items", value.items, database);
++      for (
++        let index = 0;
++        index < Math.max(value.items.length, database.length) &&
++        differences.length < 20;
++        index++
++      ) {
++        const observed: unknown = value.items[index] ?? missing;
++        const stored: unknown = database[index] ?? missing;
++        note(index, "record", observed, stored);
++        for (const path of paths)
++          note(index, path.join("."), at(observed, path), at(stored, path));
++      }
++    }
++    console.log("audit-row-difference", JSON.stringify(differences));
++  }
+   expect(same(value.items, database)).toBe(true);
+   if (!value.items.length) {
+     await expect(heading(page, "没有匹配的审计记录")).toBeVisible();

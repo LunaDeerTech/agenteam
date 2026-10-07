@@ -1,0 +1,165 @@
+test("[independent-read] captured filters, paging and formal projections", async ({ page }) => {
+  const initial = await setup(page);
+  await compareRows(page, initial.page!);
+  const admin = material().admin.user_id;
+  const profiles = initial.page!.items.filter(
+    (row) => row.action === "account.profile.update" && row.resource.id === admin,
+  );
+  const policy = initial.page!.items.find((row) => row.action === "outbound.policy.update");
+  expect(profiles.length === 4 && !!policy).toBe(true);
+  const applied = {
+    actor_kind: "human",
+    actor_id: admin,
+    action: "account.profile.update",
+    outcome: "success",
+    resource_kind: "user",
+    resource_id: admin,
+    limit: "2",
+  };
+  const beforeDraft = (await auditFacts(page)).length;
+  await fillFilters(page, applied);
+  expect((await auditFacts(page)).length).toBe(beforeDraft);
+  let current = await apply(page);
+  expect(same(current.query, applied)).toBe(true);
+  expect(current.page!.items.length === 2 && current.page!.next_cursor !== null).toBe(true);
+  await compareRows(page, current.page!);
+  const first = current.page!;
+
+  const capturedCount = (await auditFacts(page)).length;
+  await filter(page, "action").selectOption("outbound.policy.update");
+  expect((await auditFacts(page)).length).toBe(capturedCount);
+  let after = await seq(page);
+  await button(page, "下一页").click();
+  current = await ready(page, after);
+  expect(same(current.query, { ...applied, cursor: first.next_cursor })).toBe(true);
+  expect(
+    current.page!.items.length === 2 &&
+    !current.page!.items.some((row) => first.items.some((other) => other.audit_id === row.audit_id)),
+  ).toBe(true);
+  await compareRows(page, current.page!);
+  expect(await filter(page, "action").inputValue()).toBe("outbound.policy.update");
+
+  after = await seq(page);
+  await button(page, "上一页").click();
+  current = await ready(page, after);
+  expect(same(current.query, applied) && same(current.page, first)).toBe(true);
+  await compareRows(page, current.page!);
+  const target = first.items[0]!;
+  await detail(page, target, 0);
+  const detailCount = (await auditFacts(page)).length;
+  await button(page, "返回列表").click();
+  await expect(button(page, "刷新第一页")).toBeEnabled();
+  expect((await auditFacts(page)).length).toBe(detailCount);
+  expect(await filter(page, "action").inputValue()).toBe("outbound.policy.update");
+  expect(
+    await page.locator(".audit-table tbody tr").nth(0).getByRole("button")
+      .evaluate((node) => document.activeElement === node),
+  ).toBe(true);
+  await compareRows(page, first);
+  current = await refresh(page);
+  expect(same(current.query, applied) && same(current.page, first)).toBe(true);
+  expect(await filter(page, "action").inputValue()).toBe("outbound.policy.update");
+
+  current = await reset(page);
+  expect(same(current.query, { limit: "50" })).toBe(true);
+  const policyIndex = current.page!.items.findIndex((row) => row.audit_id === policy!.audit_id);
+  expect(policyIndex >= 0 && same(current.page!.items[policyIndex], policy)).toBe(true);
+  await detail(page, policy!, policyIndex);
+  expect(
+    policy!.metadata.rule_count === "1" && typeof policy!.metadata.version === "string",
+  ).toBe(true);
+  await button(page, "返回列表").click();
+  await expect(button(page, "刷新第一页")).toBeEnabled();
+  await zeroMutations(page);
+  await waitJoined();
+  result({
+    applied_not_draft: true, cursor_target: true, previous_refetch: true,
+    detail_projection: true, back_no_read: true, formal_profile_policy: true,
+    zero_mutations: true,
+  });
+});
+
+test("[independent-authority] cancelled detail, fresh identity page and formal Logout", async ({ page }) => {
+  const initial = await setup(page);
+  const index = initial.page!.items.findIndex((row) => row.action === "account.profile.update");
+  expect(index >= 0).toBe(true);
+  const row = initial.page!.items[index]!;
+  try {
+    const reread = await cancelRead(
+      page,
+      endpoint + "/" + row.audit_id,
+      () => page.locator(".audit-table tbody tr").nth(index).getByRole("button").click(),
+      true,
+    );
+    expect(same(reread.record, row)).toBe(true);
+    expect(same((await ipc("snapshot", { ids: [row.audit_id] })).records, [row])).toBe(true);
+    await expect(heading(page, "审计详情")).toBeFocused();
+    const beforeBack = (await auditFacts(page)).length;
+    await button(page, "返回列表").click();
+    await expect(button(page, "刷新第一页")).toBeEnabled();
+    expect((await auditFacts(page)).length).toBe(beforeBack);
+    expect(
+      await page.locator(".audit-table tbody tr").nth(index).getByRole("button")
+        .evaluate((node) => document.activeElement === node),
+    ).toBe(true);
+    await page.keyboard.press("Tab");
+    expect(await page.evaluate(() => {
+      const node = document.activeElement;
+      return node instanceof HTMLElement && node !== document.body && node.isConnected &&
+        !node.closest('[inert],[aria-hidden="true"]') &&
+        !(node instanceof HTMLButtonElement && node.disabled);
+    })).toBe(true);
+
+    const oldHeading = await heading(page, "系统审计").elementHandle();
+    expect(!!oldHeading).toBe(true);
+    const beforeRecovery = await seq(page);
+    await pageshowRecovery(page);
+    const recovery = (await facts(page)).filter((fact) => fact.sequence > beforeRecovery);
+    const sessions = recovery.filter((fact) => fact.path === "/api/v1/session");
+    expect(
+      sessions.length === 2 && sessions[0]!.status === 503 && sessions[0]!.ended &&
+      sessions[1]!.status === 200 && sessions[1]!.eof && sessions[1]!.ended,
+    ).toBe(true);
+    const currentSession = sessions[1]!.session!;
+    const initialSession = (await facts(page)).filter(
+      (fact) => fact.sequence <= beforeRecovery && fact.session,
+    ).at(-1)!.session!;
+    expect(same(currentSession, initialSession)).toBe(true);
+    expect(await oldHeading!.evaluate((node) => !node.isConnected)).toBe(true);
+    await oldHeading!.dispose();
+    const emptyDraft = await page.locator(".audit-filters input,.audit-filters select")
+      .evaluateAll((nodes) => nodes.length === 15 && nodes.every((node) => {
+        const control = node as HTMLInputElement | HTMLSelectElement;
+        return control.value === (control.id === "audit-filter-limit" ? "50" : "");
+      }));
+    expect(emptyDraft).toBe(true);
+    expect(await page.locator(".detail-fields,.ui-overlay").count()).toBe(0);
+    expect(await heading(page, "系统审计").evaluate((node) => node.isConnected)).toBe(true);
+
+    const authorityAfter = await seq(page);
+    const revoked = await ipc("logout", { session_id: currentSession.session_id });
+    expect(revoked.revoked === true && revoked.logout_audit === true).toBe(true);
+    await nav(page).getByRole("link", { name: "用户", exact: true }).click();
+    await factAfter(page, authorityAfter, (fact) =>
+      fact.path === "/api/v1/session" && fact.status === 401 &&
+      fact.ended && fact.code === "SESSION_REVOKED",
+    );
+    await expect(page.locator("#login-email")).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe("/login");
+    expect(await page.locator(".system-audit,.audit-filters,.audit-table,.detail-fields,.ui-overlay").count()).toBe(0);
+    expect((await auditFacts(page)).filter((fact) => fact.sequence > authorityAfter).length).toBe(0);
+    expect((await facts(page)).filter((fact) =>
+      fact.sequence > authorityAfter && fact.path === "/api/v1/system/users",
+    ).length).toBe(0);
+    await zeroMutations(page);
+    await waitJoined();
+  } finally {
+    await ipc("release");
+    await waitJoined();
+  }
+  result({
+    cancel_actual_end: true, explicit_reread: true, native_focus_tab: true,
+    checking_new_instance: true, same_identity: true, formal_logout: true,
+    no_stale_reads: true, zero_mutations: true,
+  });
+});

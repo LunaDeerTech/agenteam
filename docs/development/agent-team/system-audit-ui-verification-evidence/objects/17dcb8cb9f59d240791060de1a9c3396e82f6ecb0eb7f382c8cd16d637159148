@@ -1,0 +1,39 @@
+[
+  {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-race",
+      "-tags=integration",
+      "-o",
+      "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/audit-account.test",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace"
+  },
+  {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./tests/account"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace"
+  },
+  {
+    "argv": [
+      "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/audit-account.test",
+      "-test.list",
+      "^(TestAccountSystemAuditWebReadAndFilters|TestAccountSystemAuditWebAuthorityAndOwnership|TestAccountSystemAuditWebNavigationAndLayouts|TestAccountSystemOutboundPolicyWebNavigationAndLayouts|TestAccountSystemSMTPDeliveryWebNavigationAndLayouts)$"
+    ],
+    "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account",
+    "exact_lines": [
+      "TestAccountSystemAuditWebReadAndFilters",
+      "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "TestAccountSystemAuditWebNavigationAndLayouts",
+      "TestAccountSystemOutboundPolicyWebNavigationAndLayouts",
+      "TestAccountSystemSMTPDeliveryWebNavigationAndLayouts"
+    ]
+  }
+]

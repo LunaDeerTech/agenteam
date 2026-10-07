@@ -1,0 +1,20 @@
+# Audit UI authority02 独立只读归因
+
+结论：发现 fixture SQL 的确定类型前提冲突，建议仅显式参数类型；原 raw 未记录分项 SQL 错误或事实值，不把静态类型推导写成原现场 SQLSTATE。没有证明产品缺陷，也未运行诊断或资源。
+
+固定 input04/harness05；有限源及原件 SHA 见 [input.json](input.json)。八份正式依赖逐字核对 b124650。原 HTTP 204/完整读取/Close/空正文检查已越过，当前失败点是 fixture:471 的 `err != nil || !revoked || audits != 1` 合取检查，无法从 raw 分辨哪个项失败。
+
+| 前提 | 固定契约核对 |
+|---|---|
+| 精确 Session | 同个正式GET200响应的 session.id、user.id、csrf_token 与该请求Cookie组成映射；IPC仅接受已登记admin Session |
+| Session表 | id/user_id为uuid；revoked_at/文本revoked_reason存在；正式Logout同Tx写入非空时间和`logout` |
+| Audit动作与结果 | AccountLogout=`account.logout`，Success=`success`，迁移接收该枚举 |
+| metadata | AccountMetadata正式必有UserID/SessionID，JSON键session_id；AppendInTx写入同一个typed JSON |
+| 唯一性 | 原count过滤动作、成功与精确metadata SessionID；不改为全库总数或删`audits==1`；count(*)可扫描Go int |
+| 参数类型 | jsonb `->>`结果text，`metadata->>'session_id'=$1`使同一参数处于text语境；外层uuid `id=$1`没有显式转换。pgfixture使用默认pgx extended/cache-statement；不能按simple-protocol内联未知字符串字面量解释 |
+
+建议将原SQL三个参数位置显式写为 `metadata->>'session_id'=$1::text`、`id=$1::uuid`、`user_id=$2::uuid`（后者仅消除隐含推断）。原全部谓词、同Session/用户绑定、revoked及唯一Audit断言保持。仅修私有夹具，不改生产契约、HTTP成功断言或预算。若根决定增加失败诊断，仅允许`query_ok`、SQLSTATE闭集、revoked布尔、audit计数；不得输出error全文、SQL参数、业务ID/Cookie或metadata值。
+
+原轮 actual wait=true、exit1/55.741s，唯一top失败12.00s。raw只`formal exact Session Logout facts missing`，没有分项值。原输入不变；两扫7exactID absent、87ownedPID/starttime空、6adopted实际wait、baseline/普通runtime空。短browser目录仍有`run-885545408`，故原double_cleanup=false/browser_runtime_removed=false保留；本次未读取或清理该材料。后续恢复清理须独立记录。
+
+独立A/B候选仅静态写入，尚未compile/type/list或执行资源；B同IPC绑定暂停至作者新固定输入。已通过Read/ABC不受这条只读旁证SQL修正影响，不需重跑矩阵。

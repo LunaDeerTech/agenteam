@@ -1,0 +1,304 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { AccountFailure, type Fetch, type CommitState, type Problem } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../api/system-smtp-delivery'
+import { createSystemOutboundPolicyAPI } from '../api/system-outbound-policy'
+import { createSystemAuditAPI, type SystemAuditAPI, type AuditQuery } from '../api/system-audit'
+import { createSessionController, type SessionController } from '../composables/useSession'
+import { useSystemAudit, type SystemAuditController } from '../composables/useSystemAudit'
+import { useTheme } from '../composables/useTheme'
+const id=(n:number)=>`01970000-0000-7000-8000-${n.toString(16).padStart(12,'0')}`
+const time='2026-10-06T12:34:56.123456Z',endpoint='/api/v1/system/audit'
+const view=(sessionID=id(2),role:'admin'|'user'='admin'):SessionView=>({user:{id:id(1),email:'admin@example.test',username:'admin',display_name:'Admin',role,theme:'system',version:'1',initial_password_suggestion:false},session:{id:sessionID,issued_at:time,idle_expires_at:time,absolute_expires_at:time},csrf_token:'S'.repeat(43)})
+const record=(n=100)=>({audit_id:id(n),created_at:time,scope:'system',actor:{kind:'human',id:id(1)},action:'secret.create',outcome:'success',resource:{kind:'secret',id:id(2)},metadata:{version:'1',changed_fields:['value']},associations:{},summary:'Secret created'})
+const page=(count=0,start=100,cursor:string|null=null)=>({items:Array.from({length:count},(_,i)=>record(start-i)),next_cursor:cursor})
+const smtpFields=()=>({host:'mail.example',port:587,encryption:'starttls' as const,username:'',sender_email:'sender@example.test',sender_name:'',auto_retry_count:'3',retry_interval_seconds:'60'})
+const settings=()=>({id:id(10),version:'1',configured:true,...smtpFields(),credential_present:false})
+const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':status>=400?'application/problem+json':'application/json','X-Request-ID':id(9)}})
+const problemValue=(code:string,status=503,commit_state:CommitState='not_started'):Problem=>({type:'urn:agenteam:problem:test',title:'Failure',status,code,detail:'',instance:endpoint,request_id:id(9),commit_state,retry_hint:'lookup'})
+const problem=(code:string,status=503,commit:CommitState='not_started')=>json(problemValue(code,status,commit),status)
+function barrier<T=void>() {let resolve!:(value:T|PromiseLike<T>)=>void;const promise=new Promise<T>((r)=>(resolve=r));return {promise,resolve}}
+const owners:SessionController[]=[],pages:SystemAuditController[]=[],releases:(()=>void)[]=[]
+function nativeHold(media='application/json',body?:unknown) {
+ const joined=barrier(),entered=barrier();let controller!:ReadableStreamDefaultController<Uint8Array>
+ const cancel=vi.fn(()=>{entered.resolve();return joined.promise})
+ const stream=new ReadableStream<Uint8Array>({start(c){controller=c;if(body!==undefined)c.enqueue(new TextEncoder().encode(JSON.stringify(body)))},cancel})
+ const release=()=>joined.resolve();releases.push(release)
+ return {response:()=>new Response(stream,{headers:{'Content-Type':media}}),entered,cancel,stream,controller,release}
+}
+async function fixture(auditOverride?:SystemAuditAPI) {
+ let current=view(),session:Fetch=async()=>json(current),audit:Fetch=async(path)=>json(path.includes('/audit/')?record():page()),other:Fetch=async(path)=>path==='/api/v1/me'?json({user:current.user,avatar:null}):json({items:[],next_cursor:null}),smtp:Fetch=async()=>json(settings()),delivery:Fetch=async()=>json({items:[]}),outbound:Fetch=async()=>json({version:'1',rules:[]})
+ const fetch=vi.fn<Fetch>(async(path,init)=>{
+  if(path==='/api/v1/session')return session(path,init)
+  if(path==='/api/v1/auth/bootstrap')return json({csrf_token:'A'.repeat(43),challenge_modes:['rotate'],delivery_channel:'backend_log'})
+  if(path.endsWith('/logout'))return new Response(null,{status:204})
+  if(path===endpoint||path.startsWith(endpoint+'?')||path.startsWith(endpoint+'/'))return audit(path,init)
+  if(path==='/api/v1/system/outbound-policy')return outbound(path,init)
+  if(path==='/api/v1/system/smtp/test'||path.startsWith('/api/v1/system/mail-jobs/'))return delivery(path,init)
+  if(path.startsWith('/api/v1/system/smtp'))return smtp(path,init)
+  return other(path,init)
+ })
+ const auth=createSessionController(createAccountAPI(fetch),createSystemAccountAPI(fetch),createSystemInvitationAPI(fetch),createSystemProviderAPI(fetch),createSystemModelAPI(fetch),createSystemModelSelectionAPI(fetch),createSystemAccountSecurityAPI(fetch),createSystemSMTPSettingsAPI(fetch),createSystemSMTPDeliveryAPI(fetch),createSystemOutboundPolicyAPI(fetch),auditOverride??createSystemAuditAPI(fetch))
+ owners.push(auth);await auth.restore()
+ return {auth,fetch,page(){const value=useSystemAudit(auth);pages.push(value);return value},setAudit(value:Fetch){audit=value},setOther(value:Fetch){other=value},setSMTP(value:Fetch){smtp=value},setDelivery(value:Fetch){delivery=value},setOutbound(value:Fetch){outbound=value},setSession(value:SessionView){current=value},setSessionRequest(value:Fetch){session=value},reads(){return fetch.mock.calls.filter(([p])=>p===endpoint||p.startsWith(endpoint+'?')||p.startsWith(endpoint+'/'))},writes(){return fetch.mock.calls.filter(([,i])=>i.method!=='GET')}}
+}
+const domains=[
+ {name:'account-personal',read:(a:SessionController)=>a.personal.getProfile(),abandon:(a:SessionController)=>a.personal.abandon()},
+ {name:'directory',read:(a:SessionController)=>a.system.listUsers({}),abandon:(a:SessionController)=>a.system.abandon()},
+ {name:'invitation',read:(a:SessionController)=>a.system.listInvitations({}),abandon:(a:SessionController)=>a.system.abandonInvitationRead()},
+ {name:'provider',read:(a:SessionController)=>a.system.providers.list({}),abandon:(a:SessionController)=>a.system.providers.abandonRead('provider-list')},
+ {name:'model',read:(a:SessionController)=>a.system.models.get({id:id(3),provider_id:id(2),protocol:'openai-chat-completions'}),abandon:(a:SessionController)=>a.system.models.abandonRead('model-detail')},
+ {name:'selection',read:(a:SessionController)=>a.system.selection.get(),abandon:(a:SessionController)=>a.system.selection.abandonRead('selection-state')},
+ {name:'account-security',read:(a:SessionController)=>a.system.accountSecurity.get(),abandon:(a:SessionController)=>a.system.accountSecurity.abandonRead()},
+ {name:'smtp-settings',read:(a:SessionController)=>a.system.smtp.get(),abandon:(a:SessionController)=>a.system.smtp.abandonRead()},
+ {name:'smtp-delivery',read:(a:SessionController)=>a.system.smtpDelivery.list(),abandon:(a:SessionController)=>a.system.smtpDelivery.abandonRead()},
+ {name:'outbound',read:(a:SessionController)=>a.system.outboundPolicy.get(),abandon:(a:SessionController)=>a.system.outboundPolicy.abandonRead()},
+] as const
+const resultOf=(pending:Promise<unknown>)=>pending.then(value=>({value}), (error:unknown)=>({error}))
+afterEach(async()=>{
+ for(const release of releases.splice(0))release()
+ for(const page of pages.splice(0))page.dispose()
+ const previous=owners.splice(0);for(const auth of previous)auth.leave()
+ await flushPromises()
+ expect(previous.every((auth)=>!auth.state.busy)).toBe(true)
+ vi.useRealTimers();vi.restoreAllMocks();useTheme().setTheme('system')
+})
+
+describe('Audit is the eleventh API on the one actual Cookie owner',()=>{
+ it('captures input synchronously before ownership and creates no key, body, intent or lookup',async()=>{
+  const f=await fixture(),random=vi.spyOn(crypto,'randomUUID');let reads=0
+  const query={get action(){reads++;return 'secret.create'},limit:'1'}
+  const task=f.auth.system.audit.list(query);query.limit='200';expect(reads).toBe(1)
+  await task
+  const [path,init]=f.reads()[0]!,params=new URL(path,'https://local.invalid').searchParams
+  expect(params.get('limit')==='1'&&params.get('action')==='secret.create').toBe(true)
+  expect(init.method==='GET'&&init.body===undefined&&!new Headers(init.headers).has('X-CSRF-Token')&&!new Headers(init.headers).has('Idempotency-Key')).toBe(true)
+  const before=f.fetch.mock.calls.length
+  for(const value of [{limit:'01'},{actor_kind:'service',actor_id:id(1)}])await expect(f.auth.system.audit.list(value)).rejects.toMatchObject({kind:'invalid-input'})
+  await expect(f.auth.system.audit.get(id(1)+'/extra')).rejects.toMatchObject({kind:'invalid-input'})
+  expect(f.fetch.mock.calls.length===before&&!f.auth.state.busy&&Object.keys(f.auth.system.audit).sort().join(',')==='abandon,get,list').toBe(true)
+  expect(random).not.toHaveBeenCalled()
+ })
+ it.each(domains)('cannot enter while $name owns a native cancel tail, and abandon does not cancel that domain',async(domain)=>{
+  const f=await fixture(),held=nativeHold('text/plain');let signal:AbortSignal|undefined
+  const fetch:Fetch=async(_p,init)=>{signal=init.signal!;return held.response()}
+  f.setOther(fetch);f.setSMTP(fetch);f.setDelivery(fetch);f.setOutbound(fetch)
+  const pending=resultOf(domain.read(f.auth))
+  try {
+   await held.entered.promise
+   const before=f.fetch.mock.calls.length
+   await expect(f.auth.system.audit.list({})).rejects.toMatchObject({kind:'busy'})
+   await expect(f.auth.system.audit.get(id(100))).rejects.toMatchObject({kind:'busy'})
+   f.auth.system.audit.abandon()
+   expect(signal?.aborted===false&&f.auth.state.busy&&f.fetch.mock.calls.length===before).toBe(true)
+  } finally {held.release();await pending;await flushPromises()}
+  expect(!f.auth.state.busy&&!held.stream.locked).toBe(true)
+  f.setAudit(async()=>json(page()));await f.auth.system.audit.list({})
+ })
+ it('blocks all ten domains, authentication and public entry while Audit is still actually cancelling',async()=>{
+  const f=await fixture(),held=nativeHold('text/plain');let signal:AbortSignal|undefined
+  f.setAudit(async(_p,init)=>{signal=init.signal!;return held.response()})
+  const task=resultOf(f.auth.system.audit.list({}))
+  try {
+   await held.entered.promise
+   const before=f.fetch.mock.calls.length
+   for(const domain of domains){await expect(domain.read(f.auth)).rejects.toMatchObject({kind:'busy'});domain.abandon(f.auth)}
+   await f.auth.restore();await f.auth.logout();await f.auth.login('admin@example.test','A sufficiently long password')
+   await expect(f.auth.entry.prepare()).rejects.toMatchObject({kind:'busy'})
+   expect(signal?.aborted===false&&f.auth.state.busy&&f.fetch.mock.calls.length===before).toBe(true)
+   f.auth.system.audit.abandon();expect((await task) as unknown).toMatchObject({error:{kind:'cancelled'}})
+   expect(f.auth.state.busy&&signal?.aborted).toBe(true)
+  } finally {held.release();await task;await flushPromises()}
+  expect(!f.auth.state.busy&&!held.stream.locked).toBe(true)
+ })
+ it.each(['fetch','reader-cancel'] as const)('keeps %s owned after virtual 30 seconds and joins before unlocking',async(mode)=>{
+  const f=await fixture(),held=nativeHold('application/json',page()),fetchTail=barrier<Response>()
+  releases.push(()=>fetchTail.resolve(json(page())))
+  f.setAudit(mode==='fetch'?()=>fetchTail.promise:async()=>held.response())
+  vi.useFakeTimers({toFake:['setTimeout','clearTimeout']})
+  const task=resultOf(f.auth.system.audit.list({}));await flushPromises()
+  try {
+   await vi.advanceTimersByTimeAsync(30000)
+   expect(await task).toMatchObject({error:{kind:'cancelled'}})
+   expect(f.auth.state.busy).toBe(true)
+   if(mode==='reader-cancel')expect(held.cancel).toHaveBeenCalledTimes(1)
+   const before=f.fetch.mock.calls.length
+   await expect(f.auth.system.audit.list({})).rejects.toMatchObject({kind:'busy'})
+   await expect(f.auth.system.smtpDelivery.list()).rejects.toMatchObject({kind:'busy'})
+   expect(f.fetch.mock.calls.length).toBe(before)
+  } finally {fetchTail.resolve(json(page()));held.release();await task;await flushPromises()}
+  expect(!f.auth.state.busy&&!held.stream.locked).toBe(true)
+ })
+ it('releases actual EOF before a synchronous busy watcher starts a successor read',async()=>{
+  const f=await fixture(),held=nativeHold('application/json',page()),next=barrier<Response>();releases.push(()=>next.resolve(json(page())))
+  let count=0;f.setAudit(async()=>++count===1?held.response():next.promise)
+  const first=f.auth.system.audit.list({});await flushPromises()
+  let successor:Promise<unknown>|undefined
+  const stop=watch(()=>f.auth.state.busy,(busy)=>{if(!busy&&!successor)successor=f.auth.system.audit.list({})},{flush:'sync'})
+  try {held.controller.close();await first;expect(count===2&&f.auth.state.busy&&!held.stream.locked).toBe(true)}finally{stop();next.resolve(json(page()));await successor;held.release();await flushPromises()}
+  expect(f.auth.state.busy).toBe(false)
+ })
+})
+
+describe('Audit cleanup and security do not create or replace write intents',()=>{
+ it.each(['smtp-settings','smtp-delivery','outbound'] as const)('leaves pending %s exact business material to its own owner',async(domain)=>{
+  const f=await fixture(),tail=barrier<Response>();releases.push(()=>tail.resolve(problem('COMMIT_UNKNOWN',503,'unknown')))
+  let capturedSignal:AbortSignal|undefined
+  const held:Fetch=async(_p,init)=>{capturedSignal=init.signal!;return tail.promise}
+  if(domain==='smtp-settings')await f.auth.system.smtp.get()
+  const random=vi.spyOn(crypto,'randomUUID')
+  if(domain==='smtp-settings')f.auth.system.smtp.setMaterial('  exact private password  ')
+  if(domain==='smtp-settings')f.setSMTP(held);else if(domain==='smtp-delivery')f.setDelivery(held);else f.setOutbound(held)
+  const start=()=>domain==='smtp-settings'?f.auth.system.smtp.startUpdate({version:'1',...smtpFields(),username:'smtp-user',credential_action:'keep'}):domain==='smtp-delivery'?f.auth.system.smtpDelivery.startTest({recipient:'target@example.test'}):f.auth.system.outboundPolicy.startUpdate({expected_version:'1',rules:[]})
+  const progress=()=>domain==='smtp-settings'?f.auth.system.smtp.progress:domain==='smtp-delivery'?f.auth.system.smtpDelivery.progress:f.auth.system.outboundPolicy.progress
+  const pending=resultOf(start())
+  try {
+   await flushPromises();const present=f.auth.system.smtp.material.present
+   f.auth.system.audit.abandon();await expect(f.auth.system.audit.list({})).rejects.toMatchObject({kind:'busy'})
+   expect(capturedSignal?.aborted===false&&f.auth.state.busy&&f.auth.system.smtp.material.present===present).toBe(true)
+  } finally {tail.resolve(problem('COMMIT_UNKNOWN',503,'unknown'));await pending;await flushPromises()}
+  expect(progress()?.phase).toBe('uncertain')
+  const first=f.writes()[0]![1]
+  f.setAudit(async()=>problem('COMMIT_UNKNOWN',503,'unknown'))
+  await expect(f.auth.system.audit.list({})).rejects.toMatchObject({kind:'problem'})
+  f.auth.system.audit.abandon();expect(progress()?.phase).toBe('uncertain')
+  expect(random).toHaveBeenCalledTimes(1)
+  f.setSMTP(async(_p,init)=>init.method==='GET'?json(settings()):problem('COMMIT_UNKNOWN',503,'unknown'))
+  f.setDelivery(async(_p,init)=>init.method==='GET'?json({items:[]}):problem('COMMIT_UNKNOWN',503,'unknown'))
+  f.setOutbound(async(_p,init)=>init.method==='GET'?json({version:'1',rules:[]}):problem('COMMIT_UNKNOWN',503,'unknown'))
+  const operation=domain==='smtp-settings'?f.auth.system.smtp:domain==='smtp-delivery'?f.auth.system.smtpDelivery:f.auth.system.outboundPolicy
+  await operation.checkOriginal();await resultOf(operation.retryOriginal())
+  const second=f.writes()[1]![1]
+  expect(f.writes().length===2&&first.body===second.body&&new Headers(first.headers).get('Idempotency-Key')===new Headers(second.headers).get('Idempotency-Key')).toBe(true)
+  expect(random).toHaveBeenCalledTimes(1)
+ })
+ it.each([[401,'UNAUTHENTICATED'],[401,'SESSION_REVOKED'],[403,'FORBIDDEN']] as const)('retires current identity or system access only for %s/%s',async(status,code)=>{
+  const f=await fixture(),p=f.page();await flushPromises();p.updateFilter('action','secret.create')
+  f.auth.system.smtp.setMaterial('private field')
+  f.setAudit(async()=>problem(code,status));await p.refresh();await flushPromises()
+  expect(p.state.list.items.length===0&&p.state.detail.record===null&&p.draft.action===''&&!p.isCurrent()&&!f.auth.system.smtp.material.present).toBe(true)
+  expect(status===401?f.auth.personalContext.identity===null&&p.state.list.phase==='inactive':f.auth.system.denied&&p.state.list.phase==='forbidden').toBe(true)
+  const before=f.reads().length;await p.refresh();expect(f.reads().length).toBe(before)
+ })
+ it.each([[401,'FORBIDDEN'],[403,'SESSION_REVOKED'],[403,'CSRF_FAILED'],[401,'NEW_UNKNOWN_CODE'],[503,'FORBIDDEN'],[503,'COMMIT_UNKNOWN'],[500,'INTERNAL_ERROR']] as const)('keeps %s/%s a read error with no intent or identity wipe',async(status,code)=>{
+  const f=await fixture(),p=f.page();await flushPromises();const random=vi.spyOn(crypto,'randomUUID')
+  f.setAudit(async()=>problem(code,status,code==='COMMIT_UNKNOWN'?'unknown':'not_started'))
+  await p.refresh()
+  expect(p.state.list.phase==='error'&&f.auth.personalContext.phase==='current'&&f.auth.state.phase==='authenticated'&&!f.auth.system.denied&&!f.auth.state.canRetryOriginal).toBe(true)
+  expect(f.writes().length).toBe(0);expect(random).not.toHaveBeenCalled()
+ })
+ it.each([401,403] as const)('ignores late already-parsed %s after global identity retirement',async(status)=>{
+  const pending=barrier<never>();let reject!:(error:unknown)=>void
+  const response=new Promise<never>((_resolve,r)=>(reject=r))
+  const f=await fixture({list:()=>response,get:()=>pending.promise}),task=resultOf(f.auth.system.audit.list({}))
+  try {await flushPromises();f.auth.leave();reject(new AccountFailure('problem',problemValue(status===401?'SESSION_REVOKED':'FORBIDDEN',status)));await task;await flushPromises();f.setSession(view(id(50)));await f.auth.restore();expect(f.auth.state.session?.id===id(50)&&!f.auth.system.denied).toBe(true)}finally{reject(new AccountFailure('cancelled'));await task;await flushPromises()}
+ })
+ it('does not let an abandoned parsed 403 or a non-Problem field poison current permission',async()=>{
+  let reject!:(error:unknown)=>void
+  const pending=new Promise<never>((_r,r)=>(reject=r));let calls=0
+  const f=await fixture({list:()=>++calls===1?pending:Promise.reject(new AccountFailure('invalid-response',problemValue('FORBIDDEN',403))),get:()=>Promise.reject(new AccountFailure('invalid-input'))})
+  const task=resultOf(f.auth.system.audit.list({}))
+  try{await flushPromises();f.auth.system.audit.abandon();reject(new AccountFailure('problem',problemValue('FORBIDDEN',403)));await task;await flushPromises();expect(f.auth.system.denied).toBe(false);await expect(f.auth.system.audit.list({})).rejects.toMatchObject({kind:'invalid-response'});expect(f.auth.system.denied).toBe(false)}finally{reject(new AccountFailure('cancelled'));await task}
+ })
+})
+
+describe('Audit page-period observations and explicit reading',()=>{
+ it('applies explicit filters and page sizes, keeps draft separate, and uses only visited cursor history',async()=>{
+  const f=await fixture(),p=f.page();await flushPromises()
+  f.setAudit(async(path)=>{const q=new URL(path,'https://local.invalid').searchParams;return json(page(2,q.get('cursor')?98:100,q.get('cursor')?null:'next.1'))})
+  const before=f.reads().length
+  p.updateFilter('limit','01');p.updateFilter('from','2026-10-06T20:00:00.123456+08:00');p.updateFilter('action','project.update')
+  expect(p.dirty.value).toBe(true);expect(f.reads().length).toBe(before)
+  await p.apply();expect(!!p.state.fieldErrors.limit&&f.reads().length===before&&p.state.list.phase==='empty').toBe(true)
+  p.updateFilter('limit','2');await p.apply()
+  expect(!p.dirty.value&&p.state.applied.from==='2026-10-06T12:00:00.123456Z'&&p.state.list.hasNext).toBe(true)
+  await p.next();expect(p.state.list.page===2&&p.state.list.hasPrevious&&!p.state.list.hasNext).toBe(true)
+  await p.previous();expect(p.state.list.page).toBe(1)
+  const queries=f.reads().slice(1).map(([path])=>new URL(path,'https://local.invalid').searchParams)
+  expect(queries.map(q=>q.get('cursor')).join('|')==='|next.1|'&&queries.every(q=>q.get('limit')==='2'&&q.get('action')==='project.update')).toBe(true)
+  p.updateFilter('action','secret.create');expect(p.state.applied.action).toBe('project.update')
+  await p.apply();expect(!new URL(f.reads().at(-1)![0],'https://local.invalid').searchParams.has('cursor')).toBe(true)
+  f.setAudit(async()=>json(page()));await p.reset()
+  expect(p.draft.limit==='50'&&p.draft.from===''&&p.state.applied.limit==='50'&&Object.keys(p.state.applied).length===1&&!p.dirty.value).toBe(true)
+ })
+ it('rejects field combinations without destroying the current complete observation',async()=>{
+  const f=await fixture();f.setAudit(async()=>json(page(1)));const p=f.page();await flushPromises()
+  const before=f.reads().length,original=p.state.list.items
+  p.updateFilter('actor_kind','service');p.updateFilter('actor_id',id(1));await p.apply()
+  expect(f.reads().length===before&&p.state.list.items===original&&!!p.state.fieldErrors.actor_kind&&!!p.state.fieldErrors.actor_id).toBe(true)
+  p.updateFilter('actor_id','');await p.apply();expect(f.reads().length).toBe(before+1)
+ })
+ it('requires complete detail EOF and returns to the prior list without fetching it',async()=>{
+  const f=await fixture();f.setAudit(async()=>json(page(2)));const p=f.page();await flushPromises()
+  const list=p.state.list.items,held=nativeHold('application/json',record(100));f.setAudit(async()=>held.response())
+  const pending=p.openDetail(id(100))
+  try {
+   await flushPromises();expect(p.state.mode==='detail'&&p.state.detail.record===null&&p.state.detail.phase==='loading'&&p.state.list.items===list).toBe(true)
+   p.backToList();expect(p.state.mode==='list'&&p.state.detail.record===null&&p.state.list.items===list&&f.auth.state.busy).toBe(true)
+   await held.entered.promise;const before=f.reads().length;await p.refresh();expect(f.reads().length).toBe(before)
+  }finally{held.release();await pending;await flushPromises()}
+  expect(p.state.mode==='list'&&p.state.detail.target===null&&!f.auth.state.busy&&f.reads().length===2).toBe(true)
+  f.setAudit(async()=>json(record(99)));await p.openDetail(id(99));expect(p.state.detail.record?.audit_id===id(99)&&f.reads().length===3).toBe(true)
+  p.backToList();expect(f.reads().length).toBe(3)
+ })
+ it.each([[404,'NOT_FOUND','not-found'],[404,'OTHER_CODE','error'],[503,'DEPENDENCY_UNAVAILABLE','error']] as const)('keeps detail %s/%s as %s without association lookup',async(status,code,phase)=>{
+  const f=await fixture(),p=f.page();await flushPromises();f.setAudit(async()=>problem(code,status));await p.openDetail(id(100))
+  expect(p.state.detail.phase===phase&&p.state.detail.target===id(100)&&p.state.detail.record===null&&f.reads().length===2).toBe(true)
+ })
+ it('retries the same failed target and requires an explicit first page after legal CURSOR_INVALID',async()=>{
+  const f=await fixture(),p=f.page();await flushPromises();p.updateFilter('limit','1');f.setAudit(async()=>json(page(1,100,'next.1')));await p.apply()
+  f.setAudit(async()=>problem('DEPENDENCY_UNAVAILABLE',503));await p.next();const target=f.reads().at(-1)![0]
+  await p.retry();expect(f.reads().at(-1)![0]===target&&p.state.list.phase==='error').toBe(true)
+  f.setAudit(async()=>problem('CURSOR_INVALID',400));await p.retry();expect(p.state.list.cursorInvalid&&p.state.list.items.length===0).toBe(true)
+  const before=f.reads().length;await p.retry();await p.previous();expect(f.reads().length).toBe(before)
+  f.setAudit(async()=>json(page()));await p.refresh();expect(!new URL(f.reads().at(-1)![0],'https://local.invalid').searchParams.has('cursor')).toBe(true)
+ })
+ it.each(['cancel','timeout'] as const)('turns %s into a stable error and does not reread after actual tail release',async(mode)=>{
+  const f=await fixture(),held=nativeHold('application/json',page(1));f.setAudit(async()=>held.response())
+  vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});const p=f.page();await flushPromises()
+  try{
+   if(mode==='cancel')p.cancel();else await vi.advanceTimersByTimeAsync(30000)
+   await held.entered.promise;await flushPromises()
+   expect(p.state.list.phase==='error'&&p.state.list.items.length===0&&f.auth.state.busy).toBe(true)
+   const before=f.reads().length;await p.retry();await p.refresh();expect(f.reads().length).toBe(before)
+  }finally{held.release();await flushPromises()}
+  expect(!f.auth.state.busy&&p.state.list.phase==='error'&&f.reads().length===1).toBe(true)
+  f.setAudit(async()=>json(page()));await p.retry();expect(f.reads().length===2&&p.state.list.phase==='empty').toBe(true)
+ })
+ it.each(['new-page','disposed-page','cancelled-wait','identity-retired'] as const)('consumes initial eligibility exactly for %s after an old native tail',async(mode)=>{
+  const f=await fixture(),held=nativeHold('text/plain');f.setAudit(async()=>held.response())
+  const old=resultOf(f.auth.system.audit.list({}));await held.entered.promise;f.auth.system.audit.abandon();await old
+  const p=f.page();expect(p.state.list.phase).toBe('waiting')
+  if(mode==='disposed-page')p.dispose();if(mode==='cancelled-wait')p.cancel();if(mode==='identity-retired')f.auth.leave()
+  f.setAudit(async()=>json(page()))
+  try{expect(f.reads().length===1&&f.auth.state.busy).toBe(true)}finally{held.release();await old;await flushPromises()}
+  expect(f.reads().length).toBe(mode==='new-page'?2:1)
+  if(mode==='new-page')expect(p.state.list.phase).toBe('empty')
+  if(mode==='cancelled-wait'){expect(p.state.list.phase).toBe('error');await p.refresh();expect(f.reads().length).toBe(2)}
+ })
+ it('retires old state through checking/503 and only a new same-Session instance starts the default page',async()=>{
+  const f=await fixture(),p=f.page();await flushPromises();p.updateFilter('action','secret.create');await p.apply();p.updateFilter('tool_id',id(4))
+  f.setSessionRequest(async()=>problem('DEPENDENCY_UNAVAILABLE',503));await f.auth.restore();await flushPromises()
+  expect(p.state.list.phase==='inactive'&&p.draft.action===''&&p.draft.tool_id===''&&p.state.detail.target===null&&!p.isCurrent()).toBe(true)
+  const before=f.reads().length;await p.refresh();expect(f.reads().length).toBe(before)
+  f.setSessionRequest(async()=>json(view()));await f.auth.restore();await flushPromises();expect(f.reads().length).toBe(before)
+  const next=f.page();await flushPromises();expect(next.state.list.phase==='empty'&&f.reads().length===before+1).toBe(true)
+  const q=new URL(f.reads().at(-1)![0],'https://local.invalid').searchParams;expect(q.size===1&&q.get('limit')==='50').toBe(true)
+ })
+ it('route-leave cancels synchronously but keeps a surviving instance explicitly refreshable',async()=>{
+  const f=await fixture(),p=f.page();await flushPromises();p.updateFilter('action','secret.create');await p.apply()
+  const held=nativeHold('application/json',page(1));f.setAudit(async()=>held.response());const pending=p.refresh();await flushPromises()
+  try {p.leave();expect(p.state.list.phase==='error'&&p.state.list.items.length===0&&p.state.applied.action==='secret.create'&&f.auth.state.busy).toBe(true);await held.entered.promise}finally{held.release();await pending;await flushPromises()}
+  const before=f.reads().length;await flushPromises();expect(f.reads().length).toBe(before)
+  f.setAudit(async()=>json(page()));await p.refresh();expect(f.reads().length===before+1&&p.state.list.phase==='empty').toBe(true)
+ })
+})

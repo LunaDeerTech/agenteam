@@ -1,0 +1,449 @@
+<script setup lang="ts">
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type ComponentPublicInstance,
+} from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiState from '../../components/ui/UiState.vue'
+import SystemAuditFilters from './SystemAuditFilters.vue'
+import { useSystemAudit } from '../../composables/useSystemAudit'
+import {
+  auditAssociationFields,
+  auditMetadataFields,
+  type AuditAssociations,
+  type AuditOutcome,
+} from '../../api/system-audit-metadata'
+const audit = useSystemAudit(),
+  state = audit.state
+const heading = ref<HTMLElement | null>(null),
+  listHeading = ref<HTMLElement | null>(null),
+  detailHeading = ref<HTMLElement | null>(null)
+const filters = ref<InstanceType<typeof SystemAuditFilters> | null>(null)
+const rowControls = new Map<string, HTMLButtonElement>()
+let alive = true,
+  focusGeneration = 0,
+  selectedRow: string | null = null
+const current = (generation: number) => alive && audit.isCurrent() && focusGeneration === generation
+const outcomes: Record<AuditOutcome, string> = {
+  success: '成功',
+  denied: '拒绝',
+  failed: '失败',
+  unknown: '结果未知',
+}
+const associationLabels = {
+  tool_id: 'Tool ID',
+  request_id: 'Request ID',
+  runner_id: 'Runner ID',
+  correlation_id: 'Correlation ID',
+  http_trace_id: 'HTTP Trace ID',
+} as const
+const associations = (value: AuditAssociations) =>
+  auditAssociationFields.flatMap((key) =>
+    value[key] === undefined ? [] : [{ key, label: associationLabels[key], value: value[key]! }],
+  )
+const metadata = computed(() =>
+  state.detail.record ? auditMetadataFields(state.detail.record) : [],
+)
+function setRowControl(id: string, element: Element | ComponentPublicInstance | null) {
+  const node = element && '$el' in element ? element.$el : element
+  if (node instanceof HTMLButtonElement) rowControls.set(id, node)
+  else rowControls.delete(id)
+}
+async function perform(work: () => Promise<void>, event: Event) {
+  const own = ++focusGeneration
+  const trigger = event instanceof SubmitEvent ? event.submitter : event.currentTarget
+  await work()
+  if (!current(own)) return
+  await nextTick()
+  if (!current(own) || state.mode !== 'list') return
+  if (filters.value?.focusInvalid()) return
+  if (trigger instanceof HTMLButtonElement && trigger.isConnected && !trigger.disabled)
+    trigger.focus()
+  else listHeading.value?.focus()
+}
+async function openDetail(id: string) {
+  if (audit.blocked.value) return
+  selectedRow = id
+  const own = ++focusGeneration
+  const pending = audit.openDetail(id)
+  await nextTick()
+  if (current(own) && state.mode === 'detail' && state.detail.target === id)
+    detailHeading.value?.focus()
+  await pending
+}
+async function back() {
+  const own = ++focusGeneration
+  audit.backToList()
+  await nextTick()
+  if (!current(own) || state.mode !== 'list') return
+  const trigger = selectedRow ? rowControls.get(selectedRow) : null
+  if (trigger?.isConnected && !trigger.disabled) trigger.focus()
+  else listHeading.value?.focus()
+}
+async function cancel() {
+  const own = ++focusGeneration
+  audit.cancel()
+  await nextTick()
+  if (current(own)) (state.mode === 'detail' ? detailHeading.value : listHeading.value)?.focus()
+}
+async function retryDetail() {
+  const own = ++focusGeneration,
+    target = state.detail.target
+  await audit.retryDetail()
+  await nextTick()
+  if (current(own) && state.mode === 'detail' && state.detail.target === target)
+    detailHeading.value?.focus()
+}
+onMounted(async () => {
+  const own = focusGeneration
+  await nextTick()
+  if (current(own)) heading.value?.focus()
+})
+onBeforeRouteLeave(() => {
+  ++focusGeneration
+  audit.leave()
+  return true
+})
+onBeforeUnmount(() => {
+  alive = false
+  ++focusGeneration
+  audit.dispose()
+  rowControls.clear()
+})
+</script>
+<template>
+  <div class="system-audit">
+    <h1 ref="heading" tabindex="-1">系统审计</h1>
+    <p class="meta">只观察 System 安全事件。时间统一显示为 UTC；分页结果不代表全域完整快照。</p>
+    <template v-if="state.mode === 'list'">
+      <SystemAuditFilters
+        ref="filters"
+        :draft="audit.draft"
+        :errors="state.fieldErrors"
+        :message="state.filterMessage"
+        :dirty="audit.dirty.value"
+        :blocked="audit.blocked.value"
+        @update="audit.updateFilter"
+        @apply="perform(audit.apply, $event)"
+        @reset="perform(audit.reset, $event)"
+      />
+      <section aria-labelledby="audit-list-heading" class="audit-observation">
+        <h2 id="audit-list-heading" ref="listHeading" tabindex="-1">审计记录</h2>
+        <div class="audit-actions" aria-label="系统审计分页">
+          <UiButton :disabled="audit.blocked.value" @click="perform(audit.refresh, $event)"
+            >刷新第一页</UiButton
+          >
+          <UiButton
+            :disabled="audit.blocked.value || !state.list.hasPrevious"
+            @click="perform(audit.previous, $event)"
+            >上一页</UiButton
+          >
+          <UiButton
+            :disabled="audit.blocked.value || !state.list.hasNext"
+            @click="perform(audit.next, $event)"
+            >下一页</UiButton
+          >
+          <UiButton v-if="audit.reading.value" @click="cancel">取消读取</UiButton>
+        </div>
+        <UiState
+          v-if="state.list.phase === 'waiting' || state.list.phase === 'loading'"
+          kind="loading"
+          :title="state.list.phase === 'waiting' ? '等待当前请求结束' : '正在读取系统审计'"
+        />
+        <UiState
+          v-else-if="state.list.phase === 'error'"
+          kind="error"
+          title="系统审计读取失败"
+          :description="state.list.message"
+        >
+          <UiButton
+            v-if="state.list.cursorInvalid"
+            :disabled="audit.blocked.value"
+            @click="perform(audit.refresh, $event)"
+            >返回第一页</UiButton
+          >
+          <UiButton v-else :disabled="audit.blocked.value" @click="perform(audit.retry, $event)"
+            >重试读取</UiButton
+          >
+        </UiState>
+        <UiState v-else-if="state.list.phase === 'empty'" kind="empty" title="没有匹配的审计记录" />
+        <UiState
+          v-else-if="state.list.phase === 'forbidden'"
+          kind="error"
+          title="需要系统管理员权限"
+        />
+        <div
+          v-else-if="state.list.phase === 'ready'"
+          class="audit-table"
+          role="region"
+          aria-label="系统审计列表"
+          tabindex="0"
+        >
+          <table>
+            <caption class="sr-only">
+              当前已读取的系统审计记录
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">时间（UTC）</th>
+                <th scope="col">操作者</th>
+                <th scope="col">动作</th>
+                <th scope="col">结果</th>
+                <th scope="col">资源</th>
+                <th scope="col">关联 ID</th>
+                <th scope="col">详情</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in state.list.items" :key="row.audit_id">
+                <td data-label="时间（UTC）">
+                  <time :datetime="row.created_at">{{ row.created_at }}</time>
+                </td>
+                <td data-label="操作者">
+                  <span>{{ row.actor.kind }}</span
+                  ><template v-if="row.actor.kind === 'human'"
+                    ><span>{{ row.actor.id }}</span></template
+                  ><template v-else
+                    ><span>{{ row.actor.service }}</span
+                    ><span>{{ row.actor.cause_ref }}</span></template
+                  >
+                </td>
+                <td data-label="动作">{{ row.action }}</td>
+                <td data-label="结果">{{ outcomes[row.outcome] }}（{{ row.outcome }}）</td>
+                <td data-label="资源">
+                  <span>{{ row.resource.kind }}</span
+                  ><span v-if="'id' in row.resource">{{ row.resource.id }}</span>
+                </td>
+                <td data-label="关联 ID">
+                  <dl v-if="associations(row.associations).length" class="associations">
+                    <template
+                      v-for="association in associations(row.associations)"
+                      :key="association.key"
+                      ><dt>{{ association.label }}</dt>
+                      <dd>{{ association.value }}</dd></template
+                    >
+                  </dl>
+                  <span v-else>—</span>
+                </td>
+                <td data-label="详情">
+                  <UiButton
+                    :ref="(element) => setRowControl(row.audit_id, element)"
+                    :disabled="audit.blocked.value"
+                    :aria-label="'查看详情 ' + row.audit_id"
+                    @click="openDetail(row.audit_id)"
+                    >查看详情</UiButton
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p
+          v-if="state.list.phase === 'ready' || state.list.phase === 'empty'"
+          class="meta"
+          role="status"
+        >
+          第 {{ state.list.page }} 页 · 本页 {{ state.list.items.length }} 条 · 仅显示已读取的结果
+        </p>
+      </section>
+    </template>
+    <section v-else class="audit-observation" aria-labelledby="audit-detail-heading">
+      <h2 id="audit-detail-heading" ref="detailHeading" tabindex="-1">审计详情</h2>
+      <div class="audit-actions">
+        <UiButton @click="back">返回列表</UiButton>
+        <UiButton :disabled="audit.blocked.value" @click="retryDetail">重新读取详情</UiButton>
+        <UiButton v-if="audit.reading.value" @click="cancel">取消读取</UiButton>
+      </div>
+      <UiState v-if="state.detail.phase === 'loading'" kind="loading" title="正在读取审计详情" />
+      <UiState
+        v-else-if="state.detail.phase === 'not-found'"
+        kind="error"
+        title="记录不存在或不可访问"
+      />
+      <UiState
+        v-else-if="state.detail.phase === 'error'"
+        kind="error"
+        title="审计详情读取失败"
+        :description="state.detail.message"
+      />
+      <template v-else-if="state.detail.phase === 'ready' && state.detail.record">
+        <dl class="detail-fields">
+          <dt>审计 ID</dt>
+          <dd>{{ state.detail.record.audit_id }}</dd>
+          <dt>时间（UTC）</dt>
+          <dd>
+            <time :datetime="state.detail.record.created_at">{{
+              state.detail.record.created_at
+            }}</time>
+          </dd>
+          <dt>范围</dt>
+          <dd>{{ state.detail.record.scope }}</dd>
+          <dt>操作者类型</dt>
+          <dd>{{ state.detail.record.actor.kind }}</dd>
+          <template v-if="state.detail.record.actor.kind === 'human'"
+            ><dt>操作者 ID</dt>
+            <dd>{{ state.detail.record.actor.id }}</dd></template
+          >
+          <template v-else
+            ><dt>服务</dt>
+            <dd>{{ state.detail.record.actor.service }}</dd>
+            <dt>Cause Ref</dt>
+            <dd>{{ state.detail.record.actor.cause_ref }}</dd></template
+          >
+          <dt>动作</dt>
+          <dd>{{ state.detail.record.action }}</dd>
+          <dt>结果</dt>
+          <dd>{{ outcomes[state.detail.record.outcome] }}（{{ state.detail.record.outcome }}）</dd>
+          <dt>资源类型</dt>
+          <dd>{{ state.detail.record.resource.kind }}</dd>
+          <template v-if="'id' in state.detail.record.resource"
+            ><dt>资源 ID</dt>
+            <dd>{{ state.detail.record.resource.id }}</dd></template
+          >
+          <dt>摘要</dt>
+          <dd>{{ state.detail.record.summary }}</dd>
+        </dl>
+        <h3>结构化证据</h3>
+        <dl class="detail-fields">
+          <template v-for="field in metadata" :key="field.key"
+            ><dt>{{ field.label }}</dt>
+            <dd>{{ field.value }}</dd></template
+          >
+        </dl>
+        <h3>安全关联 ID</h3>
+        <dl v-if="associations(state.detail.record.associations).length" class="detail-fields">
+          <template
+            v-for="association in associations(state.detail.record.associations)"
+            :key="association.key"
+            ><dt>{{ association.label }}</dt>
+            <dd>{{ association.value }}</dd></template
+          >
+        </dl>
+        <p v-else class="meta">无关联 ID</p>
+        <p class="meta">accepted 表示请求受理，不代表投递成功。结果未知不授予重试操作。</p>
+      </template>
+    </section>
+  </div>
+</template>
+<style scoped>
+.system-audit,
+.audit-observation {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.audit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.audit-table {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: start;
+}
+th,
+td {
+  padding: 12px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  background: var(--surface);
+  font-weight: 600;
+}
+td > span {
+  display: block;
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+time {
+  font-variant-numeric: tabular-nums;
+}
+dl {
+  margin: 0;
+  min-width: 0;
+}
+dt {
+  color: var(--muted);
+}
+dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.associations {
+  display: grid;
+  gap: 4px;
+}
+.associations dd + dt {
+  margin-top: 8px;
+}
+.detail-fields {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(0, 3fr);
+  gap: 12px 20px;
+}
+@media (max-width: 760px) {
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+  }
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  tr + tr {
+    border-top: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 12px;
+    border: 0;
+  }
+  td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .detail-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .detail-fields dd + dt {
+    margin-top: 12px;
+  }
+}
+</style>

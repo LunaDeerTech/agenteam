@@ -1,0 +1,1467 @@
+{
+  "records": [
+    {
+      "name": "secret.create",
+      "action": "secret.create",
+      "metadata": {
+        "version": "9007199254740993",
+        "changed_fields": [
+          "purpose",
+          "value"
+        ]
+      },
+      "resource": {
+        "kind": "secret",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 67,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret.update",
+      "action": "secret.update",
+      "metadata": {
+        "version": "9007199254740993",
+        "changed_fields": [
+          "purpose",
+          "value"
+        ]
+      },
+      "resource": {
+        "kind": "secret",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 67,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret.delete",
+      "action": "secret.delete",
+      "metadata": {
+        "version": "1"
+      },
+      "resource": {
+        "kind": "secret",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 15,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret.resolve",
+      "action": "secret.resolve",
+      "metadata": {
+        "lease_id": "01970000-0000-7000-8000-000000000004",
+        "consumer": "smtp"
+      },
+      "resource": {
+        "kind": "secret",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 69,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret.master.register",
+      "action": "secret.master.register",
+      "metadata": {
+        "version": "1"
+      },
+      "resource": {
+        "kind": "secret_master"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 15,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret.master.rotation.start",
+      "action": "secret.master.rotation.start",
+      "metadata": {
+        "version": "2",
+        "rotation_id": "01970000-0000-7000-8000-000000000004",
+        "count": "0"
+      },
+      "resource": {
+        "kind": "secret_rotation",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 80,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret.master.rotation.complete",
+      "action": "secret.master.rotation.complete",
+      "metadata": {
+        "version": "2",
+        "rotation_id": "01970000-0000-7000-8000-000000000004",
+        "count": "0"
+      },
+      "resource": {
+        "kind": "secret_rotation",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 80,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret.master.rotation.failed",
+      "action": "secret.master.rotation.failed",
+      "metadata": {
+        "version": "2",
+        "reason": "rotation_failed",
+        "rotation_id": "01970000-0000-7000-8000-000000000004",
+        "count": "0"
+      },
+      "resource": {
+        "kind": "secret_rotation",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "failed",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 107,
+      "entry_accepted": true
+    },
+    {
+      "name": "outbound.policy.update",
+      "action": "outbound.policy.update",
+      "metadata": {
+        "version": "1",
+        "rule_count": "256"
+      },
+      "resource": {
+        "kind": "outbound_policy"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 34,
+      "entry_accepted": true
+    },
+    {
+      "name": "outbound.access.deny",
+      "action": "outbound.access.deny",
+      "metadata": {
+        "version": "1",
+        "consumer": "model",
+        "reason": "address_forbidden"
+      },
+      "resource": {
+        "kind": "outbound_policy"
+      },
+      "outcome": "denied",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 63,
+      "entry_accepted": true
+    },
+    {
+      "name": "object.upload.complete",
+      "action": "object.upload.complete",
+      "metadata": {
+        "object_id": "01970000-0000-7000-8000-000000000001",
+        "initiator_kind": "human",
+        "initiator_id": "01970000-0000-7000-8000-000000000002",
+        "media_type": "text/{json}; charset=utf-8",
+        "byte_size": "9223372036854775807",
+        "sent_bytes": "9007199254740993",
+        "phase": "published"
+      },
+      "resource": {
+        "kind": "stored_object",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "service",
+        "service": "object",
+        "cause_ref": "01970000-0000-7000-8000-000000000009"
+      },
+      "associations": {},
+      "metadata_bytes": 259,
+      "entry_accepted": true
+    },
+    {
+      "name": "object.upload.failed",
+      "action": "object.upload.failed",
+      "metadata": {
+        "reason": "integrity_mismatch",
+        "object_id": "01970000-0000-7000-8000-000000000001",
+        "initiator_kind": "human",
+        "initiator_id": "01970000-0000-7000-8000-000000000002",
+        "media_type": "text/{json}; charset=utf-8",
+        "byte_size": "9223372036854775807",
+        "sent_bytes": "9007199254740993",
+        "phase": "failed"
+      },
+      "resource": {
+        "kind": "stored_object",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "failed",
+      "actor": {
+        "kind": "service",
+        "service": "object",
+        "cause_ref": "01970000-0000-7000-8000-000000000009"
+      },
+      "associations": {},
+      "metadata_bytes": 286,
+      "entry_accepted": true
+    },
+    {
+      "name": "object.delete",
+      "action": "object.delete",
+      "metadata": {
+        "object_id": "01970000-0000-7000-8000-000000000001",
+        "initiator_kind": "human",
+        "initiator_id": "01970000-0000-7000-8000-000000000002",
+        "media_type": "text/{json}; charset=utf-8",
+        "byte_size": "9223372036854775807",
+        "sent_bytes": "9007199254740993",
+        "phase": "deleted"
+      },
+      "resource": {
+        "kind": "stored_object",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "service",
+        "service": "object",
+        "cause_ref": "01970000-0000-7000-8000-000000000009"
+      },
+      "associations": {},
+      "metadata_bytes": 257,
+      "entry_accepted": true
+    },
+    {
+      "name": "outbox.delivery.requeue",
+      "action": "outbox.delivery.requeue",
+      "metadata": {
+        "delivery_id": "01970000-0000-7000-8000-000000000001",
+        "event_id": "01970000-0000-7000-8000-000000000002",
+        "handler_id": "safe.handler-v1",
+        "from_state": "dead_letter",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 213,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.bootstrap",
+      "action": "account.bootstrap",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "version": "2",
+        "phase": "created"
+      },
+      "resource": {
+        "kind": "user",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 82,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.login",
+      "action": "account.login",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "session_id": "01970000-0000-7000-8000-000000000002",
+        "attempt_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "authenticated"
+      },
+      "resource": {
+        "kind": "account_attempt",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 192,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.logout",
+      "action": "account.logout",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "session_id": "01970000-0000-7000-8000-000000000002",
+        "version": "2",
+        "phase": "revoked"
+      },
+      "resource": {
+        "kind": "session",
+        "id": "01970000-0000-7000-8000-000000000002"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 134,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.invite.create",
+      "action": "account.invite.create",
+      "metadata": {
+        "invitation_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "channel": "smtp",
+        "phase": "created",
+        "initiator_id": "01970000-0000-7000-8000-000000000002"
+      },
+      "resource": {
+        "kind": "invitation",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 159,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.invite.revoke",
+      "action": "account.invite.revoke",
+      "metadata": {
+        "invitation_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "revoked",
+        "initiator_id": "01970000-0000-7000-8000-000000000002"
+      },
+      "resource": {
+        "kind": "invitation",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 142,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.invite.redeem",
+      "action": "account.invite.redeem",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "invitation_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "redeemed"
+      },
+      "resource": {
+        "kind": "user",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 138,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.password.change",
+      "action": "account.password.change",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "version": "2",
+        "changed_fields": [
+          "password"
+        ],
+        "phase": "updated"
+      },
+      "resource": {
+        "kind": "user",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 112,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.password.reset.request",
+      "action": "account.password.reset.request",
+      "metadata": {
+        "attempt_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "accepted"
+      },
+      "resource": {
+        "kind": "account_attempt",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 86,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.password.reset.complete",
+      "action": "account.password.reset.complete",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "reset_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "redeemed"
+      },
+      "resource": {
+        "kind": "password_reset",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 133,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.profile.update",
+      "action": "account.profile.update",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "version": "2",
+        "changed_fields": [
+          "display_name",
+          "theme",
+          "username"
+        ],
+        "phase": "updated"
+      },
+      "resource": {
+        "kind": "user",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 135,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.avatar.update",
+      "action": "account.avatar.update",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "object_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "changed_fields": [
+          "avatar"
+        ],
+        "phase": "updated"
+      },
+      "resource": {
+        "kind": "user",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 161,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.settings.update",
+      "action": "account.settings.update",
+      "metadata": {
+        "version": "2",
+        "changed_fields": [
+          "challenge_after_failures",
+          "password_reset_seconds",
+          "session_absolute_seconds",
+          "session_idle_seconds"
+        ],
+        "phase": "updated",
+        "initiator_id": "01970000-0000-7000-8000-000000000002"
+      },
+      "resource": {
+        "kind": "account_settings",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 208,
+      "entry_accepted": true
+    },
+    {
+      "name": "smtp.settings.update",
+      "action": "smtp.settings.update",
+      "metadata": {
+        "version": "2",
+        "changed_fields": [
+          "auth_username",
+          "auto_retry_count",
+          "enabled",
+          "from",
+          "host",
+          "password",
+          "port",
+          "retry_interval_seconds",
+          "sender_name",
+          "tls_mode"
+        ],
+        "phase": "updated",
+        "initiator_id": "01970000-0000-7000-8000-000000000002"
+      },
+      "resource": {
+        "kind": "smtp_settings",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 233,
+      "entry_accepted": true
+    },
+    {
+      "name": "smtp.test.request",
+      "action": "smtp.test.request",
+      "metadata": {
+        "job_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "channel": "log",
+        "phase": "accepted",
+        "initiator_id": "01970000-0000-7000-8000-000000000002"
+      },
+      "resource": {
+        "kind": "mail_job",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 152,
+      "entry_accepted": true
+    },
+    {
+      "name": "smtp.delivery.retry",
+      "action": "smtp.delivery.retry",
+      "metadata": {
+        "job_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "accepted",
+        "initiator_id": "01970000-0000-7000-8000-000000000002"
+      },
+      "resource": {
+        "kind": "mail_job",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 136,
+      "entry_accepted": true
+    },
+    {
+      "name": "smtp.delivery",
+      "action": "smtp.delivery",
+      "metadata": {
+        "attempt_id": "01970000-0000-7000-8000-000000000003",
+        "job_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "channel": "smtp",
+        "phase": "sent",
+        "initiator_id": "01970000-0000-7000-8000-000000000002"
+      },
+      "resource": {
+        "kind": "mail_job",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 201,
+      "entry_accepted": true
+    },
+    {
+      "name": "provider.create",
+      "action": "provider.create",
+      "metadata": {
+        "provider_id": "01970000-0000-7000-8000-000000000002",
+        "version": "2",
+        "changed_fields": [
+          "created"
+        ]
+      },
+      "resource": {
+        "kind": "model_provider",
+        "id": "01970000-0000-7000-8000-000000000002"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 97,
+      "entry_accepted": true
+    },
+    {
+      "name": "provider.update",
+      "action": "provider.update",
+      "metadata": {
+        "provider_id": "01970000-0000-7000-8000-000000000002",
+        "version": "2",
+        "changed_fields": [
+          "base_url",
+          "credential_ref",
+          "enabled",
+          "name",
+          "provider_options"
+        ]
+      },
+      "resource": {
+        "kind": "model_provider",
+        "id": "01970000-0000-7000-8000-000000000002"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 151,
+      "entry_accepted": true
+    },
+    {
+      "name": "provider.delete",
+      "action": "provider.delete",
+      "metadata": {
+        "provider_id": "01970000-0000-7000-8000-000000000002",
+        "version": "2",
+        "changed_fields": [
+          "deleted"
+        ]
+      },
+      "resource": {
+        "kind": "model_provider",
+        "id": "01970000-0000-7000-8000-000000000002"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 97,
+      "entry_accepted": true
+    },
+    {
+      "name": "model.create",
+      "action": "model.create",
+      "metadata": {
+        "provider_id": "01970000-0000-7000-8000-000000000002",
+        "model_id": "01970000-0000-7000-8000-000000000003",
+        "version": "2",
+        "changed_fields": [
+          "created"
+        ]
+      },
+      "resource": {
+        "kind": "model_config",
+        "id": "01970000-0000-7000-8000-000000000003"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 147,
+      "entry_accepted": true
+    },
+    {
+      "name": "model.update",
+      "action": "model.update",
+      "metadata": {
+        "provider_id": "01970000-0000-7000-8000-000000000002",
+        "model_id": "01970000-0000-7000-8000-000000000003",
+        "version": "2",
+        "changed_fields": [
+          "capabilities",
+          "enabled",
+          "header_overwrite",
+          "model_id",
+          "name",
+          "parameters",
+          "request_overwrite"
+        ]
+      },
+      "resource": {
+        "kind": "model_config",
+        "id": "01970000-0000-7000-8000-000000000003"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 232,
+      "entry_accepted": true
+    },
+    {
+      "name": "model.delete",
+      "action": "model.delete",
+      "metadata": {
+        "provider_id": "01970000-0000-7000-8000-000000000002",
+        "model_id": "01970000-0000-7000-8000-000000000003",
+        "version": "2",
+        "changed_fields": [
+          "deleted"
+        ],
+        "affected_count": "0"
+      },
+      "resource": {
+        "kind": "model_config",
+        "id": "01970000-0000-7000-8000-000000000003"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 168,
+      "entry_accepted": true
+    },
+    {
+      "name": "model.selection.update",
+      "action": "model.selection.update",
+      "metadata": {
+        "selection_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "changed_fields": [
+          "selection"
+        ],
+        "selector_kind": "platform"
+      },
+      "resource": {
+        "kind": "model_selection",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 127,
+      "entry_accepted": true
+    },
+    {
+      "name": "login-rejected-anonymous",
+      "action": "account.login",
+      "metadata": {
+        "attempt_id": "01970000-0000-7000-8000-000000000004",
+        "version": "1",
+        "phase": "rejected",
+        "reason": "session_invalid"
+      },
+      "resource": {
+        "kind": "account_attempt",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "denied",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 113,
+      "entry_accepted": true
+    },
+    {
+      "name": "login-rejected-user",
+      "action": "account.login",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "attempt_id": "01970000-0000-7000-8000-000000000004",
+        "version": "1",
+        "phase": "rejected",
+        "reason": "session_invalid"
+      },
+      "resource": {
+        "kind": "account_attempt",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "denied",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 162,
+      "entry_accepted": true
+    },
+    {
+      "name": "delivery-failed",
+      "action": "smtp.delivery",
+      "metadata": {
+        "attempt_id": "01970000-0000-7000-8000-000000000003",
+        "job_id": "01970000-0000-7000-8000-000000000004",
+        "version": "1",
+        "channel": "log",
+        "phase": "failed",
+        "reason": "delivery_unknown"
+      },
+      "resource": {
+        "kind": "mail_job",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "failed",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 176,
+      "entry_accepted": true
+    },
+    {
+      "name": "delivery-unknown",
+      "action": "smtp.delivery",
+      "metadata": {
+        "attempt_id": "01970000-0000-7000-8000-000000000003",
+        "job_id": "01970000-0000-7000-8000-000000000004",
+        "version": "1",
+        "channel": "log",
+        "phase": "unknown",
+        "reason": "delivery_unknown"
+      },
+      "resource": {
+        "kind": "mail_job",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "unknown",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 177,
+      "entry_accepted": true
+    },
+    {
+      "name": "object-agent-and-html-bytes",
+      "action": "object.upload.complete",
+      "metadata": {
+        "object_id": "01970000-0000-7000-8000-000000000001",
+        "initiator_kind": "agent_run",
+        "initiator_id": "01970000-0000-7000-8000-000000000002",
+        "initiator_execution_id": "01970000-0000-7000-8000-000000000003",
+        "media_type": "\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026\u0026",
+        "byte_size": "9223372036854775807",
+        "sent_bytes": "9007199254740993",
+        "phase": "published"
+      },
+      "resource": {
+        "kind": "stored_object",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "service",
+        "service": "object-maintenance",
+        "cause_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "associations": {},
+      "metadata_bytes": 1837,
+      "entry_accepted": true
+    },
+    {
+      "name": "object-unknown-service-initiator",
+      "action": "object.upload.failed",
+      "metadata": {
+        "reason": "storage_unavailable",
+        "object_id": "01970000-0000-7000-8000-000000000001",
+        "initiator_kind": "service",
+        "initiator_id": "01970000-0000-7000-8000-000000000002",
+        "media_type": "text",
+        "byte_size": "9223372036854775807",
+        "sent_bytes": "9007199254740993",
+        "phase": "failed"
+      },
+      "resource": {
+        "kind": "stored_object",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "unknown",
+      "actor": {
+        "kind": "service",
+        "service": "object",
+        "cause_ref": "01970000-0000-7000-8000-000000000009"
+      },
+      "associations": {},
+      "metadata_bytes": 267,
+      "entry_accepted": true
+    },
+    {
+      "name": "model-delete-replacement-maximum",
+      "action": "model.delete",
+      "metadata": {
+        "provider_id": "01970000-0000-7000-8000-000000000002",
+        "model_id": "01970000-0000-7000-8000-000000000003",
+        "version": "9223372036854775807",
+        "changed_fields": [
+          "deleted",
+          "replacement"
+        ],
+        "replacement_id": "01970000-0000-7000-8000-000000000004",
+        "affected_count": "9223372036854775807"
+      },
+      "resource": {
+        "kind": "model_config",
+        "id": "01970000-0000-7000-8000-000000000003"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 274,
+      "entry_accepted": true
+    },
+    {
+      "name": "policy-non-success-permitted",
+      "action": "outbound.policy.update",
+      "metadata": {
+        "version": "1",
+        "rule_count": "0"
+      },
+      "resource": {
+        "kind": "outbound_policy"
+      },
+      "outcome": "unknown",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 32,
+      "entry_accepted": true
+    },
+    {
+      "name": "secret-resolve-optional-reason",
+      "action": "secret.resolve",
+      "metadata": {
+        "lease_id": "01970000-0000-7000-8000-000000000004",
+        "consumer": "system",
+        "reason": "permission_denied"
+      },
+      "resource": {
+        "kind": "secret",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "denied",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 100,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.invite.create-omitted-optional",
+      "action": "account.invite.create",
+      "metadata": {
+        "invitation_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "created"
+      },
+      "resource": {
+        "kind": "invitation",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 88,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.invite.revoke-omitted-optional",
+      "action": "account.invite.revoke",
+      "metadata": {
+        "invitation_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "revoked"
+      },
+      "resource": {
+        "kind": "invitation",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 88,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.avatar.update-omitted-optional",
+      "action": "account.avatar.update",
+      "metadata": {
+        "user_id": "01970000-0000-7000-8000-000000000001",
+        "version": "2",
+        "changed_fields": [
+          "avatar"
+        ],
+        "phase": "updated"
+      },
+      "resource": {
+        "kind": "user",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 110,
+      "entry_accepted": true
+    },
+    {
+      "name": "account.settings.update-omitted-optional",
+      "action": "account.settings.update",
+      "metadata": {
+        "version": "2",
+        "changed_fields": [
+          "challenge_after_failures",
+          "password_reset_seconds",
+          "session_absolute_seconds",
+          "session_idle_seconds"
+        ],
+        "phase": "updated"
+      },
+      "resource": {
+        "kind": "account_settings",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 154,
+      "entry_accepted": true
+    },
+    {
+      "name": "smtp.settings.update-omitted-optional",
+      "action": "smtp.settings.update",
+      "metadata": {
+        "version": "2",
+        "changed_fields": [
+          "auth_username",
+          "auto_retry_count",
+          "enabled",
+          "from",
+          "host",
+          "password",
+          "port",
+          "retry_interval_seconds",
+          "sender_name",
+          "tls_mode"
+        ],
+        "phase": "updated"
+      },
+      "resource": {
+        "kind": "smtp_settings",
+        "id": "01970000-0000-7000-8000-000000000001"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 179,
+      "entry_accepted": true
+    },
+    {
+      "name": "smtp.test.request-omitted-optional",
+      "action": "smtp.test.request",
+      "metadata": {
+        "job_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "phase": "accepted"
+      },
+      "resource": {
+        "kind": "mail_job",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 82,
+      "entry_accepted": true
+    },
+    {
+      "name": "smtp.delivery-omitted-optional",
+      "action": "smtp.delivery",
+      "metadata": {
+        "attempt_id": "01970000-0000-7000-8000-000000000003",
+        "job_id": "01970000-0000-7000-8000-000000000004",
+        "version": "2",
+        "channel": "smtp",
+        "phase": "sent"
+      },
+      "resource": {
+        "kind": "mail_job",
+        "id": "01970000-0000-7000-8000-000000000004"
+      },
+      "outcome": "success",
+      "actor": {
+        "kind": "human",
+        "id": "01970000-0000-7000-8000-000000000008"
+      },
+      "associations": {},
+      "metadata_bytes": 147,
+      "entry_accepted": true
+    }
+  ],
+  "instants": [
+    {
+      "input": "0000-01-01T00:00:00Z",
+      "accepted": true,
+      "canonical": "0000-01-01T00:00:00.000000Z"
+    },
+    {
+      "input": "0000-02-29T00:00:00.000001Z",
+      "accepted": true,
+      "canonical": "0000-02-29T00:00:00.000001Z"
+    },
+    {
+      "input": "0099-12-31T23:59:59.999999-00:00",
+      "accepted": true,
+      "canonical": "0099-12-31T23:59:59.999999Z"
+    },
+    {
+      "input": "2000-02-29T23:59:59.123456+23:59",
+      "accepted": true,
+      "canonical": "2000-02-29T00:00:59.123456Z"
+    },
+    {
+      "input": "2026-10-06T01:02:03.123456+08:30",
+      "accepted": true,
+      "canonical": "2026-10-05T16:32:03.123456Z"
+    },
+    {
+      "input": "2026-10-06T01:02:03.1-23:59",
+      "accepted": true,
+      "canonical": "2026-10-07T01:01:03.100000Z"
+    },
+    {
+      "input": "9999-12-31T23:59:59.999999Z",
+      "accepted": true,
+      "canonical": "9999-12-31T23:59:59.999999Z"
+    },
+    {
+      "input": "0000-01-01T00:00:00+00:01",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "9999-12-31T23:59:59-00:01",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "1900-02-29T00:00:00Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-02-30T00:00:00Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T24:00:00Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:60:00Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:00:60Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:00:00.1234567Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:00:00+24:00",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:00:00+00:60",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:00:00",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01t00:00:00z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:00:00.Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "2026-01-01T00:00:00,1Z",
+      "accepted": false,
+      "canonical": ""
+    },
+    {
+      "input": "+2026-01-01T00:00:00Z",
+      "accepted": false,
+      "canonical": ""
+    }
+  ],
+  "actions": [
+    "secret.create",
+    "secret.update",
+    "secret.delete",
+    "secret.resolve",
+    "secret.master.register",
+    "secret.master.rotation.start",
+    "secret.master.rotation.complete",
+    "secret.master.rotation.failed",
+    "outbound.policy.update",
+    "outbound.access.deny",
+    "object.upload.complete",
+    "object.upload.failed",
+    "object.delete",
+    "object.transfer.issue",
+    "object.transfer.complete",
+    "object.transfer.revoke",
+    "artifact.create",
+    "artifact.list",
+    "artifact.read",
+    "artifact.download",
+    "outbox.delivery.requeue",
+    "account.bootstrap",
+    "account.login",
+    "account.logout",
+    "account.invite.create",
+    "account.invite.revoke",
+    "account.invite.redeem",
+    "account.password.change",
+    "account.password.reset.request",
+    "account.password.reset.complete",
+    "account.profile.update",
+    "account.avatar.update",
+    "account.settings.update",
+    "smtp.settings.update",
+    "smtp.test.request",
+    "smtp.delivery",
+    "smtp.delivery.retry",
+    "project.create.accepted",
+    "project.create.completed",
+    "project.update",
+    "project.archive.accepted",
+    "project.archive.completed",
+    "project.restore",
+    "project.delete.accepted",
+    "project.lifecycle.retry",
+    "provider.create",
+    "provider.update",
+    "provider.delete",
+    "model.create",
+    "model.update",
+    "model.delete",
+    "model.selection.update",
+    "knowledge.delete_subtree"
+  ],
+  "resource_kinds": [
+    "secret",
+    "secret_master",
+    "secret_rotation",
+    "outbound_policy",
+    "agent",
+    "stored_object",
+    "object_transfer",
+    "artifact",
+    "artifact_collection",
+    "outbox_delivery",
+    "user",
+    "session",
+    "account_attempt",
+    "invitation",
+    "password_reset",
+    "account_settings",
+    "smtp_settings",
+    "mail_job",
+    "project",
+    "project_operation",
+    "project_creation",
+    "model_provider",
+    "model_config",
+    "model_selection",
+    "knowledge_document"
+  ],
+  "encodings": [
+    {
+      "value": "\u003c\u003e\u0026\u2028\u2029",
+      "bytes": 42
+    },
+    {
+      "value": "\u0026",
+      "bytes": 18
+    },
+    {
+      "value": "é",
+      "bytes": 14
+    },
+    {
+      "value": "\\u2028",
+      "bytes": 19
+    },
+    {
+      "value": "\n\t\"\\",
+      "bytes": 20
+    }
+  ]
+}

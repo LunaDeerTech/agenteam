@@ -1,0 +1,38 @@
+{
+  "actual_wait": true,
+  "adopted_waits": 0,
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runtime_go_list01.py"
+  ],
+  "child_pid": 417744,
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot",
+  "duration_seconds": 0.619,
+  "env": {
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "TMPDIR": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/tmp"
+  },
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-07T00:56:46.268949+00:00",
+  "input_after_sha256": "749da78deb7cfca2071c9b9a505ef806c82f1517e34db9de9d1639bc22e4ec1e",
+  "input_before_sha256": "749da78deb7cfca2071c9b9a505ef806c82f1517e34db9de9d1639bc22e4ec1e",
+  "input_unchanged": true,
+  "owned_processes_double_empty": true,
+  "raw_sha256": "0075124888ee0e7eecc16584b641047647205eac36d0051e6886f4c3ce045b07",
+  "readonly_dependencies_unchanged": true,
+  "resource_execution": false,
+  "runner_sha256": "bfd84522ff8aaef55a1ee79ca8b90209a6e287be5fb19e75d8528133b0e7fe61",
+  "started_at_utc": "2026-10-07T00:56:45.649398+00:00",
+  "timed_out": false
+}

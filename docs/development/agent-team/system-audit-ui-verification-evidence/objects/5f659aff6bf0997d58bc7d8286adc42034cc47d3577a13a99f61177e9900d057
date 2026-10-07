@@ -1,0 +1,9 @@
+# Audit D01 静审建议勘误
+
+保留原 review.md/JSON 全字节。本勘误撤回 H-AUDIT-UI-D-02 中“bare member 回首页后真实 UI 新导航进入系统门禁”的建议；固定 SystemNav.vue 只给当前 admin 且非 denied 身份显示系统入口，普通 member 无此入口。该建议不能实施，不是产品缺陷，也没有实际运行失败。
+
+正确窄修按主线程最终裁定：实际登录 URL 必须无 return 或精确 return=/system/users，不接受其他 query。无 return 分支严格验证首页、新 member user/session 与旧 admin 不同、系统入口 count0、旧 Audit 内容与后继请求零、零写；有精确 return 分支验证 /system/users 对应权限门禁。两分支都保留原取消/Logout/迟到隔离断言，不 goto/reload。普通用户直接 Audit 拒绝复用同 top 开头已有正式流程，不能声称 bare 分支实际到达系统页。
+
+原 object→stored_object 静态前提不变。此为只读静审建议勘误，未执行资源或修改作者源；后续 harness-stage02 另作精确复核。
+
+固定依据：`/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/web-stage01/dependencies/web/src/components/layout/SystemNav.vue`，SHA `f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7`。原 review.md SHA `a7174bd64b8a40366c941a2bcf95f44f383797a9f05c02839050241874c33ce8`。

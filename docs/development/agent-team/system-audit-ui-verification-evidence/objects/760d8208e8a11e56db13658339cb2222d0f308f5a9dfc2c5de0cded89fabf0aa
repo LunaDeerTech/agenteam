@@ -1,0 +1,31 @@
+{
+  "all_actual_wait_and_double_cleanup": true,
+  "all_commands_exit_zero": true,
+  "binary": {
+    "bytes": 48393108,
+    "deleted_after_discovery": true,
+    "exact_discovered": [
+      "TestAccountSystemAuditWebReadAndFilters",
+      "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "TestAccountSystemAuditWebNavigationAndLayouts"
+    ],
+    "path": "/workspace/scratch/agenteam-audit-ui-main-compat-jlgevn7l/account.test",
+    "sha256": "eb40519c5eb839dafe7dcf172f6f714f7fe94f159639ed1440d93f72ff461a01",
+    "test_bodies_executed": false
+  },
+  "disk_free_bytes_after": 5951844352,
+  "external_and_provenance_files": 3501,
+  "front_non_candidate_count": 149,
+  "front_non_candidates_match": true,
+  "input_sha256": "023e84e6ffe469a2c1dc50210e4cc9f8b936a7a0732af336c193b403db04b53e",
+  "input_unchanged": true,
+  "listeners_or_fixtures_started": false,
+  "local_paths": 805,
+  "main_head": "86a882472bc128cb4607898b839781c483b13b07",
+  "modules": 31,
+  "packages": 393,
+  "runtime13_match": true,
+  "scope": "main Account integration race compile and three exact discoveries only; no test bodies or resource starts",
+  "source_writes": false,
+  "test_bodies_executed": false
+}

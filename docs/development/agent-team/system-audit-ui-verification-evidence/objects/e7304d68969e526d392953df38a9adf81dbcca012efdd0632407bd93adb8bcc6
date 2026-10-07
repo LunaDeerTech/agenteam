@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/tmp/agt-audit-independent-compile-aabj87i1/account.test",
+    "-test.list",
+    "^(TestIndependentAuditReadFilterPagingProjection|TestIndependentAuditCancelAuthorityFreshInstance)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-d2xb_1ly",
+    "GOTMPDIR": "/tmp/agt-audit-offline-d2xb_1ly",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "5001f926735498437c2883faa49c62f87fe0e3435211719d2d9390d4adff7e9d",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 583102,
+  "actual_exit": 0,
+  "seconds": 1.01857580000069,
+  "timeout": false
+}

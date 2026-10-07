@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/delivery36/document-check.py", line 61, in <module>
+    require(len(selectors)==5 and len(set(selectors))==5, 'five exact selectors')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/delivery36/document-check.py", line 15, in require
+    raise AssertionError(label)
+AssertionError: five exact selectors

@@ -1,0 +1,97 @@
+import copy
+import hashlib
+import json
+import shutil
+from datetime import datetime, timezone
+from pathlib import Path
+
+S = Path(__file__).resolve().parent
+W = S / 'workspace'
+out = S / 'input06'
+plan_path = S / 'startup-plan06.json'
+assert not out.exists() and not plan_path.exists()
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def ref(path):
+    return {'path': str(path), 'sha256': sha(path)}
+
+
+old_path = S / 'input05/manifest.json'
+stage_path = S / 'harness-stage07/manifest.json'
+assert sha(old_path) == '6ab3605a803b2854c54126e7bc1bd56be4de17010b03890cc526366a201ba5c2'
+assert sha(stage_path) == 'dc9fe49e77e1a8a7f973ac1b3934630c9071b4124ebd38dbab71440e9821dfef'
+old = json.loads(old_path.read_text())
+stage = json.loads(stage_path.read_text())
+assert sha(S / 'driver01.py') == old['driver_sha256']
+for path, row in old['accepted_baseline']['files'].items():
+    assert sha(W / path) == row['sha256'], path
+for path, value in old['dist'].items():
+    assert sha(W / path) == value, path
+for path, row in old['dependencies'].items():
+    assert str(Path(path).resolve(strict=True)) == row['realpath'] and sha(Path(path)) == row['sha256'], path
+source = {path: sha(W / path) for path in old['files']}
+changed = [path for path, value in source.items() if value != old['files'][path]]
+assert changed == ['tests/account-captcha-web/e2e/system-audit.spec.ts']
+for path, value in stage['source'].items():
+    assert source[path] == value and sha(S / 'harness-stage07/source' / path) == value, path
+
+manifest = copy.deepcopy(old)
+manifest['stage'] = 'Audit real-startup input06; safe layout diagnostic only; navigation02 not executed'
+manifest['frozen_at_utc'] = datetime.now(timezone.utc).isoformat()
+manifest['previous_manifest'] = ref(old_path)
+manifest['files'] = source
+for path in stage['source']:
+    manifest['source_archives'][path] = ref(S / 'harness-stage07/source' / path)
+manifest['stages']['D07'] = ref(stage_path)
+manifest['original_navigation01'] = stage['original_navigation01']
+out.mkdir()
+shutil.copyfile(Path(__file__), out / 'freeze-source.py.txt')
+(out / 'manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+shutil.copyfile(S / 'driver01.py', out / 'driver01.py')
+delta = {
+    'previous': ref(old_path),
+    'current': ref(out / 'manifest.json'),
+    'changed_candidates': {path: {'before': old['files'][path], 'after': source[path]} for path in changed},
+    'candidate_diff': ref(S / 'harness-stage07/source.diff'),
+    'affected_checks': stage['checks'],
+    'accepted_dependency_additions': {},
+    'unchanged_candidate_count': 34,
+    'unchanged_dist_count': 40,
+    'unchanged_accepted_count': len(old['accepted_baseline']['files']),
+    'unchanged_external_tool_count': len(old['dependencies']),
+    'driver_unchanged_sha256': sha(S / 'driver01.py'),
+    'preserved_evidence': 'navigation01 failure and complete cleanup remain unchanged; original safe=false has no field/geometry diagnostic and zero screenshots.',
+    'resource_execution': False,
+}
+(out / 'delta.json').write_text(json.dumps(delta, indent=2, sort_keys=True) + '\n')
+plan = json.loads((S / 'startup-plan01.json').read_text())
+plan['plans'] = [row for row in plan['plans'] if row['group'] == 'navigation']
+plan['status'] = 'navigation02 diagnostic startup plan only; requires separate root resource grant'
+plan['manifest'] = ref(out / 'manifest.json')
+assert len(plan['plans']) == 1 and plan['plans'][0]['group'] == 'navigation'
+plan['plans'][0]['name'] = 'navigation02'
+args = plan['plans'][0]['argv']
+args[args.index('--name') + 1] = 'navigation02'
+args[args.index('--frozen') + 1] = 'input06/manifest.json'
+plan_path.write_text(json.dumps(plan, indent=2, sort_keys=True) + '\n')
+free = shutil.disk_usage(S).free
+(out / 'disk-preparation.json').write_text(json.dumps({
+    'utc': datetime.now(timezone.utc).isoformat(),
+    'free_bytes': free,
+    'required_for_actual_start': 5368709120,
+    'passes_now': free >= 5368709120,
+    'startup_must_repeat': True,
+}, indent=2) + '\n')
+print(json.dumps({
+    'manifest_sha256': sha(out / 'manifest.json'),
+    'delta_sha256': sha(out / 'delta.json'),
+    'plan_sha256': sha(plan_path),
+    'driver_unchanged': sha(S / 'driver01.py'),
+    'candidate_count': len(source),
+    'accepted_count': len(manifest['accepted_baseline']['files']),
+    'free_bytes': free,
+}, indent=2))

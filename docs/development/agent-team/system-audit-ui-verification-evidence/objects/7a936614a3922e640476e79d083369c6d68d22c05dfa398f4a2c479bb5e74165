@@ -1,0 +1,56 @@
+{
+  "stage_manifest": "3ad58e8e7c0aac08fcee65e1c29c8fb43bc7617f7fc597fd0199af5091e1ca6e",
+  "checks": [
+    {
+      "name": "owner-state-pure01",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure01",
+      "actual_exit": 1,
+      "raw_sha256": "0589f241de8679bed913270ebfd1b2860f2aac7304748575402f96f64deb3dc8",
+      "result_sha256": "492e63cff945655188d4f655d48122653a971ac3ec15c39b93804c96ff113084",
+      "actual_wait": true,
+      "duration_seconds": 6.828
+    },
+    {
+      "name": "owner-state-type01",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-type01",
+      "actual_exit": 2,
+      "raw_sha256": "6301b32c1e577d1ee3a4259a3f869ef2ffce8216090b641429d0096506d7e044",
+      "result_sha256": "92ca91233dccc90b77a8f515b092cbbe5043ab0d6bddc0d17ce6662c78ad0363",
+      "actual_wait": true,
+      "duration_seconds": 8.347
+    },
+    {
+      "name": "owner-state-pure02",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure02",
+      "actual_exit": 0,
+      "raw_sha256": "df7716654569c576c1ebf1530b831efdad13ee422b5ed2fe365f44a753cf9c23",
+      "result_sha256": "00c66e7e82f17b73ea763484d7008bc67aad13ae15b71080d2bdca4466442071",
+      "actual_wait": true,
+      "duration_seconds": 1.609
+    },
+    {
+      "name": "owner-state-pure03",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-pure03",
+      "actual_exit": 0,
+      "raw_sha256": "c7ab30020c54e3acb679f09bd6261138f0d944b32b2451ac938dcd711de463ac",
+      "result_sha256": "073e6e0b6318ea8e2409915c2f630cf1beb6f028851b93f7412f085526df52b9",
+      "actual_wait": true,
+      "duration_seconds": 2.062
+    },
+    {
+      "name": "owner-state-type02",
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/owner-state-type02",
+      "actual_exit": 0,
+      "raw_sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "result_sha256": "aa11af0119f90cddeb80da3ba7c112477b5ef2e9d80471a12313d9b104dd76af",
+      "actual_wait": true,
+      "duration_seconds": 7.908
+    }
+  ],
+  "history_limits": {
+    "owner-state-pure01": "43 PASS / 3 FAIL, actual exit1. Model invalid protocol failed locally before native cancel entry and timed out waiting for its test barrier; reverse abandon omitted required read scope; SMTP fixture used unsupported credential_action and failed before write. This does not prove an original Model cancel/join reached. Original eight sources, raw, command and process cleanup retained.",
+    "owner-state-pure02": "14 affected PASS / 32 skipped, actual exit0. Formal protocol, scoped abandon and keep/private-material SMTP inputs corrected; original ownership/cancel assertions retained.",
+    "owner-state-type01": "actual exit2: literal-inferred observation types plus fixture protocol/scope/SMTP credential_action/helper union types. Only observation annotations changed in product; exact repair and format diffs are preserved."
+  },
+  "note": "01 was an unconsumed metadata-extraction draft with null exit fields; 02 uses the actual author exit_code field. No test result or source was changed."
+}

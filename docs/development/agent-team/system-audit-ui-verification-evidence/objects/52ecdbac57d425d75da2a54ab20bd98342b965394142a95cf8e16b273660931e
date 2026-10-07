@@ -1,0 +1,101 @@
+{
+  "budgets": {
+    "browser_retries": 0,
+    "browser_seconds": 45,
+    "browser_workers": 1,
+    "count": 1,
+    "go_package_seconds": 360,
+    "go_top_seconds": 120,
+    "race": true
+  },
+  "images": "new navigation: light/dark x 390/768/1024/1440, eight 900px viewport captures; light list/dark MIME detail; geometry exercised for both at all eight pairs, actual visual review only after execution",
+  "known_old_orphan": {
+    "not_recovered_by_this_task": true,
+    "owner": "prior Outbound runtime-go-compile01",
+    "pid": 89884,
+    "starttime": "540243"
+  },
+  "no_additional_old_groups": true,
+  "preflight": [
+    "root explicit exclusive window",
+    "fresh free disk >= 5368709120 bytes",
+    "fresh full 2-container/4-network IDs, labels, complete mounts",
+    "frozen35/40dist/accepted actual compile+runtime closure/tools/lock gate",
+    "task private nonce/runtime and child-subreaper ready before first child"
+  ],
+  "single_groups": [
+    {
+      "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+      "expected_resources": 7,
+      "group": "read",
+      "inner_argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^TestAccountSystemAuditWebReadAndFilters$"
+      ],
+      "top": "TestAccountSystemAuditWebReadAndFilters"
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+      "expected_resources": 7,
+      "group": "authority",
+      "inner_argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^TestAccountSystemAuditWebAuthorityAndOwnership$"
+      ],
+      "top": "TestAccountSystemAuditWebAuthorityAndOwnership"
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+      "expected_resources": 7,
+      "group": "navigation",
+      "inner_argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^TestAccountSystemAuditWebNavigationAndLayouts$"
+      ],
+      "top": "TestAccountSystemAuditWebNavigationAndLayouts"
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+      "expected_resources": 7,
+      "group": "old-outbound-navigation",
+      "inner_argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^TestAccountSystemOutboundPolicyWebNavigationAndLayouts$"
+      ],
+      "top": "TestAccountSystemOutboundPolicyWebNavigationAndLayouts"
+    },
+    {
+      "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+      "expected_resources": 9,
+      "group": "old-delivery-navigation",
+      "inner_argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^TestAccountSystemSMTPDeliveryWebNavigationAndLayouts$"
+      ],
+      "top": "TestAccountSystemSMTPDeliveryWebNavigationAndLayouts"
+    }
+  ],
+  "status": "NOT AUTHORIZED OR EXECUTED; supervisor and full script-run compile closure still to be bound before a window",
+  "supervisor_reference": {
+    "path": "/workspace/scratch/agenteam-outbound-policy-frontend-imqcje3i/driver02.py",
+    "sha256": "d6ff37eaa64b617496dcc1dae6572dfacc1b276b3ee28cfea02964ae213d725b"
+  },
+  "terminal": [
+    "actual outer fixture wait",
+    "owned PID+starttime and adopted child actual wait",
+    "exact newly owned resource IDs verified by nonce/mounts",
+    "two full raw+canonical Mounts-multiset baseline scans and exact owned IDs absent",
+    "private runtime empty",
+    "source/dist/deps unchanged"
+  ]
+}

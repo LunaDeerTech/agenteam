@@ -1,0 +1,9 @@
+# API-stage01：追加已接受 MIME schema 绑定
+
+固定接受提交 `fa2d775fe1bbc1082f11f09c94eb5114a6ced6f5` 的 `api/openapi/audit.json` SHA 为 `3490bb6367dfaa5bf98ed6547f49adb2af16200abd2e1e84a4503ccb20c3b7ef`。该修复对齐正式 Go MIME 接受集合：单 token、可选斜线和花括号、两种 canonical charset，长度及明确终止符限制保持。
+
+独立 [MIME 报告](/workspace/scratch/agenteam-audit-mime-independent-mszmz_3m/verification-report.md) SHA `b4f46218ea3ebd5f740e1cd84828b63350f624b6420661d587aef3842a411c1e` 已由主线程采纳，结论仅覆盖 schema 与相应离线测试。只读固定 Git 核对确认原 24 个非 schema 后端参考及 HTTP handler 字节保持；具体 SHA 见 `binding.json`。
+
+原 [API-stage01 清单](../api-stage01/manifest.json) `b2a2ef591ed81a0fb98031b7c09a8125e04ac6a9d04dc2a403b4d3346a7ed904` 与[报告](../api-stage01/report.md) `df9a5385b6434ed5cc154bc025e6e70bffd1bec119ebb539585997bde0871c28` 保持原件，不回写其历史待绑定状态。五份候选源码在私有 workspace 和冻结副本中仍逐 SHA 相同。
+
+本补充只关闭 schema 参考绑定；A 独立结论仍待主线程通知。没有重跑测试、开始 B、修改 main 或启动资源。原 oracle、两处测试前提失败及最终通过证据均保持。

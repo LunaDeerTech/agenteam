@@ -1,0 +1,175 @@
+{
+  "accepted_independent_phases": [
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-api-independent-l1hqm4hf/verification-report.md",
+      "sha256": "8bb46eab457417da83b7715d5528ef9fad588f7f7be6e8c801ff09c17498a5b8"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-owner-independent-pbczeg66/verification-report.md",
+      "sha256": "ba390c30bdd4959d1f1de8b42f4728e8870850d0f92d8c2149e11f5fe8f77ace"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-page-independent-q5uly54i/verification-report.md",
+      "sha256": "b4a1421f060f94ce147f9770fd987d5a37b22a9164ace128e779c30ab0428a2f"
+    }
+  ],
+  "author_input": {
+    "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input08/manifest.json",
+    "sha256": "f478cf9c011b20b9f54c3cd06f03abc757a6cb9cd711e08abb6b869462d3ae17"
+  },
+  "author_versioned_real_reuse_root_accepted": [
+    {
+      "actual_exit": 0,
+      "input": "input03",
+      "run": "read03",
+      "seconds": 58.03
+    },
+    {
+      "actual_exit": 0,
+      "input": "input05",
+      "run": "authority03",
+      "seconds": 58.495
+    },
+    {
+      "actual_exit": 0,
+      "input": "input08",
+      "run": "navigation04",
+      "seconds": 65.192
+    },
+    {
+      "actual_exit": 0,
+      "input": "input08",
+      "run": "old-outbound-navigation01",
+      "seconds": 70.225
+    },
+    {
+      "actual_exit": 0,
+      "input": "input08",
+      "run": "old-delivery-navigation01",
+      "seconds": 70.845
+    }
+  ],
+  "delivery35": {
+    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/delivery35.json",
+    "sha256": "db0ee190a271bc3601fa47348eaa57930abcdc47499d8ee9d2c1dea3b6edc0a5"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/driver01.py",
+    "sha256": "4b25b616a9dbff92a8212d4c30c53c328cdb6ad5ff9fe2a1758f9aecdd389d4d"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/execution03.json",
+    "sha256": "79f7427e20901a1e3b3cd49ade0572efb8d972d707c3d3d46e198142457c2aad"
+  },
+  "independent_real": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "adopted_actual_waits": 8,
+    "directory": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01",
+    "double_cleanup": true,
+    "exact_resources": 7,
+    "files": {
+      "adopted-waits.json": {
+        "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/adopted-waits.json",
+        "sha256": "918dc3b9b7b5da8c910b1db763b5c5625d82a5aa68d830ef888d985822229a20"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/cleanup.json",
+        "sha256": "06407698c317089c46359bd93fba3217b094683429fd1cd4c7c75216eafbc003"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/command.json",
+        "sha256": "26c6182dd38a5ddeeb94dfb99c17b32e7fdba2def8236dd628c8ebf55986c01f"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/input-after.json",
+        "sha256": "17d635846e21bf4680503cc6d26a7f3952730b134f8ac8498f14b8524f9e9e2c"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/input-before.json",
+        "sha256": "17d635846e21bf4680503cc6d26a7f3952730b134f8ac8498f14b8524f9e9e2c"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/raw.log",
+        "sha256": "cca5ac7bd730b6dc9dc1152799a5b709619e5845e04c0f5a37fa31fb834adf39"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/independent01/result.json",
+        "sha256": "4d69a931a923227eff8d681985980ef640fa223f78c870a1dff160c949ed9b06"
+      }
+    },
+    "input_unchanged": true,
+    "monitor_errors": 0,
+    "owned_pid_starttime": 98,
+    "seconds": 76.226,
+    "top_levels": [
+      [
+        "PASS",
+        "TestIndependentAuditReadFilterPagingProjection"
+      ],
+      [
+        "PASS",
+        "TestIndependentAuditCancelAuthorityFreshInstance"
+      ]
+    ]
+  },
+  "limitations": [
+    "No TCP precommit-zero-byte claim: browser hold is after successful upstream read and Close.",
+    "Native pageshow dispatch plus original listener is not a physical browser BFCache traversal.",
+    "Eight visual layouts are author/root evidence, not a new independent screenshot matrix.",
+    "Original author failures, incomplete cleanup rounds and subsequent recovery records remain separate.",
+    "Unselected Go package no-tests/build success does not count as executed old business coverage.",
+    "No product/main/Git/README edits or extra business runs."
+  ],
+  "preparation": {
+    "path": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/preparation-ready03.md",
+    "sha256": "a1c7541395a8aa1cd5bea1bfb2aa777d0724e27971573052c6202d832bb7c69d"
+  },
+  "static_repair_and_history_reports": [
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/stage07-review.md",
+      "sha256": "84805ef72c527e271acc64174de17cf14c3b2b85cdacfec715a5995ef1b359d3"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/navigation02-diagnosis01/review.md",
+      "sha256": "71c0167417d977aeca639a2b489b473c6e670f7761b98253e147eb142b1879ef"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/navigation02-diagnosis01/web-stage02-review.md",
+      "sha256": "5e141d07f1ea2c97a1d8d9870090178f1fe9fa40e1364aad24ce38aa63dd64cb"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/navigation03-diagnosis01/review.md",
+      "sha256": "147ca73aa42a402ce91e1eee311ec99c8f4b65ffa9831c133fda76a6f951a735"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/navigation03-diagnosis01/web-stage03-review.md",
+      "sha256": "d7fd14371eeecda6f2be155e23f4f77b22cf6a14d589e1a35580f9e40b9f6a57"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/read01-read02-diagnosis01/review.md",
+      "sha256": "cea6f1a99b678e126d7238f74c4c4eb96ce7d7917e487deafe225acec1e76722"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/stage04-review.md",
+      "sha256": "78dd4c692922948eaf8c69a297066239024feee87b16aad72f5be755acc6f683"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority01-diagnosis01/review.md",
+      "sha256": "9748dc29c62eeddcf6cb29c4ccbc3bdb1e61a0ec3653fa52ab4eca01e7d88a2f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority01-diagnosis01/stage05-review.md",
+      "sha256": "6b458e7cf30007bf1dd6f98126b4260d3aacb9c1757570ee483bbb25afc8c447"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority02-diagnosis01/review.md",
+      "sha256": "b4c6f2f0a0cc53cd56724793447ca1c804b50a1bf24fcd66dd13def5a670ca0c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/authority02-diagnosis01/stage06-review.md",
+      "sha256": "bee55f7ed80907c23c37e11742a99ec2da3aacaf386d778c883142f8640b83f9"
+    }
+  ],
+  "verdict": "bounded final independent PASS for final input08 35-source UI scope"
+}

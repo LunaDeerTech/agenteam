@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-deps",
+    "-test",
+    "-tags=integration",
+    "-json=ImportPath,Dir,GoFiles,CgoFiles,EmbedFiles,TestGoFiles,XTestGoFiles,TestEmbedFiles,XTestEmbedFiles,Error,DepsErrors",
+    "./internal/central/postgres/...",
+    "./tests/database/...",
+    "./internal/central/app/...",
+    "./tests/process/...",
+    "./tests/security/...",
+    "./tests/outbox/...",
+    "./internal/central/outbox/...",
+    "./tests/account/...",
+    "./tests/accountmail/...",
+    "./internal/central/accountmail/...",
+    "./internal/central/recoverylog/...",
+    "./tests/project/...",
+    "./internal/central/model/...",
+    "./tests/model/...",
+    "./tests/objects/...",
+    "./internal/central/object/...",
+    "./tests/testsupport/postgres/cmd/fixture",
+    "./tests/testsupport/objectstore/cmd/fixture",
+    "./tests/testsupport/outbound/cmd/fixture",
+    "./tests/testsupport/outbound/cmd/server"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+  "mode": "offline go list only; no test execution or helper launch"
+}

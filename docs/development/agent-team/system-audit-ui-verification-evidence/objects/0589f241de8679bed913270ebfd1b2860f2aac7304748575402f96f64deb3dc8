@@ -1,0 +1,70 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit-state.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+ ❯ src/tests/system-audit-state.spec.ts (46 tests | 3 failed) 5181ms
+     × cannot enter while 'model' owns a native cancel tail, and abandon does not cancel that domain 5005ms
+     × blocks all ten domains, authentication and public entry while Audit is still actually cancelling 2ms
+     × leaves pending smtp-settings exact business material to its own owner 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-audit-state.spec.ts > Audit is the eleventh API on the one actual Cookie owner > cannot enter while 'model' owns a native cancel tail, and abandon does not cancel that domain
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/tests/system-audit-state.spec.ts:91:18
+     89|   expect(random).not.toHaveBeenCalled()
+     90|  })
+     91|  it.each(domains)('cannot enter while $name owns a native cancel tail,…
+       |                  ^
+     92|   const f=await fixture(),held=nativeHold('text/plain');let signal:Abo…
+     93|   const fetch:Fetch=async(_p,init)=>{signal=init.signal!;return held.r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/tests/system-audit-state.spec.ts > Audit is the eleventh API on the one actual Cookie owner > blocks all ten domains, authentication and public entry while Audit is still actually cancelling
+AccountFailure: invalid-input
+ ❯ Object.abandonModelRead [as abandonRead] src/composables/useSession.ts:1992:13
+    1990|       scope === ('model-lookup' as string)
+    1991|     )
+    1992|       throw new AccountFailure('invalid-input')
+       |             ^
+    1993|     ++modelRevisions[scope]
+    1994|     if (owner?.kind === scope) owner.abandon?.()
+ ❯ Object.abandon src/tests/system-audit-state.spec.ts:59:159
+ ❯ src/tests/system-audit-state.spec.ts:114:111
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/tests/system-audit-state.spec.ts > Audit cleanup and security do not create or replace write intents > leaves pending smtp-settings exact business material to its own owner
+AssertionError: promise resolved "{ items: [], next_cursor: null }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "items": [],
++   "next_cursor": null,
+  }
+
+ ❯ src/tests/system-audit-state.spec.ts:166:76
+    164|   try {
+    165|    await flushPromises();const present=f.auth.system.smtp.material.pre…
+    166|    f.auth.system.audit.abandon();await expect(f.auth.system.audit.list…
+       |                                                                            ^
+    167|    expect(capturedSignal?.aborted===false&&f.auth.state.busy&&f.auth.s…
+    168|   } finally {tail.resolve(problem('COMMIT_UNKNOWN',503,'unknown'));awa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 43 passed (46)
+   Start at  23:59:17
+   Duration  6.08s (transform 279ms, setup 0ms, import 402ms, tests 5.18s, environment 373ms)
+

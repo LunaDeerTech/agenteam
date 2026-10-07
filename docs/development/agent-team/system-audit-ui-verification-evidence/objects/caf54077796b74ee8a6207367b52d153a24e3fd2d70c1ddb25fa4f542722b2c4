@@ -1,0 +1,676 @@
+{
+  "access_errors": [],
+  "actual_adopted_waits": 6,
+  "inspected_effective_uid": 1000,
+  "non_owned_proc_inspection_limits": [
+    {
+      "pid": 131,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "561"
+    },
+    {
+      "pid": 181,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "573"
+    },
+    {
+      "pid": 659,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "635"
+    },
+    {
+      "pid": 664,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "635"
+    },
+    {
+      "pid": 708,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "637"
+    },
+    {
+      "pid": 709,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "637"
+    },
+    {
+      "pid": 753,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "643"
+    },
+    {
+      "pid": 787,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "645"
+    },
+    {
+      "pid": 792,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "645"
+    },
+    {
+      "pid": 860,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "661"
+    },
+    {
+      "pid": 861,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "661"
+    },
+    {
+      "pid": 886,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "672"
+    },
+    {
+      "pid": 887,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "672"
+    },
+    {
+      "pid": 888,
+      "scope": "non-owned different UID; FD/maps not inspected",
+      "starttime": "672"
+    },
+    {
+      "pid": 7868,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "48585"
+    },
+    {
+      "pid": 8295,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "48833"
+    },
+    {
+      "pid": 8751,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "49086"
+    },
+    {
+      "pid": 9554,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "49476"
+    },
+    {
+      "pid": 12536,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "51187"
+    },
+    {
+      "pid": 14949,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "52584"
+    },
+    {
+      "pid": 23814,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "86120"
+    },
+    {
+      "pid": 30769,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "150325"
+    },
+    {
+      "pid": 41272,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "246728"
+    },
+    {
+      "pid": 49868,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "305202"
+    },
+    {
+      "pid": 69418,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "461498"
+    },
+    {
+      "pid": 89884,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "540243"
+    },
+    {
+      "pid": 90422,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "543936"
+    },
+    {
+      "pid": 104918,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "615264"
+    },
+    {
+      "pid": 105459,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "615543"
+    },
+    {
+      "pid": 105797,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "615746"
+    },
+    {
+      "pid": 106599,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "616036"
+    },
+    {
+      "pid": 123134,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "651819"
+    },
+    {
+      "pid": 123595,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "652094"
+    },
+    {
+      "pid": 124029,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "652286"
+    },
+    {
+      "pid": 124698,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "652483"
+    },
+    {
+      "pid": 138474,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "680256"
+    },
+    {
+      "pid": 139018,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "680530"
+    },
+    {
+      "pid": 139343,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "680700"
+    },
+    {
+      "pid": 139873,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "680881"
+    },
+    {
+      "pid": 148397,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "690350"
+    },
+    {
+      "pid": 148823,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "690593"
+    },
+    {
+      "pid": 149190,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "690771"
+    },
+    {
+      "pid": 149830,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "690956"
+    },
+    {
+      "pid": 160278,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "714290"
+    },
+    {
+      "pid": 160706,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "714534"
+    },
+    {
+      "pid": 161098,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "714718"
+    },
+    {
+      "pid": 161697,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "714902"
+    },
+    {
+      "pid": 170494,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "723933"
+    },
+    {
+      "pid": 170920,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "724181"
+    },
+    {
+      "pid": 171356,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "724376"
+    },
+    {
+      "pid": 171935,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "724598"
+    },
+    {
+      "pid": 185009,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "740077"
+    },
+    {
+      "pid": 185462,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "740333"
+    },
+    {
+      "pid": 185909,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "740576"
+    },
+    {
+      "pid": 186461,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "740747"
+    },
+    {
+      "pid": 189484,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "742585"
+    },
+    {
+      "pid": 194439,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "751861"
+    },
+    {
+      "pid": 195083,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "752310"
+    },
+    {
+      "pid": 195444,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "752487"
+    },
+    {
+      "pid": 196090,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "752670"
+    },
+    {
+      "pid": 198912,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "754370"
+    },
+    {
+      "pid": 206563,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "765694"
+    },
+    {
+      "pid": 207112,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "766149"
+    },
+    {
+      "pid": 207546,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "766343"
+    },
+    {
+      "pid": 208188,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "766542"
+    },
+    {
+      "pid": 216578,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "775188"
+    },
+    {
+      "pid": 217228,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "775637"
+    },
+    {
+      "pid": 217925,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "776069"
+    },
+    {
+      "pid": 218706,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "776426"
+    },
+    {
+      "pid": 221591,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "778241"
+    },
+    {
+      "pid": 229643,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "797622"
+    },
+    {
+      "pid": 230238,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "798027"
+    },
+    {
+      "pid": 230684,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "798252"
+    },
+    {
+      "pid": 231248,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "798424"
+    },
+    {
+      "pid": 250318,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "831667"
+    },
+    {
+      "pid": 251375,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "832545"
+    },
+    {
+      "pid": 251840,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "832839"
+    },
+    {
+      "pid": 252520,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "833014"
+    },
+    {
+      "pid": 266228,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "849879"
+    },
+    {
+      "pid": 266758,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "850192"
+    },
+    {
+      "pid": 267093,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "850379"
+    },
+    {
+      "pid": 267724,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "850555"
+    },
+    {
+      "pid": 276244,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "861108"
+    },
+    {
+      "pid": 276898,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "861554"
+    },
+    {
+      "pid": 277581,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "861983"
+    },
+    {
+      "pid": 278415,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "862361"
+    },
+    {
+      "pid": 286115,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "874533"
+    },
+    {
+      "pid": 286779,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "875005"
+    },
+    {
+      "pid": 287497,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "875463"
+    },
+    {
+      "pid": 288323,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "875879"
+    },
+    {
+      "pid": 293300,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "879064"
+    },
+    {
+      "pid": 304965,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "941269"
+    },
+    {
+      "pid": 305665,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "941725"
+    },
+    {
+      "pid": 306115,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "941986"
+    },
+    {
+      "pid": 306817,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "942229"
+    },
+    {
+      "pid": 321235,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "962543"
+    },
+    {
+      "pid": 327770,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1017832"
+    },
+    {
+      "pid": 329464,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1032806"
+    },
+    {
+      "pid": 350945,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1171181"
+    },
+    {
+      "pid": 354073,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1197260"
+    },
+    {
+      "pid": 356185,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1208584"
+    },
+    {
+      "pid": 359891,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1241059"
+    },
+    {
+      "pid": 366479,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1288473"
+    },
+    {
+      "pid": 440280,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1861114"
+    },
+    {
+      "pid": 441074,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1861738"
+    },
+    {
+      "pid": 441834,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1862296"
+    },
+    {
+      "pid": 442975,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1862909"
+    },
+    {
+      "pid": 456401,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1881951"
+    },
+    {
+      "pid": 457055,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1882372"
+    },
+    {
+      "pid": 457639,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1882783"
+    },
+    {
+      "pid": 458494,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1883192"
+    },
+    {
+      "pid": 472016,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1943472"
+    },
+    {
+      "pid": 472461,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1943799"
+    },
+    {
+      "pid": 472904,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1944058"
+    },
+    {
+      "pid": 473611,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1944278"
+    },
+    {
+      "pid": 490888,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1988832"
+    },
+    {
+      "pid": 491334,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1989084"
+    },
+    {
+      "pid": 491720,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1989257"
+    },
+    {
+      "pid": 492298,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "1989427"
+    },
+    {
+      "pid": 501670,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2013857"
+    },
+    {
+      "pid": 502336,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2014278"
+    },
+    {
+      "pid": 502923,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2014699"
+    },
+    {
+      "pid": 503753,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2015072"
+    },
+    {
+      "pid": 516724,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2075813"
+    },
+    {
+      "pid": 522361,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2124365"
+    },
+    {
+      "pid": 522813,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2124607"
+    },
+    {
+      "pid": 523242,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2124835"
+    },
+    {
+      "pid": 523770,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2125013"
+    },
+    {
+      "pid": 532685,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2138593"
+    },
+    {
+      "pid": 533115,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2138857"
+    },
+    {
+      "pid": 533435,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2139041"
+    },
+    {
+      "pid": 534107,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2139223"
+    },
+    {
+      "pid": 542726,
+      "scope": "non-owned zombie, no active file descriptors; not reaped by this recovery",
+      "starttime": "2150080"
+    }
+  ],
+  "original_observed_count": 84,
+  "path_users": [],
+  "remaining_original_pid_start": [],
+  "utc": "2026-10-07T02:24:56.517515+00:00"
+}

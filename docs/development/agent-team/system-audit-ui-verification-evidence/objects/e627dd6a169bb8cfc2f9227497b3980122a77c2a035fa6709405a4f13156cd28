@@ -1,0 +1,72 @@
+{
+  "images": [
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-dark-1024.png",
+      "sha256": "45238c245f9c2d156dae9216014fb94221c27d0a48c24eec9348c536c5d39a50",
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-dark-1440.png",
+      "sha256": "741f9cd721d79ca749816a89326da5b1d46f65547282dcba187f2350d8bc847b",
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-dark-390.png",
+      "sha256": "c1934000912054fe1975080b0ba3bc941dd8af0b38d5c0ee43754c9e594dede9",
+      "width": 390
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-dark-768.png",
+      "sha256": "2ef4b1dbc8722eb2c989fe185e2a75d4ed21c5ebe0addf3b5558a8dee5ad32f4",
+      "width": 768
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-light-1024.png",
+      "sha256": "f5eee2d453ef51055482198fd5a1fc0b7c7a47d8e6c931f356ebdbe2cf5e852e",
+      "width": 1024
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-light-1440.png",
+      "sha256": "706b7444213c8cfa51ea53342060242dbc9f79ffabff50bc95523640b7581a25",
+      "width": 1440
+    },
+    {
+      "author_actually_viewed": true,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-light-390.png",
+      "sha256": "1bbe4918a888122d6a2e7e6cd7a6adc549354b1f38133cc0792e1030eb1dff3b",
+      "width": 390
+    },
+    {
+      "author_actually_viewed": false,
+      "height": 900,
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/old-delivery-navigation01/images/smtp-delivery-light-768.png",
+      "sha256": "a97086ad4bb037e6ceb2b65194b22580e79ed9152e6b2a4eea4718128aeeb6f1",
+      "width": 768
+    }
+  ],
+  "limits": [
+    "Only the two authorized affected representatives were actually viewed; six other original images are preserved and hashed, not claimed visually reviewed.",
+    "All captures are partial 900px viewports. The narrow delivery record continues below the image, so lower fields and actions are covered by separate passing reachability assertions rather than this image.",
+    "No main-thread visual review is asserted. No additional screenshot or resource round was started."
+  ],
+  "observations": {
+    "smtp-delivery-dark-1440.png": "The new Audit group/leaf and active SMTP leaf coexist in the sidebar. Test controls, delivery table fields and details controls are visible with wrapped long IDs and no visible outer horizontal overflow or overlay.",
+    "smtp-delivery-light-390.png": "Configuration/testing section controls, empty recipient input and stacked delivery fields are visible. IDs wrap, settings-menu trigger focus is visible, with no visible outer horizontal overflow or overlay."
+  },
+  "recorded_at_utc": "2026-10-07T03:15:00.180183+00:00",
+  "reviewer": "/root/directory_frontend",
+  "run": "old-delivery-navigation01"
+}

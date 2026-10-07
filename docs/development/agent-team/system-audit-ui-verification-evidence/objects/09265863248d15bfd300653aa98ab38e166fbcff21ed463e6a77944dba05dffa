@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/node_modules/typescript/bin/tsc",
+    "--project",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/tsconfig.json"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-h23tznk7",
+    "GOTMPDIR": "/tmp/agt-audit-offline-h23tznk7",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "130e7a1f3bdfd98e78cab242ba8041deb28f5a63311c7d93e52bb02d645916b9",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 572031,
+  "actual_exit": 0,
+  "seconds": 1.1408870680024847,
+  "timeout": false
+}

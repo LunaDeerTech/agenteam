@@ -1,0 +1,22 @@
+# Audit independent preparation — input07 binding and offline gate PASS
+
+This adds only a binding revision to the previously accepted `preparation-ready01.md`. Original execution01, all private Go/browser/fixture sources, driver01, commands and results remain unchanged. Real execution is not authorized; author layout acceptance remains separate.
+
+- Author input07 manifest: `/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input07/manifest.json`, SHA `e62a3e5e0efa15bb7e89430bc7e63b5bb800f186d80866669290bbf32517d726`.
+- `execution02.json`: `f1494561f60eae922651004b494b9489e35ddcdd96704a268b2342254f1ce5ac`.
+- `binding03.json`: `29d58ce7dc4033ba426234958d49f63f864ae3f168ddb3376501293d4c568f28`.
+- `execution01-to02.diff`: `00531410882e8cd3082cb37e568a18661def04b51f3a337140f96986ded1f278`.
+- Unchanged `driver01.py`: `4b25b616a9dbff92a8212d4c30c53c328cdb6ad5ff9fe2a1758f9aecdd389d4d`.
+- `offline-gate02.json`: `7d1de7b23369b46ce20b2551fa5a4b4b453d52598c46426b5a463cbe236ac8e4`.
+
+Relative to input05, the author browser alone gained failure-only layout geometry diagnostics (not used by the private two bodies), and SystemAuditView gained scoped `.sr-only` padding:0 with 40 rebuilt dist files. The other 33 author sources remain byte-identical. The private fixture remains the original config-path-only overlay; its formal Logout protocol and all facts are unchanged. Original compile/closure/type/format/exact top discovery/two browser discovery evidence is reused; none was repeated. There are now 14 private files because binding03 was added; all 7,604 runtime files, links, selected tools, 943 accepted baseline files, budgets and seven-resource topology remain bound without change.
+
+The only executed command used the unchanged offline subreaper runner and 45s outer budget. Its exact child argv is in `runs/gate02/command.json`: `/usr/bin/python3 driver01.py --name gate02 --group both --frozen execution02.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --check-input-only` (all private script/manifest paths are absolute in the original command). It actually exited 0 in 1.415609391999169s, with two owned PID/starttime observations, zero adopted children, actual wait, both process scans empty and temporary directory removed. No service, listener, Docker or browser started. Before/after fingerprints match exactly.
+
+- Command: `4c8715bfd7ae56194ae273f14ba49ba4e3f23bd2f0ac25810a59e13cc924bff2`.
+- Raw: `570fb1eedcc428bd7da84c9ae7577b58c85edfe512a1c578411106f2723dd4e6`.
+- Result: `e2361528400e5d56c39d4ebaf455f84c39328d869b8dbd02b9cfa737b4ed9fab`.
+- Cleanup: `2ae58beddb48e1bc788c26d6cbe179d32b0e81c41c71543b3e362047315826bf`.
+- Input before and after: `170a8821e7de1e598edfe0732fa360354fd58815d618850653dec85f5334e719`.
+
+Gate stdout proves candidates/dist/dependencies/private/runtime match, accepted baseline count 943, empty missing/unexpected/mismatch/error lists, and resources_started:false. This does not prove native layout or the independent business cases passed. Input07's narrow CSS review is `/workspace/scratch/agenteam-audit-ui-harness-independent-j17cj5yh/navigation02-diagnosis01/web-stage02-review.md`, SHA `5e141d07f1ea2c97a1d8d9870090178f1fe9fa40e1364aad24ce38aa63dd64cb`. No further rebinding or execution is made pending root's next instruction.

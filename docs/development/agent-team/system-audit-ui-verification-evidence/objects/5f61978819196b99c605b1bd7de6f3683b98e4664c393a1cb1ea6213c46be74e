@@ -1,0 +1,26 @@
+import hashlib,json,os,subprocess,sys,time
+from pathlib import Path
+from datetime import datetime,timezone
+S=Path(__file__).resolve().parent;W=S/'workspace'
+choices={'central':'cmd/agenteam','runner':'cmd/agenteam-runner','smtp':'tests/testsupport/smtp/cmd/server'}
+name=sys.argv[1];target=choices[name]
+r=S/'dynamic-build-results01'/name;r.mkdir(parents=True,exist_ok=False);output=r/'compiled-not-executed'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+old=json.loads((S/'input01/manifest.json').read_text());extra=json.loads((S/'dynamic-closure01.json').read_text())
+fixed={p:v['sha256'] for p,v in old['accepted_baseline']['files'].items()}|{p:v['sha256'] for p,v in extra['added_files'].items()}
+assert all(sha(W/p)==v for p,v in fixed.items())
+source_before={p:sha(W/p) for p in old['files']}|{p:sha(W/p) for p in old['dist']}
+env=os.environ.copy();env.update({'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOFLAGS':'-mod=readonly -buildvcs=false -p=1','GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOCACHE':'/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache','TMPDIR':str(S/'tmp'),'CGO_ENABLED':'1'})
+argv=['/workspace/toolchains/go1.27.1/bin/go','build','-o',str(output),'./'+target]
+command={'argv':argv,'cwd':str(W),'started_utc':datetime.now(timezone.utc).isoformat(),'env':{k:env[k] for k in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOFLAGS','GOMODCACHE','GOCACHE','TMPDIR','CGO_ENABLED']},'wrapper_sha256':sha(Path(__file__)),'outer_budget_seconds':45,'binary_execution':False}
+(r/'command.json').write_text(json.dumps(command,indent=2)+'\n')
+start=time.monotonic()
+with (r/'raw.log').open('wb') as log:child=subprocess.run(argv,cwd=W,env=env,stdout=log,stderr=subprocess.STDOUT)
+result={'exit_code':child.returncode,'actual_wait':True,'seconds':time.monotonic()-start,'binary_executed':False,'artifact_sha256':sha(output) if output.is_file() else None,'artifact_bytes':output.stat().st_size if output.is_file() else 0,'fixed_dependencies_unchanged':all(sha(W/p)==v for p,v in fixed.items()),'candidate_dist_unchanged':all(sha(W/p)==v for p,v in source_before.items())}
+if output.exists():output.unlink()
+result['artifact_removed']=not output.exists()
+(r/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result),flush=True)
+if child.returncode:
+ print((r/'raw.log').read_text(errors='replace'),flush=True)
+sys.exit(0 if child.returncode==0 and all(result[k] for k in ['fixed_dependencies_unchanged','candidate_dist_unchanged','artifact_removed']) else 1)

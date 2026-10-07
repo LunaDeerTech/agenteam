@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-audit-client.spec.ts -t requires a full page|joins actual|leaves Problem
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/web
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed | 37 skipped (42)
+   Start at  23:30:48
+   Duration  675ms (transform 99ms, setup 0ms, import 161ms, tests 37ms, environment 368ms)
+

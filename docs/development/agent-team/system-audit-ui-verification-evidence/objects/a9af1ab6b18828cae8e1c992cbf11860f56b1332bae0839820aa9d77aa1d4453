@@ -1,0 +1,85 @@
+from pathlib import Path
+from datetime import datetime, timezone
+import hashlib, json, os, re, subprocess, time
+
+S = Path('/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot')
+W = S / 'workspace'
+D = S / 'delivery36'
+BASE = '86a882472bc128cb4607898b839781c483b13b07'
+REL = 'docs/development/frontend/README.md'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+started = datetime.now(timezone.utc).isoformat()
+begin = time.monotonic()
+def require(ok, label):
+    if not ok:
+        raise AssertionError(label)
+
+old = json.loads((S/'author-real-stage01/delivery35.json').read_text())
+fixed = json.loads((S/'input08/manifest.json').read_text())
+require(old['source'] == fixed['files'], 'original source maps')
+require(old['dist'] == fixed['dist'], 'original dist maps')
+source_checks = {}
+for rel, expected in old['source'].items():
+    actual = sha(W/rel)
+    archive = old['source_archives'][rel]
+    require(actual == expected == sha(Path(archive['path'])) == archive['sha256'], rel)
+    source_checks[rel] = actual
+dist_checks = {}
+for rel, expected in old['dist'].items():
+    actual = sha(W/rel)
+    archive = old['dist_archives'][rel]
+    require(actual == expected == sha(Path(archive['path'])) == archive['sha256'], rel)
+    dist_checks[rel] = actual
+require(len(source_checks) == 35 and len(dist_checks) == 40, 'counts')
+require({str(p.relative_to(W)) for p in (W/'web/dist').rglob('*') if p.is_file()} == set(dist_checks), 'dist inventory')
+
+candidate = D/'source'/REL
+content = candidate.read_bytes()
+text = content.decode('utf-8', errors='strict')
+require(content == (W/REL).read_bytes(), 'README copies')
+require(content.endswith(b'\n') and b'\r' not in content and b'\0' not in content, 'UTF-8 LF/final newline')
+require(not any(line.rstrip(' \t') != line for line in text.splitlines()), 'trailing whitespace')
+require(not re.search(r'^(<<<<<<<|=======|>>>>>>>)', text, re.M), 'merge markers')
+require(len(re.findall(r'^```',text,re.M)) % 2 == 0, 'fenced blocks')
+require(text.count('\n## 系统审计\n') == 1, 'Audit heading')
+for i, line in enumerate(text.splitlines()):
+    if re.match(r'^#{1,6} ',line):
+        require(i+1 < len(text.splitlines()) and text.splitlines()[i+1]=='', 'blank after heading')
+
+links = sorted(set(re.findall(r'\[[^\]\n]+\]\(([^)\n]+)\)',text)))
+relative_links = [u for u in links if not re.match(r'^(?:[a-z]+:|#|/)',u)]
+resolved = [(u, os.path.normpath(str(Path(REL).parent / u.split('#',1)[0]))) for u in relative_links]
+require(all(not p.startswith('../') for _,p in resolved), 'local links remain in repository')
+argv = ['git','cat-file','--batch-check=%(objectname) %(objecttype) %(objectsize)']
+proc = subprocess.run(argv, cwd='/workspace/agenteam', input=''.join(f'{BASE}:{p}\n' for _,p in resolved), text=True, capture_output=True, timeout=10)
+require(proc.returncode == 0, 'read-only link object check exit')
+lines = proc.stdout.splitlines()
+require(len(lines)==len(resolved) and all(re.fullmatch(r'[0-9a-f]{40} blob [0-9]+',line) for line in lines), 'all relative links exist at README baseline')
+link_checks = [{'link':u,'path':p,'fixed_git_object':line.split()[0]} for (u,p),line in zip(resolved,lines)]
+
+audit_section = text.split('\n## 系统审计\n',1)[1].split('\n## Debug 与主题\n',1)[0]
+selectors = re.findall(r"sh scripts/test-security\.sh -run '\^(TestAccountSystem(?:AuditWeb(?:ReadAndFilters|AuthorityAndOwnership|NavigationAndLayouts)|OutboundPolicyWebNavigationAndLayouts|SMTPDeliveryWebNavigationAndLayouts))\$'",audit_section)
+require(len(selectors)==5 and len(set(selectors))==5, 'five exact selectors')
+selector_checks=[]
+for selector in selectors:
+    hits=[str(p.relative_to(W)) for p in (W/'tests/account').glob('*_test.go') if re.search(r'^func '+re.escape(selector)+r'\(t \*testing\.T\)', p.read_text(), re.M)]
+    require(len(hits)==1, 'exact declaration '+selector)
+    selector_checks.append({'selector':selector,'source':hits[0]})
+for name in ['system-audit-client.spec.ts','system-audit-metadata.spec.ts','system-audit-state.spec.ts','system-audit.spec.ts']:
+    require((W/'web/src/tests'/name).is_file(), 'pure entry '+name)
+require((W/'scripts/test-security.sh').is_file(), 'security entry')
+require('"check"' in (W/'web/package.json').read_text() and '"test:unit"' in (W/'web/package.json').read_text(), 'npm entry names')
+result = {
+    'started_at_utc': started, 'finished_at_utc':datetime.now(timezone.utc).isoformat(),
+    'elapsed_seconds':round(time.monotonic()-begin,6), 'status':'PASS',
+    'scope':'documentation format, fixed-Git relative links, static command targets and immutable delivery hashes only',
+    'no_product_test_or_resource_started': True, 'baseline_commit':BASE,
+    'readme_before_sha256':sha(D/'baseline/README.md'), 'readme_after_sha256':sha(candidate),
+    'diff_sha256':sha(D/'README.diff'), 'links':link_checks, 'read_only_git_argv':argv,
+    'read_only_git_actual_exit':proc.returncode, 'selectors':selector_checks,
+    'sources_unchanged':source_checks, 'dist_unchanged':dist_checks,
+    'source_count':len(source_checks), 'dist_count':len(dist_checks),
+    'input08_sha256':sha(S/'input08/manifest.json'), 'delivery35_sha256':sha(S/'author-real-stage01/delivery35.json')
+}
+(D/'document-check02-result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2,sort_keys=True)+'\n')
+print(json.dumps({k:result[k] for k in ['status','scope','source_count','dist_count','readme_before_sha256','readme_after_sha256','diff_sha256','elapsed_seconds']},ensure_ascii=False))

@@ -1,0 +1,241 @@
+{
+  "fixed_git": [
+    {
+      "git_commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/query.go",
+      "sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3"
+    },
+    {
+      "git_commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/http/wire.go",
+      "sha256": "4a42524d07301277350ed57d0a15901e2dfa6a541e16e14bbd145563adb593b4"
+    },
+    {
+      "git_commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/types.go",
+      "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d"
+    },
+    {
+      "git_commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/account.go",
+      "sha256": "ef2b5bc2cca4435161d9b2f543c62b868324e54813581da894bfbfb70e42bfed"
+    },
+    {
+      "git_commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/audit/contract/model.go",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6"
+    }
+  ],
+  "frozen_files": [
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input01/manifest.json",
+      "sha256": "e748a3589e869cb809632b3cf693e46a04179ef54c096c3d25d2df77b2a7101d"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/input02/manifest.json",
+      "sha256": "e16d115788261e69d984fcf3f515139036ff72f72250dc505518809be9b16d8e"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/manifest.json",
+      "sha256": "50a36559dee52961eaa34dcf5e150f36512e7550e1d41aa4c5d4c22f05cf36ea"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/source.diff",
+      "sha256": "8597c3dae7ab660badeb20309d49b5ca12fa1702e7f923dfcde36dcec87ee99e"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/source/tests/account/system_audit_web_fixture_test.go",
+      "sha256": "69bf020a367c55c012477b04cdc15a842aa5187a086cc7cba9fc1b79004b1d9c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/source/tests/account-captcha-web/e2e/system-audit.spec.ts",
+      "sha256": "cefdc89f1e500d9973c8dbe3ab4fd853ef2a4cafb9c550e68e36ec1a7a4338e3"
+    }
+  ],
+  "limitations": [
+    "No observed row action or summary values.",
+    "read01 facts removed by original cleanup; not reconstructed.",
+    "No independent dynamic run."
+  ],
+  "mapping": {
+    "accepted_system_actions": 37,
+    "fixture_special": 7,
+    "fixture_special_mapping": {
+      "outbound.access.deny": "Outbound access denied",
+      "outbound.policy.update": "Outbound policy updated",
+      "secret.create": "Secret created",
+      "secret.delete": "Secret deleted",
+      "secret.master.register": "Master key registered",
+      "secret.resolve": "Secret use recorded",
+      "secret.update": "Secret updated"
+    },
+    "formal": {
+      "account.avatar.update": "Audit event",
+      "account.bootstrap": "Audit event",
+      "account.invite.create": "Audit event",
+      "account.invite.redeem": "Audit event",
+      "account.invite.revoke": "Audit event",
+      "account.login": "Audit event",
+      "account.logout": "Audit event",
+      "account.password.change": "Audit event",
+      "account.password.reset.complete": "Audit event",
+      "account.password.reset.request": "Audit event",
+      "account.profile.update": "Audit event",
+      "account.settings.update": "Audit event",
+      "model.create": "Audit event",
+      "model.delete": "Audit event",
+      "model.selection.update": "Audit event",
+      "model.update": "Audit event",
+      "object.delete": "Audit event",
+      "object.upload.complete": "Audit event",
+      "object.upload.failed": "Audit event",
+      "outbound.access.deny": "Outbound access denied",
+      "outbound.policy.update": "Outbound policy updated",
+      "outbox.delivery.requeue": "Audit event",
+      "provider.create": "Audit event",
+      "provider.delete": "Audit event",
+      "provider.update": "Audit event",
+      "secret.create": "Secret created",
+      "secret.delete": "Secret deleted",
+      "secret.master.register": "Master key registered",
+      "secret.master.rotation.complete": "Master key rotation completed",
+      "secret.master.rotation.failed": "Master key rotation failed",
+      "secret.master.rotation.start": "Master key rotation started",
+      "secret.resolve": "Secret use recorded",
+      "secret.update": "Secret updated",
+      "smtp.delivery": "Audit event",
+      "smtp.delivery.retry": "Audit event",
+      "smtp.settings.update": "Audit event",
+      "smtp.test.request": "Audit event"
+    },
+    "formal_generic": 27,
+    "formal_special": 10,
+    "method": "Static text extraction and source review, no Go/JS product execution",
+    "mismatches": [
+      {
+        "action": "secret.master.rotation.complete",
+        "fixture_summary": "Audit event",
+        "formal_summary": "Master key rotation completed"
+      },
+      {
+        "action": "secret.master.rotation.failed",
+        "fixture_summary": "Audit event",
+        "formal_summary": "Master key rotation failed"
+      },
+      {
+        "action": "secret.master.rotation.start",
+        "fixture_summary": "Audit event",
+        "formal_summary": "Master key rotation started"
+      }
+    ]
+  },
+  "mode": "STATIC_READONLY_NO_PRODUCT_EXECUTION",
+  "read02_safe_diagnostic": [
+    {
+      "observed_missing": false,
+      "observed_type": "object",
+      "path": "record",
+      "row_index": 25,
+      "stored_missing": false,
+      "stored_type": "object",
+      "value_different": true
+    },
+    {
+      "observed_missing": false,
+      "observed_type": "string",
+      "path": "summary",
+      "row_index": 25,
+      "stored_missing": false,
+      "stored_type": "string",
+      "value_different": true
+    },
+    {
+      "observed_missing": false,
+      "observed_type": "object",
+      "path": "record",
+      "row_index": 26,
+      "stored_missing": false,
+      "stored_type": "object",
+      "value_different": true
+    },
+    {
+      "observed_missing": false,
+      "observed_type": "string",
+      "path": "summary",
+      "row_index": 26,
+      "stored_missing": false,
+      "stored_type": "string",
+      "value_different": true
+    }
+  ],
+  "runs": {
+    "read01": {
+      "actual_exit": 1,
+      "actual_wait_completed": true,
+      "adopted_waits": 4,
+      "baseline_unchanged_both": true,
+      "exact_ids_absent_both": 7,
+      "owned_pid_count": 118,
+      "pid_runtime_browser_empty_both": true,
+      "references": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/cleanup.json",
+          "sha256": "c963f1d0a612d0334dd35c20e955361f2e272108955aa195996b8708f6b88e8b"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/command.json",
+          "sha256": "7b4c528088fda97f5de0a0dfc75488fb8a9162d92e241a954d3596bbf645398f"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/raw.log",
+          "sha256": "8ccac9fb6176a1452c20b6d8a4eb3980ca21f5f2ff3defdc33688c52fd743303"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read01/result.json",
+          "sha256": "ae0e482c50e0ab303897246f97a4e13ac95c596e816638d636f154d21ad1de3e"
+        }
+      },
+      "seconds": 92.919,
+      "source_and_inputs_unchanged": true
+    },
+    "read02": {
+      "actual_exit": 1,
+      "actual_wait_completed": true,
+      "adopted_waits": 4,
+      "baseline_unchanged_both": true,
+      "exact_ids_absent_both": 7,
+      "owned_pid_count": 86,
+      "pid_runtime_browser_empty_both": true,
+      "references": {
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/cleanup.json",
+          "sha256": "efe00e52ed9c31ac9a5cd81947b72b2c9e7485afb4cba93550363f35ffdef1ba"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/command.json",
+          "sha256": "339c7b5ac209d437b901fee91183c7b993b5a3b62480ec48427783283ea95316"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/raw.log",
+          "sha256": "a824ce8d451f2218d2a7fa8d462e9bf6fc9665219c053141182813f77ec2a4e8"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/runs/read02/result.json",
+          "sha256": "e194025fe1dfca0724cfd6166d2fa752747639c5a1c496a80f5c3acc773846f0"
+        }
+      },
+      "seconds": 58.18,
+      "source_and_inputs_unchanged": true
+    }
+  },
+  "unchanged_fixture_archive_references": [
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage02/source/tests/account/system_audit_web_fixture_test.go",
+      "sha256": "69bf020a367c55c012477b04cdc15a842aa5187a086cc7cba9fc1b79004b1d9c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/harness-stage03/source/tests/account/system_audit_web_fixture_test.go",
+      "sha256": "69bf020a367c55c012477b04cdc15a842aa5187a086cc7cba9fc1b79004b1d9c"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/browser/independent.config.mjs",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-system-audit-frontend-m5wh30ot/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-a5c109pw",
+    "GOTMPDIR": "/tmp/agt-audit-offline-a5c109pw",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "AGENTEAM_AUDIT_WEB_CASE": "independent-authority",
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-audit-ui-real-independent-urakt2fo/runs/discover-b01/discovery-only",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "0031e94c915294011067abc555c454c1e6193bc2cba8d820c79fc07e9ee3f55e",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 581737,
+  "actual_exit": 0,
+  "seconds": 1.0948389900004258,
+  "timeout": false
+}
