@@ -1,0 +1,150 @@
+{
+  "status": "READ_ONLY_RECOMMENDATION_NOT_SPEC_OR_ACCEPTANCE",
+  "accepted_product_baseline_from_parent": "901eb54605d293d4308caadd278c2c3a7ae1b824",
+  "owner_read_technical_candidate": "candidate04",
+  "recommendation_sha256": "84727538b20fdddaac444d936d7599aeec0e00d4219e22ad52d26c711e127bb5",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "9cd20aeb95e475c795cee13ddd2fb23341ac0bc44351b14cfb3eb232928a82b7"
+    },
+    {
+      "path": "docs/development/development-plan.md",
+      "sha256": "fb916acee787071069ce05ef6a1f759f408d64a6276e1eb94241b4fe7b7f6b51"
+    },
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "sha256": "e2e4af164c3f07b95adb6402be8afec404c93a6144ee09692696b126fbdb1e42"
+    },
+    {
+      "path": "docs/development/work-items/d08-project-owner.md",
+      "sha256": "fc06c6fd328f4cd424e141e58acf696e22b350c8c9cfa0e0a38a85937724b186"
+    },
+    {
+      "path": "docs/development/work-items/d08-project-owner-read-http.md",
+      "sha256": "bf77809f18c2fd5cb3d512ccaf6ee878121baf274f8c2d7f355ce3c77ee80ef0"
+    },
+    {
+      "path": "docs/development/work-items/d10-skills-initialization.md",
+      "sha256": "87033b3a37d03568fa47441084d9153c3ce3d2bebf34c5949dd52150d4ea2f6b"
+    },
+    {
+      "path": "docs/development/work-items/d12-b02-knowledge-service.md",
+      "sha256": "f1cc70efc15e6f7c9024b1db578cfe7333f4722c2ce8be50603c881c7ed7fba3"
+    },
+    {
+      "path": "docs/development/work-items/recovery-project-domain-bindings.md",
+      "sha256": "9f2607e64ddd522a8239c6fc601ab8acf1a6c53f306b2013d8f075c6190e4eaa"
+    },
+    {
+      "path": "docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291"
+    },
+    {
+      "path": "docs/development/agent-team/artifact-project-stop-verification.md",
+      "sha256": "36e059e1a8b2cabaa3a4817c1531f38aadfedc5d7db60efc19c4a01fc8f41c4c"
+    },
+    {
+      "path": "docs/development/agent-team/object-project-audit-verification.md",
+      "sha256": "c0ffc8d6edfe86eb4c51a10d0beec8c8031e4e8f984c1f5c99e2f29ab44d8833"
+    },
+    {
+      "path": "docs/development/agent-team/system-meeting-summary-resolution-verification.md",
+      "sha256": "dcdca9e22f46ea69b8b03c108873422a77aa4a644108d37f6beed2c0c6205ec1"
+    },
+    {
+      "path": "docs/architecture/project-work-management/README.md",
+      "sha256": "40b9f74b542baf493f2e8559ec966a46a25e23ddc265fb481a43b59d7a480760"
+    },
+    {
+      "path": "internal/central/project/commands.go",
+      "sha256": "938d5274a447d3af8d8a9857725522407ba40cb033bb505dc267038261f4817b"
+    },
+    {
+      "path": "internal/central/project/service.go",
+      "sha256": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f"
+    },
+    {
+      "path": "internal/central/project/contract/commands.go",
+      "sha256": "30af1efac3ed5230ac06b1795e086fcf21840246243e293bcd46bbea335886fa"
+    },
+    {
+      "path": "internal/central/project/audit_authority.go",
+      "sha256": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b"
+    },
+    {
+      "path": "internal/central/project/audit_facts.go",
+      "sha256": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9"
+    },
+    {
+      "path": "internal/central/project/events.go",
+      "sha256": "4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d"
+    },
+    {
+      "path": "internal/central/project/external_event_authority.go",
+      "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519"
+    },
+    {
+      "path": "internal/central/project/contract/events.go",
+      "sha256": "ea9303956127b0734583b1f5e0c0ef4f7b3649d8bf1f843df0b0b7cf0973b07e"
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "sha256": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53"
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7"
+    },
+    {
+      "path": "internal/central/app/project_usage.go",
+      "sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337"
+    },
+    {
+      "path": "internal/central/model/project_query.go",
+      "sha256": "9ed9bf858b9b216e7c544dbe4fab92613c6371e5c97c1d94c905525b580f4602"
+    },
+    {
+      "path": "internal/central/model/http.go",
+      "sha256": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a"
+    },
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba"
+    },
+    {
+      "path": "internal/central/outbox/service.go",
+      "sha256": "3fdfd1d2565a30984b9c912bd2e5a1a128c4d0496128005b245f194e0690e507"
+    }
+  ],
+  "skill_source_inventory": [
+    "internal/central/skill/builtin/add-skills/v1/SKILL.md",
+    "internal/central/skill/builtin.go",
+    "internal/central/skill/builtin_test.go",
+    "internal/central/skill/contract/package.go",
+    "internal/central/skill/contract/package_test.go",
+    "internal/central/skill/contract/read.go",
+    "internal/central/skill/contract/read_test.go",
+    "internal/central/skill/contract/types.go",
+    "internal/central/skill/contract/types_test.go",
+    "internal/central/skill/package.go",
+    "internal/central/skill/package_test.go"
+  ],
+  "knowledge_source_inventory": [
+    "internal/central/knowledge/contract/commands.go",
+    "internal/central/knowledge/contract/commands_test.go",
+    "internal/central/knowledge/contract/confirmation.go",
+    "internal/central/knowledge/contract/confirmation_test.go",
+    "internal/central/knowledge/contract/events.go",
+    "internal/central/knowledge/contract/events_test.go",
+    "internal/central/knowledge/contract/source.go",
+    "internal/central/knowledge/contract/source_test.go",
+    "internal/central/knowledge/contract/tree.go",
+    "internal/central/knowledge/contract/tree_test.go",
+    "internal/central/knowledge/contract/types.go",
+    "internal/central/knowledge/contract/types_test.go"
+  ],
+  "git_commands": false,
+  "go_or_resources": false,
+  "previous_accepted_product_baseline": "4e615c7da2875418e1fbd925a49f134f14feae6d"
+}

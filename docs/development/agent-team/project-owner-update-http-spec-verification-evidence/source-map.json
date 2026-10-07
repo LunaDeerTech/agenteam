@@ -1,0 +1,102 @@
+{
+  "kind": "Original small specification/review evidence; relative links in original documents retain their source-location meaning",
+  "specification_commit": "03d1c107c2196445027351242c63bc0dbc6781d6",
+  "remote_confirmation": "Root confirmed pushed spec commit and remote equality; archive author executes no Git/network commands",
+  "product_baseline": "901eb54605d293d4308caadd278c2c3a7ae1b824",
+  "reviewed_card_sha256": "f504baf6c91b291c38bdcc0b6590aaa68cc86554466c6ae15694b95de6b77669",
+  "accepted_card_sha256": "b7596871feab7ed147fa59d4a3eb9b331a5c49ceb6296df2c60a1cd551b53b96",
+  "technical_section1_to_eof_sha256": "c67baabfa0fa1ad003ae4ad37b7b2984fc27633383a50184414e85bff5e875e0",
+  "only_changed_line": 3,
+  "originals": [
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec/rev1.md",
+      "destination": "author-rev1.md",
+      "sha256": "f504baf6c91b291c38bdcc0b6590aaa68cc86554466c6ae15694b95de6b77669",
+      "bytes": 30324
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec/frozen01.json",
+      "destination": "author-freeze.json",
+      "sha256": "3151ebc3dfdf682437cea978741a1803fb08f7eb07dd151bd542881243884bf1",
+      "bytes": 8750
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/after-owner-read01/recommendation.md",
+      "destination": "recommendation.md",
+      "sha256": "84727538b20fdddaac444d936d7599aeec0e00d4219e22ad52d26c711e127bb5",
+      "bytes": 8085
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/after-owner-read01/inputs.json",
+      "destination": "recommendation-inputs.json",
+      "sha256": "7a695aff5a1bc879ebf536f4ea06db74e1e8a3d01780bb347ce664683211948b",
+      "bytes": 6186
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec-verification/static01/review.md",
+      "destination": "independent-review.md",
+      "sha256": "91a98ee519cf6593bde0843fd12284beeee6b7202bc75879ce92aa0c410e5d1f",
+      "bytes": 4985
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec-verification/static01/result.json",
+      "destination": "independent-result.json",
+      "sha256": "e1c4f74cf5fd5c806619eec12f7c4b444d726e43d8e39f8d8e3dc184c22182fc",
+      "bytes": 2117
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec-verification/static01/checks.json",
+      "destination": "independent-checks.json",
+      "sha256": "525bf5198a97eb5f493b250fe2cbeaf757e3a0b37ea40493766e2123add3789d",
+      "bytes": 39597
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec-verification/static01/check-first-result.json",
+      "destination": "independent-check-first-result.json",
+      "sha256": "36341ab58a952e3c735c92e532d13ae4f6daa6d00bc77fd9db6e38f9453db296",
+      "bytes": 512
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec-verification/static01/check-original.py",
+      "destination": "independent-check-original.py",
+      "sha256": "d2632720ea57c131ea425d5d9f486c9c06979c700922e48b6c936afe14d1603f",
+      "bytes": 4908
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec-verification/static01/check.py",
+      "destination": "independent-check.py",
+      "sha256": "9422ed21f8219c39644003c334219666712c8f4558a686a957079d311482e265",
+      "bytes": 4950
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec-verification/static01/diff-check.raw",
+      "destination": "independent-diff-check.raw",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec/accepted-header.diff",
+      "destination": "accepted-header.diff",
+      "sha256": "6f85f885b3ae6dcf5f9294592b45a87e84ae3e9a3eb6f2d2de508655ec5e4a84",
+      "bytes": 1077
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec/accepted-header.json",
+      "destination": "accepted-header.json",
+      "sha256": "d87191cbf7fd47ada9e30e7cdeb34c3d5e52ca5e1f9c9e7b33f8f36c86462971",
+      "bytes": 408
+    }
+  ],
+  "fingerprint_only": [
+    {
+      "source": "/workspace/scratch/project-owner-update-http-spec/rev1.diff",
+      "sha256": "46b31a3d089159b4f5ebb047470062922b2e614fe1dca4cceb143d70b7cc86a8",
+      "bytes": 30589,
+      "reason": "Duplicate complete new-card diff; original rev1.md retained and accepted spec Git will provide final document"
+    }
+  ],
+  "source_dependency_policy": "44 design sources bound by original author freeze/checks; independent check42 exact product Git+2 accepted later Owner-read archives; no product-source tree copy",
+  "count": 13,
+  "original_bytes": 111899,
+  "dynamic_execution_or_implementation_acceptance": false
+}

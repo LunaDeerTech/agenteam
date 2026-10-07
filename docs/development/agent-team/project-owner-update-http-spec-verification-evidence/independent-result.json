@@ -1,0 +1,50 @@
+{
+  "status": "FULL_BOUNDED_STATIC_PASS",
+  "blocking": [],
+  "mandatory_card_changes": [],
+  "card": {
+    "revision": "rev1",
+    "path": "docs/development/work-items/d08-project-owner-update-http.md",
+    "sha256": "f504baf6c91b291c38bdcc0b6590aaa68cc86554466c6ae15694b95de6b77669"
+  },
+  "author_freeze": {
+    "path": "/workspace/scratch/project-owner-update-http-spec/frozen01.json",
+    "sha256": "3151ebc3dfdf682437cea978741a1803fb08f7eb07dd151bd542881243884bf1"
+  },
+  "product_baseline": "901eb54605d293d4308caadd278c2c3a7ae1b824",
+  "review_sha256": "91a98ee519cf6593bde0843fd12284beeee6b7202bc75879ce92aa0c410e5d1f",
+  "checks_sha256": "525bf5198a97eb5f493b250fe2cbeaf757e3a0b37ea40493766e2123add3789d",
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec-verification/static01/check-first-result.json",
+      "sha256": "36341ab58a952e3c735c92e532d13ae4f6daa6d00bc77fd9db6e38f9453db296"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec-verification/static01/check-original.py",
+      "sha256": "d2632720ea57c131ea425d5d9f486c9c06979c700922e48b6c936afe14d1603f"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec-verification/static01/check.py",
+      "sha256": "9422ed21f8219c39644003c334219666712c8f4558a686a957079d311482e265"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec-verification/static01/checks.json",
+      "sha256": "525bf5198a97eb5f493b250fe2cbeaf757e3a0b37ea40493766e2123add3789d"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec-verification/static01/diff-check.raw",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-spec-verification/static01/review.md",
+      "sha256": "91a98ee519cf6593bde0843fd12284beeee6b7202bc75879ce92aa0c410e5d1f"
+    }
+  ],
+  "not_performed": [
+    "Implementation",
+    "Go/Node or business tests",
+    "Dynamic schema/native/PG/browser",
+    "Repository or Git mutation"
+  ],
+  "stopped_writing": true
+}

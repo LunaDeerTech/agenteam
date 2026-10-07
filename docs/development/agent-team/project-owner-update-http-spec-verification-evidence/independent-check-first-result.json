@@ -1,0 +1,16 @@
+{
+  "status": "SCRATCH_CHECKER_EXIT_ASSUMPTION_FAILURE",
+  "argv": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "/dev/null",
+    "/workspace/scratch/project-owner-update-http-spec/rev1.md"
+  ],
+  "actual_exit": 1,
+  "stdout": "",
+  "stderr": "",
+  "finding": "No whitespace diagnostic. Existing checker incorrectly required zero for new-file no-index diff. Product/card unchanged. No product test executed.",
+  "next": "Accept no-index diff status 0 or 1 only with empty check stdout/stderr."
+}
