@@ -1,0 +1,7 @@
+# github.com/LunaDeerTech/agenteam/internal/central/app [github.com/LunaDeerTech/agenteam/internal/central/app.test]
+internal/central/app/project_usage_test.go:47:40: cannot use store (variable of type *projectUsageRootStore) as account.Store value in argument to account.NewAuthority: *projectUsageRootStore does not implement account.Store (wrong type for method Query)
+		have Query(context.Context, string, ...any) (pgx.Rows, error)
+		want Query(context.Context, string, ...any) (*postgres.Rows, error)
+internal/central/app/project_usage_test.go:83:40: cannot use store (variable of type *projectUsageRootStore) as account.Store value in argument to account.NewAuthority: *projectUsageRootStore does not implement account.Store (wrong type for method Query)
+		have Query(context.Context, string, ...any) (pgx.Rows, error)
+		want Query(context.Context, string, ...any) (*postgres.Rows, error)

@@ -1,0 +1,10 @@
+from pathlib import Path
+import importlib.util,json,hashlib,time
+root=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('usage_driver',root/'driver.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+(root/'docker-config').mkdir(mode=0o700,exist_ok=True);assert not list((root/'docker-config').iterdir())
+assert m.sha(m.DOCKER)==m.DOCKER_SHA256
+assert m.shutil.which('docker',path=m.runtime_environment(root/'auxiliary-tmp')['PATH'])==m.DOCKER
+version=json.loads(m.command([m.DOCKER,'version','--format','{{json .}}']))
+first=m.resources();time.sleep(.1);second=m.resources();assert first==second
+print(json.dumps({'driver_sha256':m.sha(root/'driver.py'),'docker':m.DOCKER,'docker_sha256':m.sha(m.DOCKER),'version':version,'first_baseline':first,'second_baseline':second,'resources_started':False,'baseline_unchanged':True},indent=2))

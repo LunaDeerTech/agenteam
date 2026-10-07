@@ -1,0 +1,60 @@
+--- author-driver-v04
++++ independent-driver-v01
+@@ -25,10 +25,7 @@
+ GOCACHE = '/home/agent/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+ GROUPS = {
+-    'affected': ['TestModelProjectUsageHTTPRootBinding', 'TestModelProjectUsageHTTPAuthorityAndTerminal'],
+-    'new': ['TestModelProjectUsageHTTPProjectionAndPath', 'TestModelProjectUsageHTTPAuthorityAndTerminal', 'TestModelProjectUsageHTTPRootBinding'],
+-    'old-model': ['TestUsageReaderNonemptyPagination', 'TestUsageInvocationWireLedger', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelSystemHTTPCurrentAdministrator'],
+-    'old-project': ['TestProjectB02OwnerSessionNamePathAndPaging', 'TestProjectB02OwnerPortRequiresCallerTransactionLocks'],
++    'independent': ['TestIndependentProjectUsageHTTPAuthorityProjection', 'TestIndependentProjectUsageHTTPDefaultRootIdentity'],
+ }
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -65,6 +62,7 @@
+     known.update(delta['changed_inputs'])
+     expected = {path: known[path]['sha256'] for path in closure['actual_input_paths']}
+     expected.update(FROZEN['driver_runtime_files'])
++    expected.update(FROZEN['overlay_inputs'])
+     expected.update({str(REPO / name): entry['sha256'] for name, entry in sources.items()})
+     missing, actual = [], {}
+     for path in sorted(expected):
+@@ -98,7 +96,7 @@
+             'HOME': '/home/agent', 'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+-            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v',
++            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/usage-http-verification/C01/realprep01/overlay.json',
+             'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO, 'AGENTEAM_USAGE_SCHEMA_PYTHON': PYTHON}
+ 
+ 
+@@ -384,7 +382,7 @@
+         raise RuntimeError('runner inputs changed before launch')
+     start = time.monotonic()
+     cancellations = []
+-    watchdog = TopWatchdog(expected if args.group in ('new', 'affected') else [])
++    watchdog = TopWatchdog(expected)
+     watch_stop = threading.Event()
+     with (run / 'raw.log').open('wb') as raw:
+         process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+@@ -436,7 +434,8 @@
+         remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]
+         cleanups.append({'time': utc(), 'exact_absent': exact, 'baseline_unchanged': {key: current.get(key) for key in baseline} == baseline,
+                          'remaining_new': sorted(set(current) - set(baseline)), 'owned_processes': remaining,
+-                         'runtime_entries': sorted(path.name for path in runtime.iterdir())})
++                         'runtime_entries': sorted(path.name for path in runtime.iterdir()),
++                         'pid1_zombies': [{'pid': pid, **row} for pid, row in proc.items() if row['ppid'] == 1 and row['state'] == 'Z']})
+         time.sleep(0.5)
+     write(run / 'cleanup.json', cleanups)
+     write(run / 'observed-processes.json', observed_processes)
+@@ -456,7 +455,8 @@
+                'top_watchdog_complete': watchdog.result()['complete'], 'watchdog_thread_joined': not watcher.is_alive(),
+                'browser_processes': sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values()),
+                'node_processes': sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values()),
+-               'historical_zombies_untouched': [{'pid': pid, **row} for pid, row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']}
++               'historical_zombies_untouched': [{'pid': pid, **row} for pid, row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z'],
++               'new_pid1_zombies_not_owned_or_joined': [row for row in cleanups[-1]['pid1_zombies'] if row['pid'] not in baseline_processes or baseline_processes[row['pid']]['starttime'] != row['starttime']]}
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+     return 0 if exit_code == 0 and clean and len(observed_resources) == 7 and not errors and not cancellations and not tail_actions and summary['source_files_unchanged'] and summary['verification_inputs_unchanged'] and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] and summary['top_watchdog_complete'] and summary['watchdog_thread_joined'] else 1

@@ -1,0 +1,20 @@
+{
+  "at": 1791378445.5580454,
+  "limited_static_gate": "PASS",
+  "driver_v03_sha256": "c311b188922f242093e952b1bcd6dca479714fc996d37a6fd29b5b2be32aea3d",
+  "frozen_sha256": "a75f0dccf661f2bec9f53d74982afa8a6c59574da1611fe23fe00cbf8d4e75cc",
+  "docker_absolute": "/usr/local/bin/docker",
+  "docker_sha256": "27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b",
+  "old_budget_wait_and_topology_function_source_identical": [
+    "TopWatchdog",
+    "watch_output",
+    "retire_owned",
+    "observe_processes",
+    "reap_adopted",
+    "resource_topology"
+  ],
+  "changed_scope": "absolute docker calls, helper PATH /usr/local/bin, source_input resolution/hash gate",
+  "prior_d01_gate_failure_preserved": true,
+  "runtime_proofs_reused_from_v02": true,
+  "reviewer_docker_or_resource_calls": false
+}

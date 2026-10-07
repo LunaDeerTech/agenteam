@@ -1,0 +1,234 @@
+{
+  "at": 1791379275.703091,
+  "conclusion": "LIMITED PASS: frozen Project Owner Usage HTTP A/B/native/C/D composition",
+  "final_fourteen": {
+    "path": "/workspace/scratch/usage-http-author/C/fourteen-v05.json",
+    "sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b"
+  },
+  "author_D_final": {
+    "path": "/workspace/scratch/usage-http-author/C/D-final.json",
+    "sha256": "89258e5b24b8f57a133b4368e9fdfa2df09575bb17a320430b638e34b90fc4a6"
+  },
+  "author_rounds_verified": {
+    "d02-new": {
+      "source_fourteen_sha256": "e8e35babc732897531b7e12ed33a87af4386bbb4639310ed7ecafcdb1d178d20",
+      "actual_exit": 1,
+      "seconds": 64.796,
+      "tops": [
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPAuthorityAndTerminal"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath"
+        ]
+      ],
+      "subtest_pass_count": 9,
+      "resources": 7,
+      "owned_pid_count": 106,
+      "double_cleanup": true,
+      "raw_sha256": "79ef77c08867745c9c7beddfe41bf35a5f65f2d45976a89c83f8e5cef5cd4c35"
+    },
+    "d03-affected": {
+      "source_fourteen_sha256": "ce8dcbe6a6bd01f3128e9ebf63176c6d46885698479db9f7b46c54fdc7e50f76",
+      "actual_exit": 1,
+      "seconds": 59.825,
+      "tops": [
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPAuthorityAndTerminal"
+        ]
+      ],
+      "subtest_pass_count": 10,
+      "resources": 7,
+      "owned_pid_count": 92,
+      "double_cleanup": true,
+      "raw_sha256": "83e6b6e46eab9bb2d9415797779d34fd97800fe72b2152938e705acc6ce5d2f5"
+    },
+    "d04-root": {
+      "source_fourteen_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+      "actual_exit": 0,
+      "seconds": 55.309,
+      "tops": [
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ]
+      ],
+      "subtest_pass_count": 0,
+      "resources": 7,
+      "owned_pid_count": 88,
+      "double_cleanup": true,
+      "raw_sha256": "3077d9afef8814843c1bbd9c1fe6d199df85ebabb2cd12a77d02e85be76a69e3"
+    },
+    "d05-old-model": {
+      "source_fourteen_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+      "actual_exit": 0,
+      "seconds": 65.681,
+      "tops": [
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire"
+        ],
+        [
+          "PASS",
+          "TestUsageInvocationWireLedger"
+        ],
+        [
+          "PASS",
+          "TestUsageReaderNonemptyPagination"
+        ]
+      ],
+      "subtest_pass_count": 42,
+      "resources": 7,
+      "owned_pid_count": 90,
+      "double_cleanup": true,
+      "raw_sha256": "46866e8d8d945b0dd1d00b30f8836d8dea5605517b7eaa95158d2bc9e3e9c4dc"
+    },
+    "d06-old-project": {
+      "source_fourteen_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+      "actual_exit": 0,
+      "seconds": 48.192,
+      "tops": [
+        [
+          "PASS",
+          "TestProjectB02OwnerSessionNamePathAndPaging"
+        ],
+        [
+          "PASS",
+          "TestProjectB02OwnerPortRequiresCallerTransactionLocks"
+        ]
+      ],
+      "subtest_pass_count": 0,
+      "resources": 7,
+      "owned_pid_count": 85,
+      "double_cleanup": true,
+      "raw_sha256": "6dccabac681d6f23f7d00021ce1ef40ebba5f5b0d85b62e735d57bfedebf10b6"
+    }
+  },
+  "author_distinct_tops": 9,
+  "reuse_verified": "v03 Projection+fixture+production unchanged; v04 Terminal unchanged; Root shared helpers unchanged; only later unrelated test assertions corrected. Not a final-version all-top rerun.",
+  "independent_real": {
+    "command_seconds": 61.122,
+    "actual_driver_exit": 0,
+    "actual_main_wait": true,
+    "outer_driver_pid": 125121,
+    "outer_and_main_now_absent": true,
+    "two_tops": [
+      [
+        "PASS",
+        "TestIndependentProjectUsageHTTPAuthorityProjection"
+      ],
+      [
+        "PASS",
+        "TestIndependentProjectUsageHTTPDefaultRootIdentity"
+      ]
+    ],
+    "resource_count": 7,
+    "owned_pid_starttime_count": 90,
+    "double_cleanup": true,
+    "adopted_actual_waits": 0,
+    "forced_tail_actions": 0,
+    "watchdog_joined": true,
+    "input_digest": "aae65cf6e22e4bedd7a2cc7f785575bc158ed9fabbfeb41fe29fa554fd2833cf",
+    "artifacts": {
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/command.json": "a015c3fb1570b8a16cc5c5b6cd4bd646af1fa61155fe633dddbda74a826101aa",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/result.json": "cd9978f66c2df12b11b8d608a69ca6d27b2421258b71843ee91fa1b023579c44",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/raw.log": "998797039b1c49b4f1f2e601e5bd9f5573709a582100a2e8d4b08dd36610d311",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/watchdog.json": "7c971cd6294bd65abfd27d76e5f9fcf75dfe7dd46318a4885a1fd33690c9342d",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/baseline.json": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/process-baseline.json": "ba94345fddbf59933626e40fb6701f0a8a6a2b9981c75fd430738b37b0d4d9a8",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/observed-resources.json": "c4fa27f6cf5151875ff49e8e1eb1cc924ecf01fda9a39dd2e4055bcfeec92a1b",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/observed-processes.json": "22862ad55aab0c0deb17efd7c830a1cce2549d9b095a0b6fd8cbfc8615781928",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/cleanup.json": "478232ee51935632d711b62981624f7e23ae2a04b00911142ce9ef7277cc14f0",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/owned-tail-retirement.json": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/input-before.json": "159bdaf9418d7e9432f1a1380bb857c4a80d1f9c6e31e084e441a87729f576ee",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/input-after.json": "159bdaf9418d7e9432f1a1380bb857c4a80d1f9c6e31e084e441a87729f576ee",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/frozen-input.json": "2f04786a1a9995ab6b829a0b204a8b1f432b163e180efec3be2834c9793c3752",
+      "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/verification-input.json": "2a8569143b10035112226250d67c533caf603dbef4c3f9986f33ab96ced66377"
+    }
+  },
+  "daemon_boundary": {
+    "previous_containerd_shim_zombies": 20,
+    "new_unjoined": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 125634,
+        "ppid": 1,
+        "starttime": "510024",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 126098,
+        "ppid": 1,
+        "starttime": "510444",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 126464,
+        "ppid": 1,
+        "starttime": "510632",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 126961,
+        "ppid": 1,
+        "starttime": "510810",
+        "state": "Z"
+      }
+    ],
+    "post_containerd_shim_zombies": 24,
+    "task_control_actions": 0,
+    "scope": "PID1 daemon-side observations, not owned descendants; no actual wait or host-wide zero-residue claim."
+  },
+  "previous_acceptance_reused": [
+    {
+      "path": "/workspace/scratch/usage-http-verification/a02/review.md",
+      "sha256": "51d30cd8f647f26d158c6dcf1593449cffffb978b23714a334a9391b180cb341"
+    },
+    {
+      "path": "/workspace/scratch/usage-http-verification/b01/review.md",
+      "sha256": "0784e21b67f4da86c04c018b1514f8628a98730fae185719c188fc031c6b4982"
+    },
+    {
+      "path": "/workspace/scratch/usage-http-verification/native01/review.md",
+      "sha256": "1e274ef8681a32dbe374b5c86ed7ba4ad608fd8b7dbd1778610cc97b923313ac"
+    },
+    {
+      "path": "/workspace/scratch/usage-http-verification/C01/pure01/review.md",
+      "sha256": "1d79f2191fc8cc8dadc87a411c089803de38e78b7a9fa07a00efa6fa3316dc72"
+    },
+    {
+      "path": "/workspace/scratch/usage-http-verification/C01/realprep01/review.md",
+      "sha256": "00bc5010b5e69ac33c477644cf73a04c6d9a0b7bf20f74db314e567580144255"
+    }
+  ],
+  "remaining_scope": [
+    "Production Invocation/Runtime Facts and Project lifecycle remain unbound; Invocations nil.",
+    "Readiness remains503; no complete D08/D09/E01 claim; stopped tasks unchanged.",
+    "Legacy fixture component joins beyond its established contract are not newly proven; actual owned process chain and seven exact resources are terminal.",
+    "Original A/B/native/author/tooling failures and private probe assumption corrections remain immutable."
+  ],
+  "all_independent_resource_commands_stopped": true
+}

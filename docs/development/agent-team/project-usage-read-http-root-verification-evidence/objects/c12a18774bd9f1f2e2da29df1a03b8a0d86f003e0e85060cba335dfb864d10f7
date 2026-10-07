@@ -1,0 +1,1 @@
+d03 Root failed at readyz .want security-header assertions. The shared Account helper requires three headers not part of original diagnosticRouter. Root authorizes only this test to use explicit503/200 statuses while retaining original Problem and diagnostics false checks. Production remains unchanged; d03 Terminal PASS and d02 Projection PASS are reused.

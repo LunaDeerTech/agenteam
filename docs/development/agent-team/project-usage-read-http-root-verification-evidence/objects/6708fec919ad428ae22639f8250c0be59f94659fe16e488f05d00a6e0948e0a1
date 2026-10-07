@@ -1,0 +1,23 @@
+--- v04
++++ v05
+@@ -212,16 +212,16 @@
+ 	}
+ 	root.request(t, v.ownerBrowser, "GET", "/api/v1/session", nil).want(t, 200)
+ 	root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-providers", nil).want(t, 200)
+-	ready := root.request(t, v.ownerBrowser, "GET", "/readyz", nil).want(t, 503)
++	ready := root.request(t, v.ownerBrowser, "GET", "/readyz", nil)
+ 	var problem httpapi.Problem
+-	if json.Unmarshal(ready.body, &problem) != nil || (problem.Code != f.DependencyUnbound && problem.Code != f.DependencyUnavailable) || problem.CommitState != f.NotStarted {
++	if ready.status != 503 || json.Unmarshal(ready.body, &problem) != nil || (problem.Code != f.DependencyUnbound && problem.Code != f.DependencyUnavailable) || problem.CommitState != f.NotStarted {
+ 		t.Fatal("Usage binding changed the original readiness Problem")
+ 	}
+-	diagnostics := root.request(t, v.ownerBrowser, "GET", "/diagnostics", nil).want(t, 200)
++	diagnostics := root.request(t, v.ownerBrowser, "GET", "/diagnostics", nil)
+ 	var status struct {
+ 		Ready *bool `json:"ready"`
+ 	}
+-	if json.Unmarshal(diagnostics.body, &status) != nil || status.Ready == nil || *status.Ready {
++	if diagnostics.status != 200 || json.Unmarshal(diagnostics.body, &status) != nil || status.Ready == nil || *status.Ready {
+ 		t.Fatal("Usage binding changed diagnostics readiness")
+ 	}
+ 	if root.connections.Load() != 1 {

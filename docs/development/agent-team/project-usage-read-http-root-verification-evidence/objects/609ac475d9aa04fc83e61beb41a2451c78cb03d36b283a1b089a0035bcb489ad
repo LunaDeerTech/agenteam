@@ -1,0 +1,97 @@
+{
+  "label": "p07-race-probe",
+  "command": [
+    "/workspace/scratch/usage-http-verification/C01/pure01/app-independent-v02.test",
+    "-test.count=1",
+    "-test.parallel=1",
+    "-test.timeout=30s",
+    "-test.run=^TestIndependentProjectUsageRootInitialization$",
+    "-test.v"
+  ],
+  "cwd": "/workspace/agenteam",
+  "driver_sha256": "3ce87e89b001c3e7633127a37ec204902b95cb977aeaaee87b83b8e24b3f3c78",
+  "before": {
+    "internal/central/account/http_boundary.go": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+    "internal/central/account/http_boundary_test.go": "b8355f2646dca7a5ea23ba269d4f9c025144f722ccd6bb5a7cb537797e312c7c",
+    "internal/central/usage/http/handler.go": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+    "internal/central/usage/http/wire.go": "e61a6bb68b7e88e06c6972b4df0b614301195d71e1305f05faf9436fdd441f9c",
+    "internal/central/usage/http/handler_test.go": "6cb52c4553409b5edad5a7e641d55e966eea48b2a6ef452403e9ec24553102da",
+    "internal/central/usage/http/wire_test.go": "ee65274616107a90561c53422896e339b1cee1729326e926fa908d4e5b6a8a3a",
+    "api/openapi/project-usage.json": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4",
+    "internal/central/app/project_usage.go": "de5dfb03150ccc7fc3a875c871e5dfef150eb838d4173b392a6ed397b3550144",
+    "internal/central/app/project_usage_test.go": "dfa09bf12b0e39323ef4c4e339a8c247de1f524e766d30827873541b5e014c8a",
+    "internal/central/app/account.go": "7cf981e59507f27bb6aac57378acb65ee109ec2f4a1f73d554a0ddb877e380ba",
+    "tests/model/project_usage_http_fixture_test.go": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+    "tests/model/project_usage_http_test.go": "d421ca88f364f7674cce73fe40c4912d7554c66ab60326207f2023ac4cb10820",
+    "tests/model/project_usage_http_terminal_test.go": "a611d3365472451f2c1971ccad906608782bc385e534cc85aef76dbfe882c83f",
+    "tests/model/project_usage_http_root_test.go": "c42aad9caec87cf1cbe0ae03871d8e53638915fc1c0021bd618dd58cf1982f23",
+    "/workspace/agenteam/go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "/workspace/agenteam/go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "/workspace/scratch/usage-http-verification/C01/draft/app_probe_test.go": "2e1ab57d3fc1841b5e385ec3c87090eccdd1a35f361c877ebdbfb2188c5348e3",
+    "/workspace/scratch/usage-http-verification/C01/pure01/overlay.json": "5cd4c5fd614571977b259332c0bb64724345ee5b078f5bb5cbbfe4c8e13d5193",
+    "/workspace/scratch/usage-http-verification/C01/pure01/run.py": "3ce87e89b001c3e7633127a37ec204902b95cb977aeaaee87b83b8e24b3f3c78"
+  },
+  "started": 1791378345.8850558,
+  "subreaper": true,
+  "execution_limit_seconds": 45,
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOPATH": "/workspace/go",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/home/agent/.cache/go-build",
+    "GOFLAGS": "-mod=readonly",
+    "GOMAXPROCS": "2"
+  },
+  "direct": {
+    "pid": 78523,
+    "starttime": "429771",
+    "pgrp": 78523,
+    "ppid": 78520,
+    "state": "R"
+  },
+  "exit": 0,
+  "direct_actual_wait": true,
+  "execution_elapsed_seconds": 1.1212670803070068,
+  "adopted_waits": [],
+  "cleanup": [
+    {
+      "at": 1791378347.0064082,
+      "group_members": [],
+      "direct_current": null
+    },
+    {
+      "at": 1791378347.161692,
+      "group_members": [],
+      "direct_current": null
+    }
+  ],
+  "after": {
+    "internal/central/account/http_boundary.go": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+    "internal/central/account/http_boundary_test.go": "b8355f2646dca7a5ea23ba269d4f9c025144f722ccd6bb5a7cb537797e312c7c",
+    "internal/central/usage/http/handler.go": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+    "internal/central/usage/http/wire.go": "e61a6bb68b7e88e06c6972b4df0b614301195d71e1305f05faf9436fdd441f9c",
+    "internal/central/usage/http/handler_test.go": "6cb52c4553409b5edad5a7e641d55e966eea48b2a6ef452403e9ec24553102da",
+    "internal/central/usage/http/wire_test.go": "ee65274616107a90561c53422896e339b1cee1729326e926fa908d4e5b6a8a3a",
+    "api/openapi/project-usage.json": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4",
+    "internal/central/app/project_usage.go": "de5dfb03150ccc7fc3a875c871e5dfef150eb838d4173b392a6ed397b3550144",
+    "internal/central/app/project_usage_test.go": "dfa09bf12b0e39323ef4c4e339a8c247de1f524e766d30827873541b5e014c8a",
+    "internal/central/app/account.go": "7cf981e59507f27bb6aac57378acb65ee109ec2f4a1f73d554a0ddb877e380ba",
+    "tests/model/project_usage_http_fixture_test.go": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+    "tests/model/project_usage_http_test.go": "d421ca88f364f7674cce73fe40c4912d7554c66ab60326207f2023ac4cb10820",
+    "tests/model/project_usage_http_terminal_test.go": "a611d3365472451f2c1971ccad906608782bc385e534cc85aef76dbfe882c83f",
+    "tests/model/project_usage_http_root_test.go": "c42aad9caec87cf1cbe0ae03871d8e53638915fc1c0021bd618dd58cf1982f23",
+    "/workspace/agenteam/go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "/workspace/agenteam/go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "/workspace/scratch/usage-http-verification/C01/draft/app_probe_test.go": "2e1ab57d3fc1841b5e385ec3c87090eccdd1a35f361c877ebdbfb2188c5348e3",
+    "/workspace/scratch/usage-http-verification/C01/pure01/overlay.json": "5cd4c5fd614571977b259332c0bb64724345ee5b078f5bb5cbbfe4c8e13d5193",
+    "/workspace/scratch/usage-http-verification/C01/pure01/run.py": "3ce87e89b001c3e7633127a37ec204902b95cb977aeaaee87b83b8e24b3f3c78"
+  },
+  "finished": 1791378347.1689744,
+  "raw_sha256": "3f802aced37a0abe7ecb453f8e59f59bb145ec4ed688bafe2571e9e0fafac048",
+  "inputs_unchanged": true
+}

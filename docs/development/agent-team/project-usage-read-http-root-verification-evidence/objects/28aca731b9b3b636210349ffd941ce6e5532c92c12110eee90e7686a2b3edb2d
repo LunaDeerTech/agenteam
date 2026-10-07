@@ -1,0 +1,87 @@
+{
+  "baseline": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+  "at": 1791377704.556652,
+  "files": {
+    "internal/central/app/app.go": {
+      "sha256": "72e7d6689d3dda38c8c68ccb7908cf0dfbcbda5fb4a8b3d59edb1e3b9ea90d77",
+      "bytes": 21065,
+      "current_matches_fixed": true
+    },
+    "internal/central/account/service.go": {
+      "sha256": "0ef5a16b15079dcc718c4bdb7d10c95bf9817e3047060ddf05475c372be2f537",
+      "bytes": 6163,
+      "current_matches_fixed": true
+    },
+    "internal/central/project/authority.go": {
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "bytes": 9818,
+      "current_matches_fixed": true
+    },
+    "internal/central/usage/authority.go": {
+      "sha256": "830ff92eb7a30c8a4fae64a3d604b3c9d3bc114641384671d4d5ccf82cf16221",
+      "bytes": 7352,
+      "current_matches_fixed": true
+    },
+    "internal/central/usage/service.go": {
+      "sha256": "7a475e186679f11a01423fa5857aa288ab1369cb3f81a5b828f0bc959f329608",
+      "bytes": 2594,
+      "current_matches_fixed": true
+    },
+    "tests/model/project_configuration_fixture_test.go": {
+      "sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+      "bytes": 22720,
+      "current_matches_fixed": true
+    },
+    "tests/model/current_resolution_fixture_test.go": {
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6",
+      "bytes": 16271,
+      "current_matches_fixed": true
+    },
+    "tests/model/usage_fixture_test.go": {
+      "sha256": "ce1c88f0678edb0c3e1633c6dbb24e0b3a0d701a36d818f40480ffeed5a17a40",
+      "bytes": 35348,
+      "current_matches_fixed": true
+    },
+    "tests/model/system_configuration_integration_test.go": {
+      "sha256": "7d46b46766659386f7d643be76ab56526d9c5e911cc14fbc2fd3b81967afab32",
+      "bytes": 53704,
+      "current_matches_fixed": true
+    },
+    "tests/model/system_management_boundaries_test.go": {
+      "sha256": "71f77d593d433131a1d99c0b8baed46081cf2c12696b4cda21fbe2f6d660b01c",
+      "bytes": 22441,
+      "current_matches_fixed": true
+    },
+    "tests/model/system_http_fixture_test.go": {
+      "sha256": "917574ad6ffac121c845b9cbb11d29b35d0eb418d14d9d09820796510e077a5c",
+      "bytes": 20539,
+      "current_matches_fixed": true
+    },
+    "tests/process/process_test.go": {
+      "sha256": "fcbf27e63b52b361d307ed22a0585dc0752ba471d7d1fb2348a0077b28d21b60",
+      "bytes": 14410,
+      "current_matches_fixed": true
+    },
+    "tests/testsupport/postgres/cmd/fixture/main.go": {
+      "sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+      "bytes": 13098,
+      "current_matches_fixed": true
+    },
+    "tests/testsupport/outbound/cmd/fixture/main.go": {
+      "sha256": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683",
+      "bytes": 8288,
+      "current_matches_fixed": true
+    },
+    "scripts/test-objects.sh": {
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "bytes": 1029,
+      "current_matches_fixed": true
+    },
+    "scripts/test-postgres.sh": {
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe",
+      "bytes": 1353,
+      "current_matches_fixed": true
+    }
+  },
+  "purpose": "necessary dependency provenance; inspected relevant functions, not whole-tree acceptance"
+}

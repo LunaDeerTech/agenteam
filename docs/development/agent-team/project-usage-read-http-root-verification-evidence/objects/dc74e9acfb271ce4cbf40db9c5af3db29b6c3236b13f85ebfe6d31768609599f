@@ -1,0 +1,25 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/usage-http-author/C/closure.json",
+    "sha256": "b7fee3f8bcf175040af6254f97a9ca37a1f3f35e1a1941ddbe479263d4dfc8eb"
+  },
+  "source_fourteen": {
+    "path": "/workspace/scratch/usage-http-author/C/fourteen-v05.json",
+    "sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b"
+  },
+  "changed_inputs": {
+    "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go": {
+      "sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+      "bytes": 17333
+    },
+    "/workspace/agenteam/tests/model/project_usage_http_terminal_test.go": {
+      "sha256": "ebb16698947ecf0a72d9a7e91561bdd75e334b43d6fd274a81804aa530f02c40",
+      "bytes": 10479
+    },
+    "/workspace/agenteam/tests/model/project_usage_http_root_test.go": {
+      "sha256": "1d63defd90cbf1637b290adf1eba9b3e2c9c449453d63d17b1204e6ae3f67f8c",
+      "bytes": 8930
+    }
+  },
+  "reason": "Only root diagnostic test switches Account security-header helper to explicit existing503/200 statuses; Problem and diagnostics false retained. Other13 sources unchanged; d02 Projection and d03 Terminal results reused. c37 compile/c38 vet actual0."
+}

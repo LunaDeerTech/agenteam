@@ -1,0 +1,12 @@
+from pathlib import Path
+import importlib.util,sys,json,hashlib
+root=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('usage_driver',root/'driver.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+files={}
+for module in list(sys.modules.values()):
+ name=getattr(module,'__file__',None)
+ if name and Path(name).is_file() and Path(name).resolve()!=Path(__file__).resolve():files[str(Path(name))]=sha(name)
+files[str(Path(sys.executable).resolve())]=sha(Path(sys.executable).resolve())
+freeze={'driver_sha256':sha(root/'driver.py'),'closure_delta':{'path':str(root.parent/'closure-v03.json'),'sha256':sha(root.parent/'closure-v03.json')},'driver_runtime_files':files,'watchdog_proof':{'path':str(root.parent/'c27-driver-v02-watchdog/raw.log'),'sha256':sha(root.parent/'c27-driver-v02-watchdog/raw.log')},'tail_proof':{'path':str(root.parent/'c28-driver-v02-tail/raw.log'),'sha256':sha(root.parent/'c28-driver-v02-tail/raw.log')},'groups':m.GROUPS,'resource_authorization':'None. Explicit root window is required before --execute-authorized.'}
+(root/'frozen.json').write_text(json.dumps(freeze,indent=2)+'\n');print(json.dumps({'frozen_sha256':sha(root/'frozen.json'),'driver_sha256':freeze['driver_sha256'],'runtime_library_files':len(files)},indent=2))

@@ -1,0 +1,79 @@
+package app
+
+import (
+	"context"
+	"errors"
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"strings"
+	"testing"
+)
+
+type independentUsageSchemaStore struct {
+	*postgres.Store // Unexpected constructor I/O panics.
+	want            context.Context
+	queries         int
+	failure         error
+}
+
+func (s *independentUsageSchemaStore) Query(ctx context.Context, query string, _ ...any) (*postgres.Rows, error) {
+	if ctx != s.want || !strings.Contains(query, "WHERE false") {
+		panic("startup context changed or schema check attempted data access")
+	}
+	s.queries++
+	return nil, s.failure
+}
+
+func TestIndependentProjectUsageRootInitialization(t *testing.T) {
+	for _, mode := range []string{"schema-error", "model-error", "model-cancels"} {
+		t.Run(mode, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			sentinel := errors.New("independent schema sentinel")
+			store := &independentUsageSchemaStore{want: ctx, failure: sentinel}
+			cfg := testConfig(t, "1s")
+			accounts, err := account.NewAuthority(store, cfg.AccountKeyring())
+			if err != nil {
+				t.Fatal(err)
+			}
+			assembly, err := createProjectUsage(cfg, store, accounts)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if store.queries != 0 {
+				t.Fatal("constructor performed schema I/O")
+			}
+			models := 0
+			err = initializeModelsAndUsage(ctx, func(got context.Context) error {
+				models++
+				if got != ctx || store.queries != 0 {
+					t.Fatal("model order/context changed")
+				}
+				if mode == "model-error" {
+					return sentinel
+				}
+				if mode == "model-cancels" {
+					cancel()
+				}
+				return nil
+			}, assembly.reader.Initialize)
+			if models != 1 {
+				t.Fatal("model initialization repeated")
+			}
+			switch mode {
+			case "schema-error":
+				if !errors.Is(err, sentinel) || store.queries != 1 {
+					t.Fatal("real Usage schema error escaped or initialization continued", err, store.queries)
+				}
+			case "model-error":
+				if !errors.Is(err, sentinel) || store.queries != 0 {
+					t.Fatal("model failure started Usage")
+				}
+			case "model-cancels":
+				if !errors.Is(err, context.Canceled) || store.queries != 0 {
+					t.Fatal("cancelled model renewed Usage budget")
+				}
+			}
+		})
+	}
+}

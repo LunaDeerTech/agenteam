@@ -1,0 +1,15 @@
+from pathlib import Path
+import importlib.util,json,subprocess,sys,ctypes,hashlib
+root=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('usage_driver',root/'driver.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+assert ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0
+child="import signal,time;signal.signal(signal.SIGTERM,signal.SIG_IGN);print('ready',flush=True);time.sleep(30)"
+wrapper="import subprocess,sys;p=subprocess.Popen([sys.executable,'-c',"+repr(child)+"],stdout=subprocess.PIPE,text=True);assert p.stdout.readline().strip()=='ready';print(p.pid,flush=True)"
+p=subprocess.Popen([sys.executable,'-c',wrapper],stdout=subprocess.PIPE,text=True)
+pid=int(p.stdout.readline());assert p.wait(timeout=5)==0;p.stdout.close()
+observed={};waited=[]
+actions=m.retire_owned(p.pid,observed,waited,root/'tail-proof.json')
+assert {row['pid'] for row in actions}=={pid} and {row['signal'] for row in actions}=={m.signal.SIGTERM,m.signal.SIGKILL}
+assert len(waited)==1 and waited[0]['pid']==pid and waited[0]['exit']==-9 and waited[0]['actual_wait']
+assert pid not in m.processes()
+print(json.dumps({'driver_sha256':hashlib.sha256((root/'driver.py').read_bytes()).hexdigest(),'direct_wait_actual_exit':0,'actions':actions,'adopted_actual_waits':waited,'remaining_owned':[],'resources_started':False},indent=2))

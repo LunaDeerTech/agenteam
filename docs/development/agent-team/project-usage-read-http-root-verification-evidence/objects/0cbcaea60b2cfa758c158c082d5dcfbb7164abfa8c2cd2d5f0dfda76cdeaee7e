@@ -1,0 +1,35 @@
+{
+  "author_driver": "/workspace/scratch/usage-http-author/C/driver-v04/driver.py",
+  "author_sha256": "8eec74f78f8e9d69e7aae19ead06de2f4a88175670a4aeccd7246fd350030b5b",
+  "driver_sha256": "df312774b286b60a2c29a84209b0c1be7afba5bca8fcddf90b26e6d58b26335e",
+  "frozen_sha256": "2f04786a1a9995ab6b829a0b204a8b1f432b163e180efec3be2834c9793c3752",
+  "changed_functions": [
+    "source_input",
+    "runtime_environment",
+    "main"
+  ],
+  "unchanged_ast_functions": [
+    "sha",
+    "load_bound",
+    "digest",
+    "processes",
+    "observe_processes",
+    "reap_adopted",
+    "retire_owned",
+    "TopWatchdog",
+    "watch_output",
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "resource_topology"
+  ],
+  "actual_race_graph_packages": 397,
+  "actual_graph_extra_paths_vs_base": [
+    "/home/agent/.cache/go-build/ca/ca107468b58dc822af50f71400199717bddfcdd189697ad186ebbde48d25d06f-d",
+    "/workspace/scratch/usage-http-verification/C01/draft/model_probe_test.go"
+  ],
+  "fourteen_v05_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+  "logic_change": "Exact independent2 selector; same TopWatchdog120s for both; GOFLAGS overlay; frozen hash gate for extra overlay inputs; readonly per-cleanup PID1 zombie snapshots and new-vs-baseline report. No process/resource ownership or cleanup mutation.",
+  "not_executed": "Resource run; offline input-only gate pending"
+}

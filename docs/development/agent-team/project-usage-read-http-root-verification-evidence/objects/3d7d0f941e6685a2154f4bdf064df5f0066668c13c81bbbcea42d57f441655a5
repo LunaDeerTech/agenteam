@@ -1,0 +1,25 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/usage-http-author/C/closure.json",
+    "sha256": "b7fee3f8bcf175040af6254f97a9ca37a1f3f35e1a1941ddbe479263d4dfc8eb"
+  },
+  "source_fourteen": {
+    "path": "/workspace/scratch/usage-http-author/C/fourteen-v04.json",
+    "sha256": "ce8dcbe6a6bd01f3128e9ebf63176c6d46885698479db9f7b46c54fdc7e50f76"
+  },
+  "changed_inputs": {
+    "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go": {
+      "sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+      "bytes": 17333
+    },
+    "/workspace/agenteam/tests/model/project_usage_http_terminal_test.go": {
+      "sha256": "ebb16698947ecf0a72d9a7e91561bdd75e334b43d6fd274a81804aa530f02c40",
+      "bytes": 10479
+    },
+    "/workspace/agenteam/tests/model/project_usage_http_root_test.go": {
+      "sha256": "6cde783dda1028a7dd8eaf736fac0cd79e33a419ddbd8d07d60706b20f572bfc",
+      "bytes": 8904
+    }
+  },
+  "reason": "Only two new test expectations corrected after d02; original readiness Problem and poisoned PG lock-timeout Fault preserved. Existing observation hook proves original SQLState55P03 without modifying result; no import package additions. All production and other12 sources unchanged; c33 compile/c34 vet actual0."
+}

@@ -1,0 +1,18 @@
+from pathlib import Path
+import json,hashlib,time,sys
+b=Path('/workspace/scratch/usage-http-author/C');label=sys.argv[1]
+def select(rows):return {str(pid):row for pid,row in rows.items() if row.get('ppid')==1 and row.get('state')=='Z' and row.get('name')=='containerd-shim'}
+snapshots=[]
+for p in sorted(b.glob('driver-v*/runs/*/process-baseline.json'),key=lambda p:p.parent.name):
+ snapshots.append({'name':p.parent.name+'-before','path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'rows':select(json.loads(p.read_text()))})
+current={}
+for p in Path('/proc').iterdir():
+ if not p.name.isdigit():continue
+ try:
+  stat=(p/'stat').read_text().rsplit(')',1)[1].split();current[p.name]={'ppid':int(stat[1]),'state':stat[0],'starttime':stat[19],'name':(p/'comm').read_text().strip()}
+ except (OSError,ValueError,IndexError):pass
+snapshots.append({'name':label+'-after','time':time.time(),'rows':select(current)})
+previous={}
+for row in snapshots:
+ keys={(pid,value['starttime']) for pid,value in row['rows'].items()};row['new_since_previous']=[{'pid':int(pid),**row['rows'][pid]} for pid,start in sorted(keys-set(previous))];previous=keys
+result={'scope':'Observed PID1 daemon-side containerd-shim zombies only. These are not owned descendants and have no task wait; do not claim host-wide zero residual. Deltas are time-window observations, not an exact shim-to-container attribution. No PID1/daemon action taken.','snapshots':snapshots};p=b/('daemon-observation-'+label+'.json');p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'evidence':str(p),'snapshots':[{'name':x['name'],'count':len(x['rows']),'new':x['new_since_previous']} for x in snapshots]},indent=2))

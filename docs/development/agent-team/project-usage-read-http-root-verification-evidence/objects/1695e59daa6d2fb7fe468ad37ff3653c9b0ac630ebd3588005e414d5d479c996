@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/usage-http-author/C/driver-v02/driver.py", line 462, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/usage-http-author/C/driver-v02/driver.py", line 364, in main
+    baseline = resources()
+               ^^^^^^^^^^^
+  File "/workspace/scratch/usage-http-author/C/driver-v02/driver.py", line 274, in resources
+    for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/usage-http-author/C/driver-v02/driver.py", line 265, in command
+    result = subprocess.run(argv, cwd=REPO, env=runtime_environment(ROOT / 'auxiliary-tmp'), capture_output=True, text=True, timeout=20)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'docker'

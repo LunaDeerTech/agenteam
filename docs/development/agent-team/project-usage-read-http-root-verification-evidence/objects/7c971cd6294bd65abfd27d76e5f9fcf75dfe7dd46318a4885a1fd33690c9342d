@@ -1,0 +1,38 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 5137.750147226,
+      "top": "TestIndependentProjectUsageHTTPAuthorityProjection"
+    },
+    {
+      "event": "result",
+      "monotonic": 5143.236678758,
+      "observed_seconds": 5.486531532000299,
+      "reported_seconds": 5.48,
+      "state": "PASS",
+      "top": "TestIndependentProjectUsageHTTPAuthorityProjection"
+    },
+    {
+      "event": "run",
+      "monotonic": 5143.236678758,
+      "top": "TestIndependentProjectUsageHTTPDefaultRootIdentity"
+    },
+    {
+      "event": "result",
+      "monotonic": 5148.881964619,
+      "observed_seconds": 5.645285861000048,
+      "reported_seconds": 5.65,
+      "state": "PASS",
+      "top": "TestIndependentProjectUsageHTTPDefaultRootIdentity"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectUsageHTTPAuthorityProjection",
+    "TestIndependentProjectUsageHTTPDefaultRootIdentity"
+  ],
+  "failures": []
+}

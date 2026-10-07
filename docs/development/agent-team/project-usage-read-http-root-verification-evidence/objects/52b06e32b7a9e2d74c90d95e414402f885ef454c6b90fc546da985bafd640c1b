@@ -1,0 +1,91 @@
+{
+  "at": 1791378396.6748743,
+  "limited_result": "PASS for repaired independent app pure probe",
+  "top": 1,
+  "subcases": 3,
+  "source_manifest": "e8e35babc732897531b7e12ed33a87af4386bbb4639310ed7ecafcdb1d178d20",
+  "race_packages": 394,
+  "actual_source_files": 2450,
+  "source_tool_digest": "392b5324d32b9c1867a85f1148e054290a8fd11f1ef12c5cd2f98541b9c85e16",
+  "full_inputs_before_after_equal": true,
+  "no_custom_TestMain": true,
+  "original_probe_compile_error_preserved": true,
+  "artifact_hash_observed_after_execution": {
+    "binary": "7e56b3c18c873e0d90745914f85587703fbba5dd4c98280baa0a353cee05731e",
+    "probe": "2e1ab57d3fc1841b5e385ec3c87090eccdd1a35f361c877ebdbfb2188c5348e3",
+    "driver": "3ce87e89b001c3e7633127a37ec204902b95cb977aeaaee87b83b8e24b3f3c78",
+    "overlay": "5cd4c5fd614571977b259332c0bb64724345ee5b078f5bb5cbbfe4c8e13d5193"
+  },
+  "commands": [
+    {
+      "label": "p03-race-compile",
+      "exit": 1,
+      "seconds": 0.3738243579864502,
+      "command_sha256": "876a022ab62e22ede332dc2557d358d428ba48dc562abb688e37f6e6390b388c",
+      "raw_sha256": "389c2b942f766c1f2d6f21ac91893e3f2637647a65813c679b82d93b6fbe6850",
+      "direct": {
+        "pid": 76002,
+        "starttime": "411588",
+        "pgrp": 76002,
+        "ppid": 75999,
+        "state": "R"
+      },
+      "actual_wait": true,
+      "adopted_waits": [],
+      "double_process_zero": true
+    },
+    {
+      "label": "p05-race-list",
+      "exit": 0,
+      "seconds": 0.21941089630126953,
+      "command_sha256": "fafd289ce57c21c9dddbe3cf432dea4c0606bb51c372960cdd04de4f4c824155",
+      "raw_sha256": "bd4d76a4341005e4e5f85843b3795f90475557034f1f6d43a76bb1d04494d85a",
+      "direct": {
+        "pid": 77844,
+        "starttime": "427921",
+        "pgrp": 77844,
+        "ppid": 77841,
+        "state": "R"
+      },
+      "actual_wait": true,
+      "adopted_waits": [],
+      "double_process_zero": true
+    },
+    {
+      "label": "p06-race-compile",
+      "exit": 0,
+      "seconds": 3.5618107318878174,
+      "command_sha256": "47747e39d259dcb96e00404190141e76f6a0d2085aa9b02c2226ad03add001b4",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "direct": {
+        "pid": 78347,
+        "starttime": "428628",
+        "pgrp": 78347,
+        "ppid": 78344,
+        "state": "R"
+      },
+      "actual_wait": true,
+      "adopted_waits": [],
+      "double_process_zero": true
+    },
+    {
+      "label": "p07-race-probe",
+      "exit": 0,
+      "seconds": 1.1212670803070068,
+      "command_sha256": "609ac475d9aa04fc83e61beb41a2451c78cb03d36b283a1b089a0035bcb489ad",
+      "raw_sha256": "3f802aced37a0abe7ecb453f8e59f59bb145ec4ed688bafe2571e9e0fafac048",
+      "direct": {
+        "pid": 78523,
+        "starttime": "429771",
+        "pgrp": 78523,
+        "ppid": 78520,
+        "state": "R"
+      },
+      "actual_wait": true,
+      "adopted_waits": [],
+      "double_process_zero": true
+    }
+  ],
+  "resource_execution": false,
+  "schema_success_requires_real_PG": true
+}

@@ -1,0 +1,11 @@
+from pathlib import Path
+import ast,importlib.util,json,re
+root=Path(__file__).resolve().parent;old=(root.parent/'driver-v04/driver.py').read_text();new=(root/'driver.py').read_text()
+assert new==old.replace("GROUPS = {", "GROUPS = {\n    'root-only': ['TestModelProjectUsageHTTPRootBinding'],").replace("args.group in ('new', 'affected')", "args.group in ('new', 'affected', 'root-only')")
+a={x.name:ast.dump(x) for x in ast.parse(old).body if isinstance(x,(ast.FunctionDef,ast.ClassDef))};b={x.name:ast.dump(x) for x in ast.parse(new).body if isinstance(x,(ast.FunctionDef,ast.ClassDef))};assert all(a[n]==b[n] for n in a if n!='main')
+spec=importlib.util.spec_from_file_location('usage_driver',root/'driver.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+expected=['TestModelProjectUsageHTTPRootBinding'];assert m.GROUPS['root-only']==expected
+pattern='^('+'|'.join(expected)+')$';assert all(bool(re.fullmatch(pattern,n))==(n in expected) for v in m.GROUPS.values() for n in v)
+w=m.TopWatchdog(expected);w.consume('=== RUN   '+expected[0],0);w.consume('--- PASS: '+expected[0]+' (119.00s)',119);assert w.result()['complete']
+w=m.TopWatchdog(expected);w.consume('=== RUN   '+expected[0],0);assert w.check(120)
+print(json.dumps({'driver_sha256':m.sha(root/'driver.py'),'all_monitor_cleanup_functions_unchanged':True,'exact_root_only_top':expected,'root_120s_watchdog_proven':True,'projection_and_terminal_excluded':True,'resources_started':False},indent=2))

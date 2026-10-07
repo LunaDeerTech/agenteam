@@ -1,0 +1,219 @@
+{
+  "time": 1791379130.6590273,
+  "source_fourteen": {
+    "path": "/workspace/scratch/usage-http-author/C/fourteen-v05.json",
+    "sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b"
+  },
+  "closure_delta": {
+    "path": "/workspace/scratch/usage-http-author/C/closure-v05.json",
+    "sha256": "dc74e9acfb271ce4cbf40db9c5af3db29b6c3236b13f85ebfe6d31768609599f"
+  },
+  "rounds": {
+    "d02-new": {
+      "actual_exit": 1,
+      "seconds": 64.796,
+      "tops": [
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPAuthorityAndTerminal"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_starttime_count": 106,
+      "adopted_actual_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "artifacts": {
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/raw.log": "79ef77c08867745c9c7beddfe41bf35a5f65f2d45976a89c83f8e5cef5cd4c35",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/command.json": "8c11c08314ca1217a42d7e0c3c560fcda7e93f290c0a0fc01d2105ef50a5cc1d",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/result.json": "cc3359b4bdb4af4302fe90d1ca266b7a528eda414bf07231ce8ce66e68318fa8",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/baseline.json": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/observed-resources.json": "870fbc492522160aa5e95ceb2507803a623dd751eb621206ebb195f849e192cd",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/observed-processes.json": "322a0b2a8d9460f19bd13a14f15cfa809f6ca17c0694f6d1c4a62c23eba16269",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/cleanup.json": "507018e5df336caa73129e9027ce418efe68bdccdf82b941bdb66054ebc70727",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/owned-tail-retirement.json": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/watchdog.json": "bc1b5396b7094d67b88d15dd0513491eedbb97adc687dcdb37dcee0b27fbfa1f",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/input-before.json": "e4a9751ba81ef483d828bef1e8cb5449b5a532849880f7142f6166ebc9b75366",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/input-after.json": "e4a9751ba81ef483d828bef1e8cb5449b5a532849880f7142f6166ebc9b75366",
+        "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/frozen-input.json": "a75f0dccf661f2bec9f53d74982afa8a6c59574da1611fe23fe00cbf8d4e75cc"
+      }
+    },
+    "d03-affected": {
+      "actual_exit": 1,
+      "seconds": 59.825,
+      "tops": [
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPAuthorityAndTerminal"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_starttime_count": 92,
+      "adopted_actual_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "artifacts": {
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/raw.log": "83e6b6e46eab9bb2d9415797779d34fd97800fe72b2152938e705acc6ce5d2f5",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/command.json": "89090204e13511a339804b2510820a25fa5340aac1f7e1b782a5faa9552aef64",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/result.json": "c7e66c35a22166b41b285cbdd80965bb5d4f0b4f48c0a3b049199258554a464f",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/baseline.json": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/observed-resources.json": "183b492ee52301e968cfd4b60ca08bf3cc49830f1fd811b022e2368d912f1b89",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/observed-processes.json": "24334635114d4d4d3ddda92aeb039649958914c05d7bef9f7c008468f7314159",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/cleanup.json": "73678381d85033d92bcde203d57be015eebcf36eb9061db7bc869ea255f9cfcf",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/owned-tail-retirement.json": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/watchdog.json": "4c34388448abdbf6e27428ffbbfb4253dc0dc237e831e329e34f853f2ff2de3f",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/input-before.json": "50eaa04b7b6d41785346f44e532569c60f2565b891d92e660e3ee1a79cd4f510",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/input-after.json": "50eaa04b7b6d41785346f44e532569c60f2565b891d92e660e3ee1a79cd4f510",
+        "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/frozen-input.json": "0c65df6f3a1d21aeebc7b8ad7512dc7faf288c6eead8661221ea5ca10b020f75"
+      }
+    },
+    "d04-root": {
+      "actual_exit": 0,
+      "seconds": 55.309,
+      "tops": [
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_starttime_count": 88,
+      "adopted_actual_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "artifacts": {
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/raw.log": "3077d9afef8814843c1bbd9c1fe6d199df85ebabb2cd12a77d02e85be76a69e3",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/command.json": "345256d6c88279288bbb6192eed89993a216f36bd7854c9fad74e0ed52ad66fb",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/result.json": "63bc0379196c961a7f429e8b49e34819ea367d0be1d3f245e8fbaf330d51f77c",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/baseline.json": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/observed-resources.json": "87fa93e141bc774967be2cbecdef7ba5f2e8c6d1112392a7190ced1dd7751d50",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/observed-processes.json": "59c8edbf2c1578e2e0c06711eac5462bb4a7400a29d1b6d5f5f3b03bdde10f1f",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/cleanup.json": "e80a8ddebb951d48661f4481816d4b82bc777f98e23be531339501211bd5f7f9",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/owned-tail-retirement.json": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/watchdog.json": "24e6524a290fd655d883c4a6329530c02881f1eaf3a469e4c18698d1d67b5e25",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/input-before.json": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/input-after.json": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/frozen-input.json": "b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df"
+      }
+    },
+    "d05-old-model": {
+      "actual_exit": 0,
+      "seconds": 65.681,
+      "tops": [
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire"
+        ],
+        [
+          "PASS",
+          "TestUsageInvocationWireLedger"
+        ],
+        [
+          "PASS",
+          "TestUsageReaderNonemptyPagination"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_starttime_count": 90,
+      "adopted_actual_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "artifacts": {
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/raw.log": "46866e8d8d945b0dd1d00b30f8836d8dea5605517b7eaa95158d2bc9e3e9c4dc",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/command.json": "d5efece3374d4e7b1dd5d709166991266d249d2b0abe512ea3376f2784f29982",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/result.json": "db3f66a958a3a945e85a9288bdafd3f04f7702b28f8603def0a9dfa9b2f51aa8",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/baseline.json": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/observed-resources.json": "4137f88af4f90aa8d01d2fd0c6d791745c11a993916a6bd1ae605ef8b1eed566",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/observed-processes.json": "4c90ffaa41134af580bd02b96537ba568f4f3b402333a822efa2d94b39da6c70",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/cleanup.json": "d5dc60bfefc1d428bcc83a0dbeed5f5bdf44f8e7c7f7b1c94fc0c7fb1fae27d5",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/owned-tail-retirement.json": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/watchdog.json": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/input-before.json": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/input-after.json": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/frozen-input.json": "b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df"
+      }
+    },
+    "d06-old-project": {
+      "actual_exit": 0,
+      "seconds": 48.192,
+      "tops": [
+        [
+          "PASS",
+          "TestProjectB02OwnerSessionNamePathAndPaging"
+        ],
+        [
+          "PASS",
+          "TestProjectB02OwnerPortRequiresCallerTransactionLocks"
+        ]
+      ],
+      "resources": 7,
+      "owned_pid_starttime_count": 85,
+      "adopted_actual_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "artifacts": {
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/raw.log": "6dccabac681d6f23f7d00021ce1ef40ebba5f5b0d85b62e735d57bfedebf10b6",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/command.json": "1e6c6cfd5779db944264e0e20d859cbae7837ce2f5f702f90e467f83fc940831",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/result.json": "78ab4ecb8b911ebde7396b7ea1cd0ea3ca62c7f7d6436994c76de06eb2df19f3",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/baseline.json": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/observed-resources.json": "db452dfd93574778f86156d9d9ae80328d8189c6e976073a69a6bb03f8a439b6",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/observed-processes.json": "eebfbf013dd20ab3c56f7caa8140e2bb1a1e1bebda34c2e7169dd9a2f3eb2fe5",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/cleanup.json": "a91021978e0df3d5438c915e9b78966cfc4e7ee5805c80481080dfe4dbc48c4f",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/owned-tail-retirement.json": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/watchdog.json": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/input-before.json": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/input-after.json": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+        "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/frozen-input.json": "b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df"
+      }
+    }
+  },
+  "passing_nine_tops": {
+    "TestModelProjectUsageHTTPProjectionAndPath": "d02-new",
+    "TestModelProjectUsageHTTPAuthorityAndTerminal": "d03-affected",
+    "TestModelProjectUsageHTTPRootBinding": "d04-root",
+    "TestModelSystemHTTPCurrentAdministrator": "d05-old-model",
+    "TestModelSystemHTTPBoundaryAndStrictWire": "d05-old-model",
+    "TestUsageInvocationWireLedger": "d05-old-model",
+    "TestUsageReaderNonemptyPagination": "d05-old-model",
+    "TestProjectB02OwnerSessionNamePathAndPaging": "d06-old-project",
+    "TestProjectB02OwnerPortRequiresCallerTransactionLocks": "d06-old-project"
+  },
+  "versioned_reuse": {
+    "ProjectionAndPath": "d02 PASS: exact unchanged projection test, fixture and all helper/production bytes; only unrelated Root/Terminal test bodies corrected later",
+    "AuthorityAndTerminal": "d03 PASS: terminal source exact v05, subsequent difference only unrelated Root diagnostic assertions",
+    "root_helper_sha256": "2ff066acf484456075ded79ca5518608447eabaa34f0b6b108b39f377910d41b"
+  },
+  "failures_preserved": [
+    "d01 pre-spawn missing Docker PATH, exact traceback and no-spawn proof",
+    "d02 readiness shape and PG500-vs503 new test assumptions",
+    "d03 Account security-header helper incorrectly applied to diagnostic endpoints"
+  ],
+  "scope": "Author composition only; independent real C acceptance is separate. Ready remains503, production Invocations nil, no production Skills/Facts/Project lifecycle binding. No native rerun. Each round actualwait and double cleanup cover exact seven resources and owned descendant PID/starttime chain only.",
+  "daemon_boundary": {
+    "path": "/workspace/scratch/usage-http-author/C/daemon-observation-d06-old-project.json",
+    "sha256": "e70cb8ec0daff2d389583cd04add37331cf95167bc8f94eb3a86baaf68a0e678",
+    "limitation": "PID1 daemon-side containerd-shim zombie increments are preserved separately. No task wait covered them; no PID1/daemon actions or host-wide zero-residual claim."
+  },
+  "all_author_resource_commands_stopped": true
+}

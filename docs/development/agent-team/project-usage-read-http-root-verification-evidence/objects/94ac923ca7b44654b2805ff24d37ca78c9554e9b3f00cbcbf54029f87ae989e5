@@ -1,0 +1,5 @@
+First author closure generation failed after computing the actual graph:
+Traceback (most recent call last):
+  File "<stdin>", line 32, in <module>
+AssertionError: []
+The scratch generator incorrectly required app/account.go to be a changed A/B input. A/B's actual graph never consumed app, so app/account.go is a new input and the correct changed-known set is empty. No product source or Go check failed. Fourteen source freeze d56e87f95994dfc2ca98744c65690970c35bdbbedce479a439bd124946477904 unchanged.

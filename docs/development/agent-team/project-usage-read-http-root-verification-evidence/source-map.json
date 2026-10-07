@@ -1,0 +1,2731 @@
+{
+  "format": 1,
+  "scope": "Immutable evidence data only; no archive scripts are run. Source roots remain author C and independent C01. No runtime credentials, dependency tree, toolchain, cache, executable or current product code copied.",
+  "saved": [
+    {
+      "source": "/workspace/scratch/usage-http-author/C/HANDOFF.md",
+      "object": "objects/180b8b4343d55df256fcd26c8f5b92554294f7a967bfa11ff0876f1b2b17b76a",
+      "sha256": "180b8b4343d55df256fcd26c8f5b92554294f7a967bfa11ff0876f1b2b17b76a",
+      "bytes": 3220,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/D-final.md",
+      "object": "objects/c1ece8c6ccda77af7591c2edca0457c62ffd12513530b370db539c3655837360",
+      "sha256": "c1ece8c6ccda77af7591c2edca0457c62ffd12513530b370db539c3655837360",
+      "bytes": 3693,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/D-final.json",
+      "object": "objects/89258e5b24b8f57a133b4368e9fdfa2df09575bb17a320430b638e34b90fc4a6",
+      "sha256": "89258e5b24b8f57a133b4368e9fdfa2df09575bb17a320430b638e34b90fc4a6",
+      "bytes": 15565,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/CASE-MATRIX.md",
+      "object": "objects/e1c559eef6a8d1a51e43d53212b07a2154aff9d85305d6083bb684c784baee31",
+      "sha256": "e1c559eef6a8d1a51e43d53212b07a2154aff9d85305d6083bb684c784baee31",
+      "bytes": 3991,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fourteen-frozen.json",
+      "object": "objects/d56e87f95994dfc2ca98744c65690970c35bdbbedce479a439bd124946477904",
+      "sha256": "d56e87f95994dfc2ca98744c65690970c35bdbbedce479a439bd124946477904",
+      "bytes": 2150,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fourteen-v02.json",
+      "object": "objects/5cff88150a6e74b91a8e9a36a7c85a3716e65ab617ee5390160453c9cd1c7f67",
+      "sha256": "5cff88150a6e74b91a8e9a36a7c85a3716e65ab617ee5390160453c9cd1c7f67",
+      "bytes": 2150,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fourteen-v03.json",
+      "object": "objects/e8e35babc732897531b7e12ed33a87af4386bbb4639310ed7ecafcdb1d178d20",
+      "sha256": "e8e35babc732897531b7e12ed33a87af4386bbb4639310ed7ecafcdb1d178d20",
+      "bytes": 2150,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fourteen-v04.json",
+      "object": "objects/ce8dcbe6a6bd01f3128e9ebf63176c6d46885698479db9f7b46c54fdc7e50f76",
+      "sha256": "ce8dcbe6a6bd01f3128e9ebf63176c6d46885698479db9f7b46c54fdc7e50f76",
+      "bytes": 2151,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fourteen-v05.json",
+      "object": "objects/b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+      "sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+      "bytes": 2151,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/closure-v03.json",
+      "object": "objects/5540974195f0ecf88c4207529019d1a91ca09eb1840a84dd801a573bf600cfcd",
+      "sha256": "5540974195f0ecf88c4207529019d1a91ca09eb1840a84dd801a573bf600cfcd",
+      "bytes": 748,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/closure-v04.json",
+      "object": "objects/3d7d0f941e6685a2154f4bdf064df5f0066668c13c81bbbcea42d57f441655a5",
+      "sha256": "3d7d0f941e6685a2154f4bdf064df5f0066668c13c81bbbcea42d57f441655a5",
+      "bytes": 1270,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/closure-v05.json",
+      "object": "objects/dc74e9acfb271ce4cbf40db9c5af3db29b6c3236b13f85ebfe6d31768609599f",
+      "sha256": "dc74e9acfb271ce4cbf40db9c5af3db29b6c3236b13f85ebfe6d31768609599f",
+      "bytes": 1207,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/full-fixture-targets.json",
+      "object": "objects/2770fa3fad8d063617db4852c4895016f29bba8ebf564a1f1de505ee98526682",
+      "sha256": "2770fa3fad8d063617db4852c4895016f29bba8ebf564a1f1de505ee98526682",
+      "bytes": 1095,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/final-tail-checks.json",
+      "object": "objects/deb0534f34138b2e7ed8d63b1a8dab0f334f258fed91795a724b96b05cb07193",
+      "sha256": "deb0534f34138b2e7ed8d63b1a8dab0f334f258fed91795a724b96b05cb07193",
+      "bytes": 2291,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/closure01-failure.txt",
+      "object": "objects/94ac923ca7b44654b2805ff24d37ca78c9554e9b3f00cbcbf54029f87ae989e5",
+      "sha256": "94ac923ca7b44654b2805ff24d37ca78c9554e9b3f00cbcbf54029f87ae989e5",
+      "bytes": 504,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/closure02.raw",
+      "object": "objects/dc02c01f3132b8b704132671e7e08032f0b687f019935ef244743c9fe55d0999",
+      "sha256": "dc02c01f3132b8b704132671e7e08032f0b687f019935ef244743c9fe55d0999",
+      "bytes": 322,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/run.py",
+      "object": "objects/f7352c0a98c6856f3e129d97336bac6dfa62815a4e882c9fc8a56a597f7f10a1",
+      "sha256": "f7352c0a98c6856f3e129d97336bac6dfa62815a4e882c9fc8a56a597f7f10a1",
+      "bytes": 3584,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/compile-closure.py",
+      "object": "objects/f659331cd0bad3d380935119dcd79494b17c34c6cd5c5891400694498f2d1cc9",
+      "sha256": "f659331cd0bad3d380935119dcd79494b17c34c6cd5c5891400694498f2d1cc9",
+      "bytes": 877,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/finalize-closure.py",
+      "object": "objects/2f9bf57079909124d68f8b825b4d967ab74d99035f4e36fce7057ba33952f644",
+      "sha256": "2f9bf57079909124d68f8b825b4d967ab74d99035f4e36fce7057ba33952f644",
+      "bytes": 4779,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/python-inputs.py",
+      "object": "objects/1065ff7945408ece06dc44433c53ae09ce9c20b02a1c9c6281a9d6d1cd45bee1",
+      "sha256": "1065ff7945408ece06dc44433c53ae09ce9c20b02a1c9c6281a9d6d1cd45bee1",
+      "bytes": 969,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/daemon-zombie-deltas.py",
+      "object": "objects/13971a80cb100fdc0471f0fc8f522fb3e6d217fb833dc464159b2f26b3ca1827",
+      "sha256": "13971a80cb100fdc0471f0fc8f522fb3e6d217fb833dc464159b2f26b3ca1827",
+      "bytes": 1691,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/daemon-observation-d04-root.json",
+      "object": "objects/5cef67e5e0d0174d1e06a5d2f3f9092788227de75d0c91b10b284e67d0ed0873",
+      "sha256": "5cef67e5e0d0174d1e06a5d2f3f9092788227de75d0c91b10b284e67d0ed0873",
+      "bytes": 7525,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/daemon-observation-d05-old-model.json",
+      "object": "objects/d7a594a3efd444d28b94a9b76f0dab7d3da3857981344c557ac5b36824f06fa0",
+      "sha256": "d7a594a3efd444d28b94a9b76f0dab7d3da3857981344c557ac5b36824f06fa0",
+      "bytes": 11233,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/daemon-observation-d06-old-project.json",
+      "object": "objects/e70cb8ec0daff2d389583cd04add37331cf95167bc8f94eb3a86baaf68a0e678",
+      "sha256": "e70cb8ec0daff2d389583cd04add37331cf95167bc8f94eb3a86baaf68a0e678",
+      "bytes": 15636,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/daemon-d05.raw",
+      "object": "objects/4aa3d975223e560cd09b0e892afe1ade0ff041ed9df5958cea1e664e68aba259",
+      "sha256": "4aa3d975223e560cd09b0e892afe1ade0ff041ed9df5958cea1e664e68aba259",
+      "bytes": 3523,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/daemon-d06.raw",
+      "object": "objects/396f7a5931f22a577b40f68e50d5bc3cff994cf668d591a947a8c55b96f7872e",
+      "sha256": "396f7a5931f22a577b40f68e50d5bc3cff994cf668d591a947a8c55b96f7872e",
+      "bytes": 4373,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/final-D-report.py",
+      "object": "objects/e1bc7957018c578b96bf4fddc5afa2a233126f08cd96941b7d574ca90e2449aa",
+      "sha256": "e1bc7957018c578b96bf4fddc5afa2a233126f08cd96941b7d574ca90e2449aa",
+      "bytes": 4711,
+      "purpose": "author frozen inputs, failure provenance, resource boundary or evidence driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix01-account-cleanup/finding.txt",
+      "object": "objects/a440eb7ab025b466b041269f61a5c6ce4cb19e6955846eaec79f5d10d0543da7",
+      "sha256": "a440eb7ab025b466b041269f61a5c6ce4cb19e6955846eaec79f5d10d0543da7",
+      "bytes": 501,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix01-account-cleanup/fixture-before.go.txt",
+      "object": "objects/5e353074da1e561be47a06b5716c7b1eb97ea1cd18811a087dae24f59ee8ccbc",
+      "sha256": "5e353074da1e561be47a06b5716c7b1eb97ea1cd18811a087dae24f59ee8ccbc",
+      "bytes": 16661,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix01-account-cleanup/fixture-v02.go.txt",
+      "object": "objects/f5b9cdc0f264be254e86d3f03911d2e28b33549bd5bc7f3a581cb27644f9687d",
+      "sha256": "f5b9cdc0f264be254e86d3f03911d2e28b33549bd5bc7f3a581cb27644f9687d",
+      "bytes": 17137,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix01-account-cleanup/force-done-finding.txt",
+      "object": "objects/a2da16cd45c1873f5dfe63fd0b8e0d84429abcef44d9a09b9511358e2af06c76",
+      "sha256": "a2da16cd45c1873f5dfe63fd0b8e0d84429abcef44d9a09b9511358e2af06c76",
+      "bytes": 418,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix02-integration-expectations/finding.txt",
+      "object": "objects/ad9439ea7894dbffa51815c21958762b1dfdd99a572ecfa025bfb0deaf0c7372",
+      "sha256": "ad9439ea7894dbffa51815c21958762b1dfdd99a572ecfa025bfb0deaf0c7372",
+      "bytes": 510,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix02-integration-expectations/preimages.json",
+      "object": "objects/3711ca44d560bfe78727b41e3dc4b920389842d33d6e392d613219392023b819",
+      "sha256": "3711ca44d560bfe78727b41e3dc4b920389842d33d6e392d613219392023b819",
+      "bytes": 319,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix02-integration-expectations/project_usage_http_root_test.go.v03.txt",
+      "object": "objects/c42aad9caec87cf1cbe0ae03871d8e53638915fc1c0021bd618dd58cf1982f23",
+      "sha256": "c42aad9caec87cf1cbe0ae03871d8e53638915fc1c0021bd618dd58cf1982f23",
+      "bytes": 8326,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix02-integration-expectations/project_usage_http_terminal_test.go.v03.txt",
+      "object": "objects/a611d3365472451f2c1971ccad906608782bc385e534cc85aef76dbfe882c83f",
+      "sha256": "a611d3365472451f2c1971ccad906608782bc385e534cc85aef76dbfe882c83f",
+      "bytes": 9525,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix03-diagnostic-headers/finding.txt",
+      "object": "objects/c12a18774bd9f1f2e2da29df1a03b8a0d86f003e0e85060cba335dfb864d10f7",
+      "sha256": "c12a18774bd9f1f2e2da29df1a03b8a0d86f003e0e85060cba335dfb864d10f7",
+      "bytes": 358,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/fix03-diagnostic-headers/project_usage_http_root_test.go.v04.txt",
+      "object": "objects/6cde783dda1028a7dd8eaf736fac0cd79e33a419ddbd8d07d60706b20f572bfc",
+      "sha256": "6cde783dda1028a7dd8eaf736fac0cd79e33a419ddbd8d07d60706b20f572bfc",
+      "bytes": 8904,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/input01/internal/central/app/account.go",
+      "object": "objects/e1e883139320fbeab95b419407732d3d20adde79ff5325db44eb4fa8529b6aca",
+      "sha256": "e1e883139320fbeab95b419407732d3d20adde79ff5325db44eb4fa8529b6aca",
+      "bytes": 14540,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/input01/internal/central/app/project_usage.go",
+      "object": "objects/445282c0253cdc754f9fb2ca333d98768df85c38e87414edbd823e4783a32c4d",
+      "sha256": "445282c0253cdc754f9fb2ca333d98768df85c38e87414edbd823e4783a32c4d",
+      "bytes": 2695,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/input01/internal/central/app/project_usage_test.go",
+      "object": "objects/6d49cad48ffe57d5ad8b127545fee71a7f3fb81eac0c4cbe94d050bbd650cf8f",
+      "sha256": "6d49cad48ffe57d5ad8b127545fee71a7f3fb81eac0c4cbe94d050bbd650cf8f",
+      "bytes": 6884,
+      "purpose": "original failed author source or finding; preserved as data"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/check-owned-tail.py",
+      "object": "objects/1ee4a28f35dafc477fe09497f8a56e5c29b36836ef640964426d93475131b00c",
+      "sha256": "1ee4a28f35dafc477fe09497f8a56e5c29b36836ef640964426d93475131b00c",
+      "bytes": 1362,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/check-watchdog.py",
+      "object": "objects/713313da9310d0f55e20aff5fde64dcadca80371a613a458dd41b91207da7f09",
+      "sha256": "713313da9310d0f55e20aff5fde64dcadca80371a613a458dd41b91207da7f09",
+      "bytes": 2558,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/driver.py",
+      "object": "objects/3fa57c6ec1ee106e433cbca2cb446ef2938590debca8e89828e4389c2c31aad6",
+      "sha256": "3fa57c6ec1ee106e433cbca2cb446ef2938590debca8e89828e4389c2c31aad6",
+      "bytes": 24278,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/freeze-driver.py",
+      "object": "objects/1f454b383a301c0c01e14cfb0b23e15ab3ae43c6347f64dc34a3c28cdbb8d0bd",
+      "sha256": "1f454b383a301c0c01e14cfb0b23e15ab3ae43c6347f64dc34a3c28cdbb8d0bd",
+      "bytes": 1361,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/frozen.json",
+      "object": "objects/766ee9ce9fa9640aacca2b4664647a7f995b55c4de893030e8737cb556902cc5",
+      "sha256": "766ee9ce9fa9640aacca2b4664647a7f995b55c4de893030e8737cb556902cc5",
+      "bytes": 12138,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/tail-proof.json",
+      "object": "objects/cb164e200da8578a25d02a93f2ddd3f68f90efc716d13e0ee637c5c320d597ad",
+      "sha256": "cb164e200da8578a25d02a93f2ddd3f68f90efc716d13e0ee637c5c320d597ad",
+      "bytes": 337,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/check-docker-read.py",
+      "object": "objects/e651285004f326999ec13def5751864176d54880c2a67a25ee21da3dd05d4db1",
+      "sha256": "e651285004f326999ec13def5751864176d54880c2a67a25ee21da3dd05d4db1",
+      "bytes": 881,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/driver.py",
+      "object": "objects/c311b188922f242093e952b1bcd6dca479714fc996d37a6fd29b5b2be32aea3d",
+      "sha256": "c311b188922f242093e952b1bcd6dca479714fc996d37a6fd29b5b2be32aea3d",
+      "bytes": 24603,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/freeze-driver.py",
+      "object": "objects/451fcec20a09b9a6f310aebdb3037ba391d707ed7d65276c19ff0b1472491b8a",
+      "sha256": "451fcec20a09b9a6f310aebdb3037ba391d707ed7d65276c19ff0b1472491b8a",
+      "bytes": 1609,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/from-v02.diff",
+      "object": "objects/5800668cdccd84eb3e201fc4d8392ee719bdb46e717fc5688d0802e4b0eb31c2",
+      "sha256": "5800668cdccd84eb3e201fc4d8392ee719bdb46e717fc5688d0802e4b0eb31c2",
+      "bytes": 4587,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/frozen.json",
+      "object": "objects/a75f0dccf661f2bec9f53d74982afa8a6c59574da1611fe23fe00cbf8d4e75cc",
+      "sha256": "a75f0dccf661f2bec9f53d74982afa8a6c59574da1611fe23fe00cbf8d4e75cc",
+      "bytes": 12394,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/check-affected.py",
+      "object": "objects/d86f518ffc78d7ebe27fb6b7e4aa959f1c7bc5172871d9dfce08e03734fc897c",
+      "sha256": "d86f518ffc78d7ebe27fb6b7e4aa959f1c7bc5172871d9dfce08e03734fc897c",
+      "bytes": 1666,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/driver.py",
+      "object": "objects/8eec74f78f8e9d69e7aae19ead06de2f4a88175670a4aeccd7246fd350030b5b",
+      "sha256": "8eec74f78f8e9d69e7aae19ead06de2f4a88175670a4aeccd7246fd350030b5b",
+      "bytes": 24724,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/freeze-driver.py",
+      "object": "objects/c608a7d03a78eec68131904110b5f5e9b8a844752fdd92e6eb59a3b9f3081f62",
+      "sha256": "c608a7d03a78eec68131904110b5f5e9b8a844752fdd92e6eb59a3b9f3081f62",
+      "bytes": 1749,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/from-v03.diff",
+      "object": "objects/35ca6a58f9a03cf3b17bb5d05449cc237753a20f2dee66b1a4ec455e1b2fba3b",
+      "sha256": "35ca6a58f9a03cf3b17bb5d05449cc237753a20f2dee66b1a4ec455e1b2fba3b",
+      "bytes": 1415,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/frozen.json",
+      "object": "objects/0c65df6f3a1d21aeebc7b8ad7512dc7faf288c6eead8661221ea5ca10b020f75",
+      "sha256": "0c65df6f3a1d21aeebc7b8ad7512dc7faf288c6eead8661221ea5ca10b020f75",
+      "bytes": 12659,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/check-root.py",
+      "object": "objects/5299234515e015bd5515803f14d8a8589c24a333bdf9a7933a6dcc24fb79caf2",
+      "sha256": "5299234515e015bd5515803f14d8a8589c24a333bdf9a7933a6dcc24fb79caf2",
+      "bytes": 1483,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/driver.py",
+      "object": "objects/6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "sha256": "6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "bytes": 24796,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/freeze-driver.py",
+      "object": "objects/7775c0b14607f1eb4e3478624b18bab10ea942b1abfd099f1c2c9a6a5b42fca1",
+      "sha256": "7775c0b14607f1eb4e3478624b18bab10ea942b1abfd099f1c2c9a6a5b42fca1",
+      "bytes": 1775,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/from-v04.diff",
+      "object": "objects/52a4d61b41964b035e2f0426c4b75e954f7b477a6fb2a5bcceb846f8c4110943",
+      "sha256": "52a4d61b41964b035e2f0426c4b75e954f7b477a6fb2a5bcceb846f8c4110943",
+      "bytes": 1376,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/frozen.json",
+      "object": "objects/b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "sha256": "b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "bytes": 12756,
+      "purpose": "versioned real-run driver, freeze or applicable gate proof"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v01/check-watchdog.py",
+      "object": "objects/713313da9310d0f55e20aff5fde64dcadca80371a613a458dd41b91207da7f09",
+      "sha256": "713313da9310d0f55e20aff5fde64dcadca80371a613a458dd41b91207da7f09",
+      "bytes": 2558,
+      "purpose": "original pre-tail-repair driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v01/driver.py",
+      "object": "objects/33072e606656e27641fff1bd2bc26c7e388b7892ff0edef18fea4e1fbcc26c9a",
+      "sha256": "33072e606656e27641fff1bd2bc26c7e388b7892ff0edef18fea4e1fbcc26c9a",
+      "bytes": 22508,
+      "purpose": "original pre-tail-repair driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v01/frozen.json",
+      "object": "objects/94454583f6e7a02e9f2bdd61f7a9cddbe1b2beb5487ba2d9fe9d253899e8fead",
+      "sha256": "94454583f6e7a02e9f2bdd61f7a9cddbe1b2beb5487ba2d9fe9d253899e8fead",
+      "bytes": 11948,
+      "purpose": "original pre-tail-repair driver"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/disk-preflight.json",
+      "object": "objects/870d348f014a525d33abb4b8b313c80b528495dd9e7553fb16f3b6d21ceae133",
+      "sha256": "870d348f014a525d33abb4b8b313c80b528495dd9e7553fb16f3b6d21ceae133",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/driver.py.txt",
+      "object": "objects/3fa57c6ec1ee106e433cbca2cb446ef2938590debca8e89828e4389c2c31aad6",
+      "sha256": "3fa57c6ec1ee106e433cbca2cb446ef2938590debca8e89828e4389c2c31aad6",
+      "bytes": 24278,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/frozen-input.json",
+      "object": "objects/766ee9ce9fa9640aacca2b4664647a7f995b55c4de893030e8737cb556902cc5",
+      "sha256": "766ee9ce9fa9640aacca2b4664647a7f995b55c4de893030e8737cb556902cc5",
+      "bytes": 12138,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/input-before.json",
+      "object": "objects/136a9e3a983f6210c16941277be406d43710589bf62b2ba974a509f41f102cc2",
+      "sha256": "136a9e3a983f6210c16941277be406d43710589bf62b2ba974a509f41f102cc2",
+      "bytes": 563,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/launch.raw",
+      "object": "objects/1695e59daa6d2fb7fe468ad37ff3653c9b0ac630ebd3588005e414d5d479c996",
+      "sha256": "1695e59daa6d2fb7fe468ad37ff3653c9b0ac630ebd3588005e414d5d479c996",
+      "bytes": 1720,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/pre-spawn-failure.json",
+      "object": "objects/af3be3c4049203e8ac470eda163d594cc7742cfbf94cffe016ff9e467438af7a",
+      "sha256": "af3be3c4049203e8ac470eda163d594cc7742cfbf94cffe016ff9e467438af7a",
+      "bytes": 582,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/process-baseline.json",
+      "object": "objects/2533d2281d3635d5c6c07e5b6c1d00bb82e94861457f527b8ae130ebf7f26477",
+      "sha256": "2533d2281d3635d5c6c07e5b6c1d00bb82e94861457f527b8ae130ebf7f26477",
+      "bytes": 3745,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/verification-input.json",
+      "object": "objects/a6be151b7055e078d36b6de2ddbef346b29d228d402e556643872dfccbe933a6",
+      "sha256": "a6be151b7055e078d36b6de2ddbef346b29d228d402e556643872dfccbe933a6",
+      "bytes": 183,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/adopted-waits.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/baseline.json",
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/cancellation.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/cleanup.json",
+      "object": "objects/507018e5df336caa73129e9027ce418efe68bdccdf82b941bdb66054ebc70727",
+      "sha256": "507018e5df336caa73129e9027ce418efe68bdccdf82b941bdb66054ebc70727",
+      "bytes": 1905,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/command.json",
+      "object": "objects/8c11c08314ca1217a42d7e0c3c560fcda7e93f290c0a0fc01d2105ef50a5cc1d",
+      "sha256": "8c11c08314ca1217a42d7e0c3c560fcda7e93f290c0a0fc01d2105ef50a5cc1d",
+      "bytes": 2044,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/disk-before-spawn.json",
+      "object": "objects/5a355693f68b690ffea06f5a9767bbfdf090a440828da3ab9745c7af74c09399",
+      "sha256": "5a355693f68b690ffea06f5a9767bbfdf090a440828da3ab9745c7af74c09399",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/disk-preflight.json",
+      "object": "objects/6a82579aa5148a1fbf8e3923e613771c4a8deea4bca36d26e4b028457cf429c7",
+      "sha256": "6a82579aa5148a1fbf8e3923e613771c4a8deea4bca36d26e4b028457cf429c7",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/driver.py.txt",
+      "object": "objects/c311b188922f242093e952b1bcd6dca479714fc996d37a6fd29b5b2be32aea3d",
+      "sha256": "c311b188922f242093e952b1bcd6dca479714fc996d37a6fd29b5b2be32aea3d",
+      "bytes": 24603,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/frozen-input.json",
+      "object": "objects/a75f0dccf661f2bec9f53d74982afa8a6c59574da1611fe23fe00cbf8d4e75cc",
+      "sha256": "a75f0dccf661f2bec9f53d74982afa8a6c59574da1611fe23fe00cbf8d4e75cc",
+      "bytes": 12394,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/input-after.json",
+      "object": "objects/e4a9751ba81ef483d828bef1e8cb5449b5a532849880f7142f6166ebc9b75366",
+      "sha256": "e4a9751ba81ef483d828bef1e8cb5449b5a532849880f7142f6166ebc9b75366",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/input-before.json",
+      "object": "objects/e4a9751ba81ef483d828bef1e8cb5449b5a532849880f7142f6166ebc9b75366",
+      "sha256": "e4a9751ba81ef483d828bef1e8cb5449b5a532849880f7142f6166ebc9b75366",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/monitor-errors.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/observed-processes.json",
+      "object": "objects/322a0b2a8d9460f19bd13a14f15cfa809f6ca17c0694f6d1c4a62c23eba16269",
+      "sha256": "322a0b2a8d9460f19bd13a14f15cfa809f6ca17c0694f6d1c4a62c23eba16269",
+      "bytes": 16611,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/observed-resources.json",
+      "object": "objects/870fbc492522160aa5e95ceb2507803a623dd751eb621206ebb195f849e192cd",
+      "sha256": "870fbc492522160aa5e95ceb2507803a623dd751eb621206ebb195f849e192cd",
+      "bytes": 4992,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/owned-tail-retirement.json",
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/process-baseline.json",
+      "object": "objects/2391ddb60eb06e0ecd13bf062a7c2e949b22597a0b961a394ffaa58bae54e8ec",
+      "sha256": "2391ddb60eb06e0ecd13bf062a7c2e949b22597a0b961a394ffaa58bae54e8ec",
+      "bytes": 3745,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/raw.log",
+      "object": "objects/79ef77c08867745c9c7beddfe41bf35a5f65f2d45976a89c83f8e5cef5cd4c35",
+      "sha256": "79ef77c08867745c9c7beddfe41bf35a5f65f2d45976a89c83f8e5cef5cd4c35",
+      "bytes": 7586,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/result.json",
+      "object": "objects/cc3359b4bdb4af4302fe90d1ca266b7a528eda414bf07231ce8ce66e68318fa8",
+      "sha256": "cc3359b4bdb4af4302fe90d1ca266b7a528eda414bf07231ce8ce66e68318fa8",
+      "bytes": 2723,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/verification-input.json",
+      "object": "objects/5abf04fde6959a3ff034379d3cc538911947f46c4a12424df2261d1f37249b0f",
+      "sha256": "5abf04fde6959a3ff034379d3cc538911947f46c4a12424df2261d1f37249b0f",
+      "bytes": 183,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/watchdog.json",
+      "object": "objects/bc1b5396b7094d67b88d15dd0513491eedbb97adc687dcdb37dcee0b27fbfa1f",
+      "sha256": "bc1b5396b7094d67b88d15dd0513491eedbb97adc687dcdb37dcee0b27fbfa1f",
+      "bytes": 1342,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/adopted-waits.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/baseline.json",
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/cancellation.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/cleanup.json",
+      "object": "objects/73678381d85033d92bcde203d57be015eebcf36eb9061db7bc869ea255f9cfcf",
+      "sha256": "73678381d85033d92bcde203d57be015eebcf36eb9061db7bc869ea255f9cfcf",
+      "bytes": 1905,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/command.json",
+      "object": "objects/89090204e13511a339804b2510820a25fa5340aac1f7e1b782a5faa9552aef64",
+      "sha256": "89090204e13511a339804b2510820a25fa5340aac1f7e1b782a5faa9552aef64",
+      "bytes": 2011,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/disk-before-spawn.json",
+      "object": "objects/28fe303b01e452dcd371af108ed3f2920f6c7050801b744247e451fbd7e0cbf7",
+      "sha256": "28fe303b01e452dcd371af108ed3f2920f6c7050801b744247e451fbd7e0cbf7",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/disk-preflight.json",
+      "object": "objects/67b05b7ceee14e7a4656a7e4c0b45565e39468928b3a6ebd28b1a493095f42be",
+      "sha256": "67b05b7ceee14e7a4656a7e4c0b45565e39468928b3a6ebd28b1a493095f42be",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/driver.py.txt",
+      "object": "objects/8eec74f78f8e9d69e7aae19ead06de2f4a88175670a4aeccd7246fd350030b5b",
+      "sha256": "8eec74f78f8e9d69e7aae19ead06de2f4a88175670a4aeccd7246fd350030b5b",
+      "bytes": 24724,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/frozen-input.json",
+      "object": "objects/0c65df6f3a1d21aeebc7b8ad7512dc7faf288c6eead8661221ea5ca10b020f75",
+      "sha256": "0c65df6f3a1d21aeebc7b8ad7512dc7faf288c6eead8661221ea5ca10b020f75",
+      "bytes": 12659,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/input-after.json",
+      "object": "objects/50eaa04b7b6d41785346f44e532569c60f2565b891d92e660e3ee1a79cd4f510",
+      "sha256": "50eaa04b7b6d41785346f44e532569c60f2565b891d92e660e3ee1a79cd4f510",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/input-before.json",
+      "object": "objects/50eaa04b7b6d41785346f44e532569c60f2565b891d92e660e3ee1a79cd4f510",
+      "sha256": "50eaa04b7b6d41785346f44e532569c60f2565b891d92e660e3ee1a79cd4f510",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/monitor-errors.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/observed-processes.json",
+      "object": "objects/24334635114d4d4d3ddda92aeb039649958914c05d7bef9f7c008468f7314159",
+      "sha256": "24334635114d4d4d3ddda92aeb039649958914c05d7bef9f7c008468f7314159",
+      "bytes": 14420,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/observed-resources.json",
+      "object": "objects/183b492ee52301e968cfd4b60ca08bf3cc49830f1fd811b022e2368d912f1b89",
+      "sha256": "183b492ee52301e968cfd4b60ca08bf3cc49830f1fd811b022e2368d912f1b89",
+      "bytes": 5021,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/owned-tail-retirement.json",
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/process-baseline.json",
+      "object": "objects/c219514bc463145c6f19339f8b36a86271eb96ab07fc3df59f8340608357ab50",
+      "sha256": "c219514bc463145c6f19339f8b36a86271eb96ab07fc3df59f8340608357ab50",
+      "bytes": 4265,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/raw.log",
+      "object": "objects/83e6b6e46eab9bb2d9415797779d34fd97800fe72b2152938e705acc6ce5d2f5",
+      "sha256": "83e6b6e46eab9bb2d9415797779d34fd97800fe72b2152938e705acc6ce5d2f5",
+      "bytes": 7062,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/result.json",
+      "object": "objects/c7e66c35a22166b41b285cbdd80965bb5d4f0b4f48c0a3b049199258554a464f",
+      "sha256": "c7e66c35a22166b41b285cbdd80965bb5d4f0b4f48c0a3b049199258554a464f",
+      "bytes": 3274,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/verification-input.json",
+      "object": "objects/e04580acfd20d01fc699406e4bae1b24b70fc78d4f11d1c796884dd0516cfb6e",
+      "sha256": "e04580acfd20d01fc699406e4bae1b24b70fc78d4f11d1c796884dd0516cfb6e",
+      "bytes": 183,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/watchdog.json",
+      "object": "objects/4c34388448abdbf6e27428ffbbfb4253dc0dc237e831e329e34f853f2ff2de3f",
+      "sha256": "4c34388448abdbf6e27428ffbbfb4253dc0dc237e831e329e34f853f2ff2de3f",
+      "bytes": 931,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/adopted-waits.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/baseline.json",
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/cancellation.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/cleanup.json",
+      "object": "objects/e80a8ddebb951d48661f4481816d4b82bc777f98e23be531339501211bd5f7f9",
+      "sha256": "e80a8ddebb951d48661f4481816d4b82bc777f98e23be531339501211bd5f7f9",
+      "bytes": 1905,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/command.json",
+      "object": "objects/345256d6c88279288bbb6192eed89993a216f36bd7854c9fad74e0ed52ad66fb",
+      "sha256": "345256d6c88279288bbb6192eed89993a216f36bd7854c9fad74e0ed52ad66fb",
+      "bytes": 1962,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/disk-before-spawn.json",
+      "object": "objects/e70d9963b6854b6bd10519c04fa9d234d0a5cffa00796956302eb406513cf9cb",
+      "sha256": "e70d9963b6854b6bd10519c04fa9d234d0a5cffa00796956302eb406513cf9cb",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/disk-preflight.json",
+      "object": "objects/ebcb2fe0d4acf686505e3d10c04647247ce8d887a14e2e2dc2807951ebd9a7a2",
+      "sha256": "ebcb2fe0d4acf686505e3d10c04647247ce8d887a14e2e2dc2807951ebd9a7a2",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/driver.py.txt",
+      "object": "objects/6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "sha256": "6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "bytes": 24796,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/frozen-input.json",
+      "object": "objects/b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "sha256": "b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "bytes": 12756,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/input-after.json",
+      "object": "objects/2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "sha256": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/input-before.json",
+      "object": "objects/2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "sha256": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/monitor-errors.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/observed-processes.json",
+      "object": "objects/59c8edbf2c1578e2e0c06711eac5462bb4a7400a29d1b6d5f5f3b03bdde10f1f",
+      "sha256": "59c8edbf2c1578e2e0c06711eac5462bb4a7400a29d1b6d5f5f3b03bdde10f1f",
+      "bytes": 14057,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/observed-resources.json",
+      "object": "objects/87fa93e141bc774967be2cbecdef7ba5f2e8c6d1112392a7190ced1dd7751d50",
+      "sha256": "87fa93e141bc774967be2cbecdef7ba5f2e8c6d1112392a7190ced1dd7751d50",
+      "bytes": 5003,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/owned-tail-retirement.json",
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/process-baseline.json",
+      "object": "objects/0e483260b1b3a68d8ed3838a73f1a4adf9afa24e0de696f60bf634a3f54d0a4e",
+      "sha256": "0e483260b1b3a68d8ed3838a73f1a4adf9afa24e0de696f60bf634a3f54d0a4e",
+      "bytes": 4786,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/raw.log",
+      "object": "objects/3077d9afef8814843c1bbd9c1fe6d199df85ebabb2cd12a77d02e85be76a69e3",
+      "sha256": "3077d9afef8814843c1bbd9c1fe6d199df85ebabb2cd12a77d02e85be76a69e3",
+      "bytes": 3862,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/result.json",
+      "object": "objects/63bc0379196c961a7f429e8b49e34819ea367d0be1d3f245e8fbaf330d51f77c",
+      "sha256": "63bc0379196c961a7f429e8b49e34819ea367d0be1d3f245e8fbaf330d51f77c",
+      "bytes": 3804,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/verification-input.json",
+      "object": "objects/4d533fbba8c9d3485e3238c94d01be75567a700db86f51a947f518b7f91a2dc3",
+      "sha256": "4d533fbba8c9d3485e3238c94d01be75567a700db86f51a947f518b7f91a2dc3",
+      "bytes": 183,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/watchdog.json",
+      "object": "objects/24e6524a290fd655d883c4a6329530c02881f1eaf3a469e4c18698d1d67b5e25",
+      "sha256": "24e6524a290fd655d883c4a6329530c02881f1eaf3a469e4c18698d1d67b5e25",
+      "bytes": 513,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/adopted-waits.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/baseline.json",
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/cancellation.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/cleanup.json",
+      "object": "objects/d5dc60bfefc1d428bcc83a0dbeed5f5bdf44f8e7c7f7b1c94fc0c7fb1fae27d5",
+      "sha256": "d5dc60bfefc1d428bcc83a0dbeed5f5bdf44f8e7c7f7b1c94fc0c7fb1fae27d5",
+      "bytes": 1905,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/command.json",
+      "object": "objects/d5efece3374d4e7b1dd5d709166991266d249d2b0abe512ea3376f2784f29982",
+      "sha256": "d5efece3374d4e7b1dd5d709166991266d249d2b0abe512ea3376f2784f29982",
+      "bytes": 2080,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/disk-before-spawn.json",
+      "object": "objects/ba32bc8da82afc5b216d9648484e199ca3cce8e22419342897ae16a0fd182e25",
+      "sha256": "ba32bc8da82afc5b216d9648484e199ca3cce8e22419342897ae16a0fd182e25",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/disk-preflight.json",
+      "object": "objects/43d141fb074960001b29b8c631c8d6031fc9d18328dcaaba08bca1c13e8786df",
+      "sha256": "43d141fb074960001b29b8c631c8d6031fc9d18328dcaaba08bca1c13e8786df",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/driver.py.txt",
+      "object": "objects/6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "sha256": "6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "bytes": 24796,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/frozen-input.json",
+      "object": "objects/b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "sha256": "b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "bytes": 12756,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/input-after.json",
+      "object": "objects/2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "sha256": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/input-before.json",
+      "object": "objects/2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "sha256": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/monitor-errors.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/observed-processes.json",
+      "object": "objects/4c90ffaa41134af580bd02b96537ba568f4f3b402333a822efa2d94b39da6c70",
+      "sha256": "4c90ffaa41134af580bd02b96537ba568f4f3b402333a822efa2d94b39da6c70",
+      "bytes": 14390,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/observed-resources.json",
+      "object": "objects/4137f88af4f90aa8d01d2fd0c6d791745c11a993916a6bd1ae605ef8b1eed566",
+      "sha256": "4137f88af4f90aa8d01d2fd0c6d791745c11a993916a6bd1ae605ef8b1eed566",
+      "bytes": 5022,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/owned-tail-retirement.json",
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/process-baseline.json",
+      "object": "objects/4ba5b8112ee0eb3864a38f3fc7e7c0be1c0546dbc0c6add848a479d734a427a9",
+      "sha256": "4ba5b8112ee0eb3864a38f3fc7e7c0be1c0546dbc0c6add848a479d734a427a9",
+      "bytes": 5310,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/raw.log",
+      "object": "objects/46866e8d8d945b0dd1d00b30f8836d8dea5605517b7eaa95158d2bc9e3e9c4dc",
+      "sha256": "46866e8d8d945b0dd1d00b30f8836d8dea5605517b7eaa95158d2bc9e3e9c4dc",
+      "bytes": 10456,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/result.json",
+      "object": "objects/db3f66a958a3a945e85a9288bdafd3f04f7702b28f8603def0a9dfa9b2f51aa8",
+      "sha256": "db3f66a958a3a945e85a9288bdafd3f04f7702b28f8603def0a9dfa9b2f51aa8",
+      "bytes": 4651,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/verification-input.json",
+      "object": "objects/4d533fbba8c9d3485e3238c94d01be75567a700db86f51a947f518b7f91a2dc3",
+      "sha256": "4d533fbba8c9d3485e3238c94d01be75567a700db86f51a947f518b7f91a2dc3",
+      "bytes": 183,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/watchdog.json",
+      "object": "objects/58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "bytes": 118,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/adopted-waits.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/baseline.json",
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/cancellation.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/cleanup.json",
+      "object": "objects/a91021978e0df3d5438c915e9b78966cfc4e7ee5805c80481080dfe4dbc48c4f",
+      "sha256": "a91021978e0df3d5438c915e9b78966cfc4e7ee5805c80481080dfe4dbc48c4f",
+      "bytes": 1905,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/command.json",
+      "object": "objects/1e6c6cfd5779db944264e0e20d859cbae7837ce2f5f702f90e467f83fc940831",
+      "sha256": "1e6c6cfd5779db944264e0e20d859cbae7837ce2f5f702f90e467f83fc940831",
+      "bytes": 2037,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/disk-before-spawn.json",
+      "object": "objects/718f79995f4f233f2ad580da42fcab706cfdcfb3655132bddb6bbf55ad2a05c8",
+      "sha256": "718f79995f4f233f2ad580da42fcab706cfdcfb3655132bddb6bbf55ad2a05c8",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/disk-preflight.json",
+      "object": "objects/0689ddfba2810e8528fb83c690d0bb9bbf0148924f08e35e5bc73eb86201e321",
+      "sha256": "0689ddfba2810e8528fb83c690d0bb9bbf0148924f08e35e5bc73eb86201e321",
+      "bytes": 177,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/driver.py.txt",
+      "object": "objects/6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "sha256": "6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39",
+      "bytes": 24796,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/frozen-input.json",
+      "object": "objects/b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "sha256": "b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df",
+      "bytes": 12756,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/input-after.json",
+      "object": "objects/2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "sha256": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/input-before.json",
+      "object": "objects/2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "sha256": "2fe51bb2354b1ce139b2826992b9b33606733917adbb97e3ad57179a0753d0cc",
+      "bytes": 601,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/monitor-errors.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/observed-processes.json",
+      "object": "objects/eebfbf013dd20ab3c56f7caa8140e2bb1a1e1bebda34c2e7169dd9a2f3eb2fe5",
+      "sha256": "eebfbf013dd20ab3c56f7caa8140e2bb1a1e1bebda34c2e7169dd9a2f3eb2fe5",
+      "bytes": 13595,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/observed-resources.json",
+      "object": "objects/db452dfd93574778f86156d9d9ae80328d8189c6e976073a69a6bb03f8a439b6",
+      "sha256": "db452dfd93574778f86156d9d9ae80328d8189c6e976073a69a6bb03f8a439b6",
+      "bytes": 5038,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/owned-tail-retirement.json",
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/process-baseline.json",
+      "object": "objects/1c2ff893009d89936df83179c29ef3f5a547e72e30b6200daa3aa84f380904b4",
+      "sha256": "1c2ff893009d89936df83179c29ef3f5a547e72e30b6200daa3aa84f380904b4",
+      "bytes": 5834,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/raw.log",
+      "object": "objects/6dccabac681d6f23f7d00021ce1ef40ebba5f5b0d85b62e735d57bfedebf10b6",
+      "sha256": "6dccabac681d6f23f7d00021ce1ef40ebba5f5b0d85b62e735d57bfedebf10b6",
+      "bytes": 3799,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/result.json",
+      "object": "objects/78ab4ecb8b911ebde7396b7ea1cd0ea3ca62c7f7d6436994c76de06eb2df19f3",
+      "sha256": "78ab4ecb8b911ebde7396b7ea1cd0ea3ca62c7f7d6436994c76de06eb2df19f3",
+      "bytes": 5162,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/verification-input.json",
+      "object": "objects/4d533fbba8c9d3485e3238c94d01be75567a700db86f51a947f518b7f91a2dc3",
+      "sha256": "4d533fbba8c9d3485e3238c94d01be75567a700db86f51a947f518b7f91a2dc3",
+      "bytes": 183,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d06-old-project/watchdog.json",
+      "object": "objects/58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "bytes": 118,
+      "purpose": "actual author launch, command, input, output, wait, resource and cleanup record"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c02-app-compile/command.json",
+      "object": "objects/cabcaa2a8beded30d087e6d2764ab259dd42dada17075a2ec39176c70da1c1d8",
+      "sha256": "cabcaa2a8beded30d087e6d2764ab259dd42dada17075a2ec39176c70da1c1d8",
+      "bytes": 5434,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c02-app-compile/raw.log",
+      "object": "objects/7af2f7740c5adff4d7e53a6719de7e656f4781f3bf01d51eec744bcb22af4986",
+      "sha256": "7af2f7740c5adff4d7e53a6719de7e656f4781f3bf01d51eec744bcb22af4986",
+      "bytes": 895,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c03-app-compile/command.json",
+      "object": "objects/a27aaeac8fc43d5739c82cf0d0a0922091e6e0bf52cfc7be469557b7fc57c0b8",
+      "sha256": "a27aaeac8fc43d5739c82cf0d0a0922091e6e0bf52cfc7be469557b7fc57c0b8",
+      "bytes": 5435,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c03-app-compile/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c05-app-pure/command.json",
+      "object": "objects/6ea25d5c0218629761042d778dcb079602ddd5e77a5f8734ceed4804f956bd91",
+      "sha256": "6ea25d5c0218629761042d778dcb079602ddd5e77a5f8734ceed4804f956bd91",
+      "bytes": 5518,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c05-app-pure/raw.log",
+      "object": "objects/144a79fa0be303d75d8274893c2d417fe2e24f00d9d39f3c4d862ab3d4889b1b",
+      "sha256": "144a79fa0be303d75d8274893c2d417fe2e24f00d9d39f3c4d862ab3d4889b1b",
+      "bytes": 4019,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c09-app-old-pure/command.json",
+      "object": "objects/6c7f36aa1d69c4c3d473af76f47f2f3a71e8961222cb030ea4c48d803287d3b6",
+      "sha256": "6c7f36aa1d69c4c3d473af76f47f2f3a71e8961222cb030ea4c48d803287d3b6",
+      "bytes": 6601,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c09-app-old-pure/raw.log",
+      "object": "objects/66d6149058d4834ebe1f8d890b4ad64fe7349b7bf2e1ac849e7f30bf7dc3967a",
+      "sha256": "66d6149058d4834ebe1f8d890b4ad64fe7349b7bf2e1ac849e7f30bf7dc3967a",
+      "bytes": 30693,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c23-model-force-compile/command.json",
+      "object": "objects/df9cde70188a290d918f3203089809eef25ec8481093c41f36be853170fc0301",
+      "sha256": "df9cde70188a290d918f3203089809eef25ec8481093c41f36be853170fc0301",
+      "bytes": 6421,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c23-model-force-compile/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c24-model-force-vet/command.json",
+      "object": "objects/72da1b60bb581c67b2c9a80acd23bbcfd04c86401c8cf603c3ab6eb703dd4101",
+      "sha256": "72da1b60bb581c67b2c9a80acd23bbcfd04c86401c8cf603c3ab6eb703dd4101",
+      "bytes": 6335,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c24-model-force-vet/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c27-driver-v02-watchdog/command.json",
+      "object": "objects/f0867d080e46578396f61439e231557555af6c22158e88f5c684d293cf7507dd",
+      "sha256": "f0867d080e46578396f61439e231557555af6c22158e88f5c684d293cf7507dd",
+      "bytes": 6305,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c27-driver-v02-watchdog/raw.log",
+      "object": "objects/369ae90d60d4015861cabab86fa3c35e219a38983efe67a001bc2cc9691d1361",
+      "sha256": "369ae90d60d4015861cabab86fa3c35e219a38983efe67a001bc2cc9691d1361",
+      "bytes": 637,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c28-driver-v02-tail/command.json",
+      "object": "objects/f708c59b3232506924549e01ff4b5ebd1a7d642646a8f46a1df35df2a6c79879",
+      "sha256": "f708c59b3232506924549e01ff4b5ebd1a7d642646a8f46a1df35df2a6c79879",
+      "bytes": 6303,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c28-driver-v02-tail/raw.log",
+      "object": "objects/645a32d763331046327ff934b463b8e256518c4ccea7cf25349f634316151df5",
+      "sha256": "645a32d763331046327ff934b463b8e256518c4ccea7cf25349f634316151df5",
+      "bytes": 645,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c29-driver-v02-input/command.json",
+      "object": "objects/f54cf97decc19cb723e834998327fb38775a6a2710fba1bf5f755f6d86231ff2",
+      "sha256": "f54cf97decc19cb723e834998327fb38775a6a2710fba1bf5f755f6d86231ff2",
+      "bytes": 6461,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c29-driver-v02-input/raw.log",
+      "object": "objects/fd0dfa6db43b70bb8a7b3957a604c11e7376ce401a6927a1b77dd73e58fbc7af",
+      "sha256": "fd0dfa6db43b70bb8a7b3957a604c11e7376ce401a6927a1b77dd73e58fbc7af",
+      "bytes": 565,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c32-driver-v03-docker-read/command.json",
+      "object": "objects/80e6e3379a0ac4162db1e00e3c0a7c630d78bed3c9757beee935d5cc33f2a27c",
+      "sha256": "80e6e3379a0ac4162db1e00e3c0a7c630d78bed3c9757beee935d5cc33f2a27c",
+      "bytes": 6311,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c32-driver-v03-docker-read/raw.log",
+      "object": "objects/182abe06154eb37be0ac3735bf31c3ee9e05e05412134382ee62f11715314575",
+      "sha256": "182abe06154eb37be0ac3735bf31c3ee9e05e05412134382ee62f11715314575",
+      "bytes": 10622,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c33-model-v04-compile/command.json",
+      "object": "objects/8f15050723ebf7757671455620983d84d325022212c7a2d7d49730cebd94a09d",
+      "sha256": "8f15050723ebf7757671455620983d84d325022212c7a2d7d49730cebd94a09d",
+      "bytes": 6341,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c33-model-v04-compile/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c34-model-v04-vet/command.json",
+      "object": "objects/9f1b6408d7593a68ea683cf561dd79e25e18c0864c2cf04bf061049e9e3a5cf8",
+      "sha256": "9f1b6408d7593a68ea683cf561dd79e25e18c0864c2cf04bf061049e9e3a5cf8",
+      "bytes": 6333,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c34-model-v04-vet/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c36-driver-v04-affected/command.json",
+      "object": "objects/bbd7d1149be2fe70959e378671099b910ced07d54c5eef1edfe317f746886a7e",
+      "sha256": "bbd7d1149be2fe70959e378671099b910ced07d54c5eef1edfe317f746886a7e",
+      "bytes": 6304,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c36-driver-v04-affected/raw.log",
+      "object": "objects/6830031c832f6bf0b5dbf03f695393aba7d4ea1be251100c79755e2eb2dcf880",
+      "sha256": "6830031c832f6bf0b5dbf03f695393aba7d4ea1be251100c79755e2eb2dcf880",
+      "bytes": 378,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c37-model-v05-compile/command.json",
+      "object": "objects/bf055c60f817bdc8bb67545439c6d42a1219b24537d2bae6798c8b212ea08aa0",
+      "sha256": "bf055c60f817bdc8bb67545439c6d42a1219b24537d2bae6798c8b212ea08aa0",
+      "bytes": 6423,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c37-model-v05-compile/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c38-model-v05-vet/command.json",
+      "object": "objects/9107d572a50218376cd7d80c603de40face8861ad19fdecfd6c7cb52f2f7688b",
+      "sha256": "9107d572a50218376cd7d80c603de40face8861ad19fdecfd6c7cb52f2f7688b",
+      "bytes": 6337,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c38-model-v05-vet/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c39-driver-v05-input/command.json",
+      "object": "objects/cd2e002ef501d3c768e2f97370ff78f28f69d5bf0d7a6bab588530207132865b",
+      "sha256": "cd2e002ef501d3c768e2f97370ff78f28f69d5bf0d7a6bab588530207132865b",
+      "bytes": 6472,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c39-driver-v05-input/raw.log",
+      "object": "objects/929d78b9279ae43edf860b2e5f262951fd115140f49a071951beb0044f6bd95a",
+      "sha256": "929d78b9279ae43edf860b2e5f262951fd115140f49a071951beb0044f6bd95a",
+      "bytes": 601,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c40-driver-v05-root/command.json",
+      "object": "objects/6e8c3e03f0062a5b642f9658e642f67794b3679f244155e6c347589bc727739a",
+      "sha256": "6e8c3e03f0062a5b642f9658e642f67794b3679f244155e6c347589bc727739a",
+      "bytes": 6302,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c40-driver-v05-root/raw.log",
+      "object": "objects/8184b025e0d676942fb409ac0543caed7a5412633e57be738cc78d9e43d73693",
+      "sha256": "8184b025e0d676942fb409ac0543caed7a5412633e57be738cc78d9e43d73693",
+      "bytes": 327,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c42-final-diff/command.json",
+      "object": "objects/0229642a2d94e41c530aae6842446281b1988e3290baac0dbae25c2275ed32b6",
+      "sha256": "0229642a2d94e41c530aae6842446281b1988e3290baac0dbae25c2275ed32b6",
+      "bytes": 6168,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c42-final-diff/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "key offline gate or original failed compile; no real fixture execution"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/input.json",
+      "object": "objects/953a3e22f6fd17f5f4ff9a044f641577fbbd36378f23a29639b68b5b00160be5",
+      "sha256": "953a3e22f6fd17f5f4ff9a044f641577fbbd36378f23a29639b68b5b00160be5",
+      "bytes": 654,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/fixed-dependencies.json",
+      "object": "objects/28aca731b9b3b636210349ffd941ce6e5532c92c12110eee90e7686a2b3edb2d",
+      "sha256": "28aca731b9b3b636210349ffd941ce6e5532c92c12110eee90e7686a2b3edb2d",
+      "bytes": 3349,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/static-notes.md",
+      "object": "objects/d460361bdad3239a7ab8713897389a0d4ecc36e0accba98ee1f33325932e3bd6",
+      "sha256": "d460361bdad3239a7ab8713897389a0d4ecc36e0accba98ee1f33325932e3bd6",
+      "bytes": 5153,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/driver-v02-review.md",
+      "object": "objects/89e593ebb4f292aeb14ef99abca3c8446a518ae9116ea83dcc09b64179e9daa6",
+      "sha256": "89e593ebb4f292aeb14ef99abca3c8446a518ae9116ea83dcc09b64179e9daa6",
+      "bytes": 2729,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/driver-v03-review.json",
+      "object": "objects/3915cabe214de17e1d7614c3332d97b2da3a44bb85bbc964e98e66be4b096b55",
+      "sha256": "3915cabe214de17e1d7614c3332d97b2da3a44bb85bbc964e98e66be4b096b55",
+      "bytes": 809,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v03-review.json",
+      "object": "objects/5ab80275c790133697d9a10c7dcb7a99bea315bc274ab3d0dcc6a2dffa68638e",
+      "sha256": "5ab80275c790133697d9a10c7dcb7a99bea315bc274ab3d0dcc6a2dffa68638e",
+      "bytes": 1364,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v03-cleanup.diff",
+      "object": "objects/72c8da00d03c60b60c73a02be626ba0e43d74629e100da8eb4ad3fa5c2dd020d",
+      "sha256": "72c8da00d03c60b60c73a02be626ba0e43d74629e100da8eb4ad3fa5c2dd020d",
+      "bytes": 1241,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v04-review.json",
+      "object": "objects/51283779dbdd0063a08bc363d1ceca2d83207bafec745be5fc8208cb39cf7bcc",
+      "sha256": "51283779dbdd0063a08bc363d1ceca2d83207bafec745be5fc8208cb39cf7bcc",
+      "bytes": 1293,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v04-followup-diagnostics.json",
+      "object": "objects/ce7b5059a5e3e7bcd457dd7847b52e88b9e13f7da1472a55f71eb3cdbcb0f992",
+      "sha256": "ce7b5059a5e3e7bcd457dd7847b52e88b9e13f7da1472a55f71eb3cdbcb0f992",
+      "bytes": 811,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v04-project_usage_http_root_test.go.diff",
+      "object": "objects/300ab3d86ab04caaf250e27497c43df0263eeae9df3045d733137c8db01873a9",
+      "sha256": "300ab3d86ab04caaf250e27497c43df0263eeae9df3045d733137c8db01873a9",
+      "bytes": 1673,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v04-project_usage_http_terminal_test.go.diff",
+      "object": "objects/18045a1857c2c3189a6fcf5429eafacdc9b0a683db660db971e0cf3fc78f60af",
+      "sha256": "18045a1857c2c3189a6fcf5429eafacdc9b0a683db660db971e0cf3fc78f60af",
+      "bytes": 2039,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v05-review.json",
+      "object": "objects/bb09e6d7501d58bce593b4c82a7feeecb1af470d1adc669d5ca8f7abe0b436cc",
+      "sha256": "bb09e6d7501d58bce593b4c82a7feeecb1af470d1adc669d5ca8f7abe0b436cc",
+      "bytes": 717,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/v05-root.diff",
+      "object": "objects/6708fec919ad428ae22639f8250c0be59f94659fe16e488f05d00a6e0948e0a1",
+      "sha256": "6708fec919ad428ae22639f8250c0be59f94659fe16e488f05d00a6e0948e0a1",
+      "bytes": 1372,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/final-result.json",
+      "object": "objects/2202bcfc8c4ea0c67565792bfc8ca5e04646c907976665f8a9b14b3db1d7da48",
+      "sha256": "2202bcfc8c4ea0c67565792bfc8ca5e04646c907976665f8a9b14b3db1d7da48",
+      "bytes": 9735,
+      "purpose": "independent frozen input, review, version delta or actual final result"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/closure-original.py",
+      "object": "objects/37ddd4c568778d7a83cec7117b1dfd2f494088e3cddcc0ab607997c5e997068b",
+      "sha256": "37ddd4c568778d7a83cec7117b1dfd2f494088e3cddcc0ab607997c5e997068b",
+      "bytes": 2348,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/closure.py",
+      "object": "objects/5a408a14fd7cf1b99a9b2a02a58babed67b99af3a38dda9e03bc9e56fccfc90c",
+      "sha256": "5a408a14fd7cf1b99a9b2a02a58babed67b99af3a38dda9e03bc9e56fccfc90c",
+      "bytes": 2336,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/overlay.json",
+      "object": "objects/5cd4c5fd614571977b259332c0bb64724345ee5b078f5bb5cbbfe4c8e13d5193",
+      "sha256": "5cd4c5fd614571977b259332c0bb64724345ee5b078f5bb5cbbfe4c8e13d5193",
+      "bytes": 173,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/probe-original.go.txt",
+      "object": "objects/7c98bf4bef56d9b7e0831b080d6ffa8b64620410be95bc4bd66baa30ce88cb25",
+      "sha256": "7c98bf4bef56d9b7e0831b080d6ffa8b64620410be95bc4bd66baa30ce88cb25",
+      "bytes": 3773,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/result.json",
+      "object": "objects/52b06e32b7a9e2d74c90d95e414402f885ef454c6b90fc546da985bafd640c1b",
+      "sha256": "52b06e32b7a9e2d74c90d95e414402f885ef454c6b90fc546da985bafd640c1b",
+      "bytes": 3022,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/review.md",
+      "object": "objects/1d79f2191fc8cc8dadc87a411c089803de38e78b7a9fa07a00efa6fa3316dc72",
+      "sha256": "1d79f2191fc8cc8dadc87a411c089803de38e78b7a9fa07a00efa6fa3316dc72",
+      "bytes": 2197,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/run.py",
+      "object": "objects/3ce87e89b001c3e7633127a37ec204902b95cb977aeaaee87b83b8e24b3f3c78",
+      "sha256": "3ce87e89b001c3e7633127a37ec204902b95cb977aeaaee87b83b8e24b3f3c78",
+      "bytes": 3801,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p01-gofmt/command.json",
+      "object": "objects/3cd798b1a6ca2cad89acdbb43f203cde1d765abf8fd5a0bf5c919debbc41ae00",
+      "sha256": "3cd798b1a6ca2cad89acdbb43f203cde1d765abf8fd5a0bf5c919debbc41ae00",
+      "bytes": 5900,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p01-gofmt/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p02-race-list/command.json",
+      "object": "objects/5a8e551db5efb8954a5ccc061f88bd76457f33532da7193f08b9bd9a5bba3cf6",
+      "sha256": "5a8e551db5efb8954a5ccc061f88bd76457f33532da7193f08b9bd9a5bba3cf6",
+      "bytes": 5986,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p03-race-compile/command.json",
+      "object": "objects/876a022ab62e22ede332dc2557d358d428ba48dc562abb688e37f6e6390b388c",
+      "sha256": "876a022ab62e22ede332dc2557d358d428ba48dc562abb688e37f6e6390b388c",
+      "bytes": 6064,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p03-race-compile/raw.log",
+      "object": "objects/389c2b942f766c1f2d6f21ac91893e3f2637647a65813c679b82d93b6fbe6850",
+      "sha256": "389c2b942f766c1f2d6f21ac91893e3f2637647a65813c679b82d93b6fbe6850",
+      "bytes": 797,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p04-gofmt/command.json",
+      "object": "objects/f8f59af26de6e437750dce8aad639564b6fc4e0b51e10afd6744476317532a55",
+      "sha256": "f8f59af26de6e437750dce8aad639564b6fc4e0b51e10afd6744476317532a55",
+      "bytes": 5900,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p04-gofmt/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p05-race-list/command.json",
+      "object": "objects/fafd289ce57c21c9dddbe3cf432dea4c0606bb51c372960cdd04de4f4c824155",
+      "sha256": "fafd289ce57c21c9dddbe3cf432dea4c0606bb51c372960cdd04de4f4c824155",
+      "bytes": 5987,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p06-race-compile/command.json",
+      "object": "objects/47747e39d259dcb96e00404190141e76f6a0d2085aa9b02c2226ad03add001b4",
+      "sha256": "47747e39d259dcb96e00404190141e76f6a0d2085aa9b02c2226ad03add001b4",
+      "bytes": 6067,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p06-race-compile/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p07-race-probe/command.json",
+      "object": "objects/609ac475d9aa04fc83e61beb41a2451c78cb03d36b283a1b089a0035bcb489ad",
+      "sha256": "609ac475d9aa04fc83e61beb41a2451c78cb03d36b283a1b089a0035bcb489ad",
+      "bytes": 6001,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p07-race-probe/raw.log",
+      "object": "objects/3f802aced37a0abe7ecb453f8e59f59bb145ec4ed688bafe2571e9e0fafac048",
+      "sha256": "3f802aced37a0abe7ecb453f8e59f59bb145ec4ed688bafe2571e9e0fafac048",
+      "bytes": 575,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/binary-before.json",
+      "object": "objects/060ea4b4408460e2f456ea46c2b93a479305f4f65a08fd7df74b7f2970c52d77",
+      "sha256": "060ea4b4408460e2f456ea46c2b93a479305f4f65a08fd7df74b7f2970c52d77",
+      "bytes": 385,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/binary-v02-before.json",
+      "object": "objects/b8d2d9ea25d30126492109f70f766f3b0d648e5cb0e2c9279c8d2031f6f4e231",
+      "sha256": "b8d2d9ea25d30126492109f70f766f3b0d648e5cb0e2c9279c8d2031f6f4e231",
+      "bytes": 385,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/closure-v02.py",
+      "object": "objects/0f2f988c616910c1880d78e4758389254044a17af5c3fb658f48669abf7ac797",
+      "sha256": "0f2f988c616910c1880d78e4758389254044a17af5c3fb658f48669abf7ac797",
+      "bytes": 2446,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/closure.py",
+      "object": "objects/22cc2971e1883ce97b150ae69ff92beb99f93fdd61602b4b4149e09586ac1105",
+      "sha256": "22cc2971e1883ce97b150ae69ff92beb99f93fdd61602b4b4149e09586ac1105",
+      "bytes": 2442,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/overlay.json",
+      "object": "objects/ef501bda30a4dfeb3fc493b957aa9a31aaea70ab788f19934d9706a138d781a0",
+      "sha256": "ef501bda30a4dfeb3fc493b957aa9a31aaea70ab788f19934d9706a138d781a0",
+      "bytes": 166,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/probe-compiled-v01.go.txt",
+      "object": "objects/559377c73db171c7814ec95e29942e4d05b56ebb68a6cddc206730ceb7213056",
+      "sha256": "559377c73db171c7814ec95e29942e4d05b56ebb68a6cddc206730ceb7213056",
+      "bytes": 11699,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/probe-original.go.txt",
+      "object": "objects/61cfab0fb00bbb6d9081b7e9577487bc7a1c81dbb3fe2bd62a07310ed429014c",
+      "sha256": "61cfab0fb00bbb6d9081b7e9577487bc7a1c81dbb3fe2bd62a07310ed429014c",
+      "bytes": 10490,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/result.json",
+      "object": "objects/9d44074eea8b09c3199a81124f86d88164e2443f42112d910308f2a1e1f3b1dd",
+      "sha256": "9d44074eea8b09c3199a81124f86d88164e2443f42112d910308f2a1e1f3b1dd",
+      "bytes": 4261,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/review.md",
+      "object": "objects/00bc5010b5e69ac33c477644cf73a04c6d9a0b7bf20f74db314e567580144255",
+      "sha256": "00bc5010b5e69ac33c477644cf73a04c6d9a0b7bf20f74db314e567580144255",
+      "bytes": 2183,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/run-v02.py",
+      "object": "objects/5613871490d5366add61f7b9970788ad3d2bf3f5b0bfb1ec6db6f051c8aac10a",
+      "sha256": "5613871490d5366add61f7b9970788ad3d2bf3f5b0bfb1ec6db6f051c8aac10a",
+      "bytes": 3811,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/run.py",
+      "object": "objects/dd3233a3b7b4e948a6f2a33732089140b14437499861ed68a318150d2cb229d5",
+      "sha256": "dd3233a3b7b4e948a6f2a33732089140b14437499861ed68a318150d2cb229d5",
+      "bytes": 3807,
+      "purpose": "independent offline probe, original failure, command driver or accepted preparation"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q01-gofmt/command.json",
+      "object": "objects/dbabe700fee437ef212d965df22ca1f82b9b7be98c634a8bbf549150cc519142",
+      "sha256": "dbabe700fee437ef212d965df22ca1f82b9b7be98c634a8bbf549150cc519142",
+      "bytes": 5922,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q01-gofmt/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q02-race-list/command.json",
+      "object": "objects/2d352158d26a29dba17433c6e8e09e90fd6b6d7ee91667bf57bd25e99a887a45",
+      "sha256": "2d352158d26a29dba17433c6e8e09e90fd6b6d7ee91667bf57bd25e99a887a45",
+      "bytes": 6023,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q03-race-compile/command.json",
+      "object": "objects/905b76b93e6ad0e91791c055992a112ece581167ea610fdd00c252543e73af3e",
+      "sha256": "905b76b93e6ad0e91791c055992a112ece581167ea610fdd00c252543e73af3e",
+      "bytes": 6109,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q03-race-compile/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q04-test-list/command.json",
+      "object": "objects/ec5add30e8292a5da900983d47bb925e687e568be3d9d18eb9e175889b19ad5a",
+      "sha256": "ec5add30e8292a5da900983d47bb925e687e568be3d9d18eb9e175889b19ad5a",
+      "bytes": 5962,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q04-test-list/raw.log",
+      "object": "objects/56aeeaf4d00db88d741e7e1f174247786e667881c2c7dbe39ea5b79fd9e72590",
+      "sha256": "56aeeaf4d00db88d741e7e1f174247786e667881c2c7dbe39ea5b79fd9e72590",
+      "bytes": 102,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q05-gofmt/command.json",
+      "object": "objects/036703bd47db42a265c3ec85c7ccfbf4edb7271618b3a9d6cbe6240360049170",
+      "sha256": "036703bd47db42a265c3ec85c7ccfbf4edb7271618b3a9d6cbe6240360049170",
+      "bytes": 5932,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q05-gofmt/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q06-race-list/command.json",
+      "object": "objects/5f95aaba36a3165d9ccb6f8016c0062e7cb94ebf23630611b3f485906b2aa06d",
+      "sha256": "5f95aaba36a3165d9ccb6f8016c0062e7cb94ebf23630611b3f485906b2aa06d",
+      "bytes": 6034,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q07-race-compile/command.json",
+      "object": "objects/1d58e39290bad75c56a87d07c6349575bda633ff3fc8cc77d55dc153c1b5b3cd",
+      "sha256": "1d58e39290bad75c56a87d07c6349575bda633ff3fc8cc77d55dc153c1b5b3cd",
+      "bytes": 6123,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q07-race-compile/raw.log",
+      "object": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q08-test-list/command.json",
+      "object": "objects/35fa0c3b4cec79b1130d334297ae253ab63e17b8f0a711c078400c96104c371e",
+      "sha256": "35fa0c3b4cec79b1130d334297ae253ab63e17b8f0a711c078400c96104c371e",
+      "bytes": 5980,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q08-test-list/raw.log",
+      "object": "objects/56aeeaf4d00db88d741e7e1f174247786e667881c2c7dbe39ea5b79fd9e72590",
+      "sha256": "56aeeaf4d00db88d741e7e1f174247786e667881c2c7dbe39ea5b79fd9e72590",
+      "bytes": 102,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q09-driver-input/command.json",
+      "object": "objects/71a9ae7656c54b3ba415896802ed695634146fa6cc659749ce274535c032d5cf",
+      "sha256": "71a9ae7656c54b3ba415896802ed695634146fa6cc659749ce274535c032d5cf",
+      "bytes": 6166,
+      "purpose": "independent offline actual command/env/exit/wait/cleanup"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q09-driver-input/raw.log",
+      "object": "objects/2a897ed7aa039a51b9220f39de696cf3cd1e84ccee926b118996c326b844f1bc",
+      "sha256": "2a897ed7aa039a51b9220f39de696cf3cd1e84ccee926b118996c326b844f1bc",
+      "bytes": 601,
+      "purpose": "independent offline original output"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/draft/app_probe_test.go",
+      "object": "objects/2e1ab57d3fc1841b5e385ec3c87090eccdd1a35f361c877ebdbfb2188c5348e3",
+      "sha256": "2e1ab57d3fc1841b5e385ec3c87090eccdd1a35f361c877ebdbfb2188c5348e3",
+      "bytes": 2289,
+      "purpose": "final private independent probe; saved as data only"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/draft/model_probe_test.go",
+      "object": "objects/5043c053d19f834e3f4d97ed2b01c90867ccd9a2e9b14ff5cb6687f1e1c3c49f",
+      "sha256": "5043c053d19f834e3f4d97ed2b01c90867ccd9a2e9b14ff5cb6687f1e1c3c49f",
+      "bytes": 11875,
+      "purpose": "final private independent probe; saved as data only"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/driver.py",
+      "object": "objects/df312774b286b60a2c29a84209b0c1be7afba5bca8fcddf90b26e6d58b26335e",
+      "sha256": "df312774b286b60a2c29a84209b0c1be7afba5bca8fcddf90b26e6d58b26335e",
+      "bytes": 24724,
+      "purpose": "independent real driver, freeze and author-function reuse comparison"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/from-author-v04.diff",
+      "object": "objects/fa356658e047349852fee69193c04800a7975818c350008c895410004a0a3e67",
+      "sha256": "fa356658e047349852fee69193c04800a7975818c350008c895410004a0a3e67",
+      "bytes": 4985,
+      "purpose": "independent real driver, freeze and author-function reuse comparison"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/frozen.json",
+      "object": "objects/2f04786a1a9995ab6b829a0b204a8b1f432b163e180efec3be2834c9793c3752",
+      "sha256": "2f04786a1a9995ab6b829a0b204a8b1f432b163e180efec3be2834c9793c3752",
+      "bytes": 13559,
+      "purpose": "independent real driver, freeze and author-function reuse comparison"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/static-reuse.json",
+      "object": "objects/0cbcaea60b2cfa758c158c082d5dcfbb7164abfa8c2cd2d5f0dfda76cdeaee7e",
+      "sha256": "0cbcaea60b2cfa758c158c082d5dcfbb7164abfa8c2cd2d5f0dfda76cdeaee7e",
+      "bytes": 1403,
+      "purpose": "independent real driver, freeze and author-function reuse comparison"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/adopted-waits.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/baseline.json",
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/cancellation.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/cleanup.json",
+      "object": "objects/478232ee51935632d711b62981624f7e23ae2a04b00911142ce9ef7277cc14f0",
+      "sha256": "478232ee51935632d711b62981624f7e23ae2a04b00911142ce9ef7277cc14f0",
+      "bytes": 14321,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/command.json",
+      "object": "objects/a015c3fb1570b8a16cc5c5b6cd4bd646af1fa61155fe633dddbda74a826101aa",
+      "sha256": "a015c3fb1570b8a16cc5c5b6cd4bd646af1fa61155fe633dddbda74a826101aa",
+      "bytes": 2178,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/disk-before-spawn.json",
+      "object": "objects/e15e20e88386913943a30535a40598fefe69c5ce197e1ba4f19ad7ac86380a8e",
+      "sha256": "e15e20e88386913943a30535a40598fefe69c5ce197e1ba4f19ad7ac86380a8e",
+      "bytes": 196,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/disk-preflight.json",
+      "object": "objects/cf9e77eec2860f848559b72f078d42be0e33a50bcff6176723f798a123972238",
+      "sha256": "cf9e77eec2860f848559b72f078d42be0e33a50bcff6176723f798a123972238",
+      "bytes": 196,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/driver.py.txt",
+      "object": "objects/df312774b286b60a2c29a84209b0c1be7afba5bca8fcddf90b26e6d58b26335e",
+      "sha256": "df312774b286b60a2c29a84209b0c1be7afba5bca8fcddf90b26e6d58b26335e",
+      "bytes": 24724,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/frozen-input.json",
+      "object": "objects/2f04786a1a9995ab6b829a0b204a8b1f432b163e180efec3be2834c9793c3752",
+      "sha256": "2f04786a1a9995ab6b829a0b204a8b1f432b163e180efec3be2834c9793c3752",
+      "bytes": 13559,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/input-after.json",
+      "object": "objects/159bdaf9418d7e9432f1a1380bb857c4a80d1f9c6e31e084e441a87729f576ee",
+      "sha256": "159bdaf9418d7e9432f1a1380bb857c4a80d1f9c6e31e084e441a87729f576ee",
+      "bytes": 601,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/input-before.json",
+      "object": "objects/159bdaf9418d7e9432f1a1380bb857c4a80d1f9c6e31e084e441a87729f576ee",
+      "sha256": "159bdaf9418d7e9432f1a1380bb857c4a80d1f9c6e31e084e441a87729f576ee",
+      "bytes": 601,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/monitor-errors.json",
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/observed-processes.json",
+      "object": "objects/22862ad55aab0c0deb17efd7c830a1cce2549d9b095a0b6fd8cbfc8615781928",
+      "sha256": "22862ad55aab0c0deb17efd7c830a1cce2549d9b095a0b6fd8cbfc8615781928",
+      "bytes": 14394,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/observed-resources.json",
+      "object": "objects/c4fa27f6cf5151875ff49e8e1eb1cc924ecf01fda9a39dd2e4055bcfeec92a1b",
+      "sha256": "c4fa27f6cf5151875ff49e8e1eb1cc924ecf01fda9a39dd2e4055bcfeec92a1b",
+      "bytes": 5133,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/owned-tail-retirement.json",
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/process-baseline.json",
+      "object": "objects/ba94345fddbf59933626e40fb6701f0a8a6a2b9981c75fd430738b37b0d4d9a8",
+      "sha256": "ba94345fddbf59933626e40fb6701f0a8a6a2b9981c75fd430738b37b0d4d9a8",
+      "bytes": 6358,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/raw.log",
+      "object": "objects/998797039b1c49b4f1f2e601e5bd9f5573709a582100a2e8d4b08dd36610d311",
+      "sha256": "998797039b1c49b4f1f2e601e5bd9f5573709a582100a2e8d4b08dd36610d311",
+      "bytes": 4429,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/result.json",
+      "object": "objects/cd9978f66c2df12b11b8d608a69ca6d27b2421258b71843ee91fa1b023579c44",
+      "sha256": "cd9978f66c2df12b11b8d608a69ca6d27b2421258b71843ee91fa1b023579c44",
+      "bytes": 6481,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/verification-input.json",
+      "object": "objects/2a8569143b10035112226250d67c533caf603dbef4c3f9986f33ab96ced66377",
+      "sha256": "2a8569143b10035112226250d67c533caf603dbef4c3f9986f33ab96ced66377",
+      "bytes": 183,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/runs/i01-independent/watchdog.json",
+      "object": "objects/7c971cd6294bd65abfd27d76e5f9fcf75dfe7dd46318a4885a1fd33690c9342d",
+      "sha256": "7c971cd6294bd65abfd27d76e5f9fcf75dfe7dd46318a4885a1fd33690c9342d",
+      "bytes": 988,
+      "purpose": "independent actual command, raw, waits, resources, watchdog, cleanup and input gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/final-review.md",
+      "object": "objects/0c34820608069f9458c84c71a96b83326855324f6e78469367cc1fa46fa0e244",
+      "sha256": "0c34820608069f9458c84c71a96b83326855324f6e78469367cc1fa46fa0e244",
+      "bytes": 4651,
+      "purpose": "frozen independent final limited acceptance"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/readme-final/check-final.json",
+      "object": "objects/e7d6e13638ad949e80efe085dd438f3f6cad56ea9b914b5fb5480a6ee36cd592",
+      "sha256": "e7d6e13638ad949e80efe085dd438f3f6cad56ea9b914b5fb5480a6ee36cd592",
+      "bytes": 296,
+      "purpose": "author final README self-check; product source reused from fixed commit"
+    }
+  ],
+  "fingerprint_only": [
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c01-app-race-list/command.json",
+      "sha256": "6138c857d9b59b1c312adcfb3ee1e74832b5aa0447c5932cc8744d5252ecc7f9",
+      "bytes": 5387,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c01-app-race-list/raw.log",
+      "sha256": "0d1de0a8250af8828a5fbeedb8f1c3160d837a55d246d313ac2d94041a6794db",
+      "bytes": 1228663,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c04-app-compile/command.json",
+      "sha256": "cae0e52ee7686f9c1cf373117b5371d0a95d5296a81ddd6f973c502965ab3d0c",
+      "bytes": 5355,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c04-app-compile/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c06-integration-race-list/command.json",
+      "sha256": "661460b77b2423d486679ae4b0cfb03c4a388a1d8b1ebb5d5d60c9e6c0dbdd97",
+      "bytes": 6422,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c06-integration-race-list/raw.log",
+      "sha256": "553b4b755a743cd1d6c808868077240bf6a73737437e6061f85ec2bbe3043145",
+      "bytes": 1316754,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c07-model-compile/command.json",
+      "sha256": "57d9e340f1ea358a40b1baa919ec24e6102e6f7782e454ae27e683586bdbb2bd",
+      "bytes": 6410,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c07-model-compile/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c08-model-list/command.json",
+      "sha256": "0bc7d6a91bde2e91ba248bb3abdd4dea94f981f3dc292dfbbe8c2320c4e909b1",
+      "bytes": 6658,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c08-model-list/raw.log",
+      "sha256": "a1c4401b071d07fe4f963366e0753ecb380f3cc6a1208217ac5061856987665f",
+      "bytes": 271,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c10-project-compile/command.json",
+      "sha256": "94b21969968907ceaf6539085f43138188045efa8e6b0979c2b8e0c1553a9770",
+      "bytes": 6416,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c10-project-compile/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c11-full-fixture-race-graph/command.json",
+      "sha256": "fdb30943231b0fbde04b750b7942dcf7981e3eb26a91279105982d03e6943f9b",
+      "bytes": 6862,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c11-full-fixture-race-graph/raw.log",
+      "sha256": "feee5c7a0b511059ad819e717864643c1300f94452b1b9669317211775602eec",
+      "bytes": 1774454,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c12-dynamic-helper-graph/command.json",
+      "sha256": "aa5484580150bfd855e8f1239819ef173468c234361c69d57b0ebd725472713a",
+      "bytes": 6494,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c12-dynamic-helper-graph/raw.log",
+      "sha256": "77467be211ad915301f9edbcfcec8b2ad167ade79fa2c3819c935d2521d707c5",
+      "bytes": 1214189,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c13-project-list/command.json",
+      "sha256": "768bdc4fd2db52df57d5bb0b3a8efe405bd4837cf57da8d0989d8dc1bb089131",
+      "bytes": 6489,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c13-project-list/raw.log",
+      "sha256": "54c150ceba8ca432038ca988a6951e87d9ab3cbed15d6834db6578d209b5e0ba",
+      "bytes": 98,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c14-app-vet/command.json",
+      "sha256": "86d5e96c58d291eafe8eef8dbbae789d259bc37b2f12ce04d1775b3f13af8ece",
+      "bytes": 6309,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c14-app-vet/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c15-model-vet/command.json",
+      "sha256": "25c8553a93b89837e3d2b0084bda49d4468a505b3fe03d34698cd51ba774935f",
+      "bytes": 6329,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c15-model-vet/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-01-internal-central-postgres/command.json",
+      "sha256": "a1638759cd8e0ffd38d0411118b537aa73f19f233c4ff5bc709625f69fe2970c",
+      "bytes": 6491,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-01-internal-central-postgres/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-02-tests-database/command.json",
+      "sha256": "52398e806049ad3789e26893e612e151202474c8742f1099a9b0d79dd9065979",
+      "bytes": 6458,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-02-tests-database/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-03-internal-central-object-contract/command.json",
+      "sha256": "341690140a15b23e9b3093500fea231a8f4d6178fbc53f568728dc35f0f594ff",
+      "bytes": 6512,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-03-internal-central-object-contract/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-04-internal-central-object/command.json",
+      "sha256": "2770d6235ba2a4f26f9d4369860e41ff827b42a0ec9a33b661fcd89e320369ee",
+      "bytes": 6487,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-04-internal-central-object/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-05-internal-central-outbox-contract/command.json",
+      "sha256": "ac864347331d7541594db9349a2984374804e951e0dc8314e9039655d435dce9",
+      "bytes": 6512,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-05-internal-central-outbox-contract/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-06-internal-central-recoverylog/command.json",
+      "sha256": "35b67ee12a48ed224ee9790b505a4fbbd2ba0f94cff06d3286ef6ad39fbe6f9f",
+      "bytes": 6499,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-06-internal-central-recoverylog/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-07-internal-central-accountmail/command.json",
+      "sha256": "b07bfc84d101c834906a29a66b7533be6634e32d917dd1bc94bc558cdb9047a4",
+      "bytes": 6504,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-07-internal-central-accountmail/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-08-internal-central-model-contract/command.json",
+      "sha256": "c9d0f7bfb069ee9101df2a3ae350db42ecee3e5bcbda98e80a139a6ba8e922cf",
+      "bytes": 6508,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-08-internal-central-model-contract/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-09-internal-central-model-adapter/command.json",
+      "sha256": "f35cfc2a6d07b49ba5d018f86a0ff2094034399ce723303ce510154a0eae6058",
+      "bytes": 6505,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-09-internal-central-model-adapter/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-10-internal-central-model/command.json",
+      "sha256": "5284a04805073fa099e371ca23125f9a2827db688329f70ed2f287652a547263",
+      "bytes": 6482,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-10-internal-central-model/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-11-internal-central-outbox/command.json",
+      "sha256": "dc76dd030fcf0c6ae7d872c47cac1dc0cb7ffa56529c34c6c9361f75ae8a2696",
+      "bytes": 6484,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-11-internal-central-outbox/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-12-internal-central-app/command.json",
+      "sha256": "5fcd546e52d4818871cf8aff859fe52a46d821785cd55f0c2e37f491565aca69",
+      "bytes": 6490,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-12-internal-central-app/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-13-tests-process/command.json",
+      "sha256": "c077282b152b3b4aa06fa2920ab42e2b94daa7ea52b9337f03981d77a6b92638",
+      "bytes": 6455,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-13-tests-process/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-14-tests-security/command.json",
+      "sha256": "671beac0ed2efedec7172c63faeb4f8717f765ec0d6da766f1f483bee0d46ece",
+      "bytes": 6457,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-14-tests-security/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-15-tests-outbox/command.json",
+      "sha256": "8e1c612f5f6f3f5e93b2566958b85762ff878249461e380d2694613aae5c65be",
+      "bytes": 6452,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-15-tests-outbox/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-16-tests-account/command.json",
+      "sha256": "5820d3279a258b24fea66048a4d0dd7e144bc908812e6a8189520b848681b1fa",
+      "bytes": 6376,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-16-tests-account/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-17-tests-accountmail/command.json",
+      "sha256": "50401d3c8263f08a3d4082e6a08d8afaa2eaf664f4168dc79772372d26af3625",
+      "bytes": 6467,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-17-tests-accountmail/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-18-tests-objects/command.json",
+      "sha256": "4112d4de278f078bfe76f6d0198bffc22f5dd4208bdef461b655dabc9a9cb872",
+      "bytes": 6454,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c16-18-tests-objects/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-01/command.json",
+      "sha256": "540e47ff90cf767e43ff92c1e610b6f06cc32f79fa19f3c5e7bcd312ba0982f1",
+      "bytes": 6353,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-02/command.json",
+      "sha256": "eecf3355a36780ad88a76c6a46d32e41fc626e423b35ca94b9ab65ac7ee83f92",
+      "bytes": 6358,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-02/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-03/command.json",
+      "sha256": "c778c3f8b94fb9527847cfde8c61a644a7fd8d63a14dcec0720ccd55302076fe",
+      "bytes": 6383,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-03/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-04/command.json",
+      "sha256": "767b9cccf189fb561fac0e92e9cc678f408b145df9d48048c4b36d035132106e",
+      "bytes": 6379,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-04/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-05/command.json",
+      "sha256": "70fcd9e27c9b6975cb250d397074a4d22c065646893ff31d78e9fa55a13e597d",
+      "bytes": 6378,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c17-05/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c18-outbound-server-graph/command.json",
+      "sha256": "018398104281a572d8e24007db4edc4e603af01f85081a31bd4d0121de4acf05",
+      "bytes": 6414,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c18-outbound-server-graph/raw.log",
+      "sha256": "75f5d76b71134e52c03ebf97db2bd05f99dfb4d3d209b099556480d18d07967d",
+      "bytes": 434431,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c19-outbound-server-build/command.json",
+      "sha256": "de04dc0dee327e1447363ca052a7058dd03bd3a69fd681abac8f3d5fdcf0199f",
+      "bytes": 6472,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c19-outbound-server-build/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c20-python-closure/command.json",
+      "sha256": "a6c2d74a46fcc6affc818010b72b42a08bf160465ca07a636002aeec9d542eef",
+      "bytes": 6354,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c20-python-closure/raw.log",
+      "sha256": "58fd63761b04fae47facc5d73d6f6546ea743fa95062eb3c7fe50329ec4791ec",
+      "bytes": 38036,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c21-model-fix-compile/command.json",
+      "sha256": "ffa916b71cf9db8658eeb08ebb49775ef0258d323c53b396ef1b0b29a9c77526",
+      "bytes": 6341,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c21-model-fix-compile/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c22-model-fix-vet/command.json",
+      "sha256": "5b9eeab59aae69f19df22f2daf65bf15e179e350976b26d247b447641fc51fcb",
+      "bytes": 6331,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c22-model-fix-vet/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c25-driver-watchdog/command.json",
+      "sha256": "0f4e397917147a4c0dacb79264edaa1db9f1baf0c1f54b7e78346cc465f619d0",
+      "bytes": 6300,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c25-driver-watchdog/raw.log",
+      "sha256": "04f6379ed1e4baf353a0586d8dd3d74fc76038d9d5323c5ed67b9b9098623a3e",
+      "bytes": 637,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c26-driver-input/command.json",
+      "sha256": "bd06d7da0ae864edfc95ccef0f380ea927ed17688a97862d7838441ecf819ce7",
+      "bytes": 6458,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c26-driver-input/raw.log",
+      "sha256": "fd0dfa6db43b70bb8a7b3957a604c11e7376ce401a6927a1b77dd73e58fbc7af",
+      "bytes": 565,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c30-final-diff/command.json",
+      "sha256": "7891c270aebdae2609af17c7caa2859e0cc65196104494475412c997fc0bde8d",
+      "bytes": 6271,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c30-final-diff/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c31-driver-v03-input/command.json",
+      "sha256": "8c6b7f1b5ec09a0ca2ec608509f2a26fa2b27e9393c87b69286d8bc963dd617d",
+      "bytes": 6466,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c31-driver-v03-input/raw.log",
+      "sha256": "35b4bdb5847f594811598c64ed30b506c2ab962e5d79f6a16dc9281f308910ed",
+      "bytes": 601,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c35-driver-v04-input/command.json",
+      "sha256": "9c1470884ee4f8113b3aec8957ce938ad406b4661e527fa286810fcf4bede743",
+      "bytes": 6467,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c35-driver-v04-input/raw.log",
+      "sha256": "760eee7cd27b8e6e7eff097e801827dbfc00f54305b2fa4d015bde621b6c99ba",
+      "bytes": 601,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c41-final-D-evidence/command.json",
+      "sha256": "5a6d502d1ef7a2211abd894d99cdf06e5cf6b41b841fc93a0591557be5dc4c33",
+      "bytes": 6295,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/c41-final-D-evidence/raw.log",
+      "sha256": "642dabba2bbade53239be64533025a8fb5869b0e5d8213262d6d656fe80e0484",
+      "bytes": 3096,
+      "reason": "ancillary offline command fingerprint; full graph/list raw and repeated compile gates not copied"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-author/C/closure.json",
+      "sha256": "b7fee3f8bcf175040af6254f97a9ca37a1f3f35e1a1941ddbe479263d4dfc8eb",
+      "bytes": 496857,
+      "reason": "full 3127-file dependency manifest retained at fixed source; only hash and small version deltas archived"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/app-independent-v02.test",
+      "sha256": "7e56b3c18c873e0d90745914f85587703fbba5dd4c98280baa0a353cee05731e",
+      "bytes": 45039963,
+      "reason": "compiled executable fingerprint only; not copied or executed"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/inputs-before.json",
+      "sha256": "bfb4691824e9a1ca976dbf1a47185147d68001bf19c22f524147a16cb519a108",
+      "bytes": 46739,
+      "reason": "large offline dependency input manifest fingerprint; digest summarized in original result and real run gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/inputs-v02-after.json",
+      "sha256": "6755b4efe0e78fa24742642d833b4ecff14eaf3428b35ca62af9bbadc0f6ee68",
+      "bytes": 46739,
+      "reason": "large offline dependency input manifest fingerprint; digest summarized in original result and real run gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/inputs-v02-before.json",
+      "sha256": "6755b4efe0e78fa24742642d833b4ecff14eaf3428b35ca62af9bbadc0f6ee68",
+      "bytes": 46739,
+      "reason": "large offline dependency input manifest fingerprint; digest summarized in original result and real run gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p02-race-list/raw.log",
+      "sha256": "9920722934ddc67d5adc083fe4212ee46b420ea7198b959a55e830c4d0e775dc",
+      "bytes": 1227640,
+      "reason": "large go list dependency graph fingerprint only"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/pure01/p05-race-list/raw.log",
+      "sha256": "bd4d76a4341005e4e5f85843b3795f90475557034f1f6d43a76bb1d04494d85a",
+      "bytes": 1227445,
+      "reason": "large go list dependency graph fingerprint only"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/inputs-after.json",
+      "sha256": "3532a0607734005447602fef3fe49d7bbfcf2248fe09788028de95eb7932542f",
+      "bytes": 49242,
+      "reason": "large offline dependency input manifest fingerprint; digest summarized in original result and real run gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/inputs-before.json",
+      "sha256": "3532a0607734005447602fef3fe49d7bbfcf2248fe09788028de95eb7932542f",
+      "bytes": 49242,
+      "reason": "large offline dependency input manifest fingerprint; digest summarized in original result and real run gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/inputs-v02-after.json",
+      "sha256": "bf9de6b3018bd40840c06f80393d8f2443f15aafc5fea6f455e547ee2bf848bf",
+      "bytes": 49246,
+      "reason": "large offline dependency input manifest fingerprint; digest summarized in original result and real run gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/inputs-v02-before.json",
+      "sha256": "bf9de6b3018bd40840c06f80393d8f2443f15aafc5fea6f455e547ee2bf848bf",
+      "bytes": 49246,
+      "reason": "large offline dependency input manifest fingerprint; digest summarized in original result and real run gate"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/model-independent-v02.test",
+      "sha256": "b511c790450e0d0170a27b0efeff47b83a4770239eb66b01bc4651f2fa67874a",
+      "bytes": 48973628,
+      "reason": "compiled executable fingerprint only; not copied or executed"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/model-independent.test",
+      "sha256": "a4e65979ba67703a6cb73c13dac6cbaa7f416c2d8eebfc47593635f49a6c6a5c",
+      "bytes": 48973956,
+      "reason": "compiled executable fingerprint only; not copied or executed"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q02-race-list/raw.log",
+      "sha256": "b26a22602aa5fb2926570f8e8bbd90d87bf7742294635a6575de4640d696fa43",
+      "bytes": 1240078,
+      "reason": "large go list dependency graph fingerprint only"
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/C01/realprep01/q06-race-list/raw.log",
+      "sha256": "b26a22602aa5fb2926570f8e8bbd90d87bf7742294635a6575de4640d696fa43",
+      "bytes": 1240078,
+      "reason": "large go list dependency graph fingerprint only"
+    }
+  ],
+  "dependencies_reused": {
+    "A": "ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f",
+    "B": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+    "Summary_contract": "e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a",
+    "native_archive": "4a55b32d781f23622c642ec3698d9791ad4d516a"
+  },
+  "product_binding": {
+    "commit": "03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05",
+    "scope": "C seven technical paths plus final backend README; A5/B2 reused unchanged, 15 delivered paths total",
+    "git_delivery_evidence": "Root explicitly reported commit pushed and remote identical; this archive worker executed no Git commands.",
+    "readme_sha256": "1abf35fbdb8d4498dd886f6b16e40792ad942ba3f8e6bd23576232c2ac35680d",
+    "fourteen_v05_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b"
+  },
+  "work_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-project-usage-read-http.md",
+    "before_sha256": "13f1c7fc48e649a679cbddb7b0343b479d112a32238080070fba8c6fef766b93",
+    "header_before": "work-card-header-before.txt",
+    "header_before_sha256": "54250725c93467b5f84f03b2b3e9e99dad9d0c6501a78a43f8125475302d665b",
+    "technical_section_1_through_7_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d",
+    "after_sha256": "b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0"
+  }
+}

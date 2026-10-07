@@ -1,0 +1,47 @@
+from pathlib import Path
+import json,hashlib,shutil,subprocess
+base=Path('/workspace/scratch/usage-http-author');b=base/'C';root=Path('/workspace/agenteam')
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def entry(p):return {'sha256':sha(p),'bytes':p.stat().st_size}
+known=json.loads((base/'a03-execution-input.json').read_text())['files']|json.loads((base/'stage-a-final-input.json').read_text())['race_additional_inputs']
+br=json.loads((base/'B/final-input.json').read_text());known.update(br['new_actual_inputs']);known.update(br['changed_known_inputs'])
+fields=['GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles']
+files=set();packages=set();dirs=set();modules={};graphs={};embeds=set()
+for label in ['c01-app-race-list','c06-integration-race-list','c11-full-fixture-race-graph','c12-dynamic-helper-graph','c18-outbound-server-graph']:
+ p=b/label/'raw.log';graphs[label]=sha(p);raw=p.read_text();d=json.JSONDecoder();pos=0
+ while pos<len(raw):
+  while pos<len(raw) and raw[pos].isspace():pos+=1
+  if pos==len(raw):break
+  pkg,pos=d.raw_decode(raw,pos);assert not pkg.get('Error') and not pkg.get('DepsErrors'),pkg['ImportPath'];packages.add(pkg['ImportPath'])
+  directory=Path(pkg.get('Dir',str(root)));dirs.add(directory)
+  for field in fields:
+   for name in pkg.get(field,[]):
+    p=(directory/name).resolve();assert p.is_file(),p;files.add(p)
+    if field=='EmbedFiles':embeds.add(p.parent)
+  m=pkg.get('Module',{})
+  if m and not m.get('Main'):
+   assert not m.get('Replace');modules[m['Path']]={k:m.get(k) for k in ['Version','Dir','GoMod','Sum','GoModSum']};files.add(Path(m['GoMod']))
+for name in ['scripts/test-objects.sh','scripts/test-security.sh','scripts/test-postgres.sh','go.mod','go.sum','api/openapi/common.json','api/openapi/project-usage.json']:files.add(root/name)
+for name in ['compile','link','asm','cgo','vet']:files.add(Path('/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64')/name)
+for name in ['sh','docker','mktemp','rm','rmdir','dirname','gcc','g++']:
+ p=shutil.which(name);assert p;files.add(Path(p).resolve())
+files.add(Path('/workspace/toolchains/go1.27.1/bin/go'));files.add(Path('/workspace/scratch/fixture-recovery/bin/minio'))
+python=json.loads((b/'c20-python-closure/raw.log').read_text());files.update(Path(p) for p in python['files'])
+current={str(p):entry(p) for p in sorted(files)}
+changed={n:v for n,v in current.items() if n in known and known[n]['sha256']!=v['sha256']};new={n:v for n,v in current.items() if n not in known}
+assert changed=={},list(changed)
+source=json.loads((b/'fourteen-frozen.json').read_text());assert all(sha(root/n)==v['sha256'] for n,v in source.items())
+suffixes={'.go','.s','.S','.c','.h','.cc','.cpp','.cxx','.m','.mm','.f','.F','.for','.f90','.swig','.swigcxx','.syso'}
+sets={str(p):{'names':sorted(f.name for f in p.iterdir() if f.is_file() and (f.suffix in suffixes or p in embeds)),'embed_directory':p in embeds} for p in sorted(dirs|embeds) if p.is_relative_to(root)}
+productBase='e7304512e73fdddb25bdbf1c0882400ad5b5f791'
+tree=subprocess.check_output(['git','ls-tree','-r','-z',productBase],cwd=root);gitBlobs={}
+for record in tree.split(b'\0'):
+ if record:
+  header,name=record.split(b'\t',1);gitBlobs[name.decode()]=header.decode().split()[2]
+accepted={}
+for p in files:
+ if p.is_relative_to(root) and str(p.relative_to(root)) not in source:
+  name=str(p.relative_to(root));data=p.read_bytes();blob=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest();assert gitBlobs[name]==blob,name;accepted[name]=blob
+manifest={'product_base':productBase,'source_fourteen_sha256':sha(b/'fourteen-frozen.json'),'references':{str(base/'a03-execution-input.json'):sha(base/'a03-execution-input.json'),str(base/'stage-a-final-input.json'):sha(base/'stage-a-final-input.json'),str(base/'B/final-input.json'):sha(base/'B/final-input.json')},'graphs':graphs,'actual_package_variants':len(packages),'actual_files':len(current),'reused_files':len(current)-len(changed)-len(new),'changed_known_inputs':changed,'new_inputs':new,'actual_input_paths':sorted(current),'package_file_sets':sets,'accepted_local_git_blobs':accepted,'modules':modules,'python_versions':{k:python[k] for k in ['python','jsonschema','referencing']},'migrations':[p.name for p in sorted((root/'db/migrations').glob('*.sql'))]}
+(b/'closure.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print(json.dumps({'closure_sha256':sha(b/'closure.json'),'packages':len(packages),'files':len(current),'new':len(new),'changed':list(changed),'source_sets':len(sets),'accepted_local_inputs':len(accepted),'migration_count':len(manifest['migrations']),'minio_sha256':current['/workspace/scratch/fixture-recovery/bin/minio']['sha256']},indent=2))

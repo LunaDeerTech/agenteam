@@ -1,0 +1,140 @@
+{
+  "actual_wait_completed": true,
+  "adopted_waits": 0,
+  "browser_processes": 0,
+  "double_cleanup": true,
+  "driver_exit": 1,
+  "forced_tail_actions": 0,
+  "historical_zombies_untouched": [
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 1297,
+      "ppid": 1,
+      "starttime": "3558",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "go",
+      "pid": 1963,
+      "ppid": 1,
+      "starttime": "8220",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 5342,
+      "ppid": 1,
+      "starttime": "28082",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 20388,
+      "ppid": 1,
+      "starttime": "75930",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "compile",
+      "pid": 22765,
+      "ppid": 1,
+      "starttime": "81512",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 34807,
+      "ppid": 1,
+      "starttime": "121775",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 40003,
+      "ppid": 1,
+      "starttime": "162104",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 40235,
+      "ppid": 1,
+      "starttime": "163563",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 50050,
+      "ppid": 1,
+      "starttime": "223737",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 53390,
+      "ppid": 1,
+      "starttime": "252301",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 55023,
+      "ppid": 1,
+      "starttime": "263041",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 59100,
+      "ppid": 1,
+      "starttime": "293727",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 68540,
+      "ppid": 1,
+      "starttime": "346789",
+      "state": "Z"
+    }
+  ],
+  "monitor_errors": 0,
+  "node_processes": 0,
+  "observed_processes": 106,
+  "observed_resources": 7,
+  "resource_topology_matches": true,
+  "run": "d02-new",
+  "run_directory": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new",
+  "selected_tests_passed": false,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "FAIL",
+      "TestModelProjectUsageHTTPRootBinding"
+    ],
+    [
+      "FAIL",
+      "TestModelProjectUsageHTTPAuthorityAndTerminal"
+    ],
+    [
+      "PASS",
+      "TestModelProjectUsageHTTPProjectionAndPath"
+    ]
+  ],
+  "top_watchdog_complete": true,
+  "verification_inputs_unchanged": true,
+  "watchdog_thread_joined": true
+}

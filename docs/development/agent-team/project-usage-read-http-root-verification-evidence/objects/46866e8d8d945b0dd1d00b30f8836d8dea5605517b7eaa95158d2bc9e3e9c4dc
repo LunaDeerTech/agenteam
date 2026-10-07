@@ -1,0 +1,160 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.237.192.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=65811f5a53a4aa243df3678b689047fd
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=d847f46c12db1bc61f45f0b9ff74e02b
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.315s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+=== RUN   TestModelSystemHTTPCurrentAdministrator
+=== RUN   TestModelSystemHTTPCurrentAdministrator/role
+=== RUN   TestModelSystemHTTPCurrentAdministrator/session
+--- PASS: TestModelSystemHTTPCurrentAdministrator (3.63s)
+    --- PASS: TestModelSystemHTTPCurrentAdministrator/role (0.43s)
+    --- PASS: TestModelSystemHTTPCurrentAdministrator/session (0.39s)
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/host
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/origin
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/duplicate-origin
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/csrf
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/duplicate-csrf
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/duplicate-cookie
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/duplicate-key
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/fetch
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/raw-path
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/unclean
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/query
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/nested-duplicate
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/unknown
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/null
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/trailing
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/utf8
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/media
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/encoding
+=== RUN   TestModelSystemHTTPBoundaryAndStrictWire/large
+--- PASS: TestModelSystemHTTPBoundaryAndStrictWire (2.07s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/host (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/origin (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/duplicate-origin (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/csrf (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/duplicate-csrf (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/duplicate-cookie (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/duplicate-key (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/fetch (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/raw-path (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/unclean (0.00s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/query (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/nested-duplicate (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/unknown (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/null (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/trailing (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/utf8 (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/media (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/encoding (0.01s)
+    --- PASS: TestModelSystemHTTPBoundaryAndStrictWire/large (0.05s)
+=== RUN   TestUsageInvocationWireLedger
+=== RUN   TestUsageInvocationWireLedger/provider-usage
+=== RUN   TestUsageInvocationWireLedger/explicit-zero
+=== RUN   TestUsageInvocationWireLedger/success-without-usage
+=== RUN   TestUsageInvocationWireLedger/reliable-usage-followed-by-stream-failure
+=== RUN   TestUsageInvocationWireLedger/actual-live-exchange-cannot-finalize
+=== RUN   TestUsageInvocationWireLedger/actual-zero-send-do-and-protocol-unknown-stay-separate
+--- PASS: TestUsageInvocationWireLedger (5.01s)
+    --- PASS: TestUsageInvocationWireLedger/provider-usage (0.42s)
+    --- PASS: TestUsageInvocationWireLedger/explicit-zero (0.37s)
+    --- PASS: TestUsageInvocationWireLedger/success-without-usage (0.36s)
+    --- PASS: TestUsageInvocationWireLedger/reliable-usage-followed-by-stream-failure (0.36s)
+    --- PASS: TestUsageInvocationWireLedger/actual-live-exchange-cannot-finalize (0.37s)
+    --- PASS: TestUsageInvocationWireLedger/actual-zero-send-do-and-protocol-unknown-stay-separate (0.71s)
+=== RUN   TestUsageReaderNonemptyPagination
+=== RUN   TestUsageReaderNonemptyPagination/nonempty-pages-and-current-new-session
+    usage_query_test.go:46: formal Account Logout committed; current Session revoked and typed event persisted
+=== RUN   TestUsageReaderNonemptyPagination/consumer-without-execution-does-not-create-summary
+=== RUN   TestUsageReaderNonemptyPagination/all-filter-dimensions
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/consumer
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/agent
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/model
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/provider
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/execution
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/meeting
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/purpose
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/day
+=== RUN   TestUsageReaderNonemptyPagination/cursor-binding-and-tamper
+=== RUN   TestUsageReaderNonemptyPagination/explicit-history-range-versus-default-thirty-days
+=== RUN   TestUsageReaderNonemptyPagination/archived-owner-read-and-deleting-rejection
+--- PASS: TestUsageReaderNonemptyPagination (3.95s)
+    --- PASS: TestUsageReaderNonemptyPagination/nonempty-pages-and-current-new-session (0.08s)
+    --- PASS: TestUsageReaderNonemptyPagination/consumer-without-execution-does-not-create-summary (0.00s)
+    --- PASS: TestUsageReaderNonemptyPagination/all-filter-dimensions (0.02s)
+    --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups (0.17s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/consumer (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/agent (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/model (0.03s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/provider (0.03s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/execution (0.03s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/meeting (0.01s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/purpose (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/day (0.01s)
+    --- PASS: TestUsageReaderNonemptyPagination/cursor-binding-and-tamper (0.06s)
+    --- PASS: TestUsageReaderNonemptyPagination/explicit-history-range-versus-default-thirty-days (0.02s)
+    --- PASS: TestUsageReaderNonemptyPagination/archived-owner-read-and-deleting-rejection (0.14s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	15.682s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce 60c97f15277f61932cb5f96dde75dd78
+D04 outbound fixture cleanup checked for nonce d847f46c12db1bc61f45f0b9ff74e02b
+D05 object fixture exact resource cleanup checked nonce=65811f5a53a4aa243df3678b689047fd

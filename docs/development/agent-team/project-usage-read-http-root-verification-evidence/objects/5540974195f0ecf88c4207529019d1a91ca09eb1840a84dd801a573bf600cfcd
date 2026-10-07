@@ -1,0 +1,17 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/usage-http-author/C/closure.json",
+    "sha256": "b7fee3f8bcf175040af6254f97a9ca37a1f3f35e1a1941ddbe479263d4dfc8eb"
+  },
+  "source_fourteen": {
+    "path": "/workspace/scratch/usage-http-author/C/fourteen-v03.json",
+    "sha256": "e8e35babc732897531b7e12ed33a87af4386bbb4639310ed7ecafcdb1d178d20"
+  },
+  "changed_inputs": {
+    "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go": {
+      "sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+      "bytes": 17333
+    }
+  },
+  "reason": "C01 cleanup Force fresh lifecycle, actual forceDone and Joined wait; other thirteen sources and all imports/name sets unchanged; c23 compile and c24 vet actual0."
+}

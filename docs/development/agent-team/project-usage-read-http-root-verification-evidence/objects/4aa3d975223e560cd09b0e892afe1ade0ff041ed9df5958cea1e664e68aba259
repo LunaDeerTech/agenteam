@@ -1,0 +1,163 @@
+{
+  "evidence": "/workspace/scratch/usage-http-author/C/daemon-observation-d05-old-model.json",
+  "snapshots": [
+    {
+      "name": "d01-new-before",
+      "count": 0,
+      "new": []
+    },
+    {
+      "name": "d02-new-before",
+      "count": 0,
+      "new": []
+    },
+    {
+      "name": "d03-affected-before",
+      "count": 4,
+      "new": [
+        {
+          "pid": 80262,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437604",
+          "state": "Z"
+        },
+        {
+          "pid": 80626,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437880",
+          "state": "Z"
+        },
+        {
+          "pid": 80994,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438130",
+          "state": "Z"
+        },
+        {
+          "pid": 81726,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438408",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "name": "d04-root-before",
+      "count": 8,
+      "new": [
+        {
+          "pid": 91283,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "465508",
+          "state": "Z"
+        },
+        {
+          "pid": 91808,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "465932",
+          "state": "Z"
+        },
+        {
+          "pid": 92179,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "466208",
+          "state": "Z"
+        },
+        {
+          "pid": 92776,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "466386",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "name": "d05-old-model-before",
+      "count": 12,
+      "new": [
+        {
+          "pid": 101362,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "483318",
+          "state": "Z"
+        },
+        {
+          "pid": 101906,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "483732",
+          "state": "Z"
+        },
+        {
+          "pid": 102632,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "483926",
+          "state": "Z"
+        },
+        {
+          "pid": 103231,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "484186",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "name": "d05-old-model-after",
+      "count": 16,
+      "new": [
+        {
+          "pid": 109798,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "490739",
+          "name": "containerd-shim"
+        },
+        {
+          "pid": 110350,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "491188",
+          "name": "containerd-shim"
+        },
+        {
+          "pid": 110609,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "491379",
+          "name": "containerd-shim"
+        },
+        {
+          "pid": 111230,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "491576",
+          "name": "containerd-shim"
+        }
+      ]
+    }
+  ]
+}

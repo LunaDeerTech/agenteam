@@ -1,0 +1,19 @@
+--- /workspace/scratch/usage-http-author/C/driver-v03/driver.py	2026-10-07 13:06:22.116477062 +0000
++++ /workspace/scratch/usage-http-author/C/driver-v04/driver.py	2026-10-07 13:10:39.320087491 +0000
+@@ -25,6 +25,7 @@
+ GOCACHE = '/home/agent/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+ GROUPS = {
++    'affected': ['TestModelProjectUsageHTTPRootBinding', 'TestModelProjectUsageHTTPAuthorityAndTerminal'],
+     'new': ['TestModelProjectUsageHTTPProjectionAndPath', 'TestModelProjectUsageHTTPAuthorityAndTerminal', 'TestModelProjectUsageHTTPRootBinding'],
+     'old-model': ['TestUsageReaderNonemptyPagination', 'TestUsageInvocationWireLedger', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelSystemHTTPCurrentAdministrator'],
+     'old-project': ['TestProjectB02OwnerSessionNamePathAndPaging', 'TestProjectB02OwnerPortRequiresCallerTransactionLocks'],
+@@ -383,7 +384,7 @@
+         raise RuntimeError('runner inputs changed before launch')
+     start = time.monotonic()
+     cancellations = []
+-    watchdog = TopWatchdog(expected if args.group == 'new' else [])
++    watchdog = TopWatchdog(expected if args.group in ('new', 'affected') else [])
+     watch_stop = threading.Event()
+     with (run / 'raw.log').open('wb') as raw:
+         process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)

@@ -1,0 +1,240 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/app"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+)
+
+type projectUsageRootLog struct {
+	mu        sync.Mutex
+	all       bytes.Buffer
+	pending   []byte
+	listening chan string
+}
+
+func (l *projectUsageRootLog) Write(data []byte) (int, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	_, _ = l.all.Write(data)
+	l.pending = append(l.pending, data...)
+	for {
+		at := bytes.IndexByte(l.pending, '\n')
+		if at < 0 {
+			break
+		}
+		var event map[string]any
+		if json.Unmarshal(l.pending[:at], &event) == nil && event["event"] == "listening" {
+			if address, ok := event["listen_address"].(string); ok {
+				select {
+				case l.listening <- address:
+				default:
+				}
+			}
+		}
+		l.pending = l.pending[at+1:]
+	}
+	return len(data), nil
+}
+func (l *projectUsageRootLog) String() string {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.all.String()
+}
+
+type projectUsageRoot struct {
+	client      *http.Client
+	address     string
+	cancel      context.CancelFunc
+	done        chan struct{}
+	err         error
+	logs        *projectUsageRootLog
+	connections atomic.Int64
+	once        sync.Once
+}
+
+// This uses the public default root, with no dependency/handler injection. Only
+// durable test preparation precedes it; Skills and Facts never enter app.Run.
+func startProjectUsageRoot(t *testing.T, v *projectUsageHTTPFixture) *projectUsageRoot {
+	t.Helper()
+	objects, err := objectfixture.Environment(testContext(t), v.db.Name)
+	if err != nil {
+		t.Fatal("owned root object environment unavailable")
+	}
+	dir := t.TempDir()
+	if err = os.Chmod(dir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	values := map[string]string{}
+	for _, entry := range objects {
+		k, value, _ := strings.Cut(entry, "=")
+		values[k] = value
+	}
+	b64 := func(b byte) string { return base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{b}, 32)) }
+	for k, value := range map[string]string{
+		"DATABASE_URL": v.db.Fixture.URL(v.db.Name), "DATABASE_CA_FILE": v.db.Fixture.CAFile, "DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": systemHTTPOrigin, "SHUTDOWN_TIMEOUT": "3s",
+		"ACCOUNT_RECOVERY_LOG":    filepath.Join(dir, "root-recovery.jsonl"),
+		"CURSOR_KEYRING":          fmt.Sprintf(`{"format":1,"current_kid":"c","keys":[{"kid":"c","key_b64":%q}]}`, b64(1)),
+		"SECRET_KEYRING":          fmt.Sprintf(`{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":%q}]}`, b64(2)),
+		"OBJECT_DOWNLOAD_KEYRING": fmt.Sprintf(`{"format":1,"current_kid":"d","keys":[{"kid":"d","key_b64":%q}]}`, b64(3)),
+		"ACCOUNT_KEYRING":         fmt.Sprintf(`{"format":1,"current_kid":"a","keys":[{"kid":"a","key_b64":%q}]}`, b64(4)),
+	} {
+		values[config.Prefix+k] = value
+	}
+	var environment []string
+	for k, value := range values {
+		environment = append(environment, k+"="+value)
+	}
+	cfg, err := config.Load(func(k string) (string, bool) { value, ok := values[k]; return value, ok }, environment)
+	if err != nil {
+		t.Fatal("owned default root configuration", err)
+	}
+	r := &projectUsageRoot{done: make(chan struct{}), logs: &projectUsageRootLog{listening: make(chan string, 1)}}
+	logger, err := logging.New(logging.Central, slog.LevelInfo, r.logs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	r.cancel = cancel
+	go func() { r.err = app.Run(ctx, cfg, logger, nil); close(r.done) }()
+	t.Cleanup(func() { r.stop(t) })
+	select {
+	case r.address = <-r.logs.listening:
+	case <-r.done:
+		t.Fatal("default root initialization failed", r.err)
+	case <-time.After(40 * time.Second):
+		t.Fatal("default root startup did not complete")
+	}
+	transport := &http.Transport{Proxy: nil, MaxConnsPerHost: 1, MaxIdleConnsPerHost: 1, DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
+		conn, e := (&net.Dialer{}).DialContext(ctx, network, r.address)
+		if e == nil {
+			r.connections.Add(1)
+		}
+		return conn, e
+	}}
+	r.client = &http.Client{Transport: transport, Timeout: 5 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	return r
+}
+func (r *projectUsageRoot) stop(t *testing.T) {
+	t.Helper()
+	r.once.Do(func() {
+		if r.client != nil {
+			r.client.CloseIdleConnections()
+		}
+		r.cancel()
+		select {
+		case <-r.done:
+		case <-time.After(6 * time.Second):
+			t.Error("default root exceeded shutdown budget; retaining join ownership")
+			<-r.done
+		}
+		if r.err != nil {
+			t.Error("default root actual shutdown", r.err)
+		}
+	})
+}
+func (r *projectUsageRoot) request(t *testing.T, browser systemHTTPBrowser, method, path string, body any) systemHTTPResponse {
+	t.Helper()
+	var encoded []byte
+	var err error
+	if body != nil {
+		encoded, err = json.Marshal(body)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	request, err := http.NewRequestWithContext(testContext(t), method, "http://"+r.address+path, bytes.NewReader(encoded))
+	if err != nil {
+		t.Fatal(err)
+	}
+	request.Host = "system-http.example.test"
+	request.Header.Set("Origin", systemHTTPOrigin)
+	request.Header.Set("Sec-Fetch-Site", "same-origin")
+	request.AddCookie(&http.Cookie{Name: "__Host-agenteam_session", Value: browser.cookie})
+	if body != nil {
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("X-CSRF-Token", browser.csrf)
+		request.Header.Set("Idempotency-Key", newID[struct{}](t).String())
+	}
+	response, err := r.client.Do(request)
+	if err != nil {
+		t.Fatal("owned default root request did not complete")
+	}
+	data, readErr := io.ReadAll(io.LimitReader(response.Body, (1<<20)+1))
+	closeErr := response.Body.Close()
+	if readErr != nil || closeErr != nil || len(data) > 1<<20 {
+		t.Fatal("default root response EOF/Close failed")
+	}
+	if len(response.Header.Values("X-Request-ID")) != 1 {
+		t.Fatal("default root request identity duplicated")
+	}
+	return systemHTTPResponse{response.StatusCode, response.Header.Clone(), data}
+}
+
+func TestModelProjectUsageHTTPRootBinding(t *testing.T) {
+	started := time.Now()
+	defer projectUsageComplete(t, started)
+	v := newProjectUsageHTTPFixture(t)
+	invocation := v.success(t, json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":9007199254740993}`), nil)
+	root := startProjectUsageRoot(t, v)
+	paths := []string{projectUsageResolve(v.ownerName, v.project.Name), projectUsagePath(v.project.ID), projectUsagePath(v.project.ID) + "/summary?group_by=day"}
+	for _, path := range paths {
+		get := root.request(t, v.ownerBrowser, "GET", path, nil).want(t, 200)
+		head := root.request(t, v.ownerBrowser, "HEAD", path, nil).want(t, 200)
+		if len(head.body) != 0 || head.headers.Get("Content-Length") != get.headers.Get("Content-Length") {
+			t.Fatal("default root HEAD differs from GET")
+		}
+		if path == paths[1] && (!bytes.Contains(get.body, []byte(invocation.event.Identity.Attempt.InvocationID.String())) || !bytes.Contains(get.body, []byte(`"9007199254740993"`))) {
+			t.Fatal("default root did not read formal nonempty persisted ledger")
+		}
+	}
+	root.request(t, v.ownerBrowser, "GET", "/api/v1/session", nil).want(t, 200)
+	root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-providers", nil).want(t, 200)
+	ready := root.request(t, v.ownerBrowser, "GET", "/readyz", nil).want(t, 503)
+	var problem httpapi.Problem
+	if json.Unmarshal(ready.body, &problem) != nil || (problem.Code != f.DependencyUnbound && problem.Code != f.DependencyUnavailable) || problem.CommitState != f.NotStarted {
+		t.Fatal("Usage binding changed the original readiness Problem")
+	}
+	diagnostics := root.request(t, v.ownerBrowser, "GET", "/diagnostics", nil).want(t, 200)
+	var status struct {
+		Ready *bool `json:"ready"`
+	}
+	if json.Unmarshal(diagnostics.body, &status) != nil || status.Ready == nil || *status.Ready {
+		t.Fatal("Usage binding changed diagnostics readiness")
+	}
+	if root.connections.Load() != 1 {
+		t.Fatal("GET/HEAD/default routes failed keepalive EOF ownership")
+	}
+	root.stop(t)
+	if !strings.Contains(root.logs.String(), `"outcome":"drained"`) {
+		t.Fatal("default root normal shutdown did not drain")
+	}
+	for _, private := range []string{v.ownerBrowser.cookie, v.ownerBrowser.csrf, v.project.Name} {
+		if strings.Contains(root.logs.String(), private) {
+			t.Fatal("default root exposed private request data")
+		}
+	}
+	t.Log("public default app.Run read formally prepared nonempty Usage, six GET/HEAD responses and old routes shared one connection; readiness stayed false; shutdown actually joined")
+}

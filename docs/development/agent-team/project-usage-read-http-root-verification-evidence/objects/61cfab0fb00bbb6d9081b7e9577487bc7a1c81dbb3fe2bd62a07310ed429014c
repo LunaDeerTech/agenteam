@@ -1,0 +1,143 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"net/url"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
+	usagehttp "github.com/LunaDeerTech/agenteam/internal/central/usage/http"
+)
+
+// Gate only the Usage transaction entry. Authentication and Logout continue to
+// use the original real Account service/store. No authority result is replaced.
+type independentUsageEntryStore struct {
+	*postgres.Store
+	entered, release chan struct{}
+	used atomic.Bool
+}
+func (s *independentUsageEntryStore) WithinTx(ctx context.Context,cause f.TransactionCause,fn func(context.Context,f.Tx) error) f.CommitResult {
+	if projectUsageReadCause(cause)&&s.used.CompareAndSwap(false,true) {
+		close(s.entered)
+		<-s.release
+	}
+	return s.Store.WithinTx(ctx,cause,fn)
+}
+func independentUsageRows(t *testing.T,response systemHTTPResponse) []any {
+	t.Helper();rows,ok:=response.object(t)["items"].([]any);if !ok {t.Fatal("missing array")};return rows
+}
+func independentUsageCursor(t *testing.T,response systemHTTPResponse) string {
+	t.Helper();cursor,ok:=response.object(t)["next_cursor"].(string);if !ok||cursor=="" {t.Fatal("missing nonempty cursor")};return cursor
+}
+func independentUsageNoCandidate(t *testing.T,response systemHTTPResponse,canaries ...string) {
+	t.Helper();for _,canary:=range canaries {if bytes.Contains(response.body,[]byte(canary)) {t.Fatal("candidate escaped failed current-authority read")}}
+}
+
+func TestIndependentProjectUsageHTTPAuthorityProjection(t *testing.T) {
+	started:=time.Now();defer projectUsageComplete(t,started)
+	v:=newProjectUsageHTTPFixture(t)
+	large:=v.success(t,json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":9007199254740993}`),nil)
+	v.success(t,json.RawMessage(`{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}`),nil)
+	v.success(t,nil,nil)
+	path:=projectUsagePath(v.project.ID)
+	first:=v.request(t,v.ownerBrowser,"GET",path+"?limit=1").want(t,200)
+	cursor:=independentUsageCursor(t,first)
+	fresh:=v.login(t,v.ownerBrowser.email)
+	if fresh.actor.Details().UserID!=v.ownerBrowser.actor.Details().UserID||fresh.actor.Details().SessionID==v.ownerBrowser.actor.Details().SessionID {t.Fatal("fresh formal Session missing")}
+	rest:=v.request(t,fresh,"GET",path+"?limit=2&cursor="+url.QueryEscape(cursor)).want(t,200)
+	seen:=map[string]bool{}
+	for _,response:=range []systemHTTPResponse{first,rest} {for _,raw:=range independentUsageRows(t,response) {key:=raw.(map[string]any)["id"].(string);if seen[key] {t.Fatal("cross-Session page duplicated identity")};seen[key]=true}}
+	if len(seen)!=3 {t.Fatal("cross-Session cursor lost a row")}
+	aggregate:=v.request(t,fresh,"GET",path+"/summary?group_by=consumer").want(t,200)
+	groups:=independentUsageRows(t,aggregate);if len(groups)!=1 {t.Fatal("same consumer facts split unexpectedly")}
+	summary:=groups[0].(map[string]any)["summary"].(map[string]any)
+	for name,want:=range map[string]string{"confirmed_invocations":"3","succeeded":"3","failed":"0","cancelled":"0","unknown":"0","dispatch_unknown":"0"} {if summary[name]!=want {t.Fatal("wrong exact aggregate count",name)}}
+	for _,name:=range []string{"input","total","output"} {
+		field:=summary[name].(map[string]any);want:="9007199254740993";if name=="output" {want="0"}
+		if field["sum"]!=want||field["known_count"]!="2"||field["unknown_count"]!="1" {t.Fatal("large/zero/unknown aggregation changed",name)}
+	}
+	for _,name:=range []string{"cached_input","cache_write","reasoning"} {field:=summary[name].(map[string]any);if field["sum"]!=nil||field["known_count"]!="0"||field["unknown_count"]!="3" {t.Fatal("unknown-only token field became zero",name)}}
+	projectUsageCheckSchemas(t,[]projectUsageSchemaCase{{"List",first.body},{"List",rest.body},{"Aggregate",aggregate.body}})
+
+	gate:=&independentUsageEntryStore{Store:v.raw,entered:make(chan struct{}),release:make(chan struct{})}
+	authority,err:=usage.NewAuthority(gate,usage.Authorizations{Sessions:v.accounts,Projects:v.projects,Invocations:nil});if err!=nil {t.Fatal(err)}
+	_,ck,_:=testKeys(t)
+	reader,err:=usage.New(gate,authority,usage.Dependencies{Cursors:ck});if err!=nil {t.Fatal(err)}
+	boundary,err:=account.NewHTTPBoundary(v.core,systemHTTPOrigin);if err!=nil {t.Fatal(err)}
+	handler,err:=usagehttp.NewHTTPHandler(v.projects,reader,boundary);if err!=nil {t.Fatal(err)}
+	view:=*v;view.handler=httpapi.Handler(nil,handler)
+	ctx,cancel:=context.WithCancel(testContext(t));defer cancel()
+	flight:=view.flight(ctx,fresh,path)
+	var once sync.Once
+	release:=func(){once.Do(func(){close(gate.release)})}
+	defer func(){release();cancel();<-flight.done}()
+	waitSignal(t,gate.entered)
+	if flight.writer.writeCount()!=0 {t.Fatal("published before actual Usage transaction")}
+	logoutCtx,logoutCancel:=context.WithTimeout(testContext(t),time.Second)
+	err=v.core.Logout(logoutCtx,account.LogoutRequest{Actor:fresh.actor,Key:f.IdempotencyKey(newID[struct{}](t).String())});logoutCancel()
+	if err!=nil {t.Fatal("formal Logout before Usage transaction failed",err)}
+	select {case <-flight.done:t.Fatal("gated handler returned before release");default:}
+	if flight.writer.writeCount()!=0 {t.Fatal("candidate appeared while transaction entry held")}
+	release();<-flight.done
+	if flight.aborted {t.Fatal("current-session rejection should produce complete safe Problem")}
+	denied:=flight.result();denied.problem(t,401,f.SessionRevoked)
+	independentUsageNoCandidate(t,denied,large.event.Identity.Attempt.InvocationID.String(),v.project.Name)
+	v.request(t,v.ownerBrowser,"GET",path+"?limit=2&cursor="+url.QueryEscape(cursor)).want(t,200)
+	for _,browser:=range []systemHTTPBrowser{v.otherBrowser,v.adminBrowser} {
+		for _,resource:=range []string{path,path+"/summary?group_by=consumer",projectUsageResolve(v.ownerName,v.project.Name)} {v.request(t,browser,"GET",resource).problem(t,404,f.NotFound)}
+	}
+	t.Log("independent: formal Logout committed after HTTP authentication and before the real Usage transaction; current Session was revalidated without a candidate; same-user new Session retained stable cursor scope and exact aggregate precision")
+}
+
+func TestIndependentProjectUsageHTTPDefaultRootIdentity(t *testing.T) {
+	started:=time.Now();defer projectUsageComplete(t,started)
+	v:=newProjectUsageHTTPFixture(t)
+	invocation:=v.success(t,json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":9007199254740993}`),nil)
+	v.success(t,json.RawMessage(`{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}`),nil)
+	root:=startProjectUsageRoot(t,v)
+	path:=projectUsagePath(v.project.ID)
+	first:=root.request(t,v.ownerBrowser,"GET",path+"?limit=1",nil).want(t,200)
+	cursor:=independentUsageCursor(t,first)
+	oldUser,oldProject:=v.ownerName,v.project.Name
+	projectUsageRename(t,v,"independent-"+newID[struct{}](t).String()[24:])
+	root.request(t,v.ownerBrowser,"GET",projectUsageResolve(oldUser,oldProject),nil).problem(t,404,f.NotFound)
+	if root.request(t,v.ownerBrowser,"GET",projectUsageResolve(oldUser,v.project.Name),nil).want(t,200).object(t)["id"]!=v.project.ID.String() {t.Fatal("default root changed Project identity after rename")}
+	profile:=root.request(t,v.ownerBrowser,"GET","/api/v1/me",nil).want(t,200).object(t)["user"].(map[string]any)
+	v.ownerName="independent-"+newID[struct{}](t).String()[24:]
+	root.request(t,v.ownerBrowser,"PATCH","/api/v1/me",map[string]any{"version":profile["version"],"username":v.ownerName}).want(t,200)
+	root.request(t,v.ownerBrowser,"GET",projectUsageResolve(oldUser,v.project.Name),nil).problem(t,404,f.NotFound)
+	root.request(t,v.ownerBrowser,"GET",path+"?limit=2&cursor="+url.QueryEscape(cursor),nil).want(t,200)
+	reusedID:=newID[id.Project](t)
+	created,err:=v.projectService.CreateProject(testContext(t),v.owner,f.CommandMeta{RequestID:newID[f.Request](t),IdempotencyKey:f.IdempotencyKey(reusedID.String())},pc.CreateProjectRequest{ProjectID:reusedID,Name:oldProject})
+	if err!=nil||created.State!=pc.CreationReady||created.Project==nil {t.Fatal("formal old-name reuse failed",err)}
+	if root.request(t,v.ownerBrowser,"GET",projectUsageResolve(v.ownerName,oldProject),nil).want(t,200).object(t)["id"]!=reusedID.String() {t.Fatal("root old-name reuse did not resolve new identity")}
+	root.request(t,v.ownerBrowser,"GET",projectUsagePath(reusedID)+"?cursor="+url.QueryEscape(cursor),nil).problem(t,400,f.CursorInvalid)
+	empty:=root.request(t,v.ownerBrowser,"GET",projectUsagePath(reusedID),nil).want(t,200)
+	if string(empty.body)!=`{"items":[],"next_cursor":null}` {t.Fatal("root invented new-project Usage")}
+	for _,resource:=range []string{projectUsageResolve(v.ownerName,v.project.Name),path,path+"/summary?group_by=consumer"} {
+		get:=root.request(t,v.ownerBrowser,"GET",resource,nil).want(t,200)
+		head:=root.request(t,v.ownerBrowser,"HEAD",resource,nil).want(t,200)
+		if len(head.body)!=0||head.headers.Get("Content-Length")!=get.headers.Get("Content-Length") {t.Fatal("post-rename root HEAD representation mismatch")}
+		for _,browser:=range []systemHTTPBrowser{v.otherBrowser,v.adminBrowser} {root.request(t,browser,"GET",resource,nil).problem(t,404,f.NotFound)}
+		if resource==path&&(!bytes.Contains(get.body,[]byte(invocation.event.Identity.Attempt.InvocationID.String()))||!bytes.Contains(get.body,[]byte(`"9007199254740993"`))) {t.Fatal("root lost exact persisted Invocation after names changed")}
+	}
+	root.request(t,v.ownerBrowser,"GET","/api/v1/session",nil).want(t,200)
+	root.request(t,v.adminBrowser,"GET","/api/v1/system/model-providers",nil).want(t,200)
+	ready:=root.request(t,v.ownerBrowser,"GET","/readyz",nil);if ready.status!=503||!bytes.Contains(ready.body,[]byte(`"ready":false`)) {t.Fatal("read binding changed readiness")}
+	if root.connections.Load()!=1 {t.Fatal("root identity changes lost native keepalive completion")}
+	root.stop(t)
+	t.Log("independent: default app.Run preserved stable-ID reads and current Owner through formal Project/username rename and old-name reuse, rejected cross-project cursor, completed GET/HEAD and original routes on one real connection, and actually shut down")
+}

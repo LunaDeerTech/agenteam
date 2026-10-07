@@ -1,0 +1,13 @@
+from pathlib import Path
+import json,subprocess,sys
+b=Path('/workspace/scratch/usage-http-author/C')
+go='/workspace/toolchains/go1.27.1/bin/go'
+for n,target in enumerate(json.loads((b/'full-fixture-targets.json').read_text()),1):
+ short=target.removeprefix('github.com/LunaDeerTech/agenteam/').replace('/','-')
+ label='c16-%02d-'%n+short
+ code=subprocess.call([sys.executable,str(b/'run.py'),label,go,'test','-tags=integration','-race','-p=1','-c','-o',str(b/(short+'.test')),target])
+ if code:sys.exit(code)
+for n,target in enumerate(['./cmd/agenteam','./cmd/agenteam-runner','./tests/testsupport/objectstore/cmd/fixture','./tests/testsupport/outbound/cmd/fixture','./tests/testsupport/postgres/cmd/fixture'],1):
+ label='c17-%02d'%n
+ code=subprocess.call([sys.executable,str(b/'run.py'),label,go,'build','-p=1','-o',str(b/('dynamic-'+str(n))),target])
+ if code:sys.exit(code)

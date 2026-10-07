@@ -1,0 +1,22 @@
+Author C/D handoff — final source v05; independent real acceptance remains separate.
+
+Final fourteen-v05.json SHA b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b. Final closure-v05.json SHA dc74e9acfb271ce4cbf40db9c5af3db29b6c3236b13f85ebfe6d31768609599f. Final driver-v05/frozen.json SHA b7233fbd9e13972700d53660acb97c4617a8848688c222379d02abee62de73df; driver SHA 6d2d4a4b585f36e81c15db80fbed120805805add1bc38604606ae328409ccd39. c39 verifies3127 exact files/799 accepted local inputs, digest6d17f60670bcbe54414bbe000bc3687f9dca3b3c27ebc0e966ff191209fabe21.
+
+| Actual round | Source | Actual exit / seconds | Accepted author observation |
+|---|---|---|---|
+| d01-new | v03 | 1 before fixture spawn | Docker PATH gate failure; launch.raw and no-spawn proof preserved |
+| d02-new | v03 | 1 / 64.796 | ProjectionAndPath PASS, standard schema11; Root and Terminal initial expectations failed |
+| d03-affected | v04 | 1 / 59.825 | AuthorityAndTerminal PASS incl original Fault/55P03; Root diagnostic header helper failed |
+| d04-root | v05 | 0 / 55.309 | RootBinding PASS incl public default app.Run, keepalive, old routes, ready503/diagnosticsfalse and actual normal drain |
+| d05-old-model | v05 | 0 / 65.681 | Exact four existing System/Usage tops PASS |
+| d06-old-project | v05 | 0 / 48.192 | Exact two existing Project tops PASS |
+
+This is nine distinct top-level PASS results by versioned composition, not a full final-version rerun. Final projection source, fixture, production and shared root helper bytes equal d02; final terminal source equals d03. Only unrelated new test assertions changed later. D-final.json records the fixed inputs, helper equality, raw command/result hashes and each pass provenance; SHA89258e5b24b8f57a133b4368e9fdfa2df09575bb17a320430b638e34b90fc4a6.
+
+Each of the five real rounds has seven exact fixture resources, full labels/canonical Mount baseline unchanged, actual main/thread waits and double cleanup with no owned PID/starttime, new resource or runtime-file remainder. Owned observed process counts106/92/88/90/85; adopted waits0, forced tail actions0 and monitor errors0. New top120s watchdog includes t.Cleanup; old tests retain the original package6m. c37 final affected compile and c38 race vet pass; c42 final diffcheck passes. No author native rerun was made.
+
+Daemon boundary: PID1-owned containerd-shim zombies were0 before d02, then4/8/12/16/20 after the five real windows. These are explicit per-window observations, not exact shim-to-container attribution. daemon-observation-d06-old-project.json preserves PID/starttime deltas and prior baselines. They were not task descendants, not waited by the author and not manipulated; no host-wide zero-residual or daemon cleanup success is claimed. The original A orphaned compile zombie and other pre-existing zombies also remain outside current owned-chain completion.
+
+Original failures remain immutable: A/B originals; c02 compile; closure01 evidence-generator assumption; C01 Force cleanup revisions; d01 missing Docker PATH; d02 readiness shape/lock-timeout expectations; d03 diagnostic header helper misuse. Product A/B and C production bytes were unchanged during real-round repairs. Formal Bootstrap/invite/worker/redeem/login/Logout and strict fixture facts remain the identity/data provenance. Production Invocation facts remains genuinely nil; no Project lifecycle, production Skills/Facts, new ready success, stopped-task exercise or complete D09/E01 claim is added.
+
+All fourteen sources and driver inputs remain stopped. Author real windows are closed and root has transferred resources to independent verification. No further author resource action is authorized.

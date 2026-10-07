@@ -1,0 +1,26 @@
+from pathlib import Path
+import json,hashlib,time
+b=Path('/workspace/scratch/usage-http-author/C');repo=Path('/workspace/agenteam')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+final=json.loads((b/'fourteen-v05.json').read_text());assert all(sha(repo/n)==v['sha256'] for n,v in final.items())
+rounds={};runs=[('driver-v03','d02-new'),('driver-v04','d03-affected'),('driver-v05','d04-root'),('driver-v05','d05-old-model'),('driver-v05','d06-old-project')]
+for driver,name in runs:
+ r=b/driver/'runs'/name;result=json.loads((r/'result.json').read_text());command=json.loads((r/'command.json').read_text());cleanup=json.loads((r/'cleanup.json').read_text());assert result['source_files_unchanged'] and result['verification_inputs_unchanged'] and result['actual_wait_completed'] and result['double_cleanup'] and result['resource_topology_matches'] and result['top_watchdog_complete'] and result['watchdog_thread_joined'];assert result['observed_resources']==7 and result['monitor_errors']==result['forced_tail_actions']==0;assert not Path('/proc/'+str(command['pid'])).exists()
+ assert len(cleanup)==2 and all(x['baseline_unchanged'] and not x['owned_processes'] and not x['runtime_entries'] and not x['remaining_new'] and len(x['exact_absent'])==7 and all(y['absent'] for y in x['exact_absent'].values()) for x in cleanup)
+ artifacts={str(r/f):sha(r/f) for f in ['raw.log','command.json','result.json','baseline.json','observed-resources.json','observed-processes.json','cleanup.json','adopted-waits.json','owned-tail-retirement.json','watchdog.json','input-before.json','input-after.json','frozen-input.json']}
+ rounds[name]={'actual_exit':command['exit'],'seconds':command['seconds'],'tops':result['top_levels'],'resources':7,'owned_pid_starttime_count':result['observed_processes'],'adopted_actual_waits':result['adopted_waits'],'forced_tail_actions':0,'double_cleanup':True,'artifacts':artifacts}
+passes={}
+for name,rec in rounds.items():
+ for state,top in rec['tops']:
+  if state=='PASS':passes[top]=name
+assert len(passes)==9
+for n in ['d04-root','d05-old-model','d06-old-project']:assert rounds[n]['actual_exit']==0
+# Passing Projection used the exact final fixture and helper implementations.
+projection='tests/model/project_usage_http_test.go';terminal='tests/model/project_usage_http_terminal_test.go'
+v03=json.loads((b/'fourteen-v03.json').read_text());v04=json.loads((b/'fourteen-v04.json').read_text());assert final[projection]==v03[projection] and final[terminal]==v04[terminal]
+old=(b/'fix02-integration-expectations/project_usage_http_root_test.go.v03.txt').read_text();current=(repo/'tests/model/project_usage_http_root_test.go').read_text();helper=lambda s:s[s.index('type projectUsageRootLog'):s.index('func TestModelProjectUsageHTTPRootBinding')];assert helper(old)==helper(current)
+for n,v in final.items():
+ if n not in {'tests/model/project_usage_http_root_test.go',terminal}:assert v03[n]==v
+reused={'ProjectionAndPath':'d02 PASS: exact unchanged projection test, fixture and all helper/production bytes; only unrelated Root/Terminal test bodies corrected later','AuthorityAndTerminal':'d03 PASS: terminal source exact v05, subsequent difference only unrelated Root diagnostic assertions','root_helper_sha256':hashlib.sha256(helper(current).encode()).hexdigest()}
+report={'time':time.time(),'source_fourteen':{'path':str(b/'fourteen-v05.json'),'sha256':sha(b/'fourteen-v05.json')},'closure_delta':{'path':str(b/'closure-v05.json'),'sha256':sha(b/'closure-v05.json')},'rounds':rounds,'passing_nine_tops':passes,'versioned_reuse':reused,'failures_preserved':['d01 pre-spawn missing Docker PATH, exact traceback and no-spawn proof','d02 readiness shape and PG500-vs503 new test assumptions','d03 Account security-header helper incorrectly applied to diagnostic endpoints'],'scope':'Author composition only; independent real C acceptance is separate. Ready remains503, production Invocations nil, no production Skills/Facts/Project lifecycle binding. No native rerun. Each round actualwait and double cleanup cover exact seven resources and owned descendant PID/starttime chain only.','daemon_boundary':{'path':str(b/'daemon-observation-d06-old-project.json'),'sha256':sha(b/'daemon-observation-d06-old-project.json'),'limitation':'PID1 daemon-side containerd-shim zombie increments are preserved separately. No task wait covered them; no PID1/daemon actions or host-wide zero-residual claim.'},'all_author_resource_commands_stopped':True}
+(b/'D-final.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'report_sha256':sha(b/'D-final.json'),'passing_nine_tops':passes,'rounds':{n:{k:v for k,v in r.items() if k!='artifacts'} for n,r in rounds.items()}},indent=2))

@@ -1,0 +1,25 @@
+from pathlib import Path
+import sys,json,hashlib,subprocess
+B=Path('/workspace/scratch/usage-http-verification/C01/pure01');R=Path('/workspace/agenteam');A=Path('/workspace/scratch/usage-http-author/C')
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+raw=(B/'p02-race-list/raw.log').read_text();dec=json.JSONDecoder();pos=0;packages=[];paths=set();main=[]
+while raw[pos:].strip():
+ while raw[pos].isspace():pos+=1
+ p,pos=dec.raw_decode(raw,pos);packages.append(p)
+ for k in ('GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles'):paths.update(str(Path(p['Dir'])/n) for n in p.get(k,[]))
+ if p['ImportPath'].endswith('/app.test'):main=p['GoFiles']
+replace=json.loads((B/'overlay.json').read_text())['Replace'];frozen=json.loads((A/'fourteen-v03.json').read_text());values={};products={};unfrozen=[]
+for name in sorted(paths):
+ actual=replace.get(name,name);values[name]=sha(actual)
+ if name.startswith(str(R)+'/'):
+  relative=str(Path(name).relative_to(R));products[relative]=values[name]
+  if name in replace:continue
+  if relative in frozen:assert values[name]==frozen[relative]['sha256'],name
+  else:
+   fixed=subprocess.check_output(['git','show','e7304512:'+relative],cwd=R);assert hashlib.sha256(fixed).hexdigest()==values[name],name
+assert len(main)==1
+m=Path(main[0]);content=m.read_text();assert '_test.TestMain(' not in content and 'os.Exit(m.Run())' in content and 'TestIndependentProjectUsageRootInitialization' in content
+extra=[B/'run.py',B/'overlay.json',Path('/workspace/toolchains/go1.27.1/bin/go'),Path('/workspace/toolchains/go1.27.1/bin/gofmt'),R/'go.mod',R/'go.sum']
+values.update({str(p):sha(p) for p in extra})
+result={'race_packages':len(packages),'actual_source_files':len(paths),'source_and_tool_digest':hashlib.sha256(json.dumps(values,sort_keys=True).encode()).hexdigest(),'product_paths':products,'overlay':replace,'generated_main':str(m),'generated_main_sha256':sha(m),'no_custom_TestMain':True,'selector':'^TestIndependentProjectUsageRootInitialization$','graph_sha256':sha(B/'p02-race-list/raw.log'),'extras':{str(p):sha(p) for p in extra}}
+label=sys.argv[1];(B/(label+'.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k not in ('product_paths','extras')},indent=2))

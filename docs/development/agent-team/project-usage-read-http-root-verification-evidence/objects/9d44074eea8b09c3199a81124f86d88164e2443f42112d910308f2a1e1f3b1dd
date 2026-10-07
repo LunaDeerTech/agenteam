@@ -1,0 +1,91 @@
+{
+  "at": 1791378985.143616,
+  "stage": "OFFLINE PREPARATION PASS, real tests NOT RUN",
+  "fourteen_v05_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+  "private_probe_sha256": "5043c053d19f834e3f4d97ed2b01c90867ccd9a2e9b14ff5cb6687f1e1c3c49f",
+  "binary": {
+    "path": "/workspace/scratch/usage-http-verification/C01/realprep01/model-independent-v02.test",
+    "sha256": "b511c790450e0d0170a27b0efeff47b83a4770239eb66b01bc4651f2fa67874a",
+    "bytes": 48973628,
+    "no_custom_TestMain": true,
+    "local_init_function_files": [],
+    "generated_main": "/home/agent/.cache/go-build/ca/ca107468b58dc822af50f71400199717bddfcdd189697ad186ebbde48d25d06f-d",
+    "generated_main_sha256": "ca107468b58dc822af50f71400199717bddfcdd189697ad186ebbde48d25d06f"
+  },
+  "source_graph": {
+    "packages": 397,
+    "sources": 2475,
+    "before_after_digest": "173f3f5cd9b79ea93fb96c9ef4573788518119c00238f16432a1d2f8a1a57efe",
+    "generatedmain_no_TestMain": true
+  },
+  "commands": {
+    "q05-gofmt": {
+      "meta_sha256": "036703bd47db42a265c3ec85c7ccfbf4edb7271618b3a9d6cbe6240360049170",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 0.008915901184082031,
+      "double_owned_process_zero": true
+    },
+    "q06-race-list": {
+      "meta_sha256": "5f95aaba36a3165d9ccb6f8016c0062e7cb94ebf23630611b3f485906b2aa06d",
+      "raw_sha256": "b26a22602aa5fb2926570f8e8bbd90d87bf7742294635a6575de4640d696fa43",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 0.269744873046875,
+      "double_owned_process_zero": true
+    },
+    "q07-race-compile": {
+      "meta_sha256": "1d58e39290bad75c56a87d07c6349575bda633ff3fc8cc77d55dc153c1b5b3cd",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 4.894819974899292,
+      "double_owned_process_zero": true
+    },
+    "q08-test-list": {
+      "meta_sha256": "35fa0c3b4cec79b1130d334297ae253ab63e17b8f0a711c078400c96104c371e",
+      "raw_sha256": "56aeeaf4d00db88d741e7e1f174247786e667881c2c7dbe39ea5b79fd9e72590",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 1.020810842514038,
+      "double_owned_process_zero": true
+    },
+    "q09-driver-input": {
+      "meta_sha256": "71a9ae7656c54b3ba415896802ed695634146fa6cc659749ce274535c032d5cf",
+      "raw_sha256": "2a897ed7aa039a51b9220f39de696cf3cd1e84ccee926b118996c326b844f1bc",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 0.5215563774108887,
+      "double_owned_process_zero": true
+    }
+  },
+  "driver": {
+    "path": "/workspace/scratch/usage-http-verification/C01/realprep01/driver-v01/driver.py",
+    "sha256": "df312774b286b60a2c29a84209b0c1be7afba5bca8fcddf90b26e6d58b26335e",
+    "frozen_sha256": "2f04786a1a9995ab6b829a0b204a8b1f432b163e180efec3be2834c9793c3752",
+    "input_gate": {
+      "docker_path_and_hash_match": true,
+      "files_count": 3135,
+      "actual_digest": "aae65cf6e22e4bedd7a2cc7f785575bc158ed9fabbfeb41fe29fa554fd2833cf",
+      "expected_digest": "aae65cf6e22e4bedd7a2cc7f785575bc158ed9fabbfeb41fe29fa554fd2833cf",
+      "missing": [],
+      "mismatches": [],
+      "package_set_changes": [],
+      "accepted_baseline_changes": [],
+      "accepted_count": 799,
+      "source_fourteen_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+      "closure_delta_sha256": "dc74e9acfb271ce4cbf40db9c5af3db29b6c3236b13f85ebfe6d31768609599f",
+      "minio_matches": true,
+      "accepted": true,
+      "resources_started": false
+    }
+  },
+  "limitations": [
+    "No independent C real assertions executed; compiler/list is not business acceptance.",
+    "First v04 compiled draft and source retained; corrected diagnostics both schema and Account-header-helper assumptions before any independent real run.",
+    "Native/A/B evidence unchanged. Author live resources are outside independent offline child ownership; process zero claims are exact owned groups only.",
+    "Future real driver explicitly records baseline and newly observed PID1 daemon zombies; these are not owned, signaled or joined.",
+    "Only root can authorize real resource window."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "at": 1791377942.062585,
+  "source_static_ready_for_resource_preparation": true,
+  "manifest_sha256": "e8e35babc732897531b7e12ed33a87af4386bbb4639310ed7ecafcdb1d178d20",
+  "fixture_sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+  "all14_current_match": true,
+  "unchanged_other13": true,
+  "original_fixture_preserved_sha256": "5e353074da1e561be47a06b5716c7b1eb97ea1cd18811a087dae24f59ee8ccbc",
+  "fresh_force_lifecycle": true,
+  "same_forceDone_actual_wait": true,
+  "Joined_checked_after_forceDone": true,
+  "prior_failures_preserved": true,
+  "author_repair_checks": [
+    {
+      "label": "c23-model-force-compile",
+      "meta_sha256": "df9cde70188a290d918f3203089809eef25ec8481093c41f36be853170fc0301",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "elapsed": 5.3914806842803955,
+      "pid": 72527,
+      "adopted_waits": []
+    },
+    {
+      "label": "c24-model-force-vet",
+      "meta_sha256": "72da1b60bb581c67b2c9a80acd23bbcfd04c86401c8cf603c3ab6eb703dd4101",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "elapsed": 0.6212036609649658,
+      "pid": 72680,
+      "adopted_waits": []
+    }
+  ],
+  "two_minute_top_driver_gate_pending": true,
+  "reviewer_no_compile_or_resource_run": true
+}

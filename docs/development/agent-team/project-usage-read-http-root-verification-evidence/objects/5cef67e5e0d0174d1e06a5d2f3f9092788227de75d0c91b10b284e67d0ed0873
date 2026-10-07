@@ -1,0 +1,293 @@
+{
+  "scope": "Observed PID1 daemon-side containerd-shim zombies only. These are not owned descendants and have no task wait; do not claim host-wide zero residual. Deltas are time-window observations, not an exact shim-to-container attribution. No PID1/daemon action taken.",
+  "snapshots": [
+    {
+      "name": "d01-new-before",
+      "path": "/workspace/scratch/usage-http-author/C/driver-v02/runs/d01-new/process-baseline.json",
+      "sha256": "2533d2281d3635d5c6c07e5b6c1d00bb82e94861457f527b8ae130ebf7f26477",
+      "rows": {},
+      "new_since_previous": []
+    },
+    {
+      "name": "d02-new-before",
+      "path": "/workspace/scratch/usage-http-author/C/driver-v03/runs/d02-new/process-baseline.json",
+      "sha256": "2391ddb60eb06e0ecd13bf062a7c2e949b22597a0b961a394ffaa58bae54e8ec",
+      "rows": {},
+      "new_since_previous": []
+    },
+    {
+      "name": "d03-affected-before",
+      "path": "/workspace/scratch/usage-http-author/C/driver-v04/runs/d03-affected/process-baseline.json",
+      "sha256": "c219514bc463145c6f19339f8b36a86271eb96ab07fc3df59f8340608357ab50",
+      "rows": {
+        "80262": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437604",
+          "state": "Z"
+        },
+        "80626": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437880",
+          "state": "Z"
+        },
+        "80994": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438130",
+          "state": "Z"
+        },
+        "81726": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438408",
+          "state": "Z"
+        }
+      },
+      "new_since_previous": [
+        {
+          "pid": 80262,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437604",
+          "state": "Z"
+        },
+        {
+          "pid": 80626,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437880",
+          "state": "Z"
+        },
+        {
+          "pid": 80994,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438130",
+          "state": "Z"
+        },
+        {
+          "pid": 81726,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438408",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "name": "d04-root-before",
+      "path": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d04-root/process-baseline.json",
+      "sha256": "0e483260b1b3a68d8ed3838a73f1a4adf9afa24e0de696f60bf634a3f54d0a4e",
+      "rows": {
+        "80262": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437604",
+          "state": "Z"
+        },
+        "80626": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "437880",
+          "state": "Z"
+        },
+        "80994": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438130",
+          "state": "Z"
+        },
+        "81726": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "438408",
+          "state": "Z"
+        },
+        "91283": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "465508",
+          "state": "Z"
+        },
+        "91808": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "465932",
+          "state": "Z"
+        },
+        "92179": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "466208",
+          "state": "Z"
+        },
+        "92776": {
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "466386",
+          "state": "Z"
+        }
+      },
+      "new_since_previous": [
+        {
+          "pid": 91283,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "465508",
+          "state": "Z"
+        },
+        {
+          "pid": 91808,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "465932",
+          "state": "Z"
+        },
+        {
+          "pid": 92179,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "466208",
+          "state": "Z"
+        },
+        {
+          "pid": 92776,
+          "executable": "",
+          "name": "containerd-shim",
+          "ppid": 1,
+          "starttime": "466386",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "name": "d04-root-after",
+      "time": 1791378941.1299803,
+      "rows": {
+        "80262": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "437604",
+          "name": "containerd-shim"
+        },
+        "80626": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "437880",
+          "name": "containerd-shim"
+        },
+        "80994": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "438130",
+          "name": "containerd-shim"
+        },
+        "81726": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "438408",
+          "name": "containerd-shim"
+        },
+        "91283": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "465508",
+          "name": "containerd-shim"
+        },
+        "91808": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "465932",
+          "name": "containerd-shim"
+        },
+        "92179": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "466208",
+          "name": "containerd-shim"
+        },
+        "92776": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "466386",
+          "name": "containerd-shim"
+        },
+        "101362": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "483318",
+          "name": "containerd-shim"
+        },
+        "101906": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "483732",
+          "name": "containerd-shim"
+        },
+        "102632": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "483926",
+          "name": "containerd-shim"
+        },
+        "103231": {
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "484186",
+          "name": "containerd-shim"
+        }
+      },
+      "new_since_previous": [
+        {
+          "pid": 101362,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "483318",
+          "name": "containerd-shim"
+        },
+        {
+          "pid": 101906,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "483732",
+          "name": "containerd-shim"
+        },
+        {
+          "pid": 102632,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "483926",
+          "name": "containerd-shim"
+        },
+        {
+          "pid": 103231,
+          "ppid": 1,
+          "state": "Z",
+          "starttime": "484186",
+          "name": "containerd-shim"
+        }
+      ]
+    }
+  ]
+}

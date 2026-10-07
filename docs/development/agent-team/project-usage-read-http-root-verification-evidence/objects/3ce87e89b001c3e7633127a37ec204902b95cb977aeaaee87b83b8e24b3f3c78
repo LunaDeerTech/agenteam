@@ -1,0 +1,50 @@
+from pathlib import Path
+import os,sys,json,subprocess,time,hashlib,signal,ctypes
+BASE=Path('/workspace/scratch/usage-http-verification/C01/pure01');REPO=Path('/workspace/agenteam');AUTH=Path('/workspace/scratch/usage-http-author/C')
+label=sys.argv[1];command=sys.argv[2:];out=BASE/label;out.mkdir(exist_ok=False)
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+freeze=json.loads((AUTH/'fourteen-v03.json').read_text());assert sha(AUTH/'fourteen-v03.json')=='e8e35babc732897531b7e12ed33a87af4386bbb4639310ed7ecafcdb1d178d20'
+def hashes():
+ d={n:sha(REPO/n) for n in freeze};assert all(d[n]==freeze[n]['sha256'] for n in d)
+ for p in [REPO/'go.mod',REPO/'go.sum',BASE.parent/'draft/app_probe_test.go',BASE/'overlay.json',BASE/'run.py']:
+  if p.exists():d[str(p)]=sha(p)
+ return d
+def ps(pid):
+ try:
+  raw=Path(f'/proc/{pid}/stat').read_text();f=raw.rsplit(') ',1)[1].split();return {'pid':int(pid),'starttime':f[19],'pgrp':int(f[2]),'ppid':int(f[1]),'state':f[0]}
+ except (FileNotFoundError,ProcessLookupError):return None
+def members(pgid):return [s for p in Path('/proc').iterdir() if p.name.isdigit() and (s:=ps(p.name)) and s['pgrp']==pgid]
+libc=ctypes.CDLL(None,use_errno=True);assert libc.prctl(36,1,0,0,0)==0
+record={'label':label,'command':command,'cwd':str(REPO),'driver_sha256':sha(__file__),'before':hashes(),'started':time.time(),'subreaper':True,'execution_limit_seconds':45}
+env={'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin','HOME':'/home/agent','GOTOOLCHAIN':'local','GOENV':'off','GOPROXY':'off','GOSUMDB':'off','GOPATH':'/workspace/go','GOMODCACHE':'/workspace/go/pkg/mod','GOCACHE':'/home/agent/.cache/go-build','GOFLAGS':'-mod=readonly','GOMAXPROCS':'2'}
+record['env']=env
+for name in ['tcp','tcp6']:(out/('before-'+name+'.raw')).write_text(Path('/proc/net/'+name).read_text())
+def save():(out/'command.json').write_text(json.dumps(record,indent=2)+'\n')
+with (out/'raw.log').open('wb') as log:
+ p=subprocess.Popen(command,cwd=REPO,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True);record['direct']=ps(p.pid);save()
+ try:code=p.wait(timeout=45)
+ except subprocess.TimeoutExpired:
+  record['timeout']=True;os.killpg(p.pid,signal.SIGTERM)
+  try:code=p.wait(timeout=3)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=3)
+record.update(exit=code,direct_actual_wait=True,execution_elapsed_seconds=time.time()-record['started'])
+waits=[];limit=time.monotonic()+6
+while True:
+ try:child=os.waitid(os.P_ALL,0,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+ except ChildProcessError:break
+ if child is not None:
+  s=ps(child.si_pid);pid,status=os.waitpid(child.si_pid,0);waits.append({'stat':s,'pid':pid,'status':status,'actual_wait':True});continue
+ if time.monotonic()>limit:
+  if members(p.pid):os.killpg(p.pid,signal.SIGKILL)
+  record.update(adopted_waits=waits,cleanup_error='owned child has not reached terminal');save();raise RuntimeError(record['cleanup_error'])
+ time.sleep(.01)
+checks=[]
+for index in range(2):
+ checks.append({'at':time.time(),'group_members':members(p.pid),'direct_current':ps(p.pid)})
+ for name in ['tcp','tcp6']:(out/f'after-{index+1}-{name}.raw').write_text(Path('/proc/net/'+name).read_text())
+ if index==0:time.sleep(.15)
+record.update(adopted_waits=waits,cleanup=checks,after=hashes(),finished=time.time(),raw_sha256=sha(out/'raw.log'));save()
+assert all(not c['group_members'] and c['direct_current'] is None for c in checks)
+# Formatting intentionally changes only the private probe source.
+record['inputs_unchanged']=record['before']==record['after'];save()
+print(json.dumps({'label':label,'exit':code,'elapsed':record['execution_elapsed_seconds'],'adopted':waits,'inputs_unchanged':record['inputs_unchanged'],'double_process_zero':True}));sys.exit(code if code>=0 else 128-code)

@@ -1,0 +1,52 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 4414.263958383,
+      "top": "TestModelProjectUsageHTTPRootBinding"
+    },
+    {
+      "event": "result",
+      "monotonic": 4419.224862512,
+      "observed_seconds": 4.9609041290004825,
+      "reported_seconds": 4.98,
+      "state": "FAIL",
+      "top": "TestModelProjectUsageHTTPRootBinding"
+    },
+    {
+      "event": "run",
+      "monotonic": 4419.224862512,
+      "top": "TestModelProjectUsageHTTPAuthorityAndTerminal"
+    },
+    {
+      "event": "result",
+      "monotonic": 4424.789701522,
+      "observed_seconds": 5.5648390099995595,
+      "reported_seconds": 5.55,
+      "state": "FAIL",
+      "top": "TestModelProjectUsageHTTPAuthorityAndTerminal"
+    },
+    {
+      "event": "run",
+      "monotonic": 4424.789701522,
+      "top": "TestModelProjectUsageHTTPProjectionAndPath"
+    },
+    {
+      "event": "result",
+      "monotonic": 4430.088405246,
+      "observed_seconds": 5.298703724000006,
+      "reported_seconds": 5.31,
+      "state": "PASS",
+      "top": "TestModelProjectUsageHTTPProjectionAndPath"
+    }
+  ],
+  "expected": [
+    "TestModelProjectUsageHTTPAuthorityAndTerminal",
+    "TestModelProjectUsageHTTPProjectionAndPath",
+    "TestModelProjectUsageHTTPRootBinding"
+  ],
+  "failures": []
+}

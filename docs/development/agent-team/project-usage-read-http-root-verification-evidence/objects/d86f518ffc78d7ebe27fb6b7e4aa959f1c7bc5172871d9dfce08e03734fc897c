@@ -1,0 +1,18 @@
+from pathlib import Path
+import ast,importlib.util,json,re,hashlib
+root=Path(__file__).resolve().parent
+old=(root.parent/'driver-v03/driver.py').read_text();new=(root/'driver.py').read_text()
+assert new==old.replace("GROUPS = {", "GROUPS = {\n    'affected': ['TestModelProjectUsageHTTPRootBinding', 'TestModelProjectUsageHTTPAuthorityAndTerminal'],").replace("expected if args.group == 'new' else []", "expected if args.group in ('new', 'affected') else []")
+a={x.name:ast.dump(x) for x in ast.parse(old).body if isinstance(x,(ast.FunctionDef,ast.ClassDef))};b={x.name:ast.dump(x) for x in ast.parse(new).body if isinstance(x,(ast.FunctionDef,ast.ClassDef))}
+assert all(a[n]==b[n] for n in a if n!='main')
+spec=importlib.util.spec_from_file_location('usage_driver',root/'driver.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+expected=['TestModelProjectUsageHTTPRootBinding','TestModelProjectUsageHTTPAuthorityAndTerminal'];assert m.GROUPS['affected']==expected
+pattern='^('+'|'.join(expected)+')$'
+assert all(bool(re.fullmatch(pattern,n))==(n in expected) for v in m.GROUPS.values() for n in v)
+w=m.TopWatchdog(expected)
+for i,name in enumerate(expected):
+ w.consume('=== RUN   '+name,i*119);w.consume('--- PASS: '+name+' (119.00s)',(i+1)*119)
+assert w.result()['complete'] and len(w.events)==4
+for name in expected:
+ w=m.TopWatchdog(expected);w.consume('=== RUN   '+name,0);assert w.check(120)
+print(json.dumps({'driver_sha256':m.sha(root/'driver.py'),'functions_unchanged_from_v03_except_main_selector':True,'affected_exact_tops':expected,'both_120s_watchdogs_proven':True,'projection_excluded':True,'resources_started':False},indent=2))

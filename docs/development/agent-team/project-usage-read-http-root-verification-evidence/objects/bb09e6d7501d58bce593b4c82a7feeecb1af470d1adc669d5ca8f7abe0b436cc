@@ -1,0 +1,11 @@
+{
+  "at": 1791378884.7604635,
+  "fourteen_v05_sha256": "b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b",
+  "current14match": true,
+  "changed_only": [
+    "tests/model/project_usage_http_root_test.go"
+  ],
+  "decision": "STATIC PASS for diagnostic direct status checks; prior v04 actual Root failure remains. Actual rerun still required.",
+  "checks": "Only Account security-header helper removed on readyz/diagnostics; status503/200 and existing Problem/NotStarted/ready:false checks retained. Request helper still actual EOF+Close and one Request-ID; keepalive and root shutdown unchanged.",
+  "reuse": "Projection d02 and AuthorityAndTerminal d03 exact source unchanged; production unchanged."
+}

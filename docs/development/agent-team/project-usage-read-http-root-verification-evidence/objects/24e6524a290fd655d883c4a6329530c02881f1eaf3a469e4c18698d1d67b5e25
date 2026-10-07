@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 4871.396975449,
+      "top": "TestModelProjectUsageHTTPRootBinding"
+    },
+    {
+      "event": "result",
+      "monotonic": 4876.745109371,
+      "observed_seconds": 5.348133921999761,
+      "reported_seconds": 5.34,
+      "state": "PASS",
+      "top": "TestModelProjectUsageHTTPRootBinding"
+    }
+  ],
+  "expected": [
+    "TestModelProjectUsageHTTPRootBinding"
+  ],
+  "failures": []
+}

@@ -1,0 +1,15 @@
+from pathlib import Path
+import sys,json,hashlib,importlib.metadata
+from jsonschema import Draft202012Validator
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+r=Registry().with_resource('https://usage-schema.invalid/check',Resource.from_contents({'type':'object'},default_specification=DRAFT202012))
+assert not list(Draft202012Validator({'$ref':'https://usage-schema.invalid/check'},registry=r).iter_errors({}))
+files={}
+for m in list(sys.modules.values()):
+ name=getattr(m,'__file__',None)
+ if name:
+  p=Path(name)
+  if p.is_file():files[str(p)]={'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size}
+p=Path(sys.executable).resolve();files[str(p)]={'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size}
+print(json.dumps({'python':sys.version,'jsonschema':importlib.metadata.version('jsonschema'),'referencing':importlib.metadata.version('referencing'),'files':files},indent=2))

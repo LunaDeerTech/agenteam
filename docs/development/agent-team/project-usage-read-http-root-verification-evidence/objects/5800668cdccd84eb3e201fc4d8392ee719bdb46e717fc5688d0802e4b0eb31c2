@@ -1,0 +1,57 @@
+--- /workspace/scratch/usage-http-author/C/driver-v02/driver.py	2026-10-07 13:02:28.517341049 +0000
++++ /workspace/scratch/usage-http-author/C/driver-v03/driver.py	2026-10-07 13:06:22.116477062 +0000
+@@ -18,6 +18,8 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = Path('/workspace/agenteam')
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
++DOCKER = '/usr/local/bin/docker'
++DOCKER_SHA256 = '27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b'
+ MODCACHE = '/workspace/go/pkg/mod'
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/home/agent/.cache/go-build'
+@@ -81,16 +83,17 @@
+         if hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest() != oid:
+             accepted_changed.append(name)
+     minio_ok = actual.get(MINIO) == 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
+-    return {'files_count': len(expected), 'actual_digest': digest(actual), 'expected_digest': digest(expected),
++    docker_ok = actual.get(DOCKER) == DOCKER_SHA256 and shutil.which('docker', path=runtime_environment(ROOT / 'auxiliary-tmp')['PATH']) == DOCKER
++    return {'docker_path_and_hash_match': docker_ok, 'files_count': len(expected), 'actual_digest': digest(actual), 'expected_digest': digest(expected),
+             'missing': missing, 'mismatches': mismatches, 'package_set_changes': set_changes,
+             'accepted_baseline_changes': sorted(accepted_changed), 'accepted_count': len(closure['accepted_local_git_blobs']),
+             'source_fourteen_sha256': delta['source_fourteen']['sha256'], 'closure_delta_sha256': FROZEN['closure_delta']['sha256'],
+-            'minio_matches': minio_ok, 'accepted': not (missing or mismatches or set_changes or accepted_changed) and minio_ok}
++            'minio_matches': minio_ok, 'accepted': not (missing or mismatches or set_changes or accepted_changed) and minio_ok and docker_ok}
+ 
+ 
+ def runtime_environment(runtime):
+     # No inherited application credentials, Docker credentials, proxy or Go flags.
+-    return {'PATH': '/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/bin:/bin',
++    return {'PATH': '/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin',
+             'HOME': '/home/agent', 'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+@@ -271,13 +274,13 @@
+ def resources():
+     result = {}
+     for kind in ['container', 'network']:
+-        for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
++        for resource_id in command([DOCKER, kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else [DOCKER, kind, 'ls', '-aq', '--no-trunc']).split():
+             label = '.Config.Labels' if kind == 'container' else '.Labels'
+             try:
+                 projection = '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}'
+                 if kind == 'container':
+                     projection += '\t{{json .Mounts}}'
+-                raw = command(['docker', kind, 'inspect', '--format', projection, resource_id]).strip().split('\t')
++                raw = command([DOCKER, kind, 'inspect', '--format', projection, resource_id]).strip().split('\t')
+             except RuntimeError as exc:
+                 if 'No such' in str(exc) or 'not found' in str(exc):
+                     continue  # The fixture may remove an ID after the list call.
+@@ -426,7 +429,7 @@
+         observe_processes(proc, process.pid, observed_processes)
+         exact = {}
+         for resource_id, row in observed_resources.items():
+-            result = subprocess.run(['docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, env=env, timeout=20)
++            result = subprocess.run([DOCKER, row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, env=env, timeout=20)
+             missing = b'No such' in result.stderr or b'not found' in result.stderr
+             exact[resource_id] = {'absent': result.returncode != 0 and resource_id not in current and missing}
+         remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]

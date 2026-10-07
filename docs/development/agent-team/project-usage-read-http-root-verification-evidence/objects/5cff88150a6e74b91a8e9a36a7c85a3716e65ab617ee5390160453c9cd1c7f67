@@ -1,0 +1,58 @@
+{
+  "internal/central/account/http_boundary.go": {
+    "sha256": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+    "bytes": 3112
+  },
+  "internal/central/account/http_boundary_test.go": {
+    "sha256": "b8355f2646dca7a5ea23ba269d4f9c025144f722ccd6bb5a7cb537797e312c7c",
+    "bytes": 11271
+  },
+  "internal/central/usage/http/handler.go": {
+    "sha256": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+    "bytes": 9770
+  },
+  "internal/central/usage/http/wire.go": {
+    "sha256": "e61a6bb68b7e88e06c6972b4df0b614301195d71e1305f05faf9436fdd441f9c",
+    "bytes": 14388
+  },
+  "internal/central/usage/http/handler_test.go": {
+    "sha256": "6cb52c4553409b5edad5a7e641d55e966eea48b2a6ef452403e9ec24553102da",
+    "bytes": 38050
+  },
+  "internal/central/usage/http/wire_test.go": {
+    "sha256": "ee65274616107a90561c53422896e339b1cee1729326e926fa908d4e5b6a8a3a",
+    "bytes": 41644
+  },
+  "api/openapi/project-usage.json": {
+    "sha256": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4",
+    "bytes": 129343
+  },
+  "internal/central/app/project_usage.go": {
+    "sha256": "de5dfb03150ccc7fc3a875c871e5dfef150eb838d4173b392a6ed397b3550144",
+    "bytes": 2679
+  },
+  "internal/central/app/project_usage_test.go": {
+    "sha256": "dfa09bf12b0e39323ef4c4e339a8c247de1f524e766d30827873541b5e014c8a",
+    "bytes": 6102
+  },
+  "internal/central/app/account.go": {
+    "sha256": "7cf981e59507f27bb6aac57378acb65ee109ec2f4a1f73d554a0ddb877e380ba",
+    "bytes": 14551
+  },
+  "tests/model/project_usage_http_fixture_test.go": {
+    "sha256": "f5b9cdc0f264be254e86d3f03911d2e28b33549bd5bc7f3a581cb27644f9687d",
+    "bytes": 17137
+  },
+  "tests/model/project_usage_http_test.go": {
+    "sha256": "d421ca88f364f7674cce73fe40c4912d7554c66ab60326207f2023ac4cb10820",
+    "bytes": 8495
+  },
+  "tests/model/project_usage_http_terminal_test.go": {
+    "sha256": "a611d3365472451f2c1971ccad906608782bc385e534cc85aef76dbfe882c83f",
+    "bytes": 9525
+  },
+  "tests/model/project_usage_http_root_test.go": {
+    "sha256": "c42aad9caec87cf1cbe0ae03871d8e53638915fc1c0021bd618dd58cf1982f23",
+    "bytes": 8326
+  }
+}

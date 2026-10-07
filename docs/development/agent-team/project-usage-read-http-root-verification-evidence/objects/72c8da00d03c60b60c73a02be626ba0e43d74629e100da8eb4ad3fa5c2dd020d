@@ -1,0 +1,33 @@
+--- original-frozen-fixture
++++ v03-fixture
+@@ -134,11 +134,26 @@
+ 	}
+ 	t.Cleanup(func() {
+ 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+-		defer cancel()
+ 		core.StopAdmission()
+-		if e := core.Drain(ctx); e != nil || !core.Joined() {
+-			_ = core.Force(ctx)
+-			t.Error("formal Account cleanup did not join", e)
++		drainErr := core.Drain(ctx)
++		cancel()
++		if drainErr != nil || !core.Joined() {
++			t.Error("formal Account Drain did not join", drainErr)
++			// Force owns a fresh cleanup lifecycle. A context return can precede
++			// forceDone, which Joined does not cover. Wait for that same Force
++			// coordinator before waiting for the remaining local ownership.
++			forceCtx, forceCancel := context.WithTimeout(context.Background(), 3*time.Second)
++			forceErr := core.Force(forceCtx)
++			forceCancel()
++			if forceErr != nil || !core.Joined() {
++				t.Error("formal Account Force incomplete; retaining actual join ownership", forceErr)
++			}
++			if err := core.Force(context.Background()); err != nil {
++				t.Error("formal Account Force completed with error", err)
++			}
++			for !core.Joined() {
++				time.Sleep(10 * time.Millisecond)
++			}
+ 		}
+ 	})
+ 	status, err := core.Bootstrap(testContext(t))

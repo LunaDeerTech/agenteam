@@ -1,0 +1,17 @@
+{
+  "at": 1791378709.6048532,
+  "fourteen_v04_sha256": "ce8dcbe6a6bd01f3128e9ebf63176c6d46885698479db9f7b46c54fdc7e50f76",
+  "verified_14_current": true,
+  "only_changed": [
+    "tests/model/project_usage_http_terminal_test.go",
+    "tests/model/project_usage_http_root_test.go"
+  ],
+  "diffs": {
+    "/workspace/scratch/usage-http-verification/C01/v04-project_usage_http_terminal_test.go.diff": "18045a1857c2c3189a6fcf5429eafacdc9b0a683db660db971e0cf3fc78f60af",
+    "/workspace/scratch/usage-http-verification/C01/v04-project_usage_http_root_test.go.diff": "300ab3d86ab04caaf250e27497c43df0263eeae9df3045d733137c8db01873a9"
+  },
+  "decision": "STATIC PASS for two test-only expectation fixes; no production changes. Projection real evidence applicable unchanged.",
+  "lock": "Real Store result observed after actual transaction and returned unchanged. PostgreSQL poison overrides callback mapping; rejected(non-Fault) is InternalError/NotCommitted; old requireProjectLockTimeout asserts SQLSTATE55P03. No new production mapping.",
+  "readiness": "Fixed diagnostics.go emits readyz Problem NotStarted503; ready:false belongs to diagnostics200.",
+  "limits": "d02 real first failures retained; affected two tops require real rerun. Static review previously did not catch these assumptions."
+}

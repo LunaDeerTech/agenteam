@@ -1,0 +1,266 @@
+{
+  "driver_sha256": "c311b188922f242093e952b1bcd6dca479714fc996d37a6fd29b5b2be32aea3d",
+  "docker": "/usr/local/bin/docker",
+  "docker_sha256": "27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b",
+  "version": {
+    "Client": {
+      "Version": "28.4.0",
+      "ApiVersion": "1.51",
+      "DefaultAPIVersion": "1.51",
+      "GitCommit": "d8eb465",
+      "GoVersion": "go1.24.7",
+      "Os": "linux",
+      "Arch": "amd64",
+      "BuildTime": "Wed Sep  3 20:56:28 2025",
+      "Context": "default"
+    },
+    "Server": {
+      "Platform": {
+        "Name": "Docker Engine - Community"
+      },
+      "Components": [
+        {
+          "Name": "Engine",
+          "Version": "28.4.0",
+          "Details": {
+            "ApiVersion": "1.51",
+            "Arch": "amd64",
+            "BuildTime": "Wed Sep  3 20:58:50 2025",
+            "Experimental": "false",
+            "GitCommit": "249d679",
+            "GoVersion": "go1.24.7",
+            "KernelVersion": "6.18.44",
+            "MinAPIVersion": "1.24",
+            "Os": "linux"
+          }
+        },
+        {
+          "Name": "containerd",
+          "Version": "v1.7.28",
+          "Details": {
+            "GitCommit": "b98a3aace656320842a23f4a392a33f46af97866"
+          }
+        },
+        {
+          "Name": "runc",
+          "Version": "1.3.0",
+          "Details": {
+            "GitCommit": "v1.3.0-0-g4ca628d"
+          }
+        },
+        {
+          "Name": "docker-init",
+          "Version": "0.19.0",
+          "Details": {
+            "GitCommit": "de40ad0"
+          }
+        }
+      ],
+      "Version": "28.4.0",
+      "ApiVersion": "1.51",
+      "MinAPIVersion": "1.24",
+      "GitCommit": "249d679",
+      "GoVersion": "go1.24.7",
+      "Os": "linux",
+      "Arch": "amd64",
+      "KernelVersion": "6.18.44",
+      "BuildTime": "2025-09-03T20:58:50.000000000+00:00"
+    }
+  },
+  "first_baseline": {
+    "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e": {
+      "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+      "name": "/agenteam-dev-infra-minio-1",
+      "labels": {
+        "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "agenteam-dev-infra",
+        "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+        "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+        "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+        "com.docker.compose.service": "minio",
+        "com.docker.compose.version": "2.40.3"
+      },
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/workspace/agenteam-onboarding/infra/data/minio",
+          "Destination": "/data",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "volume",
+          "Source": "/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Name": "5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "kind": "container"
+    },
+    "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c": {
+      "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "name": "/agenteam-dev-infra-postgres-1",
+      "labels": {
+        "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "agenteam-dev-infra",
+        "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+        "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+        "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+        "com.docker.compose.service": "postgres",
+        "com.docker.compose.version": "2.40.3"
+      },
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/workspace/agenteam-onboarding/infra/data/postgres",
+          "Destination": "/var/lib/postgresql/data",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "kind": "container"
+    },
+    "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468": {
+      "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+      "name": "agenteam-dev-infra_default",
+      "labels": {
+        "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+        "com.docker.compose.network": "default",
+        "com.docker.compose.project": "agenteam-dev-infra",
+        "com.docker.compose.version": "2.40.3"
+      },
+      "kind": "network"
+    },
+    "763aebd4d7a2894245ef4a643125504f4af17530a15e91f781d5e02c1d91c5c9": {
+      "id": "763aebd4d7a2894245ef4a643125504f4af17530a15e91f781d5e02c1d91c5c9",
+      "name": "bridge",
+      "labels": {},
+      "kind": "network"
+    },
+    "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed": {
+      "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+      "name": "host",
+      "labels": {},
+      "kind": "network"
+    },
+    "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96": {
+      "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+      "name": "none",
+      "labels": {},
+      "kind": "network"
+    }
+  },
+  "second_baseline": {
+    "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e": {
+      "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+      "name": "/agenteam-dev-infra-minio-1",
+      "labels": {
+        "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "agenteam-dev-infra",
+        "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+        "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+        "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+        "com.docker.compose.service": "minio",
+        "com.docker.compose.version": "2.40.3"
+      },
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/workspace/agenteam-onboarding/infra/data/minio",
+          "Destination": "/data",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "volume",
+          "Source": "/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Name": "5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ],
+      "kind": "container"
+    },
+    "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c": {
+      "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "name": "/agenteam-dev-infra-postgres-1",
+      "labels": {
+        "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "agenteam-dev-infra",
+        "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+        "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+        "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+        "com.docker.compose.service": "postgres",
+        "com.docker.compose.version": "2.40.3"
+      },
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/workspace/agenteam-onboarding/infra/data/postgres",
+          "Destination": "/var/lib/postgresql/data",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "kind": "container"
+    },
+    "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468": {
+      "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+      "name": "agenteam-dev-infra_default",
+      "labels": {
+        "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+        "com.docker.compose.network": "default",
+        "com.docker.compose.project": "agenteam-dev-infra",
+        "com.docker.compose.version": "2.40.3"
+      },
+      "kind": "network"
+    },
+    "763aebd4d7a2894245ef4a643125504f4af17530a15e91f781d5e02c1d91c5c9": {
+      "id": "763aebd4d7a2894245ef4a643125504f4af17530a15e91f781d5e02c1d91c5c9",
+      "name": "bridge",
+      "labels": {},
+      "kind": "network"
+    },
+    "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed": {
+      "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+      "name": "host",
+      "labels": {},
+      "kind": "network"
+    },
+    "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96": {
+      "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+      "name": "none",
+      "labels": {},
+      "kind": "network"
+    }
+  },
+  "resources_started": false,
+  "baseline_unchanged": true
+}

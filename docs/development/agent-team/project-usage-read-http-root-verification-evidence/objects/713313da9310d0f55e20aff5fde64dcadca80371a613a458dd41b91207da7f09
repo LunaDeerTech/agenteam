@@ -1,0 +1,24 @@
+from pathlib import Path
+import importlib.util,json,tempfile,threading,time,hashlib
+root=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('usage_driver',root/'driver.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+name=m.GROUPS['new'][0];passed=[]
+w=m.TopWatchdog([name]);w.consume('=== RUN   '+name,10);w.consume('=== RUN   '+name+'/sub',99);w.consume('--- PASS: '+name+'/sub (110.00s)',119);w.consume('cleanup still running',129)
+assert w.active[name]==10 and not w.check(129.999);assert w.check(130);assert len(w.failures)==1 and not w.result()['complete'];passed.append('exact top RUN to live deadline includes unfinished cleanup; subcases do not reset')
+w=m.TopWatchdog([name]);w.consume('=== RUN   '+name,0);w.consume('cleanup ended',119);w.consume('--- PASS: '+name+' (119.00s)',119);assert w.result()['complete'];passed.append('final top result completes after cleanup')
+w=m.TopWatchdog([name]);w.consume('=== RUN   '+name,0);w.consume('--- PASS: '+name+' (120.01s)',0.01);assert not w.result()['complete'];passed.append('reported elapsed catches buffered over-budget result')
+w=m.TopWatchdog([name]);w.consume('=== RUN   '+name,1);w.consume('=== RUN   '+name,119);assert w.active[name]==1 and w.failures;passed.append('duplicate top RUN cannot renew budget')
+w=m.TopWatchdog([name]);w.consume('--- PASS: '+name+' (1.00s)',1);assert w.failures;passed.append('result without observed start rejected')
+w=m.TopWatchdog([]);assert w.result()['complete'];passed.append('old exact selectors retain original package budget without new-top claim')
+with tempfile.TemporaryDirectory(prefix='watchdog-proof-',dir=root) as directory:
+ p=Path(directory)/'raw.log';p.write_text('');stop=threading.Event();errors=[];calls=[];w=m.TopWatchdog([name],budget=0.12)
+ thread=threading.Thread(target=m.watch_output,args=(p,w,stop,lambda sig,frame:calls.append(sig),errors));thread.start()
+ with p.open('a') as f:
+  f.write('=== RUN   '+name);f.flush();time.sleep(.03);assert not w.started
+  f.write('\n');f.flush()
+ deadline=time.monotonic()+1
+ while not calls and time.monotonic()<deadline:time.sleep(.01)
+ stop.set();thread.join()
+ assert calls==[m.signal.SIGTERM] and len(w.failures)==1 and not errors and not thread.is_alive()
+ passed.append('actual tail thread consumes complete lines, enforces deadline independently, requests owned cancellation and actually joins')
+print(json.dumps({'driver_sha256':hashlib.sha256((root/'driver.py').read_bytes()).hexdigest(),'passed':passed,'resources_started':False},indent=2))

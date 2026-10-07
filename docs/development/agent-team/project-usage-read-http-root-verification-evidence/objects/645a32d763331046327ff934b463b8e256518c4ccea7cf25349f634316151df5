@@ -1,0 +1,29 @@
+{
+  "driver_sha256": "3fa57c6ec1ee106e433cbca2cb446ef2938590debca8e89828e4389c2c31aad6",
+  "direct_wait_actual_exit": 0,
+  "actions": [
+    {
+      "pid": 76104,
+      "starttime": "412177",
+      "signal": 15,
+      "time": "2026-10-07T13:02:49.968321+00:00"
+    },
+    {
+      "pid": 76104,
+      "starttime": "412177",
+      "signal": 9,
+      "time": "2026-10-07T13:02:52.992555+00:00"
+    }
+  ],
+  "adopted_actual_waits": [
+    {
+      "pid": 76104,
+      "starttime": "412177",
+      "actual_wait": true,
+      "exit": -9,
+      "time": "2026-10-07T13:02:53.019610+00:00"
+    }
+  ],
+  "remaining_owned": [],
+  "resources_started": false
+}

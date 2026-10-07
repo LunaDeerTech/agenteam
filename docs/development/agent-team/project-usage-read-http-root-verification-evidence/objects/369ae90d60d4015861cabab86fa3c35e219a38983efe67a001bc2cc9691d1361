@@ -1,0 +1,13 @@
+{
+  "driver_sha256": "3fa57c6ec1ee106e433cbca2cb446ef2938590debca8e89828e4389c2c31aad6",
+  "passed": [
+    "exact top RUN to live deadline includes unfinished cleanup; subcases do not reset",
+    "final top result completes after cleanup",
+    "reported elapsed catches buffered over-budget result",
+    "duplicate top RUN cannot renew budget",
+    "result without observed start rejected",
+    "old exact selectors retain original package budget without new-top claim",
+    "actual tail thread consumes complete lines, enforces deadline independently, requests owned cancellation and actually joins"
+  ],
+  "resources_started": false
+}

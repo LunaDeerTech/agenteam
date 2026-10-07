@@ -1,0 +1,113 @@
+package app
+
+import (
+	"context"
+	"errors"
+	"strings"
+	"testing"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+)
+
+type independentUsageSchemaStore struct {
+	*postgres.Store // Any unexpected constructor/schema operation panics.
+	want            context.Context
+	queries, closed int
+	failAt          int
+	failure         error
+}
+
+func (s *independentUsageSchemaStore) Query(ctx context.Context, query string, _ ...any) (pgx.Rows, error) {
+	if ctx != s.want || !strings.Contains(query, "WHERE false") {
+		panic("startup context changed or schema initialization attempted data access")
+	}
+	s.queries++
+	if s.queries == s.failAt {
+		return nil, s.failure
+	}
+	return &independentUsageRows{store: s}, nil
+}
+
+type independentUsageRows struct {
+	store  *independentUsageSchemaStore
+	closed bool
+}
+
+func (r *independentUsageRows) Close() {
+	if !r.closed {
+		r.closed = true
+		r.store.closed++
+	}
+}
+func (*independentUsageRows) Err() error                                   { return nil }
+func (*independentUsageRows) CommandTag() pgconn.CommandTag                { return pgconn.CommandTag{} }
+func (*independentUsageRows) FieldDescriptions() []pgconn.FieldDescription { return nil }
+func (*independentUsageRows) Next() bool                                   { return false }
+func (*independentUsageRows) Scan(...any) error                            { panic("schema initialization scanned data") }
+func (*independentUsageRows) Values() ([]any, error)                       { panic("schema initialization read data") }
+func (*independentUsageRows) RawValues() [][]byte                          { panic("schema initialization read raw data") }
+func (*independentUsageRows) Conn() *pgx.Conn                              { return nil }
+
+func TestIndependentProjectUsageRootInitialization(t *testing.T) {
+	for _, mode := range []string{"complete", "model-error", "model-cancels", "second-schema-error"} {
+		t.Run(mode, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			sentinel := errors.New("independent schema error")
+			store := &independentUsageSchemaStore{want: ctx, failure: sentinel}
+			if mode == "second-schema-error" {
+				store.failAt = 2
+			}
+			cfg := testConfig(t, "1s")
+			accounts, err := account.NewAuthority(store, cfg.AccountKeyring())
+			if err != nil {
+				t.Fatal(err)
+			}
+			assembly, err := createProjectUsage(cfg, store, accounts)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if store.queries != 0 {
+				t.Fatal("constructor performed schema I/O")
+			}
+			models := 0
+			err = initializeModelsAndUsage(ctx, func(got context.Context) error {
+				models++
+				if got != ctx || store.queries != 0 {
+					t.Fatal("model order/context changed")
+				}
+				if mode == "model-error" {
+					return sentinel
+				}
+				if mode == "model-cancels" {
+					cancel()
+				}
+				return nil
+			}, assembly.reader.Initialize)
+			if models != 1 {
+				t.Fatal("model initialization repeated")
+			}
+			switch mode {
+			case "complete":
+				if err != nil || store.queries != 3 || store.closed != 3 {
+					t.Fatal("real Usage schema initialization incomplete", err, store.queries, store.closed)
+				}
+			case "second-schema-error":
+				if !errors.Is(err, sentinel) || store.queries != 2 || store.closed != 1 {
+					t.Fatal("schema failure escaped or continued", err, store.queries, store.closed)
+				}
+			case "model-error":
+				if !errors.Is(err, sentinel) || store.queries != 0 {
+					t.Fatal("model failure started Usage")
+				}
+			case "model-cancels":
+				if !errors.Is(err, context.Canceled) || store.queries != 0 {
+					t.Fatal("cancelled model renewed Usage budget")
+				}
+			}
+		})
+	}
+}

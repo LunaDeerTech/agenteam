@@ -1,0 +1,46 @@
+--- v03/tests/model/project_usage_http_terminal_test.go
++++ v04/tests/model/project_usage_http_terminal_test.go
+@@ -251,12 +251,41 @@
+ 		project, _ := f.ProjectLock(v.project.ID.String())
+ 		release := managementHold(t, &systemHTTPFixture{fixture: v.fixture}, project, f.Exclusive)
+ 		defer release()
++		observed := make(chan f.CommitResult, 1)
++		v.tracked.hooks(nil, func(cause f.TransactionCause, result f.CommitResult) f.CommitResult {
++			if projectUsageReadCause(cause) {
++				select {
++				case observed <- result:
++				default:
++				}
++			}
++			return result
++		})
++		defer v.tracked.hooks(nil, nil)
+ 		began := time.Now()
+ 		response := v.request(t, v.ownerBrowser, "GET", path)
+ 		elapsed := time.Since(began)
+-		response.problem(t, 503, f.DependencyUnavailable)
+-		if elapsed < 600*time.Millisecond || elapsed >= 1900*time.Millisecond || bytes.Contains(response.body, []byte(invocation.event.Identity.Attempt.InvocationID.String())) {
++		response.problem(t, 500, f.InternalError)
++		var problem httpapi.Problem
++		if json.Unmarshal(response.body, &problem) != nil || problem.CommitState != f.NotCommitted {
++			t.Fatal("PG lock timeout lost its original commit state")
++		}
++		select {
++		case result := <-observed:
++			if result.State() != f.NotCommitted {
++				t.Fatal("PG lock timeout did not complete its actual transaction")
++			}
++			requireProjectLockTimeout(t, result.Fault())
++		default:
++			t.Fatal("PG lock timeout skipped terminal observation")
++		}
++		if elapsed < 600*time.Millisecond || elapsed >= 1900*time.Millisecond {
+ 			t.Fatal("PG one-second timeout not distinct from HTTP two-second expiry")
++		}
++		for _, forbidden := range []string{invocation.event.Identity.Attempt.InvocationID.String(), `"items"`, "DATABASE_LOCK_FAILED", "55P03", "pg_advisory"} {
++			if bytes.Contains(response.body, []byte(forbidden)) {
++				t.Fatal("PG failure published a candidate or private database cause")
++			}
+ 		}
+ 		release()
+ 		t.Log("earlier PG lock_timeout completed safely; this is not natural HTTP budget evidence")

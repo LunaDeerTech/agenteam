@@ -1,0 +1,44 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestUsageReaderNonemptyPagination|TestUsageInvocationWireLedger|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPCurrentAdministrator)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T13:16:55.772661+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/usage-http-author/C/driver-v05/docker-config",
+    "GOCACHE": "/home/agent/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/usage-http-author/C/driver-v05/runs/d05-old-model/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 109366,
+  "pid_stat": "109366 (sh) R 109286 109366 109366 0 -1 4194560 21 0 0 0 0 0 0 0 20 0 1 0 490192 540672 0 18446744073709551615 94764462665728 94764462746721 140735254911616 0 0 0 0 0 0 0 0 0 17 3 0 0 0 0 0 94764462775856 94764462780992 94764730777600 140735254920169 140735254920350 140735254920350 140735254921196 0\n",
+  "seconds": 65.681,
+  "started_utc": "2026-10-07T13:15:50.091763+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

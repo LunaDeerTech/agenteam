@@ -1,0 +1,289 @@
+{
+  "scope": "Data-only archival self-check; no Git, copied script, business command or resource action executed. Root supplied commit/push binding.",
+  "saved_source_paths": 296,
+  "unique_objects": 228,
+  "unique_original_bytes": 1078950,
+  "parsed_original_json_paths": 186,
+  "fingerprint_only_checked": 105,
+  "product_fourteen_plus_README_hash_match": true,
+  "source_map_sha256": "644147f98ee3aab8dfa316387bf3fd81f71699ff213ebd24146d9b4489a545e2",
+  "work_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-project-usage-read-http.md",
+    "before_sha256": "13f1c7fc48e649a679cbddb7b0343b479d112a32238080070fba8c6fef766b93",
+    "header_before": "work-card-header-before.txt",
+    "header_before_sha256": "54250725c93467b5f84f03b2b3e9e99dad9d0c6501a78a43f8125475302d665b",
+    "technical_section_1_through_7_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d",
+    "after_sha256": "b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0"
+  },
+  "actual_run_records_read_only_checked": [
+    {
+      "run": "d02-new",
+      "actual_exit": 1,
+      "seconds": 64.796,
+      "tops": [
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPAuthorityAndTerminal"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath"
+        ]
+      ],
+      "owned": 106,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_wait": true,
+      "watchdog_joined": true
+    },
+    {
+      "run": "d03-affected",
+      "actual_exit": 1,
+      "seconds": 59.825,
+      "tops": [
+        [
+          "FAIL",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPAuthorityAndTerminal"
+        ]
+      ],
+      "owned": 92,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_wait": true,
+      "watchdog_joined": true
+    },
+    {
+      "run": "d04-root",
+      "actual_exit": 0,
+      "seconds": 55.309,
+      "tops": [
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ]
+      ],
+      "owned": 88,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_wait": true,
+      "watchdog_joined": true
+    },
+    {
+      "run": "d05-old-model",
+      "actual_exit": 0,
+      "seconds": 65.681,
+      "tops": [
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire"
+        ],
+        [
+          "PASS",
+          "TestUsageInvocationWireLedger"
+        ],
+        [
+          "PASS",
+          "TestUsageReaderNonemptyPagination"
+        ]
+      ],
+      "owned": 90,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_wait": true,
+      "watchdog_joined": true
+    },
+    {
+      "run": "d06-old-project",
+      "actual_exit": 0,
+      "seconds": 48.192,
+      "tops": [
+        [
+          "PASS",
+          "TestProjectB02OwnerSessionNamePathAndPaging"
+        ],
+        [
+          "PASS",
+          "TestProjectB02OwnerPortRequiresCallerTransactionLocks"
+        ]
+      ],
+      "owned": 85,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_wait": true,
+      "watchdog_joined": true
+    },
+    {
+      "run": "i01-independent",
+      "actual_exit": 0,
+      "seconds": 61.122,
+      "tops": [
+        [
+          "PASS",
+          "TestIndependentProjectUsageHTTPAuthorityProjection"
+        ],
+        [
+          "PASS",
+          "TestIndependentProjectUsageHTTPDefaultRootIdentity"
+        ]
+      ],
+      "owned": 90,
+      "resources": 7,
+      "double_cleanup": true,
+      "actual_wait": true,
+      "watchdog_joined": true
+    }
+  ],
+  "daemon_limitation_preserved": true,
+  "local_links_checked": 32,
+  "links": [
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/0c34820608069f9458c84c71a96b83326855324f6e78469367cc1fa46fa0e244"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/2202bcfc8c4ea0c67565792bfc8ca5e04646c907976665f8a9b14b3db1d7da48"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/89258e5b24b8f57a133b4368e9fdfa2df09575bb17a320430b638e34b90fc4a6"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-stage-a-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-stage-b-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-native-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/b2316eed06adf0983e5ecd93249a5891d414638e0c495289ae0ef577c957e59b"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/e7d6e13638ad949e80efe085dd438f3f6cad56ea9b914b5fb5480a6ee36cd592"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/dc74e9acfb271ce4cbf40db9c5af3db29b6c3236b13f85ebfe6d31768609599f"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/180b8b4343d55df256fcd26c8f5b92554294f7a967bfa11ff0876f1b2b17b76a"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/e1c559eef6a8d1a51e43d53212b07a2154aff9d85305d6083bb684c784baee31"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/89258e5b24b8f57a133b4368e9fdfa2df09575bb17a320430b638e34b90fc4a6"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/1695e59daa6d2fb7fe468ad37ff3653c9b0ac630ebd3588005e414d5d479c996"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/af3be3c4049203e8ac470eda163d594cc7742cfbf94cffe016ff9e467438af7a"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/1d79f2191fc8cc8dadc87a411c089803de38e78b7a9fa07a00efa6fa3316dc72"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/00bc5010b5e69ac33c477644cf73a04c6d9a0b7bf20f74db314e567580144255"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/a015c3fb1570b8a16cc5c5b6cd4bd646af1fa61155fe633dddbda74a826101aa"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/998797039b1c49b4f1f2e601e5bd9f5573709a582100a2e8d4b08dd36610d311"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/478232ee51935632d711b62981624f7e23ae2a04b00911142ce9ef7277cc14f0"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/cd9978f66c2df12b11b8d608a69ca6d27b2421258b71843ee91fa1b023579c44"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/e70cb8ec0daff2d389583cd04add37331cf95167bc8f94eb3a86baaf68a0e678"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/objects/2202bcfc8c4ea0c67565792bfc8ca5e04646c907976665f8a9b14b3db1d7da48"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/source-map.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-usage-read-http-root-verification.md",
+      "target": "project-usage-read-http-root-verification-evidence/archive-checks.json"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "../agent-team/project-usage-read-http-stage-a-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "../agent-team/project-usage-read-http-stage-b-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "../agent-team/project-usage-read-http-native-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "../agent-team/project-usage-read-http-root-verification.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "d09-model-system-token-usage-design.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "d08-project-owner-design.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "recovery-d09-invocation-usage-ledger.md"
+    },
+    {
+      "document": "docs/development/work-items/d09-project-usage-read-http.md",
+      "target": "../agent-team/project-usage-read-http-spec-verification.md"
+    }
+  ],
+  "format": "UTF-8/LF/final newline/no trailing whitespace and paired fences for authored report/card/map. Original data remains byte-exact and exempt from prose whitespace checks.",
+  "git_diff_check": "Not run: parent expressly prohibited every Git operation. Direct data and format checks used.",
+  "exploratory_inspection_error": {
+    "exit": 1,
+    "error": "AttributeError: 'list' object has no attribute 'keys'",
+    "cause": "A read-only data inspection treated independent cleanup JSON array as object; later read and final assertions used two-element list correctly. No product/script/resource command executed."
+  },
+  "validation_actual_exit": 0,
+  "report_sha256": "df13d0de2878ce86cfe22586bc05d737afe0785d2e676d20883300bd323ea375"
+}

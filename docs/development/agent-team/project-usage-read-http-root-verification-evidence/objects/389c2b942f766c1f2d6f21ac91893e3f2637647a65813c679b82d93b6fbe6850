@@ -1,0 +1,5 @@
+# github.com/LunaDeerTech/agenteam/internal/central/app [github.com/LunaDeerTech/agenteam/internal/central/app.test]
+../scratch/usage-http-verification/C01/draft/app_probe_test.go:31:9: cannot use &independentUsageRows{…} (value of type *independentUsageRows) as pgx.Rows value in return statement: *independentUsageRows does not implement pgx.Rows (missing method TypeMap)
+../scratch/usage-http-verification/C01/draft/app_probe_test.go:65:42: cannot use store (variable of type *independentUsageSchemaStore) as account.Store value in argument to account.NewAuthority: *independentUsageSchemaStore does not implement account.Store (wrong type for method Query)
+		have Query(context.Context, string, ...any) (pgx.Rows, error)
+		want Query(context.Context, string, ...any) (*postgres.Rows, error)

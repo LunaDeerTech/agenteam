@@ -1,0 +1,105 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.47.172.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=01fb28f38f179f7b077cf0abeae5a809
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=ecda0d5d1949f85fb0d89a3bd93c47b8
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.326s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+=== RUN   TestModelProjectUsageHTTPRootBinding
+    project_usage_http_root_test.go:215: Usage binding changed readiness
+--- FAIL: TestModelProjectUsageHTTPRootBinding (4.98s)
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/GET/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/HEAD/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/GET/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage/summary?group_by=day
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/HEAD/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage/summary?group_by=day
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/GET/api/v1/projects/resolve?project_name=project-4f5ef69975cf&username=owner-e8fbd9fece2f
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/HEAD/api/v1/projects/resolve?project_name=project-4f5ef69975cf&username=owner-e8fbd9fece2f
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/UserSH-before-formal-Logout
+    project_usage_http_terminal_test.go:154: real User SH retained current read until commit; formal Logout User EX waited then revoked later request
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/ProjectSH-blocks-ProjectEX
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/actual-parent-cancel-tail
+=== RUN   TestModelProjectUsageHTTPAuthorityAndTerminal/earlier-PG-lock-timeout
+    project_usage_http_terminal_test.go:257: HTTP=500 want=503 code=INTERNAL_ERROR commit=not_committed
+=== NAME  TestModelProjectUsageHTTPAuthorityAndTerminal
+    project_usage_http_terminal_test.go:264: formal Owner isolation, real User/Project shared locks, original Unknown and actual cancelled transaction tails verified with controlled writer; no TCP commit-visibility claim
+--- FAIL: TestModelProjectUsageHTTPAuthorityAndTerminal (5.55s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/GET/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage (0.01s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/HEAD/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage (0.01s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/GET/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage/summary?group_by=day (0.01s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/HEAD/api/v1/projects/01a1167a-3774-755e-9730-4f5ef69975cf/model-usage/summary?group_by=day (0.01s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/GET/api/v1/projects/resolve?project_name=project-4f5ef69975cf&username=owner-e8fbd9fece2f (0.00s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/Unknown/HEAD/api/v1/projects/resolve?project_name=project-4f5ef69975cf&username=owner-e8fbd9fece2f (0.00s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/UserSH-before-formal-Logout (0.45s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/ProjectSH-blocks-ProjectEX (0.03s)
+    --- PASS: TestModelProjectUsageHTTPAuthorityAndTerminal/actual-parent-cancel-tail (0.13s)
+    --- FAIL: TestModelProjectUsageHTTPAuthorityAndTerminal/earlier-PG-lock-timeout (1.01s)
+=== RUN   TestModelProjectUsageHTTPProjectionAndPath
+    project_usage_http_test.go:184: STANDARD_SCHEMA_PASS 11
+    project_usage_http_test.go:188: formal owner projects and three joined wire results passed all eight aggregates, standard DTO schemas, HEAD, rename/name reuse and stable-ID cursor boundaries
+--- PASS: TestModelProjectUsageHTTPProjectionAndPath (5.31s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/model	15.871s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce e27fb46c79f9e7198abde63f58a48bfd
+D04 outbound fixture cleanup checked for nonce ecda0d5d1949f85fb0d89a3bd93c47b8
+D05 object fixture exact resource cleanup checked nonce=01fb28f38f179f7b077cf0abeae5a809

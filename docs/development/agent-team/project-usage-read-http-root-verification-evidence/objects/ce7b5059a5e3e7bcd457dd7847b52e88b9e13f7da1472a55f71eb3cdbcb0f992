@@ -1,0 +1,10 @@
+{
+  "at": 1791378820.8433788,
+  "followup_to": "v04-review.json",
+  "finding": "Root diagnostic .want uses Account-only security-header expectations outside diagnostics contract. d03 real failure preserved by author. First static review and independent unexecuted draft both missed helper scope.",
+  "scope": "Only private model probe and author root test require diagnostic direct status + existing JSON checks; no production or common helper change.",
+  "retained_compiled_probe": "/workspace/scratch/usage-http-verification/C01/realprep01/probe-compiled-v01.go.txt",
+  "retained_compiled_probe_sha256": "559377c73db171c7814ec95e29942e4d05b56ebb68a6cddc206730ceb7213056",
+  "real_tests_executed": false,
+  "next": "Wait v05 and recompile affected overlay; retain q01-q04 v04 evidence as compile/list-only."
+}
