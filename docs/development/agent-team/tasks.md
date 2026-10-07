@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：Usage HTTP 根装配接受，会议 Summary S1 恢复实施
+
+- [根装配验收归档](project-usage-read-http-root-verification.md)绑定 A `ba7ce729`、B `e7304512`、native 原档 `4a55` 与 C/D 的完整限定接受；C 七路径及 backend README 产品 `03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05` 已提交推送、远端一致。固定 14 技术源 v05，作者三新加六旧顶层按版本组合、独立两顶层真实通过，不宣称最终九项全量重跑；所有原测试/driver 失败保留。
+- 六真实轮各七个自有资源实际 wait、owned 链双清；daemon 每轮增加四个，最终 24 个 PID1 shim zombie 没有 task wait，不宣称全机清零。生产 Invocations=nil、ready503、完整 D08/D09/E01 未完成、E01 未开始及原三停止保持。
+- root 已恢复[系统会议 Summary S1](../work-items/d09-system-meeting-summary-selection.md)：`next_frontier` 后端 31 路径范围含四份已接受契约，`usage_backend` 唯一持有前端四兼容路径；仅实施/离线准备已授权，资源与 S2/S3 尚未授权，完整 S1 未验收。系统管理员统一选择 initial/update（含首轮标题）、Project 消费且不 override/复制初值的决定不变。以下历史原文保留。
+
 ## 2026-10-07：系统会议 Summary 四源纯契约接受
 
 - [四源验证归档](system-meeting-summary-contract-verification.md)绑定独立 PASS 与已提交推送 `e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a`、远端一致；作者 pure/race 各31顶层61子测及vet，独立 pure/race 各3顶层（288组合、16 Clone）通过，原 JSON 判定探针首错保留。58 原件、64 固定 Git 依赖，不复制源树/cache/binary。

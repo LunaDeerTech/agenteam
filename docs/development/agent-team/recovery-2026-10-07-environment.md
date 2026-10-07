@@ -39,3 +39,11 @@ Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三
 ## 系统会议 Summary 四源纯契约接受
 
 用户的系统统一会议 Summary 选择已由 `9ff1292d` 正式规格/设计接受；[四源契约归档](system-meeting-summary-contract-verification.md)记录产品 `e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a` 已独立 PASS、主线程采纳并提交推送、远端一致。作者 pure/race31顶层61子测/vet 与独立三顶层 pure/race（288组合、16 Clone）形成限定证据，原独立 JSON 判定探针失误保留；完整 S1 持久化/事务/删除/HTTP-client 未验收。Usage A 已接受，B 已受控接受并提交推送 `e7304512`、远端一致；C 七路径作者已实际 ACK、离线实施已启动，仍无 root/native/PG 接受；三停止、ready503、模块未完成与 E01 未开始保持，上述旧时点原文不改。
+
+## Usage HTTP 根装配接受与会议 Summary S1 恢复
+
+[Usage 根装配归档](project-usage-read-http-root-verification.md)记录 A/B/native/C/D 的完整限定接受：A `ba7ce729`、B `e7304512`、native 原档 `4a55` 继续复用，C 七路径及 backend README 已提交推送 `03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05`，主线程已核远端一致。14 技术源固定 v05（`b2316eed…7e59b`）；作者三新加六旧顶层按版本组合、独立两个顶层真实通过，覆盖当前 Session/Owner 的只读 HTTP、默认 root 与真实 PG 事务，不宣称最终九项全量重跑。所有原测试和 driver 失败保留。
+
+六个真实轮各有七资源实际 wait 与 owned 链双清；daemon 每轮增加四个、最终 24 个 PID1 shim zombie 未获 task wait，不宣称全机清零，也不倒填旧 native wrapper 或历史 zombie 的清理。生产 Invocations 仍为真正 nil，不交付 Runtime Facts、Project 初始化/生命周期、Usage UI 或 Execution Summary；ready503、完整 D08/D09/E01 未完成、E01 未开始及 Object runtime join/OpenAI tools 独立验证/SPA concurrent-publication 三停止保持。
+
+root 已恢复[会议 Summary S1](../work-items/d09-system-meeting-summary-selection.md)实施分工：`next_frontier` 持有后端 31 路径范围，其中四份契约已在 `e6cb70bd` 接受；`usage_backend` 转为前端唯一四兼容路径作者。当前只授权实施与离线准备，尚未授权资源运行，完整 S1 未验收，S2/S3 尚未授权。用户确认的系统管理员统一配置 initial/update（含首轮标题）模型、Project 消费系统选择且不 override/复制初值的规则保持；既定 Agent compaction 与 Execution Summary read model 不改。本次只同步四入口并保留上述历史原字节，未执行产品或旧脚本。
