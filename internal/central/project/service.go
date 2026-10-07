@@ -173,149 +173,15 @@ func (s *Service) GetProject(ctx context.Context, actor identity.Actor, id c.Pro
 		return c.ProjectRef{}, e
 	}
 	defer done()
-	if e = human(actor); e != nil {
-		return c.ProjectRef{}, e
-	}
-	if id.Validate() != nil {
-		return c.ProjectRef{}, invalid()
-	}
-	cause, e := readCause("get")
-	if e != nil {
-		return c.ProjectRef{}, e
-	}
-	var ref c.ProjectRef
-	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
-		if e := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{userLock(actor.Details().UserID, foundation.Shared), projectLock(id, foundation.Shared)}); e != nil {
-			return unavailable(e)
-		}
-		access, e := s.state().deps.Authority.RequireOwnerInTx(ctx, tx, actor, id, identity.Read)
-		if e != nil {
-			return e
-		}
-		ref = access.Project()
-		return nil
-	})
-	if e = commitError(result); e != nil {
-		return c.ProjectRef{}, e
-	}
-	return ref, nil
+	return readProject(ctx, s.state().store, s.state().deps.Authority, actor, id)
 }
 func (s *Service) ListOwnedProjects(ctx context.Context, actor identity.Actor, request c.ListOwnedProjectsRequest, page foundation.PageRequest) (foundation.Page[c.ProjectListItem], error) {
-	empty := foundation.Page[c.ProjectListItem]{}
 	ctx, done, e := s.begin(ctx)
 	if e != nil {
-		return empty, e
+		return foundation.Page[c.ProjectListItem]{}, e
 	}
 	defer done()
-	if e = human(actor); e != nil {
-		return empty, e
-	}
-	if e = c.ValidateProjectPage(page); e != nil {
-		return empty, e
-	}
-	filter, e := request.NormalizedFilter()
-	if e != nil {
-		return empty, e
-	}
-	owner, e := parseID[identity.User](actor.Details().UserID)
-	if e != nil {
-		return empty, e
-	}
-	query, e := c.OwnedProjectsQueryDigest(owner, request)
-	if e != nil {
-		return empty, e
-	}
-	binding := cursor.Binding{Scope: identity.SystemScope(), QueryDigest: query, Order: "created_at-desc,id-desc"}
-	var afterTime any
-	var afterID any
-	if page.Cursor != "" {
-		position, e := s.state().deps.Cursors.Verify(page.Cursor, binding)
-		if e != nil {
-			return empty, e
-		}
-		if len(position.Scalars) != 2 || position.OrderGeneration != nil || position.Scalars[0].Kind() != "instant" || position.Scalars[1].Kind() != "uuid" {
-			return empty, fault(foundation.CursorInvalid)
-		}
-		t, e := foundation.ParseInstant(position.Scalars[0].Value())
-		if e != nil {
-			return empty, fault(foundation.CursorInvalid)
-		}
-		id, e := foundation.ParseID[identity.Project](position.Scalars[1].Value())
-		if e != nil {
-			return empty, fault(foundation.CursorInvalid)
-		}
-		afterTime, afterID = t.Time(), id.String()
-	}
-	names := make([]string, len(filter))
-	for i, v := range filter {
-		names[i] = string(v)
-	}
-	cause, e := readCause("list")
-	if e != nil {
-		return empty, e
-	}
-	output := empty
-	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
-		if e := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{userLock(actor.Details().UserID, foundation.Shared)}); e != nil {
-			return unavailable(e)
-		}
-		if e := s.state().deps.Authority.state().sessions.RequireCurrentSession(ctx, tx, actor); e != nil {
-			return portError(e)
-		}
-		x, e := s.state().store.InTx(tx)
-		if e != nil {
-			return unavailable(e)
-		}
-		rows, e := x.Query(ctx, `SELECT `+projectColumns+` FROM agenteam_project.projects WHERE owner_user_id=$1 AND initialized_at IS NOT NULL AND lifecycle=ANY($2::text[]) AND ($3::timestamptz IS NULL OR (created_at,id)<($3::timestamptz,$4::uuid)) ORDER BY created_at DESC,id DESC LIMIT $5`, owner.String(), names, afterTime, afterID, page.Limit+1)
-		if e != nil {
-			return unavailable(e)
-		}
-		defer rows.Close()
-		refs := []*projectRecord{}
-		for rows.Next() {
-			r, e := scanProject(rows)
-			if e != nil {
-				return e
-			}
-			refs = append(refs, r)
-		}
-		if e = rows.Err(); e != nil {
-			return unavailable(e)
-		}
-		more := len(refs) > page.Limit
-		if more {
-			refs = refs[:page.Limit]
-		}
-		output.Items = make([]c.ProjectListItem, 0, len(refs))
-		for _, r := range refs {
-			item := c.ProjectListItem{ID: r.ref.ID, Name: r.ref.Name, Lifecycle: r.ref.Lifecycle, Version: r.ref.Version}
-			if r.ref.Lifecycle != c.Deleting {
-				description := r.ref.Description
-				item.Description = &description
-			}
-			if r.ref.Lifecycle == c.Archiving || r.ref.Lifecycle == c.Deleting {
-				item.OperationID = r.operation
-			}
-			if item.Validate() != nil {
-				return unavailable(nil)
-			}
-			output.Items = append(output.Items, item)
-		}
-		if more {
-			last := refs[len(refs)-1]
-			t, _ := cursor.Instant(last.ref.CreatedAt)
-			id, _ := cursor.UUID(last.ref.ID.String())
-			output.NextCursor, e = s.state().deps.Cursors.Sign(binding, cursor.Position{Scalars: []cursor.Scalar{t, id}})
-			if e != nil {
-				return e
-			}
-		}
-		return nil
-	})
-	if e = commitError(result); e != nil {
-		return empty, e
-	}
-	return output, nil
+	return readOwnedProjects(ctx, s.state().store, s.state().deps.Authority, s.state().deps.Cursors, actor, request, page)
 }
 
 // commitFailure preserves the opaque original physical attempt and cause. A

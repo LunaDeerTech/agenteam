@@ -130,6 +130,16 @@ System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 
 
 受限 Account recovery log 是独立敏感渠道，不是上述普通日志：首次管理员密码只尝试写一次；SMTP 未配置时邀请/reset 链接可写入，配置后发送失败不改渠道。不得复制其正文到 stderr、Audit、诊断或报告；部署操作者管理读取、备份与保留权限。文件/目录安全检查、written/unknown 与真实 Close/join 语义见[账号邮件说明](accountmail.md#smtp-与日志)。
 
+## Project Owner 列表与详情只读 HTTP
+
+默认 Central 根已提供 `GET/HEAD /api/v1/projects` 与 `GET/HEAD /api/v1/projects/{id}`，精确查询和字段见 [Project Owner OpenAPI](../../../api/openapi/project-owner.json) 与[实施规格](../work-items/d08-project-owner-read-http.md)。窄 Reader 复用 Usage 的同一 Project Authority、原数据库和 cursor keyring；每次读取在真实事务与完整锁计划内重验当前 Human Session、Owner 和项目状态，管理员没有跨 Owner 豁免。列表支持 lifecycle 过滤和有签名的 keyset cursor，逐页重新授权，完整校验所有行及额外哨兵后才截取页面；deleting 仅有最小列表投影，详情拒绝返回其旧内容。version 使用无损十进制字符串，nullable 与缺席字段严格区分。
+
+两秒总预算从 Account 边界检查和认证前开始，继承更早 parent deadline，覆盖空实体检查、锁与 SQL、完整投影和编码、实际 Write/Flush、Body.Close 及取消 callback join。只有实际 Committed 且 context 仍有效才发布候选；Unknown、回滚、取消或坏行均不返回成功数据，也不自动重读。HEAD 执行相同的完整查询与编码检查，返回准确 Content-Length，成功和错误均无 body。成功表示上限为 5 MiB；100 条各含 8192 B 最大转义描述的合法页面已实际编码为 4,948,120 B 并完整反解，未截断字段。
+
+固定 candidate04 的作者三个新 PG 顶层、六个旧回归按保留原红的版本组合通过，三轮正式 native 验证覆盖 keepalive、慢读体与写入/关闭尾部；独立 A/B 验证当前权限、游标、隐藏坏行、真实 COMMIT ACK 丢失与默认根兼容，真实列表/详情原 body 均通过标准 Draft 2020-12 schema 检查。原测试断言、driver 环境失败及一次误跑全 app 普通包的授权偏差保留；该偏差未作为 native 或根验收证据。正式 native 均有实际等待和关联端口/进程双清，PG 各轮七个 owned 资源实际等待并双清；daemon 侧未由任务等待的僵尸差量另记，不声称全机零残留。
+
+真实账户使用 Bootstrap/Invitation/Redeem/Login；测试项目由正式 Project.Create 配合持久 Skills 测试 fixture 建立，特殊状态 canonical 行仅为测试输入，不表示生产 Skills 初始化或生命周期已经绑定。默认根只接入读能力，保留原 resolve、Usage、Account/System/Summary 路由与启动关闭链；本结果不提供创建、修改、生命周期命令或 UI，不制造项目数据。生产 Resolution/Invocations 和 D24 消费仍未绑定，三项停止边界与 ready503 保持，完整 D08–D28/E01 未完成。
+
 ## Project Owner Usage 只读 HTTP
 
 默认 Central 根已装配三个 GET/HEAD 资源，接口与闭合字段见 [Project Usage OpenAPI](../../../api/openapi/project-usage.json) 和[实施规格](../work-items/d09-project-usage-read-http.md)。沿同一 Account Store/Authority 构造 Project Authority（Sessions、Routes 均为原 Account Authority），再构造引用同一 Project Authority 的 Usage Authority/Service，并复用已加载的 cursor keyring。handler 持有这些同实例及原 Account Service 的 HTTPBoundary；读取在实际事务内重验当前 Human Session、Project Owner 与项目状态，系统管理员没有跨 Owner 读取豁免。
