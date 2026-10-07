@@ -1,0 +1,274 @@
+{
+  "anthropic_conclusion": {
+    "accepted_formal_card_commit": "f349303bf6aa8b5c796f76cc43a34271e8c186e0",
+    "formal_card": "docs/development/work-items/recovery-d09-anthropic-messages-wire.md",
+    "gates": [
+      "OpenAI tools product acceptance",
+      "four shared sources frozen and transferred",
+      "same Exchange/Client/Budget and required tools compatibility validation"
+    ],
+    "new_candidate_paths": 0,
+    "no_text_only_alternative": true,
+    "status": "BLOCKED"
+  },
+  "archive_limits": [
+    "Original artifacts retain historical scratch paths/relative links. This index maps them to blobs or fixed repository references; opaque blobs are not rewritten as standalone linked documents.",
+    "Old D09 research report SHA41f04a202111e3ab99ea0c904112accc76dfc6844975b3c518640c1e090a515f remains an existing reference; it was not reacquired by the Anthropic check or this archive.",
+    "No new network/Git/Go/SDK/npm/model/resource operation; no active Embeddings archive read.",
+    "No stopped Object runtime join, tools or SPA publication task resumes; full D09 remains incomplete."
+  ],
+  "artifacts": {
+    "anthropic": {
+      "basis.json": {
+        "blob": "sha256/d9138454fb04d99050a3e03ada2dd84fe518f8a9215fb666ee5bb2761194748f",
+        "bytes": 2407,
+        "original_path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/basis.json",
+        "sha256": "d9138454fb04d99050a3e03ada2dd84fe518f8a9215fb666ee5bb2761194748f"
+      },
+      "checks.json": {
+        "blob": "sha256/7d5264513329fb357ed966a005a02f8ba5cc50e040c1f5695b5f575a92948713",
+        "bytes": 1284,
+        "original_path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/checks.json",
+        "sha256": "7d5264513329fb357ed966a005a02f8ba5cc50e040c1f5695b5f575a92948713"
+      },
+      "feasibility-report.json": {
+        "blob": "sha256/867044b8e0d15f01708a81d4b11e2cfda04470ab45a39ca2cd8ebf0809bca429",
+        "bytes": 1217,
+        "original_path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/feasibility-report.json",
+        "sha256": "867044b8e0d15f01708a81d4b11e2cfda04470ab45a39ca2cd8ebf0809bca429"
+      },
+      "feasibility-report.md": {
+        "blob": "sha256/8a4ebc4efaa3f8eea8475bef0c11ca843aa54749a56aedfccf14db2e2d40bf65",
+        "bytes": 5509,
+        "original_path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/feasibility-report.md",
+        "sha256": "8a4ebc4efaa3f8eea8475bef0c11ca843aa54749a56aedfccf14db2e2d40bf65"
+      },
+      "freeze.json": {
+        "blob": "sha256/220ff58d2d1362e54d6a9db01a9fedd2ee9e6af3b3bd572200f0691c3c2d2c5c",
+        "bytes": 1535,
+        "original_path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/freeze.json",
+        "sha256": "220ff58d2d1362e54d6a9db01a9fedd2ee9e6af3b3bd572200f0691c3c2d2c5c"
+      },
+      "official-source-checks.json": {
+        "blob": "sha256/82883d50c2d23bb8ae02fd1248dae506bf270394b557447a61f23b6443645295",
+        "bytes": 34033,
+        "original_path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/official-source-checks.json",
+        "sha256": "82883d50c2d23bb8ae02fd1248dae506bf270394b557447a61f23b6443645295"
+      }
+    },
+    "jina": {
+      "fetch_official.py": {
+        "blob": "sha256/adba4ad08f032e35fadcce375d71b03d1f9ab409a37b982d6eef940e8d9ebfd4",
+        "bytes": 3310,
+        "original_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/fetch_official.py",
+        "sha256": "adba4ad08f032e35fadcce375d71b03d1f9ab409a37b982d6eef940e8d9ebfd4"
+      },
+      "http/01/command.json": {
+        "blob": "sha256/1257e7ca84a1aa2ea95826fa931668a4bd208b8617210d38c33db38ede6074c4",
+        "bytes": 419,
+        "original_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/http/01/command.json",
+        "sha256": "1257e7ca84a1aa2ea95826fa931668a4bd208b8617210d38c33db38ede6074c4"
+      },
+      "http/01/record.json": {
+        "blob": "sha256/53f2cb7a9059a211fd069ec48fed848e94dfed9d2ab37c0ece5f9ca545a25dd0",
+        "bytes": 833,
+        "original_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/http/01/record.json",
+        "sha256": "53f2cb7a9059a211fd069ec48fed848e94dfed9d2ab37c0ece5f9ca545a25dd0"
+      },
+      "http/01/response.body": {
+        "blob": "sha256/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "original_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/http/01/response.body",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input-manifest.json": {
+        "blob": "sha256/c03d1c074834f94e8edba46f27e6fb67f17e9dad28d85e4d3c413936d1636b91",
+        "bytes": 1985,
+        "original_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/input-manifest.json",
+        "sha256": "c03d1c074834f94e8edba46f27e6fb67f17e9dad28d85e4d3c413936d1636b91"
+      },
+      "manifest.json": {
+        "blob": "sha256/34d9d02fdd2c0375bc3c1cc14bbb5478111391ee7d431be34d225ac5e65ef42e",
+        "bytes": 2507,
+        "original_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/manifest.json",
+        "sha256": "34d9d02fdd2c0375bc3c1cc14bbb5478111391ee7d431be34d225ac5e65ef42e"
+      },
+      "research-note.md": {
+        "blob": "sha256/84cd706fae7f53e25ab126aca24b843790dcc9b248980a1357ebc0ce01e79b7f",
+        "bytes": 4808,
+        "original_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/research-note.md",
+        "sha256": "84cd706fae7f53e25ab126aca24b843790dcc9b248980a1357ebc0ce01e79b7f"
+      }
+    }
+  },
+  "blobs": {
+    "1257e7ca84a1aa2ea95826fa931668a4bd208b8617210d38c33db38ede6074c4": {
+      "bytes": 419,
+      "path": "sha256/1257e7ca84a1aa2ea95826fa931668a4bd208b8617210d38c33db38ede6074c4"
+    },
+    "220ff58d2d1362e54d6a9db01a9fedd2ee9e6af3b3bd572200f0691c3c2d2c5c": {
+      "bytes": 1535,
+      "path": "sha256/220ff58d2d1362e54d6a9db01a9fedd2ee9e6af3b3bd572200f0691c3c2d2c5c"
+    },
+    "34d9d02fdd2c0375bc3c1cc14bbb5478111391ee7d431be34d225ac5e65ef42e": {
+      "bytes": 2507,
+      "path": "sha256/34d9d02fdd2c0375bc3c1cc14bbb5478111391ee7d431be34d225ac5e65ef42e"
+    },
+    "53f2cb7a9059a211fd069ec48fed848e94dfed9d2ab37c0ece5f9ca545a25dd0": {
+      "bytes": 833,
+      "path": "sha256/53f2cb7a9059a211fd069ec48fed848e94dfed9d2ab37c0ece5f9ca545a25dd0"
+    },
+    "7d5264513329fb357ed966a005a02f8ba5cc50e040c1f5695b5f575a92948713": {
+      "bytes": 1284,
+      "path": "sha256/7d5264513329fb357ed966a005a02f8ba5cc50e040c1f5695b5f575a92948713"
+    },
+    "82883d50c2d23bb8ae02fd1248dae506bf270394b557447a61f23b6443645295": {
+      "bytes": 34033,
+      "path": "sha256/82883d50c2d23bb8ae02fd1248dae506bf270394b557447a61f23b6443645295"
+    },
+    "84cd706fae7f53e25ab126aca24b843790dcc9b248980a1357ebc0ce01e79b7f": {
+      "bytes": 4808,
+      "path": "sha256/84cd706fae7f53e25ab126aca24b843790dcc9b248980a1357ebc0ce01e79b7f"
+    },
+    "867044b8e0d15f01708a81d4b11e2cfda04470ab45a39ca2cd8ebf0809bca429": {
+      "bytes": 1217,
+      "path": "sha256/867044b8e0d15f01708a81d4b11e2cfda04470ab45a39ca2cd8ebf0809bca429"
+    },
+    "8a4ebc4efaa3f8eea8475bef0c11ca843aa54749a56aedfccf14db2e2d40bf65": {
+      "bytes": 5509,
+      "path": "sha256/8a4ebc4efaa3f8eea8475bef0c11ca843aa54749a56aedfccf14db2e2d40bf65"
+    },
+    "adba4ad08f032e35fadcce375d71b03d1f9ab409a37b982d6eef940e8d9ebfd4": {
+      "bytes": 3310,
+      "path": "sha256/adba4ad08f032e35fadcce375d71b03d1f9ab409a37b982d6eef940e8d9ebfd4"
+    },
+    "c03d1c074834f94e8edba46f27e6fb67f17e9dad28d85e4d3c413936d1636b91": {
+      "bytes": 1985,
+      "path": "sha256/c03d1c074834f94e8edba46f27e6fb67f17e9dad28d85e4d3c413936d1636b91"
+    },
+    "d9138454fb04d99050a3e03ada2dd84fe518f8a9215fb666ee5bb2761194748f": {
+      "bytes": 2407,
+      "path": "sha256/d9138454fb04d99050a3e03ada2dd84fe518f8a9215fb666ee5bb2761194748f"
+    },
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": {
+      "bytes": 0,
+      "path": "sha256/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "embeddings_acceptance": {
+    "commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+    "does_not_unlock_jina_official_wire_or_anthropic_tools_gates": true
+  },
+  "fixed_repository_references": {
+    "anthropic_basis": [
+      {
+        "binding": "original accepted basis.json fixed-Git read; this archive does not rerun Git",
+        "git_blob": null,
+        "git_commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+        "not_copied": true,
+        "repository_path": "docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/field-manifest.json",
+        "sha256": "952f91098081f448235425f3b4406e5e4dbc921e9e13e85f7ec3fccfc84af075"
+      },
+      {
+        "binding": "original accepted basis.json fixed-Git read; this archive does not rerun Git",
+        "git_blob": null,
+        "git_commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+        "not_copied": true,
+        "repository_path": "docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/source-manifest.json",
+        "sha256": "28ea317726e14967d13f17197c9f4b1c2cd9980bba41f815dbddcbec5259c3b8"
+      },
+      {
+        "binding": "original accepted basis.json fixed-Git read; this archive does not rerun Git",
+        "git_blob": null,
+        "git_commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+        "not_copied": true,
+        "repository_path": "docs/development/agent-team/anthropic-messages-wire-spec-verification.md",
+        "sha256": "43626aa69702d61f08408952b5c1fd1de196f2d412b1c26db78ba28977781c2b"
+      },
+      {
+        "binding": "original accepted basis.json fixed-Git read; this archive does not rerun Git",
+        "git_blob": null,
+        "git_commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+        "not_copied": true,
+        "repository_path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+        "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133"
+      },
+      {
+        "binding": "original accepted basis.json fixed-Git read; this archive does not rerun Git",
+        "git_blob": "10f3b5411b085463d4280236aab621ab03a45a07",
+        "git_commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+        "not_copied": true,
+        "repository_path": "docs/development/work-items/recovery-d09-anthropic-messages-wire.md",
+        "sha256": "506f2a11a049f69e14d2a097c99c7594071df248b2244bf33deda06abacb374d"
+      },
+      {
+        "binding": "original accepted basis.json fixed-Git read; this archive does not rerun Git",
+        "git_blob": "eec1c1f375534fc2e7c75be2a9ba0cb534a28a70",
+        "git_commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+        "not_copied": true,
+        "repository_path": "internal/central/model/adapter/budget.go",
+        "sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803"
+      }
+    ],
+    "anthropic_official_sources": {
+      "bytes": 297810,
+      "files": 66,
+      "git_commit": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+      "license": "LICENSE is among the existing 66 official source references; no new SDK execution or acquisition",
+      "manifest_path": "docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/source-manifest.json",
+      "manifest_sha256": "28ea317726e14967d13f17197c9f4b1c2cd9980bba41f815dbddcbec5259c3b8",
+      "not_copied": true,
+      "official_commit": "18f25547f20cf5f01da69ac611e700e3bc9ebf21",
+      "per_file_mapping_blob": "sha256/82883d50c2d23bb8ae02fd1248dae506bf270394b557447a61f23b6443645295",
+      "sdk_version": "1.11.0"
+    },
+    "jina_minimal_input": [
+      {
+        "binding": "root-assigned baseline; original research did not execute Git to verify the commit",
+        "bytes": 66903,
+        "git_ref": "18b6fb5",
+        "not_copied": true,
+        "repository_path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+        "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133"
+      },
+      {
+        "binding": "root-assigned baseline; original research did not execute Git to verify the commit",
+        "bytes": 7997,
+        "git_ref": "18b6fb5",
+        "not_copied": true,
+        "repository_path": "internal/central/model/contract/nonchat.go",
+        "sha256": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d"
+      },
+      {
+        "binding": "root-assigned baseline; original research did not execute Git to verify the commit",
+        "bytes": 19439,
+        "git_ref": "18b6fb5",
+        "not_copied": true,
+        "repository_path": "internal/central/model/contract/types.go",
+        "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+      }
+    ]
+  },
+  "frozen_at_utc": "2026-10-07T08:56:19.270524+00:00",
+  "jina_attempt": {
+    "attempts": 1,
+    "collector_exit": 0,
+    "collector_exit_meaning": "Recorder completed; not HTTP or protocol success.",
+    "elapsed_seconds": 0.014857,
+    "license": null,
+    "method": "GET",
+    "network_stopped": true,
+    "official_version": null,
+    "origin_http_status": null,
+    "original_trace_limits": [
+      "Only preserved urllib exception text is available, not raw CONNECT headers/packets or an official response.",
+      "Original outer shell/heredoc or other creation stdin and tool stdout were not separately retained as archive files; they are not reconstructed.",
+      "The frozen fetch script is preserved as received; original command.json did not bind a script SHA, so no execution-time binding is added retroactively."
+    ],
+    "response_bytes": 0,
+    "result": "Proxy HTTPS CONNECT403; no official HTTP response or wire evidence.",
+    "url": "https://api.jina.ai/openapi.json"
+  },
+  "record": "D09 next-wire dependency checks, 2026-10-07",
+  "scope": "Archive of two root-accepted read-only checks, not new product verification or replacement specification."
+}

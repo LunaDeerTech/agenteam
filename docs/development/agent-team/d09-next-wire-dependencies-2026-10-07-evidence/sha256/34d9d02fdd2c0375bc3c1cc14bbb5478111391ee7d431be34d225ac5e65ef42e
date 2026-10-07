@@ -1,0 +1,64 @@
+{
+  "authorized_baseline": "main18b6fb5",
+  "fetch_script": {
+    "bytes": 3310,
+    "path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/fetch_official.py",
+    "sha256": "adba4ad08f032e35fadcce375d71b03d1f9ab409a37b982d6eef940e8d9ebfd4"
+  },
+  "frozen_at_utc": "2026-10-07T08:39:05.830847+00:00",
+  "input": {
+    "bytes": 1985,
+    "path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/input-manifest.json",
+    "sha256": "c03d1c074834f94e8edba46f27e6fb67f17e9dad28d85e4d3c413936d1636b91"
+  },
+  "input_bytes_unchanged": true,
+  "license": null,
+  "new_product_or_formal_spec": false,
+  "no_git_command": true,
+  "no_runtime_resources": true,
+  "note": {
+    "bytes": 4808,
+    "path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/research-note.md",
+    "sha256": "84cd706fae7f53e25ab126aca24b843790dcc9b248980a1357ebc0ce01e79b7f"
+  },
+  "official_get_attempts": [
+    {
+      "body": {
+        "bytes": 0,
+        "path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/http/01/response.body",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "bytes": 0,
+      "collector_actual_exit": 0,
+      "command": {
+        "bytes": 419,
+        "path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/http/01/command.json",
+        "sha256": "1257e7ca84a1aa2ea95826fa931668a4bd208b8617210d38c33db38ede6074c4"
+      },
+      "elapsed_seconds": 0.014857,
+      "interpretation": "HTTPS proxy tunnel CONNECT failed with403; no official HTTP status/body observed. No raw CONNECT wire trace was captured.",
+      "method": "GET",
+      "observed_exception_and_status": {
+        "bytes": 833,
+        "path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/http/01/record.json",
+        "sha256": "53f2cb7a9059a211fd069ec48fed848e94dfed9d2ab37c0ece5f9ca545a25dd0"
+      },
+      "origin_status": null,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tool_exec_actual_completed": true,
+      "url": "https://api.jina.ai/openapi.json"
+    }
+  ],
+  "official_revision": null,
+  "official_sources_acquired": 0,
+  "source_modifications": [],
+  "status": "Bounded research blocked by proxy CONNECT403; no official field evidence acquired; network and private writing stopped after delivery.",
+  "totals": {
+    "attempts": 1,
+    "automatic_redirects": 0,
+    "model_requests": 0,
+    "post_requests": 0,
+    "response_bytes": 0,
+    "retries": 0
+  }
+}

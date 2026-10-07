@@ -1,0 +1,39 @@
+# Anthropic Messages 后继可行性：仍受既有门槛阻塞
+
+结论：**BLOCKED，不提出新的 text-only 卡、公开形状或 handle 实施路线。** 固定产品为 `2debfdde347d8c9262ab83d3fe5e18e947a983e1`。该基线已经包含 `f349303bf6aa8b5c796f76cc43a34271e8c186e0` 采纳的 [Anthropic Messages text/tools 正式卡](inputs/docs/development/work-items/recovery-d09-anthropic-messages-wire.md)；它仅通过规格静审，明确仍须先取得 OpenAI tools 产品接受及共享源码交权。本轮初始的文本子集探索已由主线程收束，不把更名、拆卡或新 handle 当作解除条件。
+
+## 已有来源可以复用
+
+正式 D09 设计 §6 引用补证报告 SHA `41f04a202111e3ab99ea0c904112accc76dfc6844975b3c518640c1e090a515f`，固定 Anthropic SDK 为 `anthropics/anthropic-sdk-python@18f25547f20cf5f01da69ac611e700e3bc9ebf21`（1.11.0）。本轮没有重新取得该历史补证报告；实际离线核对的是固定 Git 内已归档的完整来源 manifest 和官方原件，不把报告引用冒充重新验过的原件。
+
+来源 manifest：`docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/source-manifest.json`，SHA `28ea317726e14967d13f17197c9f4b1c2cd9980bba41f815dbddcbec5259c3b8`。66 个原文件（含 LICENSE）、297,810 bytes，已逐件从固定 Git 读取并核对 manifest 的长度/SHA；未联网、安装、导入或执行 SDK。逐文件 URL、官方 path、归档 path 和 SHA 见 [official-source-checks.json](official-source-checks.json)。
+
+| 既有正式证据类别 | 已保存的官方原件 |
+| --- | --- |
+| POST、认证、版本头、独立 system 与 max_tokens | `_client.py`、`resources/messages/messages.py`、`types/message_create_params.py` |
+| 有序 text/content 与普通响应、终止枚举 | `types/message.py`、`message_param.py`、`text_block.py`、`text_block_param.py`、`stop_reason.py` |
+| SSE 事件、message_stop、累计与省略更新 | `_streaming.py`、`types/raw_*_event.py`、`text_delta.py`、`lib/streaming/_messages.py` |
+| 原整数 usage、缓存细分、错误与实际示例 | `types/usage.py`、`message_delta_usage.py`、`output_tokens_details.py`、`shared/error_*.py`、已归档 streaming fixtures |
+
+这些是可继续引用的字段和算法来源，并非新的 text-only 完整语义审查、型号支持、账号可用或真实 Provider 验证。旧卡已经明确 SDK 的宽 system role 类型与独立顶层 system、max_tokens=0 与 C0 正 MaxOutput、SDK origin 与平台 API base 等区别；本轮不改这些规则或依据 SDK 猜新默认值。D09 §13 的型号 conformance、实际 consumer/Runtime 和 Summary 边界继续保留。
+
+## 实际阻塞不是来源缺失
+
+旧卡 SHA `506f2a11a049f69e14d2a097c99c7594071df248b2244bf33deda06abacb374d`。以下均为已采纳技术门槛，不能解释成仅需安排文件所有者的时间问题：
+
+| 正式位置 | 对实施的约束 |
+| --- | --- |
+| 页首、§1（原文件第3、19行） | tools 的“产品接受、共享四源冻结并交权后”才能实施，不得复制活动候选作为已验前置。 |
+| §3（第51–67行） | 等 tools 最终接受后追加 `Result.Message`、`Event.PartIndex`，依赖工具结果/事件载体与有序混排语义；使用同一 `Exchange`、worker、D04 Client 和 Budget，明确“不复制 Exchange/Client/Budget”。 |
+| §10（第161–184行） | 原19候选须在 tools 接受后重绑真实提交并统一交权；共享四源是 `openai_chat.go`、`transport.go`、`sse.go`、`errors.go`。前两者承担结果/事件与协议交付，后两者承担 framing/协议与安全错误边界。 |
+| §11（第189、203行） | 实施输入先固定 tools 已接受 commit；混合预算及旧工具 HTTP/Stream/CloseAndBudget 回归也是原完整结果的验证门槛。 |
+
+因此，旧卡不仅要求官方字段可查，还依赖未接受的 tools 共享载体与流程。删去工具能力、另建私有 handle 或跳过这些回归会改变原卡的完整结果及实施方法；本轮没有这种变更授权，也不将其包装成“独立结果”。没有读取未验 tools 候选源或验证产物来填补这一缺口。
+
+已接受的 Embeddings 使当前 `budget.go` 拥有 `budgetWork` 与同一64/8登记表，源码 SHA `3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803`。它只证明已接受 Chat/Embeddings 的配额及实际 join 接缝可用，**不证明 tools 的结果/事件、SSE、交付流程已接受，也不解除旧卡对同一 Exchange 和交权的要求**。本轮不据这一内部接口提出第三类 handle 或替代 transport。
+
+## 冻结范围与下一步
+
+可复用的是官方原件及既有已接受依赖事实；当前可授实施候选为零。原19路径卡保持不变、未获实施权，本轮不增加或减少其候选路径，不写新规格。后续能否恢复仍取决于原停止任务及正式依赖门槛的真实变化，由主线程处理；本报告不提出恢复、重试或绕行方案。
+
+固定 Git 文档与最小源码指纹见 [basis.json](basis.json)，检查汇总见 [checks.json](checks.json)。本轮只有有界只读定位、Git 原件读取、文件 SHA/格式检查和此私有报告；没有网络、SDK/Go/业务测试、listener、Docker、浏览器、主树/Git 写入或子委派。未重开 Jina 研究以及 tools、Object runtime join、SPA publication 三停止事项。全部私有报告与输入现已冻结停写。

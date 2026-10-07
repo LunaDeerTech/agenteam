@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "fetch_official.py",
+    "https://api.jina.ai/openapi.json"
+  ],
+  "cwd": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps",
+  "interpreter": "/usr/bin/python3",
+  "started_utc": "2026-10-07T08:36:45.136113+00:00",
+  "method": "GET",
+  "redirects": "disabled; each new request requires explicit numbered command",
+  "limits": {
+    "seconds": 45,
+    "maximum_response_bytes": 2097152
+  }
+}

@@ -1,0 +1,42 @@
+import datetime,hashlib,json,signal,sys,time,urllib.error,urllib.parse,urllib.request
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent
+URL=sys.argv[1]
+parts=urllib.parse.urlsplit(URL)
+assert parts.scheme=='https' and parts.hostname in {'api.jina.ai','jina.ai','raw.githubusercontent.com','api.github.com','github.com','huggingface.co'}, 'non-authorized public origin'
+records=sorted((ROOT/'http').glob('*/record.json')) if (ROOT/'http').exists() else []
+assert len(records)<8,'GET count exhausted'
+used=sum(json.loads(p.read_text())['bytes'] for p in records)
+limit=min(2*1024*1024,8*1024*1024-used)
+assert limit>0,'byte budget exhausted'
+dir=ROOT/'http'/('%02d'%(len(records)+1));dir.mkdir(parents=True,exist_ok=False)
+start=time.monotonic();start_utc=datetime.datetime.now(datetime.timezone.utc).isoformat()
+cmd={'argv':sys.argv,'cwd':str(Path.cwd()),'interpreter':sys.executable,'started_utc':start_utc,'method':'GET','redirects':'disabled; each new request requires explicit numbered command','limits':{'seconds':45,'maximum_response_bytes':limit}}
+(dir/'command.json').write_text(json.dumps(cmd,indent=2)+'\n')
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+ def redirect_request(self,req,fp,code,msg,headers,newurl):return None
+class Deadline(Exception):pass
+def expire(*_):raise Deadline('45-second wall deadline')
+signal.signal(signal.SIGALRM,expire);signal.alarm(44)
+status=None;error=None;headers={};chunks=[];complete=False;response=None
+try:
+ req=urllib.request.Request(URL,headers={'User-Agent':'agenteam-official-wire-research/1.0','Accept':'application/json,text/plain,text/html;q=0.9','Accept-Encoding':'identity'},method='GET')
+ try:response=urllib.request.build_opener(NoRedirect).open(req,timeout=30)
+ except urllib.error.HTTPError as e:response=e
+ status=response.status
+ for k in ('Content-Type','Content-Length','Date','ETag','Last-Modified','Location','Server','X-GitHub-Request-Id','X-Repo-Commit'):
+  if response.headers.get(k) is not None:headers[k]=response.headers.get(k)
+ remaining=limit
+ while remaining:
+  part=response.read(min(65536,remaining))
+  if not part:complete=True;break
+  chunks.append(part);remaining-=len(part)
+ if not complete and headers.get('Content-Length','').isdigit() and int(headers['Content-Length'])==sum(map(len,chunks)):complete=True
+except Exception as e:error={'type':type(e).__name__,'detail':str(e)[:300]}
+finally:
+ if response is not None:response.close()
+ signal.alarm(0)
+body=b''.join(chunks);(dir/'response.body').write_bytes(body)
+record={'url':URL,'method':'GET','status':status,'headers':headers,'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest(),'complete_body':complete,'limit_hit':not complete and len(body)==limit,'error':error,'started_utc':start_utc,'ended_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'elapsed_seconds':round(time.monotonic()-start,6),'get_number':len(records)+1,'cumulative_bytes':used+len(body),'request_headers':{'User-Agent':'agenteam-official-wire-research/1.0','Accept':'application/json,text/plain,text/html;q=0.9','Accept-Encoding':'identity'},'request_body':False,'credentials':False,'automatic_redirects':False,'actual_request_finished':True}
+(dir/'record.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+print(json.dumps(record,sort_keys=True))

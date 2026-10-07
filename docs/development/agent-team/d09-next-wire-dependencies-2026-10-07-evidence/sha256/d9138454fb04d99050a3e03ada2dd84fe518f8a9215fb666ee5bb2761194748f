@@ -1,0 +1,33 @@
+{
+  "base": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+  "files": {
+    "docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/field-manifest.json": {
+      "path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/inputs/docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/field-manifest.json",
+      "sha256": "952f91098081f448235425f3b4406e5e4dbc921e9e13e85f7ec3fccfc84af075"
+    },
+    "docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/source-manifest.json": {
+      "path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/inputs/docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/author/source-manifest.json",
+      "sha256": "28ea317726e14967d13f17197c9f4b1c2cd9980bba41f815dbddcbec5259c3b8"
+    },
+    "docs/development/agent-team/anthropic-messages-wire-spec-verification.md": {
+      "path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/inputs/docs/development/agent-team/anthropic-messages-wire-spec-verification.md",
+      "sha256": "43626aa69702d61f08408952b5c1fd1de196f2d412b1c26db78ba28977781c2b"
+    },
+    "docs/development/work-items/d09-model-system-token-usage-design.md": {
+      "path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/inputs/docs/development/work-items/d09-model-system-token-usage-design.md",
+      "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133"
+    },
+    "docs/development/work-items/recovery-d09-anthropic-messages-wire.md": {
+      "git_blob": "10f3b5411b085463d4280236aab621ab03a45a07",
+      "path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/inputs/docs/development/work-items/recovery-d09-anthropic-messages-wire.md",
+      "sha256": "506f2a11a049f69e14d2a097c99c7594071df248b2244bf33deda06abacb374d"
+    },
+    "internal/central/model/adapter/budget.go": {
+      "git_blob": "eec1c1f375534fc2e7c75be2a9ba0cb534a28a70",
+      "path": "/workspace/scratch/agenteam-anthropic-text-feasibility-okif4ki8/inputs/internal/central/model/adapter/budget.go",
+      "sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803"
+    }
+  },
+  "fixed_git": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+  "read_modes": "git show/rev-parse only for fixed inputs; no network, SDK execution, Go or resources"
+}

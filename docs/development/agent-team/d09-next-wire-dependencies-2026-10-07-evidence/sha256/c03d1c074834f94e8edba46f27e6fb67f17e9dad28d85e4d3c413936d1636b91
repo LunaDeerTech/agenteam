@@ -1,0 +1,36 @@
+{
+  "authorized_baseline": "main18b6fb5",
+  "baseline_binding": "root-supplied fixed baseline; no Git command executed in this research task",
+  "budgets": {
+    "maximum_bytes_per_response": 2097152,
+    "maximum_gets": 8,
+    "maximum_seconds_per_get": 45,
+    "maximum_total_response_bytes": 8388608
+  },
+  "created_utc": "2026-10-07T08:36:04.730213+00:00",
+  "input": {
+    "docs/development/work-items/d09-model-system-token-usage-design.md": {
+      "bytes": 66903,
+      "frozen_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/input/docs/development/work-items/d09-model-system-token-usage-design.md",
+      "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133"
+    },
+    "internal/central/model/contract/nonchat.go": {
+      "bytes": 7997,
+      "frozen_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/input/internal/central/model/contract/nonchat.go",
+      "sha256": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d"
+    },
+    "internal/central/model/contract/types.go": {
+      "bytes": 19439,
+      "frozen_path": "/workspace/scratch/agenteam-jina-rerank-research-rpedz8ps/input/internal/central/model/contract/types.go",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    }
+  },
+  "resources": "No model request, key, account, POST, listener, Go/npm or browser; no main/Git writes.",
+  "rules_and_skills": {
+    ".agents/skills/agenteam-design/SKILL.md": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+    ".agents/skills/agenteam-verification/SKILL.md": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61",
+    "AGENTS.md": "c306fb413f97b4f50c6fe9d8aa3a60c2edfe61d5d143f37e8b5c1539820896c6",
+    "docs/development/agent-team/README.md": "9d8bad3c85cf2a34fd0d9360bbc9eb27ea5c76082222a174984f78d599701c40"
+  },
+  "scope": "C0 JinaRerankV1, nonchat DTO, D09 design sections6/13; public official text/schema research only"
+}

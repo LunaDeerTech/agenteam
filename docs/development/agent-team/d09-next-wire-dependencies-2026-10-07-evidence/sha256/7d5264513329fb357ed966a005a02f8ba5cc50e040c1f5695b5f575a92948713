@@ -1,0 +1,35 @@
+{
+  "basis_sha256": "d9138454fb04d99050a3e03ada2dd84fe518f8a9215fb666ee5bb2761194748f",
+  "checked_local_links": [
+    {
+      "sha256": "506f2a11a049f69e14d2a097c99c7594071df248b2244bf33deda06abacb374d",
+      "target": "inputs/docs/development/work-items/recovery-d09-anthropic-messages-wire.md"
+    },
+    {
+      "sha256": "82883d50c2d23bb8ae02fd1248dae506bf270394b557447a61f23b6443645295",
+      "target": "official-source-checks.json"
+    },
+    {
+      "sha256": "d9138454fb04d99050a3e03ada2dd84fe518f8a9215fb666ee5bb2761194748f",
+      "target": "basis.json"
+    },
+    {
+      "exists": true,
+      "target": "checks.json"
+    }
+  ],
+  "conclusion": "BLOCKED_EXISTING_FORMAL_DEPENDENCY",
+  "final_newline": true,
+  "fixed_git": "2debfdde347d8c9262ab83d3fe5e18e947a983e1",
+  "go_or_sdk_or_product_execution": false,
+  "main_or_git_writes": false,
+  "network_or_resources": false,
+  "no_new_implementation_candidate": true,
+  "no_new_spec_or_public_api_or_handle_proposal": true,
+  "no_unaccepted_tools_implementation_inputs": true,
+  "official_checks_sha256": "82883d50c2d23bb8ae02fd1248dae506bf270394b557447a61f23b6443645295",
+  "official_source_bytes": 297810,
+  "official_source_files_sha_checked": 66,
+  "old_formal_card_unchanged": true,
+  "trailing_whitespace": false
+}

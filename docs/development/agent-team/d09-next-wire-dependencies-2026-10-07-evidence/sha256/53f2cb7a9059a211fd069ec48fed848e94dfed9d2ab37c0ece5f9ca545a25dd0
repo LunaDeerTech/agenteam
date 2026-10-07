@@ -1,0 +1,28 @@
+{
+  "actual_request_finished": true,
+  "automatic_redirects": false,
+  "bytes": 0,
+  "complete_body": false,
+  "credentials": false,
+  "cumulative_bytes": 0,
+  "elapsed_seconds": 0.014857,
+  "ended_utc": "2026-10-07T08:36:45.150945+00:00",
+  "error": {
+    "detail": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "type": "URLError"
+  },
+  "get_number": 1,
+  "headers": {},
+  "limit_hit": false,
+  "method": "GET",
+  "request_body": false,
+  "request_headers": {
+    "Accept": "application/json,text/plain,text/html;q=0.9",
+    "Accept-Encoding": "identity",
+    "User-Agent": "agenteam-official-wire-research/1.0"
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "started_utc": "2026-10-07T08:36:45.136113+00:00",
+  "status": null,
+  "url": "https://api.jina.ai/openapi.json"
+}
