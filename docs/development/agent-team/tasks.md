@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：Summary S2 完整接受，D08 只读 HTTP 开始实施
+
+- [S2验收归档](system-meeting-summary-settings-verification.md)绑定含双README的完整32路径范围/31实际改动：产品 `4e615c7d`、归档及S2/S3卡页首 `e1a5eb92` 均已接受推送、root核远端一致。S1/S3/Usage接受保持；S2所有task-owned资源实际wait/清理闭合、原资产已恢复，原失败与新增64个daemon/PID1 shim非owned未wait限制沿档保留，不宣称全机清零。
+- [D08只读规格](project-owner-read-http-spec-verification.md) `ac33ea15` /归档 `d5a21f63` 已接受；`next_frontier` 已实际ACK并开始#1–16实施，先Reader#1–3，基线 `4e615c7d` 且 `internal/central/app/account.go` 已正式交接。必要离线依赖图/pure/race/vet/schema/build已授权，但尚无实际执行结果；native/PG资源未授。`usage_verification` 已ACK，仅独立计划准备，D08产品尚未接受。
+- 系统统一会议initial/update含首轮标题、Project不override/复制初值、compaction/Execution Summary既定规则保持。production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变；以下历史原字节保留。
+
 ## 2026-10-07：Summary S3 完整接受，S2 继续分阶段验证
 
 - [S3验收归档](system-meeting-summary-resolution-verification.md)绑定完整17路径产品 `baa6ffac7bdf87dea6f052704e509d7b547e9886`、归档 `77965be16feeb22d8c1b8301a047d95e3b15e8eb`，均已接受推送、root核远端一致。首红、七轮actual wait/七资源双清及daemon48→76非owned未wait限制沿原档保留。

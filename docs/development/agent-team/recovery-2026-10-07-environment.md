@@ -1,5 +1,11 @@
 # 2026-10-07 环境恢复交接
 
+## 当前接续：Summary S2 完整接受，D08 只读 HTTP 实施中
+
+[S2验收归档](system-meeting-summary-settings-verification.md)已随 `e1a5eb92` 接受推送（含S2/S3卡页首），含双README的完整32路径范围/31实际改动产品 `4e615c7d` 亦已接受推送，root核两次远端一致。S1/S3/Usage接受保持。S2所有task-owned资源均实际wait/清理闭合，8个browser参与者结束后原资产已恢复；原失败、目录size/ctime例外及新增64个daemon/PID1 shim非owned未wait限制沿档保留，不称全机清零。
+
+[D08只读规格](project-owner-read-http-spec-verification.md) `ac33ea15` /归档 `d5a21f63` 已接受；`next_frontier` 已实际ACK并开始#1–16实施，先Reader#1–3，基线 `4e615c7d`，`internal/central/app/account.go` 已正式交接。必要离线依赖图/pure/race/vet/schema/build已授权，尚无实际执行结果，native/PG资源未授；`usage_verification` 已ACK，仅独立计划准备。D08产品未接受，production Resolution/Invocations与D24仍未绑定；系统统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则保持。ready503、完整D08–D28/E01未完、E01未开始和Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变。以下历史原字节保留，本次只同步四入口，未运行产品或测试。
+
 ## 当前接续：Summary S3 完整接受，S2 验证中
 
 [S3验收归档](system-meeting-summary-resolution-verification.md)已随 `77965be16feeb22d8c1b8301a047d95e3b15e8eb` 推送，完整17路径产品 `baa6ffac7bdf87dea6f052704e509d7b547e9886` 已接受并推送，root核远端一致；首红、七轮actual wait/七资源双清及daemon48→76非owned未wait的原记录保持。[S2](../work-items/d09-system-meeting-summary-settings.md)尚未接受：backend03仅测试纠错独审PASS、三项native通过，PG恢复联验中；前端/browser16路径冻结且离线PASS，browser未运行，独立S2离线准备PASS。

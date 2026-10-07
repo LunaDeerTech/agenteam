@@ -8,6 +8,10 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：[Summary S2](agent-team/system-meeting-summary-settings-verification.md)含双README的完整32路径范围/31实际改动已接受，产品 `4e615c7d`、归档及S2/S3卡页首 `e1a5eb92` 均已推送且root核远端一致。S1/S3/Usage接受保持；S2所有task-owned资源实际wait/清理闭合、原资产已恢复，原失败及新增64个daemon/PID1 shim非owned未wait限制见归档，不称全机清零。
+
+[D08 Project Owner只读HTTP规格](agent-team/project-owner-read-http-spec-verification.md) `ac33ea15` /归档 `d5a21f63` 已接受。`next_frontier` 已实际ACK并开始#1–16实施，先Reader#1–3，沿产品基线 `4e615c7d` 正式交接 `internal/central/app/account.go`；必要离线依赖图/pure/race/vet/schema/build已授，但尚无实际执行结果、native/PG资源未授。`usage_verification` 已ACK，仅独立计划准备，D08产品未接受。系统统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则不改；production Resolution/Invocations、D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
+
 2026-10-07 当前增量：[Summary S3](agent-team/system-meeting-summary-resolution-verification.md)完整17路径产品 `baa6ffac7bdf87dea6f052704e509d7b547e9886` 与归档 `77965be16feeb22d8c1b8301a047d95e3b15e8eb` 已接受并推送，root 已核远端一致。[S2](work-items/d09-system-meeting-summary-settings.md)仍未接受：backend03仅测试纠错已独审PASS、三项native通过，PG恢复联验中；前端/browser16路径已冻结、离线PASS，browser尚未运行，独立S2离线准备PASS。S1/Usage接受保持；S3仅库，生产Resolution/Invocations及D24真实生成未绑定。系统管理员统一initial/update含首轮标题、Project不override/复制初值及既定compaction/Execution Summary边界不改。ready503、完整D08–D28/E01未完成、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
 
 2026-10-07 当前增量：[Summary S2规格](agent-team/system-meeting-summary-settings-spec-verification.md) `0b13445e` 与 [S3规格/归档](agent-team/system-meeting-summary-resolution-spec-verification.md) `bd94a184` / `31c76610` 已接受并推送。S3 `next_frontier` 16路径、S2后端 `fixture_recovery` #1–13及前端/browser `usage_backend` #14–29均已实际ACK、开始源编辑/格式/准备；S3四contract封闭包离线Go list/pure及race compile/run/vet窗口已单独授权并实际进行、尚未接受；S2 Go、S3 model/app/integration/runtime执行、真实资源及README末件仍未授，共享实际依赖图共同freeze要求不变。S2/S3产品未接受，D24消费未绑定；S1/Usage既有限定接受、系统统一模型决定、Invocations=nil、ready503、完整D08–D28/E01未完成与E01未开始保持，Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变。以下历史原文保留。
