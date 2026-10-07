@@ -30,7 +30,7 @@ func (o ReferenceOwner) Validate() error {
 			return bad()
 		}
 	case "platform_selector":
-		if o.ProjectID != nil || !one(o.Role, "embedding", "memory", "reranker", "image") {
+		if o.ProjectID != nil || !one(o.Role, "embedding", "memory", "reranker", "image", "meeting_summary") {
 			return bad()
 		}
 	default:
