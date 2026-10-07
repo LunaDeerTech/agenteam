@@ -1,0 +1,16 @@
+# Runtime C 独立阶段结论
+
+**PASS（根接缝静审与两个受控离线 race 组合）。** 固定 `/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01`，manifest `95bd1d562a2c1c97fde0ef0fde16119b7129da0b01771b8577a7182bb1dec808`，5候选+6只读 A02/B+343依赖全部逐 SHA 匹配；原固定产品 `b124650aee095b26191bc181dc8cf5d6e0f977f5`。五路径清单见原 `delivery5.json`（SHA `70d3452e176895b1201c5c295c010e9915f08cbb349fbe696e74faab800f8384`）和本目录 JSON；未改任何产品。
+
+静审确认：实际 DB 单独断言 `runtimeinfo.Store`，捕获同 Account core/Authority/PublicOrigin；factory 经 `startupResult` 显式跨过按值 dependencies，在原 monitor 填入启动 sample 后一次绑定。生产不能走 package-local 无 Account 的兼容旁路。后置失败进入原 `initial.err` 清理分支，位置在 health/Serve 之前。新 getter 单次 RLock 复制和一次 T，锁外各一次 Secret/Outbound.Status；六项 readiness 保留，管理口完整性检查不污染旧诊断替身。health 调度/写入/关闭、Account 边界、Object 生命周期未变，精确新路径分派不重写请求。
+
+独立命令实际 **2/2 PASS，exit0 / 19.870720329s**，包内1.102s；原45s外层未触发。Go1.27.1、readonly/offline、`-race -count=1 -timeout=45s`，仅执行 `^TestIndependentRuntimeRoot(Observation|HandoffAndCleanup)$`。标量和受控启动协作者复用冻结作者 helper；两测试体和 held Close 所有权见证为独立私有探针，生产 Source/initialize/run 原字节。
+
+- `Observation`：19.999999s/20s/20s+1ns；一次 T 在读锁内、Status 在锁外各一次；Status 期间另一个缓存发布不篡改已复制事实，Secret/Outbox 失败不伪造成 DB/Object 失败；失败优先于陈旧且保留历史版本/时间；管理口拒绝不完整样本而旧 ready 仍保留503/DEPENDENCY_UNBOUND。同步 Status 的实际屏障在取消后仍被持有，release 后才真实返回，候选零且保留 context.Canceled。
+- `HandoffAndCleanup`：真实 initialize 按值传回 factory、原 monitor/provider 一次后置绑定；Source 未续命启动样本或增加 Check。实际 run 的 factory 失败进入原 cleanup，假 listener.Close 被屏障持有时 run 尚未返回且 DB 尚未关闭；release 后实际返回 InitializationFailed、原内部 cause 保留。Accept=0/Close=1，组件 Check 仍各1，受控 Account/Outbox 已结束，maintenance 实际返回，无 Serve/health 证据或私有 cause 日志。
+
+监督 actual wait 已完成，37 owned PID/starttime 双扫空、0 adopted，TMP 已删，4208 输入前后相同。原件在 `runs/app01/`：raw `cb27c06851c82c41d89a9222bfbe1e121c6c2173524fc853ee4e818af023e734`；result `3327976331f9b0f2fd0e2afe7645c3ec4856cd53a0b201f5100bebea50b42ee8`；cleanup `fc1ae256148ad76fcfd0780c256ffca25f5b6eee9d299c9ce7ccb5e26bf7b044`；原 argv/cwd/env/actualwait 见 command `f95fc1aea2525f86c75f421348e46cb89d858bebb60b404308ff0504d2f7fe4f`。输入 `execution01.json` SHA `ed81662deb5ec6cf8efa94af787e4db329dda9a0b2adc0d60e9b49922c0da9c3`，probe `0a93f46f9bdbc5a684e9e6a68e323a057af8cf84e7dd26e2ffba3c20c83a8b13`。
+
+作者原 app-pure01 的 POST 缺 Origin 导致403前提红仍为 actual1，未洗绿；仅测试补合法 Origin 后受影响路由23子例通过，最终 race10顶层75子例通过按其固定原件引用。本轮不重跑该矩阵，`TestDiagnosticRoutes` 仍只曾 list、没有执行。
+
+限制：内存 Source、受控端口及不监听的 listener 所有权替身不等于真实健康/PG/MinIO/native HTTP。同 core/Authority/Store 本阶段是固定装配图与构造证据，正式鉴权 root 留待集成。未启动端口、server、browser、Docker 或任何业务资源；未重建已停止的 Object 生命周期；A02/B 未变证据按自身阶段复用。C 阶段可接受，真实整卡仍待后续授权。

@@ -1,0 +1,34 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-v",
+    "-count=1",
+    "-timeout=45s",
+    "-run",
+    "^TestRuntimeInformation(ConstructionAndBindings|TransactionPublication|AuthorizationFailures|SnapshotValidation|TransactionFailures|DeadlineAndActualTail|CancellationWaitsForLateCall)$",
+    "./internal/central/runtimeinfo"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace",
+  "ended_utc": "2026-10-06T23:49:56.763528+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/tmp"
+  },
+  "exit": 0,
+  "limit_seconds": 45,
+  "seconds": 5.075,
+  "started_utc": "2026-10-06T23:49:51.687916+00:00",
+  "timed_out": false
+}

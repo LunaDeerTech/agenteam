@@ -1,0 +1,38 @@
+# System runtime-information：作者阶段 A
+
+状态：两候选及本阶段证据已冻结，作者受控离线检查通过；交主线程/独立验收，不代表整卡接受。停止这两源写入，未推进 HTTP/root/harness。
+
+## 固定输入
+
+- 规格提交 `1cf08c70db1b88e7e8dd5f635193b5752fef4452`；卡全文 `e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb`。
+- 产品基线 `b124650aee095b26191bc181dc8cf5d6e0f977f5`。仅复制 Foundation 9 源、Identity 1 源及原 go.mod/go.sum，12 项依赖共 50,997 B；未复制全仓或缓存。
+- 两源及可独立检查闭包在 `source/`；完整指纹、命令与清理链接见 `manifest.json`。候选相对基线均为新增，精确差量 `candidate.diff`。
+
+## 实现与已证明边界
+
+`runtimeinfo.New` 仅核四依赖绑定（包括 typed nil），不读取 Source。Store 仅 WithinTx/Acquire；使用原 SessionAuthority/SystemAuthority。包不导入 app、account、HTTP 或 PostgreSQL。
+
+Snapshot 是有限值：四个 Instant、两条限 1–256 B 的可打印 ASCII 版本、两项闭集聚合状态和 readiness code。完整校验拒绝每个零时间及非法字段，原文保留，不引入显示时间排序。固定版本未知、MinIO 聚合说明和 ready=false 留给后续 HTTP 显式常量映射；原始健康样本完整性、同一 monotonic T 和六基础项 readiness 计算仍属于后续 root Source，本阶段不冒认已实现。
+
+GetSystem 从入口建立最多 3s/更早 parent 上下文；以新 recovery attempt 进入同一非零 Tx，按 User SH → 当前 Session → System Read grant → Source 一次 → 完整校验 → callback 结束 → 实际 WithinTx 返回顺序执行。只有完整 Committed 且上下文/实际 deadline 仍有效才交付。NotCommitted 原 typed fault 保留，Unknown/零 CommitResult 保持 COMMIT_UNKNOWN/unknown，所有失败返回 Snapshot{}。没有持久缓存、写入、命令、receipt 或 Audit append。
+
+7 个纯顶层、58 个子例覆盖 typed nil/无构造 I/O、相同 actor/Tx/Shared/grant、伪 grant/授权失败与取消、版本/时间/状态边界、原 typed fault/Unknown/异常 Committed、Source 一次/不同新观察，以及自然期限和 Source/事务两层尾部屏障。pure 与 race 各仅实际等待一次本地 3s 和一次 75ms parent，严格 DeadlineExceeded；提前取消的授权及 Source 迟到成功仍零候选，Cleanup 先放行/取消并实际 join 所有测试 goroutine。
+
+## 实际命令与终局
+
+全部使用显式 Go1.27.1、GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off/GOFLAGS=-mod=readonly -buildvcs=false -p=2。实际环境逐轮保存在 command.json。使用已授权现存 GOCACHE `/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache`，只读锁定模块源 `/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache`，每轮自有 TMPDIR。
+
+| 轮次 | actual exit | 墙钟 | observed PID / adopted wait | 终局 |
+| --- | --- | --- | --- | --- |
+| pure01 | 0 | 4.780s | 36 / 0 | actual wait + input unchanged + double clean |
+| race01 | 0 | 5.075s | 9 / 0 | actual wait + input unchanged + double clean |
+| vet01 | 0 | 0.138s | 1 / 0 | actual wait + input unchanged + double clean |
+| formatcheck01 | 0 | 0.012s | 1 / 0 | actual wait + input unchanged + double clean |
+
+原 command/raw/result/input-before/input-after/owned PID-starttime/两扫 cleanup 均在本根 `../runs/<轮次>/`。所有上述命令上界 45s，无超时、无 skip、零命中未用作通过。runner 在启动子进程前设置 subreaper，直接 child 实际 wait；本次均无 adopted 子进程待回收。format01 是明确的格式化写入，actual 0，前后源单列保存；formatcheck01 空输出。两新增文件 `git diff --no-index --check` 均无 whitespace diagnostics；其 exit 1 为新增文件差异，精确命令保留在 `diff-check/`，未伪称 exit 0。
+
+## 原失败与未验证项
+
+未发生产品测试红。准备期间的固定 Git 路径猜测失败、runner 缺 runs 父目录导致 Popen 之前退出 1、打包误将 no-index 新文件 diff 的正常 exit 1 断为失败，均保留 `../preparation-notes.json`、`../preparation/runner-directory01/`、`../preparation/freeze01.json` 和原检查输出。它们不是产品行为红；没有覆盖源或回填当时的原件。
+
+本阶段未实现/运行 HTTP 16KiB 编码、schema、root 装配、App 旧回归或 integration harness；未启动监听/native、PG/Docker/MinIO/browser，未运行 app 包（包括会开端口的 TestDiagnosticRoutes）。主树、Git、其余 12 授权路径及所有停止任务未改。后续阶段等待主线程与独立阶段结论。

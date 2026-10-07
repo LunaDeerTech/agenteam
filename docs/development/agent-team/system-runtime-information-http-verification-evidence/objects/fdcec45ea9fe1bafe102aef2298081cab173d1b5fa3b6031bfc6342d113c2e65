@@ -1,0 +1,14 @@
+# Runtime D 两 harness 独立静审
+
+**STATIC PASS（两份 harness 的有界可实施性）；未执行任何测试体或资源，不是整卡实际验收。** 全文核对 Account/root 两新增源码、既有 fixture/正式服务接缝及 execution-plan，未发现需要修改源码的阻断。driver 实际执行闭包及资源开窗由主线程另行审核授权；本报告不扩展到该启动审查。
+
+固定输入 `/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/manifest.json` SHA `cc6cd929d391ad2fe771ef2dcdf5ec08ab38bc0f6b8ca151c959a2aeab461268`，固定产品 b124650。两新增文件及原 A02/B/C 十一文件均逐字 SHA/大小核实，原阶段证据可按未变输入复用。446 既有依赖是本阶段编译绑定，不能自行冒充后续通用脚本完整运行闭包。
+
+- `tests/account/runtime_information_http_test.go` SHA `f46b3d0485206310f4c7c41a1439ce32ad67944747254cfea4d166da52f96309`，顶层 `TestSystemRuntimeInformationCurrentAuthorityAndTerminal`。完整 newB02Account、正式邀请普通用户、Login/Logout 与真实 Store/Authority；SQL 只读/取锁，不改业务权限。预认证后正式撤销、User SH 与 Logout EX 的 pg_blocking_pids 等待、实际事务终局后撤销生效均有精确屏障。受控 Source 只代表服务读值，不能称真实健康。实际 DB 1s 锁失败与 250ms 更早 parent 分列，不拿 DB 失败当自然本地 3s；两路径 Source0/actual Tx terminal 和受控 writer 结果边界明确。
+- `internal/central/app/runtime_information_process_test.go` SHA `bed598b917c0f285b2ca731ee59254b477a33d98614ecbfe66366badec1d513e`，顶层 `TestSystemRuntimeInformationRootSnapshotBinding`。原 newModelRootApp / app.Run，factory/Source 原样绑定同 core/store/Authority；原 DB/Object Check 仅计数后委托，具体嵌入保持 forceTransports。测试 health.interval=1h 隔离背景 tick，生产 10s/2s/20s 语义不改。正式 PG 版本只读旁证、每次 GET 一次 T/零新 Check、已有缓存与六项 ready、旧 API 与 ready503、实际 shutdown/accounts join/store 无活动事务/无 force deadline 的断言可实施。没有新的 Object 生命周期或故障注入代表。
+
+Account 的 precommit/callback 屏障直接证明 handler 尚未返回且真实 Tx active；它不直接观察期间 writer 字节，因此不能称“提交前 writer 零发布”，更不能称 TCP 零字节。独立最终计划 A 的可观测 writer 补口保持。root 的客户端读取有 EOF/Close 与原请求 trace 检查，尚不证明独立计划 B 的明确同连接事实。原 HTTP native3 与 DiagnosticRoutes 本阶段仅 list，必须在作者实际通过并终局清理后才能复用；本报告不提前采纳运行结果。client.Timeout 不是服务端 parent 证据。
+
+已核作者六项检查的全部54原件 SHA，并实读 argv/raw/result/cleanup：Account race 编译+精确 list1 actual0/7.815s；root race 编译+精确 list1 actual0/4.410s；Central/Runner build actual0/1.601s、0/0.261s，产物仅记录后删，未运行。六命令均实际 wait、双扫自有 PID/runtime 空、0 adopted wait；首次 gofmt 为允许的两源格式变化，其余检查输入前后相同，不能统称每轮输入未变。没有独立重跑这些检查。
+
+后续计划仍是精确两顶层各2m、包 race/count1/6m，与原 native 45s 分开；沿完整原 fixture 的7资源拓扑及固定输入/完整运行依赖/nonce/PID-starttime/actualwait/adoptwait/两扫基线门禁，不裁剪或并发资源。本轮仅读固定原件和写此私有报告，未启动 listener/PG/Docker/MinIO/browser，也未读作者活动命令。

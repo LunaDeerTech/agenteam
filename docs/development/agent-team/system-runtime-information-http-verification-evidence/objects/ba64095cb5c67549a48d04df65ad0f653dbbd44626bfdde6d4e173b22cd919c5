@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "asserted_schema_vectors": 76,
+  "go_wire_vectors": 3,
+  "closed_objects": 6,
+  "engine": "jsonschema Draft202012Validator",
+  "remote_resolution": "prohibited",
+  "schema_sha256": "9287f6f2119d777df5f5dcb956e690af3952689b034b90ba393d10f62b762988",
+  "wire_vectors_sha256": "303cdb6601ed1579f6256f99b89ac06cdd7183611c5c3c7db114df818940bd2c",
+  "limitations": "Controlled Go vectors and document validation only; no HTTP listener, native transport, PG, root source or production extreme-version claim."
+}

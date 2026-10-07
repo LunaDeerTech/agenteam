@@ -1,0 +1,35 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "-timeout=45s",
+    "-v",
+    "-run",
+    "^(TestRuntimeInformationHTTPNativeEOFAndKeepAlive|TestRuntimeInformationHTTPNativeSlowBodyBudgets|TestRuntimeInformationHTTPNativeWriteAndFlushAbort|TestDiagnosticRoutes)$",
+    "./internal/central/runtimeinfo/http",
+    "./internal/central/app"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace",
+  "ended_utc": "2026-10-07T01:30:27.803860+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native02/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native02/runtime"
+  },
+  "exit": 0,
+  "seconds": 7.502,
+  "started_utc": "2026-10-07T01:30:20.301822+00:00"
+}

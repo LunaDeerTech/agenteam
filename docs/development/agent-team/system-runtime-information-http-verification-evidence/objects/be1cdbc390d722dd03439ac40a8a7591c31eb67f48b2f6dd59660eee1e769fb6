@@ -1,0 +1,2117 @@
+--- /dev/null
++++ b/internal/central/runtimeinfo/http/handler.go
+@@ -0,0 +1,198 @@
++// Package runtimeinfohttp exposes the current-administrator runtime snapshot.
++package runtimeinfohttp
++
++import (
++	"context"
++	"io"
++	"net/http"
++	"strconv"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
++)
++
++const runtimePath = "/api/v1/system/runtime-information"
++const readBudget = 3 * time.Second
++
++type SystemHTTPOptions struct{ PublicOrigin string }
++
++type runtimeReader interface {
++	GetSystem(context.Context, identity.Actor) (runtimeinfo.Snapshot, error)
++}
++
++type accountBoundary interface {
++	CheckRequest(http.ResponseWriter, *http.Request) error
++	RequireSystem(*http.Request, identity.AccessIntent) (identity.Actor, error)
++	WriteProblem(http.ResponseWriter, *http.Request, error)
++}
++
++type systemHTTP struct {
++	service  runtimeReader
++	boundary accountBoundary
++}
++
++// NewSystemHTTPHandler is pure and retains the supplied services from one root.
++func NewSystemHTTPHandler(service *runtimeinfo.Service, accounts *account.Service, options SystemHTTPOptions) (http.Handler, error) {
++	if service == nil {
++		return nil, fault(foundation.DependencyUnbound)
++	}
++	boundary, err := account.NewHTTPBoundary(accounts, options.PublicOrigin)
++	if err != nil {
++		return nil, err
++	}
++	return &systemHTTP{service: service, boundary: boundary}, nil
++}
++
++func (h *systemHTTP) ServeHTTP(w http.ResponseWriter, request *http.Request) {
++	// Include boundary checks and preauthentication, not merely the service call.
++	ctx, cancel := context.WithTimeout(request.Context(), readBudget)
++	defer cancel()
++	r := request.WithContext(ctx)
++	w = abortWriter{w}
++	controller, finish := connectionBudget(w, ctx)
++	normal := false
++	defer func() { finish(r.Body, normal) }()
++	h.serve(w, r)
++	if expired(ctx) {
++		panic(http.ErrAbortHandler)
++	}
++	// Write may only fill a net/http buffer. Own the actual Flush before retiring
++	// this request's deadlines and cancellation callback.
++	if err := controller.Flush(); err != nil {
++		panic(http.ErrAbortHandler)
++	}
++	normal = true
++}
++
++func (h *systemHTTP) serve(w http.ResponseWriter, r *http.Request) {
++	problem := func(err error) {
++		if expired(r.Context()) {
++			panic(http.ErrAbortHandler)
++		}
++		h.boundary.WriteProblem(w, r, err)
++	}
++	// The original boundary checks Host/Origin/Fetch Metadata before Path/RawPath.
++	if err := h.boundary.CheckRequest(w, r); err != nil {
++		problem(err)
++		return
++	}
++	if r.URL.Path != runtimePath {
++		problem(fault(foundation.NotFound))
++		return
++	}
++	if r.Method != http.MethodGet {
++		w.Header().Set("Allow", "GET")
++		problem(fault(foundation.MethodNotAllowed))
++		return
++	}
++	actor, err := h.boundary.RequireSystem(r, identity.Read)
++	if err != nil {
++		problem(err)
++		return
++	}
++	if expired(r.Context()) {
++		panic(http.ErrAbortHandler)
++	}
++	if r.URL.RawQuery != "" || r.URL.ForceQuery {
++		problem(fault(foundation.InvalidArgument))
++		return
++	}
++	if err := emptyBody(r); err != nil {
++		problem(err)
++		return
++	}
++	if expired(r.Context()) {
++		panic(http.ErrAbortHandler)
++	}
++	value, err := h.service.GetSystem(r.Context(), actor)
++	if err != nil {
++		problem(err)
++		return
++	}
++	body, err := encodeSnapshot(value)
++	if err != nil {
++		problem(err)
++		return
++	}
++	if expired(r.Context()) {
++		panic(http.ErrAbortHandler)
++	}
++	w.Header().Set("Content-Type", "application/json")
++	w.Header().Set("Content-Length", strconv.Itoa(len(body)))
++	w.WriteHeader(http.StatusOK)
++	_, _ = w.Write(body)
++}
++
++func emptyBody(r *http.Request) error {
++	if r.ContentLength != 0 || len(r.TransferEncoding) != 0 {
++		return fault(foundation.InvalidArgument)
++	}
++	if r.Body == nil || r.Body == http.NoBody {
++		return nil
++	}
++	data, err := io.ReadAll(io.LimitReader(r.Body, 1))
++	if err != nil || len(data) != 0 {
++		return fault(foundation.InvalidArgument)
++	}
++	return nil
++}
++
++func expired(ctx context.Context) bool {
++	deadline, ok := ctx.Deadline()
++	return ctx.Err() != nil || ok && !time.Now().Before(deadline)
++}
++
++type abortWriter struct{ http.ResponseWriter }
++
++func (w abortWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
++func (w abortWriter) Write(data []byte) (int, error) {
++	n, err := w.ResponseWriter.Write(data)
++	if err != nil || n != len(data) {
++		panic(http.ErrAbortHandler)
++	}
++	return n, nil
++}
++
++func connectionBudget(w http.ResponseWriter, ctx context.Context) (*http.ResponseController, func(io.ReadCloser, bool)) {
++	controller := http.NewResponseController(w)
++	deadline, ok := ctx.Deadline()
++	if !ok || controller.SetReadDeadline(deadline) != nil {
++		panic(http.ErrAbortHandler)
++	}
++	if controller.SetWriteDeadline(deadline) != nil {
++		_ = controller.SetReadDeadline(time.Time{})
++		panic(http.ErrAbortHandler)
++	}
++	done := make(chan struct{})
++	stop := context.AfterFunc(ctx, func() {
++		defer close(done)
++		_ = controller.SetReadDeadline(time.Now())
++		_ = controller.SetWriteDeadline(time.Now())
++	})
++	return controller, func(body io.ReadCloser, normal bool) {
++		if !normal {
++			// Abort paths must not drain an unwanted body until the full budget.
++			_ = controller.SetReadDeadline(time.Now())
++			_ = controller.SetWriteDeadline(time.Now())
++		}
++		var closeErr error
++		if body != nil {
++			closeErr = body.Close()
++		}
++		if !stop() {
++			<-done
++		}
++		readErr := controller.SetReadDeadline(time.Time{})
++		writeErr := controller.SetWriteDeadline(time.Time{})
++		if closeErr != nil || readErr != nil || writeErr != nil || normal && expired(ctx) {
++			panic(http.ErrAbortHandler)
++		}
++	}
++}
++
++func fault(code foundation.Code) *foundation.Fault {
++	return foundation.NewFault(code, foundation.NotStarted)
++}
+--- /dev/null
++++ b/internal/central/runtimeinfo/http/wire.go
+@@ -0,0 +1,102 @@
++package runtimeinfohttp
++
++import (
++	"encoding/json"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
++)
++
++const successBytes = 16 << 10
++
++type centralDTO struct {
++	Version    *string `json:"version"`
++	SafeReason string  `json:"safe_reason"`
++}
++
++type databaseSuccessDTO struct {
++	CheckedAt         foundation.Instant `json:"checked_at"`
++	ReceivedAt        foundation.Instant `json:"received_at"`
++	PostgreSQLVersion string             `json:"postgresql_version"`
++	PGVectorVersion   string             `json:"pgvector_version"`
++}
++
++type databaseDTO struct {
++	Status      runtimeinfo.Status `json:"status"`
++	SafeReason  *string            `json:"safe_reason"`
++	LastSuccess databaseSuccessDTO `json:"last_success"`
++}
++
++type objectStorageDTO struct {
++	Backend               string             `json:"backend"`
++	Assessment            string             `json:"assessment"`
++	Status                runtimeinfo.Status `json:"status"`
++	SafeReason            *string            `json:"safe_reason"`
++	LastSuccessReceivedAt foundation.Instant `json:"last_success_received_at"`
++	Details               string             `json:"details"`
++}
++
++type readinessDTO struct {
++	Ready      bool            `json:"ready"`
++	SafeReason foundation.Code `json:"safe_reason"`
++}
++
++type snapshotDTO struct {
++	ObservedAt    foundation.Instant `json:"observed_at"`
++	Central       centralDTO         `json:"central"`
++	Database      databaseDTO        `json:"database"`
++	ObjectStorage objectStorageDTO   `json:"object_storage"`
++	Readiness     readinessDTO       `json:"readiness"`
++}
++
++func projectSnapshot(value runtimeinfo.Snapshot) (snapshotDTO, error) {
++	// Validate again at the wire boundary, including the cross-domain readiness
++	// implication; an invalid reader value must never become a partial 200.
++	if err := value.Validate(); err != nil {
++		return snapshotDTO{}, fault(foundation.DependencyUnavailable)
++	}
++	last := value.Database.LastSuccess
++	return snapshotDTO{
++		ObservedAt: value.ObservedAt,
++		Central:    centralDTO{Version: nil, SafeReason: "build_version_not_recorded"},
++		Database: databaseDTO{
++			Status: value.Database.Status, SafeReason: statusReason(value.Database.Status),
++			LastSuccess: databaseSuccessDTO{last.CheckedAt, last.ReceivedAt, last.PostgreSQLVersion, last.PGVectorVersion},
++		},
++		ObjectStorage: objectStorageDTO{
++			Backend: "minio", Assessment: "object_storage_aggregate",
++			Status: value.ObjectStorage.Status, SafeReason: statusReason(value.ObjectStorage.Status),
++			LastSuccessReceivedAt: value.ObjectStorage.LastSuccessReceivedAt, Details: "not_reported",
++		},
++		Readiness: readinessDTO{Ready: false, SafeReason: value.Readiness},
++	}, nil
++}
++
++func statusReason(status runtimeinfo.Status) *string {
++	var reason string
++	switch status {
++	case runtimeinfo.Unavailable:
++		reason = "check_unavailable"
++	case runtimeinfo.Stale:
++		reason = "sample_stale"
++	default:
++		return nil
++	}
++	return &reason
++}
++
++func encodeSnapshot(value runtimeinfo.Snapshot) ([]byte, error) {
++	dto, err := projectSnapshot(value)
++	if err != nil {
++		return nil, err
++	}
++	return encode(dto)
++}
++
++func encode(value any) ([]byte, error) {
++	body, err := json.Marshal(value)
++	if err != nil || len(body) > successBytes {
++		return nil, fault(foundation.DependencyUnavailable)
++	}
++	return body, nil
++}
+--- /dev/null
++++ b/internal/central/runtimeinfo/http/handler_test.go
+@@ -0,0 +1,1292 @@
++package runtimeinfohttp
++
++import (
++	"bufio"
++	"bytes"
++	"context"
++	"encoding/base64"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"io"
++	"log"
++	"log/slog"
++	"net"
++	"net/http"
++	"net/http/httptest"
++	"os"
++	"path/filepath"
++	"reflect"
++	"regexp"
++	"strconv"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	ac "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
++	audit "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
++	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/object"
++	outbox "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
++	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
++	"github.com/LunaDeerTech/agenteam/internal/central/secret"
++)
++
++const wireID = "01900000-0000-7000-8000-000000000001"
++
++// Construction-only ports fail immediately if invoked. Only CurrentProcess is
++// a required in-memory getter while constructing the Account service.
++type noCallAccountStore struct{ account.Store }
++type noCallAudit struct{ audit.Appender }
++type noCallEvents struct{ outbox.Appender }
++type noCallChallenges struct{ ac.ChallengeAuthority }
++type noCallProcesses struct {
++	ac.ProcessAuthority
++	id ac.ProcessID
++}
++
++func (p noCallProcesses) CurrentProcess() ac.ProcessID { return p.id }
++
++type noCallRuntime struct {
++	runtimeinfo.Store
++	identity.SessionAuthority
++	identity.SystemAuthority
++	runtimeinfo.Source
++}
++
++func constructionCore(t *testing.T) *account.Service {
++	t.Helper()
++	key := func(b byte) string { return base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{b}, 32)) }
++	page, err := cursor.LoadKeyring(fmt.Sprintf(`{"format":1,"current_kid":"p","keys":[{"kid":"p","key_b64":%q}]}`, key(1)))
++	if err != nil {
++		t.Fatal(err)
++	}
++	encryption, err := secret.LoadKeyring(fmt.Sprintf(`{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":%q}]}`, key(2)), page)
++	if err != nil {
++		t.Fatal(err)
++	}
++	download, err := object.LoadDownloadKeyring(fmt.Sprintf(`{"format":1,"current_kid":"d","keys":[{"kid":"d","key_b64":%q}]}`, key(3)), page, encryption)
++	if err != nil {
++		t.Fatal(err)
++	}
++	keys, err := account.LoadKeyring(fmt.Sprintf(`{"format":1,"current_kid":"a","keys":[{"kid":"a","key_b64":%q}]}`, key(4)), page, encryption, download)
++	if err != nil {
++		t.Fatal(err)
++	}
++	authority, err := account.NewAuthority(&noCallAccountStore{}, keys)
++	if err != nil {
++		t.Fatal(err)
++	}
++	catalog := event.NewCatalog()
++	sessions, err := ac.DefineSessionsRevoked(catalog)
++	if err != nil {
++		t.Fatal(err)
++	}
++	delivery, err := ac.DefineDeliveryRequested(catalog)
++	if err != nil {
++		t.Fatal(err)
++	}
++	process, err := foundation.ParseID[ac.Process](wireID)
++	if err != nil {
++		t.Fatal(err)
++	}
++	core, err := account.New(account.Dependencies{Authority: authority, Audit: noCallAudit{}, Secrets: &secret.Service{}, Events: noCallEvents{}, Challenges: noCallChallenges{}, Processes: noCallProcesses{id: process}, RecoveryLog: &recoverylog.Sink{}, SessionsRevoked: sessions, DeliveryRequested: delivery})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return core
++}
++
++func TestRuntimeInformationHTTPPureConstructionAndBoundary(t *testing.T) {
++	ports := &noCallRuntime{}
++	service, err := runtimeinfo.New(ports, ports, ports, ports)
++	if err != nil {
++		t.Fatal(err)
++	}
++	core := constructionCore(t)
++	for _, tc := range []struct {
++		service *runtimeinfo.Service
++		core    *account.Service
++		origin  string
++	}{
++		{nil, core, "https://example.test"}, {service, nil, "https://example.test"}, {service, &account.Service{}, "https://example.test"}, {service, core, "http://external.example.test"},
++	} {
++		if h, err := NewSystemHTTPHandler(tc.service, tc.core, SystemHTTPOptions{tc.origin}); err == nil || h != nil {
++			t.Fatal("invalid constructor binding/origin accepted")
++		}
++	}
++	handler, err := NewSystemHTTPHandler(service, core, SystemHTTPOptions{"https://example.test"})
++	if err != nil || handler.(*systemHTTP).service != service {
++		t.Fatal("pure constructor failed to retain service", err)
++	}
++	// With no cookie, the real Account boundary rejects before any inert port.
++	r := httptest.NewRequest("GET", "https://example.test"+runtimePath, nil)
++	w := newBudgetWriter()
++	httpapi.Handler(nil, handler).ServeHTTP(w, r)
++	if w.Code != 401 || !bytes.Contains(w.Body.Bytes(), []byte(`"code":"UNAUTHENTICATED"`)) {
++		t.Fatal("missing cookie reached Source or bypassed Account")
++	}
++}
++
++func TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder(t *testing.T) {
++	actual, err := account.NewHTTPBoundary(constructionCore(t), "https://example.test")
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, tc := range []struct {
++		method, path, rawPath, host, origin, fetch string
++		status, auth, read                         int
++		code                                       string
++	}{
++		{"GET", runtimePath, "", "", "", "", 200, 1, 1, ""},
++		{"HEAD", runtimePath, "", "", "", "", 405, 0, 0, "METHOD_NOT_ALLOWED"},
++		{"POST", runtimePath, "", "", "https://example.test", "", 405, 0, 0, "METHOD_NOT_ALLOWED"},
++		{"OPTIONS", runtimePath, "", "", "", "", 405, 0, 0, "METHOD_NOT_ALLOWED"},
++		{"GET", runtimePath + "/", "", "", "", "", 400, 0, 0, "INVALID_ARGUMENT"},
++		{"GET", runtimePath + "//child", "", "", "", "", 400, 0, 0, "INVALID_ARGUMENT"},
++		{"GET", runtimePath + "/./child", "", "", "", "", 400, 0, 0, "INVALID_ARGUMENT"},
++		{"GET", runtimePath + "/../child", "", "", "", "", 400, 0, 0, "INVALID_ARGUMENT"},
++		{"GET", runtimePath + "\\child", "", "", "", "", 400, 0, 0, "INVALID_ARGUMENT"},
++		{"GET", runtimePath + "\x00", "", "", "", "", 400, 0, 0, "INVALID_ARGUMENT"},
++		{"GET", runtimePath, "/api/v1/system/%72untime-information", "", "", "", 400, 0, 0, "INVALID_ARGUMENT"},
++		{"GET", runtimePath + "/child", "", "", "", "", 404, 0, 0, "NOT_FOUND"},
++		{"GET", runtimePath + "-near", "", "", "", "", 404, 0, 0, "NOT_FOUND"},
++		{"GET", runtimePath + "/", "", "wrong.example", "", "", 403, 0, 0, "ORIGIN_DENIED"},
++		{"GET", runtimePath + "/", "", "", "https://wrong.example", "", 403, 0, 0, "ORIGIN_DENIED"},
++		{"GET", runtimePath + "/", "", "", "", "cross-site", 403, 0, 0, "ORIGIN_DENIED"},
++	} {
++		t.Run(tc.method+tc.path+tc.host+tc.origin+tc.fetch, func(t *testing.T) {
++			boundary, reader := &testBoundary{real: actual}, &testReader{}
++			h := &systemHTTP{reader, boundary}
++			w := newBudgetWriter()
++			r := httptest.NewRequest(tc.method, "https://example.test"+runtimePath, nil)
++			r.URL.Path, r.URL.RawPath = tc.path, tc.rawPath
++			if tc.host != "" {
++				r.Host = tc.host
++			}
++			if tc.origin != "" {
++				r.Header.Set("Origin", tc.origin)
++			}
++			if tc.fetch != "" {
++				r.Header.Set("Sec-Fetch-Site", tc.fetch)
++			}
++			originalURL, originalHost := r.URL.String(), r.Host
++			var logs bytes.Buffer
++			if aborts(func() { httpapi.Handler(slog.New(slog.NewJSONHandler(&logs, nil)), h).ServeHTTP(w, r) }) {
++				t.Fatal("normal response aborted")
++			}
++			if w.Code != tc.status || int(boundary.calls.Load()) != tc.auth || int(reader.calls.Load()) != tc.read {
++				t.Fatal("boundary/route/auth/read order", w.Code, boundary.calls.Load(), reader.calls.Load())
++			}
++			if r.URL.String() != originalURL || r.Host != originalHost {
++				t.Fatal("caller URL/Host normalized or replaced")
++			}
++			if tc.status == 405 && w.Header().Get("Allow") != "GET" {
++				t.Fatal("GET-only Allow")
++			}
++			if tc.method == "HEAD" {
++				if w.Body.Len() != 0 {
++					t.Fatal("HEAD error body")
++				}
++			} else if tc.status != 200 {
++				var problem map[string]any
++				if json.Unmarshal(w.Body.Bytes(), &problem) != nil || problem["code"] != tc.code || problem["instance"] != "/api/v1" || problem["request_id"] != w.Header().Get("X-Request-ID") {
++					t.Fatal("unsafe or wrong Problem")
++				}
++			}
++			if _, err := foundation.ParseID[foundation.Request](w.Header().Get("X-Request-ID")); err != nil {
++				t.Fatal("missing canonical outer request ID")
++			}
++			if bytes.Count(logs.Bytes(), []byte(`"event":"http_request"`)) != 1 || !bytes.Contains(logs.Bytes(), []byte(`"route":"unknown_route"`)) || bytes.Contains(logs.Bytes(), []byte("wrong.example")) {
++				t.Fatal("unsafe/multiple request logs")
++			}
++			if w.Header().Get("Cache-Control") != "no-store" || w.Header().Get("X-Content-Type-Options") != "nosniff" || w.Header().Get("Referrer-Policy") != "no-referrer" || w.Header().Get("Location") != "" {
++				t.Fatal("safe headers/redirect changed")
++			}
++			if w.flushes != 1 || !w.reads[len(w.reads)-1].IsZero() || !w.writes[len(w.writes)-1].IsZero() {
++				t.Fatal("actual tail/reset missing")
++			}
++		})
++	}
++	for _, query := range []string{"?", "?x=1", "?scope=system", "?user_id=" + wireID, "?bad=%", "?a=1&a=2"} {
++		reader, boundary := &testReader{}, &testBoundary{real: actual}
++		w := newBudgetWriter()
++		(&systemHTTP{reader, boundary}).ServeHTTP(w, httptest.NewRequest("GET", "https://example.test"+runtimePath+query, nil))
++		if w.Code != 400 || boundary.calls.Load() != 1 || reader.calls.Load() != 0 {
++			t.Fatal("query accepted or parsed before authorization")
++		}
++	}
++	for _, code := range []foundation.Code{foundation.Unauthenticated, foundation.SessionRevoked, foundation.Forbidden, foundation.DependencyUnbound, foundation.DependencyUnavailable} {
++		reader := &testReader{}
++		boundary := &testBoundary{real: actual, auth: func(*http.Request) (identity.Actor, error) { return identity.Actor{}, fault(code) }}
++		w := newBudgetWriter()
++		(&systemHTTP{reader, boundary}).ServeHTTP(w, httptest.NewRequest("GET", "https://example.test"+runtimePath+"?private-query-canary", nil))
++		expected := 503
++		if code == foundation.Forbidden {
++			expected = 403
++		}
++		if code == foundation.Unauthenticated || code == foundation.SessionRevoked {
++			expected = 401
++		}
++		if w.Code != expected || reader.calls.Load() != 0 || bytes.Contains(w.Body.Bytes(), []byte("private-query-canary")) {
++			t.Fatal("current authorization did not precede query")
++		}
++	}
++}
++
++func TestRuntimeInformationHTTPPureProjectionAndEncodedBudget(t *testing.T) {
++	value := testSnapshot(t)
++	value.Database.Status = runtimeinfo.Unavailable
++	value.ObjectStorage.Status = runtimeinfo.Unavailable
++	value.Readiness = foundation.DependencyUnavailable
++	value.Database.LastSuccess.PostgreSQLVersion = strings.Repeat("&", 256)
++	value.Database.LastSuccess.PGVectorVersion = strings.Repeat("<", 256)
++	body, err := encodeSnapshot(value)
++	if err != nil || len(body) > 3690 || len(body) > successBytes || bytes.Count(body, []byte(`\u0026`)) != 256 || bytes.Count(body, []byte(`\u003c`)) != 256 {
++		t.Fatal("maximum legal default JSON escaping", len(body), err)
++	}
++	dto, err := projectSnapshot(value)
++	if err != nil {
++		t.Fatal(err)
++	}
++	dto.Database.LastSuccess.PostgreSQLVersion = ""
++	dto.Database.LastSuccess.PGVectorVersion = ""
++	shell, err := json.Marshal(dto)
++	if err != nil || len(shell) != 618 || len(body) != len(shell)+2*256*6 {
++		t.Fatal("fixed shell/3690B conservative arithmetic", len(shell), len(body), err)
++	}
++	var decoded map[string]any
++	if json.Unmarshal(body, &decoded) != nil || len(decoded) != 5 {
++		t.Fatal("closed top-level DTO")
++	}
++	central := decoded["central"].(map[string]any)
++	storage := decoded["object_storage"].(map[string]any)
++	ready := decoded["readiness"].(map[string]any)
++	if len(central) != 2 || central["version"] != nil || central["safe_reason"] != "build_version_not_recorded" || len(storage) != 6 || storage["backend"] != "minio" || storage["assessment"] != "object_storage_aggregate" || storage["details"] != "not_reported" || len(ready) != 2 || ready["ready"] != false {
++		t.Fatal("invented build, MinIO details or ready success")
++	}
++	for _, change := range []func(*runtimeinfo.Snapshot){
++		func(v *runtimeinfo.Snapshot) { v.ObservedAt = foundation.Instant{} }, func(v *runtimeinfo.Snapshot) { v.Database.LastSuccess.CheckedAt = foundation.Instant{} }, func(v *runtimeinfo.Snapshot) { v.Database.LastSuccess.ReceivedAt = foundation.Instant{} }, func(v *runtimeinfo.Snapshot) { v.ObjectStorage.LastSuccessReceivedAt = foundation.Instant{} },
++		func(v *runtimeinfo.Snapshot) { v.Database.LastSuccess.PostgreSQLVersion = "" }, func(v *runtimeinfo.Snapshot) { v.Database.LastSuccess.PGVectorVersion = strings.Repeat("x", 257) }, func(v *runtimeinfo.Snapshot) { v.Database.LastSuccess.PostgreSQLVersion = "17\n8" }, func(v *runtimeinfo.Snapshot) { v.Database.LastSuccess.PGVectorVersion = "é" },
++		func(v *runtimeinfo.Snapshot) { v.Database.Status = "unknown" }, func(v *runtimeinfo.Snapshot) { v.Readiness = foundation.InternalError }, func(v *runtimeinfo.Snapshot) { v.Database.Status = runtimeinfo.Stale }, func(v *runtimeinfo.Snapshot) { v.ObjectStorage.Status = runtimeinfo.Unavailable },
++	} {
++		bad := testSnapshot(t)
++		change(&bad)
++		if b, err := encodeSnapshot(bad); err == nil || b != nil {
++			t.Fatal("invalid reader observation reached wire")
++		}
++		w := newBudgetWriter()
++		(&systemHTTP{&testReader{get: func(context.Context) (runtimeinfo.Snapshot, error) { return bad, nil }}, &testBoundary{}}).ServeHTTP(w, httptest.NewRequest("GET", runtimePath, nil))
++		if w.Code != 503 || bytes.Contains(w.Body.Bytes(), []byte("observed_at")) {
++			t.Fatal("invalid observation published success candidate")
++		}
++	}
++	// Defensive final byte gate: this is synthetic JSON, not a reachable valid
++	// runtime snapshot or a change to its 1–256-byte input version contract.
++	for _, n := range []int{successBytes - 8, successBytes - 7} {
++		b, err := encode(struct {
++			V string `json:"v"`
++		}{strings.Repeat("x", n)})
++		if n == successBytes-8 {
++			if err != nil || len(b) != successBytes {
++				t.Fatal("exact final limit rejected")
++			}
++		} else if err == nil || b != nil {
++			t.Fatal("final encoded limit not enforced")
++		}
++	}
++	if b, err := encode(make(chan struct{})); err == nil || b != nil {
++		t.Fatal("marshal error published bytes")
++	}
++}
++
++type readFunc func([]byte) (int, error)
++
++func (f readFunc) Read(p []byte) (int, error) { return f(p) }
++
++type noFlushWriter struct{ w *budgetWriter }
++
++func (w noFlushWriter) Header() http.Header                { return w.w.Header() }
++func (w noFlushWriter) WriteHeader(n int)                  { w.w.WriteHeader(n) }
++func (w noFlushWriter) Write(p []byte) (int, error)        { return w.w.Write(p) }
++func (w noFlushWriter) SetReadDeadline(t time.Time) error  { return w.w.SetReadDeadline(t) }
++func (w noFlushWriter) SetWriteDeadline(t time.Time) error { return w.w.SetWriteDeadline(t) }
++
++func TestRuntimeInformationHTTPPureBodyWriteAndCapabilities(t *testing.T) {
++	for _, tc := range []struct {
++		name                   string
++		length                 int64
++		transfer               []string
++		content                string
++		readErr                error
++		want, readCalls, bytes int
++	}{
++		{"nonzero", 1, nil, "x", nil, 400, 0, 0}, {"unknown-length", -1, nil, "", nil, 400, 0, 0}, {"transfer", 0, []string{"chunked"}, "", nil, 400, 0, 0},
++		{"actual-nonempty", 0, nil, strings.Repeat("x", 2048), nil, 400, 1, 1}, {"actual-eof", 0, nil, "", nil, 200, 1, 0}, {"read-error", 0, nil, "", io.ErrUnexpectedEOF, 400, 1, 0},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			boundary, reader := &testBoundary{}, &testReader{}
++			underlying := strings.NewReader(tc.content)
++			calls, consumed := 0, 0
++			body := &closeBody{Reader: readFunc(func(p []byte) (int, error) {
++				calls++
++				if len(p) > 1 {
++					t.Error("unbounded empty-body read")
++				}
++				if tc.readErr != nil {
++					return 0, tc.readErr
++				}
++				n, err := underlying.Read(p)
++				consumed += n
++				return n, err
++			})}
++			request := httptest.NewRequest("GET", runtimePath, nil)
++			request.Body = body
++			request.ContentLength = tc.length
++			request.TransferEncoding = tc.transfer
++			w := newBudgetWriter()
++			(&systemHTTP{reader, boundary}).ServeHTTP(w, request)
++			if w.Code != tc.want || body.closed.Load() != 1 || calls != tc.readCalls || consumed != tc.bytes || tc.want == 400 && reader.calls.Load() != 0 || tc.want == 200 && reader.calls.Load() != 1 {
++				t.Fatal("framing/one-byte EOF/actual Close", w.Code, calls, consumed, body.closed.Load())
++			}
++			if tc.want == 200 {
++				if n, err := strconv.Atoi(w.Header().Get("Content-Length")); err != nil || n != w.Body.Len() || w.Header().Get("Content-Type") != "application/json" {
++					t.Fatal("complete encoded success headers")
++				}
++			}
++		})
++	}
++	for _, name := range []string{"no-deadline", "read-deadline-error", "write-deadline-error", "short-write", "write-error", "no-flush", "flush-error", "close-error", "clear-deadline-error"} {
++		t.Run(name, func(t *testing.T) {
++			reader, boundary := &testReader{}, &testBoundary{}
++			h := &systemHTTP{reader, boundary}
++			budget := newBudgetWriter()
++			var w http.ResponseWriter = budget
++			body := &closeBody{Reader: strings.NewReader("")}
++			switch name {
++			case "no-deadline":
++				w = httptest.NewRecorder()
++			case "read-deadline-error":
++				budget.setRead = func(time.Time) error { return io.ErrClosedPipe }
++			case "write-deadline-error":
++				budget.setWrite = func(time.Time) error { return io.ErrClosedPipe }
++			case "short-write":
++				budget.short = true
++			case "write-error":
++				budget.write = func([]byte) (int, error) { return 0, io.ErrClosedPipe }
++			case "no-flush":
++				w = noFlushWriter{budget}
++			case "flush-error":
++				budget.flushErr = io.ErrClosedPipe
++			case "close-error":
++				body.close = func() error { return io.ErrClosedPipe }
++			case "clear-deadline-error":
++				budget.setRead = func(at time.Time) error {
++					if at.IsZero() {
++						return io.ErrClosedPipe
++					}
++					return nil
++				}
++			}
++			r := httptest.NewRequest("GET", runtimePath, nil)
++			r.Body = body
++			if !aborts(func() { h.ServeHTTP(w, r) }) {
++				t.Fatal("failed I/O/capability did not abort")
++			}
++			initial := name == "no-deadline" || name == "read-deadline-error" || name == "write-deadline-error"
++			if initial && (reader.calls.Load() != 0 || boundary.calls.Load() != 0) {
++				t.Fatal("failed deadline binding reached services")
++			}
++			if !initial && body.closed.Load() != 1 {
++				t.Fatal("owned body was not closed once")
++			}
++		})
++	}
++}
++
++func TestRuntimeInformationHTTPPureActualIOTails(t *testing.T) {
++	for _, phase := range []string{"read", "service", "write", "flush", "close"} {
++		t.Run(phase, func(t *testing.T) {
++			parent, cancel := context.WithCancel(context.Background())
++			entered, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
++			var once sync.Once
++			var active atomic.Int32
++			block := func() { active.Add(1); defer active.Add(-1); close(entered); <-release }
++			body := &closeBody{Reader: strings.NewReader("")}
++			w := newBudgetWriter()
++			reader := &testReader{}
++			switch phase {
++			case "read":
++				body.Reader = readFunc(func([]byte) (int, error) { block(); return 0, io.EOF })
++			case "service":
++				reader.get = func(context.Context) (runtimeinfo.Snapshot, error) { block(); return sampleSnapshot() }
++			case "write":
++				w.write = func([]byte) (int, error) { block(); return 0, io.ErrClosedPipe }
++			case "flush":
++				w.flush = func() error { block(); return io.ErrClosedPipe }
++			case "close":
++				body.close = func() error { block(); return nil }
++			}
++			r := httptest.NewRequest("GET", runtimePath, nil).WithContext(parent)
++			r.Body = body
++			done := make(chan bool, 1)
++			t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); <-joined })
++			go func() {
++				defer close(joined)
++				done <- aborts(func() { (&systemHTTP{reader, &testBoundary{}}).ServeHTTP(w, r) })
++			}()
++			select {
++			case <-entered:
++			case <-time.After(time.Second):
++				t.Fatal("owned I/O stage not reached")
++			}
++			cancel()
++			if active.Load() != 1 {
++				t.Fatal("active I/O disappeared on cancellation")
++			}
++			select {
++			case <-done:
++				t.Fatal("handler returned before actual I/O tail")
++			default:
++			}
++			once.Do(func() { close(release) })
++			if !<-done {
++				t.Fatal("cancelled tail returned normally")
++			}
++			<-joined
++			if active.Load() != 0 || body.closed.Load() != 1 || phase == "read" && reader.calls.Load() != 0 || phase != "read" && reader.calls.Load() != 1 {
++				t.Fatal("actual calls/Close were not joined")
++			}
++			if (phase == "read" || phase == "service") && (w.Body.Len() != 0 || w.flushes != 0) {
++				t.Fatal("late call published a candidate")
++			}
++			w.mu.Lock()
++			defer w.mu.Unlock()
++			if !w.reads[len(w.reads)-1].IsZero() || !w.writes[len(w.writes)-1].IsZero() {
++				t.Fatal("retired callback left a connection deadline")
++			}
++		})
++	}
++}
++
++func TestRuntimeInformationHTTPPureSafeFailures(t *testing.T) {
++	for _, code := range []foundation.Code{foundation.DependencyUnbound, foundation.DependencyUnavailable, foundation.CommitUnknown, foundation.InternalError} {
++		reader := &testReader{get: func(context.Context) (runtimeinfo.Snapshot, error) {
++			value, err := sampleSnapshot()
++			if err != nil {
++				return value, err
++			}
++			state := foundation.NotCommitted
++			if code == foundation.CommitUnknown {
++				state = foundation.Unknown
++			}
++			return value, foundation.NewFault(code, state).WithCause(errors.New("private-source-canary"))
++		}}
++		w := newBudgetWriter()
++		r := httptest.NewRequest("GET", runtimePath, nil)
++		r.Header.Set("X-Private", "private-header-canary")
++		httpapi.Handler(nil, &systemHTTP{reader, &testBoundary{}}).ServeHTTP(w, r)
++		var problem map[string]any
++		if json.Unmarshal(w.Body.Bytes(), &problem) != nil || problem["code"] != string(code) || problem["instance"] != "/api/v1" || bytes.Contains(w.Body.Bytes(), []byte("canary")) || bytes.Contains(w.Body.Bytes(), []byte("observed_at")) {
++			t.Fatal("unsafe/partial error projection")
++		}
++		want := 503
++		if code == foundation.InternalError {
++			want = 500
++		}
++		if w.Code != want {
++			t.Fatal("wrong safe failure status")
++		}
++		if code == foundation.CommitUnknown && (problem["commit_state"] != "unknown" || problem["retry_hint"] != "lookup") {
++			t.Fatal("Unknown classification lost")
++		}
++	}
++}
++
++func TestRuntimeInformationHTTPPureOpenAPIClosedContract(t *testing.T) {
++	load := func(name string) map[string]any {
++		t.Helper()
++		b, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "api", "openapi", name))
++		if err != nil {
++			t.Fatal(err)
++		}
++		var value map[string]any
++		if err = json.Unmarshal(b, &value); err != nil {
++			t.Fatal(err)
++		}
++		return value
++	}
++	document, common := load("runtime-information.json"), load("common.json")
++	paths := document["paths"].(map[string]any)
++	if len(paths) != 1 || paths[runtimePath] == nil || len(common["paths"].(map[string]any)) != 0 {
++		t.Fatal("route scope widened")
++	}
++	item := paths[runtimePath].(map[string]any)
++	if len(item) != 1 || item["get"] == nil {
++		t.Fatal("GET-only schema")
++	}
++	op := item["get"].(map[string]any)
++	security := op["security"].([]any)
++	if op["operationId"] != "getSystemRuntimeInformation" || len(op["parameters"].([]any)) != 0 || op["requestBody"] != nil || op["x-success-body-max-bytes"] != float64(successBytes) || len(security) != 2 || len(security[0].(map[string]any)) != 1 || len(security[1].(map[string]any)) != 1 || security[0].(map[string]any)["Session"] == nil || security[1].(map[string]any)["LocalSession"] == nil {
++		t.Fatal("method/identity/body/16KiB contract")
++	}
++	components := document["components"].(map[string]any)
++	schemes := components["securitySchemes"].(map[string]any)
++	if len(schemes) != 2 || schemes["Session"].(map[string]any)["name"] != "__Host-agenteam_session" || schemes["LocalSession"].(map[string]any)["name"] != "agenteam_local_session" {
++		t.Fatal("cookie scheme drift")
++	}
++	schemas := components["schemas"].(map[string]any)
++	schema := schemas["SystemRuntimeInformation"].(map[string]any)
++	decoded := func() map[string]any {
++		t.Helper()
++		var value map[string]any
++		if json.Unmarshal(mustSnapshotBody(t), &value) != nil {
++			t.Fatal("wire JSON")
++		}
++		return value
++	}
++	for _, db := range []runtimeinfo.Status{runtimeinfo.Available, runtimeinfo.Unavailable, runtimeinfo.Stale} {
++		for _, storage := range []runtimeinfo.Status{runtimeinfo.Available, runtimeinfo.Unavailable, runtimeinfo.Stale} {
++			for _, reason := range []foundation.Code{foundation.DependencyUnavailable, foundation.DependencyUnbound} {
++				value := testSnapshot(t)
++				value.Database.Status, value.ObjectStorage.Status, value.Readiness = db, storage, reason
++				body, err := encodeSnapshot(value)
++				legal := reason == foundation.DependencyUnavailable || db == runtimeinfo.Available && storage == runtimeinfo.Available
++				if legal != (err == nil) || !legal && body != nil {
++					t.Fatal("wire readiness closure")
++				}
++				raw := decoded()
++				for _, pair := range []struct {
++					part   string
++					status runtimeinfo.Status
++				}{{"database", db}, {"object_storage", storage}} {
++					child := raw[pair.part].(map[string]any)
++					child["status"] = string(pair.status)
++					var safe any
++					if pair.status == runtimeinfo.Unavailable {
++						safe = "check_unavailable"
++					}
++					if pair.status == runtimeinfo.Stale {
++						safe = "sample_stale"
++					}
++					child["safe_reason"] = safe
++				}
++				raw["readiness"].(map[string]any)["safe_reason"] = string(reason)
++				if schemaAccepts(document, common, schema, raw) != legal {
++					t.Fatal("schema readiness differs from authorized wire", db, storage, reason)
++				}
++			}
++		}
++	}
++	// Every object is closed and every specified field is required, not merely
++	// the response root. Decode a fresh value for each negative mutation.
++	at := func(value map[string]any, path []string) map[string]any {
++		for _, part := range path {
++			value = value[part].(map[string]any)
++		}
++		return value
++	}
++	for _, path := range [][]string{nil, {"central"}, {"database"}, {"database", "last_success"}, {"object_storage"}, {"readiness"}} {
++		original := at(decoded(), path)
++		for field := range original {
++			value := decoded()
++			delete(at(value, path), field)
++			if schemaAccepts(document, common, schema, value) {
++				t.Fatal("missing field accepted", path, field)
++			}
++		}
++		value := decoded()
++		at(value, path)["unexpected"] = true
++		if schemaAccepts(document, common, schema, value) {
++			t.Fatal("unknown field accepted", path)
++		}
++	}
++	for _, change := range []func(map[string]any){
++		func(v map[string]any) { v["central"].(map[string]any)["version"] = "development (D05)" }, func(v map[string]any) { v["central"].(map[string]any)["safe_reason"] = "unknown" }, func(v map[string]any) { v["readiness"].(map[string]any)["ready"] = true },
++		func(v map[string]any) { v["database"].(map[string]any)["safe_reason"] = "check_unavailable" }, func(v map[string]any) { v["object_storage"].(map[string]any)["status"] = "unknown" }, func(v map[string]any) { v["object_storage"].(map[string]any)["backend"] = "s3" }, func(v map[string]any) { v["database"].(map[string]any)["last_success"] = nil },
++		func(v map[string]any) { v["observed_at"] = "0001-01-01T00:00:00.000000Z" }, func(v map[string]any) { v["observed_at"] = "2026-02-30T00:00:00.000000Z" }, func(v map[string]any) { v["observed_at"] = "2026-10-06T00:00:00Z" },
++	} {
++		value := decoded()
++		change(value)
++		if schemaAccepts(document, common, schema, value) {
++			t.Fatal("conditional/fixed/Instant schema widened")
++		}
++	}
++	versionSchema := schemas["VersionString"].(map[string]any)
++	for _, text := range []string{" ", strings.Repeat("&", 256), "17.8 (Debian)"} {
++		if !schemaAccepts(document, common, versionSchema, text) {
++			t.Fatal("valid version narrowed")
++		}
++	}
++	for _, text := range []string{"", strings.Repeat("x", 257), "17\n", "17\r\n", "17\u2028", "17\u2029", "é", "\x00", "\x7f"} {
++		if schemaAccepts(document, common, versionSchema, text) {
++			t.Fatal("version byte closure widened")
++		}
++	}
++	// Validate all references against their document base, independently of
++	// whether a positive body happened to visit that schema branch.
++	var refs func(any)
++	refs = func(node any) {
++		switch v := node.(type) {
++		case map[string]any:
++			if ref, ok := v["$ref"].(string); ok {
++				parts := strings.SplitN(ref, "#", 2)
++				var root any = document
++				if parts[0] == "./common.json" {
++					root = common
++				} else if parts[0] != "" {
++					t.Fatal("unexpected external schema", ref)
++				}
++				if len(parts) != 2 {
++					t.Fatal("missing schema fragment")
++				}
++				for _, key := range strings.Split(strings.TrimPrefix(parts[1], "/"), "/") {
++					m, ok := root.(map[string]any)
++					if !ok || m[key] == nil {
++						t.Fatal("unresolved schema", ref)
++					}
++					root = m[key]
++				}
++			}
++			for _, child := range v {
++				refs(child)
++			}
++		case []any:
++			for _, child := range v {
++				refs(child)
++			}
++		}
++	}
++	refs(document)
++}
++
++func sampleSnapshot() (runtimeinfo.Snapshot, error) {
++	at, err := foundation.NewInstant(time.Date(2026, 10, 6, 0, 0, 0, 123456000, time.UTC))
++	if err != nil {
++		return runtimeinfo.Snapshot{}, err
++	}
++	return runtimeinfo.Snapshot{ObservedAt: at, Database: runtimeinfo.DatabaseSnapshot{Status: runtimeinfo.Available, LastSuccess: runtimeinfo.DatabaseSuccess{CheckedAt: at, ReceivedAt: at, PostgreSQLVersion: "17.8", PGVectorVersion: "0.8.2"}}, ObjectStorage: runtimeinfo.ObjectStorageSnapshot{Status: runtimeinfo.Available, LastSuccessReceivedAt: at}, Readiness: foundation.DependencyUnbound}, nil
++}
++func testSnapshot(t *testing.T) runtimeinfo.Snapshot {
++	t.Helper()
++	v, err := sampleSnapshot()
++	if err != nil {
++		t.Fatal(err)
++	}
++	return v
++}
++func mustSnapshotBody(t *testing.T) []byte {
++	t.Helper()
++	b, err := encodeSnapshot(testSnapshot(t))
++	if err != nil {
++		t.Fatal(err)
++	}
++	return b
++}
++
++type testReader struct {
++	get   func(context.Context) (runtimeinfo.Snapshot, error)
++	calls atomic.Int32
++}
++
++func (s *testReader) GetSystem(ctx context.Context, actor identity.Actor) (runtimeinfo.Snapshot, error) {
++	s.calls.Add(1)
++	if actor.Validate() != nil || actor.Details().Kind != identity.Human {
++		return runtimeinfo.Snapshot{}, fault(foundation.Forbidden)
++	}
++	if s.get != nil {
++		return s.get(ctx)
++	}
++	return sampleSnapshot()
++}
++
++type testBoundary struct {
++	real  *account.HTTPBoundary
++	check func(http.ResponseWriter, *http.Request) error
++	auth  func(*http.Request) (identity.Actor, error)
++	calls atomic.Int32
++}
++
++func (b *testBoundary) CheckRequest(w http.ResponseWriter, r *http.Request) error {
++	if b.real != nil {
++		return b.real.CheckRequest(w, r)
++	}
++	w.Header().Set("Cache-Control", "no-store")
++	w.Header().Set("X-Content-Type-Options", "nosniff")
++	w.Header().Set("Referrer-Policy", "no-referrer")
++	if b.check != nil {
++		return b.check(w, r)
++	}
++	return nil
++}
++func (b *testBoundary) RequireSystem(r *http.Request, intent identity.AccessIntent) (identity.Actor, error) {
++	b.calls.Add(1)
++	if intent != identity.Read {
++		return identity.Actor{}, fault(foundation.Forbidden)
++	}
++	if b.auth != nil {
++		return b.auth(r)
++	}
++	u, _ := foundation.ParseID[identity.User](wireID)
++	s, _ := foundation.ParseID[identity.Session](wireID)
++	return identity.NewHuman(u, s)
++}
++func (b *testBoundary) WriteProblem(w http.ResponseWriter, r *http.Request, err error) {
++	if b.real != nil {
++		b.real.WriteProblem(w, r, err)
++		return
++	}
++	clone := r.Clone(r.Context())
++	u := *r.URL
++	u.Path = "/api/v1"
++	u.RawPath = ""
++	clone.URL = &u
++	httpapi.WriteProblem(w, clone, err)
++}
++
++type budgetWriter struct {
++	*httptest.ResponseRecorder
++	mu            sync.Mutex
++	reads, writes []time.Time
++	setRead       func(time.Time) error
++	setWrite      func(time.Time) error
++	write         func([]byte) (int, error)
++	flush         func() error
++	flushErr      error
++	short         bool
++	flushes       int
++}
++
++func newBudgetWriter() *budgetWriter { return &budgetWriter{ResponseRecorder: httptest.NewRecorder()} }
++func (w *budgetWriter) SetReadDeadline(at time.Time) error {
++	if w.setRead != nil {
++		if err := w.setRead(at); err != nil {
++			return err
++		}
++	}
++	w.mu.Lock()
++	w.reads = append(w.reads, at)
++	w.mu.Unlock()
++	return nil
++}
++func (w *budgetWriter) SetWriteDeadline(at time.Time) error {
++	if w.setWrite != nil {
++		if err := w.setWrite(at); err != nil {
++			return err
++		}
++	}
++	w.mu.Lock()
++	defer w.mu.Unlock()
++	w.writes = append(w.writes, at)
++	return nil
++}
++func (w *budgetWriter) Write(p []byte) (int, error) {
++	if w.write != nil {
++		return w.write(p)
++	}
++	if w.short {
++		return len(p) - 1, nil
++	}
++	return w.ResponseRecorder.Write(p)
++}
++func (w *budgetWriter) FlushError() error {
++	w.flushes++
++	if w.flush != nil {
++		return w.flush()
++	}
++	return w.flushErr
++}
++func aborts(run func()) (aborted bool) {
++	defer func() {
++		if value := recover(); value != nil {
++			if value != http.ErrAbortHandler {
++				panic(value)
++			}
++			aborted = true
++		}
++	}()
++	run()
++	return false
++}
++
++type closeBody struct {
++	io.Reader
++	close  func() error
++	closed atomic.Int32
++}
++
++func (b *closeBody) Close() error {
++	b.closed.Add(1)
++	if b.close != nil {
++		return b.close()
++	}
++	return nil
++}
++
++func TestRuntimeInformationHTTPPurePreauthenticationBudgetAndCallbackJoin(t *testing.T) {
++	for _, tc := range []struct {
++		name         string
++		parentBudget time.Duration
++	}{{"local-three-seconds", time.Minute}, {"earlier-parent", 50 * time.Millisecond}} {
++		t.Run(tc.name, func(t *testing.T) {
++			parent, cancel := context.WithTimeout(context.Background(), tc.parentBudget)
++			defer cancel()
++			parentDeadline, _ := parent.Deadline()
++			entered, release := make(chan struct{}), make(chan struct{})
++			var once sync.Once
++			w := newBudgetWriter()
++			w.setRead = func(at time.Time) error {
++				if !at.IsZero() && !at.After(time.Now()) {
++					once.Do(func() { close(entered); <-release })
++				}
++				return nil
++			}
++			body := &closeBody{Reader: strings.NewReader("")}
++			started := time.Now()
++			b := &testBoundary{auth: func(r *http.Request) (identity.Actor, error) {
++				enteredAt := time.Now()
++				actual, _ := r.Context().Deadline()
++				if tc.parentBudget < readBudget && !actual.Equal(parentDeadline) {
++					t.Error("earlier parent was extended before auth")
++				}
++				if tc.parentBudget > readBudget && (actual.Before(started.Add(readBudget)) || actual.After(enteredAt.Add(readBudget)) || !actual.Before(parentDeadline)) {
++					t.Error("local budget did not start before authentication")
++				}
++				<-r.Context().Done()
++				if !errors.Is(r.Context().Err(), context.DeadlineExceeded) || tc.parentBudget > readBudget && parent.Err() != nil {
++					t.Error("wrong actual context cancellation")
++				}
++				<-entered // only the cancellation callback can reach the gate before auth returns
++				return identity.Actor{}, r.Context().Err()
++			}}
++			s := &testReader{}
++			r := httptest.NewRequest("GET", runtimePath, nil).WithContext(parent)
++			r.Body = body
++			done, joined := make(chan bool, 1), make(chan struct{})
++			var releaseOnce sync.Once
++			go func() { defer close(joined); done <- aborts(func() { (&systemHTTP{s, b}).ServeHTTP(w, r) }) }()
++			t.Cleanup(func() { cancel(); releaseOnce.Do(func() { close(release) }); <-joined })
++			select {
++			case <-entered:
++			case <-time.After(readBudget + time.Second):
++				t.Fatal("cancel callback did not run")
++			}
++			select {
++			case <-done:
++				t.Fatal("handler returned before cancellation I/O tail")
++			default:
++			}
++			if s.calls.Load() != 0 {
++				t.Fatal("late preauth reached runtime service")
++			}
++			releaseOnce.Do(func() { close(release) })
++			if !<-done || body.closed.Load() != 1 {
++				t.Fatal("cancel failed to abort/close")
++			}
++			<-joined
++			w.mu.Lock()
++			defer w.mu.Unlock()
++			if !w.reads[len(w.reads)-1].IsZero() || !w.writes[len(w.writes)-1].IsZero() {
++				t.Fatal("deadline cleared before callback joined")
++			}
++		})
++	}
++}
++
++// This verifier is confined to the schema keywords used by this document. It
++// checks concrete formal DTOs and negative mutations, not an HTTP implementation.
++func schemaAccepts(root, common map[string]any, schema map[string]any, value any) bool {
++	if reference, ok := schema["$ref"].(string); ok {
++		parts := strings.SplitN(reference, "#", 2)
++		document := root
++		if parts[0] == "./common.json" {
++			document = common
++		}
++		var node any = document
++		for _, part := range strings.Split(strings.TrimPrefix(parts[1], "/"), "/") {
++			node = node.(map[string]any)[part]
++			if node == nil {
++				return false
++			}
++		}
++		if !schemaAccepts(document, common, node.(map[string]any), value) {
++			return false
++		}
++	}
++	if expected, ok := schema["const"]; ok && !reflect.DeepEqual(expected, value) {
++		return false
++	}
++	if values, ok := schema["enum"].([]any); ok {
++		found := false
++		for _, expected := range values {
++			if reflect.DeepEqual(expected, value) {
++				found = true
++			}
++		}
++		if !found {
++			return false
++		}
++	}
++	for _, key := range []string{"oneOf", "anyOf", "allOf"} {
++		if branches, ok := schema[key].([]any); ok {
++			count := 0
++			for _, branch := range branches {
++				if schemaAccepts(root, common, branch.(map[string]any), value) {
++					count++
++				}
++			}
++			if key == "oneOf" && count != 1 || key == "anyOf" && count == 0 || key == "allOf" && count != len(branches) {
++				return false
++			}
++		}
++	}
++	if branch, ok := schema["not"].(map[string]any); ok && schemaAccepts(root, common, branch, value) {
++		return false
++	}
++	if condition, ok := schema["if"].(map[string]any); ok && schemaAccepts(root, common, condition, value) {
++		if branch, ok := schema["then"].(map[string]any); ok && !schemaAccepts(root, common, branch, value) {
++			return false
++		}
++	}
++	if kind, ok := schema["type"].(string); ok {
++		valid := false
++		switch kind {
++		case "object":
++			_, valid = value.(map[string]any)
++		case "array":
++			_, valid = value.([]any)
++		case "string":
++			_, valid = value.(string)
++		case "null":
++			valid = value == nil
++		case "integer":
++			n, ok := value.(float64)
++			valid = ok && n == float64(int64(n))
++		case "boolean":
++			_, valid = value.(bool)
++		}
++		if !valid {
++			return false
++		}
++	}
++	if object, ok := value.(map[string]any); ok {
++		properties, _ := schema["properties"].(map[string]any)
++		if required, ok := schema["required"].([]any); ok {
++			for _, key := range required {
++				if _, ok := object[key.(string)]; !ok {
++					return false
++				}
++			}
++		}
++		for key, child := range object {
++			if property, ok := properties[key].(map[string]any); ok {
++				if !schemaAccepts(root, common, property, child) {
++					return false
++				}
++			} else if schema["additionalProperties"] == false {
++				return false
++			}
++		}
++	}
++	if text, ok := value.(string); ok {
++		if schema["format"] == "date-time" {
++			if _, err := foundation.ParseInstant(text); err != nil {
++				return false
++			}
++		}
++		if pattern, ok := schema["pattern"].(string); ok {
++			expression, err := regexp.Compile(pattern)
++			if err != nil {
++				panic(err)
++			}
++			if !expression.MatchString(text) {
++				return false
++			}
++		}
++		if n, ok := schema["minLength"].(float64); ok && len([]rune(text)) < int(n) {
++			return false
++		}
++		if n, ok := schema["maxLength"].(float64); ok && len([]rune(text)) > int(n) {
++			return false
++		}
++	}
++	if array, ok := value.([]any); ok {
++		if n, ok := schema["minItems"].(float64); ok && len(array) < int(n) {
++			return false
++		}
++		if n, ok := schema["maxItems"].(float64); ok && len(array) > int(n) {
++			return false
++		}
++		for i, child := range array {
++			if item, ok := schema["items"].(map[string]any); ok && !schemaAccepts(root, common, item, child) {
++				return false
++			}
++			if schema["uniqueItems"] == true {
++				for _, before := range array[:i] {
++					if reflect.DeepEqual(before, child) {
++						return false
++					}
++				}
++			}
++		}
++	}
++	return true
++}
++
++// Native tests are selected separately from Pure. They require the explicitly
++// granted loopback window; neither package compilation nor Pure executes them.
++type nativeRuntimeBody struct {
++	io.ReadCloser
++	eof, closed *atomic.Int32
++}
++
++func (b nativeRuntimeBody) Read(p []byte) (int, error) {
++	n, err := b.ReadCloser.Read(p)
++	if err == io.EOF {
++		b.eof.Add(1)
++	}
++	return n, err
++}
++func (b nativeRuntimeBody) Close() error { b.closed.Add(1); return b.ReadCloser.Close() }
++
++type nativeRuntimeResult struct{ aborted bool }
++
++func nativeRuntimeListener(t *testing.T, handler http.Handler) (string, <-chan nativeRuntimeResult, *atomic.Int32) {
++	t.Helper()
++	listener, err := net.Listen("tcp", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal(err)
++	}
++	results := make(chan nativeRuntimeResult, 4)
++	var active sync.WaitGroup
++	connections := &atomic.Int32{}
++	server := &http.Server{ErrorLog: log.New(io.Discard, "", 0), Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		active.Add(1)
++		defer active.Done()
++		defer func() {
++			value := recover()
++			results <- nativeRuntimeResult{aborted: value == http.ErrAbortHandler}
++			if value != nil {
++				panic(value)
++			}
++		}()
++		handler.ServeHTTP(w, r)
++	}), ConnState: func(_ net.Conn, state http.ConnState) {
++		if state == http.StateNew {
++			connections.Add(1)
++		}
++	}}
++	served := make(chan error, 1)
++	go func() { served <- server.Serve(listener) }()
++	t.Cleanup(func() {
++		if err := server.Close(); err != nil {
++			t.Error("native server close", err)
++		}
++		_ = listener.Close()
++		if err := <-served; !errors.Is(err, http.ErrServerClosed) {
++			t.Error("native Serve terminal", err)
++		}
++		active.Wait()
++	})
++	return listener.Addr().String(), results, connections
++}
++
++func nativeRuntimeDial(t *testing.T, address string) net.Conn {
++	t.Helper()
++	conn, err := net.DialTimeout("tcp", address, time.Second)
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() { _ = conn.Close() })
++	if err = conn.SetDeadline(time.Now().Add(10 * time.Second)); err != nil {
++		t.Fatal(err)
++	}
++	return conn
++}
++
++func nativeRuntimeTerminal(t *testing.T, results <-chan nativeRuntimeResult) nativeRuntimeResult {
++	t.Helper()
++	select {
++	case result := <-results:
++		return result
++	case <-time.After(5 * time.Second):
++		t.Fatal("native handler not joined")
++		return nativeRuntimeResult{}
++	}
++}
++
++func TestRuntimeInformationHTTPNativeEOFAndKeepAlive(t *testing.T) {
++	var eof, closed, requests atomic.Int32
++	h := &systemHTTP{&testReader{}, &testBoundary{}}
++	address, results, connections := nativeRuntimeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		budget := time.Second
++		if requests.Add(1) == 1 {
++			budget = 120 * time.Millisecond
++		}
++		ctx, cancel := context.WithTimeout(r.Context(), budget)
++		defer cancel()
++		r = r.WithContext(ctx)
++		r.Body = nativeRuntimeBody{r.Body, &eof, &closed}
++		h.ServeHTTP(w, r)
++	}))
++	conn := nativeRuntimeDial(t, address)
++	reader := bufio.NewReader(conn)
++	for i := 0; i < 2; i++ {
++		if i == 1 {
++			<-time.After(200 * time.Millisecond)
++		}
++		if _, err := io.WriteString(conn, "GET "+runtimePath+" HTTP/1.1\r\nHost: "+address+"\r\nContent-Length: 0\r\n\r\n"); err != nil {
++			t.Fatal(err)
++		}
++		response, err := http.ReadResponse(reader, &http.Request{Method: "GET"})
++		if err != nil {
++			t.Fatal("keepalive response", err)
++		}
++		body, readErr := io.ReadAll(response.Body)
++		closeErr := response.Body.Close()
++		if readErr != nil || closeErr != nil || response.StatusCode != 200 || !bytes.Equal(body, mustSnapshotBody(t)) {
++			t.Fatal("native response incomplete")
++		}
++		if nativeRuntimeTerminal(t, results).aborted {
++			t.Fatal("complete native response aborted")
++		}
++	}
++	if connections.Load() != 1 || requests.Load() != 2 || eof.Load() != 2 || closed.Load() != 2 {
++		t.Fatal("not one reused connection with actual EOF/Close", connections.Load(), eof.Load(), closed.Load())
++	}
++}
++
++func TestRuntimeInformationHTTPNativeSlowBodyBudgets(t *testing.T) {
++	for _, tc := range []struct {
++		name   string
++		parent time.Duration
++	}{{"local-three-seconds", time.Minute}, {"earlier-parent", 120 * time.Millisecond}} {
++		t.Run(tc.name, func(t *testing.T) {
++			type deadlineObservation struct {
++				ctx                                context.Context
++				parentDeadline, before, authorized time.Time
++			}
++			contextSeen := make(chan deadlineObservation, 1)
++			store := &testReader{}
++			var eof, closed atomic.Int32
++			address, results, _ := nativeRuntimeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++				ctx, cancel := context.WithTimeout(r.Context(), tc.parent)
++				defer cancel()
++				parentDeadline, _ := ctx.Deadline()
++				r = r.WithContext(ctx)
++				r.Body = nativeRuntimeBody{r.Body, &eof, &closed}
++				var before time.Time
++				boundary := &testBoundary{auth: func(r *http.Request) (identity.Actor, error) {
++					contextSeen <- deadlineObservation{r.Context(), parentDeadline, before, time.Now()}
++					u, _ := foundation.ParseID[identity.User](wireID)
++					s, _ := foundation.ParseID[identity.Session](wireID)
++					return identity.NewHuman(u, s)
++				}}
++				before = time.Now()
++				(&systemHTTP{store, boundary}).ServeHTTP(w, r)
++			}))
++			conn := nativeRuntimeDial(t, address)
++			started := time.Now()
++			if _, err := io.WriteString(conn, "GET "+runtimePath+" HTTP/1.1\r\nHost: "+address+"\r\nContent-Length: 1\r\n\r\n"); err != nil {
++				t.Fatal(err)
++			}
++			var observation deadlineObservation
++			select {
++			case observation = <-contextSeen:
++			case <-time.After(time.Second):
++				t.Fatal("native auth not reached")
++			}
++			observed := observation.ctx
++			deadline, hasDeadline := observed.Deadline()
++			if !hasDeadline || tc.parent < readBudget && !deadline.Equal(observation.parentDeadline) ||
++				tc.parent > readBudget && (deadline.Before(observation.before.Add(readBudget)) || deadline.After(observation.authorized.Add(readBudget)) || !deadline.Before(observation.parentDeadline)) {
++				t.Fatal("native deadline did not preserve the local/auth/parent boundary")
++			}
++			response, err := http.ReadResponse(bufio.NewReader(conn), &http.Request{Method: "GET"})
++			if err == nil {
++				_, _ = io.Copy(io.Discard, response.Body)
++				_ = response.Body.Close()
++				if response.StatusCode == 200 {
++					t.Fatal("slow forbidden body returned 200")
++				}
++			}
++			terminal := nativeRuntimeTerminal(t, results)
++			finished := time.Now()
++			elapsed := finished.Sub(started)
++			limit := min(tc.parent, readBudget)
++			done := false
++			select {
++			case <-observed.Done():
++				done = true
++			default:
++			}
++			// Native socket deadlines may cancel net/http's parent before the
++			// context timer fires; neither ordering extends the same deadline.
++			cancelled := errors.Is(observed.Err(), context.Canceled) || errors.Is(observed.Err(), context.DeadlineExceeded)
++			if !terminal.aborted || !done || finished.Before(deadline) || !cancelled || elapsed < limit*3/4 || elapsed > limit+time.Second || store.calls.Load() != 0 || closed.Load() != 1 {
++				t.Fatal("native deadline/actual close boundary", terminal.aborted, observed.Err(), elapsed, store.calls.Load(), closed.Load())
++			}
++		})
++	}
++}
++
++type nativeRuntimeFailureWriter struct {
++	http.ResponseWriter
++	short, flush bool
++}
++
++func (w nativeRuntimeFailureWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
++func (w nativeRuntimeFailureWriter) Write(p []byte) (int, error) {
++	if w.short {
++		return w.ResponseWriter.Write(p[:1])
++	}
++	return w.ResponseWriter.Write(p)
++}
++func (w nativeRuntimeFailureWriter) FlushError() error {
++	if err := http.NewResponseController(w.ResponseWriter).Flush(); err != nil {
++		return err
++	}
++	if w.flush {
++		return io.ErrClosedPipe
++	}
++	return nil
++}
++func TestRuntimeInformationHTTPNativeWriteAndFlushAbort(t *testing.T) {
++	for _, name := range []string{"short-write", "flush-error"} {
++		t.Run(name, func(t *testing.T) {
++			var eof, closed atomic.Int32
++			address, results, _ := nativeRuntimeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++				r.Body = nativeRuntimeBody{r.Body, &eof, &closed}
++				(&systemHTTP{&testReader{}, &testBoundary{}}).ServeHTTP(nativeRuntimeFailureWriter{w, name == "short-write", name == "flush-error"}, r)
++			}))
++			conn := nativeRuntimeDial(t, address)
++			if _, err := io.WriteString(conn, "GET "+runtimePath+" HTTP/1.1\r\nHost: "+address+"\r\nContent-Length: 0\r\n\r\n"); err != nil {
++				t.Fatal(err)
++			}
++			reader := bufio.NewReader(conn)
++			response, err := http.ReadResponse(reader, &http.Request{Method: "GET"})
++			if err == nil {
++				data, readErr := io.ReadAll(response.Body)
++				_ = response.Body.Close()
++				if bytes.Contains(data, []byte("application/problem")) || name == "short-write" && readErr == nil {
++					t.Fatal("short write or second response hidden")
++				}
++			}
++			if !nativeRuntimeTerminal(t, results).aborted || closed.Load() != 1 {
++				t.Fatal("write failure escaped native abort/Close")
++			}
++			var one [1]byte
++			if n, err := reader.Read(one[:]); n != 0 || err == nil {
++				t.Fatal("aborted connection survived")
++			}
++		})
++	}
++}
+--- /dev/null
++++ b/api/openapi/runtime-information.json
+@@ -0,0 +1,513 @@
++{
++  "openapi": "3.1.0",
++  "info": {
++    "title": "agenteam System runtime information",
++    "version": "1.0.0"
++  },
++  "paths": {
++    "/api/v1/system/runtime-information": {
++      "get": {
++        "operationId": "getSystemRuntimeInformation",
++        "security": [
++          {
++            "Session": []
++          },
++          {
++            "LocalSession": []
++          }
++        ],
++        "description": "Current administrator only. One maximum 3s context starts before boundary/authentication, inherits earlier parent cancellation, and retains actual transaction/body/write/flush/callback ownership. Strict GET-only: no query (including bare ?), body, scope/identity override, CSRF or idempotency command. Boundary checks canonical Host/Origin/Fetch-Metadata before rejecting Path ambiguity/RawPath; no redirect or normalization. No probe, refresh, conditional 304, polling, lookup, build identity inference or external calls. Complete success body limit 16KiB; failure publishes no partial snapshot. Response 200 never means Central ready. Explicit Problem instance is /api/v1.",
++        "x-success-body-max-bytes": 16384,
++        "parameters": [],
++        "responses": {
++          "200": {
++            "description": "Complete safe snapshot, UTF-8 body at most 16384 bytes. Always readiness.ready=false; does not query or refresh dependencies.",
++            "headers": {
++              "X-Request-ID": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/ID"
++                }
++              },
++              "Cache-Control": {
++                "schema": {
++                  "const": "no-store"
++                }
++              },
++              "X-Content-Type-Options": {
++                "schema": {
++                  "const": "nosniff"
++                }
++              },
++              "Referrer-Policy": {
++                "schema": {
++                  "const": "no-referrer"
++                }
++              },
++              "Content-Length": {
++                "description": "Complete encoded response length in bytes.",
++                "schema": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 16384
++                }
++              }
++            },
++            "content": {
++              "application/json": {
++                "schema": {
++                  "$ref": "#/components/schemas/SystemRuntimeInformation"
++                }
++              }
++            }
++          },
++          "400": {
++            "description": "Unsupported query/body or ambiguous path.",
++            "content": {
++              "application/problem+json": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/Problem"
++                }
++              }
++            }
++          },
++          "401": {
++            "description": "Current Session missing or revoked.",
++            "content": {
++              "application/problem+json": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/Problem"
++                }
++              }
++            }
++          },
++          "403": {
++            "description": "Origin or current administrator permission denied.",
++            "content": {
++              "application/problem+json": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/Problem"
++                }
++              }
++            }
++          },
++          "404": {
++            "description": "Canonical unknown resource.",
++            "content": {
++              "application/problem+json": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/Problem"
++                }
++              }
++            }
++          },
++          "405": {
++            "description": "GET-only; Allow: GET. HEAD error has no body.",
++            "content": {
++              "application/problem+json": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/Problem"
++                }
++              }
++            },
++            "headers": {
++              "Allow": {
++                "schema": {
++                  "const": "GET"
++                }
++              }
++            }
++          },
++          "500": {
++            "description": "Unclassified internal failure.",
++            "content": {
++              "application/problem+json": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/Problem"
++                }
++              }
++            }
++          },
++          "503": {
++            "description": "Required binding/data dependency unavailable, or transaction COMMIT_UNKNOWN with zero snapshot. Generic lookup advice does not create a command or lookup for this read.",
++            "content": {
++              "application/problem+json": {
++                "schema": {
++                  "$ref": "./common.json#/components/schemas/Problem"
++                }
++              }
++            }
++          }
++        }
++      }
++    }
++  },
++  "components": {
++    "securitySchemes": {
++      "Session": {
++        "type": "apiKey",
++        "in": "cookie",
++        "name": "__Host-agenteam_session"
++      },
++      "LocalSession": {
++        "type": "apiKey",
++        "in": "cookie",
++        "name": "agenteam_local_session"
++      }
++    },
++    "schemas": {
++      "ObservedInstant": {
++        "$ref": "./common.json#/components/schemas/Instant",
++        "not": {
++          "const": "0001-01-01T00:00:00.000000Z"
++        },
++        "description": "Nonzero canonical UTC microsecond Instant; display timestamps need not be ordered."
++      },
++      "VersionString": {
++        "type": "string",
++        "minLength": 1,
++        "maxLength": 256,
++        "pattern": "^[ -~]{1,256}$",
++        "not": {
++          "pattern": "[^ -~]"
++        },
++        "description": "Exact last-success version, 1–256 printable ASCII bytes. No trim, normalization or truncation."
++      },
++      "CentralInformation": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "version",
++          "safe_reason"
++        ],
++        "properties": {
++          "version": {
++            "type": "null"
++          },
++          "safe_reason": {
++            "const": "build_version_not_recorded"
++          }
++        }
++      },
++      "DatabaseLastSuccess": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "checked_at",
++          "received_at",
++          "postgresql_version",
++          "pgvector_version"
++        ],
++        "properties": {
++          "checked_at": {
++            "$ref": "#/components/schemas/ObservedInstant"
++          },
++          "received_at": {
++            "$ref": "#/components/schemas/ObservedInstant"
++          },
++          "postgresql_version": {
++            "$ref": "#/components/schemas/VersionString"
++          },
++          "pgvector_version": {
++            "$ref": "#/components/schemas/VersionString"
++          }
++        }
++      },
++      "DatabaseInformation": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "status",
++          "safe_reason",
++          "last_success"
++        ],
++        "properties": {
++          "status": {
++            "type": "string",
++            "enum": [
++              "available",
++              "unavailable",
++              "stale"
++            ]
++          },
++          "safe_reason": {
++            "enum": [
++              null,
++              "check_unavailable",
++              "sample_stale"
++            ]
++          },
++          "last_success": {
++            "$ref": "#/components/schemas/DatabaseLastSuccess"
++          }
++        },
++        "allOf": [
++          {
++            "if": {
++              "properties": {
++                "status": {
++                  "const": "available"
++                }
++              },
++              "required": [
++                "status"
++              ]
++            },
++            "then": {
++              "properties": {
++                "safe_reason": {
++                  "const": null
++                }
++              }
++            }
++          },
++          {
++            "if": {
++              "properties": {
++                "status": {
++                  "const": "unavailable"
++                }
++              },
++              "required": [
++                "status"
++              ]
++            },
++            "then": {
++              "properties": {
++                "safe_reason": {
++                  "const": "check_unavailable"
++                }
++              }
++            }
++          },
++          {
++            "if": {
++              "properties": {
++                "status": {
++                  "const": "stale"
++                }
++              },
++              "required": [
++                "status"
++              ]
++            },
++            "then": {
++              "properties": {
++                "safe_reason": {
++                  "const": "sample_stale"
++                }
++              }
++            }
++          }
++        ]
++      },
++      "ObjectStorageInformation": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "backend",
++          "assessment",
++          "status",
++          "safe_reason",
++          "last_success_received_at",
++          "details"
++        ],
++        "properties": {
++          "backend": {
++            "const": "minio"
++          },
++          "assessment": {
++            "const": "object_storage_aggregate"
++          },
++          "status": {
++            "type": "string",
++            "enum": [
++              "available",
++              "unavailable",
++              "stale"
++            ]
++          },
++          "safe_reason": {
++            "enum": [
++              null,
++              "check_unavailable",
++              "sample_stale"
++            ]
++          },
++          "last_success_received_at": {
++            "$ref": "#/components/schemas/ObservedInstant"
++          },
++          "details": {
++            "const": "not_reported"
++          }
++        },
++        "allOf": [
++          {
++            "if": {
++              "properties": {
++                "status": {
++                  "const": "available"
++                }
++              },
++              "required": [
++                "status"
++              ]
++            },
++            "then": {
++              "properties": {
++                "safe_reason": {
++                  "const": null
++                }
++              }
++            }
++          },
++          {
++            "if": {
++              "properties": {
++                "status": {
++                  "const": "unavailable"
++                }
++              },
++              "required": [
++                "status"
++              ]
++            },
++            "then": {
++              "properties": {
++                "safe_reason": {
++                  "const": "check_unavailable"
++                }
++              }
++            }
++          },
++          {
++            "if": {
++              "properties": {
++                "status": {
++                  "const": "stale"
++                }
++              },
++              "required": [
++                "status"
++              ]
++            },
++            "then": {
++              "properties": {
++                "safe_reason": {
++                  "const": "sample_stale"
++                }
++              }
++            }
++          }
++        ]
++      },
++      "ReadinessInformation": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "ready",
++          "safe_reason"
++        ],
++        "properties": {
++          "ready": {
++            "const": false
++          },
++          "safe_reason": {
++            "type": "string",
++            "enum": [
++              "DEPENDENCY_UNAVAILABLE",
++              "DEPENDENCY_UNBOUND"
++            ]
++          }
++        }
++      },
++      "SystemRuntimeInformation": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "observed_at",
++          "central",
++          "database",
++          "object_storage",
++          "readiness"
++        ],
++        "properties": {
++          "observed_at": {
++            "$ref": "#/components/schemas/ObservedInstant"
++          },
++          "central": {
++            "$ref": "#/components/schemas/CentralInformation"
++          },
++          "database": {
++            "$ref": "#/components/schemas/DatabaseInformation"
++          },
++          "object_storage": {
++            "$ref": "#/components/schemas/ObjectStorageInformation"
++          },
++          "readiness": {
++            "$ref": "#/components/schemas/ReadinessInformation"
++          }
++        },
++        "allOf": [
++          {
++            "if": {
++              "anyOf": [
++                {
++                  "required": [
++                    "database"
++                  ],
++                  "properties": {
++                    "database": {
++                      "required": [
++                        "status"
++                      ],
++                      "properties": {
++                        "status": {
++                          "enum": [
++                            "unavailable",
++                            "stale"
++                          ]
++                        }
++                      }
++                    }
++                  }
++                },
++                {
++                  "required": [
++                    "object_storage"
++                  ],
++                  "properties": {
++                    "object_storage": {
++                      "required": [
++                        "status"
++                      ],
++                      "properties": {
++                        "status": {
++                          "enum": [
++                            "unavailable",
++                            "stale"
++                          ]
++                        }
++                      }
++                    }
++                  }
++                }
++              ]
++            },
++            "then": {
++              "properties": {
++                "readiness": {
++                  "properties": {
++                    "safe_reason": {
++                      "const": "DEPENDENCY_UNAVAILABLE"
++                    }
++                  }
++                }
++              }
++            }
++          }
++        ],
++        "description": "One authorized observation of existing cached values, not an active health probe or a ready success. Failed/stale components retain complete historical last_success; unavailable beats stale. Any failed/stale public foundation requires DEPENDENCY_UNAVAILABLE. Both public foundations available still allow it because other foundations can fail."
++      }
++    }
++  }
++}

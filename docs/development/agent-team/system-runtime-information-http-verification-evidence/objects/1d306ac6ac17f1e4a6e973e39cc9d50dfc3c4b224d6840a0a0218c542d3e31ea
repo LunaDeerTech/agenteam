@@ -1,0 +1,12 @@
+{
+  "tool_chunk_id": "9e0ffc",
+  "actual_exit": 1,
+  "kind": "checker premise failure",
+  "failed_expectation": "git diff --no-index --check returns 0 for changed files",
+  "diagnostic_chunk_id": "d19804",
+  "actual_diff_check_exit": 1,
+  "actual_diff_check_stdout": "",
+  "candidate_unchanged": true,
+  "test_or_resource_started": false,
+  "note": "Original inline checker is retained in the tool call; no original standalone script was saved."
+}

@@ -1,0 +1,34 @@
+# Runtime-information HTTP — author phase B
+
+Author controlled checks PASS; this is a four-file handoff for independent review, not full-card or native/integration acceptance. The four candidates and A02 inputs are stopped. No root/app, shared repository, Git, README, listener, socket, Docker, PG, MinIO or browser change/run occurred.
+
+The accepted card is commit `1cf08c70db1b88e7e8dd5f635193b5752fef4452`, full SHA `e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb`. The product dependency baseline remains `b124650aee095b26191bc181dc8cf5d6e0f977f5`. [manifest.json](manifest.json) binds the four new paths, read-only A02 two paths and 246 fixed dependency files (18 production packages; 2,420,681 dependency bytes). The minimal source copy is [source](source/); dependencies were read from fixed Git, not the active main tree. Original A02 and its 12 dependencies remain unchanged.
+
+- Manifest SHA: `e8399d45b32a8743c7b9fcd052abbb08e1681f548bb5a58d9366434985b112cc`.
+- [delivery4.json](delivery4.json) SHA: `a2522922fb78b468338d8976fe05e0a19a549afabce66dd09e40829ad4234984`.
+- Complete [candidate.diff](candidate.diff) SHA: `be1cdbc390d722dd03439ac40a8a7591c31eb67f48b2f6dd59660eee1e769fb6`.
+- Machine-readable [report.json](report.json) SHA: `e117bcb5b2b97dd3d6169abdd5fdf5ab6f61a98475ef70a6d649aebf5d6f131a`.
+
+The handler uses the formal Account HTTP boundary and retains the supplied service. Its local three-second context starts before boundary/authorization and inherits an earlier parent deadline. It admits only the exact GET path; strict query and real one-byte empty-body checks follow authorization. Unsupported deadline capability and failed read/write/flush/close/reset paths abort. Request body closure, active calls, and the cancellation callback complete before return. The private helper tail from `emptyBody` is byte-identical to the accepted Audit handler; [audit-seam-equivalence.json](audit-seam-equivalence.json) records that comparison. No shared helper was changed.
+
+The wire encoder validates the complete Snapshot again, including A02's cross-domain readiness condition, then marshals explicit closed DTOs before any success write. The complete response is limited to 16,384 bytes. The largest legal default-escaped test response is 3,690 bytes (618-byte shell plus two 256-byte strings each escaping sixfold); a separate synthetic encoder test proves the exact 16,384/16,385 limit, without claiming that synthetic payload is a legal DTO. OpenAPI has one GET operation, closed objects/constants, ASCII version bounds, exact status/reason conditions and the same readiness cross-field rule. All 18 status/readiness combinations agree between wire and schema: 8 rejected, 10 admitted.
+
+| Check | Actual exit / seconds | Observed PID identities | Outcome |
+| --- | --- | --- | --- |
+| `http-pure01` | 0 / 13.519 | 104 | 8 top-level tests, 38 named subtests PASS |
+| `http-race01` | 0 / 19.543 | 32 | Same 8 / 38 PASS, race/count=1 |
+| `http-vet01` | 0 / 0.800 | 14 | Package vet PASS |
+| `http-native-list01` | 0 / 1.838 | 3 | Race compilation and exact three-test discovery only |
+| `http-formatcheck01` | 0 / 0.052 | 1 | No gofmt output |
+
+Each check used a 45-second command limit, actual direct wait, PID/starttime observation and two empty owned-process/runtime scans; adopted waits were zero. Check inputs were unchanged. Exact argv/environment, raw output, result, input-before/after and cleanup files are under [../runs](../runs/), individually hashed by the manifest/report JSON. Go is `/workspace/toolchains/go1.27.1/bin/go`; readonly offline modules use the existing directory-author modcache, and GOCACHE is the explicitly approved `/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache`. The formatter's intended earlier delta and original pre-format input remain in `http-format01`. `diff-check` has empty whitespace diagnostics; its no-index exit 1 denotes new file differences, not a zero exit.
+
+Pure coverage includes real Account request-boundary/no-cookie rejection, controlled authenticated dispatch, boundary precedence and unchanged request coordinates, GET/HEAD/Allow and strict query, framing/EOF/errors, closed projection/safe failures, zero wire on error plus nonzero candidate, deadline/flush capabilities, actual gated read/service/write/flush/Close tails, and natural preauthorization expiry (local 3 seconds and earlier 50 ms parent). Cancellation callbacks cannot escape their owned tail. The schema check is a bounded verifier for the keywords used here with resolved local references; it is not a general JSON Schema implementation. Authenticated service/budget tests use controlled boundary/reader ports and do not prove a real Account/PG session.
+
+The following tests were only compiled/listed, with `-run '^$' -list '^TestRuntimeInformationHTTPNative'`; no native test ran:
+
+- `TestRuntimeInformationHTTPNativeEOFAndKeepAlive`
+- `TestRuntimeInformationHTTPNativeSlowBodyBudgets`
+- `TestRuntimeInformationHTTPNativeWriteAndFlushAbort`
+
+There is no phase-B test/check failure. Prior service-stage01 P-RUNTIME-01 RED and A02 repair evidence remain untouched. A02's independent report (`6532d461369eb7f40d1dfabb697c05edeb1ebb4834b05a6c5fa5e38f86eb1395`) is reused only for that service stage. Native behavior, root/app routing and monitor composition, real PG/current-authority integration and the final README remain pending separate authorization and acceptance. No command or owned resource remains active.

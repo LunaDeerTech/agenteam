@@ -1,0 +1,269 @@
+{
+  "verdict": "PASS — bounded Runtime Information HTTP B controlled offline stage",
+  "frozen_utc": "2026-10-07T00:23:28.471823+00:00",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/http-stage01/manifest.json",
+    "sha256": "e8399d45b32a8743c7b9fcd052abbb08e1681f548bb5a58d9366434985b112cc"
+  },
+  "delivery4": {
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/http-stage01/delivery4.json",
+    "sha256": "a2522922fb78b468338d8976fe05e0a19a549afabce66dd09e40829ad4234984"
+  },
+  "candidate_diff_sha256": "be1cdbc390d722dd03439ac40a8a7591c31eb67f48b2f6dd59660eee1e769fb6",
+  "four_candidates": {
+    "internal/central/runtimeinfo/http/handler.go": {
+      "sha256": "0e61275711ad355857bbce3aae52b02528f97b42b442f9ab888e5e78d571d186",
+      "bytes": 5623,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/http/wire.go": {
+      "sha256": "906fe33dd86224e10965cbfa1d3617eebfb875e1e61587904e1267e6dd7bddae",
+      "bytes": 3329,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/http/handler_test.go": {
+      "sha256": "7d6d00532a72fa18ee50536b178adedab93d2fc86c2b545c3b11561133c220c9",
+      "bytes": 48265,
+      "prior": "absent"
+    },
+    "api/openapi/runtime-information.json": {
+      "sha256": "9287f6f2119d777df5f5dcb956e690af3952689b034b90ba393d10f62b762988",
+      "bytes": 14576,
+      "prior": "absent"
+    }
+  },
+  "read_only_A02": {
+    "internal/central/runtimeinfo/service.go": {
+      "sha256": "0a224ff8e1c2cd89bb7a59cac5a5f9287af09f72270cffbcc3dfd8c5118747fa",
+      "bytes": 7615,
+      "stage01_sha256": "0aa6c073f582bca75b031dfcb796a628b1a47170991b6f5343462073012f83c8"
+    },
+    "internal/central/runtimeinfo/service_test.go": {
+      "sha256": "36a76baaf5cacf6dac0b610cd8e1942b89e587f6c8ee70ec83f11ecd3638ea6f",
+      "bytes": 27322,
+      "stage01_sha256": "b6755239e91eacac76280296a7f81347eae42a2d3f163cf433bc363b33630dee"
+    }
+  },
+  "fixed_product": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "fixed_card": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+  "dependencies": {
+    "fixed_source_files": 246,
+    "packages": 18,
+    "total_source_with_A02_and_B": 252
+  },
+  "static_findings": [
+    "No blocker in complete handler/wire/schema review; exact Boundary.CheckRequest precedes path/method and authorization precedes query/body. Same Account core pure construction and security projector retained.",
+    "Local 3s starts before all boundary/authentication, earlier parent retained; complete Read/Write/Flush/Close/cancellation callback ownership and deadline reset kept.",
+    "A02 Validate reused in wire, including failed/stale => DependencyUnavailable; full explicit JSON projection and complete encoding before success write.",
+    "OpenAPI one GET, Session OR LocalSession, all six success object nodes closed/required; status/reason/null/constants and readiness implication align.",
+    "No root sampler/health readiness aggregation/current PG authorization or native semantics asserted in B."
+  ],
+  "risk_combinations": [
+    {
+      "name": "Budget and actual terminal",
+      "implementation": "private Go overlay, production systemHTTP, real Account CheckRequest/WriteProblem; controlled RequireSystem/Reader and deadline-capable writer",
+      "facts": [
+        "Natural local3s before preauthentication, parent20s remains unexpired, strict DeadlineExceeded; actual auth return, Body.Close and running callback separately held/joined before deadline reset.",
+        "Earlier75ms parent inherited exactly while Reader is held; ctxDone alone does not complete handler; late valid Snapshot produces zero status/bytes.",
+        "Held actual Flush cannot return early; Flush error and short Write abort and close/reset. These cases already wrote complete/partial buffer and do not prove zero-wire."
+      ],
+      "actual_elapsed": {
+        "natural_3s": "3.002517618s",
+        "parent75ms": "76.415337ms"
+      }
+    },
+    {
+      "name": "Boundary and complete wire/schema",
+      "facts": [
+        "Formal browser-security Host rejection precedes ambiguous trailing slash; valid trailing slash400, canonical unknown404, HEAD405 empty body/AllowGET.",
+        "Real Account no-cookie RequireSystem401 precedes bare query rejection; controlled authorized query400 invokes auth but zero Reader; no request-coordinate rewrite, one safe log/RequestID.",
+        "Exact independent full-object golden equals actual wire. Two256-byte ampersand versions encode to3690B; no production sample claim.",
+        "Both-available readiness reasons both encode; inconsistent DB/Object/readiness rejected by wire and HTTP503 with no snapshot fields.",
+        "Synthetic encoder strings exactly16384B pass and16385B fail; not legal snapshot examples.",
+        "Three actual Go wire vectors feed standard jsonschema4.26 Draft202012Validator with local-only resources. 76 assertions cover all six object nodes, all required fields, extra members, status/reason pairs, cross-readiness, ASCII256 and fixed constants/zero times."
+      ]
+    }
+  ],
+  "runs": {
+    "http01": {
+      "path": "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/runs/http01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 19.4678918339996,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 23,
+        "adopted_wait_count": 0,
+        "raw_sha256": "3fcf48d7143309517abd8f975c888a64c6714bd6294ef95c6304bdecfd4af9e0",
+        "cleanup_sha256": "5b6b6c9203329b25a2772d5e4a3bdc66d4c47562aea350646e64c8caa5faf370"
+      },
+      "evidence": {
+        "command.json": "0b21d3c6032bd462d69079f74c33cb3ee707400d1c09ef5c886f62ce8f6187c5",
+        "raw.log": "3fcf48d7143309517abd8f975c888a64c6714bd6294ef95c6304bdecfd4af9e0",
+        "result.json": "e5a710f1c04ec5f8e0809fab3d1783d21c9c1a65624765d2ee744d02b6cad34c",
+        "cleanup.json": "5b6b6c9203329b25a2772d5e4a3bdc66d4c47562aea350646e64c8caa5faf370",
+        "input-before.json": "243e9112528bae2ce6c48c7e636e4be0436623d5da9b8d2d581ec13668687d2c",
+        "input-after.json": "243e9112528bae2ce6c48c7e636e4be0436623d5da9b8d2d581ec13668687d2c",
+        "compiled-output.json": "d71ef54af6bd41a6e76382339d66ae8d001bb7044fa7bff6d5d70bf29f108374"
+      }
+    },
+    "schema01": {
+      "path": "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/runs/schema01",
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.1169658620001428,
+        "timeout": false,
+        "input_before_matches": true,
+        "input_after_matches": true,
+        "input_unchanged": true,
+        "cleanup_clean": true,
+        "owned_processes_observed": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "fc3c20c32ed90c756078f074d410ca222291aadf16f00827c57cf93efaee8405",
+        "cleanup_sha256": "a9160f9befdc3f64225d1eb60452acb72e21d5f52634ece137bf5bebfc106f53"
+      },
+      "evidence": {
+        "command.json": "aa5d7f86de4af69e7fae43199704b16528611ee3529a149dfcd72bb7f5644056",
+        "raw.log": "fc3c20c32ed90c756078f074d410ca222291aadf16f00827c57cf93efaee8405",
+        "result.json": "923cda6996a3611cff04605cab6a5ce90f33a357ec4475d013e3194b905bc73c",
+        "cleanup.json": "a9160f9befdc3f64225d1eb60452acb72e21d5f52634ece137bf5bebfc106f53",
+        "input-before.json": "983e7af66f0280e743807e6f419be3536fd21562567deba19b2ee87b915101e3",
+        "input-after.json": "983e7af66f0280e743807e6f419be3536fd21562567deba19b2ee87b915101e3",
+        "compiled-output.json": "0cafd541072dd8648290af7365b952f980f1f8a7d8c673defa5d3c6a08b88e64"
+      }
+    }
+  },
+  "schema_result": {
+    "status": "PASS",
+    "asserted_schema_vectors": 76,
+    "go_wire_vectors": 3,
+    "closed_objects": 6,
+    "engine": "jsonschema Draft202012Validator",
+    "remote_resolution": "prohibited",
+    "schema_sha256": "9287f6f2119d777df5f5dcb956e690af3952689b034b90ba393d10f62b762988",
+    "wire_vectors_sha256": "303cdb6601ed1579f6256f99b89ac06cdd7183611c5c3c7db114df818940bd2c",
+    "limitations": "Controlled Go vectors and document validation only; no HTTP listener, native transport, PG, root source or production extreme-version claim."
+  },
+  "evidence": {
+    "inputs01.json": "8dcd3baf9a93362ccd6535c90ed638c161dc4186a8c38168d04c0e52d52168bb",
+    "execution01.json": "3bd16b28f22edfabe84ae79a6a7dc080cbd52273f98375324451793d95c773ae",
+    "execution02.json": "67dcb4e4e2988fab722b09456f8ac48f7f799bca0fe1476dbbbd1b792c98c41a",
+    "overlay01.json": "582d93bf1a5c207ea0390c1043ad09d75b157f4185479898da44d0bea8f29a13",
+    "run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "probe01/http_test.go": "6b6a17d4a3dc9d0f967a442bb6b8253fbc335c17f0ec3e015d56c1239f0b9d8b",
+    "probe01/schema.py": "d7e3da8f9a9c750b34f296b921e1d2035943268edf6a645f27b94f408534f1f0",
+    "python-runtime01.json": "736caeb6668944bad7da1988a84f29d24f73f8447e4a176f2235a89ef46afe46",
+    "outputs/wire-vectors.json": "303cdb6601ed1579f6256f99b89ac06cdd7183611c5c3c7db114df818940bd2c",
+    "outputs/schema-result.json": "ba64095cb5c67549a48d04df65ad0f653dbbd44626bfdde6d4e173b22cd919c5",
+    "author-checks-verified01.json": "fe2ed5f01f3785fcfee866798edf8ea9af94de654e97e82463d585a1aa21c098"
+  },
+  "reused_evidence": {
+    "service_A02_report": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/verification-report.md",
+    "service_A02_sha256": "6532d461369eb7f40d1dfabb697c05edeb1ebb4834b05a6c5fa5e38f86eb1395",
+    "author_B_report": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/http-stage01/report.md",
+    "author_B_sha256": "cf1f7f866fee5f901c323161453e84bcc3b6824fdfa6ec79af219649906024e1",
+    "checks": [
+      {
+        "name": "http-pure01",
+        "actual_exit": 0,
+        "seconds": 13.519,
+        "result": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-pure01/result.json",
+          "sha256": "29b4adb27fdcfb8299cac2a622ad39f3142de3732f39647682ca9e3b4805b50c"
+        },
+        "raw": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-pure01/raw.log",
+          "sha256": "546a9b96fe468d37564dd84e8d6a0a534121e878181346c5080a73fdabbf8a4b"
+        },
+        "cleanup": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-pure01/cleanup.json",
+          "sha256": "67144445414ff9ebd61c1ea3bbfdc782a6fe5ca85ee7e89497400f5d18775eb3"
+        }
+      },
+      {
+        "name": "http-race01",
+        "actual_exit": 0,
+        "seconds": 19.543,
+        "result": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-race01/result.json",
+          "sha256": "f2765194ebffab5e85708614301d6aa05b50618f0e4b142ba316655d8a80eee2"
+        },
+        "raw": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-race01/raw.log",
+          "sha256": "6ec00f6a3f9437c852f2a9c8c5db2a69a56dcccefe2a6e3bae33af13d5bf11ad"
+        },
+        "cleanup": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-race01/cleanup.json",
+          "sha256": "8f4bfdba16ac79f2cbd8e0cc7bd9f06a543ad0d079fce5e6f985afab7e4ae8e0"
+        }
+      },
+      {
+        "name": "http-vet01",
+        "actual_exit": 0,
+        "seconds": 0.8,
+        "result": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-vet01/result.json",
+          "sha256": "37f786db841d20e11b7686373f09969fecd6ecabc2efad10c4b512e324cc2158"
+        },
+        "raw": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-vet01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "cleanup": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-vet01/cleanup.json",
+          "sha256": "07119e664d1d75e0b62571b714661c82142c2e4602d02700ee86ec5ba425a244"
+        }
+      },
+      {
+        "name": "http-native-list01",
+        "actual_exit": 0,
+        "seconds": 1.838,
+        "result": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-native-list01/result.json",
+          "sha256": "142e1e573f28b6a2c4867fcfeee2e70c176167c6e4934823eee2c662186df991"
+        },
+        "raw": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-native-list01/raw.log",
+          "sha256": "2692b952882a6222ab1c8130e245a03cbf1cddcc6e41ad8af879c65ae32ab07f"
+        },
+        "cleanup": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-native-list01/cleanup.json",
+          "sha256": "17228a279a56c1e5d51781059f43220f8112aa18d9dfad8e93b2f4bb98d5ce55"
+        }
+      },
+      {
+        "name": "http-formatcheck01",
+        "actual_exit": 0,
+        "seconds": 0.052,
+        "result": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-formatcheck01/result.json",
+          "sha256": "3fba56cb9914a416dd68cd280efccfb8d389ce5608a02d630b64bd220e39986f"
+        },
+        "raw": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-formatcheck01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "cleanup": {
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-formatcheck01/cleanup.json",
+          "sha256": "6fc5cfd404648d0529cfbbc8bdc80aba016c94d16b368bf3e8ed02d9ffbfd976"
+        }
+      }
+    ]
+  },
+  "history": [
+    "No independent B check failure. Original service-stage01 cross-field RED and A02 same-probe GREEN remain untouched.",
+    "Author B three native top-level tests only listed/compiled; no native execution inferred."
+  ],
+  "limits": [
+    "Controlled in-process HTTP/writer and real formal boundary only; authenticated authority and Reader are test ports, not real Session/PG proofs.",
+    "No listener/socket/native/app/root/PG/Docker/MinIO/browser/external endpoint.",
+    "Actual writer barriers are not TCP delivery/connection reuse evidence.",
+    "SameTx/source/commit semantics reused from A02; monitor singleT/last_success/age/ready factory belongs to later root stage.",
+    "No main/product/Git changes or stopped task execution; all private files stopped after report."
+  ]
+}

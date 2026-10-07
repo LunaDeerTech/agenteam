@@ -1,0 +1,94 @@
+=== RUN   TestRuntimeInformationHTTPPureConstructionAndBoundary
+--- PASS: TestRuntimeInformationHTTPPureConstructionAndBoundary (0.00s)
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/HEAD/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/POST/api/v1/system/runtime-informationhttps://example.test
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/OPTIONS/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information//child
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/./child
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/../child
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information\child
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information\x00
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information#01
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/child
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information-near
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/wrong.example
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/https://wrong.example
+=== RUN   TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/cross-site
+--- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder (0.01s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/HEAD/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/POST/api/v1/system/runtime-informationhttps://example.test (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/OPTIONS/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/ (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information//child (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/./child (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/../child (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information\child (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information\x00 (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information#01 (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/child (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information-near (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/wrong.example (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/https://wrong.example (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureRoutesAndAuthorizationOrder/GET/api/v1/system/runtime-information/cross-site (0.00s)
+=== RUN   TestRuntimeInformationHTTPPureProjectionAndEncodedBudget
+--- PASS: TestRuntimeInformationHTTPPureProjectionAndEncodedBudget (0.00s)
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/nonzero
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/unknown-length
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/transfer
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/actual-nonempty
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/actual-eof
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/read-error
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/no-deadline
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/read-deadline-error
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/write-deadline-error
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/short-write
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/write-error
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/no-flush
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/flush-error
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/close-error
+=== RUN   TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/clear-deadline-error
+--- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/nonzero (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/unknown-length (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/transfer (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/actual-nonempty (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/actual-eof (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/read-error (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/no-deadline (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/read-deadline-error (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/write-deadline-error (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/short-write (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/write-error (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/no-flush (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/flush-error (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/close-error (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureBodyWriteAndCapabilities/clear-deadline-error (0.00s)
+=== RUN   TestRuntimeInformationHTTPPureActualIOTails
+=== RUN   TestRuntimeInformationHTTPPureActualIOTails/read
+=== RUN   TestRuntimeInformationHTTPPureActualIOTails/service
+=== RUN   TestRuntimeInformationHTTPPureActualIOTails/write
+=== RUN   TestRuntimeInformationHTTPPureActualIOTails/flush
+=== RUN   TestRuntimeInformationHTTPPureActualIOTails/close
+--- PASS: TestRuntimeInformationHTTPPureActualIOTails (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureActualIOTails/read (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureActualIOTails/service (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureActualIOTails/write (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureActualIOTails/flush (0.00s)
+    --- PASS: TestRuntimeInformationHTTPPureActualIOTails/close (0.00s)
+=== RUN   TestRuntimeInformationHTTPPureSafeFailures
+--- PASS: TestRuntimeInformationHTTPPureSafeFailures (0.00s)
+=== RUN   TestRuntimeInformationHTTPPureOpenAPIClosedContract
+--- PASS: TestRuntimeInformationHTTPPureOpenAPIClosedContract (0.06s)
+=== RUN   TestRuntimeInformationHTTPPurePreauthenticationBudgetAndCallbackJoin
+=== RUN   TestRuntimeInformationHTTPPurePreauthenticationBudgetAndCallbackJoin/local-three-seconds
+=== RUN   TestRuntimeInformationHTTPPurePreauthenticationBudgetAndCallbackJoin/earlier-parent
+--- PASS: TestRuntimeInformationHTTPPurePreauthenticationBudgetAndCallbackJoin (3.05s)
+    --- PASS: TestRuntimeInformationHTTPPurePreauthenticationBudgetAndCallbackJoin/local-three-seconds (3.00s)
+    --- PASS: TestRuntimeInformationHTTPPurePreauthenticationBudgetAndCallbackJoin/earlier-parent (0.05s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo/http	4.153s

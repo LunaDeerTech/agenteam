@@ -1,0 +1,20 @@
+{
+  "run_name": "format01",
+  "cwd": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr",
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/preparation/format01.py"
+  ],
+  "outer_limit_seconds": 45,
+  "env": {},
+  "files": {
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/preparation/format01.py": "bdb8837339543b2812547ab0dc472fd428ee2d879f4a6acd6edbd8400e4f5697",
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/preparation/raw-draft01/runtime_account_test.go": "c5b99a55d3f4d44096f21097ea41db8aab8ad13129aacddef0795c60b690f432",
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/preparation/raw-draft01/runtime_root_test.go": "fda51918f759648dc3936c4049c3801bb829a6d30971ef05b8500a36b7aecdde"
+  },
+  "outputs": [
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/probe01/runtime_account_test.go",
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/probe01/runtime_root_test.go"
+  ]
+}

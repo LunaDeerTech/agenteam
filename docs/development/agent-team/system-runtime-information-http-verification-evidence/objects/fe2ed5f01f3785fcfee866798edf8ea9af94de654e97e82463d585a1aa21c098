@@ -1,0 +1,91 @@
+{
+  "manifest_sha256": "e8399d45b32a8743c7b9fcd052abbb08e1681f548bb5a58d9366434985b112cc",
+  "checks": [
+    {
+      "name": "http-pure01",
+      "actual_exit": 0,
+      "seconds": 13.519,
+      "result": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-pure01/result.json",
+        "sha256": "29b4adb27fdcfb8299cac2a622ad39f3142de3732f39647682ca9e3b4805b50c"
+      },
+      "raw": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-pure01/raw.log",
+        "sha256": "546a9b96fe468d37564dd84e8d6a0a534121e878181346c5080a73fdabbf8a4b"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-pure01/cleanup.json",
+        "sha256": "67144445414ff9ebd61c1ea3bbfdc782a6fe5ca85ee7e89497400f5d18775eb3"
+      }
+    },
+    {
+      "name": "http-race01",
+      "actual_exit": 0,
+      "seconds": 19.543,
+      "result": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-race01/result.json",
+        "sha256": "f2765194ebffab5e85708614301d6aa05b50618f0e4b142ba316655d8a80eee2"
+      },
+      "raw": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-race01/raw.log",
+        "sha256": "6ec00f6a3f9437c852f2a9c8c5db2a69a56dcccefe2a6e3bae33af13d5bf11ad"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-race01/cleanup.json",
+        "sha256": "8f4bfdba16ac79f2cbd8e0cc7bd9f06a543ad0d079fce5e6f985afab7e4ae8e0"
+      }
+    },
+    {
+      "name": "http-vet01",
+      "actual_exit": 0,
+      "seconds": 0.8,
+      "result": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-vet01/result.json",
+        "sha256": "37f786db841d20e11b7686373f09969fecd6ecabc2efad10c4b512e324cc2158"
+      },
+      "raw": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-vet01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-vet01/cleanup.json",
+        "sha256": "07119e664d1d75e0b62571b714661c82142c2e4602d02700ee86ec5ba425a244"
+      }
+    },
+    {
+      "name": "http-native-list01",
+      "actual_exit": 0,
+      "seconds": 1.838,
+      "result": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-native-list01/result.json",
+        "sha256": "142e1e573f28b6a2c4867fcfeee2e70c176167c6e4934823eee2c662186df991"
+      },
+      "raw": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-native-list01/raw.log",
+        "sha256": "2692b952882a6222ab1c8130e245a03cbf1cddcc6e41ad8af879c65ae32ab07f"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-native-list01/cleanup.json",
+        "sha256": "17228a279a56c1e5d51781059f43220f8112aa18d9dfad8e93b2f4bb98d5ce55"
+      }
+    },
+    {
+      "name": "http-formatcheck01",
+      "actual_exit": 0,
+      "seconds": 0.052,
+      "result": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-formatcheck01/result.json",
+        "sha256": "3fba56cb9914a416dd68cd280efccfb8d389ce5608a02d630b64bd220e39986f"
+      },
+      "raw": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-formatcheck01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/http-formatcheck01/cleanup.json",
+        "sha256": "6fc5cfd404648d0529cfbbc8bdc80aba016c94d16b368bf3e8ed02d9ffbfd976"
+      }
+    }
+  ],
+  "limits": "Native three tests compiled/listed only; controlled author B evidence reused, not native acceptance."
+}

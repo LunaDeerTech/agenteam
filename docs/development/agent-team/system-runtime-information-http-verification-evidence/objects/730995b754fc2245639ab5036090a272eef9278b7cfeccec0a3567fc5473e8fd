@@ -1,0 +1,139 @@
+{
+  "conclusion": "PASS within runtime service Stage A02 controlled offline scope; P-RUNTIME-01 closed by unchanged original probe",
+  "input": {
+    "author_stage": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/service-stage02",
+    "manifest_sha256": "9e13328b1477744f77957cfdf018d4485b948bf473e3e6d7cac287d72366c8d1",
+    "fixed_product": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+    "card_commit": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+    "source2": {
+      "internal/central/runtimeinfo/service.go": {
+        "sha256": "0a224ff8e1c2cd89bb7a59cac5a5f9287af09f72270cffbcc3dfd8c5118747fa",
+        "bytes": 7615,
+        "stage01_sha256": "0aa6c073f582bca75b031dfcb796a628b1a47170991b6f5343462073012f83c8"
+      },
+      "internal/central/runtimeinfo/service_test.go": {
+        "sha256": "36a76baaf5cacf6dac0b610cd8e1942b89e587f6c8ee70ec83f11ecd3638ea6f",
+        "bytes": 27322,
+        "stage01_sha256": "b6755239e91eacac76280296a7f81347eae42a2d3f163cf433bc363b33630dee"
+      }
+    },
+    "dependencies12_unchanged": true
+  },
+  "static": [
+    "Removed exactly the new three-line consistency guard to reconstruct original service.go byte-for-byte. Only SnapshotValidation test function changed; all other test bytes and twelve fixed dependencies unchanged.",
+    "Guard enforces (DB != Available or Object != Available) => DependencyUnavailable; both available still allow both legal readiness reasons. No clock sorting, status recomputation, root lookup, API/interface or error mapping change.",
+    "Complete original New/GetSystem source reviewed: typed-nil construction checks only, finite values, zero/invalid Instant and non-printable/oversized ASCII refusal, same nonzero Tx/User Shared/current Session/System Read matching grant, one Source, no cache or write, actual CommitResult gating with expired context rejection and Unknown retained."
+  ],
+  "runs": {
+    "crossfield01": {
+      "actual_exit": 1,
+      "actual_wait": true,
+      "seconds": 0.9452484129997174,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 8,
+      "adopted_wait_count": 0,
+      "raw_sha256": "fb35b371a2d26720d5d5082be3a39c661005c832fb837dd52ed6c4484f76b925",
+      "cleanup_sha256": "c6c52a305cd7254c18710099cf8ce41d70901ee5d528fc90c2a6ecb9e2074b91"
+    },
+    "crossfield02": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 1.9745634259998042,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 9,
+      "adopted_wait_count": 0,
+      "raw_sha256": "d188775413c23396ee860298634a7946484b7d5e65daef5f6733a5d304fd8b13",
+      "cleanup_sha256": "565b03be79ab87e8d395214427ff2ddef9dfdd2256d5ceb2ec0f19116beca9a4"
+    },
+    "terminal01": {
+      "actual_exit": 0,
+      "actual_wait": true,
+      "seconds": 4.5366077039998345,
+      "timeout": false,
+      "input_before_matches": true,
+      "input_after_matches": true,
+      "input_unchanged": true,
+      "cleanup_clean": true,
+      "owned_processes_observed": 5,
+      "adopted_wait_count": 0,
+      "raw_sha256": "5fc05a380c60169351e7bf0d9f47a79482ac3be0c3e94cd81b2db3e5c2d307e4",
+      "cleanup_sha256": "ac4602979771deea8dd94260cd4e40b3cdc230a77b97cbb6c8e0f5e7a73e4318"
+    }
+  },
+  "independent_coverage": {
+    "crossfield": "Stage01 unchanged private probe actualRED2, stage02 same SHA actualGREEN2: DB stale and Object unavailable paired with Unbound return zero candidate/DependencyUnavailable.",
+    "publication": "Same Tx/context, current User Shared/Session/matching Read grant and one Source; held actual commit tail blocks return; subsequent explicit call gets changed Source and fresh technical attempt without alias/cache. Both available accepts either readiness reason and reversed display times unchanged.",
+    "unknown_and_authority": "Complete Source followed by held Unknown terminal returns zero/COMMIT_UNKNOWN/unknown; current SessionRevoked and wrong-intent grant reject before Source with zero snapshot.",
+    "deadline": "Natural local3s: actual3.000573101s, Source stays active after Done until release, then actual Tx tail stays active until release; strict errors.Is DeadlineExceeded and zero candidate. Earlier75ms parent: actual75.490638ms, Source completed but Commit returned after natural parent expiry, so zero candidate despite Committed. Each test owns explicit joined channel and cleanup releases all barriers before join."
+  },
+  "retained_evidence": [
+    "Original author stage01 and all original independent RED artifacts remain unchanged. Original erroneous Cartesian-product expectations are not reused as valid coverage.",
+    "Author stage02 affected SnapshotValidation eighteen combinations/eight refusals/ten valid cases and original seventeen field cases remain author evidence; independent scope uses the same RED probe plus two new risk combinations, not a rerun of all author tests.",
+    "Author stage01 typed-nil/full-field/nonchanged transaction tests and stage02 targeted pure/race/vet/format are reused only within unchanged source boundaries."
+  ],
+  "limits": [
+    "Only runtimeinfo service package with controlled Store/SessionAuthority/SystemAuthority/Source; no HTTP, app, native socket, PG, Docker or other business resource.",
+    "The inconsistent Source RED does not claim a production root emitted the value.",
+    "Actual root single T/monotonic age/cache-copy/last_success/six-foundation readiness calculation,16KiB encoding/schema/HTTP Body.Close and root assembly remain later stages.",
+    "No real Logout/User SH/EX lock claim: current authorization and transaction ordering here use controlled ports. Natural deadline proof is actual wall time, not virtual time."
+  ],
+  "execution": {
+    "outer_each_seconds": 45,
+    "go": "1.27.1",
+    "race": true,
+    "count": 1,
+    "offline_readonly": true,
+    "existing_cache": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "subreaper": true,
+    "services_started": false,
+    "main_or_git_mutation": false,
+    "all_completed": true
+  },
+  "references": {
+    "input01/manifest.json": "372a0dbc346cca988bc3526a553e66c462a8d543072a3876e833cd8ae4193038",
+    "input02/manifest.json": "9e13328b1477744f77957cfdf018d4485b948bf473e3e6d7cac287d72366c8d1",
+    "input02/stage01-to02.diff": "a3e93456e8a1472bd01f1d2a82cb1ba4df35cfb9dffe1f614ce47f607b2106b7",
+    "input02/report.md": "8384d588ab572158cce83fcdcb90a16844f233bbd7491ea663fa2ec95a98f559",
+    "input02/delivery2.json": "586084a973e65e2d22eb2ca88da8faacedb6dea28730b9474aa001f93d1c45e3",
+    "inputs01.json": "44b818b1d65afae8e8822a02487b0d890e7535dd46259f105679f52cbf323958",
+    "inputs02.json": "f0e380ad9fa7ffa6c43a2e210e18a712f207a11caa84f6742277949054b76b42",
+    "finding01.md": "628a66ba57fc84ff09a72e73afd6f7416b72f1a6b4165036699fa026ae7fc785",
+    "finding01.json": "d318c226abcbc59bf93c2a932d091877829eebc2de897e2691276dab4737ba0c",
+    "static-delta02.json": "31fabe1e6aa27b2601a67ca1b4f95e450d85a0eadc9e43cf6c9d166473e554c6",
+    "probe01/crossfield_test.go": "a5b4172b070b1ce56448343b31fabeaf6e8be9c437717a84f6767b4dccc45bbc",
+    "probe02/terminal_test.go": "43650cd9bf3aa1ae1d59f90fb12be1af3e9ab6970674d09a66680af7807284d2",
+    "execution01.json": "9cb484e3439b7728b74605b203b920ea6cb921df082c27fc70f5f0ffa1d75a32",
+    "execution02.json": "4f742d57ace61fcb2e4c9a2768ca59b7bfbcb9d7c035c76665166581bace93e8",
+    "execution03.json": "4fc4eddd8b0538f431447c48fbde1ad6db6017c082011861996f3ade8c088c6d",
+    "overlay01.json": "d3c7596e97d78ce42b61995871730365a8d998f6b79f595a78706c2c67123a00",
+    "overlay02.json": "372b72298f067c610495f90e8ff56e7d2d2b66b2ab33a80bafe15462ac25825b",
+    "overlay03.json": "93cf9f33c7b9b7a992a4d2e2fbec535aa16fe0d14710fc7be062f1f5f2c8af1b",
+    "run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "runs/crossfield01/command.json": "add5e86975a89410f2e845be88cfacded6535e497f03642f8660740b564f2f74",
+    "runs/crossfield01/raw.log": "fb35b371a2d26720d5d5082be3a39c661005c832fb837dd52ed6c4484f76b925",
+    "runs/crossfield01/result.json": "bec14a150dc975d497e5b80ec4ba8937d6cdf7293f75bb28e061b57f78e8e7a7",
+    "runs/crossfield01/cleanup.json": "c6c52a305cd7254c18710099cf8ce41d70901ee5d528fc90c2a6ecb9e2074b91",
+    "runs/crossfield01/input-before.json": "dd9f8bc5fa098a78f66c147c8c9e413d44aaaa6d3fa4e5de2142cbfd7f22e86d",
+    "runs/crossfield01/input-after.json": "dd9f8bc5fa098a78f66c147c8c9e413d44aaaa6d3fa4e5de2142cbfd7f22e86d",
+    "runs/crossfield02/command.json": "cfd0cdd9eb2612c0f84174dd1365c5d56747a2161a1c4fd4818c911605ef439b",
+    "runs/crossfield02/raw.log": "d188775413c23396ee860298634a7946484b7d5e65daef5f6733a5d304fd8b13",
+    "runs/crossfield02/result.json": "85d1b2bacad55774136bb73c038fe72e36d41720df134b1f0f206fcc397ddae6",
+    "runs/crossfield02/cleanup.json": "565b03be79ab87e8d395214427ff2ddef9dfdd2256d5ceb2ec0f19116beca9a4",
+    "runs/crossfield02/input-before.json": "f6e08d2b50eac730c1c1832599f87d3fa420bb2ea036e4f5703b99246079dd86",
+    "runs/crossfield02/input-after.json": "f6e08d2b50eac730c1c1832599f87d3fa420bb2ea036e4f5703b99246079dd86",
+    "runs/terminal01/command.json": "85898f3eb65ee923caf01afe4fc20f992a849b28c3e42d0e95c5cc6bb5033c9f",
+    "runs/terminal01/raw.log": "5fc05a380c60169351e7bf0d9f47a79482ac3be0c3e94cd81b2db3e5c2d307e4",
+    "runs/terminal01/result.json": "8c0a6f2a70a68e9414a819b20ce0ae698e21bd158996ef7787179a6c4f7cdbee",
+    "runs/terminal01/cleanup.json": "ac4602979771deea8dd94260cd4e40b3cdc230a77b97cbb6c8e0f5e7a73e4318",
+    "runs/terminal01/input-before.json": "35a65383e894ff2142b569eb9a26dde7ae2e52d065786c6d92510377c2cf39f4",
+    "runs/terminal01/input-after.json": "35a65383e894ff2142b569eb9a26dde7ae2e52d065786c6d92510377c2cf39f4"
+  }
+}

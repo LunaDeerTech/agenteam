@@ -1,0 +1,19 @@
+=== RUN   TestIndependentRuntimePublicationAndCurrentGrant
+=== RUN   TestIndependentRuntimePublicationAndCurrentGrant/commit-tail-and-fresh-value
+    independent_terminal_test.go:204: same_tx=true user_shared=true current_grant=true source_once_per_read=true actual_tail=true both_available_both_readiness=true no_cache_alias=true
+=== RUN   TestIndependentRuntimePublicationAndCurrentGrant/unknown-terminal-after-complete-source
+=== RUN   TestIndependentRuntimePublicationAndCurrentGrant/current-session-and-wrong-grant-before-source
+--- PASS: TestIndependentRuntimePublicationAndCurrentGrant (0.00s)
+    --- PASS: TestIndependentRuntimePublicationAndCurrentGrant/commit-tail-and-fresh-value (0.00s)
+    --- PASS: TestIndependentRuntimePublicationAndCurrentGrant/unknown-terminal-after-complete-source (0.00s)
+    --- PASS: TestIndependentRuntimePublicationAndCurrentGrant/current-session-and-wrong-grant-before-source (0.00s)
+=== RUN   TestIndependentRuntimeDeadlineActualTail
+=== RUN   TestIndependentRuntimeDeadlineActualTail/natural-three-seconds-source-tail
+    independent_terminal_test.go:331: earlier_parent=false elapsed=3.000573101s deadline_exceeded=true source_once=true actual_source_and_tx_join=true zero_candidate=true
+=== RUN   TestIndependentRuntimeDeadlineActualTail/earlier-parent-committed-tail
+    independent_terminal_test.go:331: earlier_parent=true elapsed=75.490638ms deadline_exceeded=true source_once=true actual_source_and_tx_join=true zero_candidate=true
+--- PASS: TestIndependentRuntimeDeadlineActualTail (3.08s)
+    --- PASS: TestIndependentRuntimeDeadlineActualTail/natural-three-seconds-source-tail (3.00s)
+    --- PASS: TestIndependentRuntimeDeadlineActualTail/earlier-parent-committed-tail (0.08s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo	4.097s

@@ -1,0 +1,20 @@
+=== RUN   TestRuntimeInformationHTTPNativeEOFAndKeepAlive
+--- PASS: TestRuntimeInformationHTTPNativeEOFAndKeepAlive (0.21s)
+=== RUN   TestRuntimeInformationHTTPNativeSlowBodyBudgets
+=== RUN   TestRuntimeInformationHTTPNativeSlowBodyBudgets/local-three-seconds
+=== RUN   TestRuntimeInformationHTTPNativeSlowBodyBudgets/earlier-parent
+--- PASS: TestRuntimeInformationHTTPNativeSlowBodyBudgets (3.13s)
+    --- PASS: TestRuntimeInformationHTTPNativeSlowBodyBudgets/local-three-seconds (3.00s)
+    --- PASS: TestRuntimeInformationHTTPNativeSlowBodyBudgets/earlier-parent (0.12s)
+=== RUN   TestRuntimeInformationHTTPNativeWriteAndFlushAbort
+=== RUN   TestRuntimeInformationHTTPNativeWriteAndFlushAbort/short-write
+=== RUN   TestRuntimeInformationHTTPNativeWriteAndFlushAbort/flush-error
+--- PASS: TestRuntimeInformationHTTPNativeWriteAndFlushAbort (0.00s)
+    --- PASS: TestRuntimeInformationHTTPNativeWriteAndFlushAbort/short-write (0.00s)
+    --- PASS: TestRuntimeInformationHTTPNativeWriteAndFlushAbort/flush-error (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo/http	4.356s
+=== RUN   TestDiagnosticRoutes
+--- PASS: TestDiagnosticRoutes (0.10s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.124s

@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-vet=off",
+    "-count=1",
+    "-timeout=45s",
+    "-overlay=/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/overlay01.json",
+    "-run",
+    "^TestIndependentRuntimeHTTP(BudgetAndActualTerminal|BoundaryAndWire)$",
+    "-v",
+    "./internal/central/runtimeinfo/http"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-kdg0ulku",
+    "GOTMPDIR": "/tmp/agt-audit-offline-kdg0ulku",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOENV": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "CGO_ENABLED": "1",
+    "INDEPENDENT_RUNTIME_VECTORS": "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/outputs/wire-vectors.json"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "3bd16b28f22edfabe84ae79a6a7dc080cbd52273f98375324451793d95c773ae",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 385423,
+  "actual_exit": 0,
+  "seconds": 19.4678918339996,
+  "timeout": false
+}

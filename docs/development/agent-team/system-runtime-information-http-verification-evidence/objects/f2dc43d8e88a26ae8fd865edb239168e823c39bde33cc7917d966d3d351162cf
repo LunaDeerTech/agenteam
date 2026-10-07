@@ -1,0 +1,147 @@
+{
+  "stage": "runtime-final-independent-plan01",
+  "status": "PLAN_ONLY_NO_EXECUTION",
+  "fixed_product": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "card_commit": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+  "scope": "At most two future independent real top-level tests; D and actual runtime closure pending freeze and root authorization.",
+  "inputs": [
+    {
+      "kind": "fixed_git",
+      "commit": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+      "path": "docs/development/work-items/d28-system-runtime-information-http.md",
+      "sha256": "e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/docs/development/work-items/d28-system-runtime-information-http.md"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "tests/account/b02_fixture_test.go",
+      "sha256": "8acf211919f82ddbe01f2836c757a522f474dd188d588ae65ac063db157d2f51",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/tests/account/b02_fixture_test.go"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "tests/account/http_fixture_test.go",
+      "sha256": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/tests/account/http_fixture_test.go"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "tests/account/audit_http_transaction_test.go",
+      "sha256": "56f5b38e2a35117fc29e5b634a51bd4f613fa1969c848119f8b1f9f4c236c25b",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/tests/account/audit_http_transaction_test.go"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/model_process_test.go",
+      "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/internal/central/app/model_process_test.go"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/audit_http_process_test.go",
+      "sha256": "b44be5136db527ebcb39da30da760b49bc794937c32db3f44d02c07e01f9d1ba",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/internal/central/app/audit_http_process_test.go"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "tests/testsupport/postgres/fixture.go",
+      "sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/tests/testsupport/postgres/fixture.go"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "tests/testsupport/objectstore/fixture.go",
+      "sha256": "7363ada9d27a39eda336c4025ab67cb8812f8f0fbd4dd7a945b0bacc7e0fb95c",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/tests/testsupport/objectstore/fixture.go"
+    },
+    {
+      "kind": "fixed_git",
+      "commit": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+      "path": "internal/central/app/health.go",
+      "sha256": "f6f80d804f65ee8c036fb45697d5d47176d7cd4a5cf579da28af1c97e2672ff5",
+      "private_copy": "/workspace/scratch/agenteam-runtime-final-independent-plan-a9mpeds3/basis/internal/central/app/health.go"
+    },
+    {
+      "kind": "accepted_frozen_reference",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/service-stage02/manifest.json",
+      "sha256": "9e13328b1477744f77957cfdf018d4485b948bf473e3e6d7cac287d72366c8d1"
+    },
+    {
+      "kind": "accepted_frozen_reference",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/http-stage01/manifest.json",
+      "sha256": "e8399d45b32a8743c7b9fcd052abbb08e1681f548bb5a58d9366434985b112cc"
+    },
+    {
+      "kind": "accepted_frozen_reference",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/manifest.json",
+      "sha256": "95bd1d562a2c1c97fde0ef0fde16119b7129da0b01771b8577a7182bb1dec808"
+    },
+    {
+      "kind": "accepted_frozen_reference",
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/verification-report.md",
+      "sha256": "6532d461369eb7f40d1dfabb697c05edeb1ebb4834b05a6c5fa5e38f86eb1395"
+    },
+    {
+      "kind": "accepted_frozen_reference",
+      "path": "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/verification-report.md",
+      "sha256": "00df09efcd72374e5a628bfa1f65e8cd02dc6057e74f76b6f4232e8e3d465e23"
+    },
+    {
+      "kind": "accepted_frozen_reference",
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/verification-report.md",
+      "sha256": "2606689b04b2a390ea9c9362ae3ef6dc9c6913f5011e01f2cac5da0735e6a34c"
+    },
+    {
+      "kind": "accepted_frozen_source",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/service-stage02/source/internal/central/runtimeinfo/service.go",
+      "sha256": "0a224ff8e1c2cd89bb7a59cac5a5f9287af09f72270cffbcc3dfd8c5118747fa"
+    },
+    {
+      "kind": "accepted_frozen_source",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/http-stage01/source/internal/central/runtimeinfo/http/handler.go",
+      "sha256": "0e61275711ad355857bbce3aae52b02528f97b42b442f9ab888e5e78d571d186"
+    },
+    {
+      "kind": "accepted_frozen_source",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/http-stage01/source/internal/central/runtimeinfo/http/handler_test.go",
+      "sha256": "7d6d00532a72fa18ee50536b178adedab93d2fc86c2b545c3b11561133c220c9"
+    },
+    {
+      "kind": "accepted_frozen_source",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/source/internal/central/app/runtime_information.go",
+      "sha256": "8544c989b3dc3ec1ffd2ff2f430c810da544f87133434a5e6f3b08551a790736"
+    },
+    {
+      "kind": "accepted_frozen_source",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/source/internal/central/app/app.go",
+      "sha256": "72e7d6689d3dda38c8c68ccb7908cf0dfbcbda5fb4a8b3d59edb1e3b9ea90d77"
+    },
+    {
+      "kind": "accepted_frozen_source",
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/source/internal/central/app/account.go",
+      "sha256": "96fb4de27b49225be963c81baaa9088b177f67ab1a6e227d7dfb7c3a8c4b2223"
+    }
+  ],
+  "plan_sha256": "c3993effcfd3e9c57dfc77ec7cf727eb761126eca37cf8f164a9f500a5af9f29",
+  "actions_this_stage": [
+    "read fixed Git and accepted frozen references",
+    "create private short plan and bounded input records"
+  ],
+  "not_executed": [
+    "product tests",
+    "compile",
+    "native listener",
+    "PG",
+    "Docker",
+    "MinIO",
+    "browser"
+  ],
+  "active_D_read": false
+}

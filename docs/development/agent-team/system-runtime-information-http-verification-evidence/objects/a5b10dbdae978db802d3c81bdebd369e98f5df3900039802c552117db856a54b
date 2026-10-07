@@ -1,0 +1,891 @@
+{
+  "actual_cleanup": [
+    {
+      "baseline_unchanged": true,
+      "exact_absent": {
+        "0380728bc40631ae3ed0ad59083556a498487ddde43c602a4c475cc70becb8c5": {
+          "absent": true
+        },
+        "1dfc10a76bcba0668bcfd67a89e3d4a008bf26bbc6c7c70a74461d352b92ccc3": {
+          "absent": true
+        },
+        "49bad5a327015ecfcaba7a63ef0e145a7a36a8946b4c60c6be22b88c20513d91": {
+          "absent": true
+        },
+        "5c581e477e71be4344a97051ee7e3bd76482a8dbc82ff7df5aaf5a0cc1d81f27": {
+          "absent": true
+        },
+        "8068f144f3e4cf7214e275153c2a082e99f91fc7a049922c13432d653d5a308c": {
+          "absent": true
+        },
+        "a0fc3d993004e58ef0bdf50c8d7b6ac95e5bac3f35e00de72fc59cea9cf65463": {
+          "absent": true
+        },
+        "e4e29c5c6d26ef603a4a5927bc0520cb241643e8829c83dbff7b452d333433ed": {
+          "absent": true
+        }
+      },
+      "owned_processes": [],
+      "remaining_new": [],
+      "runtime_entries": [],
+      "time": "2026-10-07T01:54:41.150430+00:00"
+    },
+    {
+      "baseline_unchanged": true,
+      "exact_absent": {
+        "0380728bc40631ae3ed0ad59083556a498487ddde43c602a4c475cc70becb8c5": {
+          "absent": true
+        },
+        "1dfc10a76bcba0668bcfd67a89e3d4a008bf26bbc6c7c70a74461d352b92ccc3": {
+          "absent": true
+        },
+        "49bad5a327015ecfcaba7a63ef0e145a7a36a8946b4c60c6be22b88c20513d91": {
+          "absent": true
+        },
+        "5c581e477e71be4344a97051ee7e3bd76482a8dbc82ff7df5aaf5a0cc1d81f27": {
+          "absent": true
+        },
+        "8068f144f3e4cf7214e275153c2a082e99f91fc7a049922c13432d653d5a308c": {
+          "absent": true
+        },
+        "a0fc3d993004e58ef0bdf50c8d7b6ac95e5bac3f35e00de72fc59cea9cf65463": {
+          "absent": true
+        },
+        "e4e29c5c6d26ef603a4a5927bc0520cb241643e8829c83dbff7b452d333433ed": {
+          "absent": true
+        }
+      },
+      "owned_processes": [],
+      "remaining_new": [],
+      "runtime_entries": [],
+      "time": "2026-10-07T01:54:41.826651+00:00"
+    }
+  ],
+  "actual_command": {
+    "actual_wait_completed": true,
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestIndependentRuntimeCurrentAuthorityAndTerminal|TestIndependentRuntimeRootCacheAndCompatibility)$"
+    ],
+    "cwd": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace",
+    "ended_utc": "2026-10-07T01:54:40.959801+00:00",
+    "env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+      "CGO_ENABLED": "1",
+      "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+      "GOENV": "off",
+      "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/overlay01.json",
+      "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOTMPDIR": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/independent01/runtime",
+      "GOTOOLCHAIN": "local",
+      "GOWORK": "off",
+      "TMPDIR": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/independent01/runtime"
+    },
+    "exit": 0,
+    "seconds": 48.663,
+    "started_utc": "2026-10-07T01:53:52.296281+00:00"
+  },
+  "actual_result": {
+    "accepted_baseline_after": true,
+    "accepted_baseline_before": true,
+    "adopted_waits": 0,
+    "browser_processes": 0,
+    "double_cleanup": true,
+    "driver_exit": 0,
+    "fixture_resources_started": true,
+    "historical_zombies_untouched": [
+      {
+        "name": "containerd-shim",
+        "pid": 7868,
+        "ppid": 1,
+        "starttime": "48585",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 8295,
+        "ppid": 1,
+        "starttime": "48833",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 8751,
+        "ppid": 1,
+        "starttime": "49086",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 9554,
+        "ppid": 1,
+        "starttime": "49476",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 12536,
+        "ppid": 1,
+        "starttime": "51187",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 14949,
+        "ppid": 1,
+        "starttime": "52584",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 23814,
+        "ppid": 1,
+        "starttime": "86120",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 30769,
+        "ppid": 1,
+        "starttime": "150325",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 41272,
+        "ppid": 1,
+        "starttime": "246728",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 49868,
+        "ppid": 1,
+        "starttime": "305202",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 69418,
+        "ppid": 1,
+        "starttime": "461498",
+        "state": "Z"
+      },
+      {
+        "name": "compile",
+        "pid": 89884,
+        "ppid": 1,
+        "starttime": "540243",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 90422,
+        "ppid": 1,
+        "starttime": "543936",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 104918,
+        "ppid": 1,
+        "starttime": "615264",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 105459,
+        "ppid": 1,
+        "starttime": "615543",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 105797,
+        "ppid": 1,
+        "starttime": "615746",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 106599,
+        "ppid": 1,
+        "starttime": "616036",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 123134,
+        "ppid": 1,
+        "starttime": "651819",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 123595,
+        "ppid": 1,
+        "starttime": "652094",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 124029,
+        "ppid": 1,
+        "starttime": "652286",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 124698,
+        "ppid": 1,
+        "starttime": "652483",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 138474,
+        "ppid": 1,
+        "starttime": "680256",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 139018,
+        "ppid": 1,
+        "starttime": "680530",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 139343,
+        "ppid": 1,
+        "starttime": "680700",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 139873,
+        "ppid": 1,
+        "starttime": "680881",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 148397,
+        "ppid": 1,
+        "starttime": "690350",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 148823,
+        "ppid": 1,
+        "starttime": "690593",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 149190,
+        "ppid": 1,
+        "starttime": "690771",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 149830,
+        "ppid": 1,
+        "starttime": "690956",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 160278,
+        "ppid": 1,
+        "starttime": "714290",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 160706,
+        "ppid": 1,
+        "starttime": "714534",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 161098,
+        "ppid": 1,
+        "starttime": "714718",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 161697,
+        "ppid": 1,
+        "starttime": "714902",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 170494,
+        "ppid": 1,
+        "starttime": "723933",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 170920,
+        "ppid": 1,
+        "starttime": "724181",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 171356,
+        "ppid": 1,
+        "starttime": "724376",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 171935,
+        "ppid": 1,
+        "starttime": "724598",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 185009,
+        "ppid": 1,
+        "starttime": "740077",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 185462,
+        "ppid": 1,
+        "starttime": "740333",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 185909,
+        "ppid": 1,
+        "starttime": "740576",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 186461,
+        "ppid": 1,
+        "starttime": "740747",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 189484,
+        "ppid": 1,
+        "starttime": "742585",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 194439,
+        "ppid": 1,
+        "starttime": "751861",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 195083,
+        "ppid": 1,
+        "starttime": "752310",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 195444,
+        "ppid": 1,
+        "starttime": "752487",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 196090,
+        "ppid": 1,
+        "starttime": "752670",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 198912,
+        "ppid": 1,
+        "starttime": "754370",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 206563,
+        "ppid": 1,
+        "starttime": "765694",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 207112,
+        "ppid": 1,
+        "starttime": "766149",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 207546,
+        "ppid": 1,
+        "starttime": "766343",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 208188,
+        "ppid": 1,
+        "starttime": "766542",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 216578,
+        "ppid": 1,
+        "starttime": "775188",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 217228,
+        "ppid": 1,
+        "starttime": "775637",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 217925,
+        "ppid": 1,
+        "starttime": "776069",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 218706,
+        "ppid": 1,
+        "starttime": "776426",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 221591,
+        "ppid": 1,
+        "starttime": "778241",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 229643,
+        "ppid": 1,
+        "starttime": "797622",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 230238,
+        "ppid": 1,
+        "starttime": "798027",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 230684,
+        "ppid": 1,
+        "starttime": "798252",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 231248,
+        "ppid": 1,
+        "starttime": "798424",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 250318,
+        "ppid": 1,
+        "starttime": "831667",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 251375,
+        "ppid": 1,
+        "starttime": "832545",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 251840,
+        "ppid": 1,
+        "starttime": "832839",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 252520,
+        "ppid": 1,
+        "starttime": "833014",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 266228,
+        "ppid": 1,
+        "starttime": "849879",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 266758,
+        "ppid": 1,
+        "starttime": "850192",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 267093,
+        "ppid": 1,
+        "starttime": "850379",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 267724,
+        "ppid": 1,
+        "starttime": "850555",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 276244,
+        "ppid": 1,
+        "starttime": "861108",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 276898,
+        "ppid": 1,
+        "starttime": "861554",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 277581,
+        "ppid": 1,
+        "starttime": "861983",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 278415,
+        "ppid": 1,
+        "starttime": "862361",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 286115,
+        "ppid": 1,
+        "starttime": "874533",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 286779,
+        "ppid": 1,
+        "starttime": "875005",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 287497,
+        "ppid": 1,
+        "starttime": "875463",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 288323,
+        "ppid": 1,
+        "starttime": "875879",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 293300,
+        "ppid": 1,
+        "starttime": "879064",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 304965,
+        "ppid": 1,
+        "starttime": "941269",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 305665,
+        "ppid": 1,
+        "starttime": "941725",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 306115,
+        "ppid": 1,
+        "starttime": "941986",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 306817,
+        "ppid": 1,
+        "starttime": "942229",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 321235,
+        "ppid": 1,
+        "starttime": "962543",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 327770,
+        "ppid": 1,
+        "starttime": "1017832",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 329464,
+        "ppid": 1,
+        "starttime": "1032806",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 350945,
+        "ppid": 1,
+        "starttime": "1171181",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 354073,
+        "ppid": 1,
+        "starttime": "1197260",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 356185,
+        "ppid": 1,
+        "starttime": "1208584",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 359891,
+        "ppid": 1,
+        "starttime": "1241059",
+        "state": "Z"
+      },
+      {
+        "name": "git",
+        "pid": 366479,
+        "ppid": 1,
+        "starttime": "1288473",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 440280,
+        "ppid": 1,
+        "starttime": "1861114",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 441074,
+        "ppid": 1,
+        "starttime": "1861738",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 441834,
+        "ppid": 1,
+        "starttime": "1862296",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 442975,
+        "ppid": 1,
+        "starttime": "1862909",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 456401,
+        "ppid": 1,
+        "starttime": "1881951",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 457055,
+        "ppid": 1,
+        "starttime": "1882372",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 457639,
+        "ppid": 1,
+        "starttime": "1882783",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 458494,
+        "ppid": 1,
+        "starttime": "1883192",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 472016,
+        "ppid": 1,
+        "starttime": "1943472",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 472461,
+        "ppid": 1,
+        "starttime": "1943799",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 472904,
+        "ppid": 1,
+        "starttime": "1944058",
+        "state": "Z"
+      },
+      {
+        "name": "containerd-shim",
+        "pid": 473611,
+        "ppid": 1,
+        "starttime": "1944278",
+        "state": "Z"
+      }
+    ],
+    "monitor_errors": 0,
+    "native_only": false,
+    "node_processes": 0,
+    "observed_processes": 74,
+    "observed_resources": 7,
+    "resource_topology_matches": true,
+    "run": "independent01",
+    "run_directory": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/independent01",
+    "selected_tests_passed": true,
+    "source_files_unchanged": true,
+    "top_levels": [
+      [
+        "PASS",
+        "TestIndependentRuntimeRootCacheAndCompatibility"
+      ],
+      [
+        "PASS",
+        "TestIndependentRuntimeCurrentAuthorityAndTerminal"
+      ]
+    ],
+    "verification_inputs_unchanged": true
+  },
+  "author_real_report": {
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/real-stage01/report.md",
+    "sha256": "010db96ab23fd0152f3a6d965f6cacd8dc763dc3523a054022510976c981d22b"
+  },
+  "delivery13_sha256": "e795933a24783ef527eea9e34b0f4bc43dbb37f0d079aca413ca9cfa866fa14c",
+  "driver_sha256": "14d937af119fff916482cbb88bbdd42595837530260e7672fd2a487f5a85f37a",
+  "execution_sha256": "04e8c4c447d651dcc0e64aa2e659daf052edf5fc7283cb0f39c27819054fbbab",
+  "independent_phase_reports": [
+    {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/verification-report.md",
+      "sha256": "6532d461369eb7f40d1dfabb697c05edeb1ebb4834b05a6c5fa5e38f86eb1395"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/verification-report.md",
+      "sha256": "00df09efcd72374e5a628bfa1f65e8cd02dc6057e74f76b6f4232e8e3d465e23"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/verification-report.md",
+      "sha256": "2606689b04b2a390ea9c9362ae3ef6dc9c6913f5011e01f2cac5da0735e6a34c"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-runtime-harness-independent-ph4d9j50/review.md",
+      "sha256": "fdcec45ea9fe1bafe102aef2298081cab173d1b5fa3b6031bfc6342d113c2e65"
+    }
+  ],
+  "limits": [
+    "A real PG authority/terminal with controlled Source and concurrent-safe ResponseWriter: preterminal zero status/body/flush, not native TCP precommit zero bytes.",
+    "B original root healthy cached sample and exact same native TCP connection: success EOF/Close; original probe merely counted and delegated, no Object lifecycle/fault injection.",
+    "Earlier-parent400ms held callback tested independently; natural3s/DB1s/native abort/slow-body observations retain their accepted separate stage provenance.",
+    "Fixed b124650+13+904+3501 and private overlay3; no implicit HEAD rebase or UI coverage.",
+    "Service A01 product RED and author C Origin premise RED/native01 interpreter premise failure remain unchanged."
+  ],
+  "private_tests": {
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/overlay01.json": "6ed5e5355f9a2cfd5235188fa8bf23b98cf7b638221c7f4bc4ec0416c2052a9f",
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/probe01/runtime_account_test.go": "fdc168a2346c64bf210b1f5bab528a0211ccec997323f48a7e2bfb7b054a8002",
+    "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/probe01/runtime_root_test.go": "05b7cd343689bccd1ec99cdcdb5c19bbb40731ca14f155bbe1909cb13bff855b"
+  },
+  "product_base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "records": {
+    "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "baseline.json": "1f6da9c90d944cfe44e768bea8b149dc358b8910f25852d9f4713dc12a2061dd",
+    "cancellation.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "cleanup.json": "ebf860c80f54f73f2d066a285137680d3a658d5ca0e69e92650a80db45a938e9",
+    "command.json": "dd6ff02350461a25bfe2b8bce7340d39340787817a613b44b99c4df953969890",
+    "disk-before-spawn.json": "271a06deb962092a58dd86caccb05416c6910f9783c9c13890cfcc4b258943ea",
+    "disk-preflight.json": "28a1a61fad4ea91a529fa48e08468a97f1473e2881cf31a3b99eb00bbbc7d0ab",
+    "driver.py.txt": "14d937af119fff916482cbb88bbdd42595837530260e7672fd2a487f5a85f37a",
+    "frozen-input.json": "04e8c4c447d651dcc0e64aa2e659daf052edf5fc7283cb0f39c27819054fbbab",
+    "input-after.json": "c4a9737f4c554af377e1837bc188a606a4c0041d645009ac22db667145d2ab31",
+    "input-before.json": "c4a9737f4c554af377e1837bc188a606a4c0041d645009ac22db667145d2ab31",
+    "monitor-errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "observed-processes.json": "ae76169f609eea8c4524fd2d9df99d3a08b0e887146f2d14e3805963d6d56df3",
+    "observed-resources.json": "25f3407ec69ad5acbbbb6f8b52cdfbf621806562933803eb289d5a5da00eb43a",
+    "process-baseline.json": "6852aa8d346804e78587d3bc66d8b75e12c857a6485fae74320713bf050a7efb",
+    "raw.log": "0c34aab5cb4a1a473cda39bcf92c0f9bfa0607f0f203993419f997bfc3812824",
+    "result.json": "f6b34289633fff16f86113302b42a773876a7b97fd19453c1734259d41ff5cbf",
+    "verification-input.json": "0532af2e42478c7f9b49a3ec5bff4200894ba91b15794f830b31a0b7113026e7"
+  },
+  "status": "PASS for frozen Runtime13; no main/README write"
+}

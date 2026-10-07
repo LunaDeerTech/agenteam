@@ -1,0 +1,29 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/account.test",
+    "-test.list",
+    "^(TestSystemRuntimeInformationCurrentAuthorityAndTerminal)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T02:05:01.374748+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/tmp"
+  },
+  "exit": 0,
+  "limit_seconds": 45,
+  "main_head": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+  "seconds": 1.022,
+  "started_utc": "2026-10-07T02:05:00.352700+00:00",
+  "timed_out": false
+}

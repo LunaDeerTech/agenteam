@@ -1,0 +1,77 @@
+[
+  {
+    "path": "internal/central/app/account.go",
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/baseline/internal/central/app/account.go",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace/internal/central/app/account.go"
+    ],
+    "exit": 1,
+    "seconds": 0.002186,
+    "actual_wait_completed": true,
+    "diagnostic_bytes": 0
+  },
+  {
+    "path": "internal/central/app/app.go",
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/baseline/internal/central/app/app.go",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace/internal/central/app/app.go"
+    ],
+    "exit": 1,
+    "seconds": 0.001883,
+    "actual_wait_completed": true,
+    "diagnostic_bytes": 0
+  },
+  {
+    "path": "internal/central/app/diagnostics.go",
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/baseline/internal/central/app/diagnostics.go",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace/internal/central/app/diagnostics.go"
+    ],
+    "exit": 1,
+    "seconds": 0.001385,
+    "actual_wait_completed": true,
+    "diagnostic_bytes": 0
+  },
+  {
+    "path": "internal/central/app/runtime_information.go",
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace/internal/central/app/runtime_information.go"
+    ],
+    "exit": 1,
+    "seconds": 0.001725,
+    "actual_wait_completed": true,
+    "diagnostic_bytes": 0
+  },
+  {
+    "path": "internal/central/app/runtime_information_test.go",
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace/internal/central/app/runtime_information_test.go"
+    ],
+    "exit": 1,
+    "seconds": 0.001505,
+    "actual_wait_completed": true,
+    "diagnostic_bytes": 0
+  }
+]

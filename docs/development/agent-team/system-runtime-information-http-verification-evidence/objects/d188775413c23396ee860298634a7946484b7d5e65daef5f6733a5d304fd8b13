@@ -1,0 +1,10 @@
+=== RUN   TestIndependentRuntimeSnapshotCrossField
+=== RUN   TestIndependentRuntimeSnapshotCrossField/database-stale
+    independent_crossfield_test.go:121: field=database-stale returned_nonzero=false returned_error=true source_calls=1 transaction_ended=true
+=== RUN   TestIndependentRuntimeSnapshotCrossField/object-unavailable
+    independent_crossfield_test.go:121: field=object-unavailable returned_nonzero=false returned_error=true source_calls=1 transaction_ended=true
+--- PASS: TestIndependentRuntimeSnapshotCrossField (0.00s)
+    --- PASS: TestIndependentRuntimeSnapshotCrossField/database-stale (0.00s)
+    --- PASS: TestIndependentRuntimeSnapshotCrossField/object-unavailable (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo	1.012s

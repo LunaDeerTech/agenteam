@@ -1,0 +1,200 @@
+package app
+
+import (
+	"context"
+	"net/http"
+	"reflect"
+	"strings"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+	runtimeinfohttp "github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo/http"
+)
+
+const runtimeInformationPath = "/api/v1/system/runtime-information"
+
+type runtimeInformationFactory func(runtimeinfo.Source) (http.Handler, error)
+
+// The closure holds the original providers, not a locator filled after startup.
+// Both stages of construction are pure; the Source is bound only after the
+// original monitor has received the actual startup samples.
+func runtimeInformationHandlerFactory(store runtimeinfo.Store, authority *account.Authority, core *account.Service, origin string) runtimeInformationFactory {
+	return func(source runtimeinfo.Source) (http.Handler, error) {
+		service, err := runtimeinfo.New(store, authority, authority, source)
+		if err != nil {
+			return nil, err
+		}
+		return runtimeinfohttp.NewSystemHTTPHandler(service, core, runtimeinfohttp.SystemHTTPOptions{PublicOrigin: origin})
+	}
+}
+
+// runtimeObservation contains values only. now retains its monotonic component
+// while ages are computed; converting display times must not change freshness.
+type runtimeObservation struct {
+	last                                            postgres.DatabaseHealth
+	now, received, objectReceived                    time.Time
+	outboxReceived, accountReceived                  time.Time
+	stale                                           time.Duration
+	available, objectAvailable, outboxAvailable      bool
+	accountAvailable, accountBound                   bool
+	secretAvailable, outboundAvailable               bool
+}
+
+func collectRuntimeObservation(monitor *healthMonitor, secrets maintenance, outboundService egress) runtimeObservation {
+	monitor.mu.RLock()
+	observation := runtimeObservation{
+		last: monitor.last, received: monitor.received, available: monitor.available,
+		objectReceived: monitor.objectReceived, objectAvailable: monitor.objectAvailable,
+		outboxReceived: monitor.outboxReceived, outboxAvailable: monitor.outboxAvailable,
+		accountReceived: monitor.accountReceived, accountAvailable: monitor.accountAvailable,
+		accountBound: monitor.accountBound, stale: monitor.timing.stale,
+	}
+	if monitor.timing.now != nil {
+		observation.now = monitor.timing.now()
+	}
+	monitor.mu.RUnlock()
+	// These independent memory states are sampled once each, not under the
+	// monitor lock and not retried to manufacture a distributed atomic snapshot.
+	if !runtimeInformationNil(secrets) {
+		observation.secretAvailable = secrets.Status().Available
+	}
+	if !runtimeInformationNil(outboundService) {
+		observation.outboundAvailable = outboundService.Status().Available
+	}
+	return observation
+}
+
+func (o runtimeObservation) status(available bool, received time.Time) runtimeinfo.Status {
+	if !available {
+		return runtimeinfo.Unavailable
+	}
+	if o.now.Sub(received) > o.stale {
+		return runtimeinfo.Stale
+	}
+	return runtimeinfo.Available
+}
+
+// This is the existing six-item readiness predicate. Strict management-only
+// sample validation must not change old diagnostic collaborators or DTOs.
+func (o runtimeObservation) readiness() foundation.Code {
+	if !o.secretAvailable || !o.outboundAvailable ||
+		o.status(o.available, o.received) != runtimeinfo.Available ||
+		o.status(o.objectAvailable, o.objectReceived) != runtimeinfo.Available ||
+		o.status(o.outboxAvailable, o.outboxReceived) != runtimeinfo.Available ||
+		o.status(o.accountAvailable, o.accountReceived) != runtimeinfo.Available {
+		return foundation.DependencyUnavailable
+	}
+	return foundation.DependencyUnbound
+}
+
+type runtimeInformationSource struct {
+	monitor  *healthMonitor
+	secrets  maintenance
+	outbound egress
+}
+
+func newRuntimeInformationSource(monitor *healthMonitor, secrets maintenance, outboundService egress, objects objectStorage, deliveries outboxStorage, accounts accountStorage) (*runtimeInformationSource, error) {
+	for _, required := range []any{monitor, secrets, outboundService, objects, deliveries, accounts} {
+		if runtimeInformationNil(required) {
+			return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+		}
+	}
+	return &runtimeInformationSource{monitor: monitor, secrets: secrets, outbound: outboundService}, nil
+}
+
+func (s *runtimeInformationSource) Snapshot(ctx context.Context) (runtimeinfo.Snapshot, error) {
+	if s == nil || s.monitor == nil || runtimeInformationNil(s.secrets) || runtimeInformationNil(s.outbound) {
+		return runtimeinfo.Snapshot{}, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	failed := func(err error) (runtimeinfo.Snapshot, error) {
+		return runtimeinfo.Snapshot{}, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted).WithCause(err)
+	}
+	if err := ctx.Err(); err != nil {
+		return failed(err)
+	}
+	o := collectRuntimeObservation(s.monitor, s.secrets, s.outbound)
+	if err := ctx.Err(); err != nil {
+		return failed(err)
+	}
+	if !o.accountBound || !healthy(o.last) {
+		return failed(nil)
+	}
+	// All required historical samples must exist, including those whose times
+	// participate only in readiness. Do not replace missing samples with now.
+	var instants [6]foundation.Instant
+	for i, value := range [...]time.Time{o.now, o.last.CheckedAt.Time(), o.received, o.objectReceived, o.outboxReceived, o.accountReceived} {
+		if value.IsZero() {
+			return failed(nil)
+		}
+		instant, err := foundation.NewInstant(value)
+		if err != nil {
+			return failed(err)
+		}
+		if err := instant.Validate(); err != nil {
+			return failed(err)
+		}
+		instants[i] = instant
+	}
+	snapshot := runtimeinfo.Snapshot{
+		ObservedAt: instants[0],
+		Database: runtimeinfo.DatabaseSnapshot{
+			Status: o.status(o.available, o.received),
+			LastSuccess: runtimeinfo.DatabaseSuccess{
+				CheckedAt: instants[1], ReceivedAt: instants[2],
+				PostgreSQLVersion: o.last.ServerVersion, PGVectorVersion: o.last.ExtensionVersion,
+			},
+		},
+		ObjectStorage: runtimeinfo.ObjectStorageSnapshot{Status: o.status(o.objectAvailable, o.objectReceived), LastSuccessReceivedAt: instants[3]},
+		Readiness: o.readiness(),
+	}
+	if err := snapshot.Validate(); err != nil {
+		return failed(err)
+	}
+	if err := ctx.Err(); err != nil {
+		return failed(err)
+	}
+	return snapshot, nil
+}
+
+func bindRuntimeInformation(factory runtimeInformationFactory, monitor *healthMonitor, owned *resources) (http.Handler, error) {
+	if factory == nil || owned == nil {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	source, err := newRuntimeInformationSource(monitor, owned.secret(), owned.outbound(), owned.objects(), owned.outbox(), owned.accounts())
+	if err != nil {
+		return nil, err
+	}
+	handler, err := factory(source)
+	if err != nil {
+		return nil, err
+	}
+	if runtimeInformationNil(handler) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	return handler, nil
+}
+
+func systemRuntimeInformationRoutes(next, runtimeHandler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == runtimeInformationPath || strings.HasPrefix(r.URL.Path, runtimeInformationPath+"/") {
+			runtimeHandler.ServeHTTP(w, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func runtimeInformationNil(value any) bool {
+	if value == nil {
+		return true
+	}
+	switch reflect.ValueOf(value).Kind() {
+	case reflect.Pointer, reflect.Interface, reflect.Func, reflect.Map, reflect.Slice, reflect.Chan:
+		return reflect.ValueOf(value).IsNil()
+	default:
+		return false
+	}
+}

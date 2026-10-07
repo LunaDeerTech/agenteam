@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "/dev/null",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace/internal/central/runtimeinfo/http/handler.go"
+  ],
+  "exit": 1,
+  "actual_wait_completed": true,
+  "expected_new_file_exit": 1
+}

@@ -1,0 +1,134 @@
+=== RUN   TestRuntimeInformationConstructionAndBindings
+=== RUN   TestRuntimeInformationConstructionAndBindings/nil-store
+=== RUN   TestRuntimeInformationConstructionAndBindings/typed-store
+=== RUN   TestRuntimeInformationConstructionAndBindings/nil-session
+=== RUN   TestRuntimeInformationConstructionAndBindings/typed-session
+=== RUN   TestRuntimeInformationConstructionAndBindings/nil-system
+=== RUN   TestRuntimeInformationConstructionAndBindings/typed-system
+=== RUN   TestRuntimeInformationConstructionAndBindings/nil-source
+=== RUN   TestRuntimeInformationConstructionAndBindings/typed-source
+--- PASS: TestRuntimeInformationConstructionAndBindings (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/nil-store (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/typed-store (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/nil-session (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/typed-session (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/nil-system (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/typed-system (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/nil-source (0.00s)
+    --- PASS: TestRuntimeInformationConstructionAndBindings/typed-source (0.00s)
+=== RUN   TestRuntimeInformationTransactionPublication
+--- PASS: TestRuntimeInformationTransactionPublication (0.00s)
+=== RUN   TestRuntimeInformationAuthorizationFailures
+=== RUN   TestRuntimeInformationAuthorizationFailures/zero-actor
+=== RUN   TestRuntimeInformationAuthorizationFailures/service-actor
+=== RUN   TestRuntimeInformationAuthorizationFailures/zero-tx
+=== RUN   TestRuntimeInformationAuthorizationFailures/lock
+=== RUN   TestRuntimeInformationAuthorizationFailures/session-revoked
+=== RUN   TestRuntimeInformationAuthorizationFailures/session-unbound
+=== RUN   TestRuntimeInformationAuthorizationFailures/session-unavailable
+=== RUN   TestRuntimeInformationAuthorizationFailures/unauthenticated
+=== RUN   TestRuntimeInformationAuthorizationFailures/ordinary-user
+=== RUN   TestRuntimeInformationAuthorizationFailures/system-unavailable
+=== RUN   TestRuntimeInformationAuthorizationFailures/empty-grant
+=== RUN   TestRuntimeInformationAuthorizationFailures/wrong-user
+=== RUN   TestRuntimeInformationAuthorizationFailures/wrong-session
+=== RUN   TestRuntimeInformationAuthorizationFailures/wrong-scope
+=== RUN   TestRuntimeInformationAuthorizationFailures/wrong-intent
+=== RUN   TestRuntimeInformationAuthorizationFailures/cancel-before
+=== RUN   TestRuntimeInformationAuthorizationFailures/cancel-after-lock
+=== RUN   TestRuntimeInformationAuthorizationFailures/cancel-after-session
+=== RUN   TestRuntimeInformationAuthorizationFailures/cancel-after-system
+--- PASS: TestRuntimeInformationAuthorizationFailures (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/zero-actor (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/service-actor (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/zero-tx (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/lock (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/session-revoked (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/session-unbound (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/session-unavailable (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/unauthenticated (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/ordinary-user (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/system-unavailable (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/empty-grant (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/wrong-user (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/wrong-session (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/wrong-scope (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/wrong-intent (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/cancel-before (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/cancel-after-lock (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/cancel-after-session (0.00s)
+    --- PASS: TestRuntimeInformationAuthorizationFailures/cancel-after-system (0.00s)
+=== RUN   TestRuntimeInformationSnapshotValidation
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-observed
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-checked
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-db-received
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-object-received
+=== RUN   TestRuntimeInformationSnapshotValidation/bad-db-status
+=== RUN   TestRuntimeInformationSnapshotValidation/bad-object-status
+=== RUN   TestRuntimeInformationSnapshotValidation/bad-readiness
+=== RUN   TestRuntimeInformationSnapshotValidation/empty-postgresql
+=== RUN   TestRuntimeInformationSnapshotValidation/empty-pgvector
+=== RUN   TestRuntimeInformationSnapshotValidation/long-postgresql
+=== RUN   TestRuntimeInformationSnapshotValidation/long-pgvector
+=== RUN   TestRuntimeInformationSnapshotValidation/tab
+=== RUN   TestRuntimeInformationSnapshotValidation/newline
+=== RUN   TestRuntimeInformationSnapshotValidation/nul
+=== RUN   TestRuntimeInformationSnapshotValidation/del
+=== RUN   TestRuntimeInformationSnapshotValidation/non-ascii
+=== RUN   TestRuntimeInformationSnapshotValidation/invalid-utf8
+--- PASS: TestRuntimeInformationSnapshotValidation (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-observed (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-checked (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-db-received (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-object-received (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/bad-db-status (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/bad-object-status (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/bad-readiness (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/empty-postgresql (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/empty-pgvector (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/long-postgresql (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/long-pgvector (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/tab (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/newline (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/nul (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/del (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/non-ascii (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/invalid-utf8 (0.00s)
+=== RUN   TestRuntimeInformationTransactionFailures
+=== RUN   TestRuntimeInformationTransactionFailures/unknown
+=== RUN   TestRuntimeInformationTransactionFailures/zero-result
+=== RUN   TestRuntimeInformationTransactionFailures/not-committed
+=== RUN   TestRuntimeInformationTransactionFailures/not-committed-nil-fault
+=== RUN   TestRuntimeInformationTransactionFailures/skipped-callback
+=== RUN   TestRuntimeInformationTransactionFailures/committed-source-error
+=== RUN   TestRuntimeInformationTransactionFailures/repeat-callback
+=== RUN   TestRuntimeInformationTransactionFailures/source-error
+=== RUN   TestRuntimeInformationTransactionFailures/cancel-after-source
+=== RUN   TestRuntimeInformationTransactionFailures/cancel-at-transaction-tail
+--- PASS: TestRuntimeInformationTransactionFailures (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/unknown (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/zero-result (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/not-committed (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/not-committed-nil-fault (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/skipped-callback (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/committed-source-error (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/repeat-callback (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/source-error (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/cancel-after-source (0.00s)
+    --- PASS: TestRuntimeInformationTransactionFailures/cancel-at-transaction-tail (0.00s)
+=== RUN   TestRuntimeInformationDeadlineAndActualTail
+=== RUN   TestRuntimeInformationDeadlineAndActualTail/local-three-seconds
+    service_test.go:627: natural deadline elapsed=3.000451962s earlier_parent=false source_calls=1 transaction_calls=1 active=0
+=== RUN   TestRuntimeInformationDeadlineAndActualTail/earlier-parent
+    service_test.go:627: natural deadline elapsed=75.529646ms earlier_parent=true source_calls=1 transaction_calls=1 active=0
+--- PASS: TestRuntimeInformationDeadlineAndActualTail (3.08s)
+    --- PASS: TestRuntimeInformationDeadlineAndActualTail/local-three-seconds (3.00s)
+    --- PASS: TestRuntimeInformationDeadlineAndActualTail/earlier-parent (0.08s)
+=== RUN   TestRuntimeInformationCancellationWaitsForLateCall
+=== RUN   TestRuntimeInformationCancellationWaitsForLateCall/authorization
+=== RUN   TestRuntimeInformationCancellationWaitsForLateCall/source
+--- PASS: TestRuntimeInformationCancellationWaitsForLateCall (0.00s)
+    --- PASS: TestRuntimeInformationCancellationWaitsForLateCall/authorization (0.00s)
+    --- PASS: TestRuntimeInformationCancellationWaitsForLateCall/source (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo	4.098s

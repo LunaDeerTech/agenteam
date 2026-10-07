@@ -1,0 +1,73 @@
+{
+  "status": "BLOCKED — P-RUNTIME-01, inconsistent cross-field Source is published",
+  "input_manifest": "372a0dbc346cca988bc3526a553e66c462a8d543072a3876e833cd8ae4193038",
+  "delivery2": {
+    "internal/central/runtimeinfo/service.go": {
+      "sha256": "0aa6c073f582bca75b031dfcb796a628b1a47170991b6f5343462073012f83c8",
+      "bytes": 7461,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/service_test.go": {
+      "sha256": "b6755239e91eacac76280296a7f81347eae42a2d3f163cf433bc363b33630dee",
+      "bytes": 26480,
+      "prior": "absent"
+    }
+  },
+  "cause": {
+    "service": "internal/central/runtimeinfo/service.go:53–80 validates statuses and readiness independently; 173/195 consequently publish a contradictory completed Source value",
+    "author_test": "service_test.go:439–456 currently accepts the full Cartesian product including failed/stale DB/Object with DEPENDENCY_UNBOUND",
+    "card": "accepted §3: any one of six foundation items unsatisfied requires DEPENDENCY_UNAVAILABLE; only all satisfied allows DEPENDENCY_UNBOUND"
+  },
+  "reproduction": {
+    "selector": "^TestIndependentRuntimeSnapshotCrossField$",
+    "cases": [
+      "database-stale",
+      "object-unavailable"
+    ],
+    "each_actual": {
+      "returned_nonzero": true,
+      "returned_error": false,
+      "source_calls": 1,
+      "transaction_ended": true
+    },
+    "private_fixture": "Actual production Service.New/GetSystem; controlled Store uses one valid Tx, exact User SH, current Session, matching System Read grant, one Source and actual synchronous WithinTx return. No HTTP/root assumption."
+  },
+  "minimal_fix": "Reject Snapshot when (Database.Status != Available || ObjectStorage.Status != Available) && Readiness != DependencyUnavailable; retain both readiness codes when both visible statuses are Available because four other foundations are not in this value. Do not infer age or add display-time ordering.",
+  "result": {
+    "actual_exit": 1,
+    "actual_wait": true,
+    "seconds": 0.9452484129997174,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "owned_processes_observed": 8,
+    "adopted_wait_count": 0,
+    "raw_sha256": "fb35b371a2d26720d5d5082be3a39c661005c832fb837dd52ed6c4484f76b925",
+    "cleanup_sha256": "c6c52a305cd7254c18710099cf8ce41d70901ee5d528fc90c2a6ecb9e2074b91"
+  },
+  "deferred": "Remaining independent natural deadline/earlier parent/held Source and Tx-tail combinations paused after this concrete product RED. Author passed suite remains author evidence, not independent acceptance.",
+  "limits": [
+    "No HTTP/app/native/PG/resources. Controlled Source demonstrates contract rejection gap, not a real root emitting this value.",
+    "Two sources and twelve frozen dependencies unchanged; no product/main/Git changes, no self-repair/retry.",
+    "Probe has no spawned goroutine; all calls reached actual synchronous transaction termination. Runner actual child wait, 8 PID/starttime double empty, 0 adopted, TMP removed."
+  ],
+  "references": {
+    "inputs01.json": "44b818b1d65afae8e8822a02487b0d890e7535dd46259f105679f52cbf323958",
+    "input01/manifest.json": "372a0dbc346cca988bc3526a553e66c462a8d543072a3876e833cd8ae4193038",
+    "input01/report.md": "f89ef7915f7f6392ae8dd460c28ac3118ed9b2b6890bfdfe8ae0c534a54b6ae0",
+    "input01/delivery2.json": "a1babfb68daf81a79dc65df590425d2254ceae22cc011b943422e95a6256d979",
+    "input01/candidate.diff": "ed726d2afc97383d0c63d3a42d03c1ddfb1d2cea356e3bfefd54fc47b39fa00a",
+    "execution01.json": "9cb484e3439b7728b74605b203b920ea6cb921df082c27fc70f5f0ffa1d75a32",
+    "probe01/crossfield_test.go": "a5b4172b070b1ce56448343b31fabeaf6e8be9c437717a84f6767b4dccc45bbc",
+    "overlay01.json": "d3c7596e97d78ce42b61995871730365a8d998f6b79f595a78706c2c67123a00",
+    "run_offline.py": "de44ee7794f6db88b6df8ce9e8e3643f3fd788b32fdc0180b6feff73201c3e8b",
+    "runs/crossfield01/command.json": "add5e86975a89410f2e845be88cfacded6535e497f03642f8660740b564f2f74",
+    "runs/crossfield01/raw.log": "fb35b371a2d26720d5d5082be3a39c661005c832fb837dd52ed6c4484f76b925",
+    "runs/crossfield01/result.json": "bec14a150dc975d497e5b80ec4ba8937d6cdf7293f75bb28e061b57f78e8e7a7",
+    "runs/crossfield01/cleanup.json": "c6c52a305cd7254c18710099cf8ce41d70901ee5d528fc90c2a6ecb9e2074b91",
+    "runs/crossfield01/input-before.json": "dd9f8bc5fa098a78f66c147c8c9e413d44aaaa6d3fa4e5de2142cbfd7f22e86d",
+    "runs/crossfield01/input-after.json": "dd9f8bc5fa098a78f66c147c8c9e413d44aaaa6d3fa4e5de2142cbfd7f22e86d"
+  }
+}

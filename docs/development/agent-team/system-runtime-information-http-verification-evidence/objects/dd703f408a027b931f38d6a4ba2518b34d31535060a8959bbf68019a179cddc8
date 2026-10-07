@@ -1,0 +1,302 @@
+{
+  "candidate_stage_manifest": {
+    "bytes": 93407,
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/manifest.json",
+    "sha256": "cc6cd929d391ad2fe771ef2dcdf5ec08ab38bc0f6b8ca151c959a2aeab461268"
+  },
+  "checks": {
+    "native-discovery01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "af32dc3df40a6c8d8f3f4ef50c8b8dd670697112d425f40c58b5710983948e7f",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 5,
+      "raw_sha256": "050d0b1389fb52fbf2802376d35f96f2588028d37865d69f8afa4584233e4bff",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/cleanup.json",
+          "sha256": "4387dd348549fbfa355597506ba0b95f5f95e4e992fe9c24bc12279e0e91d2fe"
+        },
+        "command.json": {
+          "bytes": 1315,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/command.json",
+          "sha256": "af32dc3df40a6c8d8f3f4ef50c8b8dd670697112d425f40c58b5710983948e7f"
+        },
+        "input-after.json": {
+          "bytes": 108192,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/input-after.json",
+          "sha256": "5f9643baed7a53e841d86734d8ef68bcfd23b6d610efca31fbbadbf2e5dec6af"
+        },
+        "input-before.json": {
+          "bytes": 108192,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/input-before.json",
+          "sha256": "5f9643baed7a53e841d86734d8ef68bcfd23b6d610efca31fbbadbf2e5dec6af"
+        },
+        "observed-processes.json": {
+          "bytes": 792,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/observed-processes.json",
+          "sha256": "b9a2458c4b1d019d8e64a82030d4667dcbc43fcff64d0e93addd8e8e4de7c323"
+        },
+        "raw.log": {
+          "bytes": 313,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/raw.log",
+          "sha256": "050d0b1389fb52fbf2802376d35f96f2588028d37865d69f8afa4584233e4bff"
+        },
+        "result.json": {
+          "bytes": 406,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/native-discovery01/result.json",
+          "sha256": "3564aa8a642545f90e991d3d24e85fd93dd33a714f16457b91f71d43eb04f9c8"
+        }
+      },
+      "seconds": 2.114,
+      "source_unchanged": true,
+      "timed_out": false
+    },
+    "runtime-gate01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "3da9576e1783b7a262718ab604b5d5a2eb56bacc31ee6e7e126dcebde35fa976",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 3,
+      "raw_sha256": "17c4b9f6d709e38430cfb2360ed892337d30fad8ab2b19dfb2f4cd66e160699c",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/cleanup.json",
+          "sha256": "db82a50535547b7783f5f1373a3679f473a0f484c682642470b9d4036f992304"
+        },
+        "command.json": {
+          "bytes": 1323,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/command.json",
+          "sha256": "3da9576e1783b7a262718ab604b5d5a2eb56bacc31ee6e7e126dcebde35fa976"
+        },
+        "input-after.json": {
+          "bytes": 108336,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/input-after.json",
+          "sha256": "4cf2f4dff78cb98d64533c17c829991c049fcb7343e2a241d2c3a40e360b8d09"
+        },
+        "input-before.json": {
+          "bytes": 108336,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/input-before.json",
+          "sha256": "4cf2f4dff78cb98d64533c17c829991c049fcb7343e2a241d2c3a40e360b8d09"
+        },
+        "observed-processes.json": {
+          "bytes": 467,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/observed-processes.json",
+          "sha256": "c1ba2c52a31a486ac05bb5d7e177991ff4e8c16e0f4f9aae4e588b840a127023"
+        },
+        "raw.log": {
+          "bytes": 237,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/raw.log",
+          "sha256": "17c4b9f6d709e38430cfb2360ed892337d30fad8ab2b19dfb2f4cd66e160699c"
+        },
+        "result.json": {
+          "bytes": 406,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-gate01/result.json",
+          "sha256": "fc44d71a5c282b5c7ffd6daf2e97b03871211f581774063baff4b145fd2e91e7"
+        }
+      },
+      "seconds": 1.272,
+      "source_unchanged": true,
+      "timed_out": false
+    },
+    "runtime-input01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "bfa6c4f5ed5e7c3f182e9e4ce64807a66ddf752dc3f3859d19edfa5995d78a2b",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 3,
+      "raw_sha256": "4550631003d0323ed93ceaa042926670083708f8b4bb5c8d89c082e5b1bec43d",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/cleanup.json",
+          "sha256": "9f58b8f24385bce2e910bc44ca8689b1d09f84e0b2e29f55327f7e79737399df"
+        },
+        "command.json": {
+          "bytes": 1036,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/command.json",
+          "sha256": "bfa6c4f5ed5e7c3f182e9e4ce64807a66ddf752dc3f3859d19edfa5995d78a2b"
+        },
+        "input-after.json": {
+          "bytes": 108338,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/input-after.json",
+          "sha256": "d4c87c182b687ceb410e929e4354da114982fadee1a1955b6f47eb8a8c23c66f"
+        },
+        "input-before.json": {
+          "bytes": 108338,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/input-before.json",
+          "sha256": "d4c87c182b687ceb410e929e4354da114982fadee1a1955b6f47eb8a8c23c66f"
+        },
+        "observed-processes.json": {
+          "bytes": 477,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/observed-processes.json",
+          "sha256": "96c8321be8b2b6f35029c135e338c6f354af58c3ad9620289a1af8e9183a3e7d"
+        },
+        "raw.log": {
+          "bytes": 295,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/raw.log",
+          "sha256": "4550631003d0323ed93ceaa042926670083708f8b4bb5c8d89c082e5b1bec43d"
+        },
+        "result.json": {
+          "bytes": 406,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/runtime-input01/result.json",
+          "sha256": "1aab03986ecbee5858258c03f9826efc8814dae211c3689c5c46af1fec161bfd"
+        }
+      },
+      "seconds": 1.333,
+      "source_unchanged": true,
+      "timed_out": false
+    }
+  },
+  "current_free_bytes_information_only": 5860474880,
+  "cwd": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace",
+  "driver": {
+    "bytes": 26605,
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+    "sha256": "b78846a88242665b3a8915a62c906ae78aaca3ebb3f1680d5c12413d6bf799f5"
+  },
+  "input": {
+    "bytes": 845036,
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/driver-stage01/input.json",
+    "sha256": "f09b717c15d2ad128785c6b41c9d1e169d50927740039319a74dc33d177e6d11"
+  },
+  "lifecycle": "same original driver: subreaper before child, process-group ownership, direct Popen.wait + actual adopted waitpid, exact ID absence twice, baseline unchanged, PID/starttime absence twice, empty owned runtime, source/runtime before-after equality. On cancellation signal only own existing fixture shell, wait its cleanup; no early outer kill or release.",
+  "new_real_evidence_boundaries": [
+    "Account: real PG/current authority/terminal with controlled Source and writer, not native network provenance",
+    "Root: actual source/cache and formal root; test timing interval1h solely separates background sampling, no production health algorithm changes"
+  ],
+  "not_authorized": [
+    "no test bodies",
+    "no listener",
+    "no Docker",
+    "no PG",
+    "no MinIO process",
+    "no browser"
+  ],
+  "preflight": [
+    "unused exact run name",
+    "read exact frozen hashes then --check-input-only gate",
+    "fresh disk >=2GiB native / >=5GiB PG twice (before gate and immediately before spawn)",
+    "PG baseline re-collected immediately before launch; canonical Mounts ordering; never delete baseline resources"
+  ],
+  "prep_failure": {
+    "bytes": 760,
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/preparation/runtime-closure01/tool-result.json",
+    "sha256": "4f349d295b2464d9b3baa5b80d06bb6d7547c5ade2820002f389e9a4e2043e91"
+  },
+  "status": "FROZEN PLAN ONLY; each resource window needs explicit root grant",
+  "topology": {
+    "agenteam.d03.fixture": {
+      "containers": 2,
+      "networks": 1
+    },
+    "agenteam.d04.networkfixture": {
+      "containers": 1,
+      "networks": 1
+    },
+    "agenteam.d05.objectfixture": {
+      "containers": 1,
+      "networks": 1
+    }
+  },
+  "windows": [
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+        "--name",
+        "native01",
+        "--group",
+        "native",
+        "--frozen",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "budgets": "-race -count=1 -timeout=45s; only owned loopback listeners",
+      "expected_resource_ids": 0,
+      "expected_top_levels": [
+        "TestRuntimeInformationHTTPNativeEOFAndKeepAlive",
+        "TestRuntimeInformationHTTPNativeSlowBodyBudgets",
+        "TestRuntimeInformationHTTPNativeWriteAndFlushAbort",
+        "TestDiagnosticRoutes"
+      ],
+      "group": "native",
+      "minimum_free_bytes": 2147483648,
+      "name": "native01",
+      "selector": "^(TestRuntimeInformationHTTPNativeEOFAndKeepAlive|TestRuntimeInformationHTTPNativeSlowBodyBudgets|TestRuntimeInformationHTTPNativeWriteAndFlushAbort|TestDiagnosticRoutes)$"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+        "--name",
+        "new-account01",
+        "--group",
+        "new-account",
+        "--frozen",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "budgets": "-race -count=1 -timeout=6m from unchanged fixture; each top<=2m",
+      "expected_resource_ids": 7,
+      "expected_top_levels": [
+        "TestSystemRuntimeInformationCurrentAuthorityAndTerminal"
+      ],
+      "group": "new-account",
+      "minimum_free_bytes": 5368709120,
+      "name": "new-account01",
+      "selector": "^(TestSystemRuntimeInformationCurrentAuthorityAndTerminal)$"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+        "--name",
+        "new-root01",
+        "--group",
+        "new-root",
+        "--frozen",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/driver-stage01/input.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--execute-authorized"
+      ],
+      "budgets": "-race -count=1 -timeout=6m from unchanged fixture; each top<=2m",
+      "expected_resource_ids": 7,
+      "expected_top_levels": [
+        "TestSystemRuntimeInformationRootSnapshotBinding"
+      ],
+      "group": "new-root",
+      "minimum_free_bytes": 5368709120,
+      "name": "new-root01",
+      "selector": "^(TestSystemRuntimeInformationRootSnapshotBinding)$"
+    }
+  ]
+}

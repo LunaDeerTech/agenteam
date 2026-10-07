@@ -1,0 +1,13 @@
+=== RUN   TestIndependentRuntimeSnapshotCrossField
+=== RUN   TestIndependentRuntimeSnapshotCrossField/database-stale
+    independent_crossfield_test.go:121: field=database-stale returned_nonzero=true returned_error=false source_calls=1 transaction_ended=true
+    independent_crossfield_test.go:123: inconsistent Source must return zero candidate and DEPENDENCY_UNAVAILABLE: a failed DB/Object foundation cannot imply DEPENDENCY_UNBOUND
+=== RUN   TestIndependentRuntimeSnapshotCrossField/object-unavailable
+    independent_crossfield_test.go:121: field=object-unavailable returned_nonzero=true returned_error=false source_calls=1 transaction_ended=true
+    independent_crossfield_test.go:123: inconsistent Source must return zero candidate and DEPENDENCY_UNAVAILABLE: a failed DB/Object foundation cannot imply DEPENDENCY_UNBOUND
+--- FAIL: TestIndependentRuntimeSnapshotCrossField (0.00s)
+    --- FAIL: TestIndependentRuntimeSnapshotCrossField/database-stale (0.00s)
+    --- FAIL: TestIndependentRuntimeSnapshotCrossField/object-unavailable (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo	0.010s
+FAIL

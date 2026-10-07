@@ -1,0 +1,64 @@
+{
+  "candidate_paths": 14,
+  "commands_are_documentation_only": true,
+  "format": {
+    "LF_only": true,
+    "added_lines_no_trailing_whitespace": true,
+    "fences_paired": true,
+    "final_newline": true,
+    "git_diff_check_diagnostics_empty": true,
+    "git_diff_no_index_check_exit": 1,
+    "no_index_exit1_is_expected_difference": true,
+    "sh_n_exit": 0,
+    "utf8": true
+  },
+  "main_13_match": true,
+  "main_written": false,
+  "new_links": [
+    {
+      "href": "../../../api/openapi/runtime-information.json",
+      "kind": "accepted_frozen_candidate",
+      "sha256": "9287f6f2119d777df5f5dcb956e690af3952689b034b90ba393d10f62b762988",
+      "target": "api/openapi/runtime-information.json"
+    },
+    {
+      "git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "href": "../work-items/d28-system-runtime-information-http.md",
+      "kind": "fixed_git",
+      "sha256": "8b0c321d839199e5d1b46069169364f51b33804047e9dd8deb62ea0c5016141b",
+      "target": "docs/development/work-items/d28-system-runtime-information-http.md"
+    }
+  ],
+  "readme_metadata": {
+    "after": {
+      "bytes": 38502,
+      "sha256": "670427cda0f7f5795478131e01a2fcdc6ea2a14b744db8d652e0b56ca07ff7b8"
+    },
+    "base": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+    "before": {
+      "bytes": 34810,
+      "sha256": "21a952ffc96c0b8ab81e71f28df35d14256097fc961fd2a2434be5c3cdbdaa48"
+    },
+    "diff_sha256": "8124050e848b51671e342d335bd6a2d8bfd9ec3da82f0dbdfef41bfad68977e3",
+    "path": "docs/development/backend/README.md"
+  },
+  "referenced_repository_tests_exist": {
+    "internal/central/app/app_test.go": [
+      "TestDiagnosticRoutes"
+    ],
+    "internal/central/app/runtime_information_process_test.go": [
+      "TestSystemRuntimeInformationRootSnapshotBinding"
+    ],
+    "internal/central/runtimeinfo/http/handler_test.go": [
+      "TestRuntimeInformationHTTPNativeEOFAndKeepAlive",
+      "TestRuntimeInformationHTTPNativeSlowBodyBudgets",
+      "TestRuntimeInformationHTTPNativeWriteAndFlushAbort"
+    ],
+    "tests/account/runtime_information_http_test.go": [
+      "TestSystemRuntimeInformationCurrentAuthorityAndTerminal"
+    ]
+  },
+  "resources_started": false,
+  "result": "PASS",
+  "unchanged_frozen_technical_files": 13
+}

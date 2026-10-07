@@ -1,0 +1,127 @@
+package runtimeinfo_test
+
+import (
+	"context"
+	"errors"
+	"testing"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	ri "github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+)
+
+type independentSource func(context.Context) (ri.Snapshot, error)
+
+func (f independentSource) Snapshot(ctx context.Context) (ri.Snapshot, error) { return f(ctx) }
+
+type independentAuthority struct {
+	t           *testing.T
+	actor       identity.Actor
+	tx          foundation.Tx
+	ctx         context.Context
+	held        bool
+	steps       []string
+	sourceCalls int
+}
+
+func (a *independentAuthority) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	if cause.Validate() != nil || cause.Details().Owner != "runtimeinfo.system-read" {
+		a.t.Fatal("unexpected technical cause")
+	}
+	a.tx, a.ctx = foundation.NewTx(), ctx
+	a.steps = append(a.steps, "transaction")
+	err := fn(ctx, a.tx)
+	a.steps = append(a.steps, "terminal")
+	if err != nil {
+		var fault *foundation.Fault
+		if !errors.As(err, &fault) {
+			a.t.Fatal("callback returned untyped failure")
+		}
+		return foundation.NotCommittedResult(fault)
+	}
+	return foundation.CommittedResult()
+}
+
+func (a *independentAuthority) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
+	want, err := foundation.UserLock(a.actor.Details().UserID)
+	if err != nil || ctx != a.ctx || tx != a.tx || !tx.Valid() || mode != foundation.Shared || foundation.CompareLockKeys(want, key) != 0 {
+		a.t.Fatal("missing exact User SH/current transaction")
+	}
+	a.held = true
+	a.steps = append(a.steps, "user-shared")
+	return nil
+}
+
+func (a *independentAuthority) RequireCurrentSession(ctx context.Context, tx foundation.Tx, actor identity.Actor) error {
+	if ctx != a.ctx || tx != a.tx || !a.held || !actor.Equal(a.actor) {
+		a.t.Fatal("current Session not bound to held transaction")
+	}
+	a.steps = append(a.steps, "current-session")
+	return nil
+}
+
+func (a *independentAuthority) AuthorizeSystem(ctx context.Context, tx foundation.Tx, actor identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
+	if ctx != a.ctx || tx != a.tx || !a.held || !actor.Equal(a.actor) || intent != identity.Read {
+		a.t.Fatal("incorrect System Read principal or transaction")
+	}
+	a.steps = append(a.steps, "system-grant")
+	when, err := foundation.ParseInstant("2026-10-06T00:00:00.000000Z")
+	if err != nil {
+		a.t.Fatal(err)
+	}
+	return identity.NewAccessGrant(actor, identity.SystemScope(), intent, when, 1)
+}
+
+func TestIndependentRuntimeSnapshotCrossField(t *testing.T) {
+	user, err := foundation.ParseID[identity.User]("01980000-0000-7000-8000-000000000001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	session, err := foundation.ParseID[identity.Session]("01980000-0000-7000-8000-000000000002")
+	if err != nil {
+		t.Fatal(err)
+	}
+	actor, err := identity.NewHuman(user, session)
+	if err != nil {
+		t.Fatal(err)
+	}
+	at, err := foundation.ParseInstant("2026-10-06T00:00:00.000000Z")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, field := range []string{"database-stale", "object-unavailable"} {
+		t.Run(field, func(t *testing.T) {
+			value := ri.Snapshot{
+				ObservedAt:    at,
+				Database:      ri.DatabaseSnapshot{Status: ri.Available, LastSuccess: ri.DatabaseSuccess{CheckedAt: at, ReceivedAt: at, PostgreSQLVersion: "17.8", PGVectorVersion: "0.8.2"}},
+				ObjectStorage: ri.ObjectStorageSnapshot{Status: ri.Available, LastSuccessReceivedAt: at},
+				Readiness:     foundation.DependencyUnbound,
+			}
+			if field == "database-stale" {
+				value.Database.Status = ri.Stale
+			} else {
+				value.ObjectStorage.Status = ri.Unavailable
+			}
+			a := &independentAuthority{t: t, actor: actor}
+			source := independentSource(func(ctx context.Context) (ri.Snapshot, error) {
+				if ctx != a.ctx || !a.held || len(a.steps) != 4 || a.steps[3] != "system-grant" {
+					t.Fatal("Source reached before authorization")
+				}
+				a.sourceCalls++
+				a.steps = append(a.steps, "source")
+				return value, nil
+			})
+			service, err := ri.New(a, a, a, source)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := service.GetSystem(context.Background(), actor)
+			var fault *foundation.Fault
+			typed := errors.As(err, &fault)
+			t.Logf("field=%s returned_nonzero=%t returned_error=%t source_calls=%d transaction_ended=%t", field, got != (ri.Snapshot{}), err != nil, a.sourceCalls, a.steps[len(a.steps)-1] == "terminal")
+			if got != (ri.Snapshot{}) || !typed || fault.Code != foundation.DependencyUnavailable {
+				t.Error("inconsistent Source must return zero candidate and DEPENDENCY_UNAVAILABLE: a failed DB/Object foundation cannot imply DEPENDENCY_UNBOUND")
+			}
+		})
+	}
+}

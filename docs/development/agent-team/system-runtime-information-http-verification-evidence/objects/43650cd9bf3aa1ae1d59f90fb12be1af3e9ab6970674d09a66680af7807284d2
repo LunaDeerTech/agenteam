@@ -1,0 +1,334 @@
+package runtimeinfo_test
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	ri "github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+)
+
+type finalStore struct {
+	*independentAuthority
+	tail   func(context.Context)
+	forced *foundation.CommitResult
+	causes []foundation.TransactionCause
+	active atomic.Bool
+}
+
+func (s *finalStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	d := cause.Details()
+	if cause.Validate() != nil || d.Kind != foundation.RecoveryCause || d.Owner != "runtimeinfo.system-read" || d.Primary.Validate() == nil || d.CheckpointRef != "" || len(d.Related) != 0 {
+		s.t.Fatal("read cause not a separate technical attempt")
+	}
+	if _, err := foundation.ParseID[struct{}](d.RecoveryRunID); err != nil {
+		s.t.Fatal("invalid read attempt ID")
+	}
+	s.causes = append(s.causes, cause)
+	s.active.Store(true)
+	defer s.active.Store(false)
+	s.tx, s.ctx, s.held = foundation.NewTx(), ctx, false
+	s.steps = append(s.steps, "transaction")
+	err := fn(ctx, s.tx)
+	s.steps = append(s.steps, "callback-ended")
+	if s.tail != nil {
+		s.tail(ctx)
+	}
+	s.steps = append(s.steps, "terminal")
+	if s.forced != nil {
+		return *s.forced
+	}
+	if err != nil {
+		var fault *foundation.Fault
+		if !errors.As(err, &fault) {
+			s.t.Fatal("untyped callback failure")
+		}
+		return foundation.NotCommittedResult(fault)
+	}
+	return foundation.CommittedResult()
+}
+
+type currentSessionFunc func(context.Context, foundation.Tx, identity.Actor) error
+
+func (f currentSessionFunc) RequireCurrentSession(c context.Context, x foundation.Tx, a identity.Actor) error {
+	return f(c, x, a)
+}
+
+type currentGrantFunc func(context.Context, foundation.Tx, identity.Actor, identity.AccessIntent) (identity.AccessGrant, error)
+
+func (f currentGrantFunc) AuthorizeSystem(c context.Context, x foundation.Tx, a identity.Actor, i identity.AccessIntent) (identity.AccessGrant, error) {
+	return f(c, x, a, i)
+}
+
+type finalFixture struct {
+	t           *testing.T
+	store       *finalStore
+	actor       identity.Actor
+	value       ri.Snapshot
+	sourceCalls atomic.Int32
+	sourceHook  func(context.Context) (ri.Snapshot, error)
+}
+
+func newFinalFixture(t *testing.T) *finalFixture {
+	u, err := foundation.ParseID[identity.User]("01980000-0000-7000-8000-000000000011")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := foundation.ParseID[identity.Session]("01980000-0000-7000-8000-000000000012")
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, err := identity.NewHuman(u, s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	at, err := foundation.ParseInstant("2026-10-06T01:00:00.000000Z")
+	if err != nil {
+		t.Fatal(err)
+	}
+	later, err := foundation.ParseInstant("2026-10-06T02:00:00.000000Z")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := &finalFixture{t: t, actor: a, value: ri.Snapshot{ObservedAt: at, Database: ri.DatabaseSnapshot{Status: ri.Available, LastSuccess: ri.DatabaseSuccess{CheckedAt: later, ReceivedAt: at, PostgreSQLVersion: " 17.8 ", PGVectorVersion: "0.8.2"}}, ObjectStorage: ri.ObjectStorageSnapshot{Status: ri.Available, LastSuccessReceivedAt: later}, Readiness: foundation.DependencyUnbound}}
+	f.store = &finalStore{independentAuthority: &independentAuthority{t: t, actor: a}}
+	return f
+}
+func (f *finalFixture) Snapshot(ctx context.Context) (ri.Snapshot, error) {
+	if ctx != f.store.ctx || !f.store.held || !f.store.tx.Valid() || !f.store.active.Load() || f.store.steps[len(f.store.steps)-1] != "system-grant" {
+		f.t.Fatal("Source not after same-Tx grant")
+	}
+	f.sourceCalls.Add(1)
+	f.store.steps = append(f.store.steps, "source")
+	if f.sourceHook != nil {
+		return f.sourceHook(ctx)
+	}
+	return f.value, nil
+}
+func (f *finalFixture) service(sessions identity.SessionAuthority, grants identity.SystemAuthority) *ri.Service {
+	if sessions == nil {
+		sessions = f.store
+	}
+	if grants == nil {
+		grants = f.store
+	}
+	s, err := ri.New(f.store, sessions, grants, f)
+	if err != nil {
+		f.t.Fatal(err)
+	}
+	if len(f.store.causes) != 0 || f.sourceCalls.Load() != 0 {
+		f.t.Fatal("constructor performed a read")
+	}
+	return s
+}
+
+type finalOutcome struct {
+	value ri.Snapshot
+	err   error
+}
+
+func startFinalCall(s *ri.Service, ctx context.Context, a identity.Actor) (<-chan finalOutcome, <-chan struct{}) {
+	done, joined := make(chan finalOutcome, 1), make(chan struct{})
+	go func() { defer close(joined); v, e := s.GetSystem(ctx, a); done <- finalOutcome{v, e} }()
+	return done, joined
+}
+func finalWait[T any](t *testing.T, ch <-chan T, limit time.Duration) T {
+	t.Helper()
+	timer := time.NewTimer(limit)
+	defer timer.Stop()
+	select {
+	case v := <-ch:
+		return v
+	case <-timer.C:
+		t.Fatal("controlled barrier not reached")
+		var zero T
+		return zero
+	}
+}
+func finalNotReturned(t *testing.T, done <-chan finalOutcome) {
+	t.Helper()
+	select {
+	case <-done:
+		t.Fatal("candidate/failure escaped before actual work returned")
+	default:
+	}
+}
+func finalFault(t *testing.T, out finalOutcome, code foundation.Code, state foundation.CommitState) *foundation.Fault {
+	t.Helper()
+	var fault *foundation.Fault
+	if out.value != (ri.Snapshot{}) || !errors.As(out.err, &fault) || fault.Code != code || fault.CommitState != state {
+		t.Fatal("zero candidate or typed terminal status lost")
+	}
+	return fault
+}
+
+func TestIndependentRuntimePublicationAndCurrentGrant(t *testing.T) {
+	t.Run("commit-tail-and-fresh-value", func(t *testing.T) {
+		f := newFinalFixture(t)
+		entered, release := make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		f.store.tail = func(context.Context) { close(entered); <-release }
+		s := f.service(nil, nil)
+		ctx, cancel := context.WithCancel(context.Background())
+		done, joined := startFinalCall(s, ctx, f.actor)
+		t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); finalWait(t, joined, time.Second) })
+		finalWait(t, entered, time.Second)
+		finalNotReturned(t, done)
+		if !f.store.active.Load() || f.sourceCalls.Load() != 1 {
+			t.Fatal("actual Tx/Source ownership lost")
+		}
+		once.Do(func() { close(release) })
+		out := finalWait(t, done, time.Second)
+		finalWait(t, joined, time.Second)
+		if out.err != nil || out.value != f.value || f.store.active.Load() {
+			t.Fatal("complete committed value was changed or missing")
+		}
+		want := []string{"transaction", "user-shared", "current-session", "system-grant", "source", "callback-ended", "terminal"}
+		if !reflect.DeepEqual(f.store.steps, want) {
+			t.Fatal("same-Tx order changed")
+		}
+		out.value.Database.LastSuccess.PostgreSQLVersion = "caller-mutation"
+		f.value.Database.LastSuccess.PostgreSQLVersion = "18.1"
+		f.value.Readiness = foundation.DependencyUnavailable
+		f.store.tail = nil
+		next, err := s.GetSystem(context.Background(), f.actor)
+		if err != nil || next != f.value || f.sourceCalls.Load() != 2 || len(f.store.causes) != 2 || f.store.causes[0].Details().RecoveryRunID == f.store.causes[1].Details().RecoveryRunID {
+			t.Fatal("fresh observation or unique read attempt lost")
+		}
+		t.Log("same_tx=true user_shared=true current_grant=true source_once_per_read=true actual_tail=true both_available_both_readiness=true no_cache_alias=true")
+	})
+	t.Run("unknown-terminal-after-complete-source", func(t *testing.T) {
+		f := newFinalFixture(t)
+		entered, release := make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		unknown := foundation.CommitResult{}
+		f.store.forced = &unknown
+		f.store.tail = func(context.Context) { close(entered); <-release }
+		ctx, cancel := context.WithCancel(context.Background())
+		done, joined := startFinalCall(f.service(nil, nil), ctx, f.actor)
+		t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); finalWait(t, joined, time.Second) })
+		finalWait(t, entered, time.Second)
+		finalNotReturned(t, done)
+		once.Do(func() { close(release) })
+		out := finalWait(t, done, time.Second)
+		finalWait(t, joined, time.Second)
+		finalFault(t, out, foundation.CommitUnknown, foundation.Unknown)
+		if f.sourceCalls.Load() != 1 || f.store.active.Load() {
+			t.Fatal("Unknown retained candidate or active Tx")
+		}
+	})
+	t.Run("current-session-and-wrong-grant-before-source", func(t *testing.T) {
+		for _, phase := range []string{"session", "grant"} {
+			f := newFinalFixture(t)
+			var sessions identity.SessionAuthority
+			var grants identity.SystemAuthority
+			code := foundation.SessionRevoked
+			if phase == "session" {
+				sessions = currentSessionFunc(func(ctx context.Context, tx foundation.Tx, a identity.Actor) error {
+					if e := f.store.RequireCurrentSession(ctx, tx, a); e != nil {
+						return e
+					}
+					return foundation.NewFault(foundation.SessionRevoked, foundation.NotStarted)
+				})
+			} else {
+				code = foundation.DependencyUnavailable
+				grants = currentGrantFunc(func(ctx context.Context, tx foundation.Tx, a identity.Actor, i identity.AccessIntent) (identity.AccessGrant, error) {
+					if _, e := f.store.AuthorizeSystem(ctx, tx, a, i); e != nil {
+						return identity.AccessGrant{}, e
+					}
+					return identity.NewAccessGrant(a, identity.SystemScope(), identity.Mutate, f.value.ObservedAt, 1)
+				})
+			}
+			v, e := f.service(sessions, grants).GetSystem(context.Background(), f.actor)
+			finalFault(t, finalOutcome{v, e}, code, foundation.NotCommitted)
+			if f.sourceCalls.Load() != 0 || f.store.active.Load() {
+				t.Fatal("rejected authority reached Source")
+			}
+		}
+	})
+}
+
+func TestIndependentRuntimeDeadlineActualTail(t *testing.T) {
+	for _, early := range []bool{false, true} {
+		name := "natural-three-seconds-source-tail"
+		if early {
+			name = "earlier-parent-committed-tail"
+		}
+		t.Run(name, func(t *testing.T) {
+			f := newFinalFixture(t)
+			entry := make(chan context.Context, 1)
+			expired := make(chan struct{})
+			sourceRelease, txRelease, txEntered := make(chan struct{}), make(chan struct{}), make(chan struct{})
+			var sourceOnce, txOnce sync.Once
+			var sourceActive atomic.Bool
+			budget := 10 * time.Second
+			if early {
+				budget = 75 * time.Millisecond
+			}
+			parent, cancel := context.WithTimeout(context.Background(), budget)
+			parentDeadline, _ := parent.Deadline()
+			if early {
+				f.store.tail = func(ctx context.Context) { entry <- ctx; close(txEntered); <-ctx.Done(); close(expired); <-txRelease }
+			} else {
+				f.sourceHook = func(ctx context.Context) (ri.Snapshot, error) {
+					sourceActive.Store(true)
+					defer sourceActive.Store(false)
+					entry <- ctx
+					<-ctx.Done()
+					close(expired)
+					<-sourceRelease
+					return f.value, nil
+				}
+				f.store.tail = func(context.Context) { close(txEntered); <-txRelease }
+			}
+			before := time.Now()
+			done, joined := startFinalCall(f.service(nil, nil), parent, f.actor)
+			t.Cleanup(func() {
+				cancel()
+				sourceOnce.Do(func() { close(sourceRelease) })
+				txOnce.Do(func() { close(txRelease) })
+				finalWait(t, joined, time.Second)
+			})
+			observed := finalWait(t, entry, time.Second)
+			entered := time.Now()
+			deadline, ok := observed.Deadline()
+			if !ok || observed != f.store.ctx || (early && !deadline.Equal(parentDeadline)) || (!early && (deadline.Before(before.Add(3*time.Second)) || deadline.After(entered.Add(3*time.Second)))) {
+				t.Fatal("local budget or earlier parent extended")
+			}
+			finalWait(t, expired, 4*time.Second)
+			if observed.Err() != context.DeadlineExceeded || (!early && parent.Err() != nil) || time.Now().Before(deadline) || !f.store.active.Load() {
+				t.Fatal("natural deadline not observed in active actual transaction")
+			}
+			finalNotReturned(t, done)
+			if !early {
+				if !sourceActive.Load() {
+					t.Fatal("Source already lost before release")
+				}
+				sourceOnce.Do(func() { close(sourceRelease) })
+				finalWait(t, txEntered, time.Second)
+				if sourceActive.Load() {
+					t.Fatal("Source did not actually return")
+				}
+				finalNotReturned(t, done)
+			}
+			txOnce.Do(func() { close(txRelease) })
+			out := finalWait(t, done, time.Second)
+			finalWait(t, joined, time.Second)
+			state := foundation.NotCommitted
+			if early {
+				state = foundation.NotStarted
+			}
+			finalFault(t, out, foundation.DependencyUnavailable, state)
+			if !errors.Is(out.err, context.DeadlineExceeded) || f.store.active.Load() || sourceActive.Load() || f.sourceCalls.Load() != 1 || len(f.store.causes) != 1 {
+				t.Fatal("deadline tail did not join, retried, or cause was lost")
+			}
+			t.Logf("earlier_parent=%t elapsed=%s deadline_exceeded=true source_once=true actual_source_and_tx_join=true zero_candidate=true", early, time.Since(before))
+		})
+	}
+}

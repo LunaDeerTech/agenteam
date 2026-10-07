@@ -1,0 +1,29 @@
+# Runtime information HTTP 独立最终验收
+
+**PASS，限定于冻结的13技术源。** 独立 A02/B/C 阶段、D 静审及本次两个真实代表已闭合；作者已验 native 与其余正式入口按同字节输入复用。无 main、README 或产品改写，不扩为整个 D28/Project/UI 或原停止任务的接受。
+
+固定产品 b124650；作者 harness-stage01 manifest `cc6cd929d391ad2fe771ef2dcdf5ec08ab38bc0f6b8ca151c959a2aeab461268`，实际 driver 输入 f09b717…6d11 的13候选/904固定Git依赖/3501运行文件，独立只增加两test与overlay共3文件。实际 cwd 为作者冻结 workspace。精确13路径/源SHA见本根 `delivery13.json`，每个 source 与最终执行输入逐字相等。
+
+`runs/independent01` 原精确两top同轮实际通过：
+
+- `TestIndependentRuntimeCurrentAuthorityAndTerminal`：2.52s，两个子例均到达。真实 PG 上同 Tx User SH/current Session/System Read grant/Source 恰一次；候选完成后的实际事务尾部，独立 writer status/body/flush 都为零。正式 Logout EX 经 pg_blocking_pids 实际阻塞，read Committed 后释放并实际 join，后继同 Session 401。400ms更早parent自然到期时仍未释放实际尾部，随后显式release、NotCommitted、handler/callback join、零发布，deadline已清。Source/ResponseWriter是受控协作者，**不称真实健康或 TCP 提交前零字节**。
+- `TestIndependentRuntimeRootCacheAndCompatibility`：1.95s。原 app/root、同 factory/Source/core、原 Check 仅计数后委托；一个 TCP 连接实际顺序 Runtime→Session→Runtime→ready503，四次完整EOF/Close、安全headers和唯一canonical RequestID通过。每 GET 一次T/一个真实Committed/零新增Check，正式PG版本和原last_success保持，闭合DTO及六项ready相符，client实际Close及原root正常关闭join。只测试内1h采样窗隔离后台tick，生产10s/2s/20s未变；无新的Object生命周期或故障注入。
+
+driver实际 exit0/48.663s，工具session8543实际终局exit0。两次fresh磁盘门槛通过；7个精确nonce归属ID两扫absent、74 owned PID/starttime两扫空、0 adopted、monitor errors0、runtime空；原baseline完整Mount对象及13/904/3504输入前后一致。原预算2m/top、6m/pkg、race/count1不变。结束时可用5,499,072,512B。原历史非本任务进程仅记录，未处置或称回收。
+
+核心原件 SHA：
+
+- raw.log `0c34aab5cb4a1a473cda39bcf92c0f9bfa0607f0f203993419f997bfc3812824`
+- result.json `f6b34289633fff16f86113302b42a773876a7b97fd19453c1734259d41ff5cbf`
+- command.json `dd6ff02350461a25bfe2b8bce7340d39340787817a613b44b99c4df953969890`
+- cleanup.json `ebf860c80f54f73f2d066a285137680d3a658d5ca0e69e92650a80db45a938e9`
+- input-before/after 同为 `c4a9737f4c554af377e1837bc188a606a4c0041d645009ac22db667145d2ab31`
+
+阶段复用来源与原失败保留：
+
+- A02：`agenteam-runtime-service-independent-lzgvb7n_/verification-report.md` SHA6532d461…b1395。A01 DB/Object非available却DependencyUnbound原产品RED保留；相同原probe修后GREEN，加独立同Tx/提交状态/自然3s与更早parent/held实际tail。有受控Unknown，不伪造真实PG Unknown。
+- HTTP B：`agenteam-runtime-http-independent-0dnsont_/verification-report.md` SHA00df09ef…65e23。原正式Boundary次序、预认证起预算、受控Close/callback/Flush/取消join、合法3690B与synthetic16384/16385、schema原证据复用；原生TCP取消另由作者native02实际4top（含旧DiagnosticRoutes）佐证，不能相互冒用。
+- app C：`agenteam-runtime-app-independent-sapko6kb/verification-report.md` SHA2606689b…a34c。一次T/20s/失败历史/六项ready/同Store构造及后置失败清理已受控证明；作者原POST缺Origin403测试前提失败仍保留。D原作者Account各权/DB1s/普通账户与root旧API矩阵直接按未变源复用，不重复。
+- 作者真实汇总 `agenteam-runtime-information-author-vE8bAGLk/real-stage01/report.md` SHA010db96a…d22b：native02四top、新Account六sub、新root各实际通过并双清；native01裸python门禁失败没有测试spawn的原限制保留。本独立从离线到真实始终精确/usr/bin/python3（固定3.13）。
+
+本根 preparation-ready01、原probe/overlay/driver、每个离线与实际run全部永久保留。完整引用/逐项SHA在 `verification-report.json`。唯一资源窗已交回；不追加业务轮。

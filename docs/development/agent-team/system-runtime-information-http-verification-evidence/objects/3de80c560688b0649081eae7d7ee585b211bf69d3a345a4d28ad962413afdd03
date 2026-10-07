@@ -1,0 +1,20 @@
+{
+  "actual_exit": 1,
+  "actual_wait_returned": true,
+  "elapsed_seconds": "not captured before prelaunch driver failure",
+  "invocation": [
+    "python3",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+    "--name",
+    "native01",
+    "--group",
+    "native",
+    "--frozen",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/driver-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ],
+  "tool_exec_session": 55062,
+  "tool_output": "Traceback (most recent call last):\n  File \"/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py\", line 454, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File \"/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py\", line 338, in main\n    raise RuntimeError('candidate source/runtime differs from frozen input')\nRuntimeError: candidate source/runtime differs from frozen input\n"
+}

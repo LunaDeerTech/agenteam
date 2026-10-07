@@ -1,0 +1,93 @@
+{
+  "candidate_files": {
+    "internal/central/runtimeinfo/service.go": {
+      "sha256": "0aa6c073f582bca75b031dfcb796a628b1a47170991b6f5343462073012f83c8",
+      "bytes": 7461,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/service_test.go": {
+      "sha256": "b6755239e91eacac76280296a7f81347eae42a2d3f163cf433bc363b33630dee",
+      "bytes": 26480,
+      "prior": "absent"
+    }
+  },
+  "manifest_sha256": "372a0dbc346cca988bc3526a553e66c462a8d543072a3876e833cd8ae4193038",
+  "delivery_sha256": "a1babfb68daf81a79dc65df590425d2254ceae22cc011b943422e95a6256d979",
+  "diff_sha256": "ed726d2afc97383d0c63d3a42d03c1ddfb1d2cea356e3bfefd54fc47b39fa00a",
+  "checks": {
+    "pure01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/result.json",
+      "result_sha256": "05a41d4a0f2f2283c39aacd7ddba0e4fcfe2150e8c10cae7909ab18c0d84035b",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/command.json",
+      "command_sha256": "f793b458a7eb8984ba31b189fad586b333d8164cd5f94b2f7746d55143e30f2b",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/raw.log",
+      "raw_sha256": "8c70a44cb38f47ef7b8d51e8038cd53ffcc9f95db398d3a8effba3e7b69ed706",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/cleanup.json",
+      "cleanup_sha256": "5305dc26848c4ed7e153341fde4740a058d831071f9b13819ce01f306eaf9232",
+      "exit": 0,
+      "seconds": 4.78,
+      "observed_pids": 36,
+      "adopted_waits": 0
+    },
+    "race01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/result.json",
+      "result_sha256": "ac903e58894c77330a49d3d6b271394a676b06e8c870f33228212fdbbc357846",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/command.json",
+      "command_sha256": "9da577e97ad4df2448a7e2ff710454bb6c16a558cdd3737583f4f66603e993aa",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/raw.log",
+      "raw_sha256": "aba4dffce9bc24ef9a7fce7e579fbdc412c9b9b0cc1271ad4a02f355b29f4c74",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/cleanup.json",
+      "cleanup_sha256": "2d92a0bafbf52a443530ec2913d2bcb0fd1ae7d9dc2b1346e11d43caa2d9b520",
+      "exit": 0,
+      "seconds": 5.075,
+      "observed_pids": 9,
+      "adopted_waits": 0
+    },
+    "vet01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/result.json",
+      "result_sha256": "f3e77f853f00fab5800c82275bd75a7be13ee3f06d07543243d5203d1118c220",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/command.json",
+      "command_sha256": "0ad264bf83295193b5b30c7e8bf8f7b2a500aea048906e5048939e74bc300541",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/cleanup.json",
+      "cleanup_sha256": "fcf37c49ffad0d8f6818d9ffc87f2d0422b37f66e6eb76a3e5428dde63a00411",
+      "exit": 0,
+      "seconds": 0.138,
+      "observed_pids": 1,
+      "adopted_waits": 0
+    },
+    "formatcheck01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/result.json",
+      "result_sha256": "a51a67161dd693f9b028780e3aa9bcdbfd585967a27fc266a163abbae7f41772",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/command.json",
+      "command_sha256": "7b2bf22b0df108a4115f60ec29677a7ab83a8880816130dc80ab15540f6bc805",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/cleanup.json",
+      "cleanup_sha256": "78618453edba106703ee02d5f40c83fc02f5addf5067ed0522351101604c3a08",
+      "exit": 0,
+      "seconds": 0.012,
+      "observed_pids": 1,
+      "adopted_waits": 0
+    }
+  },
+  "counts_each_unit_and_race": {
+    "top": 7,
+    "sub": 58
+  },
+  "source_frozen": true,
+  "limitations": [
+    "Author Stage A only, not independent acceptance",
+    "No HTTP/root/harness/16KiB encoder/schema/native/PG/MinIO/Docker/listener executed",
+    "App Source still owns raw cached-health completeness, single monotonic T and readiness computation; finite service snapshot validates projected fields",
+    "Default Foundation zero Instant explicitly rejected; no display-time ordering constraint",
+    "No product test failed: preparation had nonexistent fixed-source path lookups, a missing runner parent directory before Popen, and a packaging assertion misreading new-file Git diff exit 1. Originals retained; format01 changed formatting only."
+  ],
+  "failures": {
+    "preparation_notes": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/preparation-notes.json",
+    "runner_directory": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/preparation/runner-directory01/result.json",
+    "freeze_assertion": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/preparation/freeze01.json"
+  },
+  "source_and_runtime_fixed": true
+}

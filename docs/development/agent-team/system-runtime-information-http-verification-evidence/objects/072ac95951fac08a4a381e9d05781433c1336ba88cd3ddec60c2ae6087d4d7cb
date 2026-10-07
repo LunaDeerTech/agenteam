@@ -1,0 +1,77 @@
+import ctypes,hashlib,importlib.util,json,os,signal,subprocess,sys,time
+from pathlib import Path
+R=Path(__file__).resolve().parent
+W=R/'workspace'
+OLD=Path('/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture02.py')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+assert sha(OLD)=='67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034'
+sys.dont_write_bytecode=True
+spec=importlib.util.spec_from_file_location('prior_audit_driver',OLD)
+previous=importlib.util.module_from_spec(spec);spec.loader.exec_module(previous)
+if ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)!=0:raise RuntimeError('subreaper')
+write=previous.write
+name=sys.argv[1];argv=sys.argv[2:]
+assert argv and Path(argv[0]).is_absolute()
+formatting=argv[0]=='/workspace/toolchains/go1.27.1/bin/gofmt' and '-w' in argv
+assert (argv[0]=='/workspace/toolchains/go1.27.1/bin/go' and argv[1] in ['test','vet','list'] and argv[-1]=='./internal/central/app') or argv[0]=='/workspace/toolchains/go1.27.1/bin/gofmt'
+if argv[0]=='/workspace/toolchains/go1.27.1/bin/go' and argv[1]=='test':
+ if '-list' in argv:
+  assert '-run' in argv and argv[argv.index('-run')+1]=='^$' and argv[argv.index('-list')+1]=='^Test(DiagnosticRoutes|RuntimeInformationRootPure.*|HealthSnapshotsExpireRecoverAndRejectLateSuccess)$'
+ else:
+  assert '-run' in argv and argv[argv.index('-run')+1] in ['^(TestRuntimeInformationRootPure.*|TestHealthSnapshotsExpireRecoverAndRejectLateSuccess)$','^TestRuntimeInformationRootPureRoutesAndFormalBoundary$']
+out=R/'runs'/name;out.mkdir()
+tmp=out/'tmp';tmp.mkdir()
+env={k:v for k,v in os.environ.items() if not k.startswith('AGENTEAM_')}
+env.update({'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOMODCACHE':'/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache','GOCACHE':'/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache','TMPDIR':str(tmp),'GOTMPDIR':str(tmp),'GOFLAGS':'-mod=readonly -buildvcs=false -p=2','CGO_ENABLED':'1'})
+keys=['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','TMPDIR','GOTMPDIR','GOFLAGS','CGO_ENABLED']
+binding=json.loads((R/'app-baseline.json').read_text())
+baseline={**binding['files'],**binding['read_only_A02_B']}
+candidates=binding['candidate_paths']
+def inputs():
+ files={n:sha(W/n) for n in [*baseline,*candidates]}
+ for n,meta in baseline.items():
+  assert files[n]==meta['sha256'],n
+ tools={str(OLD):sha(OLD),str(Path(__file__)):sha(Path(__file__)),str(Path(argv[0]).resolve()):sha(Path(argv[0]).resolve())}
+ for tool in ['VERSION','pkg/tool/linux_amd64/compile','pkg/tool/linux_amd64/asm','pkg/tool/linux_amd64/link','pkg/tool/linux_amd64/vet']:
+  path=Path('/workspace/toolchains/go1.27.1')/tool;tools[str(path)]=sha(path)
+ if len(argv)>1 and Path(argv[1]).is_absolute() and Path(argv[1]).is_file():tools[argv[1]]=sha(Path(argv[1]))
+ return {'files':files,'tools':tools,'fixed_git':'b124650aee095b26191bc181dc8cf5d6e0f977f5'}
+before=inputs();write(out/'input-before.json',before)
+for n in candidates:
+ p=out/'source'/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((W/n).read_bytes())
+proc_before=previous.processes()
+write(out/'process-baseline.json',{p:{k:v[k] for k in ['ppid','starttime','state','name','executable']} for p,v in proc_before.items()})
+record={'argv':argv,'cwd':str(W),'env':{k:env[k] for k in keys},'limit_seconds':45,'started_utc':previous.utc()}
+write(out/'command.json',record)
+observed={};waited=[];timed_out=False;start=time.monotonic()
+with (out/'raw.log').open('wb') as raw:
+ proc=subprocess.Popen(argv,cwd=W,env=env,stdout=raw,stderr=subprocess.STDOUT,start_new_session=True)
+ print(json.dumps({'run':name,'pid':proc.pid,'argv':argv}),flush=True)
+ while True:
+  current=previous.processes();owned={proc.pid}|{p for p,v in current.items() if v['ppid']==os.getpid()}
+  for _ in range(12):
+   larger=owned|{p for p,v in current.items() if v['ppid'] in owned}
+   if larger==owned:break
+   owned=larger
+  for p in owned:
+   if p in current:
+    v=current[p];observed[str(p)+':'+v['starttime']]={'pid':p,**{k:v[k] for k in ['ppid','starttime','state','name','executable']}}
+  previous.reap_adopted(observed,proc.pid,waited)
+  if proc.poll() is not None:break
+  if time.monotonic()-start>=45 and not timed_out:
+   timed_out=True;os.killpg(proc.pid,signal.SIGTERM)
+  if timed_out and time.monotonic()-start>=46:os.killpg(proc.pid,signal.SIGKILL)
+  time.sleep(.03)
+ code=proc.wait()
+record.update({'exit':code,'seconds':round(time.monotonic()-start,3),'actual_wait_completed':True,'ended_utc':previous.utc(),'timed_out':timed_out})
+write(out/'command.json',record)
+clean=[]
+for _ in range(2):
+ previous.reap_adopted(observed,proc.pid,waited);current=previous.processes()
+ clean.append({'time':previous.utc(),'owned_processes':[v for v in observed.values() if v['pid'] in current and current[v['pid']]['starttime']==v['starttime']],'runtime_entries':sorted(p.name for p in tmp.iterdir())})
+ time.sleep(.15)
+write(out/'cleanup.json',clean);write(out/'observed-processes.json',observed);write(out/'adopted-waits.json',waited)
+after=inputs();write(out/'input-after.json',after)
+result={'format_only_allowed_input_change':formatting,'exit':code,'seconds':record['seconds'],'actual_wait_completed':True,'timed_out':timed_out,'source_unchanged':before==after,'double_cleanup':all(not x['owned_processes'] and not x['runtime_entries'] for x in clean),'observed_pids':len(observed),'adopted_waits':len(waited),'raw_sha256':sha(out/'raw.log'),'command_sha256':sha(out/'command.json')}
+write(out/'result.json',result);print(json.dumps(result),flush=True)
+sys.exit(code if code else 0 if result['double_cleanup'] and (before==after or formatting) and not timed_out else 1)

@@ -1,0 +1,11 @@
+--- app-pure01/runtime_information_test.go
++++ candidate/runtime_information_test.go
+@@ -711,7 +711,7 @@
+ 		code                            string
+ 	}{
+ 		{runtimeInformationPath, "", "GET", "", "", 401, "UNAUTHENTICATED"},
+-		{runtimeInformationPath, "", "POST", "", "", 405, "METHOD_NOT_ALLOWED"},
++		{runtimeInformationPath, "", "POST", "http://localhost:8080", "", 405, "METHOD_NOT_ALLOWED"},
+ 		{runtimeInformationPath, "", "HEAD", "", "", 405, "METHOD_NOT_ALLOWED"},
+ 		{runtimeInformationPath + "/", "", "GET", "", "", 400, "INVALID_ARGUMENT"},
+ 		{runtimeInformationPath + "//child", "", "GET", "", "", 400, "INVALID_ARGUMENT"},

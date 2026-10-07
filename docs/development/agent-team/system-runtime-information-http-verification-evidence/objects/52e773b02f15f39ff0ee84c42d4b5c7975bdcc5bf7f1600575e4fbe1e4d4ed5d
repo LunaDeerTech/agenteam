@@ -1,0 +1,9 @@
+# Runtime information 第14末件
+
+仅私有修改 `docs/development/backend/README.md`，基于固定 aa9ea0b63de0c395525f3084ef514752ce2f1dfd。添加局部章节，说明唯一 GET、当前授权/实际终局、3s/16KiB、原缓存/历史版本和非 ready 边界，并列出精确生产测试命令及作者/独立证据范围。其余 README 字节不变，13技术源逐 SHA 核验与已接受输入和主线程复制后的 main 相同。
+
+原/候选 SHA、字节和精确差量见 metadata.json 与 README.diff；完整交付位置和逐 SHA 见 delivery14.json。检查见 checks.json：两新增链接分别绑定现存正式卡及接受的 OpenAPI 候选；LF/UTF-8/末换行/新增行空白、代码围栏、shell 语法均通过，六个生产测试名均在精确源码中存在。git diff --no-index --check 实际 exit1 且无诊断，表示存在预期差量；初次私有 checker 误要求0、第二次误猜旧诊断测试文件位置的准备失败另列 preparation-check01/02，候选未变，不冒产品红或将原退出改为0。未运行测试、编译或资源，没有写主树。
+
+独立最终依据为 /workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/verification-report.md，SHA 669e35b0178555a5b3acb60d39d3139711bd4697e6cd045882f100eba8d07793。产品 README 不链接私有报告或尚不存在的永久归档；受控 Source/writer 与实际 TCP 两类证据明确分列，原解释器前提失败保持。
+
+本目录文档、检查和清单至此冻结；后续 main 编译发现将在独立 main-integration01 中记录，不回写本目录。

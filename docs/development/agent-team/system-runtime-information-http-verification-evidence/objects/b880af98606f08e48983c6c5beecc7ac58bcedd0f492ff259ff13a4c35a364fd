@@ -1,0 +1,50 @@
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/POST/api/v1/system/runtime-informationhttp://localhost:8080
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/HEAD/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information//child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/../session
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child/api/v1/system/runtime-information%2fchild
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/http://other.invalid
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/other.invalid
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information/child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-informationx
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information-other
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/session
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/me
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/smtp-settings
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/mail-jobs
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-providers
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/models/child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-selection
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/outbound-policy
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/audit
+--- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary (0.01s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/POST/api/v1/system/runtime-informationhttp://localhost:8080 (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/HEAD/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/ (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information//child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/../session (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child/api/v1/system/runtime-information%2fchild (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/http://other.invalid (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/other.invalid (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information/child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-informationx (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information-other (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/session (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/me (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/smtp-settings (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/mail-jobs (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-providers (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/models/child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-selection (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/outbound-policy (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/audit (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	0.016s

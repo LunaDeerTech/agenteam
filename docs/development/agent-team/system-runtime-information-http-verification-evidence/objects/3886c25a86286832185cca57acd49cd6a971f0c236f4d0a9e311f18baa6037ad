@@ -1,0 +1,34 @@
+{
+  "408602:1594583": {
+    "executable": "",
+    "name": "go",
+    "pid": 408602,
+    "ppid": 408599,
+    "starttime": "1594583",
+    "state": "Z"
+  },
+  "408627:1594594": {
+    "executable": "compile",
+    "name": "compile",
+    "pid": 408627,
+    "ppid": 408602,
+    "starttime": "1594594",
+    "state": "R"
+  },
+  "408653:1594647": {
+    "executable": "compile",
+    "name": "compile",
+    "pid": 408653,
+    "ppid": 408602,
+    "starttime": "1594647",
+    "state": "S"
+  },
+  "408664:1594653": {
+    "executable": "link",
+    "name": "link",
+    "pid": 408664,
+    "ppid": 408602,
+    "starttime": "1594653",
+    "state": "S"
+  }
+}

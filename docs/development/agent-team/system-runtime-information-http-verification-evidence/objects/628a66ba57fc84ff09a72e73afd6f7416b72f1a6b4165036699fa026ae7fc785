@@ -1,0 +1,13 @@
+# Runtime service A — P-RUNTIME-01 / BLOCKED
+
+冻结作者输入 `service-stage01/manifest.json` SHA `372a0dbc346cca988bc3526a553e66c462a8d543072a3876e833cd8ae4193038`，两源及 12 固定依赖均原字节。完整两源/字段校验与同事务静链已读；最小实际失败后暂停其余计划验证。
+
+`Snapshot.Validate`（service.go53–80）分别检查 Status 和 Readiness 枚举，却未校验必要关联。作者 service_test.go439–456 也把全笛卡尔组合当作合法。正式卡§3规定任一基础项不满足时为 `DEPENDENCY_UNAVAILABLE`；因此 DB/Object 已 stale/unavailable 与 `DEPENDENCY_UNBOUND` 不能同时成立。
+
+私有 `TestIndependentRuntimeSnapshotCrossField` 调用原生产 New/GetSystem，以单一有效 Tx、精确 User SH、当前 Session、匹配 System Read grant 和一次 Source，实际走完 WithinTx。`database-stale`、`object-unavailable` 两子例均观察到 **非零 Snapshot、err=nil、Source=1、事务已结束**，而原断言要求零候选与 DEPENDENCY_UNAVAILABLE。它证明完整候选校验缺口，不是授权、尾部提前返回或 HTTP 前提问题；不声称真实 root 已产生该矛盾值。
+
+最小修复只需：DB/Object 任一非 available 时强制 readiness 为 DEPENDENCY_UNAVAILABLE；两个均 available 时仍允许两码，因为其他四个基础项在 root 后阶段。不得新增年龄计算、显示时间排序或扩大 Snapshot。
+
+实际 `runs/crossfield01`：`go test -race -vet=off -count=1 -timeout=45s -run ^TestIndependentRuntimeSnapshotCrossField$`，原 argv/overlay/cwd/env 见 command.json。**actual exit1 / 0.945248s**，2 子例 RED；没有超时。subreaper/实际 child wait、8 自有 PID/starttime 两扫空、0 adopted、TMP 删除，输入 before/after 匹配。未运行 HTTP/app/native/PG/监听/资源，没有产品、主树或 Git 修改。
+
+原 probe、输入、raw/result/cleanup 永久保留。原作者 pure/race 通过属于作者证据；独立自然3s/更早parent及 Source/Tx held tail 尚未执行，不冒充通过。修后可先以同 probe 原断言复验，再按已授最小计划完成剩余独立边界。精确 SHA 与两源清单见 `finding01.json`。

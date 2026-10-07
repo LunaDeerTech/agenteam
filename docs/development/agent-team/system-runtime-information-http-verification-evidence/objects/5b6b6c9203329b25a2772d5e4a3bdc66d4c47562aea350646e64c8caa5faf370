@@ -1,0 +1,181 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 385423,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 385423,
+      "ppid": 385399,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435609"
+    },
+    {
+      "pid": 385446,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "R",
+      "starttime": "1435617"
+    },
+    {
+      "pid": 385459,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435643"
+    },
+    {
+      "pid": 385460,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435643"
+    },
+    {
+      "pid": 385472,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435656"
+    },
+    {
+      "pid": 385478,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435666"
+    },
+    {
+      "pid": 385484,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435699"
+    },
+    {
+      "pid": 385491,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "Z",
+      "starttime": "1435777"
+    },
+    {
+      "pid": 385497,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "R",
+      "starttime": "1435787"
+    },
+    {
+      "pid": 385504,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435802"
+    },
+    {
+      "pid": 385531,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "Z",
+      "starttime": "1435830"
+    },
+    {
+      "pid": 385537,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "R",
+      "starttime": "1435832"
+    },
+    {
+      "pid": 385543,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435873"
+    },
+    {
+      "pid": 385555,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "Z",
+      "starttime": "1435894"
+    },
+    {
+      "pid": 385550,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435894"
+    },
+    {
+      "pid": 385563,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "R",
+      "starttime": "1435936"
+    },
+    {
+      "pid": 385564,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1435936"
+    },
+    {
+      "pid": 385597,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "Z",
+      "starttime": "1436019"
+    },
+    {
+      "pid": 385646,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "R",
+      "starttime": "1436461"
+    },
+    {
+      "pid": 385694,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "R",
+      "starttime": "1437012"
+    },
+    {
+      "pid": 385721,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "R",
+      "starttime": "1437077"
+    },
+    {
+      "pid": 385732,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "Z",
+      "starttime": "1437080"
+    },
+    {
+      "pid": 385741,
+      "ppid": 385423,
+      "pgid": 385423,
+      "state": "S",
+      "starttime": "1437144"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-audit-offline-kdg0ulku",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

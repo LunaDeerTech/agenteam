@@ -1,0 +1,33 @@
+# Runtime Information HTTP B — independent bounded PASS
+
+No blocker found in the frozen four-file stage. Input manifest: `e8399d45b32a8743c7b9fcd052abbb08e1681f548bb5a58d9366434985b112cc`; delivery4: `a2522922fb78b468338d8976fe05e0a19a549afabce66dd09e40829ad4234984`. The four candidates, accepted A02 two files and 246 fixed dependencies match their exact hashes. Product baseline remains `b124650`; accepted card is `1cf08c70`. No live author source was consumed.
+
+Two independent risk combinations completed under the original 45-second outer limits:
+
+| Command | Actual result | Process terminal |
+| --- | --- | --- |
+| `runs/http01`: two precise Go top-level probes, race/count=1 | Exit 0 / 19.467892s | 23 PID/starttime identities absent in both sweeps, 0 adopted waits, actual child wait, private TMP removed |
+| `runs/schema01`: standard Draft202012Validator against actual Go wire vectors | Exit 0 / 0.116966s; 76 assertions | 1 PID identity absent in both sweeps, 0 adopted waits, actual child wait, private TMP removed |
+
+Both runs have unchanged input fingerprints. The Go probe uses production `systemHTTP` and the formal Account `CheckRequest`/`WriteProblem`; the accepted author's construction-only Account helper is reused. Authentication success and the runtime Reader are controlled ports. No native tests, listener or business resources ran.
+
+The first combination independently reached natural preauthentication expiry after **3.002517618s**, strictly `DeadlineExceeded` while its 20s parent remained valid. Actual authorization return, Body.Close and the running cancellation callback were held separately; handler return and deadline clearing waited for them. A **75ms** earlier parent was inherited exactly (actual 76.415337ms); a valid late Reader value could not produce status or bytes before/after its actual tail completed. Actual Flush and short Write failure paths also aborted and closed/reset. Those last cases had already written complete/partial buffers; they are not zero-wire or TCP-delivery evidence.
+
+The second combination reached the formal Host-before-path order, canonical trailing-slash400/unknown404, HEAD405 without body, real no-cookie401 before query validation, and authorized query400 before Reader access. Original request coordinates, safe headers and one RequestID/log were retained. The complete wire equals an independent full-object golden. The legal synthetic worst-escaped Snapshot is **3690B**; separate synthetic encoder payloads establish **16384B admitted / 16385B rejected**, without treating those payloads as legal snapshots. Cross-domain inconsistent readiness produces no encoded snapshot and only safe503 at the handler.
+
+The actual Go vectors were then checked with installed `jsonschema 4.26.0` Draft202012Validator, with remote reference retrieval prohibited. All six success object nodes were checked for every required field and extra fields, plus fixed null/constants, status/reason pairs, cross-readiness, printable ASCII/256 bounds and nonzero times. Both public foundations available permit either accepted readiness reason; a failed/stale foundation cannot claim DependencyUnbound. The schema stage does not claim exhaustive Gregorian parsing; formal Instant/Source validation remains the accepted service contract.
+
+A02's same-Tx/current-grant/Source/commit/deadline evidence is reused unchanged. Author B actual 8-top/38-sub pure/race and type-free Go vet results were hash-verified; the three native tests were **only compiled/listed**. The earlier service-stage01 product RED and unchanged-probe A02 GREEN remain intact. No B failure was rewritten or reclassified.
+
+Exact four candidates:
+
+| Path | SHA256 |
+| --- | --- |
+| `internal/central/runtimeinfo/http/handler.go` | `0e61275711ad355857bbce3aae52b02528f97b42b442f9ab888e5e78d571d186` |
+| `internal/central/runtimeinfo/http/wire.go` | `906fe33dd86224e10965cbfa1d3617eebfb875e1e61587904e1267e6dd7bddae` |
+| `internal/central/runtimeinfo/http/handler_test.go` | `7d6d00532a72fa18ee50536b178adedab93d2fc86c2b545c3b11561133c220c9` |
+| `api/openapi/runtime-information.json` | `9287f6f2119d777df5f5dcb956e690af3952689b034b90ba393d10f62b762988` |
+
+`verification-report.json` binds exact probes, executions, commands, raw logs, cleanup, before/after fingerprints and generated vectors. `execution01.json` and `execution02.json` preserve argv/cwd/environment and runtime inputs; the two original probes are under `probe01/`.
+
+This is HTTP-stage controlled acceptance only. Native connections, real authenticated PG transactions, root/app routing and sampler/ready aggregation remain later stages. There were no main/product/Git changes and no stopped-task activity. Private inputs/evidence are now stopped.

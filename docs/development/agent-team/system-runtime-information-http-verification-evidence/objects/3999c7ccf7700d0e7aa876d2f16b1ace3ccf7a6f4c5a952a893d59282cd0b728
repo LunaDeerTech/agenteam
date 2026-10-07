@@ -1,0 +1,154 @@
+--- /workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture02.py
++++ /workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen System Audit groups and record actual completion and resources."""
++"""Run only frozen System runtime-information groups and record actual completion and resources."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -18,10 +18,11 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'workspace'
+ GIT_REPO = Path('/workspace/agenteam')
+-BASE = 'f843506d9ec991be1c334a81b88d5cbacc277467'
++BASE = 'b124650aee095b26191bc181dc8cf5d6e0f977f5'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+ MODCACHE = '/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache'
+ MINIO = '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio'
++GOCACHE = '/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache'
+ FROZEN = {}
+ 
+ 
+@@ -46,12 +47,19 @@
+         for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
+             label = '.Config.Labels' if kind == 'container' else '.Labels'
+             try:
+-                raw = command(['docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}', resource_id]).strip().split('\t')
++                projection = '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}'
++                if kind == 'container':
++                    projection += '\t{{json .Mounts}}'
++                raw = command(['docker', kind, 'inspect', '--format', projection, resource_id]).strip().split('\t')
+             except RuntimeError as exc:
+                 if 'No such' in str(exc) or 'not found' in str(exc):
+                     continue  # The fixture may remove an ID after the list call.
+                 raise
+             value = dict(zip(['id', 'name', 'labels'], map(json.loads, raw)))
++            if kind == 'container':
++                keys = ['Type', 'Source', 'Destination', 'Name', 'Driver', 'Mode', 'RW', 'Propagation']
++                mounts = [{key: mount[key] for key in keys if key in mount} for mount in json.loads(raw[3]) or []]
++                value['mounts'] = sorted(mounts, key=lambda mount: json.dumps(mount, sort_keys=True))
+             value['kind'] = kind
+             result[resource_id] = value
+     return result
+@@ -160,14 +168,14 @@
+ # plus the fixture binaries built by its shell/SMTP chain. Discovery starts none.
+ TEST_PACKAGES = ['./internal/central/postgres/...', './tests/database/...', './internal/central/app/...', './tests/process/...', './tests/security/...', './tests/outbox/...', './internal/central/outbox/...', './tests/account/...', './tests/accountmail/...', './internal/central/accountmail/...', './internal/central/recoverylog/...', './tests/project/...', './internal/central/model/...', './tests/model/...', './tests/objects/...', './internal/central/object/...']
+ HELPER_PACKAGES = ['./tests/testsupport/objectstore/cmd/fixture', './tests/testsupport/outbound/cmd/fixture', './tests/testsupport/outbound/cmd/server', './tests/testsupport/postgres/cmd/fixture']
+-NATIVE_PACKAGES = ['./internal/central/audit/http']
++NATIVE_PACKAGES = ['./internal/central/runtimeinfo/http', './internal/central/app']
+ 
+ 
+ def runtime_environment():
+     env = {key: value for key, value in os.environ.items() if not key.startswith('AGENTEAM_')}
+     env.update({'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': MODCACHE,
+-                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(ROOT / 'tmp'),
++                'GOCACHE': GOCACHE, 'TMPDIR': str(ROOT / 'tmp'), 'GOTMPDIR': str(ROOT / 'tmp'),
+                 'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1'})
+     return env
+ 
+@@ -178,7 +186,7 @@
+     if go_environment['GOVERSION'] != 'go1.27.1':
+         raise RuntimeError('wrong Go toolchain')
+     discovery_argv = [GO, 'list', '-race', '-deps', '-test', '-tags=integration', '-json', *TEST_PACKAGES, *HELPER_PACKAGES, *NATIVE_PACKAGES]
+-    raw = subprocess.check_output(discovery_argv, cwd=REPO, env=env, timeout=60)
++    raw = subprocess.check_output(discovery_argv, cwd=REPO, env=env, timeout=45)
+     decoder, text, offset = json.JSONDecoder(), raw.decode(), 0
+     files = {Path(GO), Path(MINIO)}
+     executables = {'python': str(Path(sys.executable).resolve())}
+@@ -217,7 +225,7 @@
+                     if name not in FROZEN['files'] and name not in FROZEN['accepted_baseline']['files']:
+                         raise RuntimeError('runtime local input outside bound closure')
+                     continue
+-                if path.is_relative_to(ROOT / 'gocache') or path.is_relative_to(ROOT / 'tmp'):
++                if path.is_relative_to(Path(GOCACHE)) or path.is_relative_to(ROOT / 'tmp'):
+                     if not package['ImportPath'].endswith('.test'):
+                         raise RuntimeError('unexpected generated compilation input')
+                     generated.add(package['ImportPath'])
+@@ -232,7 +240,7 @@
+             'modules': dict(sorted(modules.items())), 'packages': sorted(packages),
+             'generated_test_mains': sorted(generated), 'go_environment': go_environment,
+             'executables': executables, 'discovery_argv': discovery_argv,
+-            'discovery_env': {key: env[key] for key in ['GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
++            'discovery_env': {key: env[key] for key in ['GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'GOTMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+ 
+ 
+ def resource_topology(observed, smtp):
+@@ -272,7 +280,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['native', 'native-slow', 'new-account', 'new-root', 'old'], required=True)
++    parser.add_argument('--group', choices=['native', 'new-account', 'new-root'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -282,11 +290,9 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'native': ['TestAuditHTTPNativeEOFAndKeepAlive', 'TestAuditHTTPNativeSlowBodyBudgets', 'TestAuditHTTPNativeWriteAndFlushAbort'],
+-        'native-slow': ['TestAuditHTTPNativeSlowBodyBudgets'],
+-        'new-account': ['TestSystemAuditHTTPQueryAndProjection', 'TestSystemAuditHTTPTransactionAndBudget'],
+-        'new-root': ['TestSystemAuditHTTPRootProducerBinding'],
+-        'old': ['TestAuditPaginationBindingsFiltersAndRevocation'],
++        'native': ['TestRuntimeInformationHTTPNativeEOFAndKeepAlive', 'TestRuntimeInformationHTTPNativeSlowBodyBudgets', 'TestRuntimeInformationHTTPNativeWriteAndFlushAbort', 'TestDiagnosticRoutes'],
++        'new-account': ['TestSystemRuntimeInformationCurrentAuthorityAndTerminal'],
++        'new-root': ['TestSystemRuntimeInformationRootSnapshotBinding'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -319,6 +325,11 @@
+     write(run / 'verification-input.json', verification_inputs)
+     runtime = run / 'runtime'
+     runtime.mkdir(mode=0o700)
++    minimum_free = (2 if args.group == 'native' else 5) * (1 << 30)
++    disk = {'time': utc(), 'path': str(ROOT), 'free_bytes': shutil.disk_usage(ROOT).free, 'minimum_free_bytes': minimum_free}
++    write(run / 'disk-preflight.json', disk)
++    if disk['free_bytes'] < minimum_free:
++        raise RuntimeError('fresh disk minimum not met; no resources started')
+     before = source_input()
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+@@ -331,7 +342,7 @@
+     write(run / 'input-before.json', before)
+     baseline_processes = processes()
+     write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+-    fixture = args.group not in {'native', 'native-slow'}
++    fixture = args.group != 'native'
+     baseline = resources() if fixture else {}
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+@@ -340,14 +351,18 @@
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+-                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(runtime),
++                'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+     argv = (['sh', 'scripts/test-security.sh', '-run', args.selector] if fixture else
+-            [GO, 'test', '-race', '-count=1', '-timeout=45s', '-v', '-run', args.selector, './internal/central/audit/http'])
++            [GO, 'test', '-race', '-count=1', '-timeout=45s', '-v', '-run', args.selector, *NATIVE_PACKAGES])
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+-              'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
++              'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'GOTMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+     write(run / 'command.json', record)
+     observed_resources, observed_processes, errors, adopted_waits = {}, {}, [], []
++    disk_start = {'time': utc(), 'path': str(ROOT), 'free_bytes': shutil.disk_usage(ROOT).free, 'minimum_free_bytes': minimum_free}
++    write(run / 'disk-before-spawn.json', disk_start)
++    if disk_start['free_bytes'] < minimum_free:
++        raise RuntimeError('fresh disk minimum not met at launch; no resources started')
+     start = time.monotonic()
+     cancellations = []
+     with (run / 'raw.log').open('wb') as raw:

@@ -1,0 +1,17 @@
+{
+  "exit": 1,
+  "tool_chunk": "936d9f",
+  "classification": "runner directory preparation before subprocess.Popen; runs parent missing",
+  "command": [
+    "python3",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-pure.py",
+    "format01",
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "internal/central/runtimeinfo/service.go",
+    "internal/central/runtimeinfo/service_test.go"
+  ],
+  "source_mutated": false,
+  "command_child_started": false,
+  "runner_sha256": "156a690268288df35a90cda8d85f1a4c463b1ada2391f3347998883f9d55a7fa"
+}

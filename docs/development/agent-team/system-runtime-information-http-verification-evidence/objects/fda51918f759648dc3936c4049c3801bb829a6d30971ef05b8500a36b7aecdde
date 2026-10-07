@@ -1,0 +1,175 @@
+//go:build integration
+
+package app
+
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net"
+	"net/http"
+	"reflect"
+	"sort"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+type independentRuntimeRoot struct {
+	mu sync.Mutex
+	source *runtimeInformationSource
+	factories, clocks int
+	lastClock time.Time
+	dbChecks, objectChecks, reads, commits atomic.Int64
+}
+func (o *independentRuntimeRoot) now() time.Time {
+	now:=time.Now();o.mu.Lock();o.clocks++;o.lastClock=now;o.mu.Unlock();return now
+}
+type independentRuntimeDatabase struct { *modelRootStore; observer *independentRuntimeRoot }
+func (d *independentRuntimeDatabase) Check(ctx context.Context)(postgres.DatabaseHealth,error){d.observer.dbChecks.Add(1);return d.modelRootStore.Check(ctx)}
+func (d *independentRuntimeDatabase) WithinTx(ctx context.Context,cause foundation.TransactionCause,fn func(context.Context,foundation.Tx)error)foundation.CommitResult{
+	read:=cause.Details().Owner=="runtimeinfo.system-read"
+	if read{d.observer.reads.Add(1)}
+	result:=d.modelRootStore.WithinTx(ctx,cause,fn)
+	if read && result.State()==foundation.Committed{d.observer.commits.Add(1)}
+	return result
+}
+// Preserve the original concrete owner, including its unexported shutdown
+// capabilities. The original Check supplies every observed result.
+type independentRuntimeObjects struct { *objectAssembly; observer *independentRuntimeRoot }
+func (o *independentRuntimeObjects) Check(ctx context.Context)error{o.observer.objectChecks.Add(1);return o.objectAssembly.Check(ctx)}
+
+func TestIndependentRuntimeRootCacheAndCompatibility(t *testing.T){
+	started:=time.Now()
+	obs:=&independentRuntimeRoot{}
+	a:=newModelRootApp(t,"3s",func(a *modelRootApp,d *dependencies){
+		d.health.interval=time.Hour // only the fixture's background sampling window
+		d.health.now=obs.now
+		open:=d.open
+		d.open=func(ctx context.Context,cfg postgres.Config)(database,error){
+			original,err:=open(ctx,cfg);if err!=nil{return original,err}
+			if original!=a.store{return nil,errors.New("independent root Store was not the original fixture Store")}
+			return &independentRuntimeDatabase{a.store,obs},nil
+		}
+		bind:=d.bind
+		d.bind=func(ctx context.Context,cfg config.Config,db database,owned *resources,deps *dependencies)error{
+			if err:=bind(ctx,cfg,db,owned,deps);err!=nil{return err}
+			objects:=deps.objects
+			deps.objects=func(ctx context.Context,cfg config.Config,db database,audit *audit.Service)(objectStorage,error){
+				original,err:=objects(ctx,cfg,db,audit);if err!=nil{return original,err}
+				actual,ok:=original.(*objectAssembly);if !ok{return nil,errors.New("independent root original Object assembly absent")}
+				return &independentRuntimeObjects{actual,obs},nil
+			}
+			factory:=deps.runtimeInformation
+			if factory==nil{return errors.New("independent root original runtime factory absent")}
+			deps.runtimeInformation=func(source runtimeinfo.Source)(http.Handler,error){
+				actual,ok:=source.(*runtimeInformationSource);if !ok{return nil,errors.New("independent root Source replaced")}
+				obs.mu.Lock();obs.factories++;obs.source=actual;obs.mu.Unlock()
+				return factory(source)
+			}
+			return nil
+		}
+	})
+	address:=a.address(t)
+	obs.mu.Lock();source,factories:=obs.source,obs.factories;obs.mu.Unlock()
+	if factories!=1 || source==nil || source.monitor==nil || source.secrets!=a.owned.secret() || source.outbound!=a.owned.outbound(){t.Fatal("independent root did not bind original services once")}
+	ctx,cancel:=context.WithTimeout(context.Background(),45*time.Second);defer cancel()
+	login,err:=fixtureAccountLoginResponse(ctx,a.cfg,a.core);if err!=nil{t.Fatal("formal root Login failed")}
+	var material sc.SecretMaterial
+	if err=login.UseCookie(func(b []byte)error{var err error;material,err=sc.NewSecretMaterial(b);return err});err!=nil{t.Fatal(err)}
+	defer material.Destroy()
+	if err=login.Close(ctx);err!=nil{t.Fatal("formal Login actual close failed")}
+	var cookie string;if err=material.Use(func(b []byte)error{cookie=string(b);return nil});err!=nil{t.Fatal(err)}
+	var pgVersion,vectorVersion string
+	if err=a.store.QueryRow(ctx,`SELECT current_setting('server_version'),(SELECT extversion FROM pg_extension WHERE extname='vector')`).Scan(&pgVersion,&vectorVersion);err!=nil{t.Fatal("readonly PG version observation failed")}
+	monitor:=source.monitor
+	monitor.mu.RLock()
+	health,received,objectReceived:=monitor.last,monitor.received,monitor.objectReceived
+	outboxReceived,accountReceived:=monitor.outboxReceived,monitor.accountReceived
+	dbAvailable,objectAvailable:=monitor.available,monitor.objectAvailable
+	outboxAvailable,accountAvailable,accountBound:=monitor.outboxAvailable,monitor.accountAvailable,monitor.accountBound
+	stale:=monitor.timing.stale
+	monitor.mu.RUnlock()
+	if !healthy(health) || health.ServerVersion!=pgVersion || health.ExtensionVersion!=vectorVersion || !accountBound || received.IsZero() || objectReceived.IsZero() || outboxReceived.IsZero() || accountReceived.IsZero() || stale!=20*time.Second || obs.dbChecks.Load()<1 || obs.objectChecks.Load()!=1{t.Fatal("original healthy startup cache absent or differs from PG")}
+	conn,err:=net.DialTimeout("tcp",strings.TrimPrefix(address,"http://"),time.Second);if err!=nil{t.Fatal("root loopback connection failed")}
+	closed:=false
+	defer func(){if !closed{_ = conn.Close()}}()
+	reader:=bufio.NewReader(conn)
+	local,remote:=conn.LocalAddr().String(),conn.RemoteAddr().String()
+	ids:=map[string]bool{}
+	call:=func(path string,status int)map[string]any{
+		t.Helper()
+		if err:=conn.SetDeadline(time.Now().Add(5*time.Second));err!=nil{t.Fatal(err)}
+		r,err:=http.NewRequestWithContext(ctx,http.MethodGet,address+path,nil);if err!=nil{t.Fatal(err)}
+		r.Host="localhost:8080";r.Header.Set("Origin","http://localhost:8080");r.AddCookie(&http.Cookie{Name:"agenteam_local_session",Value:cookie})
+		if err=r.Write(conn);err!=nil{t.Fatal("same-connection root request failed")}
+		response,err:=http.ReadResponse(reader,r);if err!=nil{t.Fatal("same-connection root response failed")}
+		body,readErr:=io.ReadAll(io.LimitReader(response.Body,(16<<10)+1));closeErr:=response.Body.Close()
+		if readErr!=nil || closeErr!=nil || len(body)>16<<10 || response.StatusCode!=status || response.Close || conn.LocalAddr().String()!=local || conn.RemoteAddr().String()!=remote{t.Fatal("root response failed bounded EOF/Close/status/keepalive")}
+		requestIDs:=response.Header.Values("X-Request-ID")
+		if len(requestIDs)!=1{t.Fatal("root did not keep one RequestID")}
+		requestID,parseErr:=foundation.ParseID[foundation.Request](requestIDs[0]);if parseErr!=nil || requestID.String()!=requestIDs[0] || ids[requestIDs[0]]{t.Fatal("root RequestID not unique/canonical")};ids[requestIDs[0]]=true
+		if strings.HasPrefix(path,"/api/") && (response.Header.Get("Cache-Control")!="no-store" || response.Header.Get("X-Content-Type-Options")!="nosniff" || response.Header.Get("Referrer-Policy")!="no-referrer"){t.Fatal("original API safety headers lost")}
+		if path==runtimeInformationPath && (response.Header.Get("Content-Type")!="application/json" || response.Header.Get("Content-Length")!=strconv.Itoa(len(body)) || response.ContentLength!=int64(len(body))){t.Fatal("runtime representation length/type mismatch")}
+		var value map[string]any;if json.Unmarshal(body,&value)!=nil{t.Fatal("root response not JSON object")}
+		if bytes.Contains(body,[]byte(cookie)){t.Fatal("response exposed private Login material")}
+		if err=conn.SetDeadline(time.Time{});err!=nil{t.Fatal(err)}
+		return value
+	}
+	keys:=func(v map[string]any,want ...string){t.Helper();actual:=make([]string,0,len(v));for k:=range v{actual=append(actual,k)};sort.Strings(actual);sort.Strings(want);if !reflect.DeepEqual(actual,want){t.Fatal("runtime DTO closed keys mismatch")}}
+	object:=func(v map[string]any,key string,want ...string)map[string]any{t.Helper();o,ok:=v[key].(map[string]any);if !ok{t.Fatal("runtime nested object absent")};keys(o,want...);return o}
+	timeString:=func(value time.Time)string{t.Helper();v,err:=foundation.NewInstant(value);if err!=nil||value.IsZero(){t.Fatal("invalid original sample")};return v.String()}
+	status:=func(available bool,sampled,at time.Time)(string,any){if !available{return "unavailable","check_unavailable"};if at.Sub(sampled)>stale{return "stale","sample_stale"};return "available",nil}
+	var priorDB,priorObject map[string]any
+	for i:=range 2{
+		dbCount,objCount,reads,commits:=obs.dbChecks.Load(),obs.objectChecks.Load(),obs.reads.Load(),obs.commits.Load()
+		obs.mu.Lock();clocks:=obs.clocks;obs.mu.Unlock()
+		v:=call(runtimeInformationPath,200)
+		obs.mu.Lock();at,clockAfter,factoryCount,sameSource:=obs.lastClock,obs.clocks,obs.factories,obs.source==source;obs.mu.Unlock()
+		if clockAfter!=clocks+1 || factoryCount!=1 || !sameSource || obs.dbChecks.Load()!=dbCount || obs.objectChecks.Load()!=objCount || obs.reads.Load()!=reads+1 || obs.commits.Load()!=commits+1{t.Fatal("GET changed probe/factory count or missed one real committed read")}
+		keys(v,"observed_at","central","database","object_storage","readiness")
+		if v["observed_at"]!=timeString(at){t.Fatal("runtime GET used more than one observation time")}
+		central:=object(v,"central","version","safe_reason");if central["version"]!=nil || central["safe_reason"]!="build_version_not_recorded"{t.Fatal("unknown Central version was invented")}
+		db:=object(v,"database","status","safe_reason","last_success")
+		last:=object(db,"last_success","checked_at","received_at","postgresql_version","pgvector_version")
+		dbStatus,dbReason:=status(dbAvailable,received,at)
+		if db["status"]!=dbStatus || db["safe_reason"]!=dbReason || last["checked_at"]!=health.CheckedAt.String() || last["received_at"]!=timeString(received) || last["postgresql_version"]!=pgVersion || last["pgvector_version"]!=vectorVersion{t.Fatal("runtime GET changed actual historical DB sample")}
+		obj:=object(v,"object_storage","backend","assessment","status","safe_reason","last_success_received_at","details")
+		objStatus,objReason:=status(objectAvailable,objectReceived,at)
+		if obj["backend"]!="minio" || obj["assessment"]!="object_storage_aggregate" || obj["details"]!="not_reported" || obj["status"]!=objStatus || obj["safe_reason"]!=objReason || obj["last_success_received_at"]!=timeString(objectReceived){t.Fatal("runtime Object aggregate cache mismatch")}
+		ready:=object(v,"readiness","ready","safe_reason")
+		outboxStatus,_:=status(outboxAvailable,outboxReceived,at);accountStatus,_:=status(accountAvailable,accountReceived,at)
+		reason:=string(foundation.DependencyUnbound)
+		if dbStatus!="available" || objStatus!="available" || outboxStatus!="available" || accountStatus!="available" || !source.secrets.Status().Available || !source.outbound.Status().Available{reason=string(foundation.DependencyUnavailable)}
+		if ready["ready"]!=false || ready["safe_reason"]!=reason{t.Fatal("runtime changed six-source ready=false boundary")}
+		if i==0{priorDB=last;priorObject=obj}else if !reflect.DeepEqual(priorDB,last) || priorObject["last_success_received_at"]!=obj["last_success_received_at"]{t.Fatal("second GET renewed historical cache")}
+		monitor.mu.RLock();unchanged:=monitor.last==health && monitor.received==received && monitor.objectReceived==objectReceived && monitor.outboxReceived==outboxReceived && monitor.accountReceived==accountReceived && monitor.available==dbAvailable && monitor.objectAvailable==objectAvailable && monitor.outboxAvailable==outboxAvailable && monitor.accountAvailable==accountAvailable && monitor.accountBound==accountBound;monitor.mu.RUnlock()
+		if !unchanged{t.Fatal("GET mutated monitor cached observations")}
+		if i==0{session:=call("/api/v1/session",200);if session["user"]==nil || session["session"]==nil{t.Fatal("original Session API shape lost")}}
+	}
+	ready:=call("/readyz",503)
+	if ready["code"]!=string(foundation.DependencyUnbound) && ready["code"]!=string(foundation.DependencyUnavailable){t.Fatal("original ready503 changed")}
+	if len(ids)!=4{t.Fatal("expected exactly four successful same-connection requests")}
+	if err=conn.Close();err!=nil{t.Fatal("client actual close failed")};closed=true
+	if strings.Contains(a.logs.String(),cookie) || strings.Contains(a.logs.String(),`"last_success"`){t.Fatal("ordinary logs exposed material or full snapshot")}
+	a.signals<-syscall.SIGTERM;await(t,a.done)
+	if a.err!=nil || !a.owned.accounts().Joined(){t.Fatal("root did not actually join normally")}
+	a.store.mu.Lock();normal:=len(a.store.activeAtStop)>0 && len(a.store.forceDeadline)==0;for _,n:=range a.store.activeAtStop{normal=normal&&n==0};a.store.mu.Unlock()
+	if !normal{t.Fatal("root shutdown overtook active owner or required force")}
+	if time.Since(started)>2*time.Minute{t.Fatal("independent root top exceeded two minutes")}
+	t.Log("single_native_connection_four_responses_EOF_Close=true factory1_and_each_GET_single_T=true original_PG_versions_cache_unchanged=true GET_extra_Check0=true ready503_and_original_Session=true normal_root_join=true")
+}

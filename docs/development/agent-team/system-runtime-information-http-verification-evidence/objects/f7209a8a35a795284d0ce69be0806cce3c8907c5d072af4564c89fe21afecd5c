@@ -1,0 +1,29 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-l",
+    "internal/central/app/runtime_information_process_test.go",
+    "tests/account/runtime_information_http_test.go"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace",
+  "ended_utc": "2026-10-07T00:48:53.662853+00:00",
+  "env": {
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/tmp"
+  },
+  "exit": 0,
+  "limit_seconds": 45,
+  "seconds": 0.011,
+  "started_utc": "2026-10-07T00:48:53.651306+00:00",
+  "timed_out": false
+}

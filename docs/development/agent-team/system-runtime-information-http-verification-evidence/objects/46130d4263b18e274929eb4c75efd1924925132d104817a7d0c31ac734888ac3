@@ -1,0 +1,74 @@
+=== RUN   TestRuntimeInformationSnapshotValidation
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-observed
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-checked
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-db-received
+=== RUN   TestRuntimeInformationSnapshotValidation/zero-object-received
+=== RUN   TestRuntimeInformationSnapshotValidation/bad-db-status
+=== RUN   TestRuntimeInformationSnapshotValidation/bad-object-status
+=== RUN   TestRuntimeInformationSnapshotValidation/bad-readiness
+=== RUN   TestRuntimeInformationSnapshotValidation/empty-postgresql
+=== RUN   TestRuntimeInformationSnapshotValidation/empty-pgvector
+=== RUN   TestRuntimeInformationSnapshotValidation/long-postgresql
+=== RUN   TestRuntimeInformationSnapshotValidation/long-pgvector
+=== RUN   TestRuntimeInformationSnapshotValidation/tab
+=== RUN   TestRuntimeInformationSnapshotValidation/newline
+=== RUN   TestRuntimeInformationSnapshotValidation/nul
+=== RUN   TestRuntimeInformationSnapshotValidation/del
+=== RUN   TestRuntimeInformationSnapshotValidation/non-ascii
+=== RUN   TestRuntimeInformationSnapshotValidation/invalid-utf8
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/available/available/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/available/available/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/available/unavailable/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/available/unavailable/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/available/stale/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/available/stale/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/unavailable/available/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/unavailable/available/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/unavailable/unavailable/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/unavailable/unavailable/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/unavailable/stale/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/unavailable/stale/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/stale/available/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/stale/available/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/stale/unavailable/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/stale/unavailable/DEPENDENCY_UNBOUND
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/stale/stale/DEPENDENCY_UNAVAILABLE
+=== RUN   TestRuntimeInformationSnapshotValidation/readiness/stale/stale/DEPENDENCY_UNBOUND
+--- PASS: TestRuntimeInformationSnapshotValidation (0.01s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-observed (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-checked (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-db-received (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/zero-object-received (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/bad-db-status (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/bad-object-status (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/bad-readiness (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/empty-postgresql (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/empty-pgvector (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/long-postgresql (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/long-pgvector (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/tab (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/newline (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/nul (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/del (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/non-ascii (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/invalid-utf8 (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/available/available/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/available/available/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/available/unavailable/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/available/unavailable/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/available/stale/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/available/stale/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/unavailable/available/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/unavailable/available/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/unavailable/unavailable/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/unavailable/unavailable/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/unavailable/stale/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/unavailable/stale/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/stale/available/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/stale/available/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/stale/unavailable/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/stale/unavailable/DEPENDENCY_UNBOUND (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/stale/stale/DEPENDENCY_UNAVAILABLE (0.00s)
+    --- PASS: TestRuntimeInformationSnapshotValidation/readiness/stale/stale/DEPENDENCY_UNBOUND (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo	1.019s

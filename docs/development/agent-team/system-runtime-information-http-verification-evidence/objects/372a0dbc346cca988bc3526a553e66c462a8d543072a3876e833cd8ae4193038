@@ -1,0 +1,144 @@
+{
+  "stage": "service-stage01",
+  "scope": "Author controlled offline Stage A only; no HTTP/root/harness/native/real evidence",
+  "fixed_product": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "card_commit": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+  "card_sha256": "e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb",
+  "source_root": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/service-stage01/source",
+  "files": {
+    "internal/central/runtimeinfo/service.go": {
+      "sha256": "0aa6c073f582bca75b031dfcb796a628b1a47170991b6f5343462073012f83c8",
+      "bytes": 7461,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/service_test.go": {
+      "sha256": "b6755239e91eacac76280296a7f81347eae42a2d3f163cf433bc363b33630dee",
+      "bytes": 26480,
+      "prior": "absent"
+    }
+  },
+  "dependencies": {
+    "go.mod": {
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468
+    },
+    "go.sum": {
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391
+    },
+    "internal/central/foundation/cause.go": {
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "bytes": 5490
+    },
+    "internal/central/foundation/fault.go": {
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "bytes": 5460
+    },
+    "internal/central/foundation/id.go": {
+      "sha256": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+      "bytes": 3120
+    },
+    "internal/central/foundation/instant.go": {
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+      "bytes": 1751
+    },
+    "internal/central/foundation/integer.go": {
+      "sha256": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+      "bytes": 3998
+    },
+    "internal/central/foundation/lock.go": {
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "bytes": 5196
+    },
+    "internal/central/foundation/page.go": {
+      "sha256": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+      "bytes": 1860
+    },
+    "internal/central/foundation/scalar.go": {
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+      "bytes": 3285
+    },
+    "internal/central/foundation/tx.go": {
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "bytes": 2339
+    },
+    "internal/central/identity/contract/identity.go": {
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "bytes": 8639
+    }
+  },
+  "baseline_manifest_sha256": "20e6b0db077fcbfadeb2b83c6945fe35507db5d7760e0b59c997774efd826dbc",
+  "tools_and_env": {
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-pure.py": "156a690268288df35a90cda8d85f1a4c463b1ada2391f3347998883f9d55a7fa",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture02.py": "67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034",
+    "/workspace/toolchains/go1.27.1/VERSION": "25eb74b09036e1ad894fb63b86cb0f0ee53342df8d2e2e860da4ff5079607758",
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/asm": "4720bbf4ea8c95da4bef7d716b89c914ce678b57e7833f327f3ea2c2f51d16a6",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile": "3780fc07130d6d45096373acf062cc316940d253e2a1d892ece03a3bdd0d21d4",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link": "a29ac5e8f64111b0b5c5d31e452f18abf7ee79f44b421081b5509c8939d92ba9",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/vet": "46e5add9e558ca24000deadf2fa072f3f374f42120907ab087119ec544498cb1"
+  },
+  "runner": {
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-pure.py",
+    "sha256": "156a690268288df35a90cda8d85f1a4c463b1ada2391f3347998883f9d55a7fa"
+  },
+  "checks": {
+    "pure01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/result.json",
+      "result_sha256": "05a41d4a0f2f2283c39aacd7ddba0e4fcfe2150e8c10cae7909ab18c0d84035b",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/command.json",
+      "command_sha256": "f793b458a7eb8984ba31b189fad586b333d8164cd5f94b2f7746d55143e30f2b",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/raw.log",
+      "raw_sha256": "8c70a44cb38f47ef7b8d51e8038cd53ffcc9f95db398d3a8effba3e7b69ed706",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure01/cleanup.json",
+      "cleanup_sha256": "5305dc26848c4ed7e153341fde4740a058d831071f9b13819ce01f306eaf9232",
+      "exit": 0,
+      "seconds": 4.78,
+      "observed_pids": 36,
+      "adopted_waits": 0
+    },
+    "race01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/result.json",
+      "result_sha256": "ac903e58894c77330a49d3d6b271394a676b06e8c870f33228212fdbbc357846",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/command.json",
+      "command_sha256": "9da577e97ad4df2448a7e2ff710454bb6c16a558cdd3737583f4f66603e993aa",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/raw.log",
+      "raw_sha256": "aba4dffce9bc24ef9a7fce7e579fbdc412c9b9b0cc1271ad4a02f355b29f4c74",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race01/cleanup.json",
+      "cleanup_sha256": "2d92a0bafbf52a443530ec2913d2bcb0fd1ae7d9dc2b1346e11d43caa2d9b520",
+      "exit": 0,
+      "seconds": 5.075,
+      "observed_pids": 9,
+      "adopted_waits": 0
+    },
+    "vet01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/result.json",
+      "result_sha256": "f3e77f853f00fab5800c82275bd75a7be13ee3f06d07543243d5203d1118c220",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/command.json",
+      "command_sha256": "0ad264bf83295193b5b30c7e8bf8f7b2a500aea048906e5048939e74bc300541",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet01/cleanup.json",
+      "cleanup_sha256": "fcf37c49ffad0d8f6818d9ffc87f2d0422b37f66e6eb76a3e5428dde63a00411",
+      "exit": 0,
+      "seconds": 0.138,
+      "observed_pids": 1,
+      "adopted_waits": 0
+    },
+    "formatcheck01": {
+      "result": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/result.json",
+      "result_sha256": "a51a67161dd693f9b028780e3aa9bcdbfd585967a27fc266a163abbae7f41772",
+      "command": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/command.json",
+      "command_sha256": "7b2bf22b0df108a4115f60ec29677a7ab83a8880816130dc80ab15540f6bc805",
+      "raw": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cleanup": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/formatcheck01/cleanup.json",
+      "cleanup_sha256": "78618453edba106703ee02d5f40c83fc02f5addf5067ed0522351101604c3a08",
+      "exit": 0,
+      "seconds": 0.012,
+      "observed_pids": 1,
+      "adopted_waits": 0
+    }
+  },
+  "diff_sha256": "ed726d2afc97383d0c63d3a42d03c1ddfb1d2cea356e3bfefd54fc47b39fa00a"
+}

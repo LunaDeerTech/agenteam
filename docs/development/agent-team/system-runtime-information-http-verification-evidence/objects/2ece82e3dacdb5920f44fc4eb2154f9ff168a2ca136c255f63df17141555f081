@@ -1,0 +1,58 @@
+{
+  "authorization": "planned only; root must grant each resource window after frozen driver/gate review",
+  "evidence_boundaries": [
+    "D checks compile and discover only; no body of either real test executed",
+    "Account Source and deadline-capable writer are controlled; tail gate proves actual call remains owned, not native zero-byte-before-commit",
+    "Root uses actual unchanged Source and real PG version query, checks delegate to original providers, test-only health interval 1h isolates GET from background ticks; production10s/2s/20s unchanged",
+    "No Object failure/force-stop representative, no health algorithm revalidation, no SMTP/external/provider/browser"
+  ],
+  "native": {
+    "go_flags": [
+      "-race",
+      "-count=1",
+      "-timeout=45s"
+    ],
+    "integration_tag": false,
+    "minimum_free_bytes": 5368709120,
+    "packages": [
+      "./internal/central/runtimeinfo/http",
+      "./internal/central/app"
+    ],
+    "resources": "owned loopback only; no PG/Docker/MinIO/browser",
+    "tests": [
+      "TestRuntimeInformationHTTPNativeEOFAndKeepAlive",
+      "TestRuntimeInformationHTTPNativeSlowBodyBudgets",
+      "TestRuntimeInformationHTTPNativeWriteAndFlushAbort",
+      "TestDiagnosticRoutes"
+    ]
+  },
+  "new-account": {
+    "command": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestSystemRuntimeInformationCurrentAuthorityAndTerminal)$"
+    ],
+    "go_flags": "original fixture -tags=integration -race -count=1 -timeout=6m; top<=2m",
+    "minimum_free_bytes": 5368709120,
+    "resources": "original nonce-isolated PG17/PG16, TLS outbound, MinIO fixture: 7 exact IDs; baseline re-read immediately before start",
+    "tests": [
+      "TestSystemRuntimeInformationCurrentAuthorityAndTerminal"
+    ]
+  },
+  "new-root": {
+    "command": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestSystemRuntimeInformationRootSnapshotBinding)$"
+    ],
+    "go_flags": "original fixture -tags=integration -race -count=1 -timeout=6m; top<=2m",
+    "minimum_free_bytes": 5368709120,
+    "resources": "same original 7-ID fixture, separate sequential window",
+    "tests": [
+      "TestSystemRuntimeInformationRootSnapshotBinding"
+    ]
+  },
+  "supervision": "copy existing accepted Audit driver process/fixture lifecycle into a new private runtime driver; prctl subreaper before launch, PID/starttime ownership, actual direct and adopted waits, exact ID plus unchanged baseline two scans, tmp empty, input/runtime before-after equality. Driver and script/fixture compile closure require a separate frozen gate before any resource run."
+}

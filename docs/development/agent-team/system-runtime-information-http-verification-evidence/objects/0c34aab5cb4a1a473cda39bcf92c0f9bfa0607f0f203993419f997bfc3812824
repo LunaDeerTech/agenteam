@@ -1,0 +1,79 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.8.22.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=683f0ee5672b3bb83dbf2e5911e41f80
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=4dafe8f2d374cd9a3ae68f809768df11
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.009s [no tests to run]
+=== RUN   TestIndependentRuntimeRootCacheAndCompatibility
+    runtime_independent_final_test.go:368: single_native_connection_four_responses_EOF_Close=true factory1_and_each_GET_single_T=true original_PG_versions_cache_unchanged=true GET_extra_Check0=true ready503_and_original_Session=true normal_root_join=true
+--- PASS: TestIndependentRuntimeRootCacheAndCompatibility (1.95s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	2.971s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.062s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+=== RUN   TestIndependentRuntimeCurrentAuthorityAndTerminal
+=== RUN   TestIndependentRuntimeCurrentAuthorityAndTerminal/current_SH_holds_Logout_EX_and_zero_writer_until_actual_commit
+    runtime_independent_final_test.go:395: controlled_writer_preterminal_status_body_flush_zero=true actual_committed=true formal_Logout_EX_waited=true read_and_Logout_joined=true subsequent_Session_rejected=true
+=== RUN   TestIndependentRuntimeCurrentAuthorityAndTerminal/earlier_parent_does_not_retire_held_actual_tail_or_publish_candidate
+    runtime_independent_final_test.go:433: earlier_parent_400ms=true actual_tail_retained_until_release=true actual_NotCommitted=true controlled_writer_zero=true handler_callback_joined=true
+=== NAME  TestIndependentRuntimeCurrentAuthorityAndTerminal
+    runtime_independent_final_test.go:445: independent A complete; PG and formal authority actual; Source/writer controlled, no TCP precommit-byte claim
+--- PASS: TestIndependentRuntimeCurrentAuthorityAndTerminal (2.52s)
+    --- PASS: TestIndependentRuntimeCurrentAuthorityAndTerminal/current_SH_holds_Logout_EX_and_zero_writer_until_actual_commit (0.46s)
+    --- PASS: TestIndependentRuntimeCurrentAuthorityAndTerminal/earlier_parent_does_not_retire_held_actual_tail_or_publish_candidate (0.72s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	3.553s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+D03 fixture cleanup checked for nonce bd6b88362f286753bc2b0d5286f6d3cc
+D04 outbound fixture cleanup checked for nonce 4dafe8f2d374cd9a3ae68f809768df11
+D05 object fixture exact resource cleanup checked nonce=683f0ee5672b3bb83dbf2e5911e41f80

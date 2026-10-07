@@ -1,0 +1,179 @@
+{
+  "result": "Author affected controlled checks PASS; original independent probe awaiting verifier rerun",
+  "manifest_sha256": "9e13328b1477744f77957cfdf018d4485b948bf473e3e6d7cac287d72366c8d1",
+  "delivery2_sha256": "586084a973e65e2d22eb2ca88da8faacedb6dea28730b9474aa001f93d1c45e3",
+  "diff_sha256": "a3e93456e8a1472bd01f1d2a82cb1ba4df35cfb9dffe1f614ce47f607b2106b7",
+  "counts_each_unit_and_race": {
+    "top": 1,
+    "sub": 35
+  },
+  "readiness_matrix": {
+    "combinations": 18,
+    "invalid_zero_candidates": 8,
+    "valid_unchanged": 10
+  },
+  "checks": {
+    "format02": {
+      "exit": 0,
+      "seconds": 0.021,
+      "observed_pids": 1,
+      "adopted_waits": 0,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/format02/command.json",
+        "sha256": "bf5fd1861e0683c1fdf355a3dcb854ab28388aec44f919bca4047efdf19e4102"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/format02/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/format02/result.json",
+        "sha256": "554903b1535234943a7779a16d7182a586434629d6b025e98c689ec671e06764"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/format02/cleanup.json",
+        "sha256": "c689ee1debcb29368d0747789d120a2c4b6ac23ac01cef47fcc7880f81652d4f"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/format02/input-before.json",
+        "sha256": "bf41291afcc8ab5f87eff920fe76af5eff37c3905eaf54f092c3d01c7ac8e9af"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/format02/input-after.json",
+        "sha256": "bf41291afcc8ab5f87eff920fe76af5eff37c3905eaf54f092c3d01c7ac8e9af"
+      }
+    },
+    "pure02": {
+      "exit": 0,
+      "seconds": 0.379,
+      "observed_pids": 5,
+      "adopted_waits": 0,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure02/command.json",
+        "sha256": "eedf7faf6090991fad398cd61f08ed516bdb66d355fbc11b90cc6e05ba112852"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure02/raw.log",
+        "sha256": "4708d15c7f958ffffb0f531327b7cb4d1ecd80903bc72b2aedf2dc9d5d8478de"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure02/result.json",
+        "sha256": "ff091818b6f1f18bbf79d4ba1fb629ff660abc89282a979246ccb9c791e81a01"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure02/cleanup.json",
+        "sha256": "bb9ed646f0414c2498c29db31b856afb8ebd1f7af0dea013b8b1c294563f1bd3"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure02/input-before.json",
+        "sha256": "ccd55f71764e76be9e5f7f6109edded8263d2f12e04bc4e31ffbd504c0daf159"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/pure02/input-after.json",
+        "sha256": "ccd55f71764e76be9e5f7f6109edded8263d2f12e04bc4e31ffbd504c0daf159"
+      }
+    },
+    "race02": {
+      "exit": 0,
+      "seconds": 1.626,
+      "observed_pids": 6,
+      "adopted_waits": 0,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race02/command.json",
+        "sha256": "d1c524b7a60025c8d5c683fe1373493537ee9c35741b6662c15071312c903fe7"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race02/raw.log",
+        "sha256": "46130d4263b18e274929eb4c75efd1924925132d104817a7d0c31ac734888ac3"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race02/result.json",
+        "sha256": "3bfc1e417e5b695bfd9c9e3a95208962b49b590a414f38315ccb3177fc6f13f6"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race02/cleanup.json",
+        "sha256": "52263b554a8829212872b6a91c408c83ae952399912fa7639e7294c0932c1b05"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race02/input-before.json",
+        "sha256": "ccd55f71764e76be9e5f7f6109edded8263d2f12e04bc4e31ffbd504c0daf159"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/race02/input-after.json",
+        "sha256": "ccd55f71764e76be9e5f7f6109edded8263d2f12e04bc4e31ffbd504c0daf159"
+      }
+    },
+    "vet02": {
+      "exit": 0,
+      "seconds": 0.097,
+      "observed_pids": 1,
+      "adopted_waits": 0,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet02/command.json",
+        "sha256": "6b0ce25fa69a5d939b8a966f22d6ecea4495356f98f09ae7717d70091dc6b2d5"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet02/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet02/result.json",
+        "sha256": "596a8ef8e5236e3c175ef347af8398741a68011e255f21dfc9117ef8acb26b21"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet02/cleanup.json",
+        "sha256": "106c72b7f9d987d367a7e74097c83c02d3d5182e83a3ff2861b90f3143ce0afb"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet02/input-before.json",
+        "sha256": "ccd55f71764e76be9e5f7f6109edded8263d2f12e04bc4e31ffbd504c0daf159"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/vet02/input-after.json",
+        "sha256": "ccd55f71764e76be9e5f7f6109edded8263d2f12e04bc4e31ffbd504c0daf159"
+      }
+    }
+  },
+  "production_new_guard_lines": 3,
+  "preserved_independent_red": {
+    "finding01.md": {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/finding01.md",
+      "sha256": "628a66ba57fc84ff09a72e73afd6f7416b72f1a6b4165036699fa026ae7fc785"
+    },
+    "finding01.json": {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/finding01.json",
+      "sha256": "d318c226abcbc59bf93c2a932d091877829eebc2de897e2691276dab4737ba0c"
+    },
+    "probe01/crossfield_test.go": {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/probe01/crossfield_test.go",
+      "sha256": "a5b4172b070b1ce56448343b31fabeaf6e8be9c437717a84f6767b4dccc45bbc"
+    },
+    "runs/crossfield01/command.json": {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/runs/crossfield01/command.json",
+      "sha256": "add5e86975a89410f2e845be88cfacded6535e497f03642f8660740b564f2f74"
+    },
+    "runs/crossfield01/raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/runs/crossfield01/raw.log",
+      "sha256": "fb35b371a2d26720d5d5082be3a39c661005c832fb837dd52ed6c4484f76b925"
+    },
+    "runs/crossfield01/result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/runs/crossfield01/result.json",
+      "sha256": "bec14a150dc975d497e5b80ec4ba8937d6cdf7293f75bb28e061b57f78e8e7a7"
+    },
+    "runs/crossfield01/cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/runs/crossfield01/cleanup.json",
+      "sha256": "c6c52a305cd7254c18710099cf8ce41d70901ee5d528fc90c2a6ecb9e2074b91"
+    }
+  },
+  "reused_stage01": "Unchanged constructor/authorization/transaction/Source and natural deadline-tail tests; do not reuse the old incorrect cross-field expectation as valid evidence.",
+  "no_resource": true,
+  "stop_writing": true,
+  "deferred": [
+    "HTTP",
+    "root Source adapter",
+    "schema/encoding",
+    "native",
+    "PG/MinIO",
+    "other authorized paths"
+  ]
+}

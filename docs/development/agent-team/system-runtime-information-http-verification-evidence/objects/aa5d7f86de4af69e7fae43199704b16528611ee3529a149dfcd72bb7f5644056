@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_/probe01/schema.py"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-http-independent-0dnsont_",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-048j0kty",
+    "GOTMPDIR": "/tmp/agt-audit-offline-048j0kty",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "67dcb4e4e2988fab722b09456f8ac48f7f799bca0fe1476dbbbd1b792c98c41a",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 385982,
+  "actual_exit": 0,
+  "seconds": 0.1169658620001428,
+  "timeout": false
+}

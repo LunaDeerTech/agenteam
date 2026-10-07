@@ -1,0 +1,179 @@
+package runtimeinfohttp
+
+import (
+ "bytes"
+ "context"
+ "encoding/json"
+ "errors"
+ "io"
+ "log/slog"
+ "net/http"
+ "net/http/httptest"
+ "os"
+ "path/filepath"
+ "reflect"
+ "strings"
+ "sync"
+ "sync/atomic"
+ "testing"
+ "time"
+
+ "github.com/LunaDeerTech/agenteam/internal/central/account"
+ "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ "github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+ identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+ "github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+)
+
+// The accepted Account construction helper supplies real CheckRequest and
+// WriteProblem only. Current authorization and Reader ports are controlled;
+// this suite never starts the author's native tests or a server.
+type independentBoundary struct {
+ real *account.HTTPBoundary
+ authorize func(*http.Request) (identity.Actor,error)
+ calls atomic.Int32
+}
+func (b *independentBoundary) CheckRequest(w http.ResponseWriter,r *http.Request) error { return b.real.CheckRequest(w,r) }
+func (b *independentBoundary) RequireSystem(r *http.Request,i identity.AccessIntent)(identity.Actor,error) {
+ b.calls.Add(1)
+ if i != identity.Read { return identity.Actor{},foundation.NewFault(foundation.Forbidden,foundation.NotStarted) }
+ if b.authorize != nil { return b.authorize(r) }
+ u,_:=foundation.ParseID[identity.User](wireID);s,_:=foundation.ParseID[identity.Session](wireID)
+ return identity.NewHuman(u,s)
+}
+func (b *independentBoundary) WriteProblem(w http.ResponseWriter,r *http.Request,e error) { b.real.WriteProblem(w,r,e) }
+func independentBoundaryFor(t *testing.T)*independentBoundary {
+ t.Helper();b,e:=account.NewHTTPBoundary(constructionCore(t),"https://runtime.example");if e!=nil{t.Fatal(e)};return &independentBoundary{real:b}
+}
+type independentReader struct { call func(context.Context)(runtimeinfo.Snapshot,error); calls atomic.Int32 }
+func (r *independentReader) GetSystem(c context.Context,_ identity.Actor)(runtimeinfo.Snapshot,error) {r.calls.Add(1);if r.call!=nil{return r.call(c)};return independentSnapshot(),nil}
+func independentSnapshot()runtimeinfo.Snapshot {
+ at,_:=foundation.NewInstant(time.Date(2026,10,7,1,2,3,456789000,time.UTC))
+ return runtimeinfo.Snapshot{ObservedAt:at,Database:runtimeinfo.DatabaseSnapshot{Status:runtimeinfo.Unavailable,LastSuccess:runtimeinfo.DatabaseSuccess{CheckedAt:at,ReceivedAt:at,PostgreSQLVersion:strings.Repeat("&",256),PGVectorVersion:strings.Repeat("&",256)}},ObjectStorage:runtimeinfo.ObjectStorageSnapshot{Status:runtimeinfo.Unavailable,LastSuccessReceivedAt:at},Readiness:foundation.DependencyUnavailable}
+}
+type independentWriter struct {
+ header http.Header
+ status,flushes atomic.Int32
+ written atomic.Int64
+ mu sync.Mutex
+ body bytes.Buffer
+ reads,writes []time.Time
+ setWrite func(time.Time)
+ flush func()error
+ short bool
+}
+func independentNewWriter()*independentWriter{return &independentWriter{header:make(http.Header)}}
+func(w *independentWriter)Header()http.Header{return w.header}
+func(w *independentWriter)WriteHeader(n int){w.status.CompareAndSwap(0,int32(n))}
+func(w *independentWriter)Write(p []byte)(int,error){
+ w.WriteHeader(200);n:=len(p);if w.short{n/=2};w.mu.Lock();w.body.Write(p[:n]);w.mu.Unlock();w.written.Add(int64(n));return n,nil
+}
+func(w *independentWriter)FlushError()error{w.flushes.Add(1);if w.flush!=nil{return w.flush()};return nil}
+func(w *independentWriter)SetReadDeadline(v time.Time)error{w.mu.Lock();w.reads=append(w.reads,v);w.mu.Unlock();return nil}
+func(w *independentWriter)SetWriteDeadline(v time.Time)error{w.mu.Lock();w.writes=append(w.writes,v);w.mu.Unlock();if w.setWrite!=nil{w.setWrite(v)};return nil}
+func(w *independentWriter)reset()bool{w.mu.Lock();defer w.mu.Unlock();return len(w.reads)>0&&len(w.writes)>0&&w.reads[len(w.reads)-1].IsZero()&&w.writes[len(w.writes)-1].IsZero()}
+type independentBody struct{read func([]byte)(int,error);close func()error;closed atomic.Int32}
+func(b *independentBody)Read(p []byte)(int,error){if b.read!=nil{return b.read(p)};return 0,io.EOF}
+func(b *independentBody)Close()error{b.closed.Add(1);if b.close!=nil{return b.close()};return nil}
+func independentRequest(c context.Context)*http.Request{return httptest.NewRequest("GET","https://runtime.example"+runtimePath,nil).WithContext(c)}
+func independentGate()(chan struct{},func()){c:=make(chan struct{});var once sync.Once;return c,func(){once.Do(func(){close(c)})}}
+func independentAwait(t *testing.T,c <-chan struct{},d time.Duration,label string){t.Helper();select{case<-c:case<-time.After(d):t.Fatal(label)}}
+func independentLaunch(t *testing.T,fn func())(<-chan any,<-chan struct{}){
+ t.Helper();done:=make(chan any,1);joined:=make(chan struct{});go func(){defer close(joined);defer func(){done<-recover()}();fn()}();return done,joined
+}
+func independentNotDone(t *testing.T,done <-chan any,label string){t.Helper();select{case<-done:t.Fatal(label);default:}}
+func independentAbort(t *testing.T,done <-chan any,joined <-chan struct{}){t.Helper();select{case v:=<-done:if v!=http.ErrAbortHandler{t.Fatalf("expected owned abort, got %T",v)};case<-time.After(time.Second):t.Fatal("actual handler did not finish")};independentAwait(t,joined,time.Second,"handler goroutine join")}
+
+func TestIndependentRuntimeHTTPBudgetAndActualTerminal(t *testing.T){
+ t.Run("preauthentication_natural_3s_close_and_callback",func(t *testing.T){
+  b:=independentBoundaryFor(t);reader:=&independentReader{};w:=independentNewWriter()
+  authEntered:=make(chan context.Context,1);authRelease,releaseAuth:=independentGate();callbackEntered:=make(chan struct{});callbackRelease,releaseCallback:=independentGate();closeEntered:=make(chan struct{});closeRelease,releaseClose:=independentGate()
+  parent,cancel:=context.WithTimeout(context.Background(),20*time.Second);defer cancel()
+  var callbackOnce atomic.Bool
+  w.setWrite=func(at time.Time){if !at.IsZero()&&!at.After(time.Now())&&callbackOnce.CompareAndSwap(false,true){close(callbackEntered);<-callbackRelease}}
+  b.authorize=func(r *http.Request)(identity.Actor,error){authEntered<-r.Context();<-r.Context().Done();<-authRelease;return identity.Actor{},r.Context().Err()}
+  body:=&independentBody{close:func()error{close(closeEntered);<-closeRelease;return nil}}
+  req:=independentRequest(parent);req.Body=body;began:=time.Now()
+  done,joined:=independentLaunch(t,func(){(&systemHTTP{service:reader,boundary:b}).ServeHTTP(w,req)})
+  t.Cleanup(func(){cancel();releaseAuth();releaseClose();releaseCallback();independentAwait(t,joined,4*time.Second,"natural cleanup join")})
+  var ctx context.Context;select{case ctx=<-authEntered:case<-time.After(time.Second):t.Fatal("preauth not reached")}
+  deadline,ok:=ctx.Deadline();if !ok||deadline.Before(began.Add(3*time.Second))||deadline.After(time.Now().Add(3*time.Second)){t.Fatal("budget did not precede authentication")}
+  independentAwait(t,ctx.Done(),4*time.Second,"natural 3s deadline")
+  if !errors.Is(ctx.Err(),context.DeadlineExceeded)||parent.Err()!=nil{t.Fatal("wrong natural expiry")}
+  independentAwait(t,callbackEntered,time.Second,"callback actual entry")
+  independentNotDone(t,done,"returned while preauth/callback owned")
+  if reader.calls.Load()!=0||w.status.Load()!=0||w.written.Load()!=0{t.Fatal("expired preauth published candidate")}
+  releaseAuth();independentAwait(t,closeEntered,time.Second,"body Close actual entry")
+  independentNotDone(t,done,"returned before Body.Close actual return")
+  releaseClose();independentNotDone(t,done,"returned before callback actual return")
+  if w.reset(){t.Fatal("reset before callback join")}
+  releaseCallback();independentAbort(t,done,joined)
+  if body.closed.Load()!=1||!w.reset()||w.flushes.Load()!=0{t.Fatal("terminal ownership/reset incorrect")}
+  t.Logf("natural DeadlineExceeded; actual auth/Close/callback join; elapsed=%s",time.Since(began))
+ })
+ t.Run("earlier_parent_reader_tail",func(t *testing.T){
+  b:=independentBoundaryFor(t);parent,cancel:=context.WithTimeout(context.Background(),75*time.Millisecond);defer cancel();pd,_:=parent.Deadline()
+  entered:=make(chan context.Context,1);release,open:=independentGate();body:=&independentBody{};w:=independentNewWriter()
+  reader:=&independentReader{call:func(c context.Context)(runtimeinfo.Snapshot,error){entered<-c;<-c.Done();<-release;return independentSnapshot(),nil}}
+  req:=independentRequest(parent);req.Body=body;began:=time.Now();done,joined:=independentLaunch(t,func(){(&systemHTTP{service:reader,boundary:b}).ServeHTTP(w,req)})
+  t.Cleanup(func(){cancel();open();independentAwait(t,joined,time.Second,"earlier parent cleanup join")})
+  var ctx context.Context;select{case ctx=<-entered:case<-time.After(time.Second):t.Fatal("reader entry")};d,_:=ctx.Deadline();if !d.Equal(pd){t.Fatal("parent extended")}
+  independentAwait(t,ctx.Done(),time.Second,"parent Done");if !errors.Is(ctx.Err(),context.DeadlineExceeded){t.Fatal("parent error")}
+  independentNotDone(t,done,"returned before actual Reader tail");if w.status.Load()!=0||w.written.Load()!=0{t.Fatal("early candidate bytes")}
+  open();independentAbort(t,done,joined);if w.status.Load()!=0||w.written.Load()!=0||body.closed.Load()!=1||!w.reset(){t.Fatal("late candidate escaped")}
+  t.Logf("earlier parent DeadlineExceeded; Reader actual tail joined; elapsed=%s",time.Since(began))
+ })
+ t.Run("actual_flush_and_short_write",func(t *testing.T){
+  b:=independentBoundaryFor(t);w:=independentNewWriter();entered:=make(chan struct{});release,open:=independentGate();w.flush=func()error{close(entered);<-release;return io.ErrUnexpectedEOF};body:=&independentBody{}
+  req:=independentRequest(context.Background());req.Body=body;done,joined:=independentLaunch(t,func(){(&systemHTTP{service:&independentReader{},boundary:b}).ServeHTTP(w,req)})
+  t.Cleanup(func(){open();independentAwait(t,joined,time.Second,"flush cleanup join")});independentAwait(t,entered,time.Second,"Flush actual entry");independentNotDone(t,done,"returned before Flush")
+  if w.status.Load()!=200||w.written.Load()!=3690{t.Fatal("expected complete buffer before failing flush")}
+  open();independentAbort(t,done,joined);if body.closed.Load()!=1||!w.reset(){t.Fatal("flush failure lost close/reset")}
+  short:=independentNewWriter();short.short=true;req2:=independentRequest(context.Background());body2:=&independentBody{};req2.Body=body2
+  d,j:=independentLaunch(t,func(){(&systemHTTP{service:&independentReader{},boundary:b}).ServeHTTP(short,req2)});independentAbort(t,d,j)
+  if short.written.Load()!=1845||short.flushes.Load()!=0||body2.closed.Load()!=1||!short.reset(){t.Fatal("short write did not abort/close/reset")}
+  // Buffered/partial writes occurred in these two cases; this is not zero-wire evidence.
+ })
+}
+
+func TestIndependentRuntimeHTTPBoundaryAndWire(t *testing.T){
+ t.Run("formal_boundary_precedence",func(t *testing.T){
+  for _,tc:=range []struct{name,path,host,method string;deny bool;status int;code string;auth int32}{
+   {"host_before_ambiguous",runtimePath+"/","bad.example","GET",false,403,"ORIGIN_DENIED",0},
+   {"valid_boundary_tail_slash",runtimePath+"/","runtime.example","GET",false,400,"INVALID_ARGUMENT",0},
+   {"canonical_unknown",runtimePath+"/unknown","runtime.example","GET",false,404,"NOT_FOUND",0},
+   {"head",runtimePath,"runtime.example","HEAD",false,405,"",0},
+   {"anonymous_before_query",runtimePath+"?","runtime.example","GET",true,401,"UNAUTHENTICATED",0},
+   {"authenticated_before_query",runtimePath+"?","runtime.example","GET",false,400,"INVALID_ARGUMENT",1},
+  }{
+   t.Run(tc.name,func(t *testing.T){
+    b:=independentBoundaryFor(t);reader:=&independentReader{};var boundary accountBoundary=b;if tc.deny{boundary=b.real}
+    h:=&systemHTTP{service:reader,boundary:boundary};w:=independentNewWriter();r:=httptest.NewRequest(tc.method,"https://runtime.example"+tc.path,nil);r.Host=tc.host;before:=*r.URL;var logs bytes.Buffer
+    httpapi.Handler(slog.New(slog.NewJSONHandler(&logs,nil)),h).ServeHTTP(w,r)
+    if int(w.status.Load())!=tc.status||reader.calls.Load()!=0||b.calls.Load()!=tc.auth||!reflect.DeepEqual(before,*r.URL)||r.Host!=tc.host{t.Fatal("boundary/order/request changed")}
+    if tc.method=="HEAD"{if w.written.Load()!=0||w.Header().Get("Allow")!="GET"{t.Fatal("HEAD shape")}}else{var p map[string]any;if json.Unmarshal(w.body.Bytes(),&p)!=nil||p["code"]!=tc.code||p["instance"]!="/api/v1"||p["request_id"]!=w.Header().Get("X-Request-ID"){t.Fatal("closed safe Problem mismatch")}}
+    if w.Header().Get("Cache-Control")!="no-store"||w.Header().Get("X-Content-Type-Options")!="nosniff"||w.Header().Get("Referrer-Policy")!="no-referrer"||w.Header().Get("Location")!=""||w.flushes.Load()!=1||!w.reset(){t.Fatal("headers/actual terminal")}
+    if bytes.Count(logs.Bytes(),[]byte(`"event":"http_request"`))!=1||bytes.Contains(logs.Bytes(),[]byte(tc.host)){t.Fatal("unsafe trace")}
+   })
+  }
+ })
+ t.Run("complete_projection_crossfield_and_encoding",func(t *testing.T){
+  value:=independentSnapshot();body,err:=encodeSnapshot(value);if err!=nil||len(body)!=3690{t.Fatalf("max legal encoding: bytes=%d error=%v",len(body),err)}
+  var doc map[string]any;if json.Unmarshal(body,&doc)!=nil{t.Fatal("wire JSON")}
+  at:="2026-10-07T01:02:03.456789Z"
+  expected:=map[string]any{"observed_at":at,"central":map[string]any{"version":nil,"safe_reason":"build_version_not_recorded"},"database":map[string]any{"status":"unavailable","safe_reason":"check_unavailable","last_success":map[string]any{"checked_at":at,"received_at":at,"postgresql_version":strings.Repeat("&",256),"pgvector_version":strings.Repeat("&",256)}},"object_storage":map[string]any{"backend":"minio","assessment":"object_storage_aggregate","status":"unavailable","safe_reason":"check_unavailable","last_success_received_at":at,"details":"not_reported"},"readiness":map[string]any{"ready":false,"safe_reason":"DEPENDENCY_UNAVAILABLE"}}
+  if !reflect.DeepEqual(doc,expected){t.Fatal("closed full projection differs from independent golden")}
+  vectors:=[]json.RawMessage{body}
+  value.Database.Status,value.ObjectStorage.Status=runtimeinfo.Available,runtimeinfo.Available
+  for _,reason:=range []foundation.Code{foundation.DependencyUnbound,foundation.DependencyUnavailable}{value.Readiness=reason;v,e:=encodeSnapshot(value);if e!=nil{t.Fatal("both available valid readiness")};vectors=append(vectors,v)}
+  for _,which:=range []string{"database","object"}{bad:=value;bad.Readiness=foundation.DependencyUnbound;if which=="database"{bad.Database.Status=runtimeinfo.Stale}else{bad.ObjectStorage.Status=runtimeinfo.Unavailable}
+   out,e:=encodeSnapshot(bad);if e==nil||len(out)!=0{t.Fatal("cross-field invalid wire candidate")}
+   b:=independentBoundaryFor(t);w:=independentNewWriter();(&systemHTTP{service:&independentReader{call:func(context.Context)(runtimeinfo.Snapshot,error){return bad,nil}},boundary:b}).ServeHTTP(w,independentRequest(context.Background()))
+   var p map[string]any;if w.status.Load()!=503||json.Unmarshal(w.body.Bytes(),&p)!=nil||p["code"]!="DEPENDENCY_UNAVAILABLE"||bytes.Contains(w.body.Bytes(),[]byte("observed_at")){t.Fatal("invalid reader partially published")}
+  }
+  max,e:=encode(strings.Repeat("x",16382));if e!=nil||len(max)!=16384{t.Fatal("synthetic exact encoder budget")};over,e:=encode(strings.Repeat("x",16383));if e==nil||len(over)!=0{t.Fatal("synthetic encoder overflow")}
+  // These synthetic strings test the byte gate only, not legal snapshot size.
+  data,e:=json.Marshal(vectors);if e!=nil{t.Fatal(e)};out:=os.Getenv("INDEPENDENT_RUNTIME_VECTORS");if out==""{t.Fatal("private output binding missing")};if e=os.MkdirAll(filepath.Dir(out),0700);e!=nil{t.Fatal(e)};if e=os.WriteFile(out,data,0600);e!=nil{t.Fatal(e)}
+  t.Log("three formal wire vectors; legal escaped body=3690B; synthetic 16384 admitted/16385 rejected; invalid reader returned only safe 503")
+ })
+}

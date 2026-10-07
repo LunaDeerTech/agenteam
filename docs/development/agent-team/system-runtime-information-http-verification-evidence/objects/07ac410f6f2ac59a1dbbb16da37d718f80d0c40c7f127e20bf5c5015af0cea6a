@@ -1,0 +1,36 @@
+{
+  "all_actual_wait_and_double_cleanup": true,
+  "all_commands_exit_zero": true,
+  "binaries": {
+    "account": {
+      "bytes": 48253475,
+      "deleted_after_discovery": true,
+      "exact_discovered": [
+        "TestSystemRuntimeInformationCurrentAuthorityAndTerminal"
+      ],
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/account.test",
+      "sha256": "b1a36ccede68931d01c8ce3aa771975aebd6f3a488010947267cffc55400b4f4"
+    },
+    "app": {
+      "bytes": 44379549,
+      "deleted_after_discovery": true,
+      "exact_discovered": [
+        "TestSystemRuntimeInformationRootSnapshotBinding"
+      ],
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/app.test",
+      "sha256": "18d0ab56d0352ae745dc1a0d8b86ed28cc1a90f60789bf17f7700a8542059e33"
+    }
+  },
+  "business_tests_executed": false,
+  "disk_free_bytes_after": 5396529152,
+  "input_sha256": "219d7e55ee5cab033d01a2a912c9a22a2d50cfe9ca4ee4e3e78f4609ae185fc3",
+  "input_unchanged": true,
+  "local_paths": 622,
+  "main_head": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+  "modules": 31,
+  "noncandidate_production_delta_from_b124650": [],
+  "packages": 396,
+  "runtime_files": 3499,
+  "scope": "main two-package integration race compile and exact discovery only; no business execution",
+  "source_writes": false
+}

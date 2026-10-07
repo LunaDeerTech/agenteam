@@ -1,0 +1,31 @@
+=== RUN   TestIndependentRuntimeHTTPBudgetAndActualTerminal
+=== RUN   TestIndependentRuntimeHTTPBudgetAndActualTerminal/preauthentication_natural_3s_close_and_callback
+    independent_http_test.go:112: natural DeadlineExceeded; actual auth/Close/callback join; elapsed=3.002517618s
+=== RUN   TestIndependentRuntimeHTTPBudgetAndActualTerminal/earlier_parent_reader_tail
+    independent_http_test.go:124: earlier parent DeadlineExceeded; Reader actual tail joined; elapsed=76.415337ms
+=== RUN   TestIndependentRuntimeHTTPBudgetAndActualTerminal/actual_flush_and_short_write
+--- PASS: TestIndependentRuntimeHTTPBudgetAndActualTerminal (3.09s)
+    --- PASS: TestIndependentRuntimeHTTPBudgetAndActualTerminal/preauthentication_natural_3s_close_and_callback (3.00s)
+    --- PASS: TestIndependentRuntimeHTTPBudgetAndActualTerminal/earlier_parent_reader_tail (0.08s)
+    --- PASS: TestIndependentRuntimeHTTPBudgetAndActualTerminal/actual_flush_and_short_write (0.00s)
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/host_before_ambiguous
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/valid_boundary_tail_slash
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/canonical_unknown
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/head
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/anonymous_before_query
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/authenticated_before_query
+=== RUN   TestIndependentRuntimeHTTPBoundaryAndWire/complete_projection_crossfield_and_encoding
+    independent_http_test.go:177: three formal wire vectors; legal escaped body=3690B; synthetic 16384 admitted/16385 rejected; invalid reader returned only safe 503
+--- PASS: TestIndependentRuntimeHTTPBoundaryAndWire (0.01s)
+    --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence (0.01s)
+        --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/host_before_ambiguous (0.00s)
+        --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/valid_boundary_tail_slash (0.00s)
+        --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/canonical_unknown (0.00s)
+        --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/head (0.00s)
+        --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/anonymous_before_query (0.00s)
+        --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/formal_boundary_precedence/authenticated_before_query (0.00s)
+    --- PASS: TestIndependentRuntimeHTTPBoundaryAndWire/complete_projection_crossfield_and_encoding (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo/http	4.113s

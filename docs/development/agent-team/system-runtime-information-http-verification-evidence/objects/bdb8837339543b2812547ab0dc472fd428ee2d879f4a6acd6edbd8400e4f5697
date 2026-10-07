@@ -1,0 +1,8 @@
+from pathlib import Path
+import subprocess,json
+R=Path(__file__).resolve().parents[1]
+for src in sorted((R/'preparation/raw-draft01').glob('*.go')):
+ r=subprocess.run(['/workspace/toolchains/go1.27.1/bin/gofmt',str(src)],capture_output=True,timeout=30)
+ if r.returncode: raise RuntimeError(r.stderr.decode())
+ (R/'probe01'/src.name).write_bytes(r.stdout)
+print(json.dumps({'formatted_two_private_sources':True,'resources_started':False}))

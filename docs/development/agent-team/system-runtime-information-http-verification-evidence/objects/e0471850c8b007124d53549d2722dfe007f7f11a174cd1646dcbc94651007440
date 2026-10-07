@@ -1,0 +1,158 @@
+import ctypes, hashlib, importlib.util, json, os, shutil, signal, subprocess, sys, time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+Q = ROOT.parent
+REPO = Path('/workspace/agenteam')
+HEAD = 'aa9ea0b63de0c395525f3084ef514752ce2f1dfd'
+GO = '/workspace/toolchains/go1.27.1/bin/go'
+spec = importlib.util.spec_from_file_location('previous_audit_driver', Q / 'run-runtime-fixture.py')
+previous = importlib.util.module_from_spec(spec)
+sys.dont_write_bytecode = True
+spec.loader.exec_module(previous)
+write, processes, reap_adopted = previous.write, previous.processes, previous.reap_adopted
+sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+env = previous.runtime_environment()
+env['GOTMPDIR'] = str(ROOT / 'tmp')
+env['TMPDIR'] = str(ROOT / 'tmp')
+(ROOT / 'tmp').mkdir(mode=0o700)
+SAFE_ENV = {k: env[k] for k in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','GOTMPDIR','TMPDIR','CGO_ENABLED','GOFLAGS']}
+if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+    raise RuntimeError('subreaper setup failed')
+delivery = json.loads((Q / 'document-stage01/delivery14.json').read_text())
+assert subprocess.check_output(['git','rev-parse','HEAD'], cwd=REPO, timeout=10).decode().strip() == HEAD
+assert sha(Q / 'document-stage01/delivery14.json') == '4c9c56e7d76f6c9278c42f883ade2830e9c52443ffe3be62e44f36caa51593bb'
+assert sha(Q / 'run-runtime-fixture.py') == 'b78846a88242665b3a8915a62c906ae78aaca3ebb3f1680d5c12413d6bf799f5'
+for name, meta in delivery['files'].items():
+    target = Path(meta['source']) if name == 'docs/development/backend/README.md' else REPO / name
+    assert sha(target) == meta['sha256'], name
+tracked = {str(REPO / name) for name in delivery['files'] if name != 'docs/development/backend/README.md'}
+tracked.add(delivery['files']['docs/development/backend/README.md']['source'])
+tracked.update(str(REPO / name) for name in ['go.mod','go.sum'])
+tracked.update([GO, str(Q / 'run-runtime-fixture.py'), str(Path(__file__).resolve()), str(Q / 'document-stage01/delivery14.json')])
+def stamp():
+    return {p: sha(p) for p in sorted(tracked)}
+
+def run(name, argv):
+    folder = ROOT / name
+    folder.mkdir()
+    before = stamp()
+    write(folder / 'input-before.json', before)
+    baseline = processes()
+    write(folder / 'process-baseline.json', {str(p): {k:r[k] for k in ['ppid','starttime','state','name','executable']} for p,r in baseline.items()})
+    record = {'argv': argv, 'cwd': str(REPO), 'env': SAFE_ENV, 'limit_seconds':45, 'started_utc':previous.utc(), 'main_head':HEAD}
+    write(folder / 'command.json', record)
+    observed, waited, timed_out = {}, [], False
+    started = time.monotonic()
+    with (folder / 'raw.log').open('wb') as raw:
+        child = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+        print(json.dumps({'check':name,'pid':child.pid,'argv':argv}), flush=True)
+        while True:
+            current = processes()
+            owned = {child.pid} | {p for p,r in current.items() if r['ppid'] == os.getpid()}
+            for _ in range(12):
+                larger = owned | {p for p,r in current.items() if r['ppid'] in owned}
+                if larger == owned: break
+                owned = larger
+            for p in owned:
+                if p in current:
+                    r = current[p]
+                    observed[str(p)+':'+r['starttime']] = {'pid':p, **{k:r[k] for k in ['ppid','starttime','state','name','executable']}}
+            reap_adopted(observed, child.pid, waited)
+            if child.poll() is not None: break
+            if time.monotonic()-started >= 45 and not timed_out:
+                timed_out = True
+                os.killpg(child.pid, signal.SIGTERM)
+            if timed_out and time.monotonic()-started >= 46:
+                os.killpg(child.pid, signal.SIGKILL)
+            time.sleep(.025)
+        code = child.wait()
+    record.update({'exit':code,'seconds':round(time.monotonic()-started,3),'actual_wait_completed':True,'ended_utc':previous.utc(),'timed_out':timed_out})
+    write(folder / 'command.json', record)
+    cleanups = []
+    for _ in range(2):
+        reap_adopted(observed, child.pid, waited)
+        current = processes()
+        remaining = [r for r in observed.values() if r['pid'] in current and current[r['pid']]['starttime'] == r['starttime']]
+        cleanups.append({'time':previous.utc(),'owned_processes':remaining,'runtime_entries':sorted(p.name for p in (ROOT/'tmp').iterdir())})
+        time.sleep(.15)
+    write(folder / 'cleanup.json', cleanups)
+    write(folder / 'observed-processes.json', observed)
+    write(folder / 'adopted-waits.json', waited)
+    after = stamp()
+    write(folder / 'input-after.json', after)
+    clean = all(not r['owned_processes'] and not r['runtime_entries'] for r in cleanups)
+    result = {'exit':code,'seconds':record['seconds'],'actual_wait_completed':True,'timed_out':timed_out,'input_unchanged':before==after,'double_cleanup':clean,'observed_processes':len(observed),'adopted_waits':len(waited),'raw_sha256':sha(folder/'raw.log'),'command_sha256':sha(folder/'command.json')}
+    write(folder / 'result.json', result)
+    print(json.dumps({'check':name, **result}),flush=True)
+    if code or timed_out or before != after or not clean:
+        raise RuntimeError('check failed; stopped without retry: '+name)
+    return folder
+
+fields = ['GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles','TestGoFiles','XTestGoFiles','TestEmbedFiles','XTestEmbedFiles']
+graph = run('graph01', [GO,'list','-race','-deps','-test','-tags=integration','-json=Dir,ImportPath,Module,Error,DepsErrors,'+','.join(fields),'./tests/account','./internal/central/app'])
+raw = (graph/'raw.log').read_text()
+decoder, offset, packages, modules, generated = json.JSONDecoder(),0,set(),{},set()
+while offset < len(raw):
+    while offset < len(raw) and raw[offset].isspace(): offset += 1
+    if offset == len(raw): break
+    pkg, offset = decoder.raw_decode(raw, offset)
+    assert not pkg.get('Error') and not pkg.get('DepsErrors')
+    packages.add(pkg['ImportPath'])
+    module = pkg.get('Module',{})
+    if module and not module.get('Main'):
+        assert not module.get('Replace')
+        modules[module['Path']] = {k:module.get(k) for k in ['Version','Sum','GoModSum','Dir','GoMod']}
+        tracked.add(module['GoMod'])
+    directory = Path(pkg.get('Dir', REPO))
+    for key in fields:
+        for name in pkg.get(key,[]):
+            path = (directory/name).resolve()
+            if path.is_relative_to(Path(env['GOCACHE'])) or path.is_relative_to(ROOT/'tmp'):
+                assert pkg['ImportPath'].endswith('.test')
+                generated.add(pkg['ImportPath'])
+                continue
+            assert any(path.is_relative_to(p) for p in [REPO,Path(GO).parent.parent,Path(env['GOMODCACHE'])]), path
+            tracked.add(str(path))
+for name in ['compile','link','asm','cgo']:
+    tracked.add(str(Path(GO).parent.parent/'pkg/tool/linux_amd64'/name))
+for name in ['gcc','g++','sh']:
+    tracked.add(str(Path(shutil.which(name)).resolve()))
+tracked.add(str(Path(sys.executable).resolve()))
+tracked.add(str(Path(GO).parent.parent/'VERSION'))
+local = sorted(str(Path(p).relative_to(REPO)) for p in tracked if Path(p).is_relative_to(REPO))
+gitraw = subprocess.check_output(['git','ls-tree','-r','-z',HEAD,'--',*local],cwd=REPO,timeout=20)
+blobs = {}
+for item in gitraw.split(b'\0'):
+    if item:
+        meta, name = item.split(b'\t',1)
+        blobs[name.decode()] = meta.split()[2].decode()
+for name in local:
+    if name in delivery['files']: continue
+    content = (REPO/name).read_bytes()
+    assert hashlib.sha1(b'blob '+str(len(content)).encode()+b'\0'+content).hexdigest() == blobs[name], name
+production = [name for name in local if Path(name).suffix in {'.go','.s','.S','.c','.h','.cc','.cpp','.syso'} and not name.endswith('_test.go') and name not in delivery['files']]
+base_raw = subprocess.check_output(['git','ls-tree','-r','-z','b124650aee095b26191bc181dc8cf5d6e0f977f5','--',*production],cwd=REPO,timeout=20)
+base_blobs = {}
+for item in base_raw.split(b'\0'):
+    if item:
+        meta, name = item.split(b'\t',1)
+        base_blobs[name.decode()] = meta.split()[2].decode()
+production_delta = [name for name in production if blobs.get(name) != base_blobs.get(name)]
+write(ROOT/'input.json', {'main_head':HEAD,'delivery14_sha256':sha(Q/'document-stage01/delivery14.json'),'files':stamp(),'local_paths':local,'head_blobs':blobs,'noncandidate_production_delta_from_b124650':production_delta,'modules':modules,'packages':sorted(packages),'generated_test_mains':sorted(generated),'env':SAFE_ENV,'disk_free_bytes_before':os.statvfs(ROOT).f_bavail*os.statvfs(ROOT).f_frsize})
+summary = {'scope':'main two-package integration race compile and exact discovery only; no business execution','main_head':HEAD,'input_sha256':sha(ROOT/'input.json'),'local_paths':len(local),'runtime_files':len(tracked)-len(local),'packages':len(packages),'modules':len(modules),'noncandidate_production_delta_from_b124650':production_delta,'binaries':{}}
+for label, package, names in [('account','./tests/account',['TestSystemRuntimeInformationCurrentAuthorityAndTerminal']),('app','./internal/central/app',['TestSystemRuntimeInformationRootSnapshotBinding'])]:
+    binary = ROOT/(label+'.test')
+    run(label+'-compile01',[GO,'test','-c','-race','-vet=off','-tags=integration','-o',str(binary),package])
+    tracked.add(str(binary))
+    folder = run(label+'-list01',[str(binary),'-test.list','^('+'|'.join(names)+')$'])
+    assert (folder/'raw.log').read_text().splitlines() == names
+    summary['binaries'][label] = {'path':str(binary),'sha256':sha(binary),'bytes':binary.stat().st_size,'exact_discovered':names}
+    binary.unlink()
+    tracked.remove(str(binary))
+    summary['binaries'][label]['deleted_after_discovery'] = not binary.exists()
+assert stamp() == json.loads((ROOT/'input.json').read_text())['files']
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=REPO,timeout=10).decode().strip() == HEAD
+summary.update({'input_unchanged':True,'all_commands_exit_zero':True,'all_actual_wait_and_double_cleanup':True,'source_writes':False,'business_tests_executed':False,'disk_free_bytes_after':os.statvfs(ROOT).f_bavail*os.statvfs(ROOT).f_frsize})
+write(ROOT/'result.json',summary)
+print(json.dumps(summary),flush=True)

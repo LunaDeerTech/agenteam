@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-vet=off",
+    "-count=1",
+    "-timeout=45s",
+    "-overlay=/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/overlay01.json",
+    "-run",
+    "^TestIndependentRuntimeSnapshotCrossField$",
+    "-v",
+    "./internal/central/runtimeinfo"
+  ],
+  "cwd": "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace",
+  "env_overrides": {
+    "TMPDIR": "/tmp/agt-audit-offline-2s6fmcxg",
+    "GOTMPDIR": "/tmp/agt-audit-offline-2s6fmcxg",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "TZ": "UTC",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOENV": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOCACHE": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "CGO_ENABLED": "1"
+  },
+  "subreaper_before_child": true,
+  "execution_sha256": "9cb484e3439b7728b74605b203b920ea6cb921df082c27fc70f5f0ffa1d75a32",
+  "actual_wait": true,
+  "resource_execution": false,
+  "pid": 364343,
+  "actual_exit": 1,
+  "seconds": 0.9452484129997174,
+  "timeout": false
+}

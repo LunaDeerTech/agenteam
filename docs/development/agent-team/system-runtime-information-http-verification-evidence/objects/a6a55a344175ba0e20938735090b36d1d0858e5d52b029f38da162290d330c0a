@@ -1,0 +1,21 @@
+{
+  "read_only_path_lookup_failures": [
+    {
+      "tool_chunk": "54cf0b",
+      "paths": [
+        "internal/central/identity/contract/ports.go",
+        "internal/central/foundation/transaction.go"
+      ],
+      "individual_git_exit": 128,
+      "shell_final_exit": 0
+    },
+    {
+      "tool_chunk": "1e16e5",
+      "path": "internal/central/audit/authorization.go",
+      "exit": 128
+    }
+  ],
+  "classification": "Nonexistent guessed source paths during read-only preparation; corrected using fixed Git tree/grep, no tests or product writes occurred.",
+  "authorized_stage": "service.go + service_test.go only",
+  "resources": "No native/socket/listener/Docker/PG/MinIO/browser authorization."
+}

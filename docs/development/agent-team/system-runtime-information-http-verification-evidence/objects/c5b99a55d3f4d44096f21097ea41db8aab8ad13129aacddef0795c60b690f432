@@ -1,0 +1,228 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"net/http"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+	runtimehttp "github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo/http"
+)
+
+type independentRuntimeTxKey struct{}
+type independentRuntimeTrace struct {
+	locks, sessions, grants, sources int
+	state foundation.CommitState
+	key foundation.LockKey
+}
+type independentRuntimeStore struct {
+	*postgres.Store
+	mu sync.Mutex
+	traces map[foundation.Tx]*independentRuntimeTrace
+	tail func(context.Context, foundation.Tx) error
+	active atomic.Int32
+	last foundation.CommitState
+}
+func (s *independentRuntimeStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	s.active.Add(1)
+	defer s.active.Add(-1)
+	var trace *independentRuntimeTrace
+	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		trace = &independentRuntimeTrace{}
+		s.mu.Lock(); s.traces[tx] = trace; s.mu.Unlock()
+		err := fn(context.WithValue(ctx, independentRuntimeTxKey{}, tx), tx)
+		if err != nil { return err }
+		s.mu.Lock(); tail := s.tail; s.mu.Unlock()
+		if tail != nil { return tail(ctx, tx) }
+		return nil
+	})
+	s.mu.Lock()
+	s.last = result.State()
+	if trace != nil { trace.state = result.State() }
+	s.mu.Unlock()
+	return result
+}
+func (s *independentRuntimeStore) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
+	s.mu.Lock()
+	trace := s.traces[tx]
+	valid := trace != nil && trace.locks == 0 && mode == foundation.Shared
+	if valid { trace.locks++; trace.key = key }
+	s.mu.Unlock()
+	if !valid { return errors.New("independent runtime read lock ordering") }
+	return s.Store.Acquire(ctx, tx, key, mode)
+}
+type independentRuntimeAuthority struct { *account.Authority; store *independentRuntimeStore }
+func (a independentRuntimeAuthority) RequireCurrentSession(ctx context.Context, tx foundation.Tx, actor identity.Actor) error {
+	key, err := foundation.UserLock(actor.Details().UserID)
+	if err != nil { return err }
+	a.store.mu.Lock()
+	tr := a.store.traces[tx]
+	valid := tx.Valid() && tr != nil && tr.locks == 1 && tr.sessions == 0 && foundation.CompareLockKeys(tr.key, key) == 0
+	if valid { tr.sessions++ }
+	a.store.mu.Unlock()
+	if !valid { return errors.New("independent runtime Session order or Tx") }
+	if err = a.store.Store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key:key, Mode:foundation.Shared}}); err != nil { return err }
+	return a.Authority.RequireCurrentSession(ctx, tx, actor)
+}
+func (a independentRuntimeAuthority) AuthorizeSystem(ctx context.Context, tx foundation.Tx, actor identity.Actor, intent identity.AccessIntent) (identity.AccessGrant,error) {
+	a.store.mu.Lock()
+	tr := a.store.traces[tx]
+	valid := tr != nil && tr.sessions == 1 && tr.grants == 0 && intent == identity.Read
+	if valid { tr.grants++ }
+	a.store.mu.Unlock()
+	if !valid { return identity.AccessGrant{}, errors.New("independent runtime grant order or Tx") }
+	grant, err := a.Authority.AuthorizeSystem(ctx,tx,actor,intent)
+	if err == nil && !grant.Matches(actor,identity.SystemScope(),identity.Read) { return identity.AccessGrant{},errors.New("independent formal grant mismatch") }
+	return grant,err
+}
+type independentRuntimeSource struct { store *independentRuntimeStore; value runtimeinfo.Snapshot }
+func (s independentRuntimeSource) Snapshot(ctx context.Context) (runtimeinfo.Snapshot,error) {
+	tx, ok := ctx.Value(independentRuntimeTxKey{}).(foundation.Tx)
+	s.store.mu.Lock()
+	tr := s.store.traces[tx]
+	valid := ok && tx.Valid() && tr != nil && tr.locks == 1 && tr.sessions == 1 && tr.grants == 1 && tr.sources == 0
+	if valid { tr.sources++ }
+	s.store.mu.Unlock()
+	if !valid { return runtimeinfo.Snapshot{},errors.New("independent Source before complete current authorization") }
+	return s.value,ctx.Err()
+}
+
+// Only counters/body are inspected concurrently. Header remains owned by the
+// handler, and is inspected only after done. This is not a TCP writer.
+type independentRuntimeWriter struct {
+	header http.Header
+	mu sync.Mutex
+	status, writes, flushes int
+	body []byte
+	readDeadline, writeDeadline time.Time
+}
+func (w *independentRuntimeWriter) Header() http.Header { return w.header }
+func (w *independentRuntimeWriter) WriteHeader(status int) { w.mu.Lock(); defer w.mu.Unlock(); if w.status == 0 { w.status = status } }
+func (w *independentRuntimeWriter) Write(p []byte) (int,error) { w.mu.Lock(); defer w.mu.Unlock(); if w.status == 0 { w.status = 200 }; w.writes++; w.body=append(w.body,p...); return len(p),nil }
+func (w *independentRuntimeWriter) Flush() { w.mu.Lock(); w.flushes++; w.mu.Unlock() }
+func (w *independentRuntimeWriter) SetReadDeadline(d time.Time) error { w.mu.Lock(); w.readDeadline=d; w.mu.Unlock(); return nil }
+func (w *independentRuntimeWriter) SetWriteDeadline(d time.Time) error { w.mu.Lock(); w.writeDeadline=d; w.mu.Unlock(); return nil }
+func (w *independentRuntimeWriter) counts() (int,int,int,int) { w.mu.Lock(); defer w.mu.Unlock(); return w.status,w.writes,len(w.body),w.flushes }
+type independentRuntimeCall struct { writer *independentRuntimeWriter; done chan struct{}; panicValue any }
+func independentRuntimeStart(t *testing.T, h http.Handler, req *http.Request, release func()) *independentRuntimeCall {
+	t.Helper()
+	ctx,cancel := context.WithCancel(req.Context())
+	c := &independentRuntimeCall{writer:&independentRuntimeWriter{header:make(http.Header)},done:make(chan struct{})}
+	t.Cleanup(func(){ cancel(); release(); select { case <-c.done: case <-time.After(2*time.Second): t.Error("independent runtime handler actual join missing") } })
+	go func(){ defer close(c.done); defer func(){ c.panicValue=recover() }(); h.ServeHTTP(c.writer,req.WithContext(ctx)) }()
+	return c
+}
+func independentRuntimeJoin(t *testing.T,c *independentRuntimeCall) {
+	t.Helper()
+	select { case <-c.done: case <-time.After(2*time.Second): t.Fatal("independent runtime handler did not return") }
+	c.writer.mu.Lock(); cleared:=c.writer.readDeadline.IsZero() && c.writer.writeDeadline.IsZero(); c.writer.mu.Unlock()
+	if !cleared { t.Fatal("handler returned with deadlines retained") }
+}
+func independentRuntimeZero(t *testing.T,c *independentRuntimeCall) {
+	t.Helper()
+	status,writes,n,flushes:=c.writer.counts()
+	if status!=0 || writes!=0 || n!=0 || flushes!=0 { t.Fatal("preterminal writer published status/body/flush") }
+	select { case <-c.done: t.Fatal("read owner returned before actual Tx tail"); default: }
+}
+
+func TestIndependentRuntimeCurrentAuthorityAndTerminal(t *testing.T) {
+	started:=time.Now()
+	f:=newB02Account(t).fixture
+	password:=f.bootstrap(t)
+	store:=&independentRuntimeStore{Store:f.store,traces:make(map[foundation.Tx]*independentRuntimeTrace)}
+	authority:=independentRuntimeAuthority{f.authority,store}
+	instant,err:=foundation.NewInstant(time.Now()); if err!=nil {t.Fatal(err)}
+	value:=runtimeinfo.Snapshot{ObservedAt:instant,Database:runtimeinfo.DatabaseSnapshot{Status:runtimeinfo.Available,LastSuccess:runtimeinfo.DatabaseSuccess{CheckedAt:instant,ReceivedAt:instant,PostgreSQLVersion:"independent controlled PG",PGVectorVersion:"independent controlled vector"}},ObjectStorage:runtimeinfo.ObjectStorageSnapshot{Status:runtimeinfo.Available,LastSuccessReceivedAt:instant},Readiness:foundation.DependencyUnbound}
+	service,err:=runtimeinfo.New(store,authority,authority,independentRuntimeSource{store,value});if err!=nil {t.Fatal(err)}
+	h,err:=runtimehttp.NewSystemHTTPHandler(service,f.service,runtimehttp.SystemHTTPOptions{PublicOrigin:httpOrigin});if err!=nil{t.Fatal(err)}
+	h=httpapi.Handler(nil,h)
+	login:=func(t *testing.T)(identity.Actor,string){
+		t.Helper(); req,_:=loginRequest(t,f,password,"admin@mail.com")
+		response,err:=f.service.Login(ctxFor(t),req);if err!=nil{t.Fatal("formal Login failed")}
+		cookie:=useCookie(t,response)
+		if err=response.Close(ctxFor(t));err!=nil{t.Fatal("Login material close failed")}
+		actor,err:=f.service.Authenticate(ctxFor(t),cookie);if err!=nil{t.Fatal("formal Authenticate failed")}
+		var raw string; if err=cookie.Use(func(b []byte)error{raw=string(b);return nil});err!=nil{t.Fatal(err)}
+		return actor,raw
+	}
+	request:=func(ctx context.Context,cookie string)*http.Request{
+		r,err:=http.NewRequestWithContext(ctx,http.MethodGet,httpOrigin+"/api/v1/system/runtime-information",nil);if err!=nil{t.Fatal(err)}
+		r.Header.Set("Origin",httpOrigin);r.AddCookie(&http.Cookie{Name:"agenteam_local_session",Value:cookie});return r
+	}
+	gate:=func()(chan struct{},func()){c:=make(chan struct{});var once sync.Once;return c,func(){once.Do(func(){close(c)})}}
+	setTail:=func(fn func(context.Context,foundation.Tx)error){store.mu.Lock();store.tail=fn;store.mu.Unlock()}
+	t.Run("current_SH_holds_Logout_EX_and_zero_writer_until_actual_commit",func(t *testing.T){
+		actor,cookie:=login(t)
+		entered:=make(chan uint32,1); release,finish:=gate();defer finish()
+		setTail(func(ctx context.Context,tx foundation.Tx)error{
+			exec,err:=f.store.InTx(tx);if err!=nil{return err};var pid uint32
+			if err=exec.QueryRow(ctx,`SELECT pg_backend_pid()`).Scan(&pid);err!=nil{return err}
+			entered<-pid
+			select {case <-release:return ctx.Err();case <-ctx.Done():return ctx.Err()}
+		});defer setTail(nil)
+		call:=independentRuntimeStart(t,h,request(ctxFor(t),cookie),finish)
+		var pid uint32;select {case pid=<-entered:case <-time.After(time.Second):t.Fatal("complete candidate did not reach actual Tx tail")}
+		independentRuntimeZero(t,call)
+		if store.active.Load()!=1{t.Fatal("actual Store no longer owns tail")}
+		logoutCtx,cancel:=context.WithCancel(ctxFor(t));defer cancel()
+		logoutResult:=make(chan error,1);logoutDone:=make(chan struct{})
+		revoke:=account.LogoutRequest{Actor:actor,Key:foundation.IdempotencyKey(id[struct{}](t).String())}
+		t.Cleanup(func(){cancel();finish();select{case <-logoutDone:case <-time.After(2*time.Second):t.Error("Logout actual join missing")}})
+		go func(){defer close(logoutDone);logoutResult<-f.service.Logout(logoutCtx,revoke)}()
+		outboundHTTPWaitBlocked(t,f.store,pid)
+		select{case <-logoutDone:t.Fatal("formal Logout crossed held User SH");default:}
+		independentRuntimeZero(t,call)
+		finish();independentRuntimeJoin(t,call)
+		status,_,n,flushes:=call.writer.counts()
+		store.mu.Lock(); terminal:=store.last;store.mu.Unlock()
+		if call.panicValue!=nil || status!=200 || n==0 || flushes!=1 || terminal!=foundation.Committed || store.active.Load()!=0{t.Fatal("success did not follow real committed terminal")}
+		var body map[string]any
+		if json.Unmarshal(call.writer.body,&body)!=nil || len(body)!=5 || body["observed_at"]!=instant.String(){t.Fatal("controlled complete snapshot mismatch")}
+		select{case <-logoutDone:case <-time.After(2*time.Second):t.Fatal("Logout did not complete after read terminal")}
+		if <-logoutResult!=nil{t.Fatal("formal Logout failed")}
+		setTail(nil)
+		before:=len(store.traces)
+		next:=independentRuntimeStart(t,h,request(ctxFor(t),cookie),func(){})
+		independentRuntimeJoin(t,next)
+		if next.panicValue!=nil || next.writer.status!=401 || len(store.traces)!=before || bytes.Contains(next.writer.body,[]byte(`"observed_at"`)){t.Fatal("revoked Session obtained another candidate")}
+		var problem map[string]any;if json.Unmarshal(next.writer.body,&problem)!=nil || problem["code"]!="SESSION_REVOKED"{t.Fatal("revoked Session lost formal code")}
+		t.Log("controlled_writer_preterminal_status_body_flush_zero=true actual_committed=true formal_Logout_EX_waited=true read_and_Logout_joined=true subsequent_Session_rejected=true")
+	})
+	t.Run("earlier_parent_does_not_retire_held_actual_tail_or_publish_candidate",func(t *testing.T){
+		_,cookie:=login(t)
+		entered:=make(chan context.Context,1);release,finish:=gate();defer finish()
+		setTail(func(ctx context.Context,_ foundation.Tx)error{entered<-ctx;<-release;return ctx.Err()});defer setTail(nil)
+		ctx,cancel:=context.WithTimeout(context.Background(),400*time.Millisecond);defer cancel()
+		call:=independentRuntimeStart(t,h,request(ctx,cookie),finish)
+		var actual context.Context;select{case actual=<-entered:case <-time.After(time.Second):t.Fatal("early-parent candidate did not reach actual tail")}
+		parentDeadline,_:=ctx.Deadline(); actualDeadline,ok:=actual.Deadline()
+		if !ok || !actualDeadline.Equal(parentDeadline){t.Fatal("request parent deadline not preserved")}
+		independentRuntimeZero(t,call)
+		<-ctx.Done()
+		independentRuntimeZero(t,call)
+		if store.active.Load()!=1{t.Fatal("deadline returned owner before actual Store tail")}
+		finish();independentRuntimeJoin(t,call)
+		status,writes,n,flushes:=call.writer.counts()
+		store.mu.Lock(); terminal:=store.last;store.mu.Unlock()
+		if call.panicValue!=http.ErrAbortHandler || ctx.Err()!=context.DeadlineExceeded || terminal!=foundation.NotCommitted || store.active.Load()!=0 || status!=0 || writes!=0 || n!=0 || flushes!=0{t.Fatal("cancelled candidate escaped or actual terminal missing")}
+		t.Log("earlier_parent_400ms=true actual_tail_retained_until_release=true actual_NotCommitted=true controlled_writer_zero=true handler_callback_joined=true")
+	})
+	store.mu.Lock()
+	for _,tr:=range store.traces { if tr.locks!=1 || tr.sessions!=1 || tr.grants!=1 || tr.sources!=1 {t.Error("read lacked one same-Tx UserSH/current Session/grant/Source")}}
+	store.mu.Unlock()
+	if time.Since(started)>2*time.Minute{t.Fatal("independent top exceeded two minutes")}
+	t.Log("independent A complete; PG and formal authority actual; Source/writer controlled, no TCP precommit-byte claim")
+}

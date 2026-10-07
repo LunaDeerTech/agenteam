@@ -1,0 +1,178 @@
+{
+  "result": "PASS — bounded Runtime C pure root seams; no resource/native/root-auth acceptance",
+  "fixed_product": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "card_commit": "1cf08c70db1b88e7e8dd5f635193b5752fef4452",
+  "card_sha256": "e4cbf79d922c1b1456024e7cbf64fefa73937c75b5916e29c4e18fe66868bdfb",
+  "author_input": {
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/manifest.json",
+    "sha256": "95bd1d562a2c1c97fde0ef0fde16119b7129da0b01771b8577a7182bb1dec808",
+    "delivery5_sha256": "70d3452e176895b1201c5c295c010e9915f08cbb349fbe696e74faab800f8384",
+    "diff_sha256": "630174e67631f88abcf645826dc3183dd9ca53855928c746bbd4f8220423316c",
+    "report_json_sha256": "a8e410de8123f49c379410b587dead0c28463128907cce5027035a2d439e910b",
+    "report_md_sha256": "0d74e8e477a959a82b99723d8bbebef6c18bc22d0e6406d7223eb898e859051a"
+  },
+  "candidates5": {
+    "internal/central/app/account.go": {
+      "sha256": "96fb4de27b49225be963c81baaa9088b177f67ab1a6e227d7dfb7c3a8c4b2223",
+      "bytes": 14263,
+      "prior_sha256": "be95ac04214983a95ed9b63d845bc8aa622c3b926ea16328a492d908001e463c"
+    },
+    "internal/central/app/app.go": {
+      "sha256": "72e7d6689d3dda38c8c68ccb7908cf0dfbcbda5fb4a8b3d59edb1e3b9ea90d77",
+      "bytes": 21065,
+      "prior_sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005"
+    },
+    "internal/central/app/diagnostics.go": {
+      "sha256": "8d9a80b8ffa9327da8f3144a31c1362dd49a8f6cd5ccbc361c806d0b7c3fd03c",
+      "bytes": 4267,
+      "prior_sha256": "05fbac74ffc67dc9499130eff386ef253881ce5c3c8504d2cd3f0244f4993164"
+    },
+    "internal/central/app/runtime_information.go": {
+      "sha256": "8544c989b3dc3ec1ffd2ff2f430c810da544f87133434a5e6f3b08551a790736",
+      "bytes": 7716,
+      "prior_sha256": null
+    },
+    "internal/central/app/runtime_information_test.go": {
+      "sha256": "bc32b8e8a9901f661323ea49586bcd052294f90858ebca8108612f0f7e5ba442",
+      "bytes": 37819,
+      "prior_sha256": null
+    }
+  },
+  "readonly_A02_B6": {
+    "internal/central/runtimeinfo/http/handler.go": {
+      "sha256": "0e61275711ad355857bbce3aae52b02528f97b42b442f9ab888e5e78d571d186",
+      "bytes": 5623,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/http/wire.go": {
+      "sha256": "906fe33dd86224e10965cbfa1d3617eebfb875e1e61587904e1267e6dd7bddae",
+      "bytes": 3329,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/http/handler_test.go": {
+      "sha256": "7d6d00532a72fa18ee50536b178adedab93d2fc86c2b545c3b11561133c220c9",
+      "bytes": 48265,
+      "prior": "absent"
+    },
+    "api/openapi/runtime-information.json": {
+      "sha256": "9287f6f2119d777df5f5dcb956e690af3952689b034b90ba393d10f62b762988",
+      "bytes": 14576,
+      "prior": "absent"
+    },
+    "internal/central/runtimeinfo/service.go": {
+      "sha256": "0a224ff8e1c2cd89bb7a59cac5a5f9287af09f72270cffbcc3dfd8c5118747fa",
+      "bytes": 7615,
+      "stage01_sha256": "0aa6c073f582bca75b031dfcb796a628b1a47170991b6f5343462073012f83c8"
+    },
+    "internal/central/runtimeinfo/service_test.go": {
+      "sha256": "36a76baaf5cacf6dac0b610cd8e1942b89e587f6c8ee70ec83f11ecd3638ea6f",
+      "bytes": 27322,
+      "stage01_sha256": "b6755239e91eacac76280296a7f81347eae42a2d3f163cf433bc363b33630dee"
+    }
+  },
+  "dependencies343": 343,
+  "input_binding": {
+    "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/input-binding01.json",
+    "sha256": "f882bc64cdeeb2b30201e3ccce22fa3b2aae7b1ff5d1127d18502bf1988a7691"
+  },
+  "execution": {
+    "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/execution01.json",
+    "sha256": "ed81662deb5ec6cf8efa94af787e4db329dda9a0b2adc0d60e9b49922c0da9c3",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-race",
+      "-vet=off",
+      "-count=1",
+      "-timeout=45s",
+      "-overlay=/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/overlay01.json",
+      "-run",
+      "^TestIndependentRuntimeRoot(Observation|HandoffAndCleanup)$",
+      "-v",
+      "./internal/central/app"
+    ],
+    "cwd": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/workspace",
+    "outer_seconds": 45,
+    "bound_files": 4208
+  },
+  "probe": {
+    "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/probe01/runtime_independent_test.go",
+    "sha256": "0a93f46f9bdbc5a684e9e6a68e323a057af8cf84e7dd26e2ffba3c20c83a8b13",
+    "fixture_basis": "frozen author riMonitor/riSource value helpers and riStartup controlled ports; independent two bodies and held non-listening Close witness; production Source/initialize/run unchanged"
+  },
+  "actual": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "seconds": 19.870720329001415,
+    "timeout": false,
+    "input_before_matches": true,
+    "input_after_matches": true,
+    "input_unchanged": true,
+    "cleanup_clean": true,
+    "owned_processes_observed": 37,
+    "adopted_wait_count": 0,
+    "raw_sha256": "cb27c06851c82c41d89a9222bfbe1e121c6c2173524fc853ee4e818af023e734",
+    "cleanup_sha256": "fc1ae256148ad76fcfd0780c256ffca25f5b6eee9d299c9ce7ccb5e26bf7b044"
+  },
+  "evidence": {
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/runs/app01/command.json",
+      "sha256": "f95fc1aea2525f86c75f421348e46cb89d858bebb60b404308ff0504d2f7fe4f"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/runs/app01/raw.log",
+      "sha256": "cb27c06851c82c41d89a9222bfbe1e121c6c2173524fc853ee4e818af023e734"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/runs/app01/result.json",
+      "sha256": "3327976331f9b0f2fd0e2afe7645c3ec4856cd53a0b201f5100bebea50b42ee8"
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/runs/app01/cleanup.json",
+      "sha256": "fc1ae256148ad76fcfd0780c256ffca25f5b6eee9d299c9ce7ccb5e26bf7b044"
+    },
+    "input-before.json": {
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/runs/app01/input-before.json",
+      "sha256": "c5e7e1f0bd3b87abceedd8356896e27f95b54a8b7d34d63aa931ad5e8e818660"
+    },
+    "input-after.json": {
+      "path": "/workspace/scratch/agenteam-runtime-app-independent-sapko6kb/runs/app01/input-after.json",
+      "sha256": "c5e7e1f0bd3b87abceedd8356896e27f95b54a8b7d34d63aa931ad5e8e818660"
+    }
+  },
+  "static": [
+    "Same actual db asserted separately as runtimeinfo.Store; original account Authority and core captured once in pure factory.",
+    "initialize takes dependencies by value and returns factory explicitly in startupResult; run uses original initialized samples on one monitor.",
+    "Production cannot skip the new binding; old package-local no-Account diagnostic assembly remains isolated.",
+    "Post-construction failure routes through existing initial.err startup cleanup before health goroutine and Serve.",
+    "Shared ready collects one locked cache value and one clock, then each Secret/Outbound Status once; all six readiness contributors remain; strict management completeness is not imposed on legacy diagnostic collaborators.",
+    "No health.go scheduling/publication/cleanup, public Account Authority or HTTPBoundary, Object lifecycle or old diagnostic DTO implementation changed; exact runtime route root/subtree dispatch preserves prior chain."
+  ],
+  "dynamic_A": [
+    "19.999999s,20s,20s+1ns with one clock call under RLock and Status calls outside lock",
+    "a separate cache failure publication during Status does not rewrite already copied database/object facts; Secret and hidden Outbox affect readiness only",
+    "failure wins over stale; historical versions/times remain; partial management sample rejects while legacy ready retains503 DependencyUnbound",
+    "held synchronous Status plus context cancellation returns only after actual release, with zero Snapshot and context.Canceled"
+  ],
+  "dynamic_B": [
+    "initialize returns local factory without mutating caller dependencies or executing before monitor",
+    "original monitor/providers bind exactly once; construction does not sample; Source does not renew startup receipt times or perform another component Check",
+    "actual run factory failure enters unchanged cleanup; held fake listener.Close prevents early return/DB close; release followed by actual run/maintenance completion",
+    "Accept0/Close1, original component Check counts1, current fake Account/Outbox joined, no private error log or serving event"
+  ],
+  "history_preserved": [
+    "author app-pure01 actual1/4.627: POST lacked required Origin, formally403 ORIGIN_DENIED before method validation; original nine passing tops retained",
+    "only test Origin was supplied; affected route top23 subcases actual0/1.618; final race10tops75cases actual0/7.386",
+    "format first pass intentionally changed candidate bytes, not silently an unchanged-input test",
+    "TestDiagnosticRoutes only listed, never executed in author C or independent C"
+  ],
+  "limits": [
+    "Source memory publication and constructor/run cleanup use controlled in-process collaborators, not live health/PG/MinIO observations.",
+    "Fake listener never calls net.Listen and Accept is forbidden; controlled calls do not prove native connection or TCP zero-byte behavior.",
+    "Same core/Authority/Store binding is static source/captured constructor evidence here; authenticated formal root remains future integration.",
+    "No stopped Object/ProcessGuard lifecycle reconstructed; no listener/server/browser/Docker/PG/MinIO/network service started.",
+    "A02 service and B HTTP unchanged evidence reused by exact SHA, not their matrices rerun.",
+    "No main/product/Git mutation or dynamic test beyond the two exact selectors."
+  ],
+  "frozen": true
+}

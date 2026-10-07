@@ -1,0 +1,19 @@
+# Runtime-information D：两份真实 harness 离线准备
+
+结论：两新顶层均通过 Go1.27.1 integration race 编译与精确发现，未执行测试体。Central/Runner 仅构建，产物记录 SHA 后删除，未运行。没有新失败；各命令实际 wait、PID/starttime 两扫清零，0 adopted wait，输入前后不变（首次 gofmt 为仅两新源的格式变化）。
+
+固定产品 b124650，446 个既有依赖共 4,138,364 B；A02/B/C 共 11 文件逐 SHA 保持。新增仅卡 #9/#13 两文件；README 未实施。可读固定源为 source/ 下合并 13 源，manifest.json 绑定两候选/只读 11 源/依赖/原命令。
+
+| 检查 | actual exit / 秒 | 所见 PID | 结果边界 |
+| --- | --- | --- | --- |
+| Account race compile/list | 0 / 7.815 | 9 | 恰发现 CurrentAuthorityAndTerminal，一个顶层，无测试体 |
+| App race compile/list | 0 / 4.410 | 7 | 恰发现 RootSnapshotBinding，一个顶层，无测试体 |
+| Central build | 0 / 1.601 | 4 | 31,183,649 B，SHA 8020fe7e100bc7ff33cb795226c543325d5e52233aedbd1738f45e4eb5dedc38，未执行，已删 |
+| Runner build | 0 / 0.261 | 4 | 4,632,151 B，SHA c7d1796bd3df8c6ce35b020750a2a4673ade1e73240accf6748ec8a96f44178c，未执行，已删 |
+| gofmt check | 0 / 0.011 | 1 | 无输出 |
+
+Account 组使用完整 newB02Account、正式邀请普通用户和 Logout、真实 Store/Authority；只读 Source 和 deadline-capable writer 为受控协作者。User SH/Logout EX 与 callback 尾部的断言不声称原生网络提交前零字节。DB 1s 更早失败与 250ms parent 分列，不把它们当自然本地 3s。
+
+Root 组沿 newModelRootApp，捕获并原样传入实际 factory/Source；原 DB/Object Check 仅加计数且原样委托，Object 具体嵌入保留私有 forceTransports 能力。测试本地 health.interval=1h 隔离背景 tick，生产 10s/2s/20s 不变。正式 PG 版本只读旁证、每 GET 同 T/零额外 Check/历史缓存不变、旧 API/诊断/ready503 与正常 shutdown join 均已编写，尚未真实执行。没有 MinIO 故障注入或停止任务代表。
+
+下一步按 execution-plan.json 独立静审后冻结新的私有 driver 及实际脚本运行闭包，另获明确窗口再执行 native 四顶层和两轮真实顶层。当前未启动任何监听器、PG、Docker、MinIO 或浏览器。此前 A/B/C 原失败与独立阶段证据不修改、不在本轮重跑。

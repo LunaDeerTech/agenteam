@@ -1,0 +1,932 @@
+--- /dev/null
++++ b/internal/central/runtimeinfo/service.go
+@@ -0,0 +1,237 @@
++// Package runtimeinfo reads an already observed, finite runtime snapshot after
++// current System authorization. It neither probes nor refreshes dependencies.
++package runtimeinfo
++
++import (
++	"context"
++	"errors"
++	"reflect"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++)
++
++const readBudget = 3 * time.Second
++
++// Status describes the cached aggregate check, not individual subchecks.
++type Status string
++
++const (
++	Available   Status = "available"
++	Unavailable Status = "unavailable"
++	Stale       Status = "stale"
++)
++
++// DatabaseSuccess retains the last successful check, including on later failure.
++type DatabaseSuccess struct {
++	CheckedAt, ReceivedAt              foundation.Instant
++	PostgreSQLVersion, PGVectorVersion string
++}
++
++type DatabaseSnapshot struct {
++	Status      Status
++	LastSuccess DatabaseSuccess
++}
++
++type ObjectStorageSnapshot struct {
++	Status                Status
++	LastSuccessReceivedAt foundation.Instant
++}
++
++// Snapshot contains values only. Fixed HTTP facts (unknown build version,
++// MinIO aggregate assessment, ready=false) cannot be supplied by a Source.
++type Snapshot struct {
++	ObservedAt    foundation.Instant
++	Database      DatabaseSnapshot
++	ObjectStorage ObjectStorageSnapshot
++	Readiness     foundation.Code
++}
++
++// Validate rejects the entire observation instead of filling missing facts.
++// Display times need not be ordered: monotonic age belongs to the root Source.
++func (s Snapshot) Validate() error {
++	for _, value := range [...]foundation.Instant{s.ObservedAt, s.Database.LastSuccess.CheckedAt, s.Database.LastSuccess.ReceivedAt, s.ObjectStorage.LastSuccessReceivedAt} {
++		if value.Time().IsZero() || value.Validate() != nil {
++			return unavailable(nil)
++		}
++		if _, err := foundation.NewInstant(value.Time()); err != nil {
++			return unavailable(err)
++		}
++	}
++	for _, status := range [...]Status{s.Database.Status, s.ObjectStorage.Status} {
++		if status != Available && status != Unavailable && status != Stale {
++			return unavailable(nil)
++		}
++	}
++	for _, version := range [...]string{s.Database.LastSuccess.PostgreSQLVersion, s.Database.LastSuccess.PGVectorVersion} {
++		if len(version) == 0 || len(version) > 256 {
++			return unavailable(nil)
++		}
++		for i := range len(version) {
++			if version[i] < 0x20 || version[i] > 0x7e {
++				return unavailable(nil)
++			}
++		}
++	}
++	if s.Readiness != foundation.DependencyUnavailable && s.Readiness != foundation.DependencyUnbound {
++		return unavailable(nil)
++	}
++	return nil
++}
++
++type Store interface {
++	WithinTx(context.Context, foundation.TransactionCause, func(context.Context, foundation.Tx) error) foundation.CommitResult
++	Acquire(context.Context, foundation.Tx, foundation.LockKey, foundation.LockMode) error
++}
++
++// Source synchronously copies existing observations; it must not start probes.
++type Source interface {
++	Snapshot(context.Context) (Snapshot, error)
++}
++
++type Service struct {
++	store    Store
++	sessions identity.SessionAuthority
++	system   identity.SystemAuthority
++	source   Source
++}
++
++// New only checks bindings. Construction performs no observation or other I/O.
++func New(store Store, sessions identity.SessionAuthority, system identity.SystemAuthority, source Source) (*Service, error) {
++	if nilPort(store) || nilPort(sessions) || nilPort(system) || nilPort(source) {
++		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
++	}
++	return &Service{store: store, sessions: sessions, system: system, source: source}, nil
++}
++
++type readAttempt struct{}
++
++// GetSystem owns the complete authorization, observation and transaction tail.
++// No candidate escapes until the transaction has actually returned Committed.
++func (s *Service) GetSystem(parent context.Context, actor identity.Actor) (Snapshot, error) {
++	ctx, cancel := context.WithTimeout(parent, readBudget)
++	defer cancel()
++	if actor.Validate() != nil || actor.Details().Kind != identity.Human {
++		return Snapshot{}, foundation.NewFault(foundation.Forbidden, foundation.NotStarted)
++	}
++	if s == nil || nilPort(s.store) || nilPort(s.sessions) || nilPort(s.system) || nilPort(s.source) {
++		return Snapshot{}, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
++	}
++	if err := contextError(ctx); err != nil {
++		return Snapshot{}, unavailable(err)
++	}
++	run, err := foundation.NewID[readAttempt]()
++	if err != nil {
++		return Snapshot{}, unavailable(err)
++	}
++	cause, err := foundation.NewRecoveryCause("runtimeinfo.system-read", run.String(), "")
++	if err != nil {
++		return Snapshot{}, unavailable(err)
++	}
++	lock, err := foundation.UserLock(actor.Details().UserID)
++	if err != nil {
++		return Snapshot{}, unavailable(err)
++	}
++	var candidate Snapshot
++	started, complete := false, false
++	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		if started || !tx.Valid() {
++			complete = false
++			return unavailable(nil)
++		}
++		started = true
++		if err := contextError(ctx); err != nil {
++			return unavailable(err)
++		}
++		if err := s.store.Acquire(ctx, tx, lock, foundation.Shared); err != nil {
++			return unavailable(err)
++		}
++		if err := contextError(ctx); err != nil {
++			return unavailable(err)
++		}
++		if err := s.sessions.RequireCurrentSession(ctx, tx, actor); err != nil {
++			return authorizationError(err)
++		}
++		if err := contextError(ctx); err != nil {
++			return unavailable(err)
++		}
++		grant, err := s.system.AuthorizeSystem(ctx, tx, actor, identity.Read)
++		if err != nil {
++			return authorizationError(err)
++		}
++		if !grant.Matches(actor, identity.SystemScope(), identity.Read) {
++			return unavailable(nil)
++		}
++		if err := contextError(ctx); err != nil {
++			return unavailable(err)
++		}
++		candidate, err = s.source.Snapshot(ctx)
++		if err != nil {
++			return unavailable(err)
++		}
++		if err = candidate.Validate(); err != nil {
++			return err
++		}
++		if err = contextError(ctx); err != nil {
++			return unavailable(err)
++		}
++		complete = true
++		return nil
++	})
++	switch result.State() {
++	case foundation.NotCommitted:
++		if fault := result.Fault(); fault != nil {
++			return Snapshot{}, fault
++		}
++		return Snapshot{}, foundation.NewFault(foundation.InternalError, foundation.NotCommitted)
++	case foundation.Committed:
++		if err := contextError(ctx); err != nil {
++			return Snapshot{}, unavailable(err)
++		}
++		if !complete {
++			return Snapshot{}, unavailable(nil)
++		}
++		return candidate, nil
++	default:
++		return Snapshot{}, foundation.NewFault(foundation.CommitUnknown, foundation.Unknown)
++	}
++}
++
++func nilPort(port any) bool {
++	if port == nil {
++		return true
++	}
++	v := reflect.ValueOf(port)
++	switch v.Kind() {
++	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
++		return v.IsNil()
++	default:
++		return false
++	}
++}
++
++func contextError(ctx context.Context) error {
++	if err := ctx.Err(); err != nil {
++		return err
++	}
++	if deadline, ok := ctx.Deadline(); ok && !time.Now().Before(deadline) {
++		return context.DeadlineExceeded
++	}
++	return nil
++}
++
++func unavailable(cause error) error {
++	return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted).WithCause(cause)
++}
++
++func authorizationError(err error) error {
++	var fault *foundation.Fault
++	if errors.As(err, &fault) && fault != nil {
++		switch fault.Code {
++		case foundation.Unauthenticated, foundation.SessionRevoked, foundation.Forbidden, foundation.DependencyUnbound:
++			return foundation.NewFault(fault.Code, foundation.NotStarted).WithCause(err)
++		}
++	}
++	return unavailable(err)
++}
+--- /dev/null
++++ b/internal/central/runtimeinfo/service_test.go
+@@ -0,0 +1,689 @@
++package runtimeinfo
++
++import (
++	"context"
++	"errors"
++	"fmt"
++	"reflect"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++)
++
++type sessionFunc func(context.Context, foundation.Tx, identity.Actor) error
++
++func (f sessionFunc) RequireCurrentSession(ctx context.Context, tx foundation.Tx, actor identity.Actor) error {
++	return f(ctx, tx, actor)
++}
++
++type systemFunc func(context.Context, foundation.Tx, identity.Actor, identity.AccessIntent) (identity.AccessGrant, error)
++
++func (f systemFunc) AuthorizeSystem(ctx context.Context, tx foundation.Tx, actor identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
++	return f(ctx, tx, actor, intent)
++}
++
++type sourceFunc func(context.Context) (Snapshot, error)
++
++func (f sourceFunc) Snapshot(ctx context.Context) (Snapshot, error) { return f(ctx) }
++
++type readStore struct {
++	t                          *testing.T
++	tx                         foundation.Tx
++	ctx                        context.Context
++	held                       bool
++	steps                      []string
++	causes                     []foundation.TransactionCause
++	acquireErr                 error
++	afterAcquire, tail         func(context.Context)
++	result                     *foundation.CommitResult
++	skip, zeroTx, repeat       bool
++	started, active, snapshots atomic.Int32
++}
++
++func (s *readStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
++	s.started.Add(1)
++	s.active.Add(1)
++	defer s.active.Add(-1)
++	s.ctx, s.tx, s.held = ctx, foundation.NewTx(), false
++	if s.zeroTx {
++		s.tx = foundation.Tx{}
++	}
++	d := cause.Details()
++	if cause.Validate() != nil || d.Kind != foundation.RecoveryCause || d.Owner != "runtimeinfo.system-read" || d.Primary.Validate() == nil || len(d.Related) != 0 || d.CheckpointRef != "" {
++		s.t.Error("unexpected read transaction cause")
++	}
++	if _, err := foundation.ParseID[readAttempt](d.RecoveryRunID); err != nil {
++		s.t.Error("read has no fresh typed attempt ID")
++	}
++	s.causes = append(s.causes, cause)
++	s.steps = append(s.steps, "begin")
++	var err error
++	if !s.skip {
++		err = fn(ctx, s.tx)
++		if s.repeat {
++			err = fn(ctx, s.tx)
++		}
++	}
++	s.steps = append(s.steps, "callback-ended")
++	if s.tail != nil {
++		s.tail(ctx)
++	}
++	s.steps = append(s.steps, "transaction-ended")
++	if s.result != nil {
++		return *s.result
++	}
++	if err != nil {
++		var fault *foundation.Fault
++		if !errors.As(err, &fault) {
++			fault = foundation.NewFault(foundation.InternalError, foundation.NotStarted).WithCause(err)
++		}
++		return foundation.NotCommittedResult(fault)
++	}
++	return foundation.CommittedResult()
++}
++
++func (s *readStore) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
++	want, err := foundation.UserLock("01900000-0000-7000-8000-000000000001")
++	if err != nil || ctx != s.ctx || !tx.Valid() || tx != s.tx || foundation.CompareLockKeys(key, want) != 0 || mode != foundation.Shared {
++		s.t.Error("read did not acquire the exact User shared lock in its transaction")
++	}
++	s.steps = append(s.steps, "user-shared")
++	s.held = s.acquireErr == nil
++	if s.afterAcquire != nil {
++		s.afterAcquire(ctx)
++	}
++	return s.acquireErr
++}
++
++func (s *readStore) authorizedStep(ctx context.Context, tx foundation.Tx, name string) {
++	if ctx != s.ctx || !tx.Valid() || tx != s.tx || !s.held {
++		s.t.Errorf("%s did not share the current transaction and held User lock", name)
++	}
++	s.steps = append(s.steps, name)
++}
++
++func validSnapshot(t *testing.T) Snapshot {
++	t.Helper()
++	at, err := foundation.NewInstant(time.Date(2026, 10, 6, 1, 2, 3, 123456000, time.UTC))
++	if err != nil {
++		t.Fatal(err)
++	}
++	return Snapshot{
++		ObservedAt: at,
++		Database: DatabaseSnapshot{Status: Available, LastSuccess: DatabaseSuccess{
++			CheckedAt: at, ReceivedAt: at, PostgreSQLVersion: "17.8", PGVectorVersion: "0.8.2",
++		}},
++		ObjectStorage: ObjectStorageSnapshot{Status: Available, LastSuccessReceivedAt: at},
++		Readiness:     foundation.DependencyUnbound,
++	}
++}
++
++func testService(t *testing.T) (*Service, *readStore, identity.Actor) {
++	t.Helper()
++	user, err := foundation.ParseID[identity.User]("01900000-0000-7000-8000-000000000001")
++	if err != nil {
++		t.Fatal(err)
++	}
++	session, err := foundation.ParseID[identity.Session]("01900000-0000-7000-8000-000000000002")
++	if err != nil {
++		t.Fatal(err)
++	}
++	actor, err := identity.NewHuman(user, session)
++	if err != nil {
++		t.Fatal(err)
++	}
++	store := &readStore{t: t}
++	snapshot := validSnapshot(t)
++	service, err := New(store,
++		sessionFunc(func(ctx context.Context, tx foundation.Tx, got identity.Actor) error {
++			store.authorizedStep(ctx, tx, "session")
++			if !got.Equal(actor) {
++				t.Error("Session principal changed")
++			}
++			return nil
++		}),
++		systemFunc(func(ctx context.Context, tx foundation.Tx, got identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
++			store.authorizedStep(ctx, tx, "administrator")
++			if !got.Equal(actor) || intent != identity.Read {
++				t.Error("System principal or intent changed")
++			}
++			return identity.NewAccessGrant(got, identity.SystemScope(), intent, snapshot.ObservedAt, 1)
++		}),
++		sourceFunc(func(ctx context.Context) (Snapshot, error) {
++			store.authorizedStep(ctx, store.tx, "snapshot")
++			store.snapshots.Add(1)
++			return snapshot, nil
++		}),
++	)
++	if err != nil {
++		t.Fatal(err)
++	}
++	return service, store, actor
++}
++
++func wantFault(t *testing.T, value Snapshot, err error, code foundation.Code, state foundation.CommitState) *foundation.Fault {
++	t.Helper()
++	var fault *foundation.Fault
++	if value != (Snapshot{}) || !errors.As(err, &fault) || fault == nil || fault.Code != code || fault.CommitState != state {
++		t.Fatalf("expected zero snapshot and %s/%s, got zero=%t error=%v", code, state, value == (Snapshot{}), err)
++	}
++	return fault
++}
++
++func TestRuntimeInformationConstructionAndBindings(t *testing.T) {
++	service, store, actor := testService(t)
++	if store.started.Load() != 0 || store.snapshots.Load() != 0 || len(store.steps) != 0 {
++		t.Fatal("constructor performed I/O")
++	}
++	for _, name := range []string{"nil-store", "typed-store", "nil-session", "typed-session", "nil-system", "typed-system", "nil-source", "typed-source"} {
++		t.Run(name, func(t *testing.T) {
++			var db Store = store
++			sessions, system, source := service.sessions, service.system, service.source
++			switch name {
++			case "nil-store":
++				db = nil
++			case "typed-store":
++				db = (*readStore)(nil)
++			case "nil-session":
++				sessions = nil
++			case "typed-session":
++				sessions = sessionFunc(nil)
++			case "nil-system":
++				system = nil
++			case "typed-system":
++				system = systemFunc(nil)
++			case "nil-source":
++				source = nil
++			case "typed-source":
++				source = sourceFunc(nil)
++			}
++			got, err := New(db, sessions, system, source)
++			wantFault(t, Snapshot{}, err, foundation.DependencyUnbound, foundation.NotStarted)
++			if got != nil || store.started.Load() != 0 {
++				t.Fatal("missing binding constructed a service or performed I/O")
++			}
++		})
++	}
++	for _, missing := range []*Service{nil, {}} {
++		got, err := missing.GetSystem(context.Background(), actor)
++		wantFault(t, got, err, foundation.DependencyUnbound, foundation.NotStarted)
++	}
++}
++
++func TestRuntimeInformationTransactionPublication(t *testing.T) {
++	service, store, actor := testService(t)
++	entered, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
++	var once sync.Once
++	store.tail = func(context.Context) { close(entered); <-release }
++	type result struct {
++		value Snapshot
++		err   error
++	}
++	done := make(chan result, 1)
++	t.Cleanup(func() { once.Do(func() { close(release) }); <-joined })
++	go func() {
++		defer close(joined)
++		value, err := service.GetSystem(context.Background(), actor)
++		done <- result{value, err}
++	}()
++	select {
++	case <-entered:
++	case <-time.After(time.Second):
++		t.Fatal("transaction tail missing")
++	}
++	select {
++	case <-done:
++		t.Fatal("candidate escaped before actual transaction return")
++	default:
++	}
++	if store.active.Load() != 1 || store.snapshots.Load() != 1 {
++		t.Fatal("read ownership or single observation lost")
++	}
++	once.Do(func() { close(release) })
++	got := <-done
++	<-joined
++	if got.err != nil || got.value != validSnapshot(t) || store.active.Load() != 0 {
++		t.Fatal("committed complete observation missing", got.err)
++	}
++	want := []string{"begin", "user-shared", "session", "administrator", "snapshot", "callback-ended", "transaction-ended"}
++	if !reflect.DeepEqual(store.steps, want) || store.started.Load() != 1 {
++		t.Fatal("authorization/Source/terminal ordering changed", store.steps)
++	}
++	// A second call reads the current Source value, with no cached candidate or
++	// shared mutable DTO. Both technical attempts remain distinct from commands.
++	store.tail = nil
++	next := validSnapshot(t)
++	next.Database.LastSuccess.PostgreSQLVersion = "18.1"
++	service.source = sourceFunc(func(context.Context) (Snapshot, error) { store.snapshots.Add(1); return next, nil })
++	got.value.Database.LastSuccess.PostgreSQLVersion = "caller-only"
++	value, err := service.GetSystem(context.Background(), actor)
++	if err != nil || value != next || store.snapshots.Load() != 2 || len(store.causes) != 2 || store.causes[0].Details().RecoveryRunID == store.causes[1].Details().RecoveryRunID {
++		t.Fatal("observation cached, aliased or attempt identity reused", err)
++	}
++}
++
++func TestRuntimeInformationAuthorizationFailures(t *testing.T) {
++	for _, name := range []string{"zero-actor", "service-actor", "zero-tx", "lock", "session-revoked", "session-unbound", "session-unavailable", "unauthenticated", "ordinary-user", "system-unavailable", "empty-grant", "wrong-user", "wrong-session", "wrong-scope", "wrong-intent", "cancel-before", "cancel-after-lock", "cancel-after-session", "cancel-after-system"} {
++		t.Run(name, func(t *testing.T) {
++			service, store, actor := testService(t)
++			ctx, cancel := context.WithCancel(context.Background())
++			defer cancel()
++			code, state, starts := foundation.DependencyUnavailable, foundation.NotCommitted, int32(1)
++			switch name {
++			case "zero-actor":
++				actor = identity.Actor{}
++				code, state, starts = foundation.Forbidden, foundation.NotStarted, 0
++			case "service-actor":
++				registration, err := identity.RegisterService(identity.AccountAuth)
++				if err != nil {
++					t.Fatal(err)
++				}
++				actor, err = registration.Actor("01900000-0000-7000-8000-000000000003", identity.SystemScope())
++				if err != nil {
++					t.Fatal(err)
++				}
++				code, state, starts = foundation.Forbidden, foundation.NotStarted, 0
++			case "zero-tx":
++				store.zeroTx = true
++			case "lock":
++				store.acquireErr = errors.New("private-lock-failure")
++			case "session-revoked", "session-unbound", "session-unavailable", "unauthenticated":
++				switch name {
++				case "session-revoked":
++					code = foundation.SessionRevoked
++				case "session-unbound":
++					code = foundation.DependencyUnbound
++				case "unauthenticated":
++					code = foundation.Unauthenticated
++				}
++				service.sessions = sessionFunc(func(context.Context, foundation.Tx, identity.Actor) error {
++					return foundation.NewFault(code, foundation.NotStarted)
++				})
++			case "ordinary-user", "system-unavailable":
++				if name == "ordinary-user" {
++					code = foundation.Forbidden
++				}
++				service.system = systemFunc(func(context.Context, foundation.Tx, identity.Actor, identity.AccessIntent) (identity.AccessGrant, error) {
++					return identity.AccessGrant{}, foundation.NewFault(code, foundation.NotStarted)
++				})
++			case "empty-grant", "wrong-user", "wrong-session", "wrong-scope", "wrong-intent":
++				service.system = systemFunc(func(_ context.Context, _ foundation.Tx, got identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
++					if name == "empty-grant" {
++						return identity.AccessGrant{}, nil
++					}
++					scope := identity.SystemScope()
++					if name == "wrong-user" || name == "wrong-session" {
++						user, err := foundation.ParseID[identity.User](got.Details().UserID)
++						if err != nil {
++							return identity.AccessGrant{}, err
++						}
++						session, err := foundation.ParseID[identity.Session](got.Details().SessionID)
++						if err != nil {
++							return identity.AccessGrant{}, err
++						}
++						if name == "wrong-user" {
++							user, err = foundation.ParseID[identity.User]("01900000-0000-7000-8000-000000000003")
++						} else {
++							session, err = foundation.ParseID[identity.Session]("01900000-0000-7000-8000-000000000003")
++						}
++						if err != nil {
++							return identity.AccessGrant{}, err
++						}
++						got, err = identity.NewHuman(user, session)
++						if err != nil {
++							return identity.AccessGrant{}, err
++						}
++					}
++					if name == "wrong-scope" {
++						project, err := foundation.ParseID[identity.Project]("01900000-0000-7000-8000-000000000003")
++						if err != nil {
++							return identity.AccessGrant{}, err
++						}
++						scope, err = identity.InProject(project)
++						if err != nil {
++							return identity.AccessGrant{}, err
++						}
++					}
++					if name == "wrong-intent" {
++						intent = identity.Mutate
++					}
++					return identity.NewAccessGrant(got, scope, intent, validSnapshot(t).ObservedAt, 1)
++				})
++			case "cancel-before":
++				cancel()
++				state, starts = foundation.NotStarted, 0
++			case "cancel-after-lock":
++				store.afterAcquire = func(context.Context) { cancel() }
++			case "cancel-after-session":
++				service.sessions = sessionFunc(func(context.Context, foundation.Tx, identity.Actor) error { cancel(); return nil })
++			case "cancel-after-system":
++				original := service.system
++				service.system = systemFunc(func(ctx context.Context, tx foundation.Tx, got identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
++					grant, err := original.AuthorizeSystem(ctx, tx, got, intent)
++					cancel()
++					return grant, err
++				})
++			}
++			value, err := service.GetSystem(ctx, actor)
++			wantFault(t, value, err, code, state)
++			if store.started.Load() != starts || store.snapshots.Load() != 0 || store.active.Load() != 0 {
++				t.Fatal("rejection observed Source or retained transaction")
++			}
++			if strings.HasPrefix(name, "cancel-") && !errors.Is(err, context.Canceled) {
++				t.Fatal("lost original cancellation cause")
++			}
++		})
++	}
++}
++
++func TestRuntimeInformationSnapshotValidation(t *testing.T) {
++	for _, name := range []string{"zero-observed", "zero-checked", "zero-db-received", "zero-object-received", "bad-db-status", "bad-object-status", "bad-readiness", "empty-postgresql", "empty-pgvector", "long-postgresql", "long-pgvector", "tab", "newline", "nul", "del", "non-ascii", "invalid-utf8"} {
++		t.Run(name, func(t *testing.T) {
++			service, store, actor := testService(t)
++			value := validSnapshot(t)
++			switch name {
++			case "zero-observed":
++				value.ObservedAt = foundation.Instant{}
++			case "zero-checked":
++				value.Database.LastSuccess.CheckedAt = foundation.Instant{}
++			case "zero-db-received":
++				value.Database.LastSuccess.ReceivedAt = foundation.Instant{}
++			case "zero-object-received":
++				value.ObjectStorage.LastSuccessReceivedAt = foundation.Instant{}
++			case "bad-db-status":
++				value.Database.Status = "unknown"
++			case "bad-object-status":
++				value.ObjectStorage.Status = "unknown"
++			case "bad-readiness":
++				value.Readiness = foundation.InternalError
++			case "empty-postgresql":
++				value.Database.LastSuccess.PostgreSQLVersion = ""
++			case "empty-pgvector":
++				value.Database.LastSuccess.PGVectorVersion = ""
++			case "long-postgresql":
++				value.Database.LastSuccess.PostgreSQLVersion = strings.Repeat("x", 257)
++			case "long-pgvector":
++				value.Database.LastSuccess.PGVectorVersion = strings.Repeat("x", 257)
++			case "tab":
++				value.Database.LastSuccess.PostgreSQLVersion = "17\t8"
++			case "newline":
++				value.Database.LastSuccess.PostgreSQLVersion = "17.8\n"
++			case "nul":
++				value.Database.LastSuccess.PostgreSQLVersion = "17\x008"
++			case "del":
++				value.Database.LastSuccess.PostgreSQLVersion = "17\x7f8"
++			case "non-ascii":
++				value.Database.LastSuccess.PostgreSQLVersion = "版本17"
++			case "invalid-utf8":
++				value.Database.LastSuccess.PostgreSQLVersion = "17\xff8"
++			}
++			service.source = sourceFunc(func(context.Context) (Snapshot, error) { store.snapshots.Add(1); return value, nil })
++			got, err := service.GetSystem(context.Background(), actor)
++			wantFault(t, got, err, foundation.DependencyUnavailable, foundation.NotCommitted)
++			if store.snapshots.Load() != 1 || store.active.Load() != 0 {
++				t.Fatal("invalid observation not consumed exactly once")
++			}
++		})
++	}
++	// All printable bytes, including leading/trailing spaces and escaping, are
++	// retained verbatim. No display-time ordering is inferred from wall clocks.
++	var printable strings.Builder
++	for b := byte(0x20); b <= 0x7e; b++ {
++		printable.WriteByte(b)
++	}
++	for _, status := range []Status{Available, Unavailable, Stale} {
++		for _, reason := range []foundation.Code{foundation.DependencyUnavailable, foundation.DependencyUnbound} {
++			service, _, actor := testService(t)
++			value := validSnapshot(t)
++			value.Database.Status, value.ObjectStorage.Status, value.Readiness = status, status, reason
++			value.Database.LastSuccess.PostgreSQLVersion = " "
++			value.Database.LastSuccess.PGVectorVersion = strings.Repeat(printable.String(), 3)[:256]
++			later, err := foundation.NewInstant(value.ObservedAt.Time().Add(time.Hour))
++			if err != nil {
++				t.Fatal(err)
++			}
++			value.Database.LastSuccess.CheckedAt, value.ObjectStorage.LastSuccessReceivedAt = later, later
++			service.source = sourceFunc(func(context.Context) (Snapshot, error) { return value, nil })
++			got, err := service.GetSystem(context.Background(), actor)
++			if err != nil || got != value {
++				t.Fatal("valid historical observation was changed or rejected", err)
++			}
++		}
++	}
++}
++
++func TestRuntimeInformationTransactionFailures(t *testing.T) {
++	for _, name := range []string{"unknown", "zero-result", "not-committed", "not-committed-nil-fault", "skipped-callback", "committed-source-error", "repeat-callback", "source-error", "cancel-after-source", "cancel-at-transaction-tail"} {
++		t.Run(name, func(t *testing.T) {
++			service, store, actor := testService(t)
++			ctx, cancel := context.WithCancel(context.Background())
++			defer cancel()
++			code, state, calls := foundation.DependencyUnavailable, foundation.NotCommitted, int32(1)
++			privateCause := errors.New("runtime-private-error-canary")
++			switch name {
++			case "unknown":
++				id, err := foundation.NewID[foundation.TransactionAttempt]()
++				if err != nil {
++					t.Fatal(err)
++				}
++				cause, err := foundation.NewRecoveryCause("test", id.String(), "")
++				if err != nil {
++					t.Fatal(err)
++				}
++				result := foundation.UnknownResult(id, cause)
++				store.result = &result
++				code, state = foundation.CommitUnknown, foundation.Unknown
++			case "zero-result":
++				store.result = &foundation.CommitResult{}
++				code, state = foundation.CommitUnknown, foundation.Unknown
++			case "not-committed":
++				fault := foundation.NewFault(foundation.Forbidden, foundation.NotStarted).WithCause(privateCause)
++				fault.SafeMessage, fault.RetryHint = "safe denial", "none"
++				result := foundation.NotCommittedResult(fault)
++				store.result = &result
++				code = foundation.Forbidden
++			case "not-committed-nil-fault":
++				result := foundation.NotCommittedResult(nil)
++				store.result = &result
++				code = foundation.InternalError
++			case "skipped-callback":
++				store.skip, calls, state = true, 0, foundation.NotStarted
++			case "committed-source-error", "source-error":
++				service.source = sourceFunc(func(context.Context) (Snapshot, error) { store.snapshots.Add(1); return validSnapshot(t), privateCause })
++				if name == "committed-source-error" {
++					result := foundation.CommittedResult()
++					store.result = &result
++					state = foundation.NotStarted
++				}
++			case "repeat-callback":
++				store.repeat = true
++				result := foundation.CommittedResult()
++				store.result = &result
++				state = foundation.NotStarted
++			case "cancel-after-source":
++				original := service.source
++				service.source = sourceFunc(func(ctx context.Context) (Snapshot, error) {
++					value, err := original.Snapshot(ctx)
++					cancel()
++					return value, err
++				})
++			case "cancel-at-transaction-tail":
++				store.tail = func(context.Context) { cancel() }
++				state = foundation.NotStarted
++			}
++			got, err := service.GetSystem(ctx, actor)
++			fault := wantFault(t, got, err, code, state)
++			if store.started.Load() != 1 || store.snapshots.Load() != calls || store.active.Load() != 0 {
++				t.Fatal("transaction failed without zeroing observation or joining")
++			}
++			if name == "not-committed" && (!errors.Is(err, privateCause) || fault.SafeMessage != "safe denial" || fault.RetryHint != "none") {
++				t.Fatal("original typed transaction fault lost")
++			}
++			if name == "source-error" && !errors.Is(err, privateCause) {
++				t.Fatal("private source cause lost")
++			}
++			if strings.Contains(fmt.Sprintf("%v %#v", err, err), privateCause.Error()) {
++				t.Fatal("private error escaped safe formatting")
++			}
++		})
++	}
++}
++
++func TestRuntimeInformationDeadlineAndActualTail(t *testing.T) {
++	for _, earlier := range []bool{false, true} {
++		name, parentBudget := "local-three-seconds", 10*time.Second
++		if earlier {
++			name, parentBudget = "earlier-parent", 75*time.Millisecond
++		}
++		t.Run(name, func(t *testing.T) {
++			service, store, actor := testService(t)
++			parent, cancel := context.WithTimeout(context.Background(), parentBudget)
++			parentDeadline, _ := parent.Deadline()
++			entry := make(chan context.Context, 1)
++			expired, releaseSource, atTxTail, releaseTx, joined := make(chan struct{}), make(chan struct{}), make(chan struct{}), make(chan struct{}), make(chan struct{})
++			var sourceOnce, txOnce sync.Once
++			var sourceActive atomic.Int32
++			service.source = sourceFunc(func(ctx context.Context) (Snapshot, error) {
++				store.snapshots.Add(1)
++				sourceActive.Add(1)
++				defer sourceActive.Add(-1)
++				entry <- ctx
++				<-ctx.Done()
++				close(expired)
++				<-releaseSource
++				return Snapshot{}, ctx.Err()
++			})
++			store.tail = func(context.Context) { close(atTxTail); <-releaseTx }
++			type result struct {
++				value Snapshot
++				err   error
++			}
++			done := make(chan result, 1)
++			t.Cleanup(func() {
++				cancel()
++				sourceOnce.Do(func() { close(releaseSource) })
++				txOnce.Do(func() { close(releaseTx) })
++				<-joined
++			})
++			before := time.Now()
++			go func() {
++				defer close(joined)
++				value, err := service.GetSystem(parent, actor)
++				done <- result{value, err}
++			}()
++			var observed context.Context
++			select {
++			case observed = <-entry:
++			case <-time.After(time.Second):
++				t.Fatal("Source entry missing")
++			}
++			entered := time.Now()
++			deadline, ok := observed.Deadline()
++			if !ok || observed != store.ctx || earlier && !deadline.Equal(parentDeadline) || !earlier && (deadline.Before(before.Add(3*time.Second)) || deadline.After(entered.Add(3*time.Second)) || !deadline.Before(parentDeadline)) {
++				t.Fatal("local budget or earlier parent was restarted")
++			}
++			select {
++			case <-expired:
++			case <-time.After(4 * time.Second):
++				t.Fatal("natural deadline did not expire")
++			}
++			if observed.Err() != context.DeadlineExceeded || !earlier && parent.Err() != nil {
++				t.Fatal("natural deadline did not preserve parent semantics")
++			}
++			if sourceActive.Load() != 1 || store.active.Load() != 1 {
++				t.Fatal("deadline pretended active work had ended")
++			}
++			select {
++			case <-done:
++				t.Fatal("returned before Source tail")
++			default:
++			}
++			sourceOnce.Do(func() { close(releaseSource) })
++			select {
++			case <-atTxTail:
++			case <-time.After(time.Second):
++				t.Fatal("transaction tail missing")
++			}
++			if sourceActive.Load() != 0 || store.active.Load() != 1 {
++				t.Fatal("Source/transaction tail ownership collapsed")
++			}
++			select {
++			case <-done:
++				t.Fatal("returned before transaction tail")
++			default:
++			}
++			txOnce.Do(func() { close(releaseTx) })
++			got := <-done
++			<-joined
++			wantFault(t, got.value, got.err, foundation.DependencyUnavailable, foundation.NotCommitted)
++			if !errors.Is(got.err, context.DeadlineExceeded) || store.started.Load() != 1 || store.snapshots.Load() != 1 || store.active.Load() != 0 || sourceActive.Load() != 0 {
++				t.Fatal("deadline cause, no-retry or actual join lost")
++			}
++			t.Logf("natural deadline elapsed=%s earlier_parent=%t source_calls=%d transaction_calls=%d active=0", time.Since(before), earlier, store.snapshots.Load(), store.started.Load())
++		})
++	}
++}
++
++func TestRuntimeInformationCancellationWaitsForLateCall(t *testing.T) {
++	for _, inSource := range []bool{false, true} {
++		name := "authorization"
++		if inSource {
++			name = "source"
++		}
++		t.Run(name, func(t *testing.T) {
++			service, store, actor := testService(t)
++			ctx, cancel := context.WithCancel(context.Background())
++			entered, release, joined := make(chan struct{}), make(chan struct{}), make(chan struct{})
++			var once sync.Once
++			var active atomic.Int32
++			block := func() { active.Add(1); defer active.Add(-1); close(entered); <-release }
++			if inSource {
++				original := service.source
++				service.source = sourceFunc(func(ctx context.Context) (Snapshot, error) { block(); return original.Snapshot(ctx) })
++			} else {
++				original := service.sessions
++				service.sessions = sessionFunc(func(ctx context.Context, tx foundation.Tx, got identity.Actor) error {
++					block()
++					return original.RequireCurrentSession(ctx, tx, got)
++				})
++			}
++			type result struct {
++				value Snapshot
++				err   error
++			}
++			done := make(chan result, 1)
++			t.Cleanup(func() { cancel(); once.Do(func() { close(release) }); <-joined })
++			go func() { defer close(joined); value, err := service.GetSystem(ctx, actor); done <- result{value, err} }()
++			select {
++			case <-entered:
++			case <-time.After(time.Second):
++				t.Fatal("controlled call did not start")
++			}
++			cancel()
++			if active.Load() != 1 || store.active.Load() != 1 {
++				t.Fatal("active call lost before release")
++			}
++			select {
++			case <-done:
++				t.Fatal("cancellation escaped the actual call")
++			default:
++			}
++			once.Do(func() { close(release) })
++			got := <-done
++			<-joined
++			wantFault(t, got.value, got.err, foundation.DependencyUnavailable, foundation.NotCommitted)
++			wantCalls := int32(0)
++			if inSource {
++				wantCalls = 1
++			}
++			if !errors.Is(got.err, context.Canceled) || active.Load() != 0 || store.active.Load() != 0 || store.snapshots.Load() != wantCalls || store.started.Load() != 1 {
++				t.Fatal("late success escaped or call did not join")
++			}
++		})
++	}
++}

@@ -1,0 +1,18 @@
+# Runtime service A02 — independent bounded PASS
+
+`P-RUNTIME-01` 已闭合。最终固定作者 `service-stage02/manifest.json` SHA `9e13328b1477744f77957cfdf018d4485b948bf473e3e6d7cac287d72366c8d1`，产品基线 b124650、正式卡1cf08c70。两源精确 SHA 与原12依赖见同目录 `verification-report.json`；源码均来自冻结副本。
+
+窄静核确认：生产仅增加三行必要关联；逆删后逐字等 stage01。DB/Object 任一非 available 时只允许 DEPENDENCY_UNAVAILABLE；双 available 仍允许两码。测试仅 SnapshotValidation 函数改变，其余测试与12依赖未变。没有加入时间排序、年龄计算、重新采样、写口或新错误语义。完整 New/GetSystem 静链保持同Tx授权、Source一次、有限完整值、实际终局和ctx/deadline后发布。
+
+独立实际结果：
+
+- 原 `crossfield01`：actual1 / 0.945248s，两个矛盾 Source 返回非零/errnil，原报告、原输入和原 probe 永久保留。
+- 新 `crossfield02`：原 probe SHA **a5b4172b070b1ce56448343b31fabeaf6e8be9c437717a84f6767b4dccc45bbc** 完全不改；同两例 GREEN，actual0 / 1.974563s，9 PID/starttime 双清。
+- `terminal01`：两个新风险 top、五子例 PASS，actual0 / 4.536608s，5 PID/starttime 双清。第一组合证明同一有效 Tx/User SH/current Session/System Read、Source一次、实际事务尾部未返则不交付；后续新读取新值/新技术attempt、无共享可变别名。Unknown保留/零候选；当前Session拒绝和错intent grant均在Source前拒绝。双available两种readiness及倒序展示时间不误拒绝。
+- 第二组合自然本地3s实际 **3.000573101s**，ctx Done后Source仍持有直到显式放行，再经过另一个held Tx尾部才实际返回；早parent75ms实际 **75.490638ms**，即使Source已完成且最终Committed，过期仍零候选。两者严格 DeadlineExceeded，Source一次/事务一次，测试自身明确join，并非用进程退出代替原调用返回。
+
+所有独立命令 `-race -count=1`，外层与Go上限各45s；精确argv/cwd/env/selector/overlay、原raw/result、input-before/after和cleanup均在对应run。三轮均actual wait、0 adopted、TMP删除、前后指纹匹配及两扫空；原失败未覆盖。私有新增探针只通过overlay编入固定14文件最小闭包，复用既有cache；无主树、Git或产品修改，无服务/监听/业务资源。
+
+作者 stage01 未变构造/字段/事务证据与 stage02 受影响18组合（8拒绝、10合法）+原17字段例/type范围的pure/race/vet/format按精确差量复用，未重复全集。原错误笛卡尔期望不算复用通过。原 P-RUNTIME-01 是受控坏Source校验缺口，不曾宣称真实root已产生矛盾值。
+
+限界：此为 service A 的受控离线接受。真实root同一T/monotonic年龄/缓存与last_success/六项聚合、16KiB编码/schema、HTTP实际I/O尾部、真实PG/Logout SH/EX与一次factory装配均属后续阶段。本轮不升级这些结论。现已全部结束并冻结。

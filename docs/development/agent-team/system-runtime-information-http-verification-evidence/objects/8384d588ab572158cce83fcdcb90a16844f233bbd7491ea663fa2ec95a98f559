@@ -1,0 +1,24 @@
+# Runtime-information Service A：readiness 窄修
+
+状态：作者受影响离线检查 PASS，两源与证据冻结并停写；独立原 probe 留待独立者新版本复验。HTTP/root/其他候选未推进，无资源。
+
+独立原 P-RUNTIME-01 是候选校验缺口：受控 DB stale 或 Object unavailable，同时 readiness=DEPENDENCY_UNBOUND，原 GetSystem 在一次 Source 和实际事务终局后返回非零/errnil。原轮 actual exit 1 / 0.945248s，8 PID/starttime 双清。它没有证明真实 root 已产生矛盾值。原 service-stage01、作者原 7 顶层检查、独立 probe/command/raw/result/cleanup 全部保持；固定指针及 SHA 见 manifest.json 的 preserved_independent_red。
+
+修复只增加 service.go 三行约束：任一公开 status 非 Available 时，readiness 必须 DEPENDENCY_UNAVAILABLE。两项都 Available 时仍可为两个原因，因为其他四项基础依赖可能失败。未增加时间/年龄排序、探测、重新采样、接口或错误语义。
+
+原 SnapshotValidation 末段把状态和 readiness 错当无条件笛卡尔积，已修正为经正式 New/GetSystem/WithinTx 的 18 组合。8 种矛盾组合硬验 Snapshot{} + DEPENDENCY_UNAVAILABLE/NotCommitted；10 种合法组合保留原值，包括双 Available + unavailable。每种核 Source=1、事务=1、实际 tail 已返回、active=0。原 17 个字段拒绝子例保留；合法版本 1/256 B、全部可打印 ASCII、不 trim，以及倒序显示时间的原断言保持。除该测试函数外测试字节完全未变；12 项 b124650 固定依赖亦未变。
+
+## 受影响实际检查
+
+每命令原 45s，显式 Go1.27.1，原 readonly/offline module 与已授权 cache，runner 未变。pure02 和 race02 都是精确 `^TestRuntimeInformationSnapshotValidation$`，各 1 顶层/35 子例 PASS；不重复无关自然 3s 全组。所有四轮 actual wait、输入前后同字节、owned PID/starttime 两扫清零，0 adopted。
+
+| 轮次 | actual exit | 墙钟 | observed PID / adopted wait |
+| --- | --- | --- | --- |
+| format02 | 0 | 0.021s | 1 / 0 |
+| pure02 | 0 | 0.379s | 5 / 0 |
+| race02 | 0 | 1.626s | 6 / 0 |
+| vet02 | 0 | 0.097s | 1 / 0 |
+
+原件在 `../runs/{format02,pure02,race02,vet02}/`，manifest.json 绑定精确 argv/env/raw/result/cleanup/input-before/input-after。format02 前后源相同，未发生格式差量。stage01-to02.diff 是唯一两源增量；diff-check 原 no-index 内容差量 exit 1、无 whitespace diagnostics，未报为 exit 0。
+
+固定交付：source/ 两候选 + 12 最小依赖，delivery2.json 列两源精确 SHA。旧构造/授权/终局/自然期限和实际 Source/事务尾部的未变适用证据按 stage01 复用，不把原错误跨字段期望继续算作通过；不宣称 HTTP、root、编码/schema/native/PG 或整卡接受。

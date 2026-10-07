@@ -1,0 +1,46 @@
+import hashlib,json,re,subprocess
+from pathlib import Path
+R=Path(__file__).resolve().parent;W=R/'workspace';G=Path('/workspace/agenteam');B='b124650aee095b26191bc181dc8cf5d6e0f977f5'
+def git(*args):return subprocess.check_output(['git','-C',str(G),*args])
+sha=lambda b:hashlib.sha256(b).hexdigest()
+paths=git('ls-tree','-r','--name-only',B).decode().splitlines();blobs={}
+def data(p):
+ if p not in blobs:blobs[p]=git('show',B+':'+p)
+ return blobs[p]
+source=json.loads((R/'harness-stage01/delivery13.json').read_text())['files']
+for p,m in source.items():assert sha((W/p).read_bytes())==m['sha256'],p
+old=json.loads((R/'harness-baseline.json').read_text());selected=set(old['files']);packages=set()
+roots=['internal/central/postgres','tests/database','internal/central/app','tests/process','tests/security','tests/outbox','internal/central/outbox','tests/account','tests/accountmail','internal/central/accountmail','internal/central/recoverylog','tests/project','internal/central/model','tests/model','tests/objects','internal/central/object']
+helpers=['tests/testsupport/objectstore/cmd/fixture','tests/testsupport/outbound/cmd/fixture','tests/testsupport/outbound/cmd/server','tests/testsupport/postgres/cmd/fixture']
+pending=helpers+['internal/central/runtimeinfo/http','internal/central/runtimeinfo','cmd/agenteam','cmd/agenteam-runner']+[str(Path(p).parent) for p in paths if p.endswith('.go') and any(p.startswith(root+'/') for root in roots)]
+prefix='github.com/LunaDeerTech/agenteam/'
+while pending:
+ d=pending.pop()
+ if d in packages:continue
+ packages.add(d)
+ fs=[p for p in paths if str(Path(p).parent)==d and p.endswith('.go')]
+ fs+= [p for p in source if str(Path(p).parent)==d and p.endswith('.go') and p not in fs]
+ if not fs:raise RuntimeError('missing package '+d)
+ for p in fs:
+  selected.add(p)
+  b=(W/p).read_bytes() if p in source else data(p)
+  imports = ''.join(a+c for a,c in re.findall(r'(?s)\bimport\s*\((.*?)\)|\bimport\s+(?:\w+\s+)?("[^"]+")',b.decode()))
+  pending.extend(x[len(prefix):] for x in re.findall(r'"('+re.escape(prefix)+r'[^"\s]+)"',imports) if x[len(prefix):] not in packages)
+  for spec in re.findall(r'^//go:embed\s+(.+)$',b.decode(),re.M):
+   for pattern in spec.split():
+    pattern=pattern.removeprefix('all:').strip('"');base=Path(d)
+    matched=[q for q in paths if Path(q).match(str(base/pattern)) or q.startswith(str(base/pattern).rstrip('/')+'/')]
+    if not matched:raise RuntimeError('embed '+p+' '+pattern)
+    selected.update(matched)
+ # Fixed package-local data, including normal Account captcha seed assets.
+ selected.update(p for p in paths if p.startswith(d+'/testdata/'))
+selected.update(['go.mod','go.sum','scripts/test-security.sh','scripts/test-objects.sh','scripts/test-postgres.sh']);selected.difference_update(source)
+manifest={}
+for p in sorted(selected):
+ b=data(p);target=W/p
+ if target.exists():assert target.read_bytes()==b,p
+ else:target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b)
+ manifest[p]={'sha256':sha(b),'bytes':len(b)}
+result={'fixed_git':B,'packages':sorted(packages),'files':manifest,'read_only13':source,'helper_roots':helpers,'fixture_test_roots':roots,'added_since_harness_stage01':sorted(selected-set(old['files']))}
+(R/'runtime-baseline.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'files':len(manifest),'bytes':sum(x['bytes'] for x in manifest.values()),'readonly':len(source),'packages':len(packages),'added_fixed_files':len(result['added_since_harness_stage01']),'sha256':sha((R/'runtime-baseline.json').read_bytes())}))

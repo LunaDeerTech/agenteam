@@ -1,0 +1,192 @@
+{
+  "adopted_waits": 0,
+  "all_binaries_deleted": true,
+  "all_inputs_final_unchanged": true,
+  "binaries": {
+    "account": {
+      "bytes": 48253475,
+      "deleted_after_discovery": true,
+      "exact_discovered": [
+        "TestSystemRuntimeInformationCurrentAuthorityAndTerminal"
+      ],
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/account.test",
+      "sha256": "b1a36ccede68931d01c8ce3aa771975aebd6f3a488010947267cffc55400b4f4"
+    },
+    "app": {
+      "bytes": 44379549,
+      "deleted_after_discovery": true,
+      "exact_discovered": [
+        "TestSystemRuntimeInformationRootSnapshotBinding"
+      ],
+      "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/app.test",
+      "sha256": "18d0ab56d0352ae745dc1a0d8b86ed28cc1a90f60789bf17f7700a8542059e33"
+    }
+  },
+  "checks": [
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-race",
+        "-deps",
+        "-test",
+        "-tags=integration",
+        "-json=Dir,ImportPath,Module,Error,DepsErrors,GoFiles,CgoFiles,CFiles,CXXFiles,MFiles,HFiles,FFiles,SFiles,SwigFiles,SwigCXXFiles,SysoFiles,EmbedFiles,TestGoFiles,XTestGoFiles,TestEmbedFiles,XTestEmbedFiles",
+        "./tests/account",
+        "./internal/central/app"
+      ],
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "50742fe7cf2ede003a1a2c623bc43e2d321264aedea06d419ed635e58bfae960",
+        "command.json": "d5ff09c7c096a9ee694fe01bf8b898e47aa369acb1508558717016fd44c733ce",
+        "input-after.json": "89007e11f4ad44706b1af3c4894dde98183680bbf4dce0c12b02ace54704753d",
+        "input-before.json": "89007e11f4ad44706b1af3c4894dde98183680bbf4dce0c12b02ace54704753d",
+        "observed-processes.json": "0dadd3a357cf39ad05535b99228bda79b77bdf1c25a42624f56b03c55ef9bed5",
+        "raw.log": "70458ded720c83b7c77e706e8dadbf24e3e5c9eb53a7d62eab468c3c23c451dd",
+        "result.json": "d53f3eb75eedb0dfef18c76b23ec7eab5f490dd72e25c5c62e0f109ee6f4b341"
+      },
+      "input_unchanged": true,
+      "name": "graph01",
+      "observed_pids": 1,
+      "seconds": 0.15
+    },
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-vet=off",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/account.test",
+        "./tests/account"
+      ],
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "1b766fc4273c99f82c0d40fb3ea569a0c5cc2b5b9c7b1767b1505b39f0e125d5",
+        "command.json": "4106c57de9dd299a6a2921a1eafa36b38a3d695d408be9f84ceed61409850def",
+        "input-after.json": "8b0bc769c51d7b8d5db361b0bac73a9308ebc2d4b287e8d18af800073a1e4262",
+        "input-before.json": "8b0bc769c51d7b8d5db361b0bac73a9308ebc2d4b287e8d18af800073a1e4262",
+        "observed-processes.json": "b0398ff92980eb90ea4a0ef92857e279406c8781a234528c5f65e46c9424b2f6",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "51db0dbacc28627806c5b5e1f6f03d68fb64989bcad65f4cd1efd3151c77880e"
+      },
+      "input_unchanged": true,
+      "name": "account-compile01",
+      "observed_pids": 20,
+      "seconds": 24.638
+    },
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/account.test",
+        "-test.list",
+        "^(TestSystemRuntimeInformationCurrentAuthorityAndTerminal)$"
+      ],
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "3d9cdc51e150682535d289bf1a83f6241ce4708dba520276f23b7b415e043c4d",
+        "command.json": "664b7cbadb6a1f0d918905481642bbb37b1a140dafb810f57b8c0f15e456df08",
+        "input-after.json": "0152c297730b32eea0d2540c815a767b1118fec13312b291c8708c3974749318",
+        "input-before.json": "0152c297730b32eea0d2540c815a767b1118fec13312b291c8708c3974749318",
+        "observed-processes.json": "b3a75cb90d490621950b6bd1bb561950ae81c8925a0136ce5bc47e6571ab5ebe",
+        "raw.log": "b737dfb84149a7c6b75dbd6eb1a32565374b55fa60f903cdff66c0f0bf4d6eb5",
+        "result.json": "71b2beb1116e40176b85a13828632c9d7aea6a13bef56e1253afb2a2476e7733"
+      },
+      "input_unchanged": true,
+      "name": "account-list01",
+      "observed_pids": 1,
+      "seconds": 1.022
+    },
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-vet=off",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/app.test",
+        "./internal/central/app"
+      ],
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "4450bf3ba709e28f818a354aa69a9fb94813d572d65c64a6bb31bc1bb64ee423",
+        "command.json": "07ff94066d9603a1e47a1999d1641f377ce4cbc7d4b90b84362e4d70a073fe75",
+        "input-after.json": "8b0bc769c51d7b8d5db361b0bac73a9308ebc2d4b287e8d18af800073a1e4262",
+        "input-before.json": "8b0bc769c51d7b8d5db361b0bac73a9308ebc2d4b287e8d18af800073a1e4262",
+        "observed-processes.json": "dc720f09a43ee9f5e000fcb905f9c05ebbf56fe371668a7bae24d5f51e3db047",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "7bf82b529760f0ad297d09fe14d70b7231dcf048ae3f716b7a42624aac727b6c"
+      },
+      "input_unchanged": true,
+      "name": "app-compile01",
+      "observed_pids": 4,
+      "seconds": 3.645
+    },
+    {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "argv": [
+        "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/main-integration01/app.test",
+        "-test.list",
+        "^(TestSystemRuntimeInformationRootSnapshotBinding)$"
+      ],
+      "double_cleanup": true,
+      "exit": 0,
+      "files": {
+        "adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "cleanup.json": "b866962baa35446b97883924a80a6afbe924519fb574db1593a6fb003837ccc2",
+        "command.json": "98831ed217be9a52ccfe179b619dad0c8c4c5a5ef1a45d110a0706260d04f3d1",
+        "input-after.json": "e9d96a85c3920937ebcd6413e70a64cae46424dde81b3ec9ca09e59672b5fca7",
+        "input-before.json": "e9d96a85c3920937ebcd6413e70a64cae46424dde81b3ec9ca09e59672b5fca7",
+        "observed-processes.json": "c2c450ff00c7cd4a199c242cf7c222e07d3116b4d6e975c448b3518719301a82",
+        "raw.log": "730266654ea93a676c7f90d0d8c2956639e232b576e057d05645174fbb481df3",
+        "result.json": "36614c7a99ffc3d79eb38c404428c4557cc0d8d40f05b8256b92318bfd51d82a"
+      },
+      "input_unchanged": true,
+      "name": "app-list01",
+      "observed_pids": 1,
+      "seconds": 1.041
+    }
+  ],
+  "closure": {
+    "external_and_provenance_files": 3499,
+    "local_paths": 622,
+    "modules": 31,
+    "noncandidate_production_delta_from_b124650": [],
+    "packages": 396,
+    "readme_binding": "private accepted candidate; main README is not a Go input"
+  },
+  "conclusion": "PASS; read-only main two-package integration race compile and exact discovery, not main dynamic acceptance",
+  "delivery14_sha256": "4c9c56e7d76f6c9278c42f883ade2830e9c52443ffe3be62e44f36caa51593bb",
+  "input_sha256": "219d7e55ee5cab033d01a2a912c9a22a2d50cfe9ca4ee4e3e78f4609ae185fc3",
+  "listeners_or_fixture_started": false,
+  "main_head": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+  "no_repeated_central_runner_build": "No noncandidate production input delta; prior frozen Central/Runner build reused by authorization.",
+  "outer_result_sha256": "1bc0bea2603816c853578dacac9c6475d7473a36933e90bae333da46f4600dad",
+  "owned_pid_starttime_union": 27,
+  "readonly_modcache": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+  "result_sha256": "07ac410f6f2ac59a1dbbb16da37d718f80d0c40c7f127e20bf5c5015af0cea6a",
+  "reused_cache": "/workspace/scratch/agenteam-outbound-real-independent-bi81p1sb/gocache",
+  "runner_sha256": "e0471850c8b007124d53549d2722dfe007f7f11a174cd1646dcbc94651007440",
+  "source_writes": false,
+  "test_bodies_executed": false
+}

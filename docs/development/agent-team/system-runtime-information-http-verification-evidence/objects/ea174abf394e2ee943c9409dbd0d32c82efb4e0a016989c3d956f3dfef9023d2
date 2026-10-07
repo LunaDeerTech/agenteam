@@ -1,0 +1,94 @@
+--- prior-audit-main/check.py
++++ runtime-main/check.py
+@@ -4,9 +4,9 @@
+ ROOT = Path(__file__).resolve().parent
+ Q = ROOT.parent
+ REPO = Path('/workspace/agenteam')
+-HEAD = '2742cf785e2f9379c2046172556ead70c29b48dc'
++HEAD = 'aa9ea0b63de0c395525f3084ef514752ce2f1dfd'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+-spec = importlib.util.spec_from_file_location('previous_audit_driver', Q / 'run-audit-fixture02.py')
++spec = importlib.util.spec_from_file_location('previous_audit_driver', Q / 'run-runtime-fixture.py')
+ previous = importlib.util.module_from_spec(spec)
+ sys.dont_write_bytecode = True
+ spec.loader.exec_module(previous)
+@@ -19,15 +19,17 @@
+ SAFE_ENV = {k: env[k] for k in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','GOTMPDIR','TMPDIR','CGO_ENABLED','GOFLAGS']}
+ if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+     raise RuntimeError('subreaper setup failed')
+-delivery = json.loads((Q / 'author-delivery14.json').read_text())
++delivery = json.loads((Q / 'document-stage01/delivery14.json').read_text())
+ assert subprocess.check_output(['git','rev-parse','HEAD'], cwd=REPO, timeout=10).decode().strip() == HEAD
+-assert sha(Q / 'author-delivery14.json') == 'd70c098f931f4fe210822c6ffa551ee46c15dba3e22e19d6e3194a3211fe8d43'
+-assert sha(Q / 'run-audit-fixture02.py') == '67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034'
++assert sha(Q / 'document-stage01/delivery14.json') == '4c9c56e7d76f6c9278c42f883ade2830e9c52443ffe3be62e44f36caa51593bb'
++assert sha(Q / 'run-runtime-fixture.py') == 'b78846a88242665b3a8915a62c906ae78aaca3ebb3f1680d5c12413d6bf799f5'
+ for name, meta in delivery['files'].items():
+-    assert sha(REPO / name) == meta['sha256'], name
+-tracked = {str(REPO / name) for name in delivery['files']}
+-tracked.update(str(REPO / name) for name in ['go.mod','go.sum','tests/account/system_outbound_policy_web_fixture_test.go','tests/account/system_outbound_policy_web_test.go'])
+-tracked.update([GO, str(Q / 'run-audit-fixture02.py'), str(Path(__file__).resolve())])
++    target = Path(meta['source']) if name == 'docs/development/backend/README.md' else REPO / name
++    assert sha(target) == meta['sha256'], name
++tracked = {str(REPO / name) for name in delivery['files'] if name != 'docs/development/backend/README.md'}
++tracked.add(delivery['files']['docs/development/backend/README.md']['source'])
++tracked.update(str(REPO / name) for name in ['go.mod','go.sum'])
++tracked.update([GO, str(Q / 'run-runtime-fixture.py'), str(Path(__file__).resolve()), str(Q / 'document-stage01/delivery14.json')])
+ def stamp():
+     return {p: sha(p) for p in sorted(tracked)}
+ 
+@@ -106,7 +108,7 @@
+     for key in fields:
+         for name in pkg.get(key,[]):
+             path = (directory/name).resolve()
+-            if path.is_relative_to(Q/'gocache') or path.is_relative_to(ROOT/'tmp'):
++            if path.is_relative_to(Path(env['GOCACHE'])) or path.is_relative_to(ROOT/'tmp'):
+                 assert pkg['ImportPath'].endswith('.test')
+                 generated.add(pkg['ImportPath'])
+                 continue
+@@ -114,8 +116,10 @@
+             tracked.add(str(path))
+ for name in ['compile','link','asm','cgo']:
+     tracked.add(str(Path(GO).parent.parent/'pkg/tool/linux_amd64'/name))
+-for name in ['gcc','g++','sh','python3']:
++for name in ['gcc','g++','sh']:
+     tracked.add(str(Path(shutil.which(name)).resolve()))
++tracked.add(str(Path(sys.executable).resolve()))
++tracked.add(str(Path(GO).parent.parent/'VERSION'))
+ local = sorted(str(Path(p).relative_to(REPO)) for p in tracked if Path(p).is_relative_to(REPO))
+ gitraw = subprocess.check_output(['git','ls-tree','-r','-z',HEAD,'--',*local],cwd=REPO,timeout=20)
+ blobs = {}
+@@ -127,20 +131,25 @@
+     if name in delivery['files']: continue
+     content = (REPO/name).read_bytes()
+     assert hashlib.sha1(b'blob '+str(len(content)).encode()+b'\0'+content).hexdigest() == blobs[name], name
+-extra = {}
+-for name in ['tests/account/system_outbound_policy_web_fixture_test.go','tests/account/system_outbound_policy_web_test.go']:
+-    original = subprocess.check_output(['git','show','1ff044264a54c948e512db9aafad24ec5e0aa3c2:'+name],cwd=REPO,timeout=10)
+-    assert original == (REPO/name).read_bytes()
+-    extra[name] = sha(REPO/name)
+-write(ROOT/'input.json', {'main_head':HEAD,'delivery14_sha256':sha(Q/'author-delivery14.json'),'files':stamp(),'local_paths':local,'head_blobs':blobs,'outbound_1ff0442_files':extra,'modules':modules,'packages':sorted(packages),'generated_test_mains':sorted(generated),'env':SAFE_ENV,'disk_free_bytes_before':os.statvfs(ROOT).f_bavail*os.statvfs(ROOT).f_frsize})
+-summary = {'scope':'main two-package integration race compile and exact discovery only; no business execution','main_head':HEAD,'input_sha256':sha(ROOT/'input.json'),'local_paths':len(local),'runtime_files':len(tracked)-len(local),'packages':len(packages),'modules':len(modules),'binaries':{}}
+-for label, package, names in [('account','./tests/account',['TestSystemAuditHTTPQueryAndProjection','TestSystemAuditHTTPTransactionAndBudget']),('app','./internal/central/app',['TestSystemAuditHTTPRootProducerBinding'])]:
++production = [name for name in local if Path(name).suffix in {'.go','.s','.S','.c','.h','.cc','.cpp','.syso'} and not name.endswith('_test.go') and name not in delivery['files']]
++base_raw = subprocess.check_output(['git','ls-tree','-r','-z','b124650aee095b26191bc181dc8cf5d6e0f977f5','--',*production],cwd=REPO,timeout=20)
++base_blobs = {}
++for item in base_raw.split(b'\0'):
++    if item:
++        meta, name = item.split(b'\t',1)
++        base_blobs[name.decode()] = meta.split()[2].decode()
++production_delta = [name for name in production if blobs.get(name) != base_blobs.get(name)]
++write(ROOT/'input.json', {'main_head':HEAD,'delivery14_sha256':sha(Q/'document-stage01/delivery14.json'),'files':stamp(),'local_paths':local,'head_blobs':blobs,'noncandidate_production_delta_from_b124650':production_delta,'modules':modules,'packages':sorted(packages),'generated_test_mains':sorted(generated),'env':SAFE_ENV,'disk_free_bytes_before':os.statvfs(ROOT).f_bavail*os.statvfs(ROOT).f_frsize})
++summary = {'scope':'main two-package integration race compile and exact discovery only; no business execution','main_head':HEAD,'input_sha256':sha(ROOT/'input.json'),'local_paths':len(local),'runtime_files':len(tracked)-len(local),'packages':len(packages),'modules':len(modules),'noncandidate_production_delta_from_b124650':production_delta,'binaries':{}}
++for label, package, names in [('account','./tests/account',['TestSystemRuntimeInformationCurrentAuthorityAndTerminal']),('app','./internal/central/app',['TestSystemRuntimeInformationRootSnapshotBinding'])]:
+     binary = ROOT/(label+'.test')
+     run(label+'-compile01',[GO,'test','-c','-race','-vet=off','-tags=integration','-o',str(binary),package])
++    tracked.add(str(binary))
+     folder = run(label+'-list01',[str(binary),'-test.list','^('+'|'.join(names)+')$'])
+     assert (folder/'raw.log').read_text().splitlines() == names
+     summary['binaries'][label] = {'path':str(binary),'sha256':sha(binary),'bytes':binary.stat().st_size,'exact_discovered':names}
+     binary.unlink()
++    tracked.remove(str(binary))
+     summary['binaries'][label]['deleted_after_discovery'] = not binary.exists()
+ assert stamp() == json.loads((ROOT/'input.json').read_text())['files']
+ assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=REPO,timeout=10).decode().strip() == HEAD

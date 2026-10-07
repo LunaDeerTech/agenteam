@@ -1,0 +1,652 @@
+// Package app composes Central's real PostgreSQL foundation and diagnostic HTTP
+// server. Remaining product dependencies are unbound and ready stays false.
+package app
+
+import (
+	"context"
+	"errors"
+	"log"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/netip"
+	"os"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	"github.com/LunaDeerTech/agenteam/internal/platform/lifecycle"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+)
+
+func Run(ctx context.Context, cfg config.Config, logger *logging.Logger, signals <-chan os.Signal) error {
+	if logger == nil {
+		return lifecycle.NewFailure(lifecycle.InitializationFailed, nil)
+	}
+	return run(ctx, cfg, logger, signals, dependencies{})
+}
+
+type processLogger interface {
+	Transition(logging.Phase)
+	Listening(netip.AddrPort)
+	Failed(logging.Phase, lifecycle.FailureCode)
+	ShutdownComplete(bool, lifecycle.FailureCode)
+	Database(logging.DatabasePhase, string, string, int64)
+	Security(logging.SecurityPhase)
+	HTTPLogger() *slog.Logger
+	ServerErrorLog() *log.Logger
+}
+
+type database interface {
+	Check(context.Context) (postgres.DatabaseHealth, error)
+	StopAdmission()
+	Drain(context.Context) error
+	ForceClose(context.Context) error
+}
+
+// Only package-local tests can replace assembly. Production always uses Open,
+// the embedded migration source and the fixed health sampling intervals.
+type dependencies struct {
+	listen             func(context.Context, string, string) (net.Listener, error)
+	handler            http.Handler
+	open               func(context.Context, postgres.Config) (database, error)
+	migrate            func(context.Context, postgres.Config) postgres.MigrationState
+	health             healthTiming
+	security           func(context.Context, config.Config, database) (*audit.Service, error)
+	secret             func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
+	outbound           func(context.Context, config.Config, database, *audit.Service) (egress, error)
+	objects            func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
+	outbox             func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error)
+	bind               func(context.Context, config.Config, database, *resources, *dependencies) error
+	secretInitialize   func(context.Context, *secret.Service) error
+	outboundConstruct  func(context.Context, config.Config, *outboundRuntime) error
+	outboundInitialize func(context.Context, *outboundRuntime) (egress, error)
+	observeAccount     func(*account.Service)
+	runtimeInformation runtimeInformationFactory
+}
+
+type startupResult struct {
+	health           postgres.DatabaseHealth
+	sampled          time.Time
+	objectSampled    time.Time
+	objectAvailable  bool
+	outboxSampled    time.Time
+	outboxAvailable  bool
+	accountSampled   time.Time
+	accountAvailable bool
+	runtimeInformation runtimeInformationFactory
+	err              error
+	code             lifecycle.FailureCode
+	securityFailure  bool
+}
+
+func run(ctx context.Context, cfg config.Config, logger processLogger, signals <-chan os.Signal, deps dependencies) error {
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
+	if logger == nil {
+		return lifecycle.NewFailure(lifecycle.InitializationFailed, nil)
+	}
+	control := lifecycle.New(ctx, signals, cfg.ShutdownTimeout())
+	defer control.Close()
+	logger.Transition(logging.Starting)
+	owned := &resources{}
+	if control.Stopping() {
+		return stopStartup(logger, control, owned, nil)
+	}
+	if deps.listen == nil {
+		deps.listen = (&net.ListenConfig{}).Listen
+	}
+	deps.health = deps.health.defaults()
+	if deps.open == nil {
+		deps.open = func(ctx context.Context, cfg postgres.Config) (database, error) { return postgres.Open(ctx, cfg) }
+	}
+	if deps.migrate == nil {
+		deps.migrate = func(ctx context.Context, cfg postgres.Config) postgres.MigrationState {
+			m, err := postgres.NewMigrator(cfg)
+			if err != nil {
+				return postgres.MigrationState{Fault: asDatabaseError(err)}
+			}
+			return m.Migrate(ctx)
+		}
+	}
+	localAssembly := deps.bind != nil
+	if deps.bind == nil {
+		deps.bind = bindAccounts
+	}
+	startup, cancelStartup := context.WithCancel(control.StopContext())
+	defer cancelStartup()
+	initialized := make(chan startupResult, 1)
+	go func() { initialized <- initialize(startup, cfg, logger, deps, owned) }()
+	var initial startupResult
+	select {
+	case initial = <-initialized:
+		initialized = nil
+	case <-control.StopContext().Done():
+		cancelStartup()
+		return stopStartup(logger, control, owned, initialized)
+	}
+	cancelStartup()
+	if control.Stopping() {
+		return stopStartup(logger, control, owned, initialized)
+	}
+	var monitor *healthMonitor
+	var runtimeHandler http.Handler
+	if initial.err == nil {
+		monitor = newHealthMonitor(initial.health, deps.health)
+		monitor.received = initial.sampled
+		monitor.objectReceived = initial.objectSampled
+		monitor.objectAvailable = initial.objectAvailable
+		monitor.outboxReceived = initial.outboxSampled
+		monitor.outboxAvailable = initial.outboxAvailable
+		monitor.accountReceived = initial.accountSampled
+		monitor.accountAvailable = initial.accountAvailable
+		monitor.accountBound = owned.accounts() != nil
+		// Only the existing package-local assembly without Account may omit this
+		// binding. Production always captures the factory in bindAccounts.
+		if !localAssembly || owned.accounts() != nil || initial.runtimeInformation != nil {
+			runtimeHandler, initial.err = bindRuntimeInformation(initial.runtimeInformation, monitor, owned)
+			if initial.err != nil {
+				initial.code, initial.securityFailure = lifecycle.InitializationFailed, true
+			}
+		}
+	}
+	if initial.err != nil {
+		if initial.code == lifecycle.InitializationFailed && !initial.securityFailure {
+			databaseFailure(logger, initial.err)
+		}
+		logger.Failed(logging.Starting, initial.code)
+		cleanup, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		cleanupResources(cleanup, owned, nil)
+		return lifecycle.NewFailure(initial.code, initial.err)
+	}
+
+	healthContext, cancelHealth := context.WithCancel(context.Background())
+	defer cancelHealth()
+	healthDone := make(chan struct{})
+	go func() {
+		defer close(healthDone)
+		monitor.run(healthContext, owned.store(), logger, owned.objects(), owned.outbox(), owned.accounts())
+	}()
+	if deps.handler == nil {
+		diagnostics := diagnosticRouter(monitor, true, owned.secret(), owned.outbound())
+		accounts := owned.accounts()
+		if accounts == nil || accounts.Handler() == nil {
+			// Only package-local unit collaborators may omit real Account.
+			deps.handler = diagnostics
+		} else {
+			accountHandler := accounts.Handler()
+			accountHandler = systemRuntimeInformationRoutes(accountHandler, runtimeHandler)
+			deps.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path == "/livez" || r.URL.Path == "/readyz" || r.URL.Path == "/diagnostics" {
+					diagnostics.ServeHTTP(w, r)
+					return
+				}
+				accountHandler.ServeHTTP(w, r)
+			})
+		}
+	}
+	serving, cancelServing := context.WithCancel(context.WithoutCancel(ctx))
+	defer cancelServing()
+	gate := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if control.Stopping() || !owned.admitHTTP() {
+			httpapi.WriteProblem(w, r, foundation.NewFault(foundation.ShuttingDown, foundation.NotStarted))
+			return
+		}
+		defer owned.finishHTTP()
+		deps.handler.ServeHTTP(w, r)
+	})
+	server := &http.Server{Handler: httpapi.Handler(logger.HTTPLogger(), gate), BaseContext: func(net.Listener) context.Context { return serving }, ReadHeaderTimeout: 5 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 1 << 20, ErrorLog: logger.ServerErrorLog()}
+	owned.setServer(server)
+	listener := owned.listener()
+	serveDone := make(chan error, 1)
+	go func() { serveDone <- server.Serve(listener) }()
+	if address, ok := listener.Addr().(*net.TCPAddr); ok {
+		logger.Listening(address.AddrPort())
+	}
+	logger.Transition(logging.DiagnosticServing)
+	maintenanceDone := owned.workerDone()
+	var serveFailure error
+	for !control.Stopping() {
+		select {
+		case <-control.StopContext().Done():
+		case <-maintenanceDone:
+			maintenanceDone = nil
+			if owned.workerError() != nil {
+				logger.Security(logging.SecretUnavailable)
+			}
+		case err := <-serveDone:
+			serveDone = nil
+			if !control.Stopping() || !errors.Is(err, http.ErrServerClosed) {
+				serveFailure = lifecycle.NewFailure(lifecycle.ServeFailed, err)
+			}
+			control.Stop()
+		}
+	}
+	logger.Transition(logging.Stopping)
+	owned.stopMaintenance()
+	owned.stopOutbound()
+	owned.stopObjects()
+	owned.stopOutbox()
+	owned.stopAccounts()
+	cancelHealth()
+	drain, cancelDrain := control.DrainContext()
+	defer cancelDrain()
+	httpDone := make(chan error, 1)
+	go func() { httpDone <- server.Shutdown(drain) }()
+	outboundDone := make(chan error, 1)
+	go func() {
+		if service := owned.outbound(); service != nil {
+			outboundDone <- service.Drain(drain)
+		} else {
+			outboundDone <- nil
+		}
+	}()
+	accountDone := make(chan error, 1)
+	go func() { accountDone <- owned.drainAccounts(drain) }()
+	outboxDone := make(chan error, 1)
+	go func() {
+		if service := owned.outbox(); service != nil {
+			outboxDone <- service.Drain(drain)
+		} else {
+			outboxDone <- nil
+		}
+	}()
+	// All HTTP, Account, Mail and Outbox work must actually join before guard
+	// retirement, including a reader or Sink close still running after cancel.
+	var objectDone chan error
+	objectStarted := false
+	outboxDrained := false
+	accountDrained := false
+	var databaseDone chan error
+	httpDrained, databaseDrained, outboundDrained, objectDrained := false, false, false, false
+	for {
+		if httpDrained && outboxDrained && accountDrained && owned.producersJoined() && !objectStarted {
+			objectStarted = true
+			objectDone = make(chan error, 1)
+			go func() {
+				if service := owned.objects(); service != nil {
+					objectDone <- service.Drain(drain)
+				} else {
+					objectDone <- nil
+				}
+			}()
+		}
+		if httpDrained && outboundDrained && objectDrained && maintenanceDone == nil && databaseDone == nil && !databaseDrained {
+			databaseDone = make(chan error, 1)
+			go func() { store := owned.store(); store.StopAdmission(); databaseDone <- store.Drain(drain) }()
+		}
+		if httpDrained && databaseDrained && serveDone == nil && healthDone == nil && !control.Forced() {
+			cancelServing()
+			owned.closeHTTP()
+			if serveFailure != nil {
+				logger.Failed(logging.Stopped, lifecycle.ServeFailed)
+				return serveFailure
+			}
+			logger.ShutdownComplete(false, "")
+			return nil
+		}
+		var code lifecycle.FailureCode
+		select {
+		case err := <-serveDone:
+			serveDone = nil
+			if !errors.Is(err, http.ErrServerClosed) {
+				serveFailure = lifecycle.NewFailure(lifecycle.ServeFailed, err)
+			}
+		case err := <-httpDone:
+			httpDone = nil
+			if err == nil {
+				httpDrained = true
+			} else if errors.Is(err, context.DeadlineExceeded) {
+				code = lifecycle.ShutdownTimeout
+			} else {
+				code = lifecycle.ShutdownFailed
+			}
+		case err := <-databaseDone:
+			databaseDone = nil
+			if err == nil {
+				databaseDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
+		case err := <-outboundDone:
+			outboundDone = nil
+			if err == nil {
+				outboundDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
+		case err := <-outboxDone:
+			outboxDone = nil
+			if err == nil {
+				outboxDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
+		case err := <-accountDone:
+			accountDone = nil
+			if err == nil {
+				accountDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
+		case err := <-objectDone:
+			objectDone = nil
+			if err == nil {
+				objectDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
+		case <-healthDone:
+			healthDone = nil
+		case <-maintenanceDone:
+			maintenanceDone = nil
+		case <-drain.Done():
+			code = lifecycle.ShutdownTimeout
+		case <-control.ForceDone():
+			code = lifecycle.ForcedShutdown
+		}
+		if code == "" {
+			continue
+		}
+		control.Force()
+		cancelDrain()
+		forced, cancel := context.WithTimeout(context.Background(), time.Second)
+		// Every HTTP/object/transport cleanup and join shares this force budget;
+		// DB is closed last so already admitted cleanup can checkpoint.
+		cleanupResources(forced, owned, cancelServing)
+		joinWorkers(forced, serveDone, httpDone, databaseDone, healthDone)
+		if outboundDone != nil {
+			select {
+			case <-outboundDone:
+			case <-forced.Done():
+			}
+		}
+		if outboxDone != nil {
+			select {
+			case <-outboxDone:
+			case <-forced.Done():
+			}
+		}
+		if objectDone != nil {
+			select {
+			case <-objectDone:
+			case <-forced.Done():
+			}
+		}
+		if accountDone != nil {
+			select {
+			case <-accountDone:
+			case <-forced.Done():
+			}
+		}
+		cancel()
+		logger.ShutdownComplete(true, code)
+		return lifecycle.NewFailure(code, nil)
+	}
+}
+
+func initialize(ctx context.Context, cfg config.Config, logger processLogger, deps dependencies, owned *resources) startupResult {
+	parent := ctx
+	ctx, cancelDatabase := context.WithTimeout(parent, cfg.Database().StartupTimeout())
+	defer cancelDatabase()
+	failed := func(err error) startupResult { return startupResult{err: err, code: lifecycle.InitializationFailed} }
+	logger.Database(logging.DatabaseConnecting, "", "", 0)
+	store, err := deps.open(ctx, cfg.Database())
+	if err != nil {
+		return failed(err)
+	}
+	if !owned.addStore(store) {
+		return failed(context.Canceled)
+	}
+	if err := ctx.Err(); err != nil {
+		return failed(err)
+	}
+	logger.Database(logging.DatabaseMigrating, "", "", 0)
+	migration := deps.migrate(ctx, cfg.Database())
+	if !migration.Migrated {
+		if migration.Fault == nil {
+			return failed(errors.New("MIGRATION_FAILED"))
+		}
+		return failed(migration.Fault)
+	}
+	if err := ctx.Err(); err != nil {
+		return failed(err)
+	}
+	logger.Database(logging.DatabaseMigrated, "", "", migration.Version)
+	logger.Database(logging.DatabaseChecking, "", "", 0)
+	health, err := store.Check(ctx)
+	if err != nil {
+		return failed(err)
+	}
+	if !healthy(health) {
+		return failed(errors.New("DATABASE_HEALTH_FAILED"))
+	}
+	sampled := deps.health.now()
+	if err := ctx.Err(); err != nil {
+		return failed(err)
+	}
+	cancelDatabase()
+	ctx, cancelSecurity := context.WithTimeout(parent, SecurityStartupTimeout)
+	defer cancelSecurity()
+	if deps.bind == nil {
+		deps.bind = bindAccounts
+	}
+	if err := deps.bind(ctx, cfg, store, owned, &deps); err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	logger.Security(logging.CursorInitializing)
+	logger.Security(logging.AuditInitializing)
+	auditService, err := deps.security(ctx, cfg, store)
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	owned.setAudit(auditService)
+	logger.Security(logging.SecretInitializing)
+	secretService, err := deps.secret(ctx, cfg, store, auditService)
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	logger.Security(logging.SecretMaintaining)
+	if !owned.startMaintenance(ctx, secretService) {
+		return failed(context.Canceled)
+	}
+	logger.Security(logging.OutboundInitializing)
+	outboundService, err := deps.outbound(ctx, cfg, store, auditService)
+	if outboundService != nil && !owned.addOutbound(ctx, outboundService) {
+		err = context.Canceled
+	}
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	logger.Security(logging.ObjectInitializing)
+	objectService, err := deps.objects(ctx, cfg, store, auditService)
+	if objectService != nil && !owned.addObjects(ctx, objectService) {
+		err = context.Canceled
+	}
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err == nil && objectService != nil {
+		err = objectService.StartMaintenance(context.WithoutCancel(ctx))
+	}
+	objectSampled := deps.health.now()
+	if err == nil && objectService != nil {
+		err = objectService.Check(ctx)
+		objectSampled = deps.health.now()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	logger.Security(logging.OutboxInitializing)
+	outboxService, err := deps.outbox(cfg, store, auditService, objectService)
+	if outboxService != nil && !owned.addOutbox(ctx, outboxService) {
+		err = context.Canceled
+	}
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err == nil && outboxService != nil {
+		err = outboxService.Initialize(ctx)
+	}
+	accountService := owned.accounts()
+	if err == nil && accountService != nil {
+		err = accountService.Start(ctx)
+	}
+	if err == nil && accountService != nil {
+		err = accountService.Check(ctx)
+	}
+	accountSampled := deps.health.now()
+	if err == nil && outboxService != nil {
+		err = outboxService.Start(context.WithoutCancel(ctx))
+	}
+	if err == nil && outboxService != nil {
+		err = outboxService.Check(ctx)
+	}
+	outboxSampled := deps.health.now()
+	if err != nil {
+		logger.Security(logging.OutboxUnavailable)
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	if outboxService != nil {
+		logger.Security(logging.OutboxAvailable)
+	}
+	// Startup may spend most of its security budget on a real storage probe.
+	// Refresh an old DB sample within the remainder, never reset its age.
+	if deps.health.now().Sub(sampled) > deps.health.stale {
+		health, err = store.Check(ctx)
+		if err == nil && !healthy(health) {
+			err = errors.New("DATABASE_HEALTH_FAILED")
+		}
+		if err != nil {
+			return failed(err)
+		}
+		sampled = deps.health.now()
+	}
+	logger.Security(logging.SecurityInitialized)
+	listener, err := deps.listen(ctx, "tcp", cfg.HTTPAddr())
+	if listener != nil {
+		owned.addListener(listener)
+	}
+	if err != nil {
+		return startupResult{err: err, code: lifecycle.ListenFailed}
+	}
+	if err := ctx.Err(); err != nil {
+		return failed(err)
+	}
+	logger.Database(logging.DatabaseHealthy, "", "", migration.Version)
+	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil, outboxSampled: outboxSampled, outboxAvailable: outboxService != nil, accountSampled: accountSampled, accountAvailable: accountService != nil, runtimeInformation: deps.runtimeInformation}
+}
+
+func stopStartup(logger processLogger, control *lifecycle.Controller, owned *resources, initialized <-chan startupResult) error {
+	logger.Transition(logging.Stopping)
+	owned.stopMaintenance()
+	owned.stopOutbound()
+	owned.stopObjects()
+	owned.stopOutbox()
+	owned.stopAccounts()
+	drain, cancel := control.DrainContext()
+	defer cancel()
+	var drained chan error
+	for {
+		if initialized == nil && drained == nil {
+			owned.closeHTTP()
+			drained = make(chan error, 1)
+			go func() {
+				if worker := owned.workerDone(); worker != nil {
+					select {
+					case <-worker:
+					case <-drain.Done():
+						drained <- drain.Err()
+						return
+					}
+				}
+				if service := owned.outbound(); service != nil {
+					if err := service.Drain(drain); err != nil {
+						drained <- err
+						return
+					}
+				}
+				if service := owned.outbox(); service != nil {
+					if err := service.Drain(drain); err != nil {
+						drained <- err
+						return
+					}
+				}
+				if err := owned.drainAccounts(drain); err != nil {
+					drained <- err
+					return
+				}
+				if !owned.producersJoined() {
+					drained <- context.Canceled
+					return
+				}
+				if service := owned.objects(); service != nil {
+					if err := service.Drain(drain); err != nil {
+						drained <- err
+						return
+					}
+				}
+				if store := owned.store(); store != nil {
+					store.StopAdmission()
+					drained <- store.Drain(drain)
+				} else {
+					drained <- nil
+				}
+			}()
+		}
+		var code lifecycle.FailureCode
+		select {
+		case <-initialized:
+			initialized = nil
+		case err := <-drained:
+			if err == nil && !control.Forced() {
+				logger.ShutdownComplete(false, "")
+				return nil
+			}
+			code = lifecycle.ShutdownTimeout
+		case <-drain.Done():
+			code = lifecycle.ShutdownTimeout
+		case <-control.ForceDone():
+			code = lifecycle.ForcedShutdown
+		}
+		if code == "" {
+			continue
+		}
+		control.Force()
+		cancel()
+		forced, finish := context.WithTimeout(context.Background(), time.Second)
+		cleanupResources(forced, owned, nil)
+		if initialized != nil {
+			select {
+			case <-initialized:
+			case <-forced.Done():
+			}
+		}
+		joinWorkers(forced, nil, nil, drained, nil)
+		finish()
+		logger.ShutdownComplete(true, code)
+		return lifecycle.NewFailure(code, nil)
+	}
+}

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/prepare-runtime-closure.py"
+  ],
+  "exec_session": 69150,
+  "actual_exit": 1,
+  "source_sha256": "826902388fab128cf07de150f7073560bae9cd68981f9e46159d9bc995ecf72a",
+  "tool_output": "Traceback (most recent call last):\n  File \"/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/prepare-runtime-closure.py\", line 23, in <module>\n    if not fs:raise RuntimeError('missing package '+d)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: missing package internal/runner/\n",
+  "meaning": "read-only graph parsing prerequisite; regex matched quoted non-import prefix; traversal failed before copy loop; no compile/test/resource"
+}

@@ -1,0 +1,271 @@
+{
+  "result": "Author C bounded controlled pure composition/race/vet/format PASS; no native/resource acceptance",
+  "manifest_sha256": "95bd1d562a2c1c97fde0ef0fde16119b7129da0b01771b8577a7182bb1dec808",
+  "delivery5_sha256": "70d3452e176895b1201c5c295c010e9915f08cbb349fbe696e74faab800f8384",
+  "diff_sha256": "630174e67631f88abcf645826dc3183dd9ca53855928c746bbd4f8220423316c",
+  "candidates": 5,
+  "read_only_A02_B": 6,
+  "fixed_dependencies": 343,
+  "fixed_dependency_bytes": 3129599,
+  "checks": {
+    "app-format01": {
+      "exit": 0,
+      "seconds": 0.013,
+      "observed_pids": 1,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "source_unchanged": false,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-format01/command.json",
+        "sha256": "d917200a5ba942d38d11990ac923c476f444bed3235772c3887b9423f15fb6de"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-format01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-format01/result.json",
+        "sha256": "4fe792df18f9a1ec5c4eab8be9eac7a8dccde0f0235a733c51e8a184a0250834"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-format01/cleanup.json",
+        "sha256": "3790fe722129e31c90c011a9b4d8135e8716c28edb07f1e1b8ca6738cdfbdf86"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-format01/input-before.json",
+        "sha256": "9682270269161666f197fa387626fcc127028d1b127817540de3a154332b66d6"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-format01/input-after.json",
+        "sha256": "dd60e8909460e398039b5302a8b62c007a0bd77dd664629844c11282daaafb9e"
+      }
+    },
+    "app-pure01": {
+      "exit": 1,
+      "seconds": 4.627,
+      "observed_pids": 31,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "source_unchanged": true,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure01/command.json",
+        "sha256": "a5d45c8677ab5443a9920d1a969bae5100d4d6704d931f81440e79dbe04bf139"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure01/raw.log",
+        "sha256": "5e4a2b0d47f8c4888a42f4d6b25d968cd3255aba4f8d42039913f9a05488f0a7"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure01/result.json",
+        "sha256": "8c29b56d198a786e341ca55f3e625880f71a6a88317edf4468cbf4db2aca421a"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure01/cleanup.json",
+        "sha256": "5a867a536a48d865d13c557631ee9f22ea9eca9de7b00f60b6a603c1bdbbbbff"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure01/input-before.json",
+        "sha256": "b221ecc6b340ee166234da7440ad3578ea68126b74389d30bc988bb9cf6ea6eb"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure01/input-after.json",
+        "sha256": "b221ecc6b340ee166234da7440ad3578ea68126b74389d30bc988bb9cf6ea6eb"
+      }
+    },
+    "app-pure02": {
+      "exit": 0,
+      "seconds": 1.618,
+      "observed_pids": 5,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "source_unchanged": true,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure02/command.json",
+        "sha256": "14b7bc7a39b9b1e269e86e337a812e82f11709d362190bb72fac6656de0c7316"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure02/raw.log",
+        "sha256": "b880af98606f08e48983c6c5beecc7ac58bcedd0f492ff259ff13a4c35a364fd"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure02/result.json",
+        "sha256": "4e53741d6ffafcc30a2ac19ae7ab8b61f54929e41c037e51a32581009c1271d0"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure02/cleanup.json",
+        "sha256": "4119fab1250def0ff5735db542d7cf6f8fd977e330a35a6f222916b1b87cf3fb"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure02/input-before.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-pure02/input-after.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      }
+    },
+    "app-race01": {
+      "exit": 0,
+      "seconds": 7.386,
+      "observed_pids": 29,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "source_unchanged": true,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-race01/command.json",
+        "sha256": "451780abcfcbbc7b00855b0191e1cf9aa8027557656face7f8c835fb46de0c10"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-race01/raw.log",
+        "sha256": "f71fa46c7b9513b65e3c591419069a6dd273b7aaaff4609a897329f7a6ad7d6d"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-race01/result.json",
+        "sha256": "f0cfc2fd67bffa4c3f73c943da38883c92e1b02af49cbef42d724fec120182ab"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-race01/cleanup.json",
+        "sha256": "361bfe666bea015eb7912e206db405283b09c91650ccf1a7142cd4d034723825"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-race01/input-before.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-race01/input-after.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      }
+    },
+    "app-vet01": {
+      "exit": 0,
+      "seconds": 0.639,
+      "observed_pids": 13,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "source_unchanged": true,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-vet01/command.json",
+        "sha256": "35d91765c6d0ed9c30a0744ac90d71035fe4a2ff51b812cf44287945b8042e42"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-vet01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-vet01/result.json",
+        "sha256": "fc385649f2bf50b4adc78b12c12120adc19e4326ce79baf430e80d88b05d5be2"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-vet01/cleanup.json",
+        "sha256": "4dea70b3c86230339b5b1a0eb9506698d88e7fa6e5f49279a9db6f3c48f0ec55"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-vet01/input-before.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-vet01/input-after.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      }
+    },
+    "app-list01": {
+      "exit": 0,
+      "seconds": 2.09,
+      "observed_pids": 3,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "source_unchanged": true,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-list01/command.json",
+        "sha256": "7e48e72340bd26d2618a6b352102e06928735871073cbc43989ff110b7eea04b"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-list01/raw.log",
+        "sha256": "bc0f236c9553fbe044aa904e4d12c1828bc2f829674e28be5bc304b003241308"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-list01/result.json",
+        "sha256": "806f2c3e081bdfa694af385cb4d10529ea1617d0211c8e541960e5f771639c34"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-list01/cleanup.json",
+        "sha256": "50507027f334338b9bb77ff340a49210c94b57678ab0a119f0d41719bf54bacc"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-list01/input-before.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-list01/input-after.json",
+        "sha256": "4f386d6c7f03a726d15f3d226f77ac3bd05a400e1a39a14f626b903aa976f912"
+      }
+    },
+    "app-formatcheck01": {
+      "exit": 0,
+      "seconds": 0.01,
+      "observed_pids": 1,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "actual_wait_completed": true,
+      "timed_out": false,
+      "source_unchanged": true,
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-formatcheck01/command.json",
+        "sha256": "2e0d812c0127cfd4204540a3c09ff04c285704a8e77b508384116fc9683fd939"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-formatcheck01/raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-formatcheck01/result.json",
+        "sha256": "2789fdf7665eeb54c8be3e81e40ddb07b1648df264a75fc8629386b4c385f296"
+      },
+      "cleanup.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-formatcheck01/cleanup.json",
+        "sha256": "5d471ff9f92325103acfd497d45226db07ced144523336cee7d5980502c40917"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-formatcheck01/input-before.json",
+        "sha256": "268e02cb255b0b91c95f6608f1744026b48b16b395e53eb309d69bef93001069"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/app-formatcheck01/input-after.json",
+        "sha256": "268e02cb255b0b91c95f6608f1744026b48b16b395e53eb309d69bef93001069"
+      }
+    }
+  },
+  "pure_composition": "app-pure01 nine unchanged top-level PASS plus app-pure02 affected route top PASS; initial run exit1 retained",
+  "race_counts": {
+    "top_pass": 10,
+    "sub_pass": 75
+  },
+  "initial_failure": {
+    "run": "app-pure01",
+    "kind": "test request precondition",
+    "actual": "POST without Origin rejected as 403 ORIGIN_DENIED before method selection",
+    "expected": "405 METHOD_NOT_ALLOWED after a valid browser boundary",
+    "repair": "Only POST test vector supplies the existing legal Origin; no production delta",
+    "diff": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/premise-repair01/test.diff",
+    "production_unchanged": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/app-stage01/premise-repair01/production-unchanged.json"
+  },
+  "stop_writing": true,
+  "limitations": [
+    "Authenticated same-root provider identity requires later real root test; current graph proof is static plus pure constructors and controlled handoff",
+    "Listener is a controlled ownership witness with no socket; failure cleanup/Accept0 do not prove native serving",
+    "Existing health sampling algorithm remains unchanged; old exact TestHealthSnapshotsExpireRecoverAndRejectLateSuccess only is reused/run",
+    "No new health probe, source schedule, Object lifetime test, rootprocess/account integration harness, README or shared repository change"
+  ]
+}

@@ -1,0 +1,398 @@
+{
+  "candidate_changes": "only two new integration harnesses; all 11 accepted product/test/schema inputs match previous frozen stages",
+  "checks": {
+    "harness-account-list01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "371044053902dfd3d6920b908d76b7e39354b4caef9419723f5fb17c9642985a",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 9,
+      "raw_sha256": "f558e5d4b61f31b3a498483bfe32e9a3f5478110d5b258f71100ca325ed2bc21",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "artifacts.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/artifacts.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/cleanup.json",
+          "sha256": "4b3067456a17e22b389f78bc953354d29ced9e1ebd4658f7a180cb0003cfeefb"
+        },
+        "command.json": {
+          "bytes": 1191,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/command.json",
+          "sha256": "371044053902dfd3d6920b908d76b7e39354b4caef9419723f5fb17c9642985a"
+        },
+        "input-after.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/input-after.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "input-before.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/input-before.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "observed-processes.json": {
+          "bytes": 1431,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/observed-processes.json",
+          "sha256": "c46b2d36eda3fdda63adde90811adc545b45c791780cd71f6b8367bd157577c6"
+        },
+        "raw.log": {
+          "bytes": 115,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/raw.log",
+          "sha256": "f558e5d4b61f31b3a498483bfe32e9a3f5478110d5b258f71100ca325ed2bc21"
+        },
+        "result.json": {
+          "bytes": 406,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-account-list01/result.json",
+          "sha256": "90794099568c9aaf86e49f92095902acd397f7dc23fd58ffb37392562e4360e6"
+        }
+      },
+      "seconds": 7.815,
+      "source_unchanged": true,
+      "timed_out": false
+    },
+    "harness-central-build01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "529a7603080e9fff0ff06601af37bccb30fff9351f650ad409e37b9078769a94",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 4,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "artifacts.json": {
+          "bytes": 258,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/artifacts.json",
+          "sha256": "b2b5d1468a5f6a44ebafabacaa1e7044feae0d6f4f6c752365d03e8fcbacd49c"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/cleanup.json",
+          "sha256": "8c9db73687b15c32ad357d22ac01b273683348f498d92399ebb41a43cb5eae49"
+        },
+        "command.json": {
+          "bytes": 1133,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/command.json",
+          "sha256": "529a7603080e9fff0ff06601af37bccb30fff9351f650ad409e37b9078769a94"
+        },
+        "input-after.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/input-after.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "input-before.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/input-before.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "observed-processes.json": {
+          "bytes": 637,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/observed-processes.json",
+          "sha256": "3886c25a86286832185cca57acd49cd6a971f0c236f4d0a9e311f18baa6037ad"
+        },
+        "raw.log": {
+          "bytes": 0,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "bytes": 406,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-central-build01/result.json",
+          "sha256": "f61a4d295bae2598b7d59051ac7503cddcc9342215e9e97fd40ca3973bce2091"
+        }
+      },
+      "seconds": 1.601,
+      "source_unchanged": true,
+      "timed_out": false
+    },
+    "harness-format01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "4ee6e4c8c7e4c51dd9c4df37ce43beaf7b98587650a00d735796c3966ad36f16",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": true,
+      "observed_pids": 1,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "artifacts.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/artifacts.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/cleanup.json",
+          "sha256": "4376ec706798abd3c91b509897f2c9a94b4fb0ba179d0655ff0d97c784a1d420"
+        },
+        "command.json": {
+          "bytes": 1093,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/command.json",
+          "sha256": "4ee6e4c8c7e4c51dd9c4df37ce43beaf7b98587650a00d735796c3966ad36f16"
+        },
+        "input-after.json": {
+          "bytes": 54002,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/input-after.json",
+          "sha256": "2397c83fa60b9ee1965018890229299d6857207075296972d3e283d5a1ef3a73"
+        },
+        "input-before.json": {
+          "bytes": 54002,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/input-before.json",
+          "sha256": "7a5f3447de3edb1828f732715bf0cbd68d2ec4d42d014e3170ac35728847e2dc"
+        },
+        "observed-processes.json": {
+          "bytes": 157,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/observed-processes.json",
+          "sha256": "38be85d266f96d19ca9091bf9ec724c3ca83c990bd237bd6edc7d03f256616d6"
+        },
+        "raw.log": {
+          "bytes": 0,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "bytes": 405,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-format01/result.json",
+          "sha256": "f2263a5e3ca3acaba81597dced4e15fee3b199f38b231c44ef5ff4bcf76fed47"
+        }
+      },
+      "seconds": 0.01,
+      "source_unchanged": false,
+      "timed_out": false
+    },
+    "harness-formatcheck01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "f7209a8a35a795284d0ce69be0806cce3c8907c5d072af4564c89fe21afecd5c",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 1,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "artifacts.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/artifacts.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/cleanup.json",
+          "sha256": "dfa5038bf8ce590cddd3f940fcc7bf23d4a322b36a221e72b7bfeee2fb3a1d2f"
+        },
+        "command.json": {
+          "bytes": 1104,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/command.json",
+          "sha256": "f7209a8a35a795284d0ce69be0806cce3c8907c5d072af4564c89fe21afecd5c"
+        },
+        "input-after.json": {
+          "bytes": 54002,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/input-after.json",
+          "sha256": "2397c83fa60b9ee1965018890229299d6857207075296972d3e283d5a1ef3a73"
+        },
+        "input-before.json": {
+          "bytes": 54002,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/input-before.json",
+          "sha256": "2397c83fa60b9ee1965018890229299d6857207075296972d3e283d5a1ef3a73"
+        },
+        "observed-processes.json": {
+          "bytes": 157,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/observed-processes.json",
+          "sha256": "93634595848a70a6b2dd3f89fa2270deb5fa1ebfbbfd7a4caffc91db69978907"
+        },
+        "raw.log": {
+          "bytes": 0,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "bytes": 406,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-formatcheck01/result.json",
+          "sha256": "22a8235cb514e9bb61d1d6d559cdae1d5d31a7925c8c88a4a3c691b08c5c9094"
+        }
+      },
+      "seconds": 0.011,
+      "source_unchanged": true,
+      "timed_out": false
+    },
+    "harness-root-list01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "cda3100cbd0927e3a81a664fcfa65f0938267ea424635a2debb65db19e25e556",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 7,
+      "raw_sha256": "f8fc18b473a47583dec8e01d244258a9d8140dce575136f2ebd710f0e2fab3aa",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "artifacts.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/artifacts.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/cleanup.json",
+          "sha256": "cc6f06921264675dea3245f436450d1d433fb1a8ae53f3434fe44ea13d11952c"
+        },
+        "command.json": {
+          "bytes": 1183,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/command.json",
+          "sha256": "cda3100cbd0927e3a81a664fcfa65f0938267ea424635a2debb65db19e25e556"
+        },
+        "input-after.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/input-after.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "input-before.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/input-before.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "observed-processes.json": {
+          "bytes": 1094,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/observed-processes.json",
+          "sha256": "fff60c5263ad7ce53579f31ef9ccfc2b259c4518060f2c8ea12b6703ce01baf7"
+        },
+        "raw.log": {
+          "bytes": 114,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/raw.log",
+          "sha256": "f8fc18b473a47583dec8e01d244258a9d8140dce575136f2ebd710f0e2fab3aa"
+        },
+        "result.json": {
+          "bytes": 405,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-root-list01/result.json",
+          "sha256": "0363d38dfc53fb0b07482a4cf677db2c17d443913a5964d75cb7c53d25f0fa19"
+        }
+      },
+      "seconds": 4.41,
+      "source_unchanged": true,
+      "timed_out": false
+    },
+    "harness-runner-build01": {
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "command_sha256": "33e693e27565f3dffb2b33fb2d6808a21c153cdf53ff23c2171fdd691c080a21",
+      "double_cleanup": true,
+      "exit": 0,
+      "format_only_allowed_input_change": false,
+      "observed_pids": 4,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "records": {
+        "adopted-waits.json": {
+          "bytes": 3,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "artifacts.json": {
+          "bytes": 256,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/artifacts.json",
+          "sha256": "156cac7089b88489ce9b10237be2692090d6a06e5be0b617d728f578bcd9f8c4"
+        },
+        "cleanup.json": {
+          "bytes": 223,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/cleanup.json",
+          "sha256": "a30a075f54fe8b573eb6f65467585e343098f0c9c321ed766de26f2f080ac4f1"
+        },
+        "command.json": {
+          "bytes": 1137,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/command.json",
+          "sha256": "33e693e27565f3dffb2b33fb2d6808a21c153cdf53ff23c2171fdd691c080a21"
+        },
+        "input-after.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/input-after.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "input-before.json": {
+          "bytes": 53999,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/input-before.json",
+          "sha256": "ebfcb7ffdd38446a906373c4a3017e7b179a0e3ced86aa1201df3890c240eeb8"
+        },
+        "observed-processes.json": {
+          "bytes": 637,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/observed-processes.json",
+          "sha256": "1299a58374ed17024edf164ef2dca8b413c8ff7b035cc2b37b91bc71572277f7"
+        },
+        "raw.log": {
+          "bytes": 0,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result.json": {
+          "bytes": 406,
+          "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/runs/harness-runner-build01/result.json",
+          "sha256": "a0eb0bac4a3aef2b5f61f151fa2a51ca7af8e80eeee80d528df801079fce3665"
+        }
+      },
+      "seconds": 0.261,
+      "source_unchanged": true,
+      "timed_out": false
+    }
+  },
+  "conclusion": "OFFLINE COMPILE/DISCOVERY PASS; not real/native acceptance",
+  "dependency_bytes": 4138364,
+  "dependency_count": 446,
+  "failed_checks": [],
+  "files": {
+    "internal/central/app/runtime_information_process_test.go": {
+      "bytes": 14159,
+      "sha256": "bed598b917c0f285b2ca731ee59254b477a33d98614ecbfe66366badec1d513e"
+    },
+    "tests/account/runtime_information_http_test.go": {
+      "bytes": 17361,
+      "sha256": "f46b3d0485206310f4c7c41a1439ce32ad67944747254cfea4d166da52f96309"
+    }
+  },
+  "limits": [
+    "D checks compile and discover only; no body of either real test executed",
+    "Account Source and deadline-capable writer are controlled; tail gate proves actual call remains owned, not native zero-byte-before-commit",
+    "Root uses actual unchanged Source and real PG version query, checks delegate to original providers, test-only health interval 1h isolates GET from background ticks; production10s/2s/20s unchanged",
+    "No Object failure/force-stop representative, no health algorithm revalidation, no SMTP/external/provider/browser"
+  ],
+  "manifest": {
+    "bytes": 93407,
+    "path": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/manifest.json",
+    "sha256": "cc6cd929d391ad2fe771ef2dcdf5ec08ab38bc0f6b8ca151c959a2aeab461268"
+  },
+  "readonly_count": 11,
+  "resource_plan": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/execution-plan.json",
+  "unexecuted": [
+    "both new real top-level test bodies",
+    "three native runtime HTTP tests",
+    "original TestDiagnosticRoutes",
+    "all PG/Docker/MinIO/listener runtime"
+  ]
+}

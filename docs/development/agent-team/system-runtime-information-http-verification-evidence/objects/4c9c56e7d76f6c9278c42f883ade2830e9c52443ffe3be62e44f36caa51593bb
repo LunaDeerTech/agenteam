@@ -1,0 +1,79 @@
+{
+  "code_base_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "document_base_git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+  "files": {
+    "api/openapi/runtime-information.json": {
+      "bytes": 14576,
+      "sha256": "9287f6f2119d777df5f5dcb956e690af3952689b034b90ba393d10f62b762988",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/api/openapi/runtime-information.json"
+    },
+    "docs/development/backend/README.md": {
+      "baseline_git": "aa9ea0b63de0c395525f3084ef514752ce2f1dfd",
+      "baseline_sha256": "21a952ffc96c0b8ab81e71f28df35d14256097fc961fd2a2434be5c3cdbdaa48",
+      "bytes": 38502,
+      "sha256": "670427cda0f7f5795478131e01a2fcdc6ea2a14b744db8d652e0b56ca07ff7b8",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/document-stage01/source/docs/development/backend/README.md"
+    },
+    "internal/central/app/account.go": {
+      "bytes": 14263,
+      "sha256": "96fb4de27b49225be963c81baaa9088b177f67ab1a6e227d7dfb7c3a8c4b2223",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/app/account.go"
+    },
+    "internal/central/app/app.go": {
+      "bytes": 21065,
+      "sha256": "72e7d6689d3dda38c8c68ccb7908cf0dfbcbda5fb4a8b3d59edb1e3b9ea90d77",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/app/app.go"
+    },
+    "internal/central/app/diagnostics.go": {
+      "bytes": 4267,
+      "sha256": "8d9a80b8ffa9327da8f3144a31c1362dd49a8f6cd5ccbc361c806d0b7c3fd03c",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/app/diagnostics.go"
+    },
+    "internal/central/app/runtime_information.go": {
+      "bytes": 7716,
+      "sha256": "8544c989b3dc3ec1ffd2ff2f430c810da544f87133434a5e6f3b08551a790736",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/app/runtime_information.go"
+    },
+    "internal/central/app/runtime_information_process_test.go": {
+      "bytes": 14159,
+      "sha256": "bed598b917c0f285b2ca731ee59254b477a33d98614ecbfe66366badec1d513e",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/app/runtime_information_process_test.go"
+    },
+    "internal/central/app/runtime_information_test.go": {
+      "bytes": 37819,
+      "sha256": "bc32b8e8a9901f661323ea49586bcd052294f90858ebca8108612f0f7e5ba442",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/app/runtime_information_test.go"
+    },
+    "internal/central/runtimeinfo/http/handler.go": {
+      "bytes": 5623,
+      "sha256": "0e61275711ad355857bbce3aae52b02528f97b42b442f9ab888e5e78d571d186",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/runtimeinfo/http/handler.go"
+    },
+    "internal/central/runtimeinfo/http/handler_test.go": {
+      "bytes": 48265,
+      "sha256": "7d6d00532a72fa18ee50536b178adedab93d2fc86c2b545c3b11561133c220c9",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/runtimeinfo/http/handler_test.go"
+    },
+    "internal/central/runtimeinfo/http/wire.go": {
+      "bytes": 3329,
+      "sha256": "906fe33dd86224e10965cbfa1d3617eebfb875e1e61587904e1267e6dd7bddae",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/runtimeinfo/http/wire.go"
+    },
+    "internal/central/runtimeinfo/service.go": {
+      "bytes": 7615,
+      "sha256": "0a224ff8e1c2cd89bb7a59cac5a5f9287af09f72270cffbcc3dfd8c5118747fa",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/runtimeinfo/service.go"
+    },
+    "internal/central/runtimeinfo/service_test.go": {
+      "bytes": 27322,
+      "sha256": "36a76baaf5cacf6dac0b610cd8e1942b89e587f6c8ee70ec83f11ecd3638ea6f",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/internal/central/runtimeinfo/service_test.go"
+    },
+    "tests/account/runtime_information_http_test.go": {
+      "bytes": 17361,
+      "sha256": "f46b3d0485206310f4c7c41a1439ce32ad67944747254cfea4d166da52f96309",
+      "source": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/harness-stage01/source/tests/account/runtime_information_http_test.go"
+    }
+  },
+  "scope": "runtime-information final 14 files; private README and unchanged accepted 13 technical files"
+}

@@ -1,0 +1,83 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 367184,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 367184,
+      "ppid": 367180,
+      "pgid": 367184,
+      "state": "S",
+      "starttime": "1294937"
+    },
+    {
+      "pid": 367193,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "R",
+      "starttime": "1294940"
+    },
+    {
+      "pid": 367208,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "R",
+      "starttime": "1294943"
+    },
+    {
+      "pid": 367236,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "R",
+      "starttime": "1294968"
+    },
+    {
+      "pid": 367242,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "S",
+      "starttime": "1294979"
+    },
+    {
+      "pid": 367248,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "S",
+      "starttime": "1295005"
+    },
+    {
+      "pid": 367254,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "R",
+      "starttime": "1295010"
+    },
+    {
+      "pid": 367265,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "Z",
+      "starttime": "1295013"
+    },
+    {
+      "pid": 367274,
+      "ppid": 367184,
+      "pgid": 367184,
+      "state": "S",
+      "starttime": "1295033"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-audit-offline-q7jlm_g8",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

@@ -1,0 +1,31 @@
+{
+  "actual_python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "actual_python_version": "3.12.14",
+  "authorization": "not executed; root separate grant required",
+  "baseline904_match": true,
+  "candidate13_unchanged": true,
+  "caveat": "Original driver failed before writing process baseline/Popen record, so no native owned PID set exists; two follow-up marker scans are separate observations, not backfilled original PID monitoring. Go env/list/gittree subprocess calls returned synchronously. No Docker inspection performed.",
+  "classification": "execution-plan interpreter prerequisite mismatch, zero test bodies/resource command launched",
+  "cleanup_observation": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/diagnostic-native01/cleanup-observation.json",
+  "expected_python": "/usr/bin/python3.13",
+  "only_runtime_differences": [
+    "runtime/executables/python",
+    "runtime/files//opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "runtime/files//usr/bin/python3.13"
+  ],
+  "original_driver_sha256": "b78846a88242665b3a8915a62c906ae78aaca3ebb3f1680d5c12413d6bf799f5",
+  "original_input_sha256": "f09b717c15d2ad128785c6b41c9d1e169d50927740039319a74dc33d177e6d11",
+  "proposed_argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-runtime-fixture.py",
+    "--name",
+    "native02",
+    "--group",
+    "native",
+    "--frozen",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/driver-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--execute-authorized"
+  ]
+}

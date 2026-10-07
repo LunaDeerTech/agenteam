@@ -1,0 +1,27 @@
+{
+  "stage": "runtime-service-A02-only",
+  "manifest_sha256": "9e13328b1477744f77957cfdf018d4485b948bf473e3e6d7cac287d72366c8d1",
+  "files": {
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/runtimeinfo/service.go": "0a224ff8e1c2cd89bb7a59cac5a5f9287af09f72270cffbcc3dfd8c5118747fa",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/runtimeinfo/service_test.go": "36a76baaf5cacf6dac0b610cd8e1942b89e587f6c8ee70ec83f11ecd3638ea6f",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/cause.go": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/fault.go": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/id.go": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/instant.go": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/integer.go": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/lock.go": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/page.go": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/scalar.go": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/foundation/tx.go": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/workspace02/internal/central/identity/contract/identity.go": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/input02/manifest.json": "9e13328b1477744f77957cfdf018d4485b948bf473e3e6d7cac287d72366c8d1",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/input02/report.md": "8384d588ab572158cce83fcdcb90a16844f233bbd7491ea663fa2ec95a98f559",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/input02/stage01-to02.diff": "a3e93456e8a1472bd01f1d2a82cb1ba4df35cfb9dffe1f614ce47f607b2106b7",
+    "/workspace/scratch/agenteam-runtime-service-independent-lzgvb7n_/input02/delivery2.json": "586084a973e65e2d22eb2ca88da8faacedb6dea28730b9474aa001f93d1c45e3"
+  },
+  "production_only_three_line_guard": true,
+  "fixed_dependencies12_unchanged": true,
+  "original_probe_unchanged": "a5b4172b070b1ce56448343b31fabeaf6e8be9c437717a84f6767b4dccc45bbc"
+}

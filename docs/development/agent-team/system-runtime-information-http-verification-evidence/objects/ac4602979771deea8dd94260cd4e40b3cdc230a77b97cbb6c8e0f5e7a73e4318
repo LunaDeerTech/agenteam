@@ -1,0 +1,55 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 368462,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 368462,
+      "ppid": 368453,
+      "pgid": 368462,
+      "state": "Z",
+      "starttime": "1305686"
+    },
+    {
+      "pid": 368487,
+      "ppid": 368462,
+      "pgid": 368462,
+      "state": "S",
+      "starttime": "1305692"
+    },
+    {
+      "pid": 368493,
+      "ppid": 368462,
+      "pgid": 368462,
+      "state": "R",
+      "starttime": "1305705"
+    },
+    {
+      "pid": 368504,
+      "ppid": 368462,
+      "pgid": 368462,
+      "state": "R",
+      "starttime": "1305708"
+    },
+    {
+      "pid": 368514,
+      "ppid": 368462,
+      "pgid": 368462,
+      "state": "S",
+      "starttime": "1305730"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-audit-offline-iti5f3a3",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

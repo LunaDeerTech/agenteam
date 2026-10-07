@@ -1,0 +1,8 @@
+=== RUN   TestIndependentRuntimeRootObservation
+    runtime_independent_test.go:140: single locked T; 20s exact boundary; failure history; hidden readiness; legacy separation; actual Status tail joined
+--- PASS: TestIndependentRuntimeRootObservation (0.00s)
+=== RUN   TestIndependentRuntimeRootHandoffAndCleanup
+    runtime_independent_test.go:244: startupResult value handoff; one post-monitor binding; original samples; no extra checks; held Close actual return; no Serve/health
+--- PASS: TestIndependentRuntimeRootHandoffAndCleanup (0.09s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.102s

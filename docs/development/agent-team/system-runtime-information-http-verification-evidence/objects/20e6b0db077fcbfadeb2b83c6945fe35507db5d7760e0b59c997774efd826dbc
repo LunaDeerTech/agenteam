@@ -1,0 +1,54 @@
+{
+  "fixed_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "purpose": "Stage A only: runtimeinfo service and controlled tests; production Foundation + Identity + locks",
+  "files": {
+    "go.mod": {
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468
+    },
+    "go.sum": {
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391
+    },
+    "internal/central/foundation/cause.go": {
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "bytes": 5490
+    },
+    "internal/central/foundation/fault.go": {
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "bytes": 5460
+    },
+    "internal/central/foundation/id.go": {
+      "sha256": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+      "bytes": 3120
+    },
+    "internal/central/foundation/instant.go": {
+      "sha256": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+      "bytes": 1751
+    },
+    "internal/central/foundation/integer.go": {
+      "sha256": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+      "bytes": 3998
+    },
+    "internal/central/foundation/lock.go": {
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "bytes": 5196
+    },
+    "internal/central/foundation/page.go": {
+      "sha256": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+      "bytes": 1860
+    },
+    "internal/central/foundation/scalar.go": {
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+      "bytes": 3285
+    },
+    "internal/central/foundation/tx.go": {
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "bytes": 2339
+    },
+    "internal/central/identity/contract/identity.go": {
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "bytes": 8639
+    }
+  }
+}

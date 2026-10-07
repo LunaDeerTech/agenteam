@@ -1,0 +1,11 @@
+--- run-app.py
++++ run-app02.py
+@@ -18,7 +18,7 @@
+  if '-list' in argv:
+   assert '-run' in argv and argv[argv.index('-run')+1]=='^$' and argv[argv.index('-list')+1]=='^Test(DiagnosticRoutes|RuntimeInformationRootPure.*|HealthSnapshotsExpireRecoverAndRejectLateSuccess)$'
+  else:
+-  assert '-run' in argv and argv[argv.index('-run')+1]=='^(TestRuntimeInformationRootPure.*|TestHealthSnapshotsExpireRecoverAndRejectLateSuccess)$'
++  assert '-run' in argv and argv[argv.index('-run')+1] in ['^(TestRuntimeInformationRootPure.*|TestHealthSnapshotsExpireRecoverAndRejectLateSuccess)$','^TestRuntimeInformationRootPureRoutesAndFormalBoundary$']
+ out=R/'runs'/name;out.mkdir()
+ tmp=out/'tmp';tmp.mkdir()
+ env={k:v for k,v in os.environ.items() if not k.startswith('AGENTEAM_')}

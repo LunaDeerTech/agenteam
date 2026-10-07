@@ -1,0 +1,29 @@
+{
+  "files": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "internal/central/foundation/cause.go": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+    "internal/central/foundation/fault.go": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "internal/central/foundation/id.go": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+    "internal/central/foundation/instant.go": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+    "internal/central/foundation/integer.go": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+    "internal/central/foundation/lock.go": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+    "internal/central/foundation/page.go": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+    "internal/central/foundation/scalar.go": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+    "internal/central/foundation/tx.go": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+    "internal/central/identity/contract/identity.go": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+    "internal/central/runtimeinfo/service.go": "0a224ff8e1c2cd89bb7a59cac5a5f9287af09f72270cffbcc3dfd8c5118747fa",
+    "internal/central/runtimeinfo/service_test.go": "36a76baaf5cacf6dac0b610cd8e1942b89e587f6c8ee70ec83f11ecd3638ea6f"
+  },
+  "fixed_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "tools": {
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/run-pure.py": "156a690268288df35a90cda8d85f1a4c463b1ada2391f3347998883f9d55a7fa",
+    "/workspace/scratch/agenteam-system-audit-author-0iv75y_i/run-audit-fixture02.py": "67876ad55e3d07c9c5f7a49db4e16fc62c997b0238112ac680b20cee1d04a034",
+    "/workspace/toolchains/go1.27.1/VERSION": "25eb74b09036e1ad894fb63b86cb0f0ee53342df8d2e2e860da4ff5079607758",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/asm": "4720bbf4ea8c95da4bef7d716b89c914ce678b57e7833f327f3ea2c2f51d16a6",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile": "3780fc07130d6d45096373acf062cc316940d253e2a1d892ece03a3bdd0d21d4",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link": "a29ac5e8f64111b0b5c5d31e452f18abf7ee79f44b421081b5509c8939d92ba9",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/vet": "46e5add9e558ca24000deadf2fa072f3f374f42120907ab087119ec544498cb1"
+  }
+}

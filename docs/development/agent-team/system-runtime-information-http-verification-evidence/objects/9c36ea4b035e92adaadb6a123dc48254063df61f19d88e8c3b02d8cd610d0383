@@ -1,0 +1,154 @@
+{
+  "actual_cwd": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace",
+  "author_external_runtime_files": 3501,
+  "author_input": "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/driver-stage01/input.json",
+  "author_input_sha256": "f09b717c15d2ad128785c6b41c9d1e169d50927740039319a74dc33d177e6d11",
+  "candidate_count": 13,
+  "checks": {
+    "compile-list01": {
+      "directory": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/compile-list01",
+      "files": {
+        "cleanup.json": "f490a20641aa811b6c59b819274debba6ff1b12926246ef0e9fad00ed824e4d5",
+        "command.json": "cc057eaebe2d163f66b5c9f3aff951084aea305351a49dc4c5d544602a38d4a5",
+        "compiled-output.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "input-after.json": "4472c81a2abe741c427ac1694129202f4d39ef1e004a171a6246845d2f22cf37",
+        "input-before.json": "4472c81a2abe741c427ac1694129202f4d39ef1e004a171a6246845d2f22cf37",
+        "raw.log": "e04955318ea360c5102523764d4c119738cea337f39b2421dc2dad48cea63e30",
+        "result.json": "f8e1964b00977b3863b7abfb727d522a7800c3afe6e3a1be717f6eaa58228770"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "f490a20641aa811b6c59b819274debba6ff1b12926246ef0e9fad00ed824e4d5",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 11,
+        "raw_sha256": "e04955318ea360c5102523764d4c119738cea337f39b2421dc2dad48cea63e30",
+        "seconds": 11.542326058999606,
+        "timeout": false
+      }
+    },
+    "format01": {
+      "directory": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/format01",
+      "files": {
+        "cleanup.json": "ced9b0ee70bf296173c0aa351b44b49920d9aa4055ecd013caec9c16485f6333",
+        "command.json": "c5b4e43925a74671138242f6d753d55082dc55b118ed0f2c25ad28c1e71e81aa",
+        "compiled-output.json": "88928f500e2939eb4a6353675e388438a62038583b445d508cdcb211e7b7d8dc",
+        "input-after.json": "8950bfe18b323f36fbec2e79f288a2d1d292a724ccd9e28b324b6ed97b049c23",
+        "input-before.json": "8950bfe18b323f36fbec2e79f288a2d1d292a724ccd9e28b324b6ed97b049c23",
+        "raw.log": "169ccc7e12f5b9138e03dd2d25c49586f68bea23143fe03d20ca0bf51d2d89db",
+        "result.json": "194afbc930abce02cb5f7ac1e0d6a8ba9af8cd60aba62fb882d45fca8bacc020"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "ced9b0ee70bf296173c0aa351b44b49920d9aa4055ecd013caec9c16485f6333",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 1,
+        "raw_sha256": "169ccc7e12f5b9138e03dd2d25c49586f68bea23143fe03d20ca0bf51d2d89db",
+        "seconds": 0.03355718400052865,
+        "timeout": false
+      }
+    },
+    "freeze01": {
+      "directory": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/freeze01",
+      "files": {
+        "cleanup.json": "faab66232e307301930724cb9997738681e83f5288de448c82ab8f9877374507",
+        "command.json": "1bc265fe819e3589fecb0d41bb3f3a88258c4a0d88d0a71f9f8654267e84c8fe",
+        "compiled-output.json": "3076f0a5a9eac7f2ec9e67c7ee200f2d818014f01c36eea66ec89364c810cb4a",
+        "input-after.json": "f42ebe9586c8b621196d8a69d500be27984c8f9406d0e547179deeff907c3125",
+        "input-before.json": "f42ebe9586c8b621196d8a69d500be27984c8f9406d0e547179deeff907c3125",
+        "raw.log": "c15b58e812069413dc923721cf82352bf01ac36365e6bb51a7903c490487c4ba",
+        "result.json": "b1ad68da60badb2bef7a5a93cccb2f98a75bdca528e24f2661d222d18b59165c"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "faab66232e307301930724cb9997738681e83f5288de448c82ab8f9877374507",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 3,
+        "raw_sha256": "c15b58e812069413dc923721cf82352bf01ac36365e6bb51a7903c490487c4ba",
+        "seconds": 1.3033673069985525,
+        "timeout": false
+      }
+    },
+    "gate01": {
+      "directory": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/gate01",
+      "files": {
+        "cleanup.json": "f363927b5a5cb0c60fa7dd737ae39dc7cb905072d53f5efbda3ab01d2bd47646",
+        "command.json": "a5865cf39628ed2b2552d6c9bbe8b37bf1b1f40b22416b7163ac41e48ff7dafc",
+        "compiled-output.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "input-after.json": "6922c0670f3738e38a57249041ce4f978854e1d8f302332953d2718146f40427",
+        "input-before.json": "6922c0670f3738e38a57249041ce4f978854e1d8f302332953d2718146f40427",
+        "raw.log": "17c4b9f6d709e38430cfb2360ed892337d30fad8ab2b19dfb2f4cd66e160699c",
+        "result.json": "debd45eaae9297d24313664ed7a75677a326303fd49f3ed8bf01418e0cb0ffe1"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "f363927b5a5cb0c60fa7dd737ae39dc7cb905072d53f5efbda3ab01d2bd47646",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 2,
+        "raw_sha256": "17c4b9f6d709e38430cfb2360ed892337d30fad8ab2b19dfb2f4cd66e160699c",
+        "seconds": 1.2477008189998742,
+        "timeout": false
+      }
+    },
+    "vet01": {
+      "directory": "/workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/runs/vet01",
+      "files": {
+        "cleanup.json": "c8856e7e7ea3066ea883a309ccbb59ca662c389fef23a1f4f5792ed28a9a19ed",
+        "command.json": "abb3d585aa708707ebd448253b5fd1a744ade0df1eba26402035098890ad7d74",
+        "compiled-output.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "input-after.json": "2f1e076e39e7fb282530713c30b6aa017286bf989a63eecc71b7eeb3e6070002",
+        "input-before.json": "2f1e076e39e7fb282530713c30b6aa017286bf989a63eecc71b7eeb3e6070002",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "5691d71cd1cd0a8a27ad5864fc6d176de0e8637f093b79830df9e1de187a5f9d"
+      },
+      "result": {
+        "actual_exit": 0,
+        "actual_wait": true,
+        "adopted_wait_count": 0,
+        "cleanup_clean": true,
+        "cleanup_sha256": "c8856e7e7ea3066ea883a309ccbb59ca662c389fef23a1f4f5792ed28a9a19ed",
+        "input_after_matches": true,
+        "input_before_matches": true,
+        "input_unchanged": true,
+        "owned_processes_observed": 41,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "seconds": 2.337791213998571,
+        "timeout": false
+      }
+    }
+  },
+  "fixed_dependency_count": 904,
+  "frozen": {
+    "driver-author-to-independent01.diff": "7f98fb83bfe26ce98a0522ed3f699256daefb93a3b2c440f9ca8c80121c0b764",
+    "driver01.py": "14d937af119fff916482cbb88bbdd42595837530260e7672fd2a487f5a85f37a",
+    "execution01.json": "04e8c4c447d651dcc0e64aa2e659daf052edf5fc7283cb0f39c27819054fbbab",
+    "overlay01.json": "6ed5e5355f9a2cfd5235188fa8bf23b98cf7b638221c7f4bc4ec0416c2052a9f"
+  },
+  "independent_external_and_overlay_runtime_files": 3504,
+  "plan_sha256": "c3993effcfd3e9c57dfc77ec7cf727eb761126eca37cf8f164a9f500a5af9f29",
+  "private_tests": {
+    "probe01/runtime_account_test.go": "fdc168a2346c64bf210b1f5bab528a0211ccec997323f48a7e2bfb7b054a8002",
+    "probe01/runtime_root_test.go": "05b7cd343689bccd1ec99cdcdb5c19bbb40731ca14f155bbe1909cb13bff855b"
+  },
+  "product_base": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "status": "OFFLINE READY; no business/native/resource execution"
+}

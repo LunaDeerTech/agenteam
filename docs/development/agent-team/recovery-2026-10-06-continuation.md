@@ -376,3 +376,13 @@ Audit UI规格独审接受与作者私有实施／独立计划分列，未验产
 唯一backend作者的service阶段A两源已冻结，pure／race各7顶层58子例及vet／format通过，但尚非独立接受。独立已复现跨字段校验缺口，返修中；尚未独立接受，HTTP／root／资源未开始，产品未接受，后端说明第14最后另授。 本档不读取该私有活动根，不增加动态资源授权。D28管理读口与后继页面／生产版本／完整平台分列；Object/tools与SPA publication停止不重试／改写／转派，SPA既有scope/native通过不等于接受，Summary待决、生产未绑定／ready503保持；完整D08–D28/E01未完成，E01未开始。
 
 同期Audit UI阶段A已接受，阶段B已实际开始；这是主线程移交的阶段行政事实，不回改§31或旧Audit卡，不扩本次Runtime规格证据。
+
+## 33. System运行信息HTTP十四路径接受与分层终局
+
+§1–32逐字保留。[14路径产品](system-runtime-information-http-verification.md)已由主线程采纳、提交推送`9b074f809df4603923faa68d963cb30a5fe4d7eb`并核远端一致；[卡技术](../work-items/d28-system-runtime-information-http.md)aeb4222…d2bab不变，旧规格档案保留原service返修阶段。唯一GET读取原root缓存，同Tx当前授权与实际终局先于发布；Central版本未知、数据库历史成功、Object聚合和ready503分列。
+
+A01跨字段实际RED保留，A02三行guard／同probeGREEN；错误作者笛卡尔期望不复用。C原POST缺Origin前提红＋受影响pure复验／最终race分列。作者native02四top及新Account六sub／新root均实际PASS，独立A/B同轮actual0／48.663s、7IDs74PID0adopt双清。A受控writer不是TCP precommit零字节；B同连接四响应EOF与正常关闭join；自然3s／75ms／DB1s／400ms较早parent各按原层次证明。
+
+原native01裸python3.12与冻3.13不符，test Popen前门禁失败，无原command/raw/cleanup或actualwait；后来marker观察不能回填。两个未消费格式preimage只有hash，无重构，所有实际受测源齐。枚举及第14说明两次检查前提错误、历史非所属Z均保留。701逻辑原件去重481对象、127Git／旧永久证据引用；904固定依赖和3501→3504指纹不复制运行树。
+
+主线受测aa9ea0b＋复制13源，仅graph／两包race编译／精确list五条actual0，622local/3499runtime／396packages/31modules，27PID双清0adopt，两个binary已删而SHA保留；不是后来9b074f8的动态重验。Audit UI当前仅夹具修复未接受，不改其旧记录。Runtime UI／完整D27/D28与D08–D28/E01未完，E01未开始；Summary待决、生产未绑定／ready503及Object/tools／SPA publication三停止不变，不重试／改写／转派。

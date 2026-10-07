@@ -1,0 +1,82 @@
+import copy
+import hashlib
+import json
+from pathlib import Path
+
+from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
+from referencing.jsonschema import DRAFT202012
+
+ROOT = Path(__file__).resolve().parent.parent
+SCHEMA = ROOT / 'workspace/api/openapi/runtime-information.json'
+COMMON = ROOT / 'workspace/api/openapi/common.json'
+VECTORS = ROOT / 'outputs/wire-vectors.json'
+schema = json.loads(SCHEMA.read_text())
+common = json.loads(COMMON.read_text())
+vectors = json.loads(VECTORS.read_text())
+base = 'https://fixed.invalid/'
+
+def reject_retrieve(uri):
+    raise RuntimeError('nonlocal schema reference prohibited')
+
+registry = Registry(retrieve=reject_retrieve).with_resources([
+    (base + 'runtime-information.json', Resource.from_contents(schema, default_specification=DRAFT202012)),
+    (base + 'common.json', Resource.from_contents(common, default_specification=DRAFT202012)),
+])
+validator = Draft202012Validator({'$ref': base + 'runtime-information.json#/components/schemas/SystemRuntimeInformation'}, registry=registry)
+Draft202012Validator.check_schema(schema)
+assert list(schema['paths']) == ['/api/v1/system/runtime-information']
+operation = schema['paths']['/api/v1/system/runtime-information']
+assert list(operation) == ['get']
+assert operation['get']['security'] == [{'Session': []}, {'LocalSession': []}]
+assert operation['get']['parameters'] == []
+assert operation['get']['x-success-body-max-bytes'] == 16384
+
+count = 0
+def check(doc, expected, label):
+    global count
+    accepted = validator.is_valid(doc)
+    assert accepted is expected, label
+    count += 1
+
+for index, doc in enumerate(vectors):
+    check(doc, True, 'actual Go formal wire vector ' + str(index))
+assert len(vectors) == 3
+
+objects = [(), ('central',), ('database',), ('database', 'last_success'), ('object_storage',), ('readiness',)]
+def at(doc, path):
+    for key in path:
+        doc = doc[key]
+    return doc
+
+# Every concrete success object: missing every field and an extra field.
+for path in objects:
+    for key in at(vectors[0], path):
+        doc = copy.deepcopy(vectors[0]); del at(doc, path)[key]
+        check(doc, False, 'required field ' + '.'.join((*path, key)))
+    doc = copy.deepcopy(vectors[0]); at(doc, path)['unexpected_field'] = None
+    check(doc, False, 'closed object ' + '.'.join(path))
+
+for component in ['database', 'object_storage']:
+    for status, reason, valid in [('available', None, True), ('stale', 'sample_stale', True), ('unavailable', 'check_unavailable', True), ('available', 'check_unavailable', False), ('unavailable', None, False), ('stale', None, False), ('other', None, False)]:
+        doc = copy.deepcopy(vectors[0]); doc[component]['status'] = status; doc[component]['safe_reason'] = reason
+        check(doc, valid, 'status/reason ' + component + '/' + status + '/' + str(reason))
+    doc = copy.deepcopy(vectors[0]); doc['readiness']['safe_reason'] = 'DEPENDENCY_UNBOUND'
+    doc[component]['status'] = 'stale'; doc[component]['safe_reason'] = 'sample_stale'
+    check(doc, False, 'cross-domain readiness ' + component)
+
+for field in ['postgresql_version', 'pgvector_version']:
+    for value, valid in [(' ', True), ('&' * 256, True), ('text/{}', True), ('', False), ('x' * 257, False), ('x\n', False), ('x\r', False), ('x\x7f', False), ('é', False)]:
+        doc = copy.deepcopy(vectors[0]); doc['database']['last_success'][field] = value
+        check(doc, valid, 'ASCII version bound ' + field)
+
+for path, key, value in [(('central',), 'version', ''), (('central',), 'safe_reason', 'guessed_build'), (('object_storage',), 'backend', 'filesystem'), (('object_storage',), 'assessment', 'bucket_probe'), (('object_storage',), 'details', 'guessed_cause'), (('readiness',), 'ready', True), (('readiness',), 'safe_reason', 'READY')]:
+    doc = copy.deepcopy(vectors[0]); at(doc, path)[key] = value
+    check(doc, False, 'fixed public fact ' + key)
+for path, key in [((), 'observed_at'), (('database', 'last_success'), 'checked_at'), (('database', 'last_success'), 'received_at'), (('object_storage',), 'last_success_received_at')]:
+    doc = copy.deepcopy(vectors[0]); at(doc, path)[key] = '0001-01-01T00:00:00.000000Z'
+    check(doc, False, 'nonzero canonical observation ' + key)
+
+result = {'status': 'PASS', 'asserted_schema_vectors': count, 'go_wire_vectors': len(vectors), 'closed_objects': len(objects), 'engine': 'jsonschema Draft202012Validator', 'remote_resolution': 'prohibited', 'schema_sha256': hashlib.sha256(SCHEMA.read_bytes()).hexdigest(), 'wire_vectors_sha256': hashlib.sha256(VECTORS.read_bytes()).hexdigest(), 'limitations': 'Controlled Go vectors and document validation only; no HTTP listener, native transport, PG, root source or production extreme-version claim.'}
+(ROOT / 'outputs/schema-result.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result))

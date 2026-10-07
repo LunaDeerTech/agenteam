@@ -1,0 +1,245 @@
+package app
+
+import (
+	"context"
+	"errors"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	"github.com/LunaDeerTech/agenteam/internal/platform/lifecycle"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+)
+
+// riMonitor/riSecrets/riStartup are frozen author's controlled value/port
+// fixtures. The two independent bodies retain production Source/run/initialize.
+// The ownership witness below never opens a socket or runs an Object process.
+func TestIndependentRuntimeRootObservation(t *testing.T) {
+	now := time.Now() // Keep monotonic age; conversion belongs to display only.
+	for _, age := range []time.Duration{20*time.Second - time.Microsecond, 20 * time.Second, 20*time.Second + time.Nanosecond} {
+		m := riMonitor(t, now)
+		m.received, m.objectReceived = now.Add(-age), now.Add(-age)
+		originalHealth, originalReceived := m.last, m.received
+		clocks, secrets, outboundCalls := 0, 0, 0
+		m.timing.now = func() time.Time {
+			clocks++
+			if m.mu.TryLock() {
+				m.mu.Unlock()
+				t.Error("clock escaped the single locked cache copy")
+			}
+			return now.Add(time.Duration(clocks-1) * time.Hour)
+		}
+		s := riSource(t, m)
+		s.secrets = &riSecrets{status: func() secret.Status {
+			secrets++
+			if !m.mu.TryLock() {
+				t.Error("Status called while monitor still locked")
+			} else {
+				m.mu.Unlock()
+			}
+			return secret.Status{Available: true}
+		}}
+		s.outbound = &riOutbound{status: func() outbound.PolicyStatus {
+			outboundCalls++
+			return outbound.PolicyStatus{Available: true}
+		}}
+		got, err := s.Snapshot(context.Background())
+		want, ready := runtimeinfo.Available, foundation.DependencyUnbound
+		if age > 20*time.Second {
+			want, ready = runtimeinfo.Stale, foundation.DependencyUnavailable
+		}
+		if err != nil || got.Database.Status != want || got.ObjectStorage.Status != want || got.Readiness != ready || clocks != 1 || secrets != 1 || outboundCalls != 1 {
+			t.Fatal("single observation/freshness contract failed", age, clocks, secrets, outboundCalls, err)
+		}
+		if got.ObservedAt != riInstant(t, now) || got.Database.LastSuccess.CheckedAt != originalHealth.CheckedAt || got.Database.LastSuccess.ReceivedAt != riInstant(t, originalReceived) || m.last != originalHealth || m.received != originalReceived {
+			t.Fatal("getter renewed or changed the historical success")
+		}
+	}
+
+	// A separate state publication during Status must not alter the cache copy
+	// already taken for this observation. Other-domain failure is not a DB fact.
+	m := riMonitor(t, now)
+	s := riSource(t, m)
+	baseline := riSnapshot(t, s)
+	statusCalls := 0
+	s.secrets = &riSecrets{status: func() secret.Status {
+		statusCalls++
+		m.mu.Lock()
+		m.available = false
+		m.mu.Unlock()
+		return secret.Status{Available: false}
+	}}
+	concurrent := riSnapshot(t, s)
+	if statusCalls != 1 || concurrent.Database.Status != runtimeinfo.Available || concurrent.ObjectStorage.Status != runtimeinfo.Available || concurrent.Readiness != foundation.DependencyUnavailable {
+		t.Fatal("post-copy publication or Secret failure rewrote the cache observation")
+	}
+	s.secrets = &riSecrets{status: func() secret.Status { return secret.Status{Available: true} }}
+	m.timing.now = func() time.Time { return now.Add(time.Hour) }
+	failed := riSnapshot(t, s)
+	if failed.Database.Status != runtimeinfo.Unavailable || failed.ObjectStorage.Status != runtimeinfo.Stale || failed.Database.LastSuccess != baseline.Database.LastSuccess || failed.ObjectStorage.LastSuccessReceivedAt != baseline.ObjectStorage.LastSuccessReceivedAt {
+		t.Fatal("failed cache aged into stale-only, renewed last success, or blamed Object")
+	}
+	m.available = true
+	m.timing.now = func() time.Time { return now }
+	m.outboxAvailable = false
+	if got := riSnapshot(t, s); got.Database.Status != runtimeinfo.Available || got.ObjectStorage.Status != runtimeinfo.Available || got.Readiness != foundation.DependencyUnavailable {
+		t.Fatal("hidden Outbox readiness failure was lost or projected as DB/Object failure")
+	}
+
+	// Legacy diagnostics retain their partial binding contract; management
+	// requires complete historical samples even when old ready remains unbound.
+	m.outboxAvailable = true
+	m.accountBound = false
+	m.last.CheckedAt = foundation.Instant{}
+	m.last.ServerVersion, m.last.ExtensionVersion = "", ""
+	if got, err := s.Snapshot(context.Background()); err == nil || got != (runtimeinfo.Snapshot{}) {
+		t.Fatal("partial legacy fixture published a management observation")
+	}
+	w := httptest.NewRecorder()
+	diagnosticRouter(m, true, s.secrets, s.outbound).ServeHTTP(w, httptest.NewRequest("GET", "http://localhost/readyz", nil))
+	if w.Code != 503 || !strings.Contains(w.Body.String(), `"code":"DEPENDENCY_UNBOUND"`) {
+		t.Fatal("strict management validation changed legacy ready")
+	}
+
+	// Cancellation of synchronous Status is not evidence that the call ended.
+	m = riMonitor(t, now)
+	s = riSource(t, m)
+	entered, release, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	finish := func() { once.Do(func() { close(release) }) }
+	ctx, cancel := context.WithCancel(context.Background())
+	s.secrets = &riSecrets{status: func() secret.Status { close(entered); <-release; return secret.Status{Available: true} }}
+	var got runtimeinfo.Snapshot
+	var err error
+	go func() { defer close(returned); got, err = s.Snapshot(ctx) }()
+	t.Cleanup(func() { cancel(); finish(); await(t, returned) })
+	await(t, entered)
+	cancel()
+	select {
+	case <-returned:
+		t.Fatal("Source abandoned its actual Status call")
+	default:
+	}
+	finish()
+	await(t, returned)
+	if !errors.Is(err, context.Canceled) || got != (runtimeinfo.Snapshot{}) {
+		t.Fatal("cancelled completed Source exposed a candidate", err)
+	}
+	t.Log("single locked T; 20s exact boundary; failure history; hidden readiness; legacy separation; actual Status tail joined")
+}
+
+type independentRootListener struct {
+	entered, release chan struct{}
+	closeOnce        sync.Once
+	closes, accepts  atomic.Int32
+}
+
+func (l *independentRootListener) Accept() (net.Conn, error) {
+	l.accepts.Add(1)
+	return nil, errors.New("controlled listener must never serve")
+}
+func (l *independentRootListener) Addr() net.Addr { return &net.TCPAddr{} }
+func (l *independentRootListener) Close() error {
+	l.closes.Add(1)
+	l.closeOnce.Do(func() { close(l.entered) })
+	<-l.release
+	return nil
+}
+
+func TestIndependentRuntimeRootHandoffAndCleanup(t *testing.T) {
+	// initialize receives dependencies by value. Its new factory must be
+	// returned, not leaked through a later mutable locator.
+	f := riStartup(t)
+	owned := &resources{}
+	calls := 0
+	var captured *runtimeInformationSource
+	f.deps.bind = func(ctx context.Context, _ config.Config, db database, actual *resources, local *dependencies) error {
+		if db != f.db || actual != owned || !actual.addAccounts(ctx, f.accounts) {
+			return errors.New("wrong controlled startup owner")
+		}
+		local.runtimeInformation = func(source runtimeinfo.Source) (http.Handler, error) {
+			calls++
+			captured = source.(*runtimeInformationSource)
+			return http.NotFoundHandler(), nil
+		}
+		return nil
+	}
+	logger, _ := logging.New(logging.Central, slog.LevelInfo, io.Discard)
+	initial := initialize(context.Background(), testConfig(t, "1s"), logger, f.deps, owned)
+	t.Cleanup(func() { cleanupResources(context.Background(), owned, nil); await(t, f.maintenanceReturned) })
+	if initial.err != nil || initial.runtimeInformation == nil || f.deps.runtimeInformation != nil || calls != 0 || f.listener.accepts.Load() != 0 {
+		t.Fatal("value-copy handoff failed or factory/Serve ran early", initial.err)
+	}
+	m := newHealthMonitor(initial.health, f.deps.health)
+	m.received, m.objectReceived, m.outboxReceived, m.accountReceived = initial.sampled, initial.objectSampled, initial.outboxSampled, initial.accountSampled
+	m.objectAvailable, m.outboxAvailable, m.accountAvailable, m.accountBound = initial.objectAvailable, initial.outboxAvailable, initial.accountAvailable, true
+	h, err := bindRuntimeInformation(initial.runtimeInformation, m, owned)
+	if err != nil || h == nil || calls != 1 || captured.monitor != m || captured.secrets != f.secrets || captured.outbound != f.outbound || f.secretStatuses.Load() != 0 {
+		t.Fatal("factory did not bind exactly once to original providers after monitor", err)
+	}
+	observation := riSnapshot(t, captured)
+	if observation.Database.LastSuccess.ReceivedAt != riInstant(t, initial.sampled) || observation.ObjectStorage.LastSuccessReceivedAt != riInstant(t, initial.objectSampled) || f.dbChecks.Load() != 1 || f.objects.checks.Load() != 1 || f.outboxChecks.Load() != 1 || f.accounts.checks.Load() != 1 {
+		t.Fatal("Source renewed startup cache or performed another check")
+	}
+
+	// Exercise the actual run failure branch with a non-listening ownership
+	// witness whose Close is held. No production Object lifecycle is recreated.
+	f2 := riStartup(t)
+	l := &independentRootListener{entered: make(chan struct{}), release: make(chan struct{})}
+	var releaseOnce sync.Once
+	finish := func() { releaseOnce.Do(func() { close(l.release) }) }
+	f2.deps.listen = func(context.Context, string, string) (net.Listener, error) { return l, nil }
+	cause := errors.New("private-independent-construction-cause")
+	var factoryCalls atomic.Int32
+	f2.deps.bind = func(ctx context.Context, _ config.Config, _ database, actual *resources, local *dependencies) error {
+		if !actual.addAccounts(ctx, f2.accounts) {
+			return context.Canceled
+		}
+		local.runtimeInformation = func(source runtimeinfo.Source) (http.Handler, error) {
+			factoryCalls.Add(1)
+			return nil, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted).WithCause(cause)
+		}
+		return nil
+	}
+	logs := newEventLog()
+	failureLogger, _ := logging.New(logging.Central, slog.LevelInfo, logs)
+	cfg := testConfig(t, "1s")
+	returned := make(chan struct{})
+	var runErr error
+	go func() { defer close(returned); runErr = run(context.Background(), cfg, failureLogger, nil, f2.deps) }()
+	t.Cleanup(func() { finish(); await(t, returned); await(t, f2.maintenanceReturned) })
+	await(t, l.entered)
+	if factoryCalls.Load() != 1 || l.closes.Load() != 1 || l.accepts.Load() != 0 || f2.dbClosed.Load() != 0 || f2.secretStatuses.Load() != 0 {
+		t.Fatal("post-factory failure served, sampled, skipped Close or overtook held cleanup")
+	}
+	select {
+	case <-returned:
+		t.Fatal("run returned before actual listener ownership ended")
+	default:
+	}
+	finish()
+	await(t, returned)
+	await(t, f2.maintenanceReturned)
+	if lifecycle.CodeOf(runErr) != lifecycle.InitializationFailed || !errors.Is(runErr, cause) || f2.dbClosed.Load() != 1 || l.closes.Load() != 1 || l.accepts.Load() != 0 {
+		t.Fatal("failure did not use the original cleanup result", runErr)
+	}
+	if f2.dbChecks.Load() != 1 || f2.objects.checks.Load() != 1 || f2.outboxChecks.Load() != 1 || f2.accounts.checks.Load() != 1 || !f2.outbox.Joined() || !f2.accounts.Joined() {
+		t.Fatal("failed startup launched health or left controlled owners active")
+	}
+	if strings.Contains(logs.String(), "private-independent") || strings.Contains(logs.String(), "diagnostic_serving") || strings.Contains(logs.String(), `"event":"listening"`) {
+		t.Fatal("failed constructor served or logged a private cause")
+	}
+	t.Log("startupResult value handoff; one post-monitor binding; original samples; no extra checks; held Close actual return; no Serve/health")
+}

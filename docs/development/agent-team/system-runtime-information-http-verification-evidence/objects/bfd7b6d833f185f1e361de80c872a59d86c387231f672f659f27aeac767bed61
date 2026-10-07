@@ -1,0 +1,868 @@
+package app
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	auditcontract "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	outboxcontract "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
+	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	"github.com/LunaDeerTech/agenteam/internal/platform/lifecycle"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+)
+
+// Only Status may be called by these ports. Every other promoted method has a
+// nil provider and would panic if a read accidentally started work or a probe.
+type riSecrets struct {
+	maintenance
+	status func() secret.Status
+}
+
+func (s *riSecrets) Status() secret.Status { return s.status() }
+
+type riOutbound struct {
+	egress
+	status func() outbound.PolicyStatus
+}
+
+func (s *riOutbound) Status() outbound.PolicyStatus { return s.status() }
+
+type riObjects struct{ objectStorage }
+type riOutbox struct{ outboxStorage }
+type riAccounts struct{ accountStorage }
+
+func riInstant(t *testing.T, value time.Time) foundation.Instant {
+	t.Helper()
+	instant, err := foundation.NewInstant(value)
+	if err != nil || instant.Validate() != nil {
+		t.Fatal("invalid test time", err)
+	}
+	return instant
+}
+
+func riMonitor(t *testing.T, now time.Time) *healthMonitor {
+	t.Helper()
+	return &healthMonitor{
+		last: postgres.DatabaseHealth{PostgreSQL: true, PGVector: true, Migrations: true, ReadWrite: true,
+			CheckedAt: riInstant(t, now.Add(-2*time.Second)), ServerVersion: "17.8 (original)", ExtensionVersion: "0.8.1"},
+		received: now.Add(-time.Second), available: true,
+		objectReceived: now.Add(-time.Second), objectAvailable: true,
+		outboxReceived: now.Add(-time.Second), outboxAvailable: true,
+		accountReceived: now.Add(-time.Second), accountAvailable: true, accountBound: true,
+		timing: healthTiming{interval: 10 * time.Second, timeout: 2 * time.Second, stale: 20 * time.Second, now: func() time.Time { return now }},
+	}
+}
+
+func riSource(t *testing.T, monitor *healthMonitor) *runtimeInformationSource {
+	t.Helper()
+	source, err := newRuntimeInformationSource(monitor,
+		&riSecrets{status: func() secret.Status { return secret.Status{Available: true} }},
+		&riOutbound{status: func() outbound.PolicyStatus { return outbound.PolicyStatus{Available: true} }},
+		&riObjects{}, &riOutbox{}, &riAccounts{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return source
+}
+
+func riSnapshot(t *testing.T, source *runtimeInformationSource) runtimeinfo.Snapshot {
+	t.Helper()
+	snapshot, err := source.Snapshot(context.Background())
+	if err != nil || snapshot.Validate() != nil {
+		t.Fatal("snapshot rejected", err)
+	}
+	return snapshot
+}
+
+func riFault(t *testing.T, err error, code foundation.Code) {
+	t.Helper()
+	var fault *foundation.Fault
+	if !errors.As(err, &fault) || fault.Code != code || fault.CommitState != foundation.NotStarted {
+		t.Fatalf("wrong safe failure: %v", err)
+	}
+}
+
+func TestRuntimeInformationRootPureObservationHistoryAndBoundaries(t *testing.T) {
+	// All Add/Sub operations retain this actual monotonic component. Display
+	// conversion truncates nanoseconds only after freshness has been decided.
+	now := time.Now()
+	for _, age := range []time.Duration{20*time.Second - time.Microsecond, 20 * time.Second, 20*time.Second + time.Nanosecond} {
+		t.Run(age.String(), func(t *testing.T) {
+			monitor := riMonitor(t, now)
+			monitor.received, monitor.objectReceived = now.Add(-age), now.Add(-age)
+			before := monitor.last
+			snapshot := riSnapshot(t, riSource(t, monitor))
+			want, readiness := runtimeinfo.Available, foundation.DependencyUnbound
+			if age > 20*time.Second {
+				want, readiness = runtimeinfo.Stale, foundation.DependencyUnavailable
+			}
+			if snapshot.Database.Status != want || snapshot.ObjectStorage.Status != want || snapshot.Readiness != readiness || snapshot.ObservedAt != riInstant(t, now) || snapshot.Database.LastSuccess.CheckedAt != before.CheckedAt || snapshot.Database.LastSuccess.ReceivedAt != riInstant(t, now.Add(-age)) {
+				t.Fatal("freshness boundary or historical sample changed", snapshot)
+			}
+			if monitor.last != before || monitor.received != now.Add(-age) || monitor.objectReceived != now.Add(-age) || !monitor.available || !monitor.objectAvailable {
+				t.Fatal("read mutated the cached sample")
+			}
+		})
+	}
+	monitor := riMonitor(t, now)
+	source := riSource(t, monitor)
+	original := riSnapshot(t, source)
+	monitor.mu.Lock()
+	monitor.available = false // Represent a published failure, not a new success.
+	monitor.timing.now = func() time.Time { return now.Add(time.Hour) }
+	monitor.mu.Unlock()
+	failed := riSnapshot(t, source)
+	if failed.Database.Status != runtimeinfo.Unavailable || failed.ObjectStorage.Status != runtimeinfo.Stale || failed.Readiness != foundation.DependencyUnavailable || failed.Database.LastSuccess != original.Database.LastSuccess || failed.ObjectStorage.LastSuccessReceivedAt != original.ObjectStorage.LastSuccessReceivedAt {
+		t.Fatal("failure became stale-only, changed historical facts, or blamed Object")
+	}
+	monitor.mu.Lock()
+	monitor.objectAvailable = false
+	monitor.mu.Unlock()
+	if got := riSnapshot(t, source); got.ObjectStorage.Status != runtimeinfo.Unavailable || got.ObjectStorage.LastSuccessReceivedAt != original.ObjectStorage.LastSuccessReceivedAt {
+		t.Fatal("old object failure became only stale")
+	}
+	// A later successful writer publication supplies its own version/time.
+	fresh := now.Add(time.Hour)
+	monitor.mu.Lock()
+	monitor.last.ServerVersion = "18.0"
+	monitor.last.CheckedAt = riInstant(t, fresh.Add(-time.Second))
+	monitor.received, monitor.objectReceived, monitor.outboxReceived, monitor.accountReceived = fresh, fresh, fresh, fresh
+	monitor.available, monitor.objectAvailable = true, true
+	monitor.mu.Unlock()
+	recovered := riSnapshot(t, source)
+	if recovered.Database.Status != runtimeinfo.Available || recovered.ObjectStorage.Status != runtimeinfo.Available || recovered.Readiness != foundation.DependencyUnbound || recovered.Database.LastSuccess.PostgreSQLVersion != "18.0" || recovered.Database.LastSuccess.ReceivedAt != riInstant(t, fresh) {
+		t.Fatal("new successful publication did not restore current availability")
+	}
+	// Wall-clock display order is not an extra validity/freshness rule.
+	monitor.mu.Lock()
+	monitor.timing.now = func() time.Time { return now }
+	monitor.mu.Unlock()
+	if got := riSnapshot(t, source); got.Database.Status != runtimeinfo.Available || !got.ObservedAt.Time().Before(got.Database.LastSuccess.ReceivedAt.Time()) {
+		t.Fatal("a wall-clock reversal was rejected or silently repaired")
+	}
+}
+
+func TestRuntimeInformationRootPureCompletenessAndReadiness(t *testing.T) {
+	now := time.Now()
+	for _, component := range []string{"healthy", "database", "object", "outbox", "account", "secret", "outbound"} {
+		t.Run(component, func(t *testing.T) {
+			monitor := riMonitor(t, now)
+			source := riSource(t, monitor)
+			switch component {
+			case "database":
+				monitor.available = false
+			case "object":
+				monitor.objectAvailable = false
+			case "outbox":
+				monitor.outboxAvailable = false
+			case "account":
+				monitor.accountAvailable = false
+			case "secret":
+				source.secrets = &riSecrets{status: func() secret.Status { return secret.Status{Available: false} }}
+			case "outbound":
+				source.outbound = &riOutbound{status: func() outbound.PolicyStatus { return outbound.PolicyStatus{Available: false} }}
+			}
+			snapshot := riSnapshot(t, source)
+			want := foundation.DependencyUnavailable
+			if component == "healthy" {
+				want = foundation.DependencyUnbound
+			}
+			if snapshot.Readiness != want {
+				t.Fatal("wrong six-item readiness", component, snapshot.Readiness)
+			}
+			if component != "database" && snapshot.Database.Status != runtimeinfo.Available {
+				t.Fatal("other failure changed DB fact")
+			}
+			if component != "object" && snapshot.ObjectStorage.Status != runtimeinfo.Available {
+				t.Fatal("other failure changed Object fact")
+			}
+			for _, method := range []string{"GET", "HEAD"} {
+				var logs bytes.Buffer
+				w := httptest.NewRecorder()
+				httpapi.Handler(slog.New(slog.NewJSONHandler(&logs, nil)), diagnosticRouter(monitor, true, source.secrets, source.outbound)).ServeHTTP(w, httptest.NewRequest(method, "http://localhost/readyz", nil))
+				if w.Code != 503 || len(w.Header().Values("X-Request-ID")) != 1 {
+					t.Fatal("ready response changed")
+				}
+				if method == "HEAD" {
+					if w.Body.Len() != 0 {
+						t.Fatal("ready HEAD gained a body")
+					}
+				} else if !strings.Contains(w.Body.String(), `"code":"`+string(want)+`"`) {
+					t.Fatal("old ready predicate differs", w.Body.String())
+				}
+			}
+		})
+	}
+	for _, component := range []string{"database", "object", "outbox", "account"} {
+		t.Run(component+" stale", func(t *testing.T) {
+			monitor := riMonitor(t, now)
+			old := now.Add(-20*time.Second - time.Nanosecond)
+			switch component {
+			case "database":
+				monitor.received = old
+			case "object":
+				monitor.objectReceived = old
+			case "outbox":
+				monitor.outboxReceived = old
+			case "account":
+				monitor.accountReceived = old
+			}
+			if riSnapshot(t, riSource(t, monitor)).Readiness != foundation.DependencyUnavailable {
+				t.Fatal("stale base remained unbound-only")
+			}
+		})
+	}
+	invalid := map[string]func(*healthMonitor){
+		"zero observed":         func(m *healthMonitor) { m.timing.now = func() time.Time { return time.Time{} } },
+		"missing clock":         func(m *healthMonitor) { m.timing.now = nil },
+		"zero checked":          func(m *healthMonitor) { m.last.CheckedAt = foundation.Instant{} },
+		"zero DB received":      func(m *healthMonitor) { m.received = time.Time{} },
+		"zero object received":  func(m *healthMonitor) { m.objectReceived = time.Time{} },
+		"zero outbox received":  func(m *healthMonitor) { m.outboxReceived = time.Time{} },
+		"zero account received": func(m *healthMonitor) { m.accountReceived = time.Time{} },
+		"out of range received": func(m *healthMonitor) { m.received = time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC) },
+		"PostgreSQL incomplete": func(m *healthMonitor) { m.last.PostgreSQL = false },
+		"pgvector incomplete":   func(m *healthMonitor) { m.last.PGVector = false },
+		"migrations incomplete": func(m *healthMonitor) { m.last.Migrations = false },
+		"readwrite incomplete":  func(m *healthMonitor) { m.last.ReadWrite = false },
+		"empty version":         func(m *healthMonitor) { m.last.ServerVersion = "" },
+		"long version":          func(m *healthMonitor) { m.last.ExtensionVersion = strings.Repeat("v", 257) },
+		"nonASCII version":      func(m *healthMonitor) { m.last.ServerVersion = "PostgreSQL\u00e9" },
+		"control version":       func(m *healthMonitor) { m.last.ExtensionVersion = "0.8\n" },
+		"account not bound":     func(m *healthMonitor) { m.accountBound = false },
+	}
+	for name, change := range invalid {
+		t.Run(name, func(t *testing.T) {
+			monitor := riMonitor(t, now)
+			change(monitor)
+			snapshot, err := riSource(t, monitor).Snapshot(context.Background())
+			riFault(t, err, foundation.DependencyUnavailable)
+			if snapshot != (runtimeinfo.Snapshot{}) {
+				t.Fatal("invalid source published a partial value")
+			}
+		})
+	}
+	// Preserve the accepted partial diagnostic-test shape; it is not a valid
+	// management source and must not acquire the latter's stricter validation.
+	partial := riMonitor(t, now)
+	partial.last.ServerVersion, partial.last.ExtensionVersion = "", ""
+	partial.last.CheckedAt = foundation.Instant{}
+	partial.accountBound = false
+	source := riSource(t, partial)
+	w := httptest.NewRecorder()
+	diagnosticRouter(partial, true, source.secrets, source.outbound).ServeHTTP(w, httptest.NewRequest("GET", "http://localhost/readyz", nil))
+	if w.Code != 503 || !strings.Contains(w.Body.String(), `"code":"DEPENDENCY_UNBOUND"`) {
+		t.Fatal("strict management validation leaked into legacy ready predicate")
+	}
+}
+
+func TestRuntimeInformationRootPureSingleCopyAndActualReturn(t *testing.T) {
+	now := time.Now()
+	monitor := riMonitor(t, now)
+	var clocks, secrets, outboundCalls atomic.Int32
+	monitor.timing.now = func() time.Time {
+		if monitor.mu.TryLock() {
+			monitor.mu.Unlock()
+			t.Error("time sampled outside monitor read lock")
+		}
+		clocks.Add(1)
+		return now
+	}
+	source := riSource(t, monitor)
+	source.secrets = &riSecrets{status: func() secret.Status {
+		if !monitor.mu.TryLock() {
+			t.Error("secret status read while monitor lock held")
+		} else {
+			monitor.mu.Unlock()
+		}
+		secrets.Add(1)
+		return secret.Status{Available: true}
+	}}
+	source.outbound = &riOutbound{status: func() outbound.PolicyStatus { outboundCalls.Add(1); return outbound.PolicyStatus{Available: true} }}
+	riSnapshot(t, source)
+	if clocks.Load() != 1 || secrets.Load() != 1 || outboundCalls.Load() != 1 {
+		t.Fatal("one read used repeated observations")
+	}
+	// RLock is an owned synchronous call: cancellation cannot make a waiting
+	// Snapshot appear returned while a writer still owns the actual mutex.
+	ctx, cancel := context.WithCancel(context.Background())
+	monitor.mu.Lock()
+	locked := true
+	entered, returned := make(chan struct{}), make(chan struct{})
+	var got runtimeinfo.Snapshot
+	var err error
+	go func() { close(entered); got, err = source.Snapshot(ctx); close(returned) }()
+	t.Cleanup(func() {
+		cancel()
+		if locked {
+			monitor.mu.Unlock()
+		}
+		await(t, returned)
+	})
+	await(t, entered)
+	select {
+	case <-returned:
+		t.Fatal("read escaped a held monitor lock")
+	case <-time.After(15 * time.Millisecond):
+	}
+	cancel()
+	select {
+	case <-returned:
+		t.Fatal("cancel confused with actual RLock return")
+	case <-time.After(15 * time.Millisecond):
+	}
+	monitor.mu.Unlock()
+	locked = false
+	await(t, returned)
+	riFault(t, err, foundation.DependencyUnavailable)
+	if got != (runtimeinfo.Snapshot{}) || !errors.Is(err, context.Canceled) {
+		t.Fatal("cancelled copy escaped as a candidate")
+	}
+	// A previously cancelled read does not take even the first observation.
+	before := clocks.Load()
+	if got, err := source.Snapshot(ctx); err == nil || got != (runtimeinfo.Snapshot{}) || clocks.Load() != before {
+		t.Fatal("cancelled caller triggered another observation")
+	}
+}
+
+func TestRuntimeInformationRootPureBoundDependencies(t *testing.T) {
+	for _, missing := range []string{"monitor", "secret", "outbound", "object", "outbox", "account"} {
+		for _, typed := range []bool{false, true} {
+			name := missing
+			if typed {
+				name += " typed nil"
+			}
+			t.Run(name, func(t *testing.T) {
+				monitor := riMonitor(t, time.Now())
+				var secrets maintenance = &riSecrets{}
+				var outboundService egress = &riOutbound{}
+				var objects objectStorage = &riObjects{}
+				var deliveries outboxStorage = &riOutbox{}
+				var accounts accountStorage = &riAccounts{}
+				switch missing {
+				case "monitor":
+					monitor = nil
+				case "secret":
+					secrets = nil
+					if typed {
+						secrets = (*riSecrets)(nil)
+					}
+				case "outbound":
+					outboundService = nil
+					if typed {
+						outboundService = (*riOutbound)(nil)
+					}
+				case "object":
+					objects = nil
+					if typed {
+						objects = (*riObjects)(nil)
+					}
+				case "outbox":
+					deliveries = nil
+					if typed {
+						deliveries = (*riOutbox)(nil)
+					}
+				case "account":
+					accounts = nil
+					if typed {
+						accounts = (*riAccounts)(nil)
+					}
+				}
+				source, err := newRuntimeInformationSource(monitor, secrets, outboundService, objects, deliveries, accounts)
+				riFault(t, err, foundation.DependencyUnbound)
+				if source != nil {
+					t.Fatal("missing binding returned a source")
+				}
+			})
+		}
+	}
+}
+
+func TestRuntimeInformationRootPureConcurrentWholeObservation(t *testing.T) {
+	now := time.Now()
+	monitor := riMonitor(t, now)
+	monitor.last.ServerVersion, monitor.last.ExtensionVersion = "frame A", "frame A"
+	source := riSource(t, monitor)
+	start := make(chan struct{})
+	var joined sync.WaitGroup
+	joined.Add(9)
+	go func() {
+		defer joined.Done()
+		<-start
+		for i := range 1000 {
+			label, received := "frame A", now.Add(-time.Second)
+			if i%2 != 0 {
+				label, received = "frame B", now.Add(-2*time.Second)
+			}
+			monitor.mu.Lock()
+			monitor.last.ServerVersion, monitor.last.ExtensionVersion = label, label
+			monitor.received, monitor.objectReceived = received, received
+			monitor.outboxReceived, monitor.accountReceived = received, received
+			monitor.mu.Unlock()
+		}
+	}()
+	for range 8 {
+		go func() {
+			defer joined.Done()
+			<-start
+			for range 100 {
+				value, err := source.Snapshot(context.Background())
+				if err != nil || value.Database.LastSuccess.PostgreSQLVersion != value.Database.LastSuccess.PGVectorVersion || value.Database.LastSuccess.ReceivedAt != value.ObjectStorage.LastSuccessReceivedAt || value.Readiness != foundation.DependencyUnbound {
+					t.Error("one observation mixed independently published monitor frames")
+					return
+				}
+			}
+		}()
+	}
+	close(start)
+	joined.Wait()
+}
+
+// This listener is an ownership witness only. It never opens a socket, and
+// Accept must not be reached by a failed post-initialization constructor.
+type riOwnedListener struct {
+	closed  atomic.Int32
+	accepts atomic.Int32
+}
+
+func (l *riOwnedListener) Accept() (net.Conn, error) {
+	l.accepts.Add(1)
+	return nil, errors.New("unexpected controlled Accept")
+}
+func (l *riOwnedListener) Close() error   { l.closed.Add(1); return nil }
+func (l *riOwnedListener) Addr() net.Addr { return &net.TCPAddr{} }
+
+type riStartupAccounts struct {
+	checks, starts, forces atomic.Int32
+	stopped                atomic.Bool
+}
+
+func (a *riStartupAccounts) Start(context.Context) error { a.starts.Add(1); return nil }
+func (a *riStartupAccounts) Check(context.Context) error { a.checks.Add(1); return nil }
+func (a *riStartupAccounts) StopAdmission()              { a.stopped.Store(true) }
+func (a *riStartupAccounts) Drain(context.Context) error { a.StopAdmission(); return nil }
+func (a *riStartupAccounts) Force(context.Context) error {
+	a.forces.Add(1)
+	a.StopAdmission()
+	return nil
+}
+func (a *riStartupAccounts) Joined() bool        { return a.stopped.Load() }
+func (*riStartupAccounts) Handler() http.Handler { return http.NotFoundHandler() }
+
+type riStartupObjects struct {
+	checks, starts, forces atomic.Int32
+	stopped                atomic.Bool
+}
+
+func (o *riStartupObjects) StartMaintenance(context.Context) error { o.starts.Add(1); return nil }
+func (o *riStartupObjects) Check(context.Context) error            { o.checks.Add(1); return nil }
+func (o *riStartupObjects) StopAdmission()                         { o.stopped.Store(true) }
+func (o *riStartupObjects) Drain(context.Context) error            { o.StopAdmission(); return nil }
+func (o *riStartupObjects) Force(context.Context) error {
+	o.forces.Add(1)
+	o.StopAdmission()
+	return nil
+}
+
+type riStartupFixture struct {
+	deps                                             dependencies
+	listener                                         *riOwnedListener
+	accounts                                         *riStartupAccounts
+	objects                                          *riStartupObjects
+	outbox                                           *unitOutbox
+	secrets                                          *unitMaintenance
+	outbound                                         *unitEgress
+	db                                               *unitDatabase
+	dbChecks, dbClosed, outboxChecks, secretStatuses atomic.Int32
+	maintenanceReturned                              chan struct{}
+	times                                            []time.Time
+}
+
+func riStartup(t *testing.T) *riStartupFixture {
+	t.Helper()
+	f := &riStartupFixture{listener: &riOwnedListener{}, accounts: &riStartupAccounts{}, objects: &riStartupObjects{}, outbox: &unitOutbox{}, outbound: &unitEgress{}, maintenanceReturned: make(chan struct{})}
+	f.secrets = &unitMaintenance{run: func(ctx context.Context) error { defer close(f.maintenanceReturned); <-ctx.Done(); return ctx.Err() }, status: func() secret.Status { f.secretStatuses.Add(1); return secret.Status{Available: true} }}
+	f.db = &unitDatabase{check: func(context.Context) (postgres.DatabaseHealth, error) { f.dbChecks.Add(1); return unitHealth(), nil }, force: func(context.Context) error { f.dbClosed.Add(1); return nil }}
+	f.outbox.check = func(context.Context) error { f.outboxChecks.Add(1); return nil }
+	base := time.Now()
+	f.deps = unitDependencies(dependencies{
+		open:   func(context.Context, postgres.Config) (database, error) { return f.db, nil },
+		listen: func(context.Context, string, string) (net.Listener, error) { return f.listener, nil },
+		health: healthTiming{now: func() time.Time {
+			value := base.Add(time.Duration(len(f.times)) * time.Microsecond)
+			f.times = append(f.times, value)
+			return value
+		}}.defaults(),
+		secret: func(context.Context, config.Config, database, *audit.Service) (maintenance, error) {
+			return f.secrets, nil
+		},
+		outbound: func(context.Context, config.Config, database, *audit.Service) (egress, error) { return f.outbound, nil },
+		objects: func(context.Context, config.Config, database, *audit.Service) (objectStorage, error) {
+			return f.objects, nil
+		},
+		outbox: func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error) {
+			return f.outbox, nil
+		},
+	})
+	return f
+}
+
+func TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup(t *testing.T) {
+	t.Run("initialize returns the local factory", func(t *testing.T) {
+		f := riStartup(t)
+		owned := &resources{}
+		var calls int
+		var captured *runtimeInformationSource
+		factory := runtimeInformationFactory(func(source runtimeinfo.Source) (http.Handler, error) {
+			calls++
+			captured = source.(*runtimeInformationSource)
+			return http.NotFoundHandler(), nil
+		})
+		f.deps.bind = func(ctx context.Context, _ config.Config, db database, owner *resources, deps *dependencies) error {
+			if db != f.db || owner != owned || !owner.addAccounts(ctx, f.accounts) {
+				t.Fatal("lost startup owner")
+			}
+			deps.runtimeInformation = factory
+			return nil
+		}
+		t.Cleanup(func() { cleanupResources(context.Background(), owned, nil); await(t, f.maintenanceReturned) })
+		logger, _ := logging.New(logging.Central, slog.LevelInfo, io.Discard)
+		initial := initialize(context.Background(), testConfig(t, "1s"), logger, f.deps, owned)
+		if initial.err != nil || initial.runtimeInformation == nil || f.deps.runtimeInformation != nil || calls != 0 || f.listener.accepts.Load() != 0 || owned.listener() != f.listener {
+			t.Fatal("factory was lost across value-copy initialize or ran before monitor", initial.err)
+		}
+		monitor := newHealthMonitor(initial.health, f.deps.health)
+		monitor.received, monitor.objectReceived, monitor.outboxReceived, monitor.accountReceived = initial.sampled, initial.objectSampled, initial.outboxSampled, initial.accountSampled
+		monitor.objectAvailable, monitor.outboxAvailable, monitor.accountAvailable, monitor.accountBound = initial.objectAvailable, initial.outboxAvailable, initial.accountAvailable, true
+		handler, err := bindRuntimeInformation(initial.runtimeInformation, monitor, owned)
+		if err != nil || handler == nil || calls != 1 || captured.monitor != monitor || captured.secrets != f.secrets || captured.outbound != f.outbound || f.secretStatuses.Load() != 0 {
+			t.Fatal("post-monitor factory was not pure/once or captured different instances", err)
+		}
+		if monitor.received != f.times[0] || monitor.objectReceived != f.times[2] || monitor.accountReceived != f.times[3] || monitor.outboxReceived != f.times[4] {
+			t.Fatal("startup sample age was renewed")
+		}
+		snapshot := riSnapshot(t, captured)
+		if snapshot.Database.LastSuccess.ReceivedAt != riInstant(t, initial.sampled) || f.dbChecks.Load() != 1 || f.objects.checks.Load() != 1 || f.outboxChecks.Load() != 1 || f.accounts.checks.Load() != 1 {
+			t.Fatal("reading launched another check or rewrote historical time")
+		}
+	})
+	for _, failure := range []string{"missing factory", "factory error", "typed nil handler", "missing secret", "missing outbound", "missing object", "missing outbox", "missing account"} {
+		t.Run(failure, func(t *testing.T) {
+			f := riStartup(t)
+			cause := errors.New("private-runtime-construction-canary")
+			calls := 0
+			var captured *runtimeInformationSource
+			factory := runtimeInformationFactory(func(source runtimeinfo.Source) (http.Handler, error) {
+				calls++
+				captured = source.(*runtimeInformationSource)
+				if failure == "typed nil handler" {
+					return (*riTypedNilHandler)(nil), nil
+				}
+				return nil, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted).WithCause(cause)
+			})
+			f.deps.bind = func(ctx context.Context, _ config.Config, _ database, owner *resources, deps *dependencies) error {
+				if failure != "missing account" && !owner.addAccounts(ctx, f.accounts) {
+					return context.Canceled
+				}
+				if failure != "missing factory" {
+					deps.runtimeInformation = factory
+				}
+				return nil
+			}
+			switch failure {
+			case "missing secret":
+				f.deps.secret = func(context.Context, config.Config, database, *audit.Service) (maintenance, error) { return nil, nil }
+			case "missing outbound":
+				f.deps.outbound = func(context.Context, config.Config, database, *audit.Service) (egress, error) { return nil, nil }
+			case "missing object":
+				f.deps.objects = func(context.Context, config.Config, database, *audit.Service) (objectStorage, error) { return nil, nil }
+			case "missing outbox":
+				f.deps.outbox = func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error) { return nil, nil }
+			}
+			logs := newEventLog()
+			logger, _ := logging.New(logging.Central, slog.LevelInfo, logs)
+			err := run(context.Background(), testConfig(t, "1s"), logger, nil, f.deps)
+			if failure != "missing secret" {
+				await(t, f.maintenanceReturned)
+			}
+			if lifecycle.CodeOf(err) != lifecycle.InitializationFailed || f.listener.closed.Load() != 1 || f.listener.accepts.Load() != 0 || f.dbClosed.Load() != 1 || f.dbChecks.Load() != 1 {
+				t.Fatal("post-binding error escaped the original startup cleanup or started serving/health", err)
+			}
+			if strings.Contains(logs.String(), "canary") || strings.Contains(logs.String(), `"phase":"diagnostic_serving"`) || strings.Contains(logs.String(), `"event":"listening"`) {
+				t.Fatal("failed binding served or leaked its cause")
+			}
+			wantCalls := 0
+			if failure == "factory error" || failure == "typed nil handler" {
+				wantCalls = 1
+			}
+			if calls != wantCalls || f.secretStatuses.Load() != 0 {
+				t.Fatal("pure construction observed/probed or called factory incorrectly")
+			}
+			if wantCalls == 1 {
+				m := captured.monitor
+				if m.received != f.times[0] || m.objectReceived != f.times[2] || m.accountReceived != f.times[3] || m.outboxReceived != f.times[4] || !m.accountBound || captured.secrets != f.secrets || captured.outbound != f.outbound {
+					t.Fatal("run renewed samples or replaced original providers")
+				}
+			}
+			if failure == "factory error" && !errors.Is(err, cause) {
+				t.Fatal("typed failure lost internal cause")
+			}
+			if failure != "missing object" && (f.objects.starts.Load() != 1 || f.objects.checks.Load() != 1 || f.objects.forces.Load() != 1) {
+				t.Fatal("controlled object owner was skipped or checked again")
+			}
+			if failure != "missing outbox" && (f.outboxChecks.Load() != 1 || !f.outbox.Joined()) {
+				t.Fatal("controlled outbox cleanup not joined")
+			}
+			if failure != "missing account" && (f.accounts.starts.Load() != 1 || f.accounts.checks.Load() != 1 || f.accounts.forces.Load() != 1 || !f.accounts.Joined()) {
+				t.Fatal("controlled account owner not joined")
+			}
+		})
+	}
+}
+
+type riTypedNilHandler struct{}
+
+func (*riTypedNilHandler) ServeHTTP(http.ResponseWriter, *http.Request) { panic("nil handler used") }
+
+type riNoCallStore struct{ account.Store }
+
+func (*riNoCallStore) Acquire(context.Context, foundation.Tx, foundation.LockKey, foundation.LockMode) error {
+	panic("construction acquired a lock")
+}
+
+type riNoCallAudit struct{ auditcontract.Appender }
+type riNoCallEvents struct{ outboxcontract.Appender }
+type riNoCallChallenges struct{ ac.ChallengeAuthority }
+type riNoCallProcesses struct{ ac.ProcessAuthority }
+
+func (riNoCallProcesses) CurrentProcess() ac.ProcessID {
+	id, err := foundation.ParseID[ac.Process]("01900000-0000-7000-8000-000000000003")
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
+func riConstructionCore(t *testing.T) (*riNoCallStore, *account.Authority, *account.Service) {
+	t.Helper()
+	store := &riNoCallStore{}
+	authority, err := account.NewAuthority(store, testConfig(t, "1s").AccountKeyring())
+	if err != nil {
+		t.Fatal(err)
+	}
+	catalog := event.NewCatalog()
+	revoked, err := ac.DefineSessionsRevoked(catalog)
+	if err != nil {
+		t.Fatal(err)
+	}
+	delivery, err := ac.DefineDeliveryRequested(catalog)
+	if err != nil {
+		t.Fatal(err)
+	}
+	core, err := account.New(account.Dependencies{Authority: authority, Audit: riNoCallAudit{}, Secrets: &secret.Service{}, Events: riNoCallEvents{}, SessionsRevoked: revoked, DeliveryRequested: delivery, Challenges: riNoCallChallenges{}, RecoveryLog: &recoverylog.Sink{}, Processes: riNoCallProcesses{}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return store, authority, core
+}
+
+type riBudgetWriter struct{ *httptest.ResponseRecorder }
+
+func (*riBudgetWriter) SetReadDeadline(time.Time) error  { return nil }
+func (*riBudgetWriter) SetWriteDeadline(time.Time) error { return nil }
+
+func TestRuntimeInformationRootPureRoutesAndFormalBoundary(t *testing.T) {
+	store, authority, core := riConstructionCore(t)
+	source := riSource(t, riMonitor(t, time.Now()))
+	handler, err := runtimeInformationHandlerFactory(store, authority, core, "http://localhost:8080")(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		path, raw, method, origin, host string
+		status                          int
+		code                            string
+	}{
+		{runtimeInformationPath, "", "GET", "", "", 401, "UNAUTHENTICATED"},
+		{runtimeInformationPath, "", "POST", "", "", 405, "METHOD_NOT_ALLOWED"},
+		{runtimeInformationPath, "", "HEAD", "", "", 405, "METHOD_NOT_ALLOWED"},
+		{runtimeInformationPath + "/", "", "GET", "", "", 400, "INVALID_ARGUMENT"},
+		{runtimeInformationPath + "//child", "", "GET", "", "", 400, "INVALID_ARGUMENT"},
+		{runtimeInformationPath + "/../session", "", "GET", "", "", 400, "INVALID_ARGUMENT"},
+		{runtimeInformationPath + "/child", runtimeInformationPath + "%2fchild", "GET", "", "", 400, "INVALID_ARGUMENT"},
+		{runtimeInformationPath + "/child", "", "GET", "", "", 404, "NOT_FOUND"},
+		{runtimeInformationPath + "/", "", "GET", "http://other.invalid", "", 403, "ORIGIN_DENIED"},
+		{runtimeInformationPath + "/", "", "GET", "", "other.invalid", 403, "ORIGIN_DENIED"},
+	} {
+		t.Run(tc.method+tc.path+tc.raw+tc.origin+tc.host, func(t *testing.T) {
+			r := httptest.NewRequest(tc.method, "http://localhost:8080"+tc.path, nil)
+			r.URL.RawPath = tc.raw
+			if tc.origin != "" {
+				r.Header.Set("Origin", tc.origin)
+			}
+			if tc.host != "" {
+				r.Host = tc.host
+			}
+			url, original, originalHost := r.URL, *r.URL, r.Host
+			var logs bytes.Buffer
+			w := &riBudgetWriter{httptest.NewRecorder()}
+			httpapi.Handler(slog.New(slog.NewJSONHandler(&logs, nil)), systemRuntimeInformationRoutes(http.NotFoundHandler(), handler)).ServeHTTP(w, r)
+			if w.Code != tc.status || r.URL != url || *r.URL != original || r.Host != originalHost || w.Header().Get("Location") != "" || len(w.Header().Values("X-Request-ID")) != 1 || strings.Count(logs.String(), `"event":"http_request"`) != 1 {
+				t.Fatal("root boundary/routing contract changed", w.Code, w.Body.String())
+			}
+			if tc.status == 405 && w.Header().Get("Allow") != "GET" {
+				t.Fatal("wrong method set")
+			}
+			if tc.method == "HEAD" {
+				if w.Body.Len() != 0 {
+					t.Fatal("HEAD error body")
+				}
+			} else if !strings.Contains(w.Body.String(), `"code":"`+tc.code+`"`) {
+				t.Fatal("wrong exact boundary error", w.Body.String())
+			}
+		})
+	}
+	for _, tc := range []struct{ path, owner string }{
+		{runtimeInformationPath, "runtime"}, {runtimeInformationPath + "/child", "runtime"},
+		{runtimeInformationPath + "x", "account"}, {runtimeInformationPath + "-other", "account"},
+		{"/api/v1/session", "account"}, {"/api/v1/me", "account"}, {"/api/v1/system/smtp-settings", "account"}, {"/api/v1/system/mail-jobs", "account"},
+		{"/api/v1/system/model-providers", "model"}, {"/api/v1/system/models/child", "model"}, {"/api/v1/system/model-selection", "model"},
+		{"/api/v1/system/outbound-policy", "outbound"}, {"/api/v1/system/audit", "audit"},
+	} {
+		t.Run("dispatch "+tc.path, func(t *testing.T) {
+			r := httptest.NewRequest("PATCH", "http://localhost:8080"+tc.path+"?private=query-canary", strings.NewReader("body-canary"))
+			body, url, header := r.Body, r.URL, r.Header
+			r.Header.Set("Cookie", "cookie-canary")
+			type key struct{}
+			r = r.WithContext(context.WithValue(r.Context(), key{}, "context-canary"))
+			calls := 0
+			child := func(owner string) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, got *http.Request) {
+					calls++
+					if owner != tc.owner || got.URL != url || got.Body != body || !reflect.DeepEqual(got.Header, header) || got.Context().Value(key{}) != "context-canary" || got.Host != "localhost:8080" || got.Method != "PATCH" || httpapi.RequestID(got.Context()).Validate() != nil {
+						t.Error("dispatch changed request identity/material")
+					}
+					data, err := io.ReadAll(got.Body)
+					if err != nil || string(data) != "body-canary" {
+						t.Error("body was consumed before owner")
+					}
+					w.WriteHeader(204)
+				})
+			}
+			chain := systemRuntimeInformationRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(child("account"), child("model")), child("outbound")), child("audit")), child("runtime"))
+			var logs bytes.Buffer
+			w := httptest.NewRecorder()
+			httpapi.Handler(slog.New(slog.NewJSONHandler(&logs, nil)), chain).ServeHTTP(w, r)
+			if calls != 1 || w.Code != 204 || len(w.Header().Values("X-Request-ID")) != 1 || strings.Count(logs.String(), `"event":"http_request"`) != 1 {
+				t.Fatal("more than one owner or middleware")
+			}
+			for _, private := range []string{"query-canary", "body-canary", "cookie-canary", "context-canary"} {
+				if strings.Contains(logs.String(), private) {
+					t.Fatal("ordinary log disclosed request input")
+				}
+			}
+		})
+	}
+}
+
+func TestRuntimeInformationRootPureSameInstanceConstructionGraph(t *testing.T) {
+	file, err := parser.ParseFile(token.NewFileSet(), "account.go", nil, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	is := func(expr ast.Expr, name string) bool { id, ok := expr.(*ast.Ident); return ok && id.Name == name }
+	var bind *ast.FuncDecl
+	for _, decl := range file.Decls {
+		if f, ok := decl.(*ast.FuncDecl); ok && f.Name.Name == "bindAccounts" {
+			bind = f
+		}
+	}
+	if bind == nil {
+		t.Fatal("missing real Account assembly")
+	}
+	assertions, captures := 0, 0
+	ast.Inspect(bind, func(node ast.Node) bool {
+		if cast, ok := node.(*ast.TypeAssertExpr); ok {
+			if name, ok := cast.Type.(*ast.SelectorExpr); ok && is(name.X, "runtimeinfo") && name.Sel.Name == "Store" {
+				assertions++
+				if !is(cast.X, "db") {
+					t.Error("runtime read uses a different Store")
+				}
+			}
+		}
+		if call, ok := node.(*ast.CallExpr); ok && is(call.Fun, "runtimeInformationHandlerFactory") {
+			captures++
+			if len(call.Args) != 4 || !is(call.Args[0], "runtimeStore") || !is(call.Args[1], "authority") || !is(call.Args[2], "core") {
+				t.Error("runtime factory replaced the Account identity providers")
+			}
+		}
+		return true
+	})
+	if assertions != 1 || captures != 1 {
+		t.Fatal("missing/duplicate pure runtime capture", assertions, captures)
+	}
+	// This static identity binding is not real Account authentication evidence.
+	// Concrete constructor behavior and route boundary are exercised above;
+	// actual authenticated root behavior belongs to the separate resource group.
+}
+
+func TestRuntimeInformationRootPureLegacyDiagnosticsRemainSeparate(t *testing.T) {
+	monitor := riMonitor(t, time.Now())
+	source := riSource(t, monitor)
+	router := diagnosticRouter(monitor, true, source.secrets, source.outbound)
+	for _, method := range []string{"GET", "HEAD"} {
+		for _, path := range []string{"/livez", "/diagnostics"} {
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, httptest.NewRequest(method, "http://localhost"+path, nil))
+			if w.Code != 200 {
+				t.Fatal("legacy diagnostic status changed")
+			}
+			if method == "HEAD" {
+				if w.Body.Len() != 0 {
+					t.Fatal("legacy HEAD changed")
+				}
+				continue
+			}
+			if path == "/livez" {
+				if w.Body.String() != `{"status":"alive"}` {
+					t.Fatal("liveness changed")
+				}
+				continue
+			}
+			var value diagnostics
+			if json.Unmarshal(w.Body.Bytes(), &value) != nil || value.Ready || value.Database == nil || value.Database.ServerVersion != monitor.last.ServerVersion || value.Secret == nil || value.Outbound == nil || len(value.Capabilities) != 20 {
+				t.Fatal("legacy diagnostic DTO changed")
+			}
+			if strings.Contains(w.Body.String(), "build_version_not_recorded") {
+				t.Fatal("management DTO replaced diagnostics")
+			}
+		}
+	}
+}

@@ -1,0 +1,64 @@
+--- a/internal/central/runtimeinfo/service.go
++++ b/internal/central/runtimeinfo/service.go
+@@ -77,6 +77,9 @@
+ 	if s.Readiness != foundation.DependencyUnavailable && s.Readiness != foundation.DependencyUnbound {
+ 		return unavailable(nil)
+ 	}
++	if s.Readiness == foundation.DependencyUnbound && (s.Database.Status != Available || s.ObjectStorage.Status != Available) {
++		return unavailable(nil)
++	}
+ 	return nil
+ }
+ 
+--- a/internal/central/runtimeinfo/service_test.go
++++ b/internal/central/runtimeinfo/service_test.go
+@@ -436,22 +436,33 @@
+ 	for b := byte(0x20); b <= 0x7e; b++ {
+ 		printable.WriteByte(b)
+ 	}
+-	for _, status := range []Status{Available, Unavailable, Stale} {
+-		for _, reason := range []foundation.Code{foundation.DependencyUnavailable, foundation.DependencyUnbound} {
+-			service, _, actor := testService(t)
+-			value := validSnapshot(t)
+-			value.Database.Status, value.ObjectStorage.Status, value.Readiness = status, status, reason
+-			value.Database.LastSuccess.PostgreSQLVersion = " "
+-			value.Database.LastSuccess.PGVectorVersion = strings.Repeat(printable.String(), 3)[:256]
+-			later, err := foundation.NewInstant(value.ObservedAt.Time().Add(time.Hour))
+-			if err != nil {
+-				t.Fatal(err)
+-			}
+-			value.Database.LastSuccess.CheckedAt, value.ObjectStorage.LastSuccessReceivedAt = later, later
+-			service.source = sourceFunc(func(context.Context) (Snapshot, error) { return value, nil })
+-			got, err := service.GetSystem(context.Background(), actor)
+-			if err != nil || got != value {
+-				t.Fatal("valid historical observation was changed or rejected", err)
++	for _, databaseStatus := range []Status{Available, Unavailable, Stale} {
++		for _, objectStatus := range []Status{Available, Unavailable, Stale} {
++			for _, reason := range []foundation.Code{foundation.DependencyUnavailable, foundation.DependencyUnbound} {
++				t.Run(fmt.Sprintf("readiness/%s/%s/%s", databaseStatus, objectStatus, reason), func(t *testing.T) {
++					service, store, actor := testService(t)
++					value := validSnapshot(t)
++					value.Database.Status, value.ObjectStorage.Status, value.Readiness = databaseStatus, objectStatus, reason
++					value.Database.LastSuccess.PostgreSQLVersion = " "
++					value.Database.LastSuccess.PGVectorVersion = strings.Repeat(printable.String(), 3)[:256]
++					later, err := foundation.NewInstant(value.ObservedAt.Time().Add(time.Hour))
++					if err != nil {
++						t.Fatal(err)
++					}
++					value.Database.LastSuccess.CheckedAt, value.ObjectStorage.LastSuccessReceivedAt = later, later
++					service.source = sourceFunc(func(context.Context) (Snapshot, error) { store.snapshots.Add(1); return value, nil })
++					got, err := service.GetSystem(context.Background(), actor)
++					if (databaseStatus != Available || objectStatus != Available) && reason == foundation.DependencyUnbound {
++						wantFault(t, got, err, foundation.DependencyUnavailable, foundation.NotCommitted)
++					} else if err != nil || got != value {
++						// Both public components can be available while another
++						// foundation makes readiness DEPENDENCY_UNAVAILABLE.
++						t.Fatal("valid historical observation was changed or rejected", err)
++					}
++					if store.started.Load() != 1 || store.snapshots.Load() != 1 || store.active.Load() != 0 || store.steps[len(store.steps)-1] != "transaction-ended" {
++						t.Fatal("readiness validation bypassed Source or actual transaction return")
++					}
++				})
+ 			}
+ 		}
+ 	}

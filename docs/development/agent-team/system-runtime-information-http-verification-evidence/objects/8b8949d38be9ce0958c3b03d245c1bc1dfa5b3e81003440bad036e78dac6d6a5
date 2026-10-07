@@ -1,0 +1,869 @@
+--- /dev/null
++++ b/internal/central/app/runtime_information_process_test.go
+@@ -0,0 +1,339 @@
++//go:build integration
++
++package app
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"io"
++	"net/http"
++	"strconv"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"syscall"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	"github.com/LunaDeerTech/agenteam/internal/central/config"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++type runtimeRootObserver struct {
++	mu                           sync.Mutex
++	source                       *runtimeInformationSource
++	factories, clockCalls        int
++	lastClock                    time.Time
++	databaseChecks, objectChecks atomic.Int64
++	reads, committed             atomic.Int64
++}
++
++func (o *runtimeRootObserver) now() time.Time {
++	now := time.Now()
++	o.mu.Lock()
++	o.clockCalls++
++	o.lastClock = now
++	o.mu.Unlock()
++	return now
++}
++
++type runtimeRootDatabase struct {
++	*modelRootStore
++	observer *runtimeRootObserver
++}
++
++func (s *runtimeRootDatabase) Check(ctx context.Context) (postgres.DatabaseHealth, error) {
++	s.observer.databaseChecks.Add(1)
++	return s.modelRootStore.Check(ctx)
++}
++
++func (s *runtimeRootDatabase) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
++	read := cause.Details().Owner == "runtimeinfo.system-read"
++	if read {
++		s.observer.reads.Add(1)
++	}
++	result := s.modelRootStore.WithinTx(ctx, cause, fn)
++	if read && result.State() == foundation.Committed {
++		s.observer.committed.Add(1)
++	}
++	return result
++}
++
++// Embedding the actual concrete owner preserves all lifecycle methods,
++// including its private forceTransports capability; only Check is observed.
++type runtimeRootObjects struct {
++	*objectAssembly
++	observer *runtimeRootObserver
++}
++
++func (s *runtimeRootObjects) Check(ctx context.Context) error {
++	s.observer.objectChecks.Add(1)
++	return s.objectAssembly.Check(ctx)
++}
++
++func TestSystemRuntimeInformationRootSnapshotBinding(t *testing.T) {
++	started := time.Now()
++	observer := &runtimeRootObserver{}
++	a := newModelRootApp(t, "3s", func(a *modelRootApp, d *dependencies) {
++		// Only this local collaborator's sampling window changes. The original
++		// monitor still runs; production 10s/2s/20s defaults are not changed.
++		d.health.interval = time.Hour
++		d.health.now = observer.now
++		open := d.open
++		d.open = func(ctx context.Context, cfg postgres.Config) (database, error) {
++			db, err := open(ctx, cfg)
++			if err != nil {
++				return db, err
++			}
++			if db != a.store {
++				return nil, errors.New("fixture original Store changed")
++			}
++			return &runtimeRootDatabase{a.store, observer}, nil
++		}
++		bind := d.bind
++		d.bind = func(ctx context.Context, cfg config.Config, db database, owned *resources, deps *dependencies) error {
++			if err := bind(ctx, cfg, db, owned, deps); err != nil {
++				return err
++			}
++			objects := deps.objects
++			deps.objects = func(ctx context.Context, cfg config.Config, db database, auditing *audit.Service) (objectStorage, error) {
++				original, err := objects(ctx, cfg, db, auditing)
++				if err != nil {
++					return original, err
++				}
++				assembly, ok := original.(*objectAssembly)
++				if !ok {
++					return original, errors.New("fixture original Object owner changed")
++				}
++				return &runtimeRootObjects{assembly, observer}, nil
++			}
++			factory := deps.runtimeInformation
++			if factory == nil {
++				return errors.New("formal runtime factory missing")
++			}
++			deps.runtimeInformation = func(source runtimeinfo.Source) (http.Handler, error) {
++				actual, ok := source.(*runtimeInformationSource)
++				if !ok {
++					return nil, errors.New("root did not construct its actual Source")
++				}
++				observer.mu.Lock()
++				observer.factories++
++				observer.source = actual
++				observer.mu.Unlock()
++				return factory(source) // exactly the original Source, not a replacement
++			}
++			return nil
++		}
++	})
++	address := a.address(t)
++	observer.mu.Lock()
++	source, factories := observer.source, observer.factories
++	observer.mu.Unlock()
++	if factories != 1 || source == nil || source.monitor == nil || source.secrets != a.owned.secret() || source.outbound != a.owned.outbound() {
++		t.Fatal("root did not bind once to its original monitor/services")
++	}
++	if observer.databaseChecks.Load() < 1 || observer.objectChecks.Load() != 1 {
++		t.Fatal("original required startup checks not observed")
++	}
++	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
++	defer cancel()
++	login, err := fixtureAccountLoginResponse(ctx, a.cfg, a.core)
++	if err != nil {
++		t.Fatal("formal root login failed", err)
++	}
++	var material sc.SecretMaterial
++	if err = login.UseCookie(func(raw []byte) error { var err error; material, err = sc.NewSecretMaterial(raw); return err }); err != nil {
++		t.Fatal(err)
++	}
++	defer material.Destroy()
++	if err = login.Close(ctx); err != nil {
++		t.Fatal(err)
++	}
++	var cookie string
++	if err = material.Use(func(raw []byte) error { cookie = string(raw); return nil }); err != nil {
++		t.Fatal(err)
++	}
++	client := &http.Client{Transport: &http.Transport{Proxy: nil}, Timeout: 5 * time.Second}
++	defer client.CloseIdleConnections()
++	type result struct {
++		value     map[string]any
++		requestID string
++	}
++	call := func(path string, status, limit int) result {
++		t.Helper()
++		request, err := http.NewRequestWithContext(ctx, http.MethodGet, address+path, nil)
++		if err != nil {
++			t.Fatal(err)
++		}
++		request.Host = "localhost:8080"
++		request.Header.Set("Origin", "http://localhost:8080")
++		request.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
++		response, err := client.Do(request)
++		if err != nil {
++			t.Fatal("root GET failed", err)
++		}
++		body, readErr := io.ReadAll(io.LimitReader(response.Body, int64(limit+1)))
++		closeErr := response.Body.Close()
++		if readErr != nil || closeErr != nil || response.StatusCode != status || len(body) > limit {
++			t.Fatal("root GET incomplete or wrong status", response.StatusCode)
++		}
++		ids := response.Header.Values("X-Request-ID")
++		if len(ids) != 1 {
++			t.Fatal("root GET did not keep one RequestID")
++		}
++		parsed, err := foundation.ParseID[foundation.Request](ids[0])
++		if err != nil || parsed.String() != ids[0] {
++			t.Fatal("root RequestID was not canonical")
++		}
++		if strings.HasPrefix(path, "/api/") && (response.Header.Get("Cache-Control") != "no-store" || response.Header.Get("X-Content-Type-Options") != "nosniff" || response.Header.Get("Referrer-Policy") != "no-referrer") {
++			t.Fatal("root API security headers changed")
++		}
++		if path == runtimeInformationPath && (response.Header.Get("Content-Type") != "application/json" || response.Header.Get("Content-Length") != strconv.Itoa(len(body))) {
++			t.Fatal("runtime complete representation headers missing")
++		}
++		var value map[string]any
++		if json.Unmarshal(body, &value) != nil {
++			t.Fatal("root GET body was not JSON")
++		}
++		return result{value, ids[0]}
++	}
++	object := func(value map[string]any, field string, count int) map[string]any {
++		t.Helper()
++		obj, ok := value[field].(map[string]any)
++		if !ok || len(obj) != count {
++			t.Fatal("runtime nested DTO is incomplete", field)
++		}
++		return obj
++	}
++	var postgresVersion, vectorVersion string
++	if err = a.store.QueryRow(ctx, `SELECT current_setting('server_version'),(SELECT extversion FROM pg_extension WHERE extname='vector')`).Scan(&postgresVersion, &vectorVersion); err != nil {
++		t.Fatal("readonly actual PG version observation failed", err)
++	}
++	// Capture the actual successful startup cache. No test writes flags/times.
++	monitor := source.monitor
++	monitor.mu.RLock()
++	health, received, objectReceived := monitor.last, monitor.received, monitor.objectReceived
++	outboxReceived, accountReceived := monitor.outboxReceived, monitor.accountReceived
++	dbAvailable, objectAvailable := monitor.available, monitor.objectAvailable
++	outboxAvailable, accountAvailable, accountBound := monitor.outboxAvailable, monitor.accountAvailable, monitor.accountBound
++	stale := monitor.timing.stale
++	monitor.mu.RUnlock()
++	if health.ServerVersion != postgresVersion || health.ExtensionVersion != vectorVersion || !healthy(health) || !accountBound || received.IsZero() || objectReceived.IsZero() || outboxReceived.IsZero() || accountReceived.IsZero() || stale != 20*time.Second {
++		t.Fatal("root startup cache differs from real successful checks")
++	}
++	instantString := func(value time.Time) string {
++		t.Helper()
++		instant, err := foundation.NewInstant(value)
++		if err != nil || instant.Validate() != nil || value.IsZero() {
++			t.Fatal("invalid captured root time")
++		}
++		return instant.String()
++	}
++	status := func(available bool, sampled, observed time.Time) (string, any) {
++		if !available {
++			return "unavailable", "check_unavailable"
++		}
++		if observed.Sub(sampled) > stale {
++			return "stale", "sample_stale"
++		}
++		return "available", nil
++	}
++	for range 2 {
++		dbBefore, objectBefore := observer.databaseChecks.Load(), observer.objectChecks.Load()
++		readsBefore, committedBefore := observer.reads.Load(), observer.committed.Load()
++		observer.mu.Lock()
++		clockBefore := observer.clockCalls
++		observer.mu.Unlock()
++		got := call(runtimeInformationPath, 200, 16<<10)
++		observer.mu.Lock()
++		clockAfter, observed, factoryCount := observer.clockCalls, observer.lastClock, observer.factories
++		sameSource := observer.source == source
++		observer.mu.Unlock()
++		if clockAfter != clockBefore+1 || factoryCount != 1 || !sameSource || observer.reads.Load() != readsBefore+1 || observer.committed.Load() != committedBefore+1 {
++			t.Fatal("GET did not use one observation and one real committed read with fixed factory")
++		}
++		if observer.databaseChecks.Load() != dbBefore || observer.objectChecks.Load() != objectBefore {
++			t.Fatal("GET performed an extra health Check")
++		}
++		value := got.value
++		if len(value) != 5 || value["observed_at"] != instantString(observed) {
++			t.Fatal("runtime top-level shape or single observation time changed")
++		}
++		central := object(value, "central", 2)
++		if central["version"] != nil || central["safe_reason"] != "build_version_not_recorded" {
++			t.Fatal("unknown Central version was invented")
++		}
++		database := object(value, "database", 3)
++		last := object(database, "last_success", 4)
++		wantDB, dbReason := status(dbAvailable, received, observed)
++		if database["status"] != wantDB || database["safe_reason"] != dbReason || last["checked_at"] != health.CheckedAt.String() || last["received_at"] != instantString(received) || last["postgresql_version"] != postgresVersion || last["pgvector_version"] != vectorVersion {
++			t.Fatal("database projection did not preserve its actual historic sample")
++		}
++		objects := object(value, "object_storage", 6)
++		wantObject, objectReason := status(objectAvailable, objectReceived, observed)
++		if objects["backend"] != "minio" || objects["assessment"] != "object_storage_aggregate" || objects["status"] != wantObject || objects["safe_reason"] != objectReason || objects["last_success_received_at"] != instantString(objectReceived) || objects["details"] != "not_reported" {
++			t.Fatal("Object aggregate observation was replaced or embellished")
++		}
++		wantOutbox, _ := status(outboxAvailable, outboxReceived, observed)
++		wantAccount, _ := status(accountAvailable, accountReceived, observed)
++		reason := string(foundation.DependencyUnbound)
++		if wantDB != "available" || wantObject != "available" || wantOutbox != "available" || wantAccount != "available" || !source.secrets.Status().Available || !source.outbound.Status().Available {
++			reason = string(foundation.DependencyUnavailable)
++		}
++		ready := object(value, "readiness", 2)
++		if ready["ready"] != false || ready["safe_reason"] != reason {
++			t.Fatal("runtime observation changed the six-item ready=false boundary")
++		}
++		monitor.mu.RLock()
++		unchanged := monitor.last == health && monitor.received == received && monitor.objectReceived == objectReceived && monitor.outboxReceived == outboxReceived && monitor.accountReceived == accountReceived && monitor.available == dbAvailable && monitor.objectAvailable == objectAvailable && monitor.outboxAvailable == outboxAvailable && monitor.accountAvailable == accountAvailable
++		monitor.mu.RUnlock()
++		if !unchanged {
++			t.Fatal("GET refreshed or mutated cached successful samples")
++		}
++	}
++	for _, path := range []string{"/api/v1/me", "/api/v1/session", "/api/v1/system/model-providers", "/api/v1/system/outbound-policy", "/api/v1/system/audit"} {
++		call(path, 200, 1<<20)
++	}
++	if live := call("/livez", 200, 16<<10); live.value["status"] != "alive" {
++		t.Fatal("original livez changed")
++	}
++	diagnostic := call("/diagnostics", 200, 16<<10).value
++	if diagnostic["ready"] != false || diagnostic["capabilities"] == nil || diagnostic["security_stage"] == nil {
++		t.Fatal("original diagnostics replaced by management DTO")
++	}
++	ready := call("/readyz", 503, 16<<10).value
++	if ready["code"] != string(foundation.DependencyUnbound) && ready["code"] != string(foundation.DependencyUnavailable) {
++		t.Fatal("original readyz 503 reason changed")
++	}
++	if observer.factories != 1 {
++		t.Fatal("old routes rebuilt runtime factory")
++	}
++	if strings.Contains(a.logs.String(), cookie) || bytes.Contains([]byte(a.logs.String()), []byte(`"last_success"`)) {
++		t.Fatal("root ordinary logs exposed browser material or runtime DTO")
++	}
++	client.CloseIdleConnections()
++	a.signals <- syscall.SIGTERM
++	await(t, a.done)
++	if a.err != nil || !a.owned.accounts().Joined() {
++		t.Fatal("root normal shutdown did not actually join", a.err)
++	}
++	a.store.mu.Lock()
++	normal := len(a.store.activeAtStop) != 0 && len(a.store.forceDeadline) == 0
++	for _, active := range a.store.activeAtStop {
++		normal = normal && active == 0
++	}
++	a.store.mu.Unlock()
++	if !normal {
++		t.Fatal("normal root shutdown required force or overtook HTTP owner")
++	}
++	if time.Since(started) > 2*time.Minute {
++		t.Fatal("root scenario exceeded two-minute budget")
++	}
++	t.Logf("actual root factory=1 runtime_reads=%d committed=%d; per-GET DB/Object Check delta=0; original cache and PG versions agree; no MinIO fault injection; ready remains false; shutdown joined", observer.reads.Load(), observer.committed.Load())
++}
+--- /dev/null
++++ b/tests/account/runtime_information_http_test.go
+@@ -0,0 +1,524 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"context"
++	"errors"
++	"net/http"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
++	runtimehttp "github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo/http"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++const runtimeHTTPPath = "/api/v1/system/runtime-information"
++
++type runtimeHTTPTrace struct {
++	locks                        []foundation.LockRequest
++	sessions, authority, sources int
++	state                        foundation.CommitState
++}
++
++type runtimeHTTPTxKey struct{}
++
++// The observer delegates every operation and terminal to the actual PG Store.
++// Its Source is intentionally an in-memory collaborator, not a health probe.
++type runtimeHTTPStore struct {
++	*postgres.Store
++	mu                  sync.Mutex
++	reads               map[foundation.Tx]*runtimeHTTPTrace
++	before, after, tail func(context.Context, foundation.Tx) error
++	active              atomic.Int32
++	last                foundation.CommitResult
++}
++
++func (s *runtimeHTTPStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
++	if cause.Details().Owner != "runtimeinfo.system-read" {
++		return s.Store.WithinTx(ctx, cause, fn)
++	}
++	s.active.Add(1)
++	defer s.active.Add(-1)
++	trace := &runtimeHTTPTrace{}
++	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		s.mu.Lock()
++		s.reads[tx] = trace
++		s.mu.Unlock()
++		err := fn(context.WithValue(ctx, runtimeHTTPTxKey{}, tx), tx)
++		s.mu.Lock()
++		tail := s.tail
++		s.mu.Unlock()
++		if err == nil && tail != nil {
++			return tail(ctx, tx)
++		}
++		return err
++	})
++	s.mu.Lock()
++	trace.state, s.last = result.State(), result
++	s.mu.Unlock()
++	return result
++}
++
++func (s *runtimeHTTPStore) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
++	s.mu.Lock()
++	trace := s.reads[tx]
++	before, after := s.before, s.after
++	if trace != nil {
++		trace.locks = append(trace.locks, foundation.LockRequest{Key: key, Mode: mode})
++	}
++	s.mu.Unlock()
++	if trace == nil {
++		return errors.New("runtime read lock outside owned transaction")
++	}
++	if before != nil {
++		if err := before(ctx, tx); err != nil {
++			return err
++		}
++	}
++	if err := s.Store.Acquire(ctx, tx, key, mode); err != nil {
++		return err
++	}
++	if after != nil {
++		return after(ctx, tx)
++	}
++	return nil
++}
++
++func (s *runtimeHTTPStore) hooks(before, after, tail func(context.Context, foundation.Tx) error) {
++	s.mu.Lock()
++	defer s.mu.Unlock()
++	s.before, s.after, s.tail = before, after, tail
++}
++
++func (s *runtimeHTTPStore) sourceCount() int {
++	s.mu.Lock()
++	defer s.mu.Unlock()
++	count := 0
++	for _, trace := range s.reads {
++		count += trace.sources
++	}
++	return count
++}
++
++type runtimeHTTPAuthority struct {
++	*account.Authority
++	store *runtimeHTTPStore
++}
++
++func (a runtimeHTTPAuthority) RequireCurrentSession(ctx context.Context, tx foundation.Tx, actor identity.Actor) error {
++	key, err := foundation.UserLock(actor.Details().UserID)
++	if err != nil {
++		return err
++	}
++	a.store.mu.Lock()
++	trace := a.store.reads[tx]
++	valid := tx.Valid() && trace != nil && len(trace.locks) == 1 && trace.locks[0].Mode == foundation.Shared && foundation.CompareLockKeys(trace.locks[0].Key, key) == 0
++	if valid {
++		trace.sessions++
++	}
++	a.store.mu.Unlock()
++	if !valid {
++		return errors.New("runtime Session not in same User SH transaction")
++	}
++	if err = a.store.Store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Shared}}); err != nil {
++		return err
++	}
++	return a.Authority.RequireCurrentSession(ctx, tx, actor)
++}
++
++func (a runtimeHTTPAuthority) AuthorizeSystem(ctx context.Context, tx foundation.Tx, actor identity.Actor, intent identity.AccessIntent) (identity.AccessGrant, error) {
++	a.store.mu.Lock()
++	trace := a.store.reads[tx]
++	valid := trace != nil && trace.sessions == 1 && intent == identity.Read
++	if valid {
++		trace.authority++
++	}
++	a.store.mu.Unlock()
++	if !valid {
++		return identity.AccessGrant{}, errors.New("runtime current authority has wrong transaction or order")
++	}
++	return a.Authority.AuthorizeSystem(ctx, tx, actor, intent)
++}
++
++type runtimeHTTPSource struct {
++	store *runtimeHTTPStore
++	value runtimeinfo.Snapshot
++}
++
++func (s runtimeHTTPSource) Snapshot(ctx context.Context) (runtimeinfo.Snapshot, error) {
++	tx, ok := ctx.Value(runtimeHTTPTxKey{}).(foundation.Tx)
++	s.store.mu.Lock()
++	trace := s.store.reads[tx]
++	valid := ok && tx.Valid() && trace != nil && trace.sessions == 1 && trace.authority == 1 && trace.sources == 0
++	if valid {
++		trace.sources++
++	}
++	s.store.mu.Unlock()
++	if !valid {
++		return runtimeinfo.Snapshot{}, errors.New("runtime Source preceded same-transaction current authority")
++	}
++	return s.value, ctx.Err()
++}
++
++func TestSystemRuntimeInformationCurrentAuthorityAndTerminal(t *testing.T) {
++	started := time.Now()
++	b02 := newB02Account(t)
++	f := b02.fixture
++	password := f.bootstrap(t)
++	store := &runtimeHTTPStore{Store: f.store, reads: map[foundation.Tx]*runtimeHTTPTrace{}}
++	authority := runtimeHTTPAuthority{f.authority, store}
++	instant, err := foundation.NewInstant(time.Now())
++	if err != nil {
++		t.Fatal(err)
++	}
++	value := runtimeinfo.Snapshot{
++		ObservedAt: instant,
++		Database: runtimeinfo.DatabaseSnapshot{Status: runtimeinfo.Available, LastSuccess: runtimeinfo.DatabaseSuccess{
++			CheckedAt: instant, ReceivedAt: instant, PostgreSQLVersion: "controlled source PG", PGVectorVersion: "controlled source vector",
++		}},
++		ObjectStorage: runtimeinfo.ObjectStorageSnapshot{Status: runtimeinfo.Available, LastSuccessReceivedAt: instant},
++		Readiness:     foundation.DependencyUnbound,
++	}
++	service, err := runtimeinfo.New(store, authority, authority, runtimeHTTPSource{store, value})
++	if err != nil {
++		t.Fatal(err)
++	}
++	handler, err := runtimehttp.NewSystemHTTPHandler(service, f.service, runtimehttp.SystemHTTPOptions{PublicOrigin: httpOrigin})
++	if err != nil {
++		t.Fatal(err)
++	}
++	handler = httpapi.Handler(nil, handler)
++	login := func(t *testing.T, password sc.SecretMaterial, email string) (identity.Actor, string) {
++		t.Helper()
++		req, _ := loginRequest(t, f, password, email)
++		response, err := f.service.Login(ctxFor(t), req)
++		if err != nil {
++			t.Fatal("formal login failed", safeFailure(err))
++		}
++		cookie := useCookie(t, response)
++		if err = response.Close(ctxFor(t)); err != nil {
++			t.Fatal(err)
++		}
++		actor, err := f.service.Authenticate(ctxFor(t), cookie)
++		if err != nil {
++			t.Fatal(err)
++		}
++		var raw string
++		if err = cookie.Use(func(b []byte) error { raw = string(b); return nil }); err != nil {
++			t.Fatal(err)
++		}
++		return actor, raw
++	}
++	request := func(t *testing.T, ctx context.Context, cookie string) *http.Request {
++		t.Helper()
++		r, err := http.NewRequestWithContext(ctx, http.MethodGet, httpOrigin+runtimeHTTPPath, nil)
++		if err != nil {
++			t.Fatal(err)
++		}
++		r.Header.Set("Origin", httpOrigin)
++		if cookie != "" {
++			r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
++		}
++		return r
++	}
++	gate := func() (<-chan struct{}, func()) {
++		release := make(chan struct{})
++		var once sync.Once
++		return release, func() { once.Do(func() { close(release) }) }
++	}
++	wait := func(t *testing.T, entered <-chan struct{}) {
++		t.Helper()
++		select {
++		case <-entered:
++		case <-time.After(time.Second):
++			t.Fatal("runtime read barrier not reached")
++		}
++	}
++	zero := func(t *testing.T, got outboundHTTPCall, before int) {
++		t.Helper()
++		if bytes.Contains(got.response.data, []byte(`"observed_at"`)) || store.sourceCount() != before || store.active.Load() != 0 {
++			t.Fatal("rejected read exposed a candidate, called Source, or returned before terminal")
++		}
++	}
++	t.Run("formal_invited_user_and_anonymous_rejected", func(t *testing.T) {
++		admin, _ := login(t, password, "admin@mail.com")
++		_, userPassword := invitedMailUser(t, b02, admin, "runtime-member@example.test")
++		_, memberCookie := login(t, userPassword, "runtime-member@example.test")
++		for _, tc := range []struct {
++			cookie string
++			status int
++			code   string
++		}{{"", 401, "UNAUTHENTICATED"}, {memberCookie, 403, "FORBIDDEN"}} {
++			before := store.sourceCount()
++			got := outboundHTTPJoin(t, outboundHTTPStart(t, handler, request(t, ctxFor(t), tc.cookie)))
++			if got.aborted {
++				t.Fatal("live authority denial aborted")
++			}
++			got.response.problem(t, tc.status, tc.code)
++			zero(t, got, before)
++		}
++	})
++	t.Run("preauthenticated_then_formally_revoked", func(t *testing.T) {
++		actor, cookie := login(t, password, "admin@mail.com")
++		before := store.sourceCount()
++		entered := make(chan struct{})
++		release, finish := gate()
++		defer finish()
++		store.hooks(func(ctx context.Context, _ foundation.Tx) error {
++			close(entered)
++			select {
++			case <-release:
++				return nil
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		}, nil, nil)
++		defer store.hooks(nil, nil, nil)
++		done := outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie))
++		wait(t, entered)
++		if err := f.service.Logout(ctxFor(t), account.LogoutRequest{Actor: actor, Key: foundation.IdempotencyKey(id[struct{}](t).String())}); err != nil {
++			t.Fatal("formal Logout", err)
++		}
++		finish()
++		got := outboundHTTPJoin(t, done)
++		if got.aborted {
++			t.Fatal("live revoked request aborted")
++		}
++		got.response.problem(t, 401, "SESSION_REVOKED")
++		zero(t, got, before)
++	})
++	t.Run("held_shared_serializes_logout_until_actual_terminal", func(t *testing.T) {
++		actor, cookie := login(t, password, "admin@mail.com")
++		entered := make(chan uint32, 1)
++		release, finish := gate()
++		defer finish()
++		store.hooks(nil, func(ctx context.Context, tx foundation.Tx) error {
++			key, _ := foundation.UserLock(actor.Details().UserID)
++			if err := f.store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Shared}}); err != nil {
++				return err
++			}
++			executor, err := f.store.InTx(tx)
++			if err != nil {
++				return err
++			}
++			var pid uint32
++			if err = executor.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
++				return err
++			}
++			entered <- pid
++			select {
++			case <-release:
++				return nil
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		}, nil)
++		defer store.hooks(nil, nil, nil)
++		done := outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie))
++		var pid uint32
++		select {
++		case pid = <-entered:
++		case <-time.After(time.Second):
++			t.Fatal("User SH not observed")
++		}
++		revokeCtx, cancel := context.WithCancel(ctxFor(t))
++		revoked, joined := make(chan error, 1), make(chan struct{})
++		revoke := account.LogoutRequest{Actor: actor, Key: foundation.IdempotencyKey(id[struct{}](t).String())}
++		t.Cleanup(func() {
++			cancel()
++			finish()
++			select {
++			case <-joined:
++			case <-time.After(2 * time.Second):
++				t.Error("formal Logout did not actually join")
++			}
++		})
++		go func() { defer close(joined); revoked <- f.service.Logout(revokeCtx, revoke) }()
++		outboundHTTPWaitBlocked(t, f.store, pid)
++		select {
++		case <-revoked:
++			t.Fatal("Logout passed held User SH")
++		default:
++		}
++		finish()
++		got := outboundHTTPJoin(t, done)
++		got.response.want(t, 200)
++		store.mu.Lock()
++		state := store.last.State()
++		store.mu.Unlock()
++		if got.aborted || state != foundation.Committed || store.active.Load() != 0 {
++			t.Fatal("successful read lacked actual committed terminal")
++		}
++		select {
++		case err := <-revoked:
++			if err != nil {
++				t.Fatal(err)
++			}
++		case <-time.After(2 * time.Second):
++			t.Fatal("Logout did not complete after read")
++		}
++		<-joined
++		cancel()
++		store.hooks(nil, nil, nil)
++		before := store.sourceCount()
++		next := outboundHTTPJoin(t, outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie)))
++		next.response.problem(t, 401, "SESSION_REVOKED")
++		zero(t, next, before)
++	})
++	t.Run("complete_candidate_waits_for_real_transaction_terminal", func(t *testing.T) {
++		_, cookie := login(t, password, "admin@mail.com")
++		entered := make(chan struct{})
++		release, finish := gate()
++		defer finish()
++		store.hooks(nil, nil, func(ctx context.Context, tx foundation.Tx) error {
++			store.mu.Lock()
++			trace := store.reads[tx]
++			valid := trace != nil && trace.sources == 1
++			store.mu.Unlock()
++			if !valid {
++				return errors.New("terminal barrier precedes complete Source")
++			}
++			close(entered)
++			select {
++			case <-release:
++				return nil
++			case <-ctx.Done():
++				return ctx.Err()
++			}
++		})
++		defer store.hooks(nil, nil, nil)
++		done := outboundHTTPStart(t, handler, request(t, ctxFor(t), cookie))
++		wait(t, entered)
++		if store.active.Load() != 1 {
++			t.Fatal("real transaction no longer owned")
++		}
++		select {
++		case <-done:
++			t.Fatal("candidate returned before actual transaction terminal")
++		default:
++		}
++		finish()
++		got := outboundHTTPJoin(t, done)
++		got.response.want(t, 200)
++		store.mu.Lock()
++		state := store.last.State()
++		store.mu.Unlock()
++		if got.aborted || state != foundation.Committed || store.active.Load() != 0 {
++			t.Fatal("actual committed terminal missing")
++		}
++		if object := got.response.object(t); len(object) != 5 || object["observed_at"] != instant.String() {
++			t.Fatal("controlled Source projection missing")
++		}
++	})
++	if f.db.Config(t, nil).LockTimeout() != time.Second {
++		t.Fatal("fixture DB lock budget changed")
++	}
++	for _, early := range []bool{false, true} {
++		name := "earlier_database_lock_timeout"
++		if early {
++			name = "earlier_parent_deadline"
++		}
++		t.Run(name, func(t *testing.T) {
++			actor, cookie := login(t, password, "admin@mail.com")
++			before := store.sourceCount()
++			conn := f.db.Connect(t)
++			holder, err := conn.Begin(ctxFor(t))
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer func() {
++				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++				defer cancel()
++				if err := holder.Rollback(ctx); err != nil {
++					t.Error("lock-only holder rollback failed", err)
++				}
++			}()
++			entered := make(chan context.Context, 1)
++			release, finish := gate()
++			defer finish()
++			store.hooks(func(ctx context.Context, _ foundation.Tx) error {
++				entered <- ctx
++				select {
++				case <-release:
++					return nil
++				case <-ctx.Done():
++					return ctx.Err()
++				}
++			}, nil, nil)
++			defer store.hooks(nil, nil, nil)
++			budget := 5 * time.Second
++			if early {
++				budget = 250 * time.Millisecond
++			}
++			ctx, cancel := context.WithTimeout(context.Background(), budget)
++			defer cancel()
++			start := time.Now()
++			done := outboundHTTPStart(t, handler, request(t, ctx, cookie))
++			var actual context.Context
++			select {
++			case actual = <-entered:
++			case <-time.After(time.Second):
++				t.Fatal("HTTP preauthentication did not reach read Tx")
++			}
++			arrival := time.Now()
++			actualDeadline, ok := actual.Deadline()
++			parentDeadline, _ := ctx.Deadline()
++			if !ok || early && !actualDeadline.Equal(parentDeadline) || !early && (actualDeadline.Before(start.Add(3*time.Second)) || actualDeadline.After(arrival.Add(3*time.Second)) || !actualDeadline.Before(parentDeadline)) {
++				t.Fatal("read did not inherit min(local, parent) deadline")
++			}
++			// Lock only after preauthentication so the measured wait belongs to
++			// this read transaction, not the older Account precheck.
++			key, _ := foundation.UserLock(actor.Details().UserID)
++			if _, err = holder.Exec(ctxFor(t), `SELECT pg_advisory_xact_lock($1)`, key.AdvisoryKey()); err != nil {
++				t.Fatal(err)
++			}
++			finish()
++			outboundHTTPWaitBlocked(t, f.store, conn.PgConn().PID())
++			got := outboundHTTPJoin(t, done)
++			elapsed := time.Since(start)
++			store.mu.Lock()
++			result := store.last
++			store.mu.Unlock()
++			var dbError *postgres.Error
++			if result.State() != foundation.NotCommitted || result.Fault() == nil || !errors.As(result.Fault(), &dbError) || dbError.Code() != postgres.LockFailed {
++				t.Fatal("lock failure lost formal typed terminal")
++			}
++			zero(t, got, before)
++			if early {
++				if ctx.Err() != context.DeadlineExceeded || !got.aborted || len(got.response.data) != 0 || elapsed > budget+500*time.Millisecond {
++					t.Fatal("earlier parent failed budget/abort/join", elapsed)
++				}
++			} else {
++				if ctx.Err() != nil || got.aborted || dbError.SQLState() != "55P03" || elapsed > 3*time.Second {
++					t.Fatal("DB1s failure confused with local3s expiry", elapsed)
++				}
++				got.response.problem(t, 500, "INTERNAL_ERROR")
++			}
++			t.Logf("earlier_parent=%t terminal=%s DB_code=%s SQLSTATE=%s elapsed=%s Source_delta=%d actual_active=%d", early, result.State(), dbError.Code(), dbError.SQLState(), elapsed, store.sourceCount()-before, store.active.Load())
++		})
++	}
++	store.mu.Lock()
++	for _, trace := range store.reads {
++		if len(trace.locks) != 1 || trace.locks[0].Mode != foundation.Shared {
++			t.Error("read did not request exactly one User SH")
++		}
++		if trace.state == foundation.Committed && (trace.sessions != 1 || trace.authority != 1 || trace.sources != 1) {
++			t.Error("committed read lacked one same-Tx authorization and Source")
++		}
++	}
++	store.mu.Unlock()
++	if time.Since(started) > 2*time.Minute {
++		t.Fatal("scenario exceeded two-minute budget")
++	}
++	t.Log("real PG/current Account authority and terminal; controlled memory Source/writer; native I/O and root health provenance are separate groups")
++}

@@ -1,0 +1,16 @@
+{
+  "reference_git": "b124650aee095b26191bc181dc8cf5d6e0f977f5",
+  "reference_path": "internal/central/audit/http/handler.go",
+  "reference_sha256": "b13e6a0885c155ff4eff737790be0fb4f06191abb0d0409701f510cd6441a039",
+  "literal_tail_from": "func emptyBody(",
+  "tail_sha256": "f9d907cc38847c75bbde410b540d2376267a292c7050082c87891a2fa4a9e3ae",
+  "bytes_equal": true,
+  "includes": [
+    "emptyBody",
+    "expired",
+    "abortWriter",
+    "connectionBudget",
+    "fault"
+  ],
+  "meaning": "Copied into new private package only; no shared helper/source change."
+}

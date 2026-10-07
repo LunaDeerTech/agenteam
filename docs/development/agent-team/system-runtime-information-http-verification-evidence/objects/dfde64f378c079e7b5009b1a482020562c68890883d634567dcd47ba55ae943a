@@ -1,0 +1,22 @@
+# Runtime 最后两代表：离线准备冻结
+
+OFFLINE READY。独立两测试体尚未实际执行；没有启动 listener、PG、Docker、MinIO、浏览器或原停止任务。遵循已接受 plan c3993eff…af9f29，不重跑 A02/B/C 或作者矩阵。
+
+固定 b124650 产品，作者 driver-stage01/input.json `f09b717c15d2ad128785c6b41c9d1e169d50927740039319a74dc33d177e6d11`。实际 cwd 为作者已停止写入的 workspace，13候选+904接受依赖逐 SHA；私有 overlay 只新增两个 `_test.go` 虚拟路径，不改作者、主树、既有夹具或产品。作者原3501运行文件完整保留，新增两 probe+overlay 后3504，Go 图仍457包；13源/依赖/全部工具和私有输入前后不变。execution 中原 harness/runtime-baseline 指纹保留为作者来源，实际私有执行由其中完整新 runtime/private_files 字段逐项门禁。
+
+- A `TestIndependentRuntimeCurrentAuthorityAndTerminal`：完整 newB02Account，原 Store/Authority 委托；独立记录同 Tx UserSH/currentSession/System Read grant/Source一次。真实 callback 尾部完成候选后，直接并发安全观察 writer status/body/flush均0；正式 Logout 的 EX 等待有 pg_blocking_pids 屏障。实际 Committed 后成功、Logout join、后继同 Session 正式401。400ms较早 parent 到期仍持有自有尾部，显式释放后实际 NotCommitted、handler/callback join、writer仍零；受控 Source/ResponseWriter 不冒充健康或 TCP 提交前零字节。
+- B `TestIndependentRuntimeRootCacheAndCompatibility`：原 newModelRootApp/factory/Source/core，Check只计数后委托原对象，具体嵌入保留全部生命周期。测试1h采样窗口仅隔离后台tick。单个实际 TCP 连接顺序 Runtime→Session→Runtime→ready503，完整有界 EOF/Close/Content-Length、安全headers、单一不同canonical RequestID；每 Runtime GET 恰一次T和真实Committed、零新增Check，实际PG版本/旧成功时间/完整闭合 DTO/六项 ready相符。最后实际 client Close 与正常 root shutdown join，不注入 Object 故障。
+
+作者 native02四top、新 Account六sub、新 root PASS 仅按作者已接受原件复用；已核 real-stage01/report.md SHA010db96ab23fd0152f3a6d965f6cacd8dc763dc3523a054022510976c981d22b。独立 A writer 观察与 B TCP 成功EOF仍是待运行补口。客户端5s连接期限不当服务端parent证据。原 native01裸python门禁失败保留，本准备和拟执行明确 `/usr/bin/python3`（冻结Python3.13）。
+
+实际离线：race编译/精确list两个top `0/11.542s`（11 PID），vet `0/2.338s`（41 PID），check-input-only `0/1.248s`（2 PID）；全部45s外层、actualwait、两扫空、0adopt、输入相同。格式与输入生成也实际0/双清。原 argv/env/raw/result/cleanup/输入逐项 SHA 见 preparation-ready01.json；没有额外测试体运行。
+
+执行冻结：execution01.json SHA `04e8c4c447d651dcc0e64aa2e659daf052edf5fc7283cb0f39c27819054fbbab`；driver01.py SHA `14d937af119fff916482cbb88bbdd42595837530260e7672fd2a487f5a85f37a`；差量 SHA `7f98fb83bfe26ce98a0522ed3f699256daefb93a3b2c440f9ca8c80121c0b764`。driver 仅私有目录/两组selector/overlay及私有指纹绑定；原actualwait/subreaper/adoptwait/nonce exact7IDs/PID-starttime两扫/完整Mount对象排序/基线与fresh磁盘门禁均保持。原2m/top、6m/pkg、race/count1不扩。
+
+尚待 root 明确唯一真实窗口。拟命令：
+
+```text
+/usr/bin/python3 /workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/driver01.py --name independent01 --group both --frozen /workspace/scratch/agenteam-runtime-real-independent-elhq2yrr/execution01.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```
+
+执行前另保存 fresh df≥5GiB 与原基线；本报告不授权启动。失败保留原件、实际退出并双清后报告，不自动修复/重跑。所有候选与执行输入现停止写入。

@@ -1,0 +1,19 @@
+# Runtime-information：作者真实阶段冻结
+
+固定 b124650 + 13 候选（harness-stage01/source/），904 个已提交运行依赖和 3,501 个外部运行时文件指纹。三轮均使用同 driver/input/源码；只将计划解释器明确为冻结的 `/usr/bin/python3`。候选 SHA 与源码字节从 D 冻结后未变，README 未实施；此报告不替代独立终验或主线程产品接受。
+
+| 轮次 | 精确结果 | actual exit / 秒 | 清理 |
+| --- | --- | --- | --- |
+| native02 | 三 HTTP native + 原 TestDiagnosticRoutes，4 top PASS | 0 / 7.502 | 5 PID/starttime 双空，0 adopted；无 Docker/PG/MinIO，runtime 空 |
+| new-account01 | CurrentAuthorityAndTerminal 1 top / 6 sub PASS，top 5.33s | 0 / 104.547 | 7 exact IDs 两次 absent，104 PID 双空，0 adopted；原 2 容器/4 网络及 canonical Mounts 不变 |
+| new-root01 | RootSnapshotBinding 1 top PASS，top 2.52s | 0 / 57.201 | 7 exact IDs 两次 absent，74 PID 双空，0 adopted；同原资源基线不变 |
+
+每轮均 actual wait，source/runtime/input 前后一致，monitor errors=0，资源与 PID 尾部双扫通过后交窗。原 race/count1/native45s/pkg6m/top2m 没有加时；native≥2GiB、PG≥5GiB 的两次 fresh 门槛原件随各 run 保存。精确 argv/env/raw/result/cleanup/输入/进程/磁盘记录及 SHA 见 report.json。
+
+Account 六例实际证明正式邀请普通用户/匿名拒绝、preauth 后正式 Logout 撤销、User SH 阻塞 Logout EX、完整候选等实际 Tx 终局、DB 1s 与更早 parent。DB55P03 1.007043203s、parent257.86287ms，均 NotCommitted/Source_delta0/active0。Source 和 deadline-capable writer 是受控协作者，不能外推为原生网络提交前零字节。
+
+Root 实际 factory=1、runtime_reads=2/committed=2，每 GET DB/Object Check delta=0，PG 版本旁证与原成功缓存一致，历史时间未刷新，旧 API/诊断/ready503 与正常关闭 join 均通过。仅测试本地采样间隔1h隔离背景tick；原生产10s/2s/20s不变，没有 MinIO 故障注入或新的 Object 工作。
+
+native01 原轮为解释器准备门禁失败：裸 python3 解析到另一 Python，未到测试 Popen/监听，不是四 top 的行为结果。原目录与 diagnostic-native01/report.json 保留；后续现场观察不回填原轮缺少的 process-baseline/cleanup。此前 service A01 的跨字段真实独立 RED→A02、C 的 POST 缺 Origin 测试前提失败、私有依赖枚举前提失败均保持原件，分别见阶段报告；不把原失败重写为绿色。
+
+已停止源/driver 写入，无活动命令或资源。等待独立终验，之后才能按主线程授权完成第14文档。不存在新口触发健康探测、完整 ready 成功、已知 Central 版本、Project HTTP/UI 或完整 D27/D28 的验收结论。

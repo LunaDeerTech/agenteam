@@ -1,0 +1,30 @@
+# Runtime HTTP 后段独立验收计划 01
+
+本文件仅为计划。固定产品 `b124650aee095b26191bc181dc8cf5d6e0f977f5`、正式卡 `1cf08c70db1b88e7e8dd5f635193b5752fef4452`，消费已接受 A02、HTTP B、app C；有限依据及 SHA 见 `inputs01.json`。未读取活动 D，未生成执行探针，未编译或启动资源。后续 D 冻结后先核差量和作者实际证据，再另授准备与执行。
+
+## 两个真实代表
+
+**A — `TestIndependentRuntimeCurrentAuthorityAndTerminal`**，未来私有 overlay 指向 `tests/account/runtime_independent_final_test.go`。复用固定完整 `newB02Account(t).fixture`；它实际绑定 Challenges、DeliveryRequested、同 Account core/Authority、PostgreSQL Store，不能换成缺少 HTTPBoundary 依赖的旧简化构造。正式 bootstrap/login/Logout，使用生产 runtime Service/handler；Source 是受控、合法的有限 Snapshot，只证明当前授权和事务，绝不称真实健康。
+
+最小组合围绕读事务持有 User SH：原 Store/Authority 委托不替换终局，记录同一有效 Tx、当前 Session/System Read grant 和 Source 恰一次；在 callback 出口/实际提交前设置有界屏障，正式 Logout 的 EX 等待用 `pg_blocking_pids`/正式持锁事实证明。屏障未释放前独立 writer 不得收到200或候选；释放并实际 Committed 后读返回，Logout 实际结束，随后 GET 必须拒绝已撤销 Session。再用同一受控接缝覆盖一个更早 request parent 取消：候选不能越过实际 callback/Store 尾部，释放后实际返回且零成功候选，所有调用明确 join。原数据库 LOCK_TIMEOUT=1s；若该代表涉及真实锁等待，记录 min(parent,3s,DB1s)，不把数据库锁期限当作 Source/人为屏障的总期限，也不要求真实 PG 自然等满3s或把 typed lock failure 当 DeadlineExceeded。
+
+“预认证后先撤销再进新事务”、正式普通邀请账户拒绝等可复用作者 D 的精确实际结果；若冻结 D 留下本组合关键缺口再向 root 报告，不自动扩矩阵。SQL 仅自有锁屏障和只读旁证，禁止改 role/Session/健康/业务表。Unknown 仍复用 A02 已通过的受控终局代表，不伪造真实 PG Unknown。这里的零200/零候选是独立 writer 观察，**不是 TCP 提交前零字节证明**。
+
+**B — `TestIndependentRuntimeRootCacheAndCompatibility`**，未来私有 overlay 指向 `internal/central/app/runtime_independent_final_test.go`。复用固定 `newModelRootApp`、原 PG+MinIO 夹具、正式 bindAccounts、同 core/Authority/Store 和真实首次检查；正式登录后经实际 loopback root 请求。只包装原协作者作委托计数/观测，不替换健康返回值或修改生产 getter。将数据库两个版本与正式只读查询及原成功 sample 对照；验证 Central 版本未知、Object 聚合缓存来源、last_success 没被 GET 续命，成功 DTO 完整闭合且 Content-Length/EOF 不超过16384B，保留原安全 headers 和单一外层 RequestID。
+
+在原 package-local healthTiming 接缝固定测试采样窗口，区分既有后台 tick 与 GET 因果；窗口及原 sample 必须可观察，生产10s/2s/20s和健康算法保持不变。两次 GET 不新增 Check/probe/factory/monitor，不能通过修改生产采样取得“零探测”。同一实际连接顺序请求，另取一个原 Account `/api/v1/session` 和 `/readyz`503兼容代表；其余旧 Model/Outbound/Audit/诊断矩阵按冻结 D 实际结果复用。同T/20s/失败历史/隐藏四项 readiness 的极值与所有六项聚合已由 C 独立受控证明，不向真实 root 注入依赖故障重复矩阵。正常取消/停 root，实际等待 client body/连接、root done 及原组件 join；不建立另一 Object 生命周期代表。
+
+## 原生 I/O 的证据分层
+
+HTTP B 三个 native 顶层目前只编译/list：`TestRuntimeInformationHTTPNativeEOFAndKeepAlive`、`TestRuntimeInformationHTTPNativeSlowBodyBudgets`、`TestRuntimeInformationHTTPNativeWriteAndFlushAbort`。仅在作者后续固定同字节源实际执行、server/client/连接/Body.Close/callback 均实际结束并有原件时复用。分别覆盖下一请求 deadline 清除、真实空体/慢 body 的3s或更早parent、短写/Flush abort。客户端 Timeout 不充当服务端 parent；native 同截止可为 Canceled 或 DeadlineExceeded，须记录实际 deadline/耗时/Source/终局；pure 自然3s严格结论沿 A02/B。
+
+B 的同连接成功 EOF 不冒充取消或提交前零 TCP 字节；短写/Flush 已发送部分或完整数据也不冒零发布。若作者 native 尚未执行或证据有缺，先报告并另授必要 native 精确选择（每场景45s），不默默增加第三个真实顶层。已接受 A02/B/C 的受控实际尾部、schema/3690B和16384/16385门禁、后置构造失败清理直接按 SHA 复用。
+
+## 输入、资源与执行门槛
+
+- 本阶段逻辑资源限 A 的任务 PG，以及 B 的同一原夹具 PG+MinIO、root loopback/client；无 SMTP、浏览器、外部 Provider 或新 Object 操作。原夹具可能提供完整拓扑，必须待 D 的冻结 startup/driver 实核后绑定每个 exact ID/name/nonce、端口及原资源基线，**当前未确定/未授权实际 ID 数量**，不能自行裁剪或增加拓扑。
+- 最多两个新真实 top，各2m；各包 `-race -count=1 -timeout=6m`，精确 selector，禁止零命中/skip冒通过。普通受控/native每场景45s。D 冻结后只做必要 overlay 编译/vet/list、输入门禁；实际授权前只保持离线，两个任务共用资源窗顺序执行。
+- 固定 Go1.27.1、readonly/offline、原共享只读 modcache，复用独立已有 cache；临时输出私有。最终绑定 D 候选、A02/B/C、完整实际编译闭包、工具/runtime 与私有 probe/overlay/driver 分别 SHA；不用活动 HEAD 偷换基线，不复制整个仓库。开窗前保存 root 约定磁盘门禁与实际资源基线。
+- 原 argv/cwd/env、raw、实际 exit/wait、所有 owned PID/starttime 与 adopted wait 均留存。监督先设 subreaper；两扫 exact 资源和进程清零、连接/TMP 关闭、输入前后相同、基线完整 Mount 对象 canonical 比较并保留原 raw，才交回唯一窗口。不将进程消失补作实际 wait，不处理历史非本任务进程。失败保留原输入和原件，先实际退出/双清，再报告，不自动修复、重跑或加时。
+
+计划不关闭原 Object/tools、SPA publication 或其它停止任务，不作为真实验收结论；最终只按实际到达的 A/B 断言与明确的作者/独立证据组合接受。

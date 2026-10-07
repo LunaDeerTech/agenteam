@@ -1,0 +1,16 @@
+from pathlib import Path
+import importlib.util,json,hashlib
+R=Path(__file__).resolve().parents[1]
+spec=importlib.util.spec_from_file_location('runtime_independent_driver',R/'driver01.py')
+d=importlib.util.module_from_spec(spec);spec.loader.exec_module(d)
+m=json.loads((R/'author-input01.json').read_text())
+m['private_files']={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [R/'overlay01.json',*sorted((R/'probe01').glob('*.go'))]}
+d.FROZEN=m
+b=d.accepted_baseline_input()
+assert b['accepted'] and b['accepted_count']==904
+m['runtime']=d.runtime_input()
+m['driver_sha256']=hashlib.sha256((R/'driver01.py').read_bytes()).hexdigest()
+m['author_input_sha256']=hashlib.sha256((R/'author-input01.json').read_bytes()).hexdigest()
+m['plan_sha256']='c3993effcfd3e9c57dfc77ec7cf727eb761126eca37cf8f164a9f500a5af9f29'
+p=R/'execution01.json';assert not p.exists();p.write_text(json.dumps(m,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'candidate_count':len(m['files']),'baseline_count':b['accepted_count'],'runtime_count':len(m['runtime']['files']),'packages':len(m['runtime']['packages']),'private_count':len(m['private_files']),'execution_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'resources_started':False}))

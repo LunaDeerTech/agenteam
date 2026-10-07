@@ -1,0 +1,17 @@
+# Runtime-information：执行 driver 离线冻结
+
+当前只完成准备，没有 native/PG/MinIO/Docker/浏览器运行。driver-stage01/input.json 绑定固定 b124650 的 904 个既有依赖（7,961,124 B）、13 个候选和实际 Go 图的 3,501 个外部文件指纹/457 个包；外部工具/标准库/modcache只读指纹，没有复制缓存或全仓。先前 harness-stage01 的两源、A02/B/C 十一源和全部检查原件保持原字节。
+
+| 离线检查 | actual exit / 秒 | PID | 事实 |
+| --- | --- | --- | --- |
+| 实际 Go 图和冻结输入生成 | 0 / 1.333 | 3 | 完整实际 script/test/helper 依赖与工具指纹；无资源 |
+| 精确 native 发现 | 0 / 2.114 | 5 | 三个 HTTP native 名称加原 TestDiagnosticRoutes 恰四个；未执行测试体 |
+| check-input-only | 0 / 1.272 | 3 | candidate/runtime 同字节；904 baseline 无缺失/多余/修改；无资源 |
+
+每轮受控45s、实际 wait、PID/starttime 两扫清零，0 adopted wait；原 raw/command/result/cleanup/input-before/after 路径见 report.json。D 两顶层 race compile/list 及 Central/Runner 只构建证据复用 harness-stage01，不重复或冒充业务通过。
+
+相对原已验 Audit driver，仅切固定基线/本卡 selector/两 native 包、既有暖 GOCACHE+自有 TMPDIR/GOTMPDIR、Go 图发现缩到45s，并加入容器 Mounts 的闭合字段排序及 fresh disk 两次门槛。原 source gate、subreaper、实际 direct/adopted wait、nonce 标签拓扑、7 exact IDs 两扫、PID/starttime 两扫、baseline 不变和输入前后门禁保留。没有增加外层强杀或提前释放。原历史 PPID1 Z 只记录、不触碰、不宣称回收。
+
+拟顺序：native01（原三 HTTP native + TestDiagnosticRoutes，纯 loopback，>=2GiB）→ new-account01（单 CurrentAuthorityAndTerminal）→ new-root01（单 RootSnapshotBinding）。后两轮各保留原 fixture race/count1/pkg6m/top2m、7-ID 原拓扑与 >=5GiB；每轮实际终局双清后交窗，下一轮另授。精确 argv 在 execution-plan.json，不自动续跑。
+
+一次私有依赖枚举工具前提失败已保留在 preparation/runtime-closure01：旧扫描把测试内引用的 quoted package-prefix 当 import，纯读取遍历即退出1，尚未进入复制循环。后继枚举只读取正式 import 语句；不是编译/产品或真实结果。原工具源码及实际工具返回原文仍在，不补造原 supervised raw。13候选未因该准备问题改变。

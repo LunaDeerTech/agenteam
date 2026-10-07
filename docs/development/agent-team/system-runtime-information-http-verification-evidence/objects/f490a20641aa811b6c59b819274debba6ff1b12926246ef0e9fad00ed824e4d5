@@ -1,0 +1,97 @@
+{
+  "child_actual_wait": true,
+  "child_pid": 487650,
+  "observed_owned_pid_starttime": [
+    {
+      "pid": 487650,
+      "ppid": 487646,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1968834"
+    },
+    {
+      "pid": 487675,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1968856"
+    },
+    {
+      "pid": 487722,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1969341"
+    },
+    {
+      "pid": 487733,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "Z",
+      "starttime": "1969345"
+    },
+    {
+      "pid": 487766,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1969436"
+    },
+    {
+      "pid": 487774,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1969464"
+    },
+    {
+      "pid": 487781,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1969566"
+    },
+    {
+      "pid": 487809,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "R",
+      "starttime": "1969786"
+    },
+    {
+      "pid": 487815,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1969789"
+    },
+    {
+      "pid": 487845,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1969873"
+    },
+    {
+      "pid": 487851,
+      "ppid": 487650,
+      "pgid": 487650,
+      "state": "S",
+      "starttime": "1969886"
+    }
+  ],
+  "adopted_waits": [],
+  "scan1": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "scan2": {
+    "known_pid_starttime_remaining": [],
+    "owned_descendants_remaining": []
+  },
+  "tmp_path": "/tmp/agt-audit-offline-0_e99smz",
+  "tmp_removed": true,
+  "clean": true,
+  "services_or_listeners_started": false,
+  "docker_or_browser_started": false
+}

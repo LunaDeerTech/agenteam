@@ -1,0 +1,174 @@
+=== RUN   TestHealthSnapshotsExpireRecoverAndRejectLateSuccess
+--- PASS: TestHealthSnapshotsExpireRecoverAndRejectLateSuccess (0.02s)
+=== RUN   TestRuntimeInformationRootPureObservationHistoryAndBoundaries
+=== RUN   TestRuntimeInformationRootPureObservationHistoryAndBoundaries/19.999999s
+=== RUN   TestRuntimeInformationRootPureObservationHistoryAndBoundaries/20s
+=== RUN   TestRuntimeInformationRootPureObservationHistoryAndBoundaries/20.000000001s
+--- PASS: TestRuntimeInformationRootPureObservationHistoryAndBoundaries (0.00s)
+    --- PASS: TestRuntimeInformationRootPureObservationHistoryAndBoundaries/19.999999s (0.00s)
+    --- PASS: TestRuntimeInformationRootPureObservationHistoryAndBoundaries/20s (0.00s)
+    --- PASS: TestRuntimeInformationRootPureObservationHistoryAndBoundaries/20.000000001s (0.00s)
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/healthy
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/database
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/object
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/outbox
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/account
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/secret
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/outbound
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/database_stale
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/object_stale
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/outbox_stale
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/account_stale
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/zero_DB_received
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/out_of_range_received
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/pgvector_incomplete
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/zero_outbox_received
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/PostgreSQL_incomplete
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/migrations_incomplete
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/readwrite_incomplete
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/long_version
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/nonASCII_version
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/account_not_bound
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/zero_observed
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/missing_clock
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/zero_object_received
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/zero_account_received
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/empty_version
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/control_version
+=== RUN   TestRuntimeInformationRootPureCompletenessAndReadiness/zero_checked
+--- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/healthy (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/database (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/object (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/outbox (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/account (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/secret (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/outbound (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/database_stale (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/object_stale (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/outbox_stale (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/account_stale (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/zero_DB_received (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/out_of_range_received (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/pgvector_incomplete (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/zero_outbox_received (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/PostgreSQL_incomplete (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/migrations_incomplete (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/readwrite_incomplete (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/long_version (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/nonASCII_version (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/account_not_bound (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/zero_observed (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/missing_clock (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/zero_object_received (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/zero_account_received (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/empty_version (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/control_version (0.00s)
+    --- PASS: TestRuntimeInformationRootPureCompletenessAndReadiness/zero_checked (0.00s)
+=== RUN   TestRuntimeInformationRootPureSingleCopyAndActualReturn
+--- PASS: TestRuntimeInformationRootPureSingleCopyAndActualReturn (0.03s)
+=== RUN   TestRuntimeInformationRootPureBoundDependencies
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/monitor
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/monitor_typed_nil
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/secret
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/secret_typed_nil
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/outbound
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/outbound_typed_nil
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/object
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/object_typed_nil
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/outbox
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/outbox_typed_nil
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/account
+=== RUN   TestRuntimeInformationRootPureBoundDependencies/account_typed_nil
+--- PASS: TestRuntimeInformationRootPureBoundDependencies (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/monitor (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/monitor_typed_nil (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/secret (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/secret_typed_nil (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/outbound (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/outbound_typed_nil (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/object (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/object_typed_nil (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/outbox (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/outbox_typed_nil (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/account (0.00s)
+    --- PASS: TestRuntimeInformationRootPureBoundDependencies/account_typed_nil (0.00s)
+=== RUN   TestRuntimeInformationRootPureConcurrentWholeObservation
+--- PASS: TestRuntimeInformationRootPureConcurrentWholeObservation (0.00s)
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/initialize_returns_the_local_factory
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_factory
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/factory_error
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/typed_nil_handler
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_secret
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_outbound
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_object
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_outbox
+=== RUN   TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_account
+--- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup (0.02s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/initialize_returns_the_local_factory (0.02s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_factory (0.00s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/factory_error (0.00s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/typed_nil_handler (0.00s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_secret (0.00s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_outbound (0.00s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_object (0.00s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_outbox (0.00s)
+    --- PASS: TestRuntimeInformationRootPureFactoryHandoffAndFailedStartup/missing_account (0.00s)
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/POST/api/v1/system/runtime-information
+    runtime_information_test.go:738: root boundary/routing contract changed 403 {"type":"urn:agenteam:problem:origin-denied","title":"Origin denied","status":403,"detail":"The request origin is not permitted.","instance":"/api/v1","code":"ORIGIN_DENIED","request_id":"01a113c6-1ee0-7962-9cd5-641810370492","commit_state":"not_started"}
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/HEAD/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information//child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/../session
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child/api/v1/system/runtime-information%2fchild
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/http://other.invalid
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/other.invalid
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information/child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-informationx
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information-other
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/session
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/me
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/smtp-settings
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/mail-jobs
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-providers
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/models/child
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-selection
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/outbound-policy
+=== RUN   TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/audit
+--- FAIL: TestRuntimeInformationRootPureRoutesAndFormalBoundary (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information (0.00s)
+    --- FAIL: TestRuntimeInformationRootPureRoutesAndFormalBoundary/POST/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/HEAD/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/ (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information//child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/../session (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child/api/v1/system/runtime-information%2fchild (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/http://other.invalid (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/GET/api/v1/system/runtime-information/other.invalid (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information/child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-informationx (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/runtime-information-other (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/session (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/me (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/smtp-settings (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/mail-jobs (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-providers (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/models/child (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/model-selection (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/outbound-policy (0.00s)
+    --- PASS: TestRuntimeInformationRootPureRoutesAndFormalBoundary/dispatch_/api/v1/system/audit (0.00s)
+=== RUN   TestRuntimeInformationRootPureSameInstanceConstructionGraph
+--- PASS: TestRuntimeInformationRootPureSameInstanceConstructionGraph (0.00s)
+=== RUN   TestRuntimeInformationRootPureLegacyDiagnosticsRemainSeparate
+--- PASS: TestRuntimeInformationRootPureLegacyDiagnosticsRemainSeparate (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/app	0.092s
+FAIL

@@ -1,0 +1,17 @@
+# Runtime main 两包编译兼容
+
+**限定 PASS**：在 main `aa9ea0b63de0c395525f3084ef514752ce2f1dfd` 加主线程已复制的13接受源上，仅实际 Go 依赖发现、Account/App integration race 编译及两个新顶层的 exact list。没有执行测试体、native、监听器或 fixture；不把该结果称作 main 动态验收。README 绑定已冻私有第14候选，不要求它提前出现在 main，也不把文档视 Go 编译输入。
+
+| 命令 | 实际退出 | 秒 |
+| --- | --- | --- |
+| graph01 | 0 | 0.15 |
+| account-compile01 | 0 | 24.638 |
+| account-list01 | 0 | 1.022 |
+| app-compile01 | 0 | 3.645 |
+| app-list01 | 0 | 1.041 |
+
+每命令45s原预算，实际 Popen wait、PID/starttime 两扫均完成；五命令合计27个 owned PID/starttime，0 adopted wait，输入前后及最终再次核验一致。外层工具session18500实际退出0。两个 test binary 仅以 -test.list 执行，精确各发现 CurrentAuthorityAndTerminal / RootSnapshotBinding 一顶层，产物 SHA/字节见 result.json；随后已删除，私有 tmp 为空。
+
+实际 Go 图396 packages/31 modules，固定622本地路径与3499外部及来源指纹；只读核本地非候选与当前 HEAD 的 blob 一致，没有复制主树、cache 或修改 lock。非候选生产输入与 b124650 无差量，按授权复用先前 Central/Runner 构建，不重做。使用 Go1.27.1、GOTOOLCHAIN=local、GOPROXY/GOSUMDB=off、GOFLAGS=-mod=readonly -buildvcs=false -p=1，原锁定 modcache 与既有独立 GOCACHE；实际命令/env/raw/输入/终局以各子目录原件为准。
+
+精确 SHA/命令/清理索引见 report.json、input.json 和 outer-result.json。本目录至此永久停写；产品13源、第14候选和旧证据均未改，无活动命令或资源。

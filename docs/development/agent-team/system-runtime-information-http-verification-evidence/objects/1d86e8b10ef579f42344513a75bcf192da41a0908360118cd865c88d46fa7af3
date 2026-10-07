@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/service-stage01/source/internal/central/runtimeinfo/service_test.go",
+    "/workspace/scratch/agenteam-runtime-information-author-vE8bAGLk/workspace/internal/central/runtimeinfo/service_test.go"
+  ],
+  "exit": 1,
+  "actual_wait_completed": true,
+  "expected_content_diff_exit": 1
+}
