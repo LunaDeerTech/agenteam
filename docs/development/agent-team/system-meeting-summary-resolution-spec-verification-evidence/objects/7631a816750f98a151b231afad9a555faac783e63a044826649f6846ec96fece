@@ -1,0 +1,46 @@
+{
+  "fixed_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "necessary_delta_fixed_hashes": {
+    "tests/model/project_configuration_fixture_test.go": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+    "tests/model/current_resolution_selection_test.go": "e87158298aee54a2ead5b5aa10f36fadb7c08add1849e4323ac0ec8e19184562",
+    "tests/model/current_resolution_authorization_test.go": "d76e68d2c02306aecf9d5f20459ad8d775bcc6fda2cd420b97db03651f09e435",
+    "tests/model/meeting_summary_selection_test.go": "7dae1915cf19cd408c4281ef1904d2bacd3fdebd4b15690368bffbd04474cbe0",
+    "tests/model/meeting_summary_replacement_test.go": "23ad221378ffd12a79ceebf0a5115bd00e12acc9b08a2fb8c9b5870c6a2b2edc",
+    "internal/central/model/service.go": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+    "internal/central/model/store.go": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da",
+    "internal/central/app/account.go": "7cf981e59507f27bb6aac57378acb65ee109ec2f4a1f73d554a0ddb877e380ba"
+  },
+  "s1_technical_body_matches_baseline": true,
+  "s3_candidate_paths": [
+    "internal/central/model/contract/configuration.go",
+    "internal/central/model/contract/configuration_test.go",
+    "internal/central/model/contract/resolution_test.go",
+    "internal/central/model/contract/meeting_summary_test.go",
+    "internal/central/model/resolution_policy.go",
+    "internal/central/model/resolution_policy_test.go",
+    "internal/central/model/resolver.go",
+    "internal/central/model/resolver_test.go",
+    "internal/central/model/resolution_plan.go",
+    "internal/central/model/resolution_plan_test.go",
+    "tests/model/meeting_summary_resolution_fixture_test.go",
+    "tests/model/meeting_summary_resolution_selection_test.go",
+    "tests/model/meeting_summary_resolution_atomicity_test.go",
+    "tests/model/meeting_summary_resolution_authorization_test.go",
+    "tests/model/meeting_summary_resolution_replay_test.go",
+    "tests/model/meeting_summary_resolution_unknown_test.go"
+  ],
+  "existing_count": 10,
+  "new_count": 6,
+  "old_top_names_located": [
+    "TestModelCurrentResolutionSelection",
+    "TestModelCurrentResolutionReplay",
+    "TestModelCurrentResolutionAtomicity",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionUnknown",
+    "TestModelMeetingSummarySelection",
+    "TestModelMeetingSummaryReplacement"
+  ],
+  "new_top_names_are_spec_only": true,
+  "first_discovery_correction": "The guessed project_fixture_test.go does not exist; actual accepted helper is tests/model/project_configuration_fixture_test.go. Original discovery record retained; not a spec defect."
+}

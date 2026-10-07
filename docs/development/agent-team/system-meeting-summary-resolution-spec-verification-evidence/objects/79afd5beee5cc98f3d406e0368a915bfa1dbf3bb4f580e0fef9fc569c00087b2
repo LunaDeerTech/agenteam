@@ -1,0 +1,18 @@
+# S3 独立静审准备（不是规格接受）
+
+请求基线 `c210d249600d98871513c56fb9a8fff7c50a4c34`。必要 15 个技术文件与已接受 S1 closure05 逐字节相同；4 个既有规格/架构文件单独留 hash，见 prep-input.json。未读尚活动的新 S3 卡，未运行测试或资源；仅写本 scratch。
+
+确认的接缝：
+
+- `contract/configuration.go` 目前明确拒绝 platform.meeting_summary，Purpose→selector 表没有两个 MeetingPurpose；MeetingConsumer 仍要求真实 ProjectID/MeetingID/OperationID，禁止 AgentID/ExecutionID。S3 应只拓展这对合法映射；direct Meeting、跨用途、project_summary 既有结构/DependencyUnbound 语义不变。
+- 既有 Resolver 四方法与 ConsumerAuthority Discover/ValidateInTx 已足够；模型调用单位按 Project + model_call owner 串行。相同 owner 的 purpose/Meeting/operation/原请求改变必须冲突；新的逻辑 generation 使用新的有效 owner 事实，不能换个 selector version 绕过旧单位。
+- currentResolutionDraft 当前 platform 分支固定读取 memory。Summary 应调用已接受 `loadMeetingSummaryState`，连同独立 singleton/reference 一致性，冻结独立 selector version；无技术 singleton 与已初始化未配置须保持明确差异，不能借 memory、Project 默认或空成功。无需迁移。
+- `SelectModel` 和 `resolutionBaseLocks` 都硬编码旧 model-platform-selection SH 锁。Summary 需同时改为其独立 model-meeting-summary-selection SH 锁；原完整 Project/Session/Model/Provider/references/owner/consumer/Secret 锁并集与统一排序不能减少。Select 只作 Human 当前 Project Read 安全投影，不创建 snapshot/lease，也不代替 Resolve 的真实业务授权。
+- candidate/preflight、prepared final Tx 和 committed replay 均应保留当前 ConsumerAuthority.ValidateInTx；Discover 只是收集依赖。错误先经当前授权，不能借未配置/不存在区别泄漏。跨 Project 相同系统 Model 仍产生各自 consumer/owner/snapshot 事实，系统管理员身份不自动授 Project/Meeting 消费权。
+- 两 MeetingPurpose 应同样支持已验的普通文本 profile。text-v1 拒带 json_schema capability 的 snapshot；structured-v1 明确允许 ResponseFormat=text。故保留 capabilities，含 json_schema 时保留 structured revision；不把“普通文本请求”误写成强制 text-v1，不删 capability。既有 protocol/options/overwrites/tools/reasoning profile 限制应明说不扩，不把 S1 可配置候选都宣称本窄库可运行。
+- committed replay 读取不可变 snapshot/binding，保留旧 Provider/Model/selector version/revision/capability，不因后续切换、停用、删除而热换。新单位才读取当前选择；旧内存 plan 的完整 Actor binding 不能跨 Session 转用，同 User 新 Session须重新 Discover和当前授权。原 direct/platform.memory 持久 format/digest/语义不重写。
+- 同最终 Tx完成 snapshot/binding + planned Secret Acquire，原 active/verified/current Tx witness 及 canonical lease 必须保留。无 credential分支零 Secret调用；有 credential只留 ref+lease，不读取材料或发Provider请求。InTx结果仍 provisional，外层 commit/cancel/Unknown未确认前不发布。这里不交付 credential read/release、Invocation或真实Meeting运行。
+
+冻结卡后的验收重点：逐条覆盖合法/非法Purpose映射与既有兼容、plain/schema-capable文本 profile、独立version/锁及版本竞争、权限撤销/跨Project/异义重入、旧snapshot replay/新单位当前选择、Secret原子回滚/Unknown和无凭据分支。需要真实 PG 证明的场景只审计划，不把纯测试当事务实证；严格fixture ConsumerAuthority必须验证自有业务事实与当前权，不用 always-allow 假装 D24真实provider。
+
+S3只库，消费已接受S1；S2编辑/HTTP/default initialization不是其前置。默认 app Resolution 仍未装配；真实Meeting事实、finalizing/标题摘要原子提交、Usage/有限重试由D24负责。待作者卡冻结后核精确路径、命令预算、适用旧回归与独立A/B，以及S2同文件所有权，才给完整STATIC结论。当前仅 PREPARED。

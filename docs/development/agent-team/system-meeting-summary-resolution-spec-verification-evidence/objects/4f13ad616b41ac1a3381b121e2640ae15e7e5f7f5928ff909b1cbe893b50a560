@@ -1,0 +1,18 @@
+# S3 rev1：独立完整 STATIC PASS
+
+审查对象：`docs/development/work-items/d09-system-meeting-summary-resolution.md`，SHA256 `00f54620a1013e8cb121736c0d125b23c6afa851950d6bb11b05a06ca22af3d8`。实际产品依赖绑定 `c210d249600d98871513c56fb9a8fff7c50a4c34`；必要技术文件均与固定 Git 原件一致。S1 后续页首只同步接受状态，技术正文与该基线原字节相同。
+
+没有必须返修的规格缺陷，PREPARED 关键点已全部闭合：
+
+- 只开放两个 MeetingPurpose → platform.meeting_summary；保留 Consumer 的 Project/Meeting/Operation/model_call 关系、原 direct/memory 与旧 project_summary 拒绝语义。四个 Resolver 方法、ConsumerAuthority 公共口及持久 DTO format=1 均可复用，不需迁移。
+- 新分支明确复用完整 Summary loader、独立 version 与缺失/未配置/坏事实错误；System 限定与原 profile 子集无静默 fallback。plain capabilities 使用 text-v1；含 json_schema 保留真实能力并使用 structured-v1，后继请求仍 text。没有强删 capabilities、扩 wire 或缩窄 S1 配置准入。
+- Select 与 Resolve 权限分层正确。两个锁入口加入 Summary SH，同时为 loader 实际读取的旧 singleton ID 保留旧 SH；旧 configured/value/version 不成为 Summary 前置。完整 Project/User/Model/Provider/references/consumer/Secret 并集、统一排序、同 Tx 当前授权与反例到达要求完整。
+- 相同 CallID 单位不可改变 Purpose/Meeting/Operation/initiator；prepared 可按原规则重新规划，committed 从原不可变快照恢复。新 Session 要当前授权与新 plan；新调用才读当前选择。跨 Project 和管理员不等于消费权限，未来真实 Meeting provider 的事实责任没有被假装实现。
+- Secret planned Acquire、exact-Tx active/verified witness、canonical lease、无 ref 零调用、原子回滚和 provisional 发布边界均保留。Unknown 只声称真实事务后的结果装饰与 writer 屏障/后态，明确不冒称物理 COMMIT ACK 丢失。无材料读取、Provider I/O、Invocation/Usage 或后台恢复。
+- 精确实施候选为 16 路径（10 既有、6 新测试），范围可覆盖实际接缝；5 个新真实顶层、8 个既有真实回归名称与依赖可定位。新 fixture 要正式身份工作流与受信当前 Meeting 行事实；旧 convenience fixture 的局限明确。完整编译/动态图、offline 45s、每新 top 120s 含 Cleanup、包6m、独立两组与资源所有权/实际wait/双清门槛可执行且限定明确。
+
+S2 冻结 rev1（`1734a1a7…ae9772`）31 候选路径与 S3 16 技术路径精确无交集，并经 S2 独审者确认。backend README 为双方最终共享文档，须 root 另行串行交还；两卡同属 tests/model 的编译输入，实施验收时必须冻结完整实际包/动态图，不可因文件白名单无交集而读取另一作者活动测试或重叠资源窗口。S2 若修订候选路径，应只补核此交集。
+
+实际只做冻结 hash、固定 Git 文件读取/字节对照、8 个本地链接存在性、源接缝及测试名称/路径静态核对；未运行 Go/Node 测试、编译、应用、listener、PG、容器或浏览器。一次猜测的 fixture 文件名不存在，原读取结果留档后定位实际 `project_configuration_fixture_test.go`；不是产品或规格失败。
+
+证据：`static-input01.json`、`static-input-delta01.json`、`s2-s3-ownership.json`、冻结卡原件 `card-rev1.md` 和 `result.json`。所有写入只在本 scratch；产品/卡/Git 未修改，命令结束，证据停写。此 PASS 只接受规格，不授实施或资源权，不完成 S3/S2/D24 或完整 D09/E01；生产 Resolution 仍 nil、ready503 与三停止任务保持。

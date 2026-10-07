@@ -1,0 +1,40 @@
+## 5. 精确候选路径与所有权
+
+下表 **31 路径**是经 STATIC 采纳后可由 root 移交的候选，当前只允许写本规格；不为凑数量触碰无需变化的文件。S1 接受源、其它任务活动源、共享运行资源在交接前均核冻结；需增加路径先报告修卡。
+
+| # | 路径 | 唯一用途/作者 |
+| --- | --- | --- |
+| 1 | `internal/central/model/http.go` | 后端：两 route 与精确新口有界分派，旧 dispatch 保持 |
+| 2 | 新 `internal/central/model/http_meeting_summary.go` | 后端：closed DTO/服务适配、新口预算与实际 I/O 收尾 |
+| 3 | 新 `internal/central/model/http_meeting_summary_test.go` | 后端：严格输入/错误/授权顺序/受控尾部 |
+| 4 | 新 `internal/central/model/http_meeting_summary_native_test.go` | 后端：真实 native body/response/取消及成功 keepalive 回归 |
+| 5 | `api/openapi/model-system.json` | 后端：§2 新 path/schema，既有形状不改 |
+| 6 | `internal/central/app/account.go` | 后端：同实例显式 Summary 初始化参数 |
+| 7 | `internal/central/app/project_usage.go` | 后端：原 helper 增一明确 Summary 步骤，同ctx/失败闭合 |
+| 8 | `internal/central/app/project_usage_test.go` | 后端：旧纯测适配并核四段顺序/相同ctx/失败阻断 |
+| 9 | `internal/central/app/model_test.go` | 后端：原dispatcher新子路径/前缀近似/原请求保持 |
+| 10 | `tests/model/meeting_summary_http_test.go` | 后端：仅 S1 原“新GET/PUT仍404”断言按S2真实契约更新，其余旧七组/混合/lookup/替代断言保留；历史报告不改 |
+| 11 | 新 `tests/model/meeting_summary_settings_http_test.go` | 后端：真实新HTTP、当前授权/版本/原命令恢复/旧口组合 |
+| 12 | 新 `tests/model/meeting_summary_settings_root_test.go` | 后端：默认app.Run初始化、重启/失败/旧链真实组合 |
+| 13 | 新 `tests/model/meeting_summary_settings_fixture_test.go` | 后端：任务自有正式准备与可控响应，复用原helper不改共享fixture |
+| 14 | `web/src/api/client.ts` | 前端：原selection分类内两固定endpoint与原限额 |
+| 15 | `web/src/api/system-model-selection.ts` | 前端：原第六API组合新三方法、旧七方法保持 |
+| 16 | 新 `web/src/api/system-meeting-summary.ts` | 前端：独立readonly DTO/command捕获/receipt严格解析，不另造transport owner |
+| 17 | `web/src/composables/useSession.ts` | 前端：同selection域两个私有槽、权限/CSRF/revision/恢复隔离 |
+| 18 | `web/src/composables/useSystemModelSelection.ts` | 前端：原页面owner内部组合、一次聚合确认、局部动作隔离 |
+| 19 | 新 `web/src/composables/useMeetingSummarySettings.ts` | 前端：Summary观察/草稿/分页/历史与反馈，不拥有Cookie/key |
+| 20 | `web/src/views/system/SystemModelSelectionView.vue` | 前端：同页section和一个确认宿主、标题/焦点/挂载 |
+| 21 | 新 `web/src/views/system/SystemMeetingSummarySettings.vue` | 前端：内联独立form与显式Provider/Model选择，无嵌套确认框架 |
+| 22 | `web/src/tests/system-model-selection-client.spec.ts` | 前端：旧DTO不变、新严格shape/限额/真实body联验 |
+| 23 | `web/src/tests/system-model-selection-state.spec.ts` | 前端：两个未决槽/唯一owner/真实尾部/撤权/原请求恢复 |
+| 24 | `web/src/tests/system-model-selection.spec.ts` | 前端：App/router实组合、双草稿/确认cohost/身份与焦点 |
+| 25 | 新 `tests/account/system_meeting_summary_web_test.go` | 前端/browser作者：§6真实browser顶层与事实旁证 |
+| 26 | 新 `tests/account/system_meeting_summary_web_fixture_test.go` | 同上：正式root+生产dist、专属fixture/有界响应代理 |
+| 27 | 新 `tests/account-captcha-web/system-meeting-summary.config.js` | 同上：显式case/原浏览器/私有输出/固定预算 |
+| 28 | 新 `tests/account-captcha-web/e2e/system-meeting-summary.spec.ts` | 同上：实际浏览器双区配置/恢复/导航/布局 |
+| 29 | `tests/account-captcha-web/e2e/system-model-selection.spec.ts` | 同上：仅新增section后的旧六组页面定位/准备兼容；旧动作/强断言/预算不能删弱 |
+| 30 | `docs/development/backend/README.md` | 后端接受后末件：新口/初始化与未绑定生成边界 |
+| 31 | `docs/development/frontend/README.md` | 前端接受后末件：同页两区/实际命令/恢复与部署限制 |
+
+App.vue、router、菜单、通用 Dialog、旧四项 Editor、Account boundary、common schema、所有迁移、S1 library/contract、脚本/lockfile/共享 fixture、Usage产品及Resolver保持只读。前端可在HTTP契约冻结后离线实施，真实联验须消费已固定的后端；后端与前端分别唯一作者，web Go fixture的全部权归指定browser作者，不能两个作者争写。31项由root逐文件实际交接，不因表中“新”自动获写权；README仅最后串行授权。独立验证者不参与对应实现，STATIC通过与产品PASS分开记录。
+

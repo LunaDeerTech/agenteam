@@ -1,0 +1,92 @@
+{
+  "requested_product_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "preparation_only": true,
+  "product_binding": "Necessary product sources are byte-identical to accepted S1 closure05; current descriptive docs hashed separately. No active new S3 card read.",
+  "accepted_closure05": {
+    "path": "/workspace/scratch/meeting-summary-s1-author/closure05.json",
+    "sha256": "f6ff34db166f6db757705f71770316e96a8285fbe0a5ae05635b2c7e9e979372"
+  },
+  "files": {
+    "internal/central/model/contract/configuration.go": {
+      "sha256": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/contract/resolution.go": {
+      "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/contract/authority.go": {
+      "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/contract/types.go": {
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/resolver.go": {
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/resolution_policy.go": {
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/resolution_plan.go": {
+      "sha256": "728830cce301d98ddb3069ef8af5b599b74dc03e17cc02ad25c7872f3a3993c1",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/resolution_store.go": {
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/resolution_secret.go": {
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/meeting_summary.go": {
+      "sha256": "39e83ad8f0bde6ec6eaa32afaf9dcb5c0b85c3d7c34aa6f353eb35551ff4189f",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/meeting_summary_store.go": {
+      "sha256": "1307ddebbde5c3de7af3312a787f9d6034879dc9766b414a29092e299a942c14",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/adapter/openai_chat.go": {
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/model/authority.go": {
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "accepted_S1_closure05_matches": true
+    },
+    "internal/central/app/model.go": {
+      "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+      "accepted_S1_closure05_matches": true
+    },
+    "db/migrations/00017_model_current_resolution.sql": {
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "accepted_S1_closure05_matches": true
+    },
+    "docs/development/work-items/d09-system-meeting-summary-selection.md": {
+      "sha256": "e87c1833c3eca52761f377cf817a012e5ce13332b131119b3843fd3fa4bb882f",
+      "accepted_S1_closure05_matches": false
+    },
+    "docs/development/work-items/recovery-d09-current-model-resolution.md": {
+      "sha256": "2a698720f2879eea62384f570ea5086d50aaebc578c8a6fe2ce113c93e7e57f6",
+      "accepted_S1_closure05_matches": false
+    },
+    "docs/architecture/platform-infrastructure/model-system/model-resolution.md": {
+      "sha256": "25552b7ce4ebe8874cae06bf9525c241bbe86f7999fa0f3728cc2e3e0a9f9d63",
+      "accepted_S1_closure05_matches": false
+    },
+    "docs/architecture/meeting/meeting-context-summary.md": {
+      "sha256": "dac8365babe6bd187a8958255399b790193195622706463d7aa096f5f5e82ecf",
+      "accepted_S1_closure05_matches": false
+    }
+  },
+  "limits": [
+    "Read-only source/spec preparation, not S3 card STATIC acceptance.",
+    "No application, test, listener, PG, Docker, browser or external network execution.",
+    "No product/Git mutation; initial read-only rev-parse/show/ls-tree used to locate fixed baseline."
+  ]
+}

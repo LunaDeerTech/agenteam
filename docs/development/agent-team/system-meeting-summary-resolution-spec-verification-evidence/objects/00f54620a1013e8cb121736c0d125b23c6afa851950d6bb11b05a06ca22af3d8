@@ -1,0 +1,172 @@
+# D09：系统会议 Summary current-resolution
+
+修订：rev1 候选，2026-10-07。仅完成规格准备，待独立 STATIC 与 root 采纳；本卡不授予源码、测试、数据库、网络或生产装配权限。核对基线为 S1 产品提交 `c210d249600d98871513c56fb9a8fff7c50a4c34`。S2 设置/HTTP/root 另卡由独立作者负责，本卡不读取其活动候选作为已接受依赖。
+
+依据：[S1 §1/§7](d09-system-meeting-summary-selection.md)、[已接受 current-resolution](recovery-d09-current-model-resolution.md)、[验收报告](../agent-team/current-model-resolution-verification.md)、[Model Resolution](../../architecture/platform-infrastructure/model-system/model-resolution.md)、[Meeting Summary §14–17](../../architecture/meeting/meeting-context-summary.md)、[开发计划](../development-plan.md) D09/D24、[团队流程](../agent-team/README.md)。实施角色仍须读取 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)。
+
+## 1. 完整结果与边界
+
+在真实当前 Project 授权与受信 Meeting consumer 事实端口下，现有 Resolver 为 `MeetingSummaryInitial`、`MeetingSummaryUpdate` 从 `platform.meeting_summary` 解析当前 System Model，在完整锁内确认独立 selector version，并持久化不可变 snapshot、consumer binding 和适用的 Secret lease。同一已提交解析单位重入保持原 snapshot；新逻辑生成才消费当前系统选择。
+
+首轮标题属于 `MeetingSummaryInitial` 的同次普通 text 生成，不增加 Purpose、Model selector 或 Agent Execution。后续更新沿 `MeetingSummaryUpdate`。四字段文本 envelope、标题解析、完整有效消息输入、有限生成/校验重试、Turn finalizing 与提交事务仍由 D24 实施；S3 不创建 Meeting、Message、Turn、Invocation 或 Usage，不发送 Provider 请求。
+
+本卡只扩已接受的 current-resolution 库，不改变 Agent generation/compaction 的 Execution snapshot、Execution Summary read model、Memory 三用途、serving embedding snapshot 或旧 direct 选择。无 Project override、创建时复制默认、备用模型或生产 stub。生产 `Authorizations.Resolution` 继续真正 nil；`Invocations`、ready503、完整 D09/D24/E01 与三个停止任务的边界不变。
+
+### 1.1 真实前置与可并行关系
+
+| 前置 | 已接受能力及消费方式 |
+| --- | --- |
+| S1 `c210d249` | 迁移00020、独立 Summary singleton/version、精确引用、管理员选择与双 owner 原子删除替换；通过同包私有 loader 读取，不把管理员 GET 当 Project consumer 授权 |
+| current-resolution `4295df7d` | 四个 Resolver 方法、00017 三表、版本化私有 DTO、opaque plan、同实例 Store/Authority、canonical lease 与 exact-Tx Secret Acquire；原完整结果保持 |
+| Account / Project | 当前 Session、Project Owner/gate 正式端口；Project 权限不等于 Meeting/Operation 存在及允许生成 |
+| Secret planned usage | `8ad6759d` 及 current-resolution 已接受组合；只取得 lease metadata，不读取或解密材料，不开放 read/release/retire |
+| 已接受 wire 子集 | text-v1 `9c72190`、structured-v1 `be0bd07b`；只选其已支持 snapshot profile/revision，不扩协议或适配器 |
+| S2 | **不是 S3 库验收前置**。测试可显式调用 S1 初始化和更新服务；S2 负责默认 root 技术初始化及管理员设置 HTTP/UI。S2 可消费 S1 独立实施，不能据其配置成功声称 Meeting 可生成 |
+| D24 | 正式 Meeting consumer/逻辑 generation 输入和当前事实尚不存在；本卡仅严格 fixture 隔离这些未实现事实。D24 后继真实绑定与综合验收是生产可用的必需前置 |
+
+迁移前缀固定 00001–00020，本卡不新增或修改迁移。00017 的三表和 format_version=1 已能保存新合法 SelectionRef，无需新表、字段或 backfill。未创建 Summary 技术 singleton 的旧配置场景继续支持原 direct/memory；不把 Summary 初始化塞入原 `Service.Initialize`，不让旧版本数据库的原解析分支无故访问00020。
+
+## 2. 已核实现接缝与公开契约
+
+基线已存在 `contract.Resolver` 的 `SelectModel`、`DiscoverResolve`、`ResolveModelInTx`、`ResolveModel`，以及 `ResolveRequest`、`SelectionRef`、`ConsumerAuthority.Discover/ValidateInTx`。签名保持，不增加“SummaryResolver”、公开 mint/allow 或第二个 consumer authority。
+
+当前缺口具体为：
+
+- `contract/configuration.go` 的 `SelectionRef.Validate` 明确拒绝平台 Summary；`SelectionRequest.Validate` 的 Purpose→selector map 没有两个 Meeting Purpose。
+- `resolution_policy.go` 的 variant 只接受 direct/platform.memory；非 direct draft 总读取旧 Memory 字段；profile 对所有无 json_schema 的 platform 请求均拒绝。
+- `resolver.go` 的 Select 和 `resolution_plan.go` 的完整锁计划，当前所有 platform 请求只持旧 `model-platform-selection` SH。
+- S1 的 `contract/meeting_summary_test.go` 明确断言新平台 SelectionRef 尚不支持；S3 必须更新这条阶段性断言，不能令测试与新正式契约互相矛盾。原四用途 JSON 原字节断言保留。
+
+### 2.1 请求与 Purpose 闭集
+
+新合法选择是 `SelectionRef{Kind:"platform", Selector:MeetingSummarySelector}`；`ProjectID=nil`，可带正数 `Version`。`SelectionRequest.ModelRef=nil`；消费者仍必须为 `MeetingConsumer`，保留合法的 ProjectID、MeetingID、OperationID，AgentID/ExecutionID 均为空。
+
+| Purpose | selector / Source | 保持的语义 |
+| --- | --- | --- |
+| `meeting_summary_initial` | `platform.meeting_summary` / `current_selection` | 首次四字段 Summary 与首轮标题的同一逻辑调用 |
+| `meeting_summary_update` | 同上 | 已有标题之后的四字段 Summary 更新 |
+| 原 Memory extraction/consolidation/reflection | `platform.memory` / 原 Source | 继续要求 json_schema，不接受 Summary selector |
+| 其他 Purpose | 原映射 | 不允许借 Summary selector 扩支持范围 |
+
+两个 Meeting Purpose 不接受 direct ModelRef、Memory selector、serving_snapshot、Agent/Execution owner 或非空 ModelRef。非空 ReasoningEffort 沿原 current-resolution 返回 `CAPABILITY_UNSUPPORTED`；不增加模型参数选择。`ResolveRequest.Purpose` 仍须与 Consumer.Purpose 相等，`Source=current_selection`。LeaseOwner 为既有 `model_call`，ID 为该逻辑调用的 CallID；`resolutionConsumerRequest` 从 owner 投影原 CallID，不增字段。
+
+旧 `SelectionRef{Kind:"project_summary", ProjectID:..., Selector:MeetingSummarySelector}` 继续按原结构校验，Resolver 继续 `DEPENDENCY_UNBOUND`。不把历史请求悄悄转为 platform，不更改其 semantic、不迁移旧 ProjectModelSettings、不把旧 reference group 误认为新系统引用。其他未交付 selector/serving 分支沿原拒绝分类。
+
+## 3. 当前选择、profile 与错误
+
+### 3.1 独立状态读取
+
+新 Summary 分支复用 `loadMeetingSummaryState`，完整核技术 singleton 及 `meetingSummaryConsistent` 的 owner/role/version/零或一引用关系；不另写宽松 SQL 绕过 reference 完整性。只读取该行的 Model 与 Version，不借 `PlatformSelection.Configured`、Memory/Embedding 是否配置决定 Summary 可用性。
+
+技术 singleton 不存在为 `DEPENDENCY_UNBOUND`；存在但 Model=NULL 为 `INVALID_STATE`。不存在迁移表、损坏行/引用、SQL 失败沿 loader 的 `DEPENDENCY_UNAVAILABLE`，不能伪装“未配置”。已授权可见的目标不存在沿原 `NOT_FOUND`；目标必须来自 System Model/Provider，不能 fallback 到 Project 同名/同 ID 模型。所选 Model 或 Provider disabled 为 `INVALID_STATE`，不清空 selector、不选择备用模型。
+
+若请求带 Selection.Version，新 Select/尚未 committed 的解析必须在锁内等于 **Summary** version，否则 `RESOURCE_BUSY`。不使用旧四项的 version；旧四项改变但 Summary 未改不制造 Summary 版本冲突。
+
+### 3.2 普通 text 与已接受 adapter revision
+
+“普通 text”是将来的调用要求，不等于所有 snapshot 强制 text-v1。保留真实 capabilities，沿现有 Profile=`OpenAIChatV1`、Protocol=`OpenAIChat`、ModelType=`ChatModel`：
+
+| 实际 capabilities（其余条件均满足原闭集） | Summary snapshot.AdapterRevision | 后继 Summary 请求 |
+| --- | --- | --- |
+| StructuredOutputModes 为空或仅 text | `openai-chat-text-v1` | `ResponseFormat.Kind="text"` |
+| StructuredOutputModes 含 json_schema | `openai-chat-structured-v1` | 仍为 text；该已接受 revision 明确支持普通 text |
+
+Summary 不要求 json_schema；同一 Model 同时作为 Memory 与 Summary 时，Memory 继续要求它，而 Summary 不因此变成 schema 输出。不能把带 json_schema 的真实 capability 删掉后硬塞 text-v1：基线 adapter 明确拒绝该组合。snapshot 不随未来单次 response format 换 revision。
+
+本卡保留当前 Resolution 已验子集：空 Provider options / Model parameters / request/header overwrite；text input/output；无 tool_calls、parallel_tool_calls、reasoning 或 reasoning_efforts；streaming、合法 context_length/max_output 原值保留。其他合法可配置协议或 capabilities 仍可由 S1 保存，但当前 Resolver 未支持时明确 `CAPABILITY_UNSUPPORTED`，不宣称 S3 已交付全协议/全能力，也不修改配置准入来隐藏这个边界。
+
+D24 请求须 `tools=[]`、ToolChoice=`none`、ResponseFormat=`text`，普通文本中再解析四字段/首轮 title。S3 不发送请求，不把 json_schema 支持、Tool Calling 或 reasoning 变成 Summary 必备能力，也不增加新 wire revision。
+
+## 4. 授权、锁与跨域事实
+
+### 4.1 Select 与 Resolve 分层
+
+`SelectModel` 保持 Human 当前 Session + 当前 Project Read 的安全 ID/version 投影；无准备行、snapshot、binding 或 lease。非 Human Select 仍 `DEPENDENCY_UNBOUND`。它校验 Meeting consumer 的结构，但不证明 Meeting/Operation 存在，不能被当作生成许可。
+
+Project Owner 消费系统选择不需要管理员身份；当前 System 管理员也不能借设置权限读取他人 Project/Meeting 或替其生成。S1 管理员 `GetMeetingSummarySelection` 是独立管理读，不能在 Resolver 中用 Project caller 调它，或伪造管理员 Actor 绕过当前 Project 授权。
+
+实际 Resolve 仍由 `ResolutionAuthorizations.Consumers` 提供 opaque 计划及同 Tx 当前事实验证。Discover 候选读取不是授权；现有 preflight、准备 Tx、最终 Tx、Secret Acquire 回调分别按原协议重验，当前授权先于向外暴露配置/准备记录存在性错误。只有 Project Owner、一个合法 UUID、一次旧 Select 或成功配置 GET 均不足。
+
+未来 Meeting provider 必须覆盖 Project 当前 gate、Meeting 所属 Project、Operation 对应的逻辑生成/输入身份、Purpose、CallID owner、可解析阶段与版本，以及原 Actor 对这条操作的授权。原 `ResolveConsumer` 请求不带 `InputIdentity`（该字段此 action 必须 nil）；provider 从 Operation canonical 事实取得输入身份并纳入 Mapping/RequiredLocks，不能为本卡向公共 request 增字段或只对调用者传入的值做等式判断。
+
+S3 不新增 Meeting ServiceRegistration 或借 Account/Project/Secret 技术角色冒充生成者。库 fixture 可用正式 Human Session 验真实跨域授权；D24 决定并实现正式运行 actor/consumer provider 后再绑定。Secret Acquire 内部沿原受限 SecretService actor，不能把它当成 Meeting 业务授权。
+
+### 4.2 完整锁计划
+
+两条入口都必须加入 `model-meeting-summary-selection` SH；原 `model-platform-selection` SH 不能冒充新锁。Summary loader 会读旧 singleton ID 以核两个 owner 身份不相同，沿该实际读取一并持旧 singleton SH；这只是技术身份校验，不引入旧四用途 configured/value/version 前置。后续若改 loader 依赖，先报精确差量，不能漏锁后补锁。
+
+保持已有并集：原 `model.resolve` Command EX（仅 Resolve）、Project gate/User SH（适用时）、`model-references` SH、实际 Provider/Model SH、preparation/snapshot/binding/canonical-owner-ref 记录锁，以及 consumer 和 Secret 返回的全部锁；按 Foundation 全序去重并取最强模式。Select 的 `readScope` 已提供 Project/User/refs 锁，新增选择锁须在外层开始前加入，不在 InTx 内临时 Acquire。
+
+strict Meeting fixture 的 consumer union 必须含 Meeting/Operation aggregate 及自身事实记录锁，不仅沿用旧 Agent fixture 的 Execution 锁。完整锁获得后重新读取独立 selector、模型/Provider、consumer mapping；计划后切换、版本变化、替换/删除或停用导致准备失效时，沿 `RESOURCE_BUSY` 或当前明确状态错误，零最终 snapshot/binding/lease，调用方仅可在原 ctx 剩余预算内于 Tx 外重新规划。
+
+`model-references` SH 与 S1 删除/替换的 EX 串行；新增 snapshot 不是长期 selector reference，不写新 reference owner。同一个 PG 上的另一 Store/Authority、外 Tx、缺锁/弱锁、错 issuer、跨请求/已结束 witness 均沿原拒绝，不新增宽泛授权口。
+
+## 5. 不可变接受点、重入与 Secret
+
+现有 `model_call` 解析单位是同 Project + owner CallID；Purpose/完整 Consumer、Selection（含显式 Version 与否）、稳定 initiator 进入原 semantic。两个 Meeting Purpose 不能复用同 CallID 改义；同单位换 Meeting/Operation/selector/initiator 必须 `IDEMPOTENCY_KEY_REUSED`。Human 新 Session 可重新规划但必须当前授权；旧内存 plan 不能跨 Session/Authority 实例移用。保持已有 stable semantic/完整 Actor binding 的差别及 DTO format_version=1，不改旧 direct/memory 持久字节。
+
+Discover 的 prepared 行不是已接受调用：保留原 SnapshotID，允许按既有规则在最终提交前重读当前配置、推进 plan_version并使旧 plan 失效。真正 committed binding 后，重入从持久完整快照恢复，不能重读 live selector 来热换。管理员切换、停用、删除并合法替换、修改 Provider endpoint 或重启实例后，同单位仍为原 SnapshotID/Model identity/capabilities/revision/SelectionVersion；新的合法 CallID 才观察当前选择。当前业务权限仍须验证，历史 snapshot 不授迟到/已取消操作许可。
+
+`ResolveModelInTx` 返回 provisional 值，只有外层真正 Committed 才能向调用方发布或后续调用 Provider。D24 将实际输入捕获/操作接受与解析结果放入自己的原子边界；一次新生成的 CallID 与 Operation/输入对应关系、有限生成重试何时仍属同逻辑单位，由其正式 canonical 事实维护。本卡不能自动给失败重试换 CallID 以逃逸原绑定，也不能伪造已实现的 Meeting input capture。
+
+有 CredentialRef 时，在同一最终 Tx 通过原 Secret `DiscoverUsage/ApplyUsageInTx` planned Acquire、exact-Tx witness 和当前 consumer 重验建立 canonical lease；snapshot/binding/lease/fixture 模拟的操作接受全部提交或全部回滚。只保存 System CredentialRef 与 lease metadata，不保存 value。无 ref 分支零 Secret 调用；同 CallID/ref 重入同 lease、不同 CallID 不共享，released lease 不复活。轮换只影响后继正式材料读取；S3 不实现读取、解密、释放、退休或生成 Invocation/Usage。
+
+准备/最终 Unknown 保留各自原 TransactionCause/AttemptID，返回零 plan/ResolvedModel；原 writer 屏障与当前授权/持久事实确认沿 accepted current-resolution。锁忙、取消或确认仍 Unknown 不得把旧候选当成功。库沿原 caller context/剩余预算，不新增 goroutine、后台恢复、重开 deadline 或全局 Drain；不把返回取消误称 SQL writer 已 join。资源 fixture 必须实际 wait/清理。
+
+## 6. 精确候选路径与所有权
+
+以下 **16 技术路径**是后继实施候选，不是当前写权；实际开工由 root 确认与 S2 无冲突后授权唯一 backend 作者。保持未列源码只读，缺口先报最小调用/编译证据。
+
+| 路径 | 最小职责 |
+| --- | --- |
+| `internal/central/model/contract/configuration.go` | 开放精确 platform Summary 与两个 Purpose 映射，保留旧 project_summary 结构 |
+| `internal/central/model/contract/configuration_test.go` | 完整映射、结构拒绝、required SelectionResult/clone |
+| `internal/central/model/contract/resolution_test.go` | 两 Meeting Purpose、model_call owner、binding/原错误分支 |
+| `internal/central/model/contract/meeting_summary_test.go` | 只更新 S1 暂拒新平台选择的阶段性断言；保留旧四项字节及其余 S1 覆盖 |
+| `internal/central/model/resolution_policy.go`、`resolution_policy_test.go` | Summary variant/完整 loader、独立 version、System 限定、text/structured profile 矩阵 |
+| `internal/central/model/resolver.go`、`resolver_test.go` | Select 新选择锁、原入口/授权/零返回闭集；不增新 API |
+| `internal/central/model/resolution_plan.go`、`resolution_plan_test.go` | 完整 Summary 锁并集、旧稳定编码及新请求原语义 |
+| 新 `tests/model/meeting_summary_resolution_fixture_test.go` | 正式身份/Project/Model/Secret组合与严格私有 Meeting consumer 事实、同 Store、清理及观测 |
+| 新 `tests/model/meeting_summary_resolution_selection_test.go` | 当前选择、未配置/disabled、两 profile/两 Purpose、安全 Select |
+| 新 `tests/model/meeting_summary_resolution_atomicity_test.go` | 锁内切换/删除替换、同 Tx input/snapshot/binding/lease原子性、canonical lease |
+| 新 `tests/model/meeting_summary_resolution_authorization_test.go` | 当前 Session/Project/Meeting/Operation/actor及完整 witness/低序锁反例 |
+| 新 `tests/model/meeting_summary_resolution_replay_test.go` | 接受点、prepared重规划、committed历史、重启/新Session/新Call、旧字节兼容 |
+| 新 `tests/model/meeting_summary_resolution_unknown_test.go` | prepare/final Unknown、原writer屏障、取消零结果/实际终局 |
+
+不改 migration00017/00020、S1 loader/配置准入/命令、resolution_store/secret/router 公共或私有协议、adapter、Account/Project/ConsumerAuthority 公共契约、app/root、HTTP/OpenAPI、web、共享 fixture/脚本/锁文件。若上述既有协议暴露真实缺陷，先报 root，不把其修复隐含进本卡。最终 backend README 的当前状态同步由 root 另授末件，不提前占 S2/其他任务文档。
+
+## 7. 验收与可复现边界
+
+### 7.1 纯检查
+
+覆盖两个 Purpose 与旧映射的精确闭集、required 非空投影、无 Project override/Agent Execution、深拷贝/安全格式；显式version与零值；旧 project_summary 保持 unbound；原 direct/memory private DTO/semantic原字节；profile 两分支与不支持字段；计划必须包含新 SH/原完整 union。已有 text-v1 与 structured-v1 普通 text 纯测试按未变输入复用或有据运行，不能以本卡 metadata 测试冒充 Provider 网络兼容。
+
+按冻结后的实际 import/embed/build/test 图做受影响 unit/race/vet、两 cmd 必要兼容 build、integration compile/精确 list。沿 Go1.27.1、固定依赖、offline/modreadonly；单离线命令45s，可分包/复用缓存，保留首红，不扩大为全仓重复验证。
+
+### 7.2 真实 fixture
+
+新私有 fixture 沿正式 Bootstrap/Invitation/Redeem/Login/Logout 创建身份和当前 Session；Account/Project/Model/Secret/Audit/Outbox 使用真实同 Store 服务。可以复用已接受的底层 `assembleProjectConfiguration`、正式身份方法和清理模式，不调用会 direct INSERT users/sessions 的旧 convenience constructor作为新授权证明，也不直接写 Model/Summary 正例绕开 S1 API。
+
+只在测试专属 schema 隔离尚不存在的 Meeting canonical 事实：Project/Meeting/Operation/CallID/Purpose/稳定 initiator/输入身份/phase/version关系，签本实例 plan；ValidateInTx 先核实际 Store/RequireHeld，再读当前 Session/Project gate 与这些实际行。错误 Project、Meeting/Operation/CallID、旧 input/version、已终结/取消状态必须分别拒绝；不能用 `always allow`、仅完整请求 JSON相等或 Project Owner 身份代替整条事实链。模拟 input accept 行只证库原子性，不声称 D24 生成已实现。
+
+| 精确新顶层 | 最低可观察结果 |
+| --- | --- |
+| `TestModelMeetingSummaryResolutionSelection` | 未初始化/NULL/选择两Purpose、旧四项未配置仍可解析；非admin真实Owner可Select/Resolve、admin无Project权拒绝；plain text无json_schema与含json_schema两revision；明确版本、System限定、disabled/不支持/旧project_summary，无fallback；Select零准备/snapshot/lease |
+| `TestModelMeetingSummaryResolutionAtomicity` | 真实 S1 切换和跨Provider删除替换与新 SH 串行；准备后配置/引用竞争不得漏验；有/无ref；外Tx模拟input、snapshot/binding/lease共同提交/回滚；吞掉错误仍不绕poison；同Call canonical、不同Call独立 |
+| `TestModelMeetingSummaryResolutionAuthorization` | 正式Logout/他人Project、仅admin或Owner不足、Meeting/Operation/input/gate事实变更；缺新SH/低序锁、错issuer、同DB异Store/外Tx/过期witness、篡actor/ref/lease；每个反例确实到达目标检查且零副作用 |
+| `TestModelMeetingSummaryResolutionReplay` | 同单位/新Session/新实例原snapshot与lease；prepared旧plan失效；committed后切换/停用/删除替换/endpoint变化不漂移；新合法Call取当前值；同Call改Purpose/Meeting/Operation异义拒绝；旧direct/memory编码及snapshot保持 |
+| `TestModelMeetingSummaryResolutionUnknown` | prepare/final分别真实COMMIT或ROLLBACK后装饰Unknown；零返回且原cause/attempt；持原Command锁时不得凭缺行确认，释放后重入精确后态；提交后交付前取消零结果；明确这不是物理COMMIT ACK丢失证明 |
+
+必要旧真实回归精确保留：`TestModelCurrentResolutionSelection`、`TestModelCurrentResolutionReplay`、`TestModelCurrentResolutionAtomicity`、`TestModelCurrentResolutionCanonicalLease`、`TestModelCurrentResolutionAuthorization`、`TestModelCurrentResolutionUnknown`，以及 S1 `TestModelMeetingSummarySelection`、`TestModelMeetingSummaryReplacement`。旧 fixture 既有身份准备局限如实复用，不重写历史验证；新严格 fixture补足本卡范围。其他旧 schema/Secret/wire未变结果按证据复用，新增失败才调整受影响集合，不恢复停止任务。
+
+独立至少一组验证真实当前授权/新selector锁/两owner删除竞争，一组验证跨实例历史/Secret原子性/Unknown后态；不得只复跑作者断言。原完整 fixture 的 TestMain 动态构建两 cmd、helper/scripts/MinIO/PG/实际selector依赖必须闭合，不能因 `-run` 过滤漏图。新每top120s必须包含 t.Cleanup，实际流式 RUN→PASS/FAIL watchdog；原包6m/race/count1/p=1，按组分轮不自动加预算。
+
+每轮资源先获 root 唯一窗口，固定路径/hash/命令与≥5GiB等原门禁；正式 PG digest/MinIO注入、原资源labels/full Mount基线、nonce与exact IDs、PID/starttime、direct/adopted真实wait、源前后hash、两次 owned清理均沿 accepted fixture。daemon/PID1 zombie差量另列，不宣称 task wait或全机清零，不操作其他进程。失败先完成owned cleanup再修受影响项；原输入/raw/失败不覆盖。
+
+## 8. 后继绑定与交付门槛
+
+S3 接受只证明 Model 库在严格事实端口下能解析系统 Summary 并保持 snapshot/lease。S2 负责同原startup context的技术初始化及系统配置HTTP/UI，不得顺便给生产根填入假的 Resolution consumer。D24 负责真实 Meeting canonical provider、完整输入身份、正式运行actor/生命周期、Model调用/有限retry、标题与四字段同事务、Usage与取消/迟到结果；它再将真正 consumer 同 Store/Authority接入生产组合根，并独立验收实际生成。
+
+S3 与 S2 可按真实依赖独立实施，但共享contract测试、app及README所有权须由root按实际候选协调。S3 不把未配置导致的未来 finalizing失败当作已有Turn行为，不代实现D24，也不解除ready503或三停止任务。
+
+规格自查只涵盖稳定源码/架构的静态一致性与本地链接；未运行测试/资源、未修改业务源码。实施须本卡独立 STATIC通过并获root授权；完成时需上述完整库结果、适用独立证据、实际停写/终局及root采纳，不能把选择配置成功或单个纯映射通过当成S3完成。

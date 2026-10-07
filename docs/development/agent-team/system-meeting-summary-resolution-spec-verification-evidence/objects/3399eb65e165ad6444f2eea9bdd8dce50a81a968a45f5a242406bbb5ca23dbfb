@@ -1,0 +1,46 @@
+{
+  "conclusion": "PASS full bounded STATIC only",
+  "card": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-resolution.md",
+  "reviewed_candidate_sha256": "00f54620a1013e8cb121736c0d125b23c6afa851950d6bb11b05a06ca22af3d8",
+  "accepted_card_sha256": "bb124b229914855a99980f21542f988b69a26942a0a264405d4e7f3bf98a2d1f",
+  "header_only_change_verified": true,
+  "technical_body_unchanged": true,
+  "product_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "mandatory_repairs": [],
+  "candidate_paths_count": 16,
+  "new_top_count": 5,
+  "old_top_count": 8,
+  "local_links_exist_count": 8,
+  "s2_technical_intersection": [],
+  "execution_notes": [
+    "README final ownership serial root handoff",
+    "Actual tests/model package/dynamic compile closure jointly frozen before running; no active other-author input",
+    "S2 scope revision requires narrow intersection delta check"
+  ],
+  "necessary_product_inputs_unchanged_at_close": true,
+  "checks_executed": [
+    "SHA256 frozen card and necessary dependencies",
+    "Read-only git show fixed c210d249 files and byte comparisons",
+    "Static source/spec/old test name inspection",
+    "Local link existence and explicit candidate path intersections",
+    "Root-authorized header-only adoption delta comparison"
+  ],
+  "tests_or_resources_executed": false,
+  "product_or_git_mutated": false,
+  "evidence": {
+    "review.md": "7c6a9805c2cff3099910cac604705bce9663e931f7aab02c9d2df2236d74c15a",
+    "review-before-header-update.md": "4f13ad616b41ac1a3381b121e2640ae15e7e5f7f5928ff909b1cbe893b50a560",
+    "card-rev1.md": "00f54620a1013e8cb121736c0d125b23c6afa851950d6bb11b05a06ca22af3d8",
+    "card-rev1-accepted.md": "bb124b229914855a99980f21542f988b69a26942a0a264405d4e7f3bf98a2d1f",
+    "accepted-header.diff": "aa881c7eea48709b311c436088c25257a9bd8d3b2a05ec64db5801f196d6bd90",
+    "close-first-failure.json": "1d8b548a5ba4ebc8da694705803ecfd74796bf67cbad27c0385987f5b54ab114",
+    "prep.md": "79afd5beee5cc98f3d406e0368a915bfa1dbf3bb4f580e0fef9fc569c00087b2",
+    "prep-input.json": "2ac289a2b1a4bf55f1b98d41949c2f17d85d77019af56c67965a00631ac95843",
+    "static-input01.json": "7ca6b2336409fed9fff0705fd7affe8bd91f7e91dc9bef83a935d7c71a93b190",
+    "static-input-delta01.json": "7631a816750f98a151b231afad9a555faac783e63a044826649f6846ec96fece",
+    "s1-status-only.diff": "55b719e4c11bbf3cbbb160b4aac9a72aa49471a97dfce870d2ef94d998fff8ad",
+    "s2-s3-ownership.json": "b4d5f8409d27eff3b2bc9a5576a2ee20db49dc62aa4f8f36933b1f256a844ab2",
+    "s2-scope-rev1.txt": "fc8d497be24eec061e82a78dcff0ee044adb2ea93210d191db985312491f3e4a"
+  },
+  "stopped": true
+}

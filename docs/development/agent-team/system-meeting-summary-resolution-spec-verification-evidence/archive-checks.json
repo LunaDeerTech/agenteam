@@ -1,0 +1,45 @@
+{
+  "scope": "Archive-only static data verification; no product/old script/test/compile/resource/Git command executed. Fixed product inputs reuse original independent manifests without reading active implementation sources.",
+  "saved_source_paths": 17,
+  "unique_original_objects": 16,
+  "unique_original_bytes": 93856,
+  "original_JSON_paths_parsed": 7,
+  "fingerprint_only_documents": 4,
+  "source_map_sha256": "52ec7e5e6613cf6e7b8f63a63d95fc0b072dfa7d5b1e2256d858c0c3fe2ab721",
+  "all_original_bytes_and_result_evidence_hashes_match": true,
+  "candidate_to_accepted_changed_lines_1based": [
+    3
+  ],
+  "technical_body_sha256": "f34de8333b80d8e6d68ad702ea42918fa22950278b2e9367f40c1a8cf215745b",
+  "accepted_card_current_byte_match": true,
+  "ownership": {
+    "s2_candidates": 31,
+    "s3_technical_paths": 16,
+    "intersection": [],
+    "new_test_files": 6,
+    "existing_files": 10,
+    "planned_new_tops": 5,
+    "existing_top_names": 8
+  },
+  "original_close_assertion_failure_preserved": true,
+  "local_links_checked": 13,
+  "checks_actual_exit": 0,
+  "format_scope": "UTF8/LF/final newline/no trailing spaces/paired fences for authored report and JSON; immutable raw originals retain original whitespace.",
+  "git_diff_check": "Not run; direct text and metadata checks only.",
+  "links": [
+    "../work-items/d09-system-meeting-summary-resolution.md",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/7c6a9805c2cff3099910cac604705bce9663e931f7aab02c9d2df2236d74c15a",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/3399eb65e165ad6444f2eea9bdd8dce50a81a968a45f5a242406bbb5ca23dbfb",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/00f54620a1013e8cb121736c0d125b23c6afa851950d6bb11b05a06ca22af3d8",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/bb124b229914855a99980f21542f988b69a26942a0a264405d4e7f3bf98a2d1f",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/aa881c7eea48709b311c436088c25257a9bd8d3b2a05ec64db5801f196d6bd90",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/81faf1cd9e33e9fae7fc8afe205a12d88a8030a60490b671b058e227582ca7ed",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/1d8b548a5ba4ebc8da694705803ecfd74796bf67cbad27c0385987f5b54ab114",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/4f13ad616b41ac1a3381b121e2640ae15e7e5f7f5928ff909b1cbe893b50a560",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/7631a816750f98a151b231afad9a555faac783e63a044826649f6846ec96fece",
+    "system-meeting-summary-resolution-spec-verification-evidence/objects/b4d5f8409d27eff3b2bc9a5576a2ee20db49dc62aa4f8f36933b1f256a844ab2",
+    "system-meeting-summary-resolution-spec-verification-evidence/source-map.json",
+    "system-meeting-summary-resolution-spec-verification-evidence/archive-checks.json"
+  ],
+  "report_sha256": "9d5ed2d70003c1479047589e475a4f55dc539011e5c6792eade09c40903c4aa2"
+}
