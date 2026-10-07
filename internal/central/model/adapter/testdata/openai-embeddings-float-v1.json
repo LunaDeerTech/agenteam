@@ -1,0 +1,87 @@
+{
+  "revision": "openai-embeddings-float-v1",
+  "protocol": "openai-embeddings",
+  "profile": "openai-embeddings-v1",
+  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "conformance": false,
+  "adopted": [
+    "model",
+    "input",
+    "encoding_format=float"
+  ],
+  "unsupported": [
+    "dimensions",
+    "token_arrays",
+    "base64",
+    "user",
+    "stream",
+    "request_overwrite",
+    "header_overwrite"
+  ],
+  "sources": [
+    {
+      "path": "src/openai/resources/embeddings.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/embeddings.py",
+      "sha256": "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262",
+      "bytes": 11163
+    },
+    {
+      "path": "src/openai/types/embedding_create_params.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_create_params.py",
+      "sha256": "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f",
+      "bytes": 2081
+    },
+    {
+      "path": "src/openai/types/create_embedding_response.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/create_embedding_response.py",
+      "sha256": "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c",
+      "bytes": 847
+    },
+    {
+      "path": "src/openai/types/embedding.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding.py",
+      "sha256": "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942",
+      "bytes": 716
+    },
+    {
+      "path": "src/openai/types/embedding_model.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_model.py",
+      "sha256": "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e",
+      "bytes": 280
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/LICENSE",
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+      "bytes": 11336
+    }
+  ],
+  "usage_projection": {
+    "prompt_tokens": "input_tokens",
+    "total_tokens": "total_tokens",
+    "missing_or_null": "unknown; no inferred counts"
+  },
+  "dimensions": {
+    "source": "Explicit trusted caller validation requirement; not provider default or discovery.",
+    "minimum": 1,
+    "maximum": 4096,
+    "max_vectors": 128,
+    "max_product": 262144,
+    "native_dimensions": false
+  },
+  "bounds": {
+    "per_text_utf8_bytes": 1048576,
+    "total_text_utf8_bytes": 4194304,
+    "encoded_request_bytes": 8388608,
+    "response_bytes": 16777216,
+    "number_literal_bytes": 64,
+    "json_depth": 8,
+    "parser_owned_capacity_exclusive": 22020096
+  },
+  "evidence_limits": [
+    "Static official SDK source only; no SDK execution or provider smoke.",
+    "Default dimensions/model-specific conformance not established.",
+    "Official guide and cookbook revision query each failed proxy CONNECT 403; no source content acquired.",
+    "Missing usage success follows the accepted D09 contract, not SDK required-field typing."
+  ]
+}

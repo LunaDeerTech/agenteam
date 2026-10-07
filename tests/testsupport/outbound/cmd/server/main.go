@@ -174,7 +174,7 @@ func (s *serverState) control(w http.ResponseWriter, r *http.Request) {
 func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/case/")
 	if len(id) != 32 {
-		// Only the new wire scenario admits a suffix. Legacy modes retain their
+		// Only the two wire scenarios admit a suffix. Legacy modes retain their
 		// exact decoded /case/<id> route below, including existing defaults.
 		raw := strings.TrimPrefix(r.URL.EscapedPath(), "/case/")
 		if !strings.HasPrefix(r.URL.EscapedPath(), "/case/") || len(raw) < 33 {
@@ -191,7 +191,7 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cfg := v.Config
-	if cfg.Mode == "openai_chat_wire" {
+	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
 		if r.URL.EscapedPath() != "/case/"+id+cfg.Wire.Suffix || r.URL.RawQuery != "" || r.URL.ForceQuery {
 			s.mu.Unlock()
 			w.WriteHeader(404)
@@ -212,7 +212,7 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = r.Body.Close()
-	if cfg.Mode == "openai_chat_wire" && len(body) > 16<<20 {
+	if (cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire") && len(body) > 16<<20 {
 		w.WriteHeader(413)
 		return
 	}
@@ -220,7 +220,7 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 	s.mu.Lock()
 	v.Requests = append(v.Requests, record)
 	s.mu.Unlock()
-	if cfg.Mode == "openai_chat_wire" {
+	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
 		serveWire(w, r, cfg.Wire, release)
 		return
 	}
@@ -303,7 +303,7 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 }
 
 func validWire(cfg *config, id string) bool {
-	if cfg.Mode != "openai_chat_wire" {
+	if cfg.Mode != "openai_chat_wire" && cfg.Mode != "openai_embeddings_wire" {
 		return cfg.Wire == nil
 	}
 	v := cfg.Wire
@@ -313,10 +313,14 @@ func validWire(cfg *config, id string) bool {
 	if raw, err := hex.DecodeString(id); err != nil || len(raw) != 16 {
 		return false
 	}
-	if v.Suffix == "" {
-		v.Suffix = "/chat/completions"
+	suffix := "/chat/completions"
+	if cfg.Mode == "openai_embeddings_wire" {
+		suffix = "/embeddings"
 	}
-	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, "/chat/completions") || strings.ContainsAny(v.Suffix, "?#") {
+	if v.Suffix == "" {
+		v.Suffix = suffix
+	}
+	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, suffix) || strings.ContainsAny(v.Suffix, "?#") {
 		return false
 	}
 	u, err := url.ParseRequestURI(v.Suffix)

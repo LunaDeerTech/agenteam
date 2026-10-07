@@ -10,6 +10,12 @@ System Model 管理读口已实现并通过[独立验收](../agent-team/system-m
 
 OpenAI Chat wire 库已验 `openai-chat-text-v1` 与 `openai-chat-structured-v1`：后者支持有界 strict `json_schema` 的请求、普通响应及 SSE 完整结果验证，保留原文本、usage、安全错误、同一 Budget 和实际 join；text 修订闭集不放宽。子集、资源上限与拒绝语义见[structured 规格](../work-items/recovery-d09-openai-chat-structured-wire.md)，原失败及真实验收见[报告](../agent-team/d09-openai-chat-structured-wire-verification.md)。这是受控本地服务上的库能力；生产 root 尚未组合 Resolver/consumer、Invocation/Usage 账本或真实 Provider 账号。OpenAI Chat tools wire 规格已采纳、14 路径实施中，尚无产品验收；不改变上述 root、Object 缺陷和 ready503 边界。
 
+OpenAI Embeddings wire 已验 `openai-embeddings-float-v1`，由 `NewOpenAIEmbeddings` / `Start` 接收文本批量、空参数对象 `{}`，固定发送 `encoding_format=float`。调用方必须显式给出 `ExpectedDimensions`：它是本地结果要求（1–4096、数量×维度≤262144），不代表 Provider 默认维度或能力发现；原生 `dimensions`、token 数组、base64 等不在本修订支持范围。每次 Start 只调用一次正式 D04 Do、发送 POST，不做 adapter 重试或自动拆批，保留 D04 既有零字节透明网络重试。响应须实际 EOF、严格有界 UTF-8 JSON、完整唯一 index 和有限 float 向量；最多16MiB响应，usage 按原整数精确读取，零与缺失分开，不经 float64 丢失大整数精度。完整合法 usage 可在后续向量语义失败或取消时保留，向量候选归零；详细闭集见[Embeddings wire 规格](../work-items/d09-openai-embeddings-wire.md)。
+
+Chat text、structured 与 Embeddings 必须注入同一 `Budget`，共用全局64/每 canonical Project8。`Result` 只允许一次串行消费，成功前要求 writer/callback、读体/parser、Close 与 Client.Drain 实际 join；取消、可见超时或 HTTP 对象已关闭本身不释放材料引用和槽。`Close` 只在调用方剩余预算内取消并等待，尾部未完由原 handle 保持，caller 仍负责所属清理窗口。沿[原 D04 限制](outbound.md)：当前正式 Response.Close 返回 nil，不宣称它暴露原生 Body 内部 Close 错误；本次不修改 D04 或旧 Chat 流程。
+
+作者三组新真实测试及六组旧 Chat/structured 回归分五轮通过，最终独立两个真实代表通过；纯/容量与受控尾部证据按固定阶段复用，不称同轮整套全绿。真实验证使用任务拥有的 Account/Policy 与受控 TLS Provider fixture；官方 profile 仅绑定 SDK 静态 revision/SHA，不是 SDK 执行或真实 Provider 账号 smoke。这仍是专用 wire 库，没有实现 `Nonchat.Embed`、InvocationID、Resolver/Facts/Usage consumer 或生产 root/Provider 账号组合，不提供调用资格，不解除 `ready=false`/`readyz` 503，也不表示完整 D09 已完成。
+
 [Central 嵌入 SPA 规格](../work-items/d28-central-spa-hosting.md)已在 `7a490ac` 经独立有界静审采纳，[原稿、审查与当前行政状态](../agent-team/system-central-spa-hosting-spec-verification.md)已归档。规划的显式 Web 发布将真实前端闭包嵌入 Central；普通无 tag Go 构建仍沿原行为。16路径私有实施已启动，但尚无发布构建、native HTTP或正式二进制浏览器验收；本段不宣称 Central 已提供生产 SPA，也不改变下列现有命令、运行依赖和 ready503。
 
 ## 构建与验证
@@ -37,6 +43,12 @@ sh scripts/test-postgres.sh -run '^TestSecret'
 sh scripts/test-postgres.sh -run '^(TestRealSecret|TestCentralSecret)'
 # 真实私网 socket、生成 CA、DNS/策略/HTTP/SMTP 端口和整组数据库/进程验证。
 sh scripts/test-security.sh
+# Embeddings 三新组及旧 Chat/structured 两组；使用 owned fixture，分别运行。
+sh scripts/test-security.sh -run '^TestModelOpenAIEmbeddingsWireHTTP$'
+sh scripts/test-security.sh -run '^TestModelOpenAIEmbeddingsWireTerminal$'
+sh scripts/test-security.sh -run '^TestModelOpenAIEmbeddingsWireBudget$'
+sh scripts/test-security.sh -run '^(TestModelOpenAIChatWireHTTP|TestModelOpenAIChatWireStream|TestModelOpenAIChatWireJoinAndBudget)$'
+sh scripts/test-security.sh -run '^(TestModelOpenAIChatStructuredHTTP|TestModelOpenAIChatStructuredStream|TestModelOpenAIChatStructuredCloseAndBudget)$'
 # 上述 integration 脚本也自动取得真实 MinIO；均需同一固定 binary。
 # 真实 PG + TLS MinIO + 出站/进程套件；需按固定研究构建并提供 MinIO binary。
 AGENTEAM_MINIO_BINARY=/task-owned/cache/minio sh scripts/test-objects.sh

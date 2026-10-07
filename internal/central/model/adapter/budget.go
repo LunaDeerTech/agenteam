@@ -9,39 +9,55 @@ import (
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 )
 
+// budgetWork identifies one exact admitted handle across supported wire types.
+// Only actual waitJoined completion may remove it from the shared registry.
+type budgetWork interface {
+	cancelWork()
+	waitJoined(context.Context) error
+	Joined() bool
+}
+
 type budgetState struct {
 	mu       sync.Mutex
 	stopped  bool
-	active   map[*Exchange]identity.ProjectID
+	active   map[budgetWork]identity.ProjectID
 	projects map[identity.ProjectID]int
 }
 type Budget struct{ state *budgetState }
 
 func NewBudget() *Budget {
-	return &Budget{state: &budgetState{active: make(map[*Exchange]identity.ProjectID), projects: make(map[identity.ProjectID]int)}}
+	return &Budget{state: &budgetState{active: make(map[budgetWork]identity.ProjectID), projects: make(map[identity.ProjectID]int)}}
 }
 func (b *Budget) accept(ctx context.Context, project identity.ProjectID, mode ResponseMode, overall time.Duration) (*Exchange, error) {
+	var x *Exchange
+	err := b.admit(ctx, project, func() budgetWork {
+		x = newExchange(ctx, mode, overall, b)
+		return x
+	})
+	return x, err
+}
+func (b *Budget) admit(ctx context.Context, project identity.ProjectID, create func() budgetWork) error {
 	if b == nil || b.state == nil || project.Validate() != nil {
-		return nil, invalid()
+		return invalid()
 	}
 	s := b.state
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err := ctx.Err(); err != nil {
-		return nil, contextFailure(err)
+		return contextFailure(err)
 	}
 	if s.stopped {
-		return nil, f.NewFault(f.ShuttingDown, f.NotStarted)
+		return f.NewFault(f.ShuttingDown, f.NotStarted)
 	}
 	if len(s.active) >= 64 || s.projects[project] >= 8 {
-		return nil, f.NewFault(f.ResourceBusy, f.NotStarted)
+		return f.NewFault(f.ResourceBusy, f.NotStarted)
 	}
-	x := newExchange(ctx, mode, overall, b)
+	x := create()
 	s.active[x] = project
 	s.projects[project]++
-	return x, nil
+	return nil
 }
-func (b *Budget) release(x *Exchange) {
+func (b *Budget) release(x budgetWork) {
 	s := b.state
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -61,14 +77,14 @@ func (b *Budget) StopAdmission() {
 	b.state.stopped = true
 	b.state.mu.Unlock()
 }
-func (b *Budget) snapshot() ([]*Exchange, bool) {
+func (b *Budget) snapshot() ([]budgetWork, bool) {
 	if b == nil || b.state == nil {
 		return nil, false
 	}
 	s := b.state
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	list := make([]*Exchange, 0, len(s.active))
+	list := make([]budgetWork, 0, len(s.active))
 	for x := range s.active {
 		list = append(list, x)
 	}
@@ -97,7 +113,7 @@ func (b *Budget) Force(ctx context.Context) error {
 	b.StopAdmission()
 	list, _ := b.snapshot()
 	for _, x := range list {
-		x.cancel()
+		x.cancelWork()
 	}
 	return b.Drain(ctx)
 }

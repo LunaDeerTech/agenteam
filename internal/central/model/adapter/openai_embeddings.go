@@ -1,0 +1,348 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"log/slog"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+	"unicode/utf8"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+const OpenAIEmbeddingsFloatRevision = "openai-embeddings-float-v1"
+
+const (
+	embeddingMaxItems       = 128
+	embeddingMaxDimensions  = 4096
+	embeddingMaxValues      = 262144
+	embeddingTextBytes      = 1 << 20
+	embeddingTotalTextBytes = 4 << 20
+	embeddingRequestBytes   = 8 << 20
+	embeddingResponseBytes  = 16 << 20
+	embeddingCheckBytes     = 4096
+	embeddingNumberBytes    = 64
+	embeddingAuxiliaryBytes = 64 << 10
+)
+
+type EmbeddingRequest struct {
+	Snapshot           mc.ConfigSnapshot
+	Texts              []string
+	ExpectedDimensions int
+}
+
+type EmbeddingResult struct {
+	Items             []mc.Embedding
+	Usage             mc.Usage
+	ProviderRequestID string
+}
+
+type OpenAIEmbeddings struct {
+	transport Transport
+	budget    *Budget
+}
+
+func NewOpenAIEmbeddings(t Transport, b *Budget) (*OpenAIEmbeddings, error) {
+	if b == nil || b.state == nil || t.Resolver != nil && nilPort(t.Resolver) {
+		return nil, invalid()
+	}
+	if t.Resolver == nil {
+		var err error
+		t.Resolver, err = outbound.SystemResolver()
+		if err != nil {
+			return nil, invalid()
+		}
+	}
+	// This formal dependency check creates no I/O or work goroutine.
+	probe, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
+	if err != nil {
+		return nil, invalid()
+	}
+	probe.StopAdmission()
+	return &OpenAIEmbeddings{transport: t, budget: b}, nil
+}
+
+func (a *OpenAIEmbeddings) Start(ctx context.Context, r EmbeddingRequest, o CallOptions) (*EmbeddingExchange, error) {
+	return a.start(ctx, r, o, func() (embeddingClient, error) {
+		client, err := outbound.NewClient(a.transport.Policy, a.transport.Trust, a.transport.Resolver)
+		if err != nil {
+			return nil, err
+		}
+		return embeddingD04Client{client}, nil
+	})
+}
+
+// The private creation seam exercises the same admission and handle path with
+// controlled public I/O boundaries in pure tests. Public Start always uses D04.
+func (a *OpenAIEmbeddings) start(ctx context.Context, r EmbeddingRequest, o CallOptions, create func() (embeddingClient, error)) (*EmbeddingExchange, error) {
+	if a == nil || a.budget == nil || ctx == nil || create == nil {
+		return nil, invalid()
+	}
+	prepared, err := prepareEmbeddings(ctx, r, o)
+	if err != nil {
+		return nil, err
+	}
+	var x *EmbeddingExchange
+	err = a.budget.admit(ctx, o.ProjectID, func() budgetWork {
+		x = newEmbeddingExchange(ctx, o.Limits.Overall, a.budget, o.Credential)
+		return x
+	})
+	if err != nil {
+		_ = prepared.request.Body.Close()
+		return nil, err
+	}
+	go x.run(create, prepared)
+	return x, nil
+}
+
+func (*OpenAIEmbeddings) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_adapter") }
+func (*OpenAIEmbeddings) MarshalJSON() ([]byte, error) {
+	return []byte(`"model_embedding_adapter"`), nil
+}
+func (*OpenAIEmbeddings) LogValue() slog.Value { return slog.StringValue("model_embedding_adapter") }
+
+// embeddingPrepared owns an encoded request, not a dispatched exchange.
+// Construction, admission and transport are separate from this pure boundary.
+type embeddingPrepared struct {
+	request       *http.Request
+	profile       outbound.Profile
+	count         int
+	dimensions    int
+	responseBytes int64
+}
+
+func embeddingShape(n, dimensions int) bool {
+	return n > 0 && n <= embeddingMaxItems && dimensions > 0 &&
+		dimensions <= embeddingMaxDimensions && n <= embeddingMaxValues/dimensions
+}
+
+func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (embeddingPrepared, error) {
+	fail := func(err error) (embeddingPrepared, error) { return embeddingPrepared{}, err }
+	if ctx == nil {
+		return fail(invalid())
+	}
+	if err := ctx.Err(); err != nil {
+		return fail(contextFailure(err))
+	}
+	if !embeddingShape(len(r.Texts), r.ExpectedDimensions) || r.Snapshot.Validate() != nil ||
+		!unicodeEscapes(r.Snapshot.Parameters) || !unicodeEscapes(r.Snapshot.RequestOverwrite) ||
+		o.ProjectID.Validate() != nil {
+		return fail(invalid())
+	}
+	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
+	if s.Protocol != mc.OpenAIEmbeddings || s.Profile != mc.OpenAIEmbeddingsV1 ||
+		s.ModelType != mc.EmbeddingModel || s.AdapterRevision != OpenAIEmbeddingsFloatRevision ||
+		!onlyText(c.InputModalities) || len(c.OutputModalities) != 1 || c.OutputModalities[0] != "vector" ||
+		c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 ||
+		len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil ||
+		!emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 {
+		return fail(unsupported())
+	}
+	total := 0
+	for _, text := range r.Texts {
+		if len(text) == 0 || len(text) > embeddingTextBytes || len(text) > embeddingTotalTextBytes-total ||
+			!utf8.ValidString(text) || strings.IndexByte(text, 0) >= 0 {
+			return fail(invalid())
+		}
+		total += len(text)
+		if err := ctx.Err(); err != nil {
+			return fail(contextFailure(err))
+		}
+	}
+	if o.Limits.Overall <= 0 || o.Limits.Overall > 120*time.Second {
+		return fail(invalid())
+	}
+	idle := min(60*time.Second, o.Limits.Overall)
+	if o.Limits.ReadIdle == 0 {
+		o.Limits.ReadIdle = idle
+	} else if o.Limits.ReadIdle < 0 || o.Limits.ReadIdle > idle {
+		return fail(invalid())
+	}
+	requestCap := int64(embeddingRequestBytes)
+	if o.Limits.RequestBodyBytes != 0 {
+		if o.Limits.RequestBodyBytes < 0 || o.Limits.RequestBodyBytes > 16<<20 {
+			return fail(invalid())
+		}
+		requestCap = min(requestCap, o.Limits.RequestBodyBytes)
+	}
+	responseCap := int64(embeddingResponseBytes)
+	if o.Limits.ResponseBodyBytes != 0 {
+		if o.Limits.ResponseBodyBytes < 0 || o.Limits.ResponseBodyBytes > embeddingResponseBytes {
+			return fail(invalid())
+		}
+		responseCap = o.Limits.ResponseBodyBytes
+	}
+	// Count exactly the same JSON escapes used by the encoder, before either
+	// cloning the input or allocating the body. All counts are bounded above.
+	size := len("{\"model\":") + len(",\"input\":[") + len("],\"encoding_format\":\"float\"}")
+	n, err := embeddingQuotedSize(ctx, s.ProviderModelID)
+	if err != nil {
+		return fail(err)
+	}
+	size += n
+	for i, text := range r.Texts {
+		n, err = embeddingQuotedSize(ctx, text)
+		if err != nil {
+			return fail(err)
+		}
+		if i > 0 {
+			size++
+		}
+		if int64(n) > requestCap-int64(size) {
+			return fail(limitFailure())
+		}
+		size += n
+	}
+	if int64(size) > requestCap {
+		return fail(limitFailure())
+	}
+
+	// Strings are immutable; copy their slice and every mutable Snapshot field.
+	r.Snapshot = r.Snapshot.Clone()
+	r.Texts = append([]string(nil), r.Texts...)
+	raw := make([]byte, 0, size)
+	raw = append(raw, "{\"model\":"...)
+	raw, err = embeddingAppendString(ctx, raw, r.Snapshot.Identity.ProviderModelID)
+	if err != nil {
+		return fail(err)
+	}
+	raw = append(raw, ",\"input\":["...)
+	for i, text := range r.Texts {
+		if i > 0 {
+			raw = append(raw, ',')
+		}
+		raw, err = embeddingAppendString(ctx, raw, text)
+		if err != nil {
+			return fail(err)
+		}
+	}
+	raw = append(raw, "],\"encoding_format\":\"float\"}"...)
+	if len(raw) != size {
+		return fail(protocolFailure())
+	}
+
+	u, err := url.Parse(r.Snapshot.Endpoint)
+	if err != nil || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" {
+		return fail(invalid())
+	}
+	path := strings.TrimSuffix(u.EscapedPath(), "/") + "/embeddings"
+	u.Path, err = url.PathUnescape(path)
+	if err != nil {
+		return fail(invalid())
+	}
+	u.RawPath = path
+	target, err := outbound.ParseTarget(u.String())
+	if err != nil {
+		return fail(invalid())
+	}
+	if o.Credential.Use(func([]byte) error { return nil }) != nil {
+		return fail(invalid())
+	}
+	field, err := outbound.HeaderCredential("Authorization", "Bearer ", o.Credential)
+	if err != nil {
+		return fail(invalid())
+	}
+	binding, err := outbound.NewCredentialBinding(target.Origin(), field)
+	if err != nil {
+		return fail(invalid())
+	}
+	o.Limits.RequestBodyBytes, o.Limits.ResponseBodyBytes = requestCap, responseCap
+	profile, err := outbound.NewProfile(outbound.ProfileOptions{
+		Consumer: ac.Model, AllowHTTP: o.AllowHTTP, Limits: o.Limits, Context: o.Context, Credentials: binding,
+	})
+	if err != nil {
+		return fail(invalid())
+	}
+	if err := ctx.Err(); err != nil {
+		return fail(contextFailure(err))
+	}
+	req, err := http.NewRequest(http.MethodPost, target.URL().String(), bytes.NewReader(raw))
+	if err != nil {
+		return fail(invalid())
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Close = true
+	return embeddingPrepared{req, profile, len(r.Texts), r.ExpectedDimensions, responseCap}, nil
+}
+
+func embeddingQuotedSize(ctx context.Context, s string) (int, error) {
+	n, next := 2, 0
+	for i, r := range s {
+		if i >= next {
+			if err := ctx.Err(); err != nil {
+				return 0, contextFailure(err)
+			}
+			next = i + embeddingCheckBytes
+		}
+		switch {
+		case r == '"' || r == '\\' || r == '\n' || r == '\r' || r == '\t' || r == '\b' || r == '\f':
+			n += 2
+		case r < 32 || r == '<' || r == '>' || r == '&' || r == '\u2028' || r == '\u2029':
+			n += 6
+		default:
+			n += utf8.RuneLen(r)
+		}
+	}
+	return n, nil
+}
+
+func embeddingAppendString(ctx context.Context, dst []byte, s string) ([]byte, error) {
+	const hex = "0123456789abcdef"
+	dst = append(dst, '"')
+	next := 0
+	for i, r := range s {
+		if i >= next {
+			if err := ctx.Err(); err != nil {
+				return nil, contextFailure(err)
+			}
+			next = i + embeddingCheckBytes
+		}
+		switch r {
+		case '"', '\\':
+			dst = append(dst, '\\', byte(r))
+		case '\n':
+			dst = append(dst, '\\', 'n')
+		case '\r':
+			dst = append(dst, '\\', 'r')
+		case '\t':
+			dst = append(dst, '\\', 't')
+		case '\b':
+			dst = append(dst, '\\', 'b')
+		case '\f':
+			dst = append(dst, '\\', 'f')
+		default:
+			if r < 32 || r == '<' || r == '>' || r == '&' || r == '\u2028' || r == '\u2029' {
+				dst = append(dst, '\\', 'u', hex[(r>>12)&15], hex[(r>>8)&15], hex[(r>>4)&15], hex[r&15])
+			} else {
+				dst = utf8.AppendRune(dst, r)
+			}
+		}
+	}
+	return append(dst, '"'), nil
+}
+
+func (EmbeddingRequest) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_wire_request") }
+func (EmbeddingRequest) MarshalJSON() ([]byte, error) {
+	return []byte("\"model_embedding_wire_request\""), nil
+}
+func (EmbeddingRequest) LogValue() slog.Value {
+	return slog.StringValue("model_embedding_wire_request")
+}
+func (EmbeddingResult) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_wire_result") }
+func (EmbeddingResult) MarshalJSON() ([]byte, error) {
+	return []byte("\"model_embedding_wire_result\""), nil
+}
+func (EmbeddingResult) LogValue() slog.Value { return slog.StringValue("model_embedding_wire_result") }
+
+func (embeddingPrepared) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_prepared") }
+func (embeddingPrepared) MarshalJSON() ([]byte, error) {
+	return []byte("\"model_embedding_prepared\""), nil
+}
+func (embeddingPrepared) LogValue() slog.Value { return slog.StringValue("model_embedding_prepared") }

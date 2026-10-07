@@ -1,0 +1,549 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"math"
+	"reflect"
+	"runtime"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+	"unsafe"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func embeddingJSON(data, usage string) []byte {
+	if usage != "" {
+		usage = ",\"usage\":" + usage
+	}
+	return []byte("{\"object\":\"list\",\"model\":\"native-alias\",\"data\":" + data + usage + "}")
+}
+func embeddingZero(t *testing.T, r EmbeddingResult, err error) {
+	t.Helper()
+	if err == nil || !reflect.DeepEqual(r, EmbeddingResult{}) {
+		t.Fatal("invalid response published candidate")
+	}
+}
+func TestOpenAIEmbeddingsJSONStrict(t *testing.T) {
+	valid := `[{"object":"embedding","index":0,"embedding":[-0.5,1e2]}]`
+	for _, tc := range []struct {
+		name, data string
+		n, d       int
+	}{
+		{"valid", valid, 1, 2},
+		{"finite_extremes", `[{"object":"embedding","index":0,"embedding":[1.7976931348623157e308,5e-324]}]`, 1, 2},
+		{"negative_zero", `[{"object":"embedding","index":0,"embedding":[-0,0]}]`, 1, 2},
+		{"numeric_64", `[{"object":"embedding","index":0,"embedding":[` + "1." + strings.Repeat("0", 62) + `,0]}]`, 1, 2},
+		{"escaped_keys", `[{"ob\u006aect":"embedding","in\u0064ex":0,"embedding":[0,0]}]`, 1, 2},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(tc.data, ""), tc.n, tc.d)
+			if err != nil || len(r.Items) != tc.n || len(r.Items[0].Values) != tc.d || u.Source != mc.UnknownUsage {
+				t.Fatal("valid wire rejected", err)
+			}
+			if tc.name == "negative_zero" && !math.Signbit(r.Items[0].Values[0]) {
+				t.Fatal("lost negative zero")
+			}
+		})
+	}
+	for _, tc := range []struct{ name, data string }{
+		{"empty", "[]"},
+		{"extra_row", valid[:len(valid)-1] + "," + valid[1:]},
+		{"duplicate_index", `[{"object":"embedding","index":0,"embedding":[0,0]},{"object":"embedding","index":0,"embedding":[0,0]}]`},
+		{"out_of_range", strings.Replace(valid, `"index":0`, `"index":1`, 1)},
+		{"negative_index", strings.Replace(valid, `"index":0`, `"index":-1`, 1)},
+		{"negative_zero_index", strings.Replace(valid, `"index":0`, `"index":-0`, 1)},
+		{"float_index", strings.Replace(valid, `"index":0`, `"index":0.0`, 1)},
+		{"exponent_index", strings.Replace(valid, `"index":0`, `"index":0e0`, 1)},
+		{"huge_index", strings.Replace(valid, `"index":0`, `"index":9223372036854775808`, 1)},
+		{"missing_index", strings.Replace(valid, `"index":0,`, "", 1)},
+		{"wrong_object", strings.Replace(valid, `"object":"embedding"`, `"object":"other"`, 1)},
+		{"null_vector", strings.Replace(valid, "[-0.5,1e2]", "null", 1)},
+		{"base64_vector", strings.Replace(valid, "[-0.5,1e2]", `"AAAAAA=="`, 1)},
+		{"short_vector", strings.Replace(valid, "[-0.5,1e2]", "[0]", 1)},
+		{"long_vector", strings.Replace(valid, "[-0.5,1e2]", "[0,0,0]", 1)},
+		{"string_number", strings.Replace(valid, "-0.5", `"0"`, 1)},
+		{"null_number", strings.Replace(valid, "-0.5", "null", 1)},
+		{"bool_number", strings.Replace(valid, "-0.5", "false", 1)},
+		{"overflow", strings.Replace(valid, "-0.5", "1e309", 1)},
+		{"underflow_exponent_overflow", strings.Replace(valid, "-0.5", "1e99999999999999999999999", 1)},
+		{"number_65", strings.Replace(valid, "-0.5", "1."+strings.Repeat("0", 63), 1)},
+		{"NaN", strings.Replace(valid, "-0.5", "NaN", 1)},
+		{"infinity", strings.Replace(valid, "-0.5", "Infinity", 1)},
+		{"leading_zero", strings.Replace(valid, "-0.5", "01", 1)},
+		{"plus_number", strings.Replace(valid, "-0.5", "+1", 1)},
+		{"bare_dot", strings.Replace(valid, "-0.5", ".1", 1)},
+		{"trailing_dot", strings.Replace(valid, "-0.5", "1.", 1)},
+		{"bare_exponent", strings.Replace(valid, "-0.5", "1e", 1)},
+		{"extra_key", strings.Replace(valid, `"index":0`, `"index":0,"x":0`, 1)},
+		{"duplicate_key", strings.Replace(valid, `"index":0`, `"index":0,"index":0`, 1)},
+		{"escaped_duplicate_key", strings.Replace(valid, `"index":0`, `"index":0,"in\u0064ex":0`, 1)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, _, err := parseEmbeddingJSON(context.Background(), embeddingJSON(tc.data, `{"prompt_tokens":0}`), 1, 2)
+			embeddingZero(t, r, err)
+		})
+	}
+	for _, tc := range []struct {
+		name string
+		raw  []byte
+	}{
+		{"truncated", embeddingJSON(valid, "")[:20]},
+		{"trailing", append(embeddingJSON(valid, ""), []byte("{}")...)},
+		{"root_array", []byte("[]")},
+		{"unknown_root", bytes.Replace(embeddingJSON(valid, ""), []byte(`"object":"list"`), []byte(`"object":"list","new":0`), 1)},
+		{"duplicate_root", bytes.Replace(embeddingJSON(valid, ""), []byte(`"object":"list"`), []byte(`"object":"list","object":"list"`), 1)},
+		{"wrong_root_object", bytes.Replace(embeddingJSON(valid, ""), []byte(`"list"`), []byte(`"embedding"`), 1)},
+		{"empty_model", bytes.Replace(embeddingJSON(valid, ""), []byte(`"native-alias"`), []byte(`""`), 1)},
+		{"null_model", bytes.Replace(embeddingJSON(valid, ""), []byte(`"native-alias"`), []byte("null"), 1)},
+		{"long_model", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(strings.Repeat("x", 257)), 1)},
+		{"nul_model", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\u0000`), 1)},
+		{"high_surrogate", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\ud800`), 1)},
+		{"low_surrogate", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\udc00`), 1)},
+		{"bad_pair", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\ud800\u0041`), 1)},
+		{"invalid_escape", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(`\x41`), 1)},
+		{"invalid_utf8", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte{0xff}, 1)},
+		{"encoded_surrogate", bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte{0xed, 0xa0, 0x80}, 1)},
+		{"deep", embeddingJSON(strings.Repeat("[", 9)+"0"+strings.Repeat("]", 9), "")},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, _, err := parseEmbeddingJSON(context.Background(), tc.raw, 1, 2)
+			embeddingZero(t, r, err)
+		})
+	}
+	for _, model := range []string{`\ud83d\ude00`, "😀", "\ufffd", strings.Repeat("x", 256)} {
+		raw := bytes.Replace(embeddingJSON(valid, ""), []byte("native-alias"), []byte(model), 1)
+		if _, _, err := parseEmbeddingJSON(context.Background(), raw, 1, 2); err != nil {
+			t.Fatal("valid model unicode boundary", err)
+		}
+	}
+	// Two rows really require a permutation; this distinguishes a duplicate
+	// index from the one-row excess-count check above.
+	r, _, err := parseEmbeddingJSON(context.Background(), embeddingJSON(`[{"object":"embedding","index":0,"embedding":[0]},{"object":"embedding","index":0,"embedding":[0]}]`, ""), 2, 1)
+	embeddingZero(t, r, err)
+}
+
+func TestOpenAIEmbeddingsUsageAndIsolation(t *testing.T) {
+	data := `[{"embedding":[3,4],"index":1,"object":"embedding"},{"object":"embedding","embedding":[1,2],"index":0}]`
+	for _, usage := range []string{"", "null", "{}", `{"prompt_tokens":null,"total_tokens":null}`} {
+		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(data, usage), 2, 2)
+		if err != nil || u.Source != mc.UnknownUsage || u.Validate() != nil || r.Usage.Source != mc.UnknownUsage {
+			t.Fatal("missing usage projection", err)
+		}
+	}
+	for _, usage := range []string{`{"prompt_tokens":0}`, `{"total_tokens":9007199254740993}`, `{"prompt_tokens":9223372036854775807,"total_tokens":0}`} {
+		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(data, usage), 2, 2)
+		if err != nil || u.Source != mc.ProviderUsage || u.Validate() != nil || u.OutputTokens != nil || u.CachedInputTokens != nil || u.CacheWriteTokens != nil || u.ReasoningTokens != nil {
+			t.Fatal("provider usage projection", err)
+		}
+		if strings.Contains(usage, "9007199254740993") && (u.TotalTokens == nil || *u.TotalTokens != 9007199254740993) {
+			t.Fatal("integer rounded through float")
+		}
+		if u.InputTokens != nil && r.Usage.InputTokens == u.InputTokens {
+			t.Fatal("usage alias")
+		}
+	}
+	for _, usage := range []string{
+		`{"prompt_tokens":-1}`, `{"prompt_tokens":-0}`, `{"total_tokens":1.0}`, `{"total_tokens":1e0}`,
+		`{"total_tokens":9223372036854775808}`, `{"total_tokens":"1"}`, `{"output_tokens":1}`,
+		`{"prompt_tokens":1,"prompt_tokens":2}`, `{"total_tokens":true}`, `[]`,
+	} {
+		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(data, usage), 2, 2)
+		embeddingZero(t, r, err)
+		if u.Source != mc.UnknownUsage || u.InputTokens != nil || u.TotalTokens != nil {
+			t.Fatal("invalid usage became reliable")
+		}
+	}
+	raw := embeddingJSON(data, `{"prompt_tokens":0,"total_tokens":9007199254740993}`)
+	r, u, err := parseEmbeddingJSON(context.Background(), raw, 2, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r.Items[0].Index != 0 || r.Items[1].Index != 1 || !reflect.DeepEqual(r.Items[0].Values, []float64{1, 2}) || !reflect.DeepEqual(r.Items[1].Values, []float64{3, 4}) {
+		t.Fatal("index/order changed")
+	}
+	clone := cloneEmbeddingResult(r)
+	r.Items[0].Values[0] = 100
+	*r.Usage.TotalTokens = 1
+	raw[0] = '['
+	if clone.Items[0].Values[0] != 1 || *clone.Usage.TotalTokens != 9007199254740993 || *u.TotalTokens != 9007199254740993 {
+		t.Fatal("mutable response alias")
+	}
+	if cap(clone.Items[0].Values) != len(clone.Items[0].Values) {
+		t.Fatal("append can overwrite next row")
+	}
+	for _, bad := range []string{
+		strings.Replace(data, "[3,4]", "[3]", 1),
+		strings.Replace(data, "[3,4]", "[3,1e309]", 1),
+		strings.Replace(data, "[3,4]", `"base64"`, 1),
+	} {
+		r, u, err := parseEmbeddingJSON(context.Background(), embeddingJSON(bad, `{"prompt_tokens":0}`), 2, 2)
+		embeddingZero(t, r, err)
+		if u.InputTokens == nil || *u.InputTokens != 0 || u.Source != mc.ProviderUsage {
+			t.Fatal("valid EOF usage lost after vector semantic error")
+		}
+	}
+	broken := embeddingJSON(strings.Replace(data, "[3,4]", "[3,NaN]", 1), `{"prompt_tokens":1}`)
+	r, u, err = parseEmbeddingJSON(context.Background(), broken, 2, 2)
+	embeddingZero(t, r, err)
+	if u.InputTokens != nil || u.Source != mc.UnknownUsage {
+		t.Fatal("malformed JSON supplied reliable usage")
+	}
+}
+
+func embeddingMaximumJSON() []byte {
+	var body strings.Builder
+	body.WriteString(`{"object":"list","model":"m","data":[`)
+	for i := range 128 {
+		if i > 0 {
+			body.WriteByte(',')
+		}
+		fmt.Fprintf(&body, `{"object":"embedding","index":%d,"embedding":[`, i)
+		for j := range 2048 {
+			if j > 0 {
+				body.WriteByte(',')
+			}
+			body.WriteByte('0')
+		}
+		body.WriteString("]}")
+	}
+	body.WriteString(`],"usage":{"prompt_tokens":0}}`)
+	return []byte(body.String())
+}
+
+// Check owned capacities and backing identity directly. Addresses are only
+// compared while their owners remain live; no uintptr is converted to a pointer.
+func embeddingOwnedCapacity(t *testing.T, raw []byte, original, clone EmbeddingResult) {
+	t.Helper()
+	const count, dimensions = 128, 2048
+	if len(original.Items) != count || cap(original.Items) != count ||
+		len(clone.Items) != count || cap(clone.Items) != count {
+		t.Fatal("item table capacity")
+	}
+	originalBase := uintptr(unsafe.Pointer(unsafe.SliceData(original.Items[0].Values)))
+	cloneBase := uintptr(unsafe.Pointer(unsafe.SliceData(clone.Items[0].Values)))
+	rawBase := uintptr(unsafe.Pointer(unsafe.SliceData(raw)))
+	rowBytes := uintptr(dimensions) * unsafe.Sizeof(float64(0))
+	backingBytes := uintptr(count) * rowBytes
+	overlap := func(a, an, b, bn uintptr) bool { return a < b+bn && b < a+an }
+	if overlap(originalBase, backingBytes, cloneBase, backingBytes) ||
+		overlap(rawBase, uintptr(cap(raw)), originalBase, backingBytes) ||
+		overlap(rawBase, uintptr(cap(raw)), cloneBase, backingBytes) {
+		t.Fatal("raw/result/clone backing alias")
+	}
+	for i := range count {
+		a, b := original.Items[i], clone.Items[i]
+		if a.Index != i || b.Index != i || len(a.Values) != dimensions || cap(a.Values) != dimensions ||
+			len(b.Values) != dimensions || cap(b.Values) != dimensions {
+			t.Fatal("result or clone row capacity")
+		}
+		if uintptr(unsafe.Pointer(unsafe.SliceData(a.Values))) != originalBase+uintptr(i)*rowBytes ||
+			uintptr(unsafe.Pointer(unsafe.SliceData(b.Values))) != cloneBase+uintptr(i)*rowBytes {
+			t.Fatal("result or clone has more than one contiguous backing")
+		}
+	}
+	if original.Usage.InputTokens == nil || clone.Usage.InputTokens == nil {
+		t.Fatal("maximum shape usage precondition")
+	}
+	clone.Items[0].Values[0] = 17
+	clone.Items[count-1].Values[dimensions-1] = 19
+	*clone.Usage.InputTokens = 11
+	if original.Items[0].Values[0] != 0 || original.Items[count-1].Values[dimensions-1] != 0 ||
+		*original.Usage.InputTokens != 0 {
+		t.Fatal("clone mutation reached original result")
+	}
+	if backingBytes != 2<<20 || uintptr(cap(raw))+2*backingBytes+embeddingAuxiliaryBytes >= 21<<20 {
+		t.Fatal("actual owned backing capacity budget")
+	}
+
+	// Fixed Go 1.27.1 and scanner paths: at most eight frames with eight
+	// decoded keys of 256 bytes, two item tables, a fixed index set, and one
+	// short-string decode scratch (six escaped bytes per decoded ASCII byte).
+	// Scalar-only json.Unmarshal does not construct a JSON object tree.
+	// json.Decoder overbounds its fixed decodeState; strconv's decimal is an
+	// 800-byte array plus scalar fields (<1 KiB). Numeric tokens are <=64B.
+	// The allowance per frame covers its scalar/iterator bookkeeping. This
+	// sums bounded objects/capacities, not allocator arenas or process peak.
+	itemTables := uintptr(cap(original.Items)+cap(clone.Items)) * unsafe.Sizeof(mc.Embedding{})
+	auxiliary := 8*(8*256+unsafe.Sizeof([8]string{})+unsafe.Sizeof(embeddingScanner{})+
+		unsafe.Sizeof([4]embeddingSpan{})+128) +
+		itemTables + unsafe.Sizeof([128]bool{}) + (6*256 + 8) + 256 +
+		unsafe.Sizeof(json.Decoder{}) + unsafe.Sizeof(reflect.Value{}) +
+		4*unsafe.Sizeof(mc.Usage{}) + 4*64 + 1024 + unsafe.Sizeof(strconv.NumError{})
+	if auxiliary >= embeddingAuxiliaryBytes {
+		t.Fatal("bounded auxiliary objects exceed 64 KiB", auxiliary)
+	}
+	t.Logf("owned raw=%d result backing=%d clone backing=%d item tables=%d auxiliary bound=%d",
+		cap(raw), backingBytes, backingBytes, itemTables, auxiliary)
+	runtime.KeepAlive(raw)
+	runtime.KeepAlive(original)
+	runtime.KeepAlive(clone)
+}
+
+func embeddingAuxiliaryBoundaries(t *testing.T) {
+	t.Helper()
+	key := func(last byte) string {
+		return `"` + strings.Repeat(`\u006b`, 255) + fmt.Sprintf(`\u%04x`, last) + `"`
+	}
+	wrap := func(child string, keys int) string {
+		var b strings.Builder
+		b.WriteByte('{')
+		for i := range keys {
+			if i > 0 {
+				b.WriteByte(',')
+			}
+			b.WriteString(key(byte('a' + i)))
+			b.WriteByte(':')
+			if i == keys-1 {
+				b.WriteString(child)
+			} else {
+				b.WriteString("null")
+			}
+		}
+		b.WriteByte('}')
+		return b.String()
+	}
+	nested := "null"
+	for range 7 {
+		nested = wrap(nested, 8)
+	}
+	scanner := embeddingScan(context.Background(), []byte(nested))
+	scanner.value(1)
+	if !scanner.done() {
+		t.Fatal("maximum short keys at scalar depth eight")
+	}
+	for _, rejected := range []string{wrap(nested, 8), wrap("null", 9)} {
+		s := embeddingScan(context.Background(), []byte(rejected))
+		s.value(1)
+		if s.done() || s.err == nil {
+			t.Fatal("depth or ninth-key auxiliary bound")
+		}
+	}
+	decoded, err := embeddingString(context.Background(), []byte(key('a')), 256)
+	if err != nil || len(decoded) != 256 || len(key('a')) != 1538 {
+		t.Fatal("maximum escaped short-string decode")
+	}
+	tooLong := []byte(`"` + strings.Repeat(`\u006b`, 257) + `"`)
+	s := embeddingScan(context.Background(), tooLong)
+	span := s.stringToken(256)
+	if s.err == nil || span != (embeddingSpan{}) || s.pos >= len(tooLong) {
+		t.Fatal("short-string rejection did not precede decoding")
+	}
+	if value, err := embeddingString(context.Background(), tooLong, 256); err == nil || value != "" {
+		t.Fatal("overlong short string published decoded result")
+	}
+	literal64 := "0." + strings.Repeat("0", 62)
+	one := []float64{1}
+	if len(literal64) != 64 || embeddingVector(context.Background(), []byte("["+literal64+"]"), one) != nil || one[0] != 0 {
+		t.Fatal("64-byte number conversion")
+	}
+	one[0] = 1
+	if embeddingVector(context.Background(), []byte("["+literal64+"0]"), one) == nil || one[0] != 1 {
+		t.Fatal("65-byte number reached value publication")
+	}
+	s = embeddingScan(context.Background(), []byte(literal64+"0"))
+	s.number()
+	if s.err == nil || s.pos != 65 {
+		t.Fatal("number limit did not precede float conversion")
+	}
+	t.Log("auxiliary boundaries reached: 1538->256 escaped key; seven 8-key frames; depth/ninth-key/257-byte key reject; 64-byte number accepts and 65-byte number rejects before conversion")
+}
+
+func TestOpenAIEmbeddingsJSONCapacityAndCancellation(t *testing.T) {
+	core := embeddingMaximumJSON()
+	padded := make([]byte, embeddingResponseBytes)
+	copy(padded, core)
+	for i := len(core); i < len(padded); i++ {
+		padded[i] = ' '
+	}
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	raw, err := readEmbeddingBody(context.Background(), bytes.NewReader(padded), embeddingResponseBytes)
+	if err != nil || len(raw) != embeddingResponseBytes || cap(raw) != embeddingResponseBytes+1 {
+		t.Fatal("raw body bound", err)
+	}
+	r, u, err := parseEmbeddingJSON(context.Background(), raw, 128, 2048)
+	if err != nil || u.InputTokens == nil || *u.InputTokens != 0 {
+		t.Fatal("maximum legal product", err)
+	}
+	clone := cloneEmbeddingResult(r)
+	runtime.ReadMemStats(&after)
+	vectorCapacity := 0
+	for i := range r.Items {
+		if len(r.Items[i].Values) != 2048 || cap(r.Items[i].Values) != 2048 || len(clone.Items[i].Values) != 2048 {
+			t.Fatal("vector capacity")
+		}
+		vectorCapacity += cap(r.Items[i].Values) * 8
+	}
+	if vectorCapacity != 2<<20 || cap(raw)+2*vectorCapacity+embeddingAuxiliaryBytes >= 21<<20 {
+		t.Fatal("owned parser capacity budget")
+	}
+	embeddingOwnedCapacity(t, raw, r, clone)
+	embeddingAuxiliaryBoundaries(t)
+	// TotalAlloc includes all process-wide cumulative allocations in this
+	// interval, even objects no longer held. It is diagnostic, not owned
+	// capacity; the strict raw/vector/auxiliary gates above remain independent.
+	t.Logf("max raw capacity=%d, vector capacity=%d, clone=%d, diagnostic cumulative TotalAlloc=%d",
+		cap(raw), vectorCapacity, vectorCapacity, after.TotalAlloc-before.TotalAlloc)
+	// A value at the very end of the maximum vector set is invalid. A complete
+	// valid usage remains observable, but no prefix of the vectors escapes.
+	last := bytes.LastIndex(core, []byte("0]}"))
+	if last < 0 {
+		t.Fatal("test last scalar")
+	}
+	bad := append([]byte(nil), core...)
+	bad = append(bad[:last], append([]byte("1e309"), core[last+1:]...)...)
+	result, usage, err := parseEmbeddingJSON(context.Background(), bad, 128, 2048)
+	embeddingZero(t, result, err)
+	if usage.InputTokens == nil || *usage.InputTokens != 0 {
+		t.Fatal("late semantic error lost usage")
+	}
+	for _, tc := range []struct {
+		name string
+		raw  []byte
+	}{
+		{"vectors", core},
+		{"whitespace", append(bytes.Repeat([]byte(" "), 2<<20), embeddingJSON(`[{"object":"embedding","index":0,"embedding":[0]}]`, "")...)},
+		{"long_string", []byte(`{"object":"list","model":"` + strings.Repeat("x", 2<<20) + `","data":[]}`)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			base, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			ctx := &embeddingCheckContext{Context: base, cancel: cancel, at: 2}
+			s := embeddingScan(ctx, tc.raw)
+			s.value(1)
+			if s.err == nil {
+				t.Fatal("parser did not stop at real cancellation")
+			}
+			requireModel(t, s.err, "cancelled", "wire_cancelled")
+			if base.Err() != context.Canceled || ctx.calls != 2 || s.pos > embeddingCheckBytes {
+				t.Fatal("byte/scalar cancellation bound", s.pos, ctx.calls)
+			}
+			if tc.name == "vectors" && s.scalars > 1024 {
+				t.Fatal("scalar cancellation checkpoint")
+			}
+		})
+	}
+}
+
+type embeddingTerminalReader struct {
+	data []byte
+	err  error
+}
+
+func (r *embeddingTerminalReader) Read(p []byte) (int, error) {
+	if len(r.data) > 0 {
+		n := copy(p, r.data)
+		r.data = r.data[n:]
+		if len(r.data) == 0 {
+			return n, r.err
+		}
+		return n, nil
+	}
+	return 0, r.err
+}
+
+type embeddingEOFBarrier struct {
+	data    []byte
+	entered chan struct{}
+	release chan struct{}
+}
+
+func (r *embeddingEOFBarrier) Read(p []byte) (int, error) {
+	if len(r.data) > 0 {
+		n := copy(p, r.data)
+		r.data = r.data[n:]
+		return n, nil
+	}
+	close(r.entered)
+	<-r.release
+	return 0, io.EOF
+}
+func TestOpenAIEmbeddingsBodyEOFAndLimits(t *testing.T) {
+	body := embeddingJSON(`[{"object":"embedding","index":0,"embedding":[0]}]`, `{"total_tokens":0}`)
+	for _, tc := range []struct {
+		name     string
+		limit    int64
+		terminal error
+		success  bool
+	}{
+		{"exact_EOF", int64(len(body)), io.EOF, true},
+		{"limit_plus_one", int64(len(body) - 1), io.EOF, false},
+		{"late_read_error", int64(len(body)), io.ErrUnexpectedEOF, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			raw, err := readEmbeddingBody(context.Background(), &embeddingTerminalReader{data: body, err: tc.terminal}, tc.limit)
+			if tc.success {
+				if err != nil || !bytes.Equal(raw, body) {
+					t.Fatal("actual EOF failed", err)
+				}
+			} else if err == nil || raw != nil {
+				t.Fatal("read failure supplied parseable candidate")
+			}
+		})
+	}
+	t.Run("parseable_prefix_waits_for_actual_EOF", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		reader := &embeddingEOFBarrier{data: body, entered: make(chan struct{}), release: make(chan struct{})}
+		type outcome struct {
+			raw []byte
+			err error
+		}
+		done := make(chan outcome, 1)
+		go func() { raw, err := readEmbeddingBody(ctx, reader, 1024); done <- outcome{raw, err} }()
+		released, joined := false, false
+		t.Cleanup(func() {
+			cancel()
+			if !released {
+				close(reader.release)
+			}
+			if !joined {
+				<-done
+			}
+		})
+		select {
+		case <-reader.entered:
+		case <-time.After(time.Second):
+			t.Fatal("EOF barrier not entered")
+		}
+		select {
+		case <-done:
+			joined = true
+			t.Fatal("returned before actual EOF")
+		default:
+		}
+		cancel()
+		select {
+		case <-done:
+			joined = true
+			t.Fatal("caller cancellation abandoned actual reader")
+		default:
+		}
+		close(reader.release)
+		released = true
+		result := <-done
+		joined = true
+		if result.raw != nil {
+			t.Fatal("cancelled EOF candidate")
+		}
+		requireModel(t, result.err, "cancelled", "wire_cancelled")
+		if !errors.Is(ctx.Err(), context.Canceled) {
+			t.Fatal("real cancellation")
+		}
+	})
+	tooLarge := bytes.Repeat([]byte(" "), embeddingResponseBytes+1)
+	raw, err := readEmbeddingBody(context.Background(), bytes.NewReader(tooLarge), embeddingResponseBytes)
+	if raw != nil {
+		t.Fatal("response cap+1 escaped")
+	}
+	requireModel(t, err, "provider_error", "wire_limit_exceeded")
+	r, _, err := parseEmbeddingJSON(context.Background(), tooLarge, 1, 1)
+	embeddingZero(t, r, err)
+}

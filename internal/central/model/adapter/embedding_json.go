@@ -1,0 +1,650 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log/slog"
+	"math"
+	"strconv"
+	"unicode/utf8"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// readEmbeddingBody owns exactly one bounded raw backing. It never treats a
+// parseable prefix or a non-EOF read error as the end of the response. Transport
+// cancellation and actual reader/connection completion remain the caller's job.
+func readEmbeddingBody(ctx context.Context, reader io.Reader, limit int64) ([]byte, error) {
+	if ctx == nil || reader == nil || limit < 1 || limit > embeddingResponseBytes {
+		return nil, invalid()
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, contextFailure(err)
+	}
+	raw := make([]byte, int(limit)+1)
+	used, emptyReads := 0, 0
+	for {
+		if err := ctx.Err(); err != nil {
+			return nil, contextFailure(err)
+		}
+		end := min(len(raw), used+embeddingCheckBytes)
+		n, err := reader.Read(raw[used:end])
+		if n < 0 || n > end-used {
+			return nil, protocolFailure()
+		}
+		used += n
+		if used > int(limit) {
+			return nil, limitFailure()
+		}
+		if e := ctx.Err(); e != nil {
+			return nil, contextFailure(e)
+		}
+		if err == io.EOF {
+			return raw[:used], nil
+		}
+		if err != nil {
+			return nil, transportFailure(err)
+		}
+		if n == 0 {
+			emptyReads++
+			if emptyReads >= 100 {
+				return nil, transportFailure(io.ErrNoProgress)
+			}
+		} else {
+			emptyReads = 0
+		}
+	}
+}
+
+type embeddingSpan struct{ start, end int }
+
+// The syntax pass stores only bounded object keys on a depth<=8 stack, never
+// individual vector values or RawMessage copies. No legal profile object has
+// more than four keys. Eight keys of <=256 decoded bytes per frame leave ample
+// room below the 64 KiB auxiliary cap, including the second-pass index table.
+type embeddingScanner struct {
+	ctx     context.Context
+	raw     []byte
+	pos     int
+	check   int
+	scalars int
+	err     error
+}
+
+func embeddingScan(ctx context.Context, raw []byte) *embeddingScanner {
+	s := &embeddingScanner{ctx: ctx, raw: raw}
+	if ctx == nil {
+		s.err = invalid()
+	} else if err := ctx.Err(); err != nil {
+		s.err = contextFailure(err)
+	}
+	return s
+}
+func (s *embeddingScanner) advance(n int) {
+	if s.err == nil && s.pos+n-s.check >= embeddingCheckBytes {
+		s.check = s.pos
+		if err := s.ctx.Err(); err != nil {
+			s.err = contextFailure(err)
+		}
+	}
+	s.pos += n
+}
+func (s *embeddingScanner) scalar() {
+	s.scalars++
+	if s.err == nil && s.scalars%1024 == 0 {
+		if err := s.ctx.Err(); err != nil {
+			s.err = contextFailure(err)
+		}
+	}
+}
+func (s *embeddingScanner) bad() {
+	if s.err == nil {
+		s.err = protocolFailure()
+	}
+}
+func (s *embeddingScanner) space() {
+	for s.err == nil && s.pos < len(s.raw) {
+		switch s.raw[s.pos] {
+		case ' ', '\n', '\r', '\t':
+			s.advance(1)
+		default:
+			return
+		}
+	}
+}
+func (s *embeddingScanner) take(c byte) bool {
+	s.space()
+	if s.err != nil {
+		return false
+	}
+	if s.pos >= len(s.raw) || s.raw[s.pos] != c {
+		s.bad()
+		return false
+	}
+	s.advance(1)
+	return s.err == nil
+}
+func (s *embeddingScanner) next(c byte) bool {
+	s.space()
+	return s.err == nil && s.pos < len(s.raw) && s.raw[s.pos] == c
+}
+func (s *embeddingScanner) done() bool {
+	s.space()
+	if s.err == nil && s.pos != len(s.raw) {
+		s.bad()
+	}
+	if s.err == nil {
+		if err := s.ctx.Err(); err != nil {
+			s.err = contextFailure(err)
+		}
+	}
+	return s.err == nil
+}
+func (s *embeddingScanner) literal(text string) {
+	for i := 0; i < len(text) && s.err == nil; i++ {
+		if s.pos >= len(s.raw) || s.raw[s.pos] != text[i] {
+			s.bad()
+			return
+		}
+		s.advance(1)
+	}
+}
+func (s *embeddingScanner) hex4() rune {
+	var result rune
+	for range 4 {
+		if s.err != nil || s.pos >= len(s.raw) {
+			s.bad()
+			return 0
+		}
+		c := s.raw[s.pos]
+		var v byte
+		switch {
+		case c >= '0' && c <= '9':
+			v = c - '0'
+		case c >= 'a' && c <= 'f':
+			v = c - 'a' + 10
+		case c >= 'A' && c <= 'F':
+			v = c - 'A' + 10
+		default:
+			s.bad()
+			return 0
+		}
+		result = result*16 + rune(v)
+		s.advance(1)
+	}
+	return result
+}
+func (s *embeddingScanner) stringToken(maxDecoded int) embeddingSpan {
+	s.space()
+	start := s.pos
+	if !s.take('"') {
+		return embeddingSpan{}
+	}
+	decoded := 0
+	for s.err == nil && s.pos < len(s.raw) {
+		c := s.raw[s.pos]
+		if c == '"' {
+			s.advance(1)
+			s.scalar()
+			return embeddingSpan{start, s.pos}
+		}
+		var width int
+		switch {
+		case c == '\\':
+			s.advance(1)
+			if s.pos >= len(s.raw) {
+				s.bad()
+				break
+			}
+			c = s.raw[s.pos]
+			s.advance(1)
+			switch c {
+			case '"', '\\', '/', 'b', 'f', 'n', 'r', 't':
+				width = 1
+			case 'u':
+				r := s.hex4()
+				if r >= 0xdc00 && r <= 0xdfff {
+					s.bad()
+					break
+				}
+				if r >= 0xd800 && r <= 0xdbff {
+					s.literal("\\u")
+					low := s.hex4()
+					if low < 0xdc00 || low > 0xdfff {
+						s.bad()
+						break
+					}
+					r = 0x10000 + (r-0xd800)*0x400 + (low - 0xdc00)
+				}
+				width = utf8.RuneLen(r)
+			default:
+				s.bad()
+			}
+		case c < 0x20:
+			s.bad()
+		case c < utf8.RuneSelf:
+			width = 1
+			s.advance(1)
+		default:
+			r, n := utf8.DecodeRune(s.raw[s.pos:])
+			if r == utf8.RuneError && n == 1 {
+				s.bad()
+				break
+			}
+			width = n
+			s.advance(n)
+		}
+		decoded += width
+		if maxDecoded >= 0 && decoded > maxDecoded && s.err == nil {
+			s.err = limitFailure()
+		}
+	}
+	s.bad()
+	return embeddingSpan{}
+}
+func (s *embeddingScanner) number() embeddingSpan {
+	s.space()
+	start := s.pos
+	digit := func() bool {
+		return s.pos < len(s.raw) && s.raw[s.pos] >= '0' && s.raw[s.pos] <= '9'
+	}
+	step := func() {
+		s.advance(1)
+		if s.pos-start > embeddingNumberBytes && s.err == nil {
+			s.err = limitFailure()
+		}
+	}
+	if s.pos < len(s.raw) && s.raw[s.pos] == '-' {
+		step()
+	}
+	if !digit() {
+		s.bad()
+		return embeddingSpan{}
+	}
+	if s.raw[s.pos] == '0' {
+		step()
+	} else {
+		for digit() && s.err == nil {
+			step()
+		}
+	}
+	if s.pos < len(s.raw) && s.raw[s.pos] == '.' {
+		step()
+		if !digit() {
+			s.bad()
+		}
+		for digit() && s.err == nil {
+			step()
+		}
+	}
+	if s.pos < len(s.raw) && (s.raw[s.pos] == 'e' || s.raw[s.pos] == 'E') {
+		step()
+		if s.pos < len(s.raw) && (s.raw[s.pos] == '+' || s.raw[s.pos] == '-') {
+			step()
+		}
+		if !digit() {
+			s.bad()
+		}
+		for digit() && s.err == nil {
+			step()
+		}
+	}
+	s.scalar()
+	return embeddingSpan{start, s.pos}
+}
+func (s *embeddingScanner) smallString(span embeddingSpan) string {
+	if s.err != nil {
+		return ""
+	}
+	var key string
+	if json.Unmarshal(s.raw[span.start:span.end], &key) != nil {
+		s.bad()
+	}
+	return key
+}
+func (s *embeddingScanner) value(depth int) {
+	s.space()
+	if s.err != nil {
+		return
+	}
+	if depth > 8 {
+		s.err = limitFailure()
+		return
+	}
+	if s.pos >= len(s.raw) {
+		s.bad()
+		return
+	}
+	switch s.raw[s.pos] {
+	case '{':
+		s.advance(1)
+		var keys [8]string
+		count := 0
+		if s.next('}') {
+			s.advance(1)
+			return
+		}
+		for s.err == nil {
+			if count == len(keys) {
+				s.err = limitFailure()
+				return
+			}
+			key := s.smallString(s.stringToken(256))
+			for _, previous := range keys[:count] {
+				if key == previous {
+					s.bad()
+					return
+				}
+			}
+			keys[count] = key
+			count++
+			if !s.take(':') {
+				return
+			}
+			s.value(depth + 1)
+			if s.next('}') {
+				s.advance(1)
+				return
+			}
+			if !s.take(',') {
+				return
+			}
+		}
+	case '[':
+		s.advance(1)
+		if s.next(']') {
+			s.advance(1)
+			return
+		}
+		for s.err == nil {
+			s.value(depth + 1)
+			if s.next(']') {
+				s.advance(1)
+				return
+			}
+			if !s.take(',') {
+				return
+			}
+		}
+	case '"':
+		s.stringToken(-1)
+	case 't':
+		s.literal("true")
+		s.scalar()
+	case 'f':
+		s.literal("false")
+		s.scalar()
+	case 'n':
+		s.literal("null")
+		s.scalar()
+	default:
+		s.number()
+	}
+}
+
+// fields validates each entire value before returning offsets into the single
+// raw buffer. The fixed set excludes unknown fields; escaped keys compare by
+// their decoded value, so they cannot bypass duplicate detection.
+func (s *embeddingScanner) fields(names ...string) ([4]embeddingSpan, uint) {
+	var fields [4]embeddingSpan
+	var seen uint
+	if !s.take('{') {
+		return fields, seen
+	}
+	if s.next('}') {
+		s.advance(1)
+		return fields, seen
+	}
+	for s.err == nil {
+		name := s.smallString(s.stringToken(256))
+		index := -1
+		for i, allowed := range names {
+			if name == allowed {
+				index = i
+				break
+			}
+		}
+		if index < 0 || seen&(1<<index) != 0 {
+			s.bad()
+			return fields, seen
+		}
+		seen |= 1 << index
+		if !s.take(':') {
+			return fields, seen
+		}
+		s.space()
+		start := s.pos
+		s.value(2)
+		fields[index] = embeddingSpan{start, s.pos}
+		if s.next('}') {
+			s.advance(1)
+			return fields, seen
+		}
+		if !s.take(',') {
+			return fields, seen
+		}
+	}
+	return fields, seen
+}
+func embeddingString(ctx context.Context, raw []byte, maxBytes int) (string, error) {
+	s := embeddingScan(ctx, raw)
+	span := s.stringToken(maxBytes)
+	if !s.done() {
+		return "", s.err
+	}
+	result := s.smallString(span)
+	if s.err != nil {
+		return "", s.err
+	}
+	return result, nil
+}
+func embeddingCount(raw []byte) (*mc.TokenCount, error) {
+	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
+		return nil, nil
+	}
+	for _, c := range raw {
+		if c < '0' || c > '9' {
+			return nil, protocolFailure()
+		}
+	}
+	if len(raw) > 1 && raw[0] == '0' {
+		return nil, protocolFailure()
+	}
+	n, err := strconv.ParseInt(string(raw), 10, 64)
+	if err != nil {
+		return nil, protocolFailure()
+	}
+	result := mc.TokenCount(n)
+	return &result, nil
+}
+func embeddingUsage(ctx context.Context, raw []byte) (mc.Usage, error) {
+	unknown := mc.Usage{Source: mc.UnknownUsage}
+	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
+		return unknown, nil
+	}
+	s := embeddingScan(ctx, raw)
+	fields, _ := s.fields("prompt_tokens", "total_tokens")
+	if !s.done() {
+		return unknown, s.err
+	}
+	u := unknown
+	var err error
+	u.InputTokens, err = embeddingCount(raw[fields[0].start:fields[0].end])
+	if err != nil {
+		return unknown, err
+	}
+	u.TotalTokens, err = embeddingCount(raw[fields[1].start:fields[1].end])
+	if err != nil {
+		return unknown, err
+	}
+	if u.InputTokens != nil || u.TotalTokens != nil {
+		u.Source = mc.ProviderUsage
+	}
+	return u, nil
+}
+
+// parseEmbeddingJSON requires a complete EOF-delimited buffer (obtained via
+// readEmbeddingBody). Syntax/usage failures expose no counts. After complete
+// syntax and valid usage, a vector semantic error may preserve usage separately;
+// the candidate EmbeddingResult is always zero on every error.
+func parseEmbeddingJSON(ctx context.Context, raw []byte, count, dimensions int) (EmbeddingResult, mc.Usage, error) {
+	unknown := mc.Usage{Source: mc.UnknownUsage}
+	if ctx == nil || !embeddingShape(count, dimensions) {
+		return EmbeddingResult{}, unknown, invalid()
+	}
+	if len(raw) > embeddingResponseBytes {
+		return EmbeddingResult{}, unknown, limitFailure()
+	}
+	s := embeddingScan(ctx, raw)
+	fields, seen := s.fields("object", "data", "model", "usage")
+	if !s.done() {
+		return EmbeddingResult{}, unknown, s.err
+	}
+	if seen&7 != 7 {
+		return EmbeddingResult{}, unknown, protocolFailure()
+	}
+	part := func(span embeddingSpan) []byte { return raw[span.start:span.end] }
+	usage := unknown
+	fail := func(err error) (EmbeddingResult, mc.Usage, error) { return EmbeddingResult{}, usage, err }
+	object, err := embeddingString(ctx, part(fields[0]), 16)
+	if err != nil {
+		return fail(err)
+	}
+	if object != "list" {
+		return fail(protocolFailure())
+	}
+	model, err := embeddingString(ctx, part(fields[2]), 256)
+	if err != nil {
+		return fail(err)
+	}
+	if model == "" || stringsNUL(model) {
+		return fail(protocolFailure())
+	}
+	usage, err = embeddingUsage(ctx, part(fields[3]))
+	if err != nil {
+		return EmbeddingResult{}, unknown, err
+	}
+
+	data := part(fields[1])
+	d := embeddingScan(ctx, data)
+	if !d.take('[') {
+		return fail(d.err)
+	}
+	values := make([]float64, count*dimensions)
+	items := make([]mc.Embedding, count)
+	var indices [embeddingMaxItems]bool
+	rows := 0
+	if !d.next(']') {
+		for d.err == nil {
+			if rows == count {
+				return fail(protocolFailure())
+			}
+			row, mask := d.fields("object", "index", "embedding")
+			if d.err != nil {
+				return fail(d.err)
+			}
+			if mask != 7 {
+				return fail(protocolFailure())
+			}
+			obj, err := embeddingString(ctx, data[row[0].start:row[0].end], 16)
+			if err != nil {
+				return fail(err)
+			}
+			if obj != "embedding" {
+				return fail(protocolFailure())
+			}
+			index, err := embeddingCount(data[row[1].start:row[1].end])
+			if err != nil || index == nil || int64(*index) >= int64(count) {
+				return fail(protocolFailure())
+			}
+			i := int(*index)
+			if indices[i] {
+				return fail(protocolFailure())
+			}
+			indices[i] = true
+			vector := values[i*dimensions : (i+1)*dimensions : (i+1)*dimensions]
+			if err := embeddingVector(ctx, data[row[2].start:row[2].end], vector); err != nil {
+				return fail(err)
+			}
+			items[i] = mc.Embedding{Index: i, Values: vector}
+			rows++
+			if d.next(']') {
+				break
+			}
+			if !d.take(',') {
+				return fail(d.err)
+			}
+		}
+	}
+	if !d.take(']') || !d.done() {
+		return fail(d.err)
+	}
+	if rows != count {
+		return fail(protocolFailure())
+	}
+	if err := ctx.Err(); err != nil {
+		return fail(contextFailure(err))
+	}
+	return EmbeddingResult{Items: items, Usage: usage.Clone()}, usage, nil
+}
+
+func stringsNUL(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] == 0 {
+			return true
+		}
+	}
+	return false
+}
+func embeddingVector(ctx context.Context, raw []byte, values []float64) error {
+	s := embeddingScan(ctx, raw)
+	if !s.take('[') {
+		return s.err
+	}
+	for i := range values {
+		if i > 0 && !s.take(',') {
+			return s.err
+		}
+		token := s.number()
+		if s.err != nil {
+			return s.err
+		}
+		n, err := strconv.ParseFloat(string(raw[token.start:token.end]), 64)
+		if err != nil || math.IsInf(n, 0) || math.IsNaN(n) {
+			return protocolFailure()
+		}
+		values[i] = n
+	}
+	if !s.take(']') || !s.done() {
+		return s.err
+	}
+	return nil
+}
+
+func cloneEmbeddingResult(r EmbeddingResult) EmbeddingResult {
+	out := r
+	out.Usage = r.Usage.Clone()
+	out.Items = make([]mc.Embedding, len(r.Items))
+	total := 0
+	for _, item := range r.Items {
+		total += len(item.Values)
+	}
+	values := make([]float64, total)
+	at := 0
+	for i, item := range r.Items {
+		end := at + len(item.Values)
+		copy(values[at:end], item.Values)
+		out.Items[i] = mc.Embedding{Index: item.Index, Values: values[at:end:end]}
+		at = end
+	}
+	return out
+}
+
+func (*embeddingScanner) Format(w fmt.State, _ rune) { safeFormat(w, "model_embedding_parser") }
+func (*embeddingScanner) MarshalJSON() ([]byte, error) {
+	return []byte("\"model_embedding_parser\""), nil
+}
+func (*embeddingScanner) LogValue() slog.Value { return slog.StringValue("model_embedding_parser") }

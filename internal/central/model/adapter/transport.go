@@ -426,3 +426,6 @@ func (*Budget) LogValue() slog.Value             { return slog.StringValue("mode
 func (Transport) Format(w fmt.State, _ rune)     { safeFormat(w, "model_wire_transport") }
 func (Transport) MarshalJSON() ([]byte, error)   { return []byte(`"model_wire_transport"`), nil }
 func (Transport) LogValue() slog.Value           { return slog.StringValue("model_wire_transport") }
+
+// cancelWork forwards the shared budget signal without changing Chat lifecycle.
+func (x *Exchange) cancelWork() { x.cancel() }
