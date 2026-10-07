@@ -1,0 +1,67 @@
+{
+  "stored": {
+    "author/rev3-fixed-input.json": {
+      "source": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/fixed-input.json",
+      "sha256": "c1424ba62a30a429066121df021fa2d2d61c9067175109b507eb97ef3a67c6c4",
+      "bytes": 469
+    },
+    "author/rev3-freeze.json": {
+      "source": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/freeze.json",
+      "sha256": "7f489c0d467666d65384e25d048600923fed05e023635197a82acabcf6b87699",
+      "bytes": 1363
+    },
+    "author/rev2-to-rev3.patch": {
+      "source": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/rev2-to-rev3.patch",
+      "sha256": "55b2d52ff8a894630a44204f38795bdeb7ba682a277cb171509dc6cf9b286522",
+      "bytes": 5280
+    },
+    "author/rev3-adoption-header.patch": {
+      "source": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/rev3-adoption-header.patch",
+      "sha256": "201c992dcc2f28754e56dbec98758985b8f303f9a4fd5659cd3be0037b9c8595",
+      "bytes": 1988
+    },
+    "author/rev3-adoption-freeze.json": {
+      "source": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/rev3-adoption-freeze.json",
+      "sha256": "7c38fa6238abbea9c789b4cf6613a42f4a64e0892859e6f422e6817233e01f33",
+      "bytes": 1245
+    },
+    "independent/S2-static-rev3/review.md": {
+      "source": "/workspace/scratch/summary-verification/S2-static-rev3/review.md",
+      "sha256": "6213c954affd02010c8874a75fa0306c74098f95776a05341befe89731ba2f36",
+      "bytes": 1365
+    },
+    "independent/S2-static-rev3/freeze.json": {
+      "source": "/workspace/scratch/summary-verification/S2-static-rev3/freeze.json",
+      "sha256": "67410ef1d1b76248c001b9b495bc3c38949d9058e19b50d4a9c16612d7acef59",
+      "bytes": 652
+    }
+  },
+  "fixed_git": {
+    "rev2_specification": "0b13445e5ad8dd1a430528cef559b5f4451ffeac",
+    "rev2_card_sha256": "d78311c3c3cdff53c3329c4ca60ee8106d514ee16b4956afd7a8296ea6a2a259",
+    "rev3_specification": "fdfcffdbc5949006030c80e48833bfe3b49a86cc",
+    "specification_path": "docs/development/work-items/d09-system-meeting-summary-settings.md",
+    "adopted_rev3_card_sha256": "85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+    "product_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+    "fixed_http_test_sha256": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98"
+  },
+  "raw_whitespace_exceptions": {
+    "author/rev2-to-rev3.patch": [
+      5,
+      10,
+      12,
+      14,
+      16,
+      19,
+      27,
+      30,
+      32
+    ],
+    "author/rev3-adoption-header.patch": [
+      5,
+      8,
+      10
+    ]
+  },
+  "scope": "7 exact original records for bounded rev3 STATIC delta and adoption; prior evidence unchanged. Specification snapshots reused from fixed Git and exact patches, not duplicated; no active product sources, tests, caches, binaries or resource evidence."
+}

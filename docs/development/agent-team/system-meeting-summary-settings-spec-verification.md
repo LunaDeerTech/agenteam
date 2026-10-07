@@ -26,3 +26,11 @@ root 采纳后只改页首接受状态，原[头部差量](system-meeting-summar
 归档仅核原件字节/哈希、JSON、引用及格式，并核提交卡与接受状态；没有运行产品、旧脚本、编译、浏览器或资源，也未读/重 hash 活动 S3 源码。规格冻结后的协调状态另记：root 已授 `fixture_recovery` 唯一 S2 #1–13、`usage_backend` 唯一 #14–29，并均已实际 ACK 开始源编辑/格式/准备；README #30/#31、S2 Go 执行及真实资源尚未授权，实际共享依赖图共同 freeze 要求保持。S3 四 contract 封闭包的离线 Go list/pure及race compile/run/vet 窗口已单独授权并实际进行、尚未接受；S3 model/app/integration/runtime 执行仍未授，活动离线原件不纳入此静态归档。
 
 S2/S3 产品未接受、D24 消费未绑定；S1/Usage 的既有限定接受及原失败/清理限制保持。系统统一会议 initial/update（含首轮标题）、Project 不 override/复制初值的规则不变。生产 Invocations=nil、ready503、完整 D08–D28/E01 未完成、E01 未开始及 Object runtime join/OpenAI tools 独立验证/SPA concurrent-publication 三停止保持。
+
+## rev3：补齐既定三方法的旧测兼容范围
+
+root 已采纳 [rev3 独立差量 STATIC PASS](system-meeting-summary-settings-spec-verification-evidence/independent/S2-static-rev3/review.md)，报告 SHA `6213c954affd02010c8874a75fa0306c74098f95776a05341befe89731ba2f36`；[冻结](system-meeting-summary-settings-spec-verification-evidence/independent/S2-static-rev3/freeze.json) SHA `67410ef1d1b76248c001b9b495bc3c38949d9058e19b50d4a9c16612d7acef59`。规格提交 `fdfcffdbc5949006030c80e48833bfe3b49a86cc` 已推送并确认远端一致，接受卡 SHA `85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035`。本节追加该时点，以上 rev1/rev2 记录保持原文。
+
+[范围差量](system-meeting-summary-settings-spec-verification-evidence/author/rev2-to-rev3.patch)只补入既有 `internal/central/model/http_test.go` 为 #32：后端作者 `fixture_recovery` 仅将 `TestSystemHTTPConstructionAndRoutesMatchOpenAPI` 的 route 总数 26→29，原 route/schema 对应、lookup read intent、遗漏方法及构造依赖等强断言保持。固定 c210d249 第77行确为26；既定新增 GET/HEAD/PUT 共三方法，故改为29。这是实施静态核对发现的必要范围兼容，没有运行测试或产生测试首红，也不扩产品契约。候选共32项（后端14、前端/browser16、末件README2）；原 #1–31、§1–4、§6起及11个链接均保持。root 另已明确授权 #32；本次规格接受不代表后端14项已冻结或 S2 产品通过。
+
+[rev3 来源映射](system-meeting-summary-settings-spec-verification-evidence/rev3-source-map.json)追加 **7 原件、12362 bytes**，含固定断言核对、作者冻结、范围与[接受头差量](system-meeting-summary-settings-spec-verification-evidence/author/rev3-adoption-header.patch)、[接受自查](system-meeting-summary-settings-spec-verification-evidence/author/rev3-adoption-freeze.json)及独审原件。卡前像与接受版复用固定 Git/精确 patch，不重复复制；旧17原件和旧映射未改。新增两份原 patch 共12处空白上下文行逐字保留，其余新增正文/JSON格式正常。原件哈希、JSON、相对引用、差量还原和提交字节均核对；未运行产品、旧脚本、Go、浏览器或资源，未读取活动产品源，S2/S3 产品验收和其余边界不由本次 STATIC 改变。

@@ -1,0 +1,10 @@
+{
+  "baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "path": "internal/central/model/http_test.go",
+  "sha256": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98",
+  "function": "TestSystemHTTPConstructionAndRoutesMatchOpenAPI",
+  "assertion_line": 77,
+  "before": "if count != 26 {",
+  "required_after": "if count != 29 {",
+  "reason": "existing S2 GET/HEAD/PUT schema/route compatibility found by static inspection; no test run or failure"
+}

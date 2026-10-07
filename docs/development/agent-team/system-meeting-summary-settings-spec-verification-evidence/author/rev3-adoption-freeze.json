@@ -1,0 +1,27 @@
+{
+  "card": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-settings.md",
+  "sha256": "85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+  "prior": {
+    "path": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/rev3-pre-adoption.md",
+    "sha256": "5c68903455190cc14a6e8a12824051caa3d1a0911c542f1467ff64430473c229"
+  },
+  "snapshot": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/rev3-adopted.md",
+  "patch": {
+    "path": "/workspace/scratch/recovery-docs/summary-s2-spec/rev3/rev3-adoption-header.patch",
+    "sha256": "201c992dcc2f28754e56dbec98758985b8f303f9a4fd5659cd3be0037b9c8595"
+  },
+  "review": {
+    "path": "/workspace/scratch/summary-verification/S2-static-rev3/review.md",
+    "sha256": "6213c954affd02010c8874a75fa0306c74098f95776a05341befe89731ba2f36"
+  },
+  "review_freeze": {
+    "path": "/workspace/scratch/summary-verification/S2-static-rev3/freeze.json",
+    "sha256": "67410ef1d1b76248c001b9b495bc3c38949d9058e19b50d4a9c16612d7acef59"
+  },
+  "checks": {
+    "header_only": true,
+    "all_following_bytes_unchanged": true,
+    "diff_check": "PASS"
+  },
+  "status": "root adopted rev3 STATIC; card frozen; no new implementation/test/resource permission inferred"
+}
