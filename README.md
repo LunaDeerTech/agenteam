@@ -2,6 +2,12 @@
 
 agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期项目状态、任务、会议、Agent 执行与人类审核。
 
+## 当前增量：Project Owner Update HTTP规格接受（2026-10-07）
+
+[Update规格](docs/development/agent-team/project-owner-update-http-spec-verification.md)已完整限定独立STATIC接受，规格 `03d1c107`、归档 `221ec4ba` 已推送且root核远端一致。`next_frontier` 已实际ACK并沿基线 `901eb546` 开始#1–18技术实施，先strict wire/handler；#19 README末件未授。必要离线窗口整体已授，尚无Go结果；native/PG资源未授。`usage_verification` 已ACK，独立product-prep仅scratch计划，Update产品尚未接受。
+
+[Owner只读HTTP](docs/development/agent-team/project-owner-read-http-verification.md)产品 `901eb546` /归档 `a10586e9`、Summary S1/S2/S3及Usage接受保持；九个PG轮和36个daemon/PID1 shim非owned未wait限制沿只读归档保留。系统管理员统一会议initial/update（含首轮标题）模型、Project不override/复制初值及compaction/Execution Summary规则不改。production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join、OpenAI tools独立验证、SPA concurrent-publication三停止保持。以下既有文字保留其历史时点。
+
 ## 当前增量（2026-10-07）
 
 [Project Owner只读HTTP](docs/development/agent-team/project-owner-read-http-verification.md)完整17路径（含后端README末件）已接受，产品 `901eb546`、归档 `a10586e9` 已推送并确认远端一致；本切片提供默认root下的Owner列表/详情GET/HEAD。所有task-owned命令/资源已停止；九个PG轮的原失败、实际wait/七资源双清及新增36个daemon/PID1 shim非owned未wait限制见归档，不称全机清零。

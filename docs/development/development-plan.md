@@ -8,6 +8,10 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：[Project Owner Update HTTP规格](agent-team/project-owner-update-http-spec-verification.md)已完整限定独立STATIC接受；规格 `03d1c107`、归档 `221ec4ba` 均已推送且root核远端一致。基线 `901eb546` 上，`next_frontier` 已实际ACK并开始#1–18技术实施，先strict wire/handler；#19 README末件未授。必要离线窗口整体已授，但尚无Go结果；native/PG资源未授。`usage_verification` 已ACK，独立product-prep仅scratch计划，Update产品尚未接受。
+
+[Owner只读HTTP](agent-team/project-owner-read-http-verification.md)产品 `901eb546` /归档 `a10586e9`、Summary S1/S2/S3及Usage接受保持；只读归档的九个PG轮、原失败和新增36个daemon/PID1 shim非owned未wait限制不变。系统统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则保持；production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
+
 2026-10-07 当前增量：[Project Owner只读HTTP](agent-team/project-owner-read-http-verification.md)完整17路径（含后端README末件）已接受；产品 `901eb546`、归档 `a10586e9` 均已推送且root核远端一致。所有task-owned命令/资源已停止；九个PG轮的原失败、actualwait/七资源双清及新增36个daemon/PID1 shim非owned未wait限制沿档保留。
 
 下一项Project Owner Update HTTP工程规格由 `next_frontier` 实际ACK并开始起草，`usage_verification` 已ACK仅只读独立准备，固定基线 `901eb546`；尚未冻结/完整STATIC，未授权业务实施或资源。Summary S1/S2/S3及Usage接受保持；系统统一会议initial/update含首轮标题、Project不override/复制初值和compaction/Execution Summary规则不变。production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
