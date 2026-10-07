@@ -80,7 +80,7 @@ func TestModelProjectConfigurationHTTPDefaultRoot(t *testing.T) {
 	if json.Unmarshal(observed.Result.Project, &historical) != nil || historical["id"] != v.project.ID.String() || historical["version"] != "2" {
 		t.Fatal("Update lookup changed original Project identity/version")
 	}
-	root.request(t, v.ownerBrowser, "POST", base+"models", nil).problem(t, 405, f.MethodNotAllowed)
+	root.request(t, v.ownerBrowser, "POST", base+"models", map[string]any{}).problem(t, 400, f.InvalidArgument)
 	ready := root.request(t, v.ownerBrowser, "GET", "/readyz", nil)
 	var problem httpapi.Problem
 	if ready.status != 503 || json.Unmarshal(ready.body, &problem) != nil || (problem.Code != f.DependencyUnbound && problem.Code != f.DependencyUnavailable) {

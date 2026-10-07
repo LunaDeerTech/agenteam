@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Project Model configuration and safe available chat read API",
-    "version": "1.0.0",
-    "description": "Five Owner GET/HEAD resources only. The new HTTP representation limit is 8 MiB; it does not bound prior accepted database/library allocations or process RSS. Legal oversized results produce zero success projection; no array/item truncation or automatic smaller-limit retry. Existing System routes are unchanged."
+    "title": "Project Model configuration, commands and safe available chat API",
+    "version": "1.1.0",
+    "description": "Five accepted Owner GET/HEAD resources retain their two-second I/O and 8 MiB complete representation rules. Six configuration mutations and one explicit historical command lookup use the same current Project authority. Mutation publication/I/O budget is 30 seconds, lookup is two seconds; request JSON <=1 MiB and safe success output <=1 KiB. No Provider network invocation, credential material, new selector or Agent reference rewrite is provided."
   },
   "paths": {
     "/api/v1/projects/{project_id}/model-providers": {
@@ -731,6 +731,135 @@
             }
           }
         }
+      },
+      "post": {
+        "operationId": "project_configuration_provider_create",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human Owner only, no administrator exemption. Strict typed Project input is validated before all service/lookup calls; malformed projection is never masked by a historical lookup. One service call; the original Model Read->receipt->first Mutate order and same-context private Unknown confirmation are unchanged. Archived history replay may succeed under current Read; new mutations still require active Mutate. All query parameters and empty ? are rejected. Input <=1048576 raw JSON bytes, depth<=64, strict duplicate/unknown fields and explicit null/presence. Provider options, parameters/overwrites and reasoning_efforts retain the original unsupported-nonempty policy. Project credential_ref is a same-Project stable ID, never material. No auto retry or key substitution. Actual Body.Close, Write/Flush and callback retirement precede reset; expired/partial I/O aborts. Thirty-second publication/I/O budget before authentication; original earlier parent deadline wins. A nil-error but malformed write receipt maps to private DEPENDENCY_UNAVAILABLE/unknown without inventing cause/attempt or asserting rollback; a service error has priority.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Exactly one original command key; never a URL parameter or regenerated lookup key."
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Formal Account CSRF token for all seven unsafe-method operations, including passive lookup."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One strict application/json object, max1048576 raw bytes including whitespace. Size limit is not a whole-process memory bound.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationCreateProvider"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete safe JSON success, at most1024 bytes; original history, not a current GET replacement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Problem and service error priority. Lookup projection failure is DEPENDENCY_UNAVAILABLE/not_started for unavailable observation; this does not assert an original write did not commit. Unsupported methods use full resource Allow; HEAD errors have no body. Deadline and tail failures abort without a late Problem.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/projects/{project_id}/model-providers/{provider_id}": {
@@ -1423,6 +1552,280 @@
                 "schema": {
                   "type": "string",
                   "pattern": "^[0-9]+$"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "project_configuration_provider_update",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human Owner only, no administrator exemption. Strict typed Project input is validated before all service/lookup calls; malformed projection is never masked by a historical lookup. One service call; the original Model Read->receipt->first Mutate order and same-context private Unknown confirmation are unchanged. Archived history replay may succeed under current Read; new mutations still require active Mutate. All query parameters and empty ? are rejected. Input <=1048576 raw JSON bytes, depth<=64, strict duplicate/unknown fields and explicit null/presence. Provider options, parameters/overwrites and reasoning_efforts retain the original unsupported-nonempty policy. Project credential_ref is a same-Project stable ID, never material. No auto retry or key substitution. Actual Body.Close, Write/Flush and callback retirement precede reset; expired/partial I/O aborts. Thirty-second publication/I/O budget before authentication; original earlier parent deadline wins. A nil-error but malformed write receipt maps to private DEPENDENCY_UNAVAILABLE/unknown without inventing cause/attempt or asserting rollback; a service error has priority.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "path",
+            "name": "provider_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Exactly one original command key; never a URL parameter or regenerated lookup key."
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Formal Account CSRF token for all seven unsafe-method operations, including passive lookup."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One strict application/json object, max1048576 raw bytes including whitespace. Size limit is not a whole-process memory bound.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationUpdateProvider"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete safe JSON success, at most1024 bytes; original history, not a current GET replacement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Problem and service error priority. Lookup projection failure is DEPENDENCY_UNAVAILABLE/not_started for unavailable observation; this does not assert an original write did not commit. Unsupported methods use full resource Allow; HEAD errors have no body. Deadline and tail failures abort without a late Problem.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "project_configuration_provider_delete",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human Owner only, no administrator exemption. Strict typed Project input is validated before all service/lookup calls; malformed projection is never masked by a historical lookup. One service call; the original Model Read->receipt->first Mutate order and same-context private Unknown confirmation are unchanged. Archived history replay may succeed under current Read; new mutations still require active Mutate. All query parameters and empty ? are rejected. Input <=1048576 raw JSON bytes, depth<=64, strict duplicate/unknown fields and explicit null/presence. Provider options, parameters/overwrites and reasoning_efforts retain the original unsupported-nonempty policy. Project credential_ref is a same-Project stable ID, never material. No auto retry or key substitution. Actual Body.Close, Write/Flush and callback retirement precede reset; expired/partial I/O aborts. Thirty-second publication/I/O budget before authentication; original earlier parent deadline wins. A nil-error but malformed write receipt maps to private DEPENDENCY_UNAVAILABLE/unknown without inventing cause/attempt or asserting rollback; a service error has priority.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "path",
+            "name": "provider_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Exactly one original command key; never a URL parameter or regenerated lookup key."
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Formal Account CSRF token for all seven unsafe-method operations, including passive lookup."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One strict application/json object, max1048576 raw bytes including whitespace. Size limit is not a whole-process memory bound.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationDeleteProvider"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete safe JSON success, at most1024 bytes; original history, not a current GET replacement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Problem and service error priority. Lookup projection failure is DEPENDENCY_UNAVAILABLE/not_started for unavailable observation; this does not assert an original write did not commit. Unsupported methods use full resource Allow; HEAD errors have no body. Deadline and tail failures abort without a late Problem.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
                 }
               }
             }
@@ -2155,6 +2558,135 @@
             }
           }
         }
+      },
+      "post": {
+        "operationId": "project_configuration_model_create",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human Owner only, no administrator exemption. Strict typed Project input is validated before all service/lookup calls; malformed projection is never masked by a historical lookup. One service call; the original Model Read->receipt->first Mutate order and same-context private Unknown confirmation are unchanged. Archived history replay may succeed under current Read; new mutations still require active Mutate. All query parameters and empty ? are rejected. Input <=1048576 raw JSON bytes, depth<=64, strict duplicate/unknown fields and explicit null/presence. Provider options, parameters/overwrites and reasoning_efforts retain the original unsupported-nonempty policy. Project credential_ref is a same-Project stable ID, never material. No auto retry or key substitution. Actual Body.Close, Write/Flush and callback retirement precede reset; expired/partial I/O aborts. Thirty-second publication/I/O budget before authentication; original earlier parent deadline wins. A nil-error but malformed write receipt maps to private DEPENDENCY_UNAVAILABLE/unknown without inventing cause/attempt or asserting rollback; a service error has priority.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Exactly one original command key; never a URL parameter or regenerated lookup key."
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Formal Account CSRF token for all seven unsafe-method operations, including passive lookup."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One strict application/json object, max1048576 raw bytes including whitespace. Size limit is not a whole-process memory bound.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationCreateModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete safe JSON success, at most1024 bytes; original history, not a current GET replacement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Problem and service error priority. Lookup projection failure is DEPENDENCY_UNAVAILABLE/not_started for unavailable observation; this does not assert an original write did not commit. Unsupported methods use full resource Allow; HEAD errors have no body. Deadline and tail failures abort without a late Problem.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/projects/{project_id}/models/{model_id}": {
@@ -2847,6 +3379,280 @@
                 "schema": {
                   "type": "string",
                   "pattern": "^[0-9]+$"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "project_configuration_model_update",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human Owner only, no administrator exemption. Strict typed Project input is validated before all service/lookup calls; malformed projection is never masked by a historical lookup. One service call; the original Model Read->receipt->first Mutate order and same-context private Unknown confirmation are unchanged. Archived history replay may succeed under current Read; new mutations still require active Mutate. All query parameters and empty ? are rejected. Input <=1048576 raw JSON bytes, depth<=64, strict duplicate/unknown fields and explicit null/presence. Provider options, parameters/overwrites and reasoning_efforts retain the original unsupported-nonempty policy. Project credential_ref is a same-Project stable ID, never material. No auto retry or key substitution. Actual Body.Close, Write/Flush and callback retirement precede reset; expired/partial I/O aborts. Thirty-second publication/I/O budget before authentication; original earlier parent deadline wins. A nil-error but malformed write receipt maps to private DEPENDENCY_UNAVAILABLE/unknown without inventing cause/attempt or asserting rollback; a service error has priority.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Exactly one original command key; never a URL parameter or regenerated lookup key."
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Formal Account CSRF token for all seven unsafe-method operations, including passive lookup."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One strict application/json object, max1048576 raw bytes including whitespace. Size limit is not a whole-process memory bound.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationUpdateModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete safe JSON success, at most1024 bytes; original history, not a current GET replacement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Problem and service error priority. Lookup projection failure is DEPENDENCY_UNAVAILABLE/not_started for unavailable observation; this does not assert an original write did not commit. Unsupported methods use full resource Allow; HEAD errors have no body. Deadline and tail failures abort without a late Problem.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "project_configuration_model_delete",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human Owner only, no administrator exemption. Strict typed Project input is validated before all service/lookup calls; malformed projection is never masked by a historical lookup. One service call; the original Model Read->receipt->first Mutate order and same-context private Unknown confirmation are unchanged. Archived history replay may succeed under current Read; new mutations still require active Mutate. All query parameters and empty ? are rejected. Input <=1048576 raw JSON bytes, depth<=64, strict duplicate/unknown fields and explicit null/presence. Provider options, parameters/overwrites and reasoning_efforts retain the original unsupported-nonempty policy. Project credential_ref is a same-Project stable ID, never material. No auto retry or key substitution. Actual Body.Close, Write/Flush and callback retirement precede reset; expired/partial I/O aborts. Thirty-second publication/I/O budget before authentication; original earlier parent deadline wins. A nil-error but malformed write receipt maps to private DEPENDENCY_UNAVAILABLE/unknown without inventing cause/attempt or asserting rollback; a service error has priority.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Exactly one original command key; never a URL parameter or regenerated lookup key."
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Formal Account CSRF token for all seven unsafe-method operations, including passive lookup."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One strict application/json object, max1048576 raw bytes including whitespace. Size limit is not a whole-process memory bound.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationDeleteModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete safe JSON success, at most1024 bytes; original history, not a current GET replacement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Problem and service error priority. Lookup projection failure is DEPENDENCY_UNAVAILABLE/not_started for unavailable observation; this does not assert an original write did not commit. Unsupported methods use full resource Allow; HEAD errors have no body. Deadline and tail failures abort without a late Problem.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
                 }
               }
             }
@@ -3580,6 +4386,137 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{project_id}/model-commands/lookup": {
+      "post": {
+        "operationId": "project_configuration_lookup",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human Owner only, no administrator exemption. Strict typed Project input is validated before all service/lookup calls; malformed projection is never masked by a historical lookup. One service call; the original Model Read->receipt->first Mutate order and same-context private Unknown confirmation are unchanged. Archived history replay may succeed under current Read; new mutations still require active Mutate. All query parameters and empty ? are rejected. Input <=1048576 raw JSON bytes, depth<=64, strict duplicate/unknown fields and explicit null/presence. Provider options, parameters/overwrites and reasoning_efforts retain the original unsupported-nonempty policy. Project credential_ref is a same-Project stable ID, never material. No auto retry or key substitution. Actual Body.Close, Write/Flush and callback retirement precede reset; expired/partial I/O aborts. Two-second publication/I/O budget before authentication; original Command EX and current Read transaction; found/receipt observation only.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Exactly one original command key; never a URL parameter or regenerated lookup key."
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Formal Account CSRF token for all seven unsafe-method operations, including passive lookup."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "One strict application/json object, max1048576 raw bytes including whitespace. Size limit is not a whole-process memory bound.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationLookupInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complete safe JSON success, at most1024 bytes; original history, not a current GET replacement.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationLookup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Problem and service error priority. Lookup projection failure is DEPENDENCY_UNAVAILABLE/not_started for unavailable observation; this does not assert an original write did not commit. Unsupported methods use full resource Allow; HEAD errors have no body. Deadline and tail failures abort without a late Problem.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4115,6 +5052,212 @@
           }
         },
         "description": "Empty items is []; no continuation is null. Item count does not exceed requested limit. Original cursor watermarks and binding apply; cursor has no TTL. Current authority is checked on every page."
+      },
+      "ConfigurationCreateProvider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input"
+        ],
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/ProviderInput"
+          }
+        }
+      },
+      "ConfigurationUpdateProvider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "input"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ProviderInput"
+          }
+        }
+      },
+      "ConfigurationDeleteProvider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        }
+      },
+      "ConfigurationCreateModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provider_id",
+          "input"
+        ],
+        "properties": {
+          "provider_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ModelInput"
+          }
+        }
+      },
+      "ConfigurationUpdateModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "input"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ModelInput"
+          }
+        }
+      },
+      "ConfigurationDeleteModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "replacement"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "replacement": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ConfigurationLookupInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "enum": [
+              "provider.create",
+              "provider.update",
+              "provider.delete",
+              "model.create",
+              "model.update",
+              "model.delete"
+            ]
+          }
+        }
+      },
+      "ConfigurationReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "resource_id",
+          "version",
+          "affected_references"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "provider.create",
+              "provider.update",
+              "provider.delete",
+              "model.create",
+              "model.update",
+              "model.delete"
+            ]
+          },
+          "resource_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "affected_references": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "not": {
+                    "const": "model.delete"
+                  }
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "affected_references": {
+                  "const": "0"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Original historical configuration receipt, not a current configuration view. Mutation responses additionally bind kind/target and create version1 or update/delete expected+1; current Project deletion cannot rewrite unbound reference owners and has zero affected references. Expected MaxInt64 remains a valid input that the unchanged service rejects on a first version increment."
+      },
+      "ConfigurationLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "found",
+              "receipt"
+            ],
+            "properties": {
+              "found": {
+                "const": false
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "found",
+              "receipt"
+            ],
+            "properties": {
+              "found": {
+                "const": true
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/ConfigurationReceipt"
+              }
+            }
+          }
+        ],
+        "description": "Read-authorized historical observation under the original Command EX lock. False is not proof an earlier Unknown rolled back; true does not validate another request semantic. No current-resource existence requirement, no automatic replay or private confirmation authority."
       }
     }
   }
