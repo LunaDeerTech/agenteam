@@ -1,0 +1,130 @@
+# D09：OpenAI Embeddings float wire 库
+
+修订：rev1。状态：规格已独立 STATIC PASS，并获主线程采纳；产品尚未开工、未验收。实施和真实资源窗口须另行明确授权。本卡正式路径 `docs/development/work-items/d09-openai-embeddings-wire.md`。
+
+固定产品 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`。已接受 C0 `e6e94c4`、D04 `abf5c37` 与后继同实例管理口 `a942779`、text wire `9c72190`、structured wire `be0bd07`；消费固定 Git 当前字节，不回退早期实现或读取未验 tools 候选。依据 [D09 主卡](d09-model-system-token-usage.md)、[工程规格 §5–7/13](d09-model-system-token-usage-design.md)、[text wire 契约](recovery-d09-openai-chat-wire.md)及[structured 增量](recovery-d09-openai-chat-structured-wire.md)。沿[设计](../../../.agents/skills/agenteam-design/SKILL.md)、[Go](../../../.agents/skills/agenteam-go-development/SKILL.md)和[验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。
+
+独立审查：[冻结报告](/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/review.md)，SHA-256 `208d90a678e22364debe5f59b86abd9b21a0449566815cf1d28203c828456f51`。原 private rev0.1 全文 SHA-256 `91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0`；本卡仅适配页首，技术 §1–7 原字节 SHA-256 `1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133` 保持不变。规格接受不代表产品、SDK 或真实供应商动态验收。
+
+## 1. 完整结果与不变边界
+
+交付一次完整、有限的 Embeddings wire exchange：不可变受信输入，经正式 D04 单次 POST，取得按原输入索引排列的有限 float 向量及可靠 usage，或安全错误；成功前完成 HTTP EOF、body/parser/transport 实际尾部。包括取消、拒绝、并发预算和旧 Chat 兼容，不能只交 JSON codec。
+
+这不是 `contract.Nonchat.Embed` 的业务实现。该端口还要求真实 Actor/CallID/Consumer/InputIdentity/ResolvedModel/lease 关联，结果要求 InvocationID；Model Runtime 才是 invocation/finalize 的事实所有者。本库不产生 InvocationID、receipt、发送资格或 consumer grant，不写 Usage，不组装 Resolver/Facts/Runtime/HTTP/root。当前允许构造的 wire snapshot 与合成 SecretMaterial 仅作协议 fixture，不冒充真实模型解析/业务授权。
+
+首版仅参数 `{}`、文本批量、非流式 `encoding_format=float`；明确不支持原生 `dimensions`、token 数组、base64、user、任意 overwrite 或其它未核可选能力。已定 OpenAI Embeddings 方向不变。Object/Artifact、D13/D14 消费、真实供应商账号 smoke、Summary 决定均留原责任模块；三项 Object runtime join、OpenAI tools 独立验证、SPA publication 停止任务不得恢复、替代或消费。
+
+## 2. 专用公开形状与维度来源
+
+在既有 `internal/central/model/adapter` 内追加下列形状；`mc` 为现有 Model contract。原 `Transport`、`CallOptions`、`Observation` 和 `Budget` 公共形状与旧 Chat API 不变。
+
+```go
+const OpenAIEmbeddingsFloatRevision = "openai-embeddings-float-v1"
+
+type EmbeddingRequest struct {
+    Snapshot           mc.ConfigSnapshot
+    Texts              []string
+    ExpectedDimensions int
+}
+type EmbeddingResult struct {
+    Items             []mc.Embedding
+    Usage             mc.Usage
+    ProviderRequestID string
+}
+type OpenAIEmbeddings struct { /* private */ }
+func NewOpenAIEmbeddings(Transport, *Budget) (*OpenAIEmbeddings, error)
+func (*OpenAIEmbeddings) Start(context.Context, EmbeddingRequest, CallOptions) (*EmbeddingExchange, error)
+type EmbeddingExchange struct { /* private */ }
+func (*EmbeddingExchange) Result(context.Context) (EmbeddingResult, error)
+func (*EmbeddingExchange) Observe() Observation
+func (*EmbeddingExchange) Close(context.Context) error
+func (*EmbeddingExchange) Joined() bool
+```
+
+构造仅校验/捕获依赖，无 SQL、socket、goroutine 或授权探测；沿旧构造器正式 D04 检查，不反射私有状态。没有 `Next`、业务 Frame 或流式向量前缀。含正文、endpoint、材料或向量的新类型提供固定标签的 Format/LogValue/MarshalJSON，显式字段只交受信 Go caller。
+
+`ExpectedDimensions` 是**必填的本地结果要求**，不是 Provider 默认值声明、能力发现或新平台配置：1–4096，且 `len(Texts)×ExpectedDimensions≤262144`，乘法须先防溢出。Start 深拷贝 Snapshot、Texts 和 options 可变部分，冻结该值；响应不符就整份失败，不能从第一行响应改写期望或补截向量。后继真实 caller 必须从其已接受的配置/IndexProfile 等正式事实建立该要求并验证授权；本卡不制造该事实或替后继绑定。不得把返回向量长度当成配置写入。
+
+原 `CallOptions.ProjectID` 仍是受信 caller 的 canonical 消费项目调度 key，不是 grant。System 模型可服务多个项目；C0 Knowledge/Memory consumer 仍要求 ProjectID，不能用 System scope、随机生产 ID 或零 ID 代替项目、另立 System 配额。fixture 的合成 key 只证明协议调度。
+
+## 3. 支持闭集、体积与一次请求
+
+| 输入 | 固定规则 |
+| --- | --- |
+| Snapshot | C0 Validate；Protocol=`OpenAIEmbeddings`、Profile=`OpenAIEmbeddingsV1`、type=`embedding`、revision 精确为上款。ProviderModelID 沿 C0 非空≤256 B 原文，不加入未证默认型号或账号可用性推断。 |
+| 能力/参数 | 仅 input=`[text]`、output=`[vector]`；Streaming/ToolCalls/ParallelToolCalls/Reasoning=false，ReasoningEfforts/StructuredOutputModes 空，MaxOutput=nil。ContextLength 可保持 C0 正值，但不估算 token。Parameters/RequestOverwrite 必须严格空对象，HeaderOverwrite 空；合法但未支持值返回原 `unsupported_feature/wire_unsupported_feature`，零 handle/slot/Do。坏 JSON、重复键、非法 C0/数量/期望值为 InvalidArgument/NotStarted。 |
+| 文本 | 1–128 项，逐项非空、合法 UTF-8、无 NUL、≤1 MiB；不 trim、不拼 prompt，保持原顺序。合计原 UTF-8≤4 MiB。token 数组没有 API 入口。字节限额不是 Provider token 上限证明；不引 tokenizer 或估 token。 |
+| 编码 | 原生 body 恰 `model`、`input`、`encoding_format`；即使一项也发字符串数组；float 恒显式。不发送 ExpectedDimensions、dimensions、user、stream 或其它键。编码后总 body≤8 MiB，且≤调用者较紧 RequestBodyBytes；预计算实际 JSON 转义长度及所有固定字段后才分配，不先编码巨量输入再判。 |
+| endpoint/凭据 | 沿 C0+D04 ParseTarget，仅在原转义 base 边界追加一个 `/embeddings`，保留内部双斜线/点段，不补 `/v1`。仅 POST、application/json；真实 origin 绑定 Bearer，借用 SecretMaterial 至实际 Joined；不输出或持久化材料。 |
+| 时间/读取 | Overall 显式正值≤120s，ReadIdle 默认 min(60s,Overall)，显式值不得更长；早 parent 始终优先。D04 非流 response cap≤16 MiB；本地同 cap（取调用者较紧值），不能因 Content-Length 缺失/错误免实际累计。所有计数/长度加乘防溢出。 |
+
+表中 128/4096/乘积/字节值是本修订的工程上限，不声称所有型号接受其完整笛卡尔积。尺寸/空输入/参数等拒绝均先于本次请求的 Client、slot 和工作 goroutine。已取消/封 admission/满额保持旧故障语义；正式成功接收后才创建本次 Client/worker，任何后续失败由返回的 exact handle 持有。
+
+一次 Start 只调用一次 D04 Do，不做 adapter/SDK/应用重试、不自动拆批或续发；仅 D04 已验的零字节透明网络重试保持。POST 3xx 不跟随，不能拿 Redirects=0 冒充禁跳；实际 server 次数验证。网络/HTTP错误映射复用原安全闭集，404不擅判型号不存在，Retryable 仅为事实标记而非执行重试。
+
+## 4. 严格响应、usage 与解析内存
+
+只接受200、合法参数化 application/json 和一个完整 UTF-8 JSON 对象；读到实际 EOF 后才可能形成成功。根只允许 `object,data,model,usage`，其中 object=`list`、model 为非空合法 UTF-8、无 NUL、≤256 B、data 为恰 N 项数组；model 字段只验类型/长度，不以别名回显不同误判为另一已授权配置，也不对外新增该元信息。
+
+每项只允许且必须有 `object,index,embedding`：object=`embedding`，index 是规范非负整数字面量且在0..N-1、无重复、完整覆盖；embedding 恰 ExpectedDimensions 个 JSON number，允许整数/小数/指数，严格语法与 float64 转换，只接受有限结果。拒字符串/base64、null、NaN/Inf、超范围转换、缺项/多项/错维；结果按 index 排回输入顺序，不信任响应数组顺序，也不自动归一化、平均、截断或补零。每数原字面量≤64 B；index/usage 要按整数检查，不先转 float64 丢失>2^53精度。
+
+每层重复键、额外键、非法 UTF-8/不成对 UTF-16 转义、尾随第二JSON、深度>8、截断和超限都安全失败；错误不带正文、向量、URL或原 decoder cause。原始成功响应最多 cap+1 字节用于判超，持有的 float backing≤2 MiB，独立返回副本至多再2 MiB，索引/层栈/短键辅助存储≤64 KiB；解析器自有这些缓冲的容量和<21 MiB（不把 Go allocator 或 D04 自身缓冲冒充已测 RSS）。不得再建整份 string/RawMessage副本、`[]any`/逐数对象树或保留每个数字字符串；单浮点临时字面量至多64 B。解析循环至少每4 KiB扫描或1024标量核 ctx，含大空白/超长非法标量；限额须在对应分配前生效。纯检查给最大合法向量与末尾坏值的实际内存/取消证据，不以 OOM 或事后GC替代边界。
+
+usage 可缺失/null；对象只允许 prompt_tokens/total_tokens，字段可缺失/null或0..MaxInt64规范整数。只逐字段映射 input/total，零保持零，缺失保持nil，不加总/估算或补output=0；全部未知为 UnknownUsage，否则 ProviderUsage，其余四种token字段恒nil。SDK声明两字段不改变D09“缺usage仍成功但unknown”规则。仅完整JSON语法及EOF后独立合法的usage可进入 Observe；向量语义失败或后续取消/join失败仍保留它，坏usage/截断不制造可靠计数。Observe深拷贝，不暴露候选向量。
+
+Result只允许一次串行消费；并发/再次调用 InvalidState，错误返回零 EmbeddingResult。成功须所有向量校验通过且当前caller与原attempt均未取消、实际join已完成；join成功后再次复核取消，不能恢复已取消请求。PartialOutput恒false，Dispatched仅来自真实Decision.Sent，Decision未知保持nil而非伪造零发送。ProviderRequestID沿现有256 B安全字符闭集；认证/状态/协议/limit错误均复用安全ModelError规则，不记录原body/header/material。
+
+## 5. 同一 Budget 与实际尾部
+
+所有 Chat text、structured、Embedding adapter 注入**同一 Budget 实例**，合计64全局/每canonical Project8，无新等待队列。既有 Budget 目前以 `*Exchange`为key；只允许在 budget.go 引入容纳两种 exact handle 的最小私有工作接口/登记层（取消、waitJoined、Joined），在旧 transport.go 增加私有转发。保留旧 `accept` 接缝/公共签名，admit/release/snapshot共用原锁与计数，不复制另一套配额或扩成Runtime框架；旧错误和所有测试断言不变。
+
+取消或可见deadline返回、parser EOF、HTTP对象已Close均不是独立的slot释放凭据。必须本次Do已返回、request writer/callback、response body/parser与Client.Drain的全部实际尾部完成才释放exact slot且恰一次。新handle必须处理公开边界实际返回的Read、Response.Close与Drain错误，任一失败都不能返回候选向量；不得丢弃Close返回值后发布成功。当前正式Response.Close返回nil，本条不声称它暴露原生Body内部Close错误，也不改变D04或旧Chat流程。成功Result等实际join；失败可按原ctx返回，但handle及Budget仍承认未终局，caller有责任以同一所属清理窗口Close/Drain并实际观察结束。不得后台无界wait、替在途IO换fresh预算或靠关闭ctx宣布终局。
+
+Close只请求取消并在传入剩余等待预算内等待本handle，不释放仍活材料/slot；Joined用不等待的实际状态核对。StopAdmission只关新接收；Force先向全部两种handles取消，再用同一个调用方ctx Drain，不能每handle续期。返回的向量/usage与Observe、后续调用、输入均无可变别名；Result的真实一次所有权转移或安全clone均可，但不得留下再次成功读取。
+
+## 6. 官方证据、候选范围与所有权
+
+本次仅GET固定官方 `openai/openai-python@becc1d20eed83c1b8d85e15dc131a372d9dc7813` 六件：resources/embeddings.py，types/embedding_create_params.py、create_embedding_response.py、embedding.py、embedding_model.py及LICENSE；精确URL、SHA、字节与原文件见同私有根 `official/`、`official-evidence.md`。证明相对路径/Bearer、显式float必要性、文本输入/索引向量/usage和模型枚举；dimensions注释仅称text-embedding-3及以后支持，没有固定默认维度或型号上限。一次官方guide和一次官方cookbook revision查询均代理403，原记录保留，未再取证。首版因此原生dimensions不支持，不能把ExpectedDimensions写成Provider默认事实。
+
+这是采用字段的工程来源，不是SDK执行、真实供应商账号或所有兼容Provider conformance。manifest必须绑定本revision/采用及拒绝字段/原件SHA和实际正反测试；不用“OpenAI兼容”标签放宽闭集，不引SDK运行依赖/go.mod/锁变化。后续原生dimensions支持需新证据及独立规格增量，不暗加到本卡。
+
+拟唯一作者范围共16路径（既有3+新12+文档末件1）；除列明共享两个生产接缝和一个fixtureserver，旧C0/Chat/错误parser/fixture客户端/脚本/业务服务均只读。范围外必要改动先报主线程，不改旧测试凑通过。
+
+| # | 精确路径 | 限定内容 |
+| --- | --- | --- |
+| 1 | `internal/central/model/adapter/openai_embeddings.go` | 新API、预检/有界编码、不可变输入和安全显示。 |
+| 2 | `internal/central/model/adapter/embedding_transport.go` | 新handle、真实D04请求/Observation/实际join。 |
+| 3 | `internal/central/model/adapter/embedding_json.go` | 新专用有限解析、向量/usage验证。 |
+| 4 | `internal/central/model/adapter/budget.go` | 旧：两种handle共享64/8的最小内部适配。 |
+| 5 | `internal/central/model/adapter/transport.go` | 旧：仅Chat handle私有预算接口转发，不改旧流程。 |
+| 6 | `internal/central/model/adapter/openai_embeddings_test.go` | 新：输入/克隆/拒绝/安全输出。 |
+| 7 | `internal/central/model/adapter/embedding_transport_test.go` | 新：受控实际尾部/取消/零候选。 |
+| 8 | `internal/central/model/adapter/embedding_json_test.go` | 新：严格JSON/数值/总量/解析内存边界。 |
+| 9 | `internal/central/model/adapter/embedding_budget_test.go` | 新：混合handle竞争/两级预算/旧域不变。 |
+| 10 | `internal/central/model/adapter/testdata/openai-embeddings-float-v1.json` | 新：有界官方来源/字段/revision/provenance。 |
+| 11 | `tests/model/openai_embeddings_wire_fixture_test.go` | 新：复用已验newWireFixture及公开控制DTO的窄helper。 |
+| 12 | `tests/model/openai_embeddings_wire_http_test.go` | 新：真实协议/原生计数/Policy/错误代表。 |
+| 13 | `tests/model/openai_embeddings_wire_terminal_test.go` | 新：真实EOF、writer/body/callback与取消终局。 |
+| 14 | `tests/model/openai_embeddings_wire_budget_test.go` | 新：真实混合Chat/Embedding预算与旧兼容代表。 |
+| 15 | `tests/testsupport/outbound/cmd/server/main.go` | 旧：仅新增openai_embeddings_wire模式/固定suffix分支。 |
+| 16 | `docs/development/backend/README.md` | 独立接受后最后局部操作/边界说明。 |
+
+fixture客户端现有 ScenarioConfig.Mode/WireScenario 已够用，不改 `tests/testsupport/outbound/fixture.go` 或旧newWireFixture。server仅新Mode允许同Wire载体，默认suffix=`/embeddings`且只能以该后缀结束；旧openai_chat_wire仍仅/chat/completions，其他旧mode仍禁Wire。复用原nonce控制、原状态投影/连接跟踪、headers/status/512 chunks/512KiB合成响应等现有限额，不增任意代理/外网能力。纯测试覆盖协议最大边界，真实fixture用小代表及较紧D04 cap；控制State≤2MiB限制保持，合成材料/正文不打印入日志。
+
+后续源码及共享fixtureserver由唯一backend作者持有；各运行窗口由root明确授予并由唯一资源负责人协调。不得因当前资源空闲自行启动native/Docker；三项停止任务涉及的未验Model/tools、SPA和Object候选不进入编译/测试输入。
+
+## 7. 分阶段验收与交付
+
+先API/编码/解析纯阶段冻结，再最小共享Budget与旧Chat兼容静审，最后真实harness/固定输入/driver门禁；任何阶段不预称完整结果接受。纯unit/race/vet及必要编译每命令45s，筛掉native/listener测试；源码、SDK原件、Go/锁与真正运行闭包逐SHA固定。真实场景≤2m、原Go `-race -count=1 -timeout=6m`；无实际运行授权前只编译/发现不执行产物。Central/Runner仅必要兼容构建，不运行。
+
+| 精确真实顶层 | 必须证明 |
+| --- | --- |
+| `TestModelOpenAIEmbeddingsWireHTTP` | 正式PG Account/Audit/Policy允许与拒绝、受控TLS实际POST；精确base逃逸路径/Bearer绑定/三个body键/单项仍数组；多项乱序响应重排、维度由caller要求、缺usage/零/>2^53；未支持参数零handle/零Do/零请求，真实状态/POST重定向零后继请求、安全错误。 |
+| `TestModelOpenAIEmbeddingsWireTerminal` | 合法JSON字节后仍hold EOF无成功、截断/较紧bodycap；持真实writer或callback并取消，Result错误/Close期限不释放slot，实际放行后才join；材料仍活至join，已合法usage在尾部错误后保持、无迟到向量发布，handler/连接全部终局。 |
+| `TestModelOpenAIEmbeddingsWireBudget` | 同一Budget混合text/structured/Embedding，单Project8及多Project合计64，超额零Do无排队；取消但未join仍扣槽，Stop/Force/Drain统一取消与共享剩余预算，不按协议/Project悄悄倍增。 |
+
+纯矩阵补最大文本/总JSON转义/N×D、全部索引/浮点/整数/usage闭集、额外键/重复/UTF8/代理项、numeric token/depth/大空白取消、一次Result和深拷贝/安全format；验证Input拒绝先于预算及max载体不会产生第二整份/逐标量对象树。现有adapter全部纯断言保持并运行；真实兼容精确复用固定Git已核的旧 `TestModelOpenAIChatWireHTTP`、`TestModelOpenAIChatWireStream`、`TestModelOpenAIChatWireJoinAndBudget`、`TestModelOpenAIChatStructuredHTTP`、`TestModelOpenAIChatStructuredStream`、`TestModelOpenAIChatStructuredCloseAndBudget`，覆盖共享预算/请求形状/结构化尾部，不跑未验tools。
+
+真实资源沿原test-security完整隔离拓扑与当前固定依赖；实际运行前冻结nonce/exact资源ID、基线容器网络/Mount、PID/starttime/subreaper/actualwait与输入前后门禁，fresh空间不足不启动。每轮实际等待测试/子进程、body/server/callback收尾，精确资源与owned进程两扫清零才交窗；不以ctx/返回值/kill指令替代实际join。仅受控合成Private TLS server，外部Provider账号不调用。
+
+最终交付精确16路径、原失败/前态/差量、命令/env/exit/raw、分阶段输入与官方来源，独立验收挑实际协议与尾部/共享Budget代表；README最后、Git由root完成。本规格自查与公开GET不构成产品或动态PASS，完整Embedding可选能力、D09和平台仍未交付。
