@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：环境恢复至 main 6fa2ee72
+
+- [本次恢复交接](recovery-2026-10-07-environment.md)固定重新派工时点：初始 `work@bfdbd079` 干净，fetch 后全量保留远端，仅六 worker TOML 的 reasoning `max→ultra`；主线程已切至跟踪 `origin/main` 的 `main@6fa2ee72`，无未推送提交。旧私有 scratch 未恢复。
+- [Usage HTTP rev1](../work-items/d09-project-usage-read-http.md)仍是 STATIC 规格已接受、实施未接受。`usage_backend` 已实际 ACK 并恢复唯一 A 五路径直接 `main` 实施，自有 scratch 为 `/workspace/scratch/usage-http-author`；`usage_verification` 只固定依赖与计划、待 A 冻结后审；`next_frontier` 只核对 D08/D10/D12 可执行依赖，不改业务。本次尚无产品测试或产品验收。
+- 用户已明确由系统管理员统一配置会议 Summary（initial/update，含首轮标题）的模型；项目消费系统配置，architecture 影响分析已派，正式契约与实现尚未调整，不解释为每个新项目复制默认；既定 Agent compaction 与 Execution Summary read model 不改。旧 Object/tools/SPA publication 三停止、ready503、D08–D28/E01 未完成及 E01 未开始保持，不宣称游戏或参考版已选。以下历史段落保留原文。
+
 ## 2026-10-07：Project Owner Usage 只读 HTTP 规格接受
 
 - [正式卡 rev1](../work-items/d09-project-usage-read-http.md)已独立完整 STATIC PASS、主线程采纳；[规格归档](project-usage-read-http-spec-verification.md)保留原稿、D09 §11窄澄清与独审原件。固定4ae02e5，技术 `36a7fa5c…53a11d` 原字节；主线程已授A五路径私有实施，作者已实际开始新scratch及RequireHuman/query/DTO/schema与纯测编写；尚无Go/Node/schema执行、资源或产品验收。
