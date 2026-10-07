@@ -1,0 +1,89 @@
+{
+  "scope": "Documentation archive self-check only, not independent product verification.",
+  "cwd": "/workspace/agenteam",
+  "head_observed": "ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f",
+  "report_sha256": "b755ac5c03e43e234309c2d0b0b9ad9215ecbbffff6b1b39c39ea11195c76623",
+  "sources_sha256": "97cbc52742248609475159b684cf4f9b49a5263000baffc7ad7d06ce6d0a12cf",
+  "source_originals_exact": 13,
+  "source_original_bytes": 171253,
+  "original_json_parsed": 5,
+  "current_card_sha256": "1f6f0022aef1e913eb09136d24ca7841319cdf0c02e04556afb7536054cc9cd1",
+  "d1_section1_bytes_unchanged": true,
+  "administrative_technical_except_final_sentence_unchanged": true,
+  "formal_design_before_after_hashes_matched": 11,
+  "actual_patch_bytes_equal": true,
+  "report_local_links": 13,
+  "report_fragments": [
+    "recovery-2026-10-07-environment.md#保留边界"
+  ],
+  "authored_utf8_lf_final_newline_no_trailing_whitespace": "PASS",
+  "original_patch_context_trailing_spaces_preserved": 123,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "docs/development/agent-team/system-meeting-summary-selection-spec-verification.md"
+      ],
+      "exit_code": 1,
+      "raw": "",
+      "meaning": "New-file no-index content difference, no whitespace diagnostics; explicit byte/line checks also passed."
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "docs/development/agent-team/system-meeting-summary-selection-spec-verification-evidence/sources.json"
+      ],
+      "exit_code": 1,
+      "raw": "",
+      "meaning": "New-file no-index content difference, no whitespace diagnostics; explicit byte/line checks also passed."
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/agent-team/system-meeting-summary-selection-spec-verification.md",
+        "docs/development/agent-team/system-meeting-summary-selection-spec-verification-evidence"
+      ],
+      "exit_code": 0,
+      "raw": "",
+      "limitation": "New paths are untracked; authored files also checked explicitly above."
+    }
+  ],
+  "initial_check_harness_issue": "First archive-check attempt asserted no-index exit must be 0; it stopped on exit1 with empty diagnostics for the new report. Subsequent direct invocation reproduced exit1/empty output; final checks preserve this content-difference status and require empty diagnostics plus explicit byte/line validation. No source or report repair was needed.",
+  "product_or_original_script_execution": false,
+  "runtime_resources_created": false,
+  "limitations": [
+    "Raw originals retain historical recommendation boundaries and original D1.",
+    "Raw patch whitespace is preserved; prose whitespace normalization is not applied to original evidence.",
+    "Original independent command/raw absent from supplied narrative reports was not synthesized."
+  ],
+  "coordination_note": {
+    "source": "root task update after the accepted STATIC snapshot",
+    "fact": "Only four contract sources authorized; author ACKed and started, no tests or independent acceptance. No service/migration/HTTP/UI/root authorization in this first slice.",
+    "part_of_static_review_evidence": false
+  },
+  "post_coordination_report_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "docs/development/agent-team/system-meeting-summary-selection-spec-verification.md"
+    ],
+    "exit_code": 1,
+    "raw": "",
+    "utf8_lf_final_newline_no_trailing_whitespace": "PASS",
+    "link_set_unchanged": true
+  }
+}

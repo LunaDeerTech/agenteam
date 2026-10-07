@@ -1,14 +1,16 @@
 # D09 Model System 与 Token Usage 工程规格
 
+修订 5，2026-10-07：归位用户已确认的系统统一会议 Summary 选择，范围为 initial/update（含首轮标题）。下述既有验收记载仍绑定各自历史输入；旧 `ProjectModelSettings` / `project_summary` 保留为历史未绑定契约，不自动重解释或转成生产实现。独立系统 selector 的 [S1 规格候选](d09-system-meeting-summary-selection.md)待独审，本次不声明 S1、后继 S3 Resolution 或 Meeting consumer 已实现/接受。
+
 修订 4，2026-10-05。设计部分已采纳；修订 2 的 R01/R02/C01 与官方 SDK 字段事实不变，C0 已独立验收并提交 `e6e94c4`；本次仅同步已验受限结果的进度与边界，工程语义保持；[B01-K System 配置首块](d09-b01-system-configuration.md)及下文宽块划分保留原阶段定义。继承设计基线 `da5caab58ad7b0b6c03f2120e3d8456d3d8b9613`、已验 D08 B02 `6319d033f089140b34de60374312ce57141e6fa2`；C0 固定编译基线为 `16595ad1e78e5283dfe85fb812095acde382edd1`。
 
-当前进度见[主卡](d09-model-system-token-usage.md)：B01/C0、B01-K System 原子配置及 00015、Project chat 配置、Secret planned usage、OpenAI text/structured wire 和 System 配置生产根已有各自独立验收。[current-selection Resolver 库及 00017](recovery-d09-current-model-resolution.md)已以 `4295df7` 接受，精确 20 路径在 `be0bd07` 固定输入上通过；[正式报告](../agent-team/current-model-resolution-verification.md)保留分版本作者 26/109、独立 2/4、原失败及有效复用。默认根 Resolution 仍 nil；真实 consumer、serving_snapshot、Invocation/Usage、Provider 发送、Project cleanup 与 Project HTTP/root 未交付。完整 D09 未完成；§13 的 Summary 初值、Jina/型号 conformance 及未来真实绑定继续待定。
+当前进度见[主卡](d09-model-system-token-usage.md)：B01/C0、B01-K System 原子配置及 00015、Project chat 配置、Secret planned usage、OpenAI text/structured wire 和 System 配置生产根已有各自独立验收。[current-selection Resolver 库及 00017](recovery-d09-current-model-resolution.md)已以 `4295df7` 接受，精确 20 路径在 `be0bd07` 固定输入上通过；[正式报告](../agent-team/current-model-resolution-verification.md)保留分版本作者 26/109、独立 2/4、原失败及有效复用。默认根 Resolution 仍 nil；真实 consumer、serving_snapshot、Invocation/Usage、Provider 发送、Project cleanup 与 Project HTTP/root 未交付。完整 D09 未完成；§13 的会议 Summary 选择规则已确认，独立 selector 与真实消费仍待交付；Jina/型号 conformance 及未来真实绑定继续待定。
 
 依据：[开发计划](../development-plan.md)、[Model 架构](../../architecture/platform-infrastructure/model-system/README.md)、[配置](../../architecture/platform-infrastructure/model-system/model-configuration.md)、[解析](../../architecture/platform-infrastructure/model-system/model-resolution.md)、[Chat Runtime](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)、[Usage](../../architecture/platform-infrastructure/model-token-usage.md)、[D01 Model 契约](d01-contracts/model-tool.md)、[事务](d01-contracts/foundation.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[W17–19/W42](d01-contracts/walkthroughs.md)、[D08 规格](d08-project-owner-design.md)。本文只细化这些规则；未闭合事项见 §13。
 
 ## 1. 交付边界与所有权
 
-- System 管理员管理 System Provider/Model/平台 selector；Project Owner 管理本项目 chat Provider/Model/会议 selector。管理员不因此读取其他 Owner 的项目正文或 Usage。
+- System 管理员管理 System Provider/Model/平台 selector，包括独立会议 Summary 选择；Project Owner 管理本项目 chat Provider/Model，不管理会议模型 selector。管理员不因此读取其他 Owner 的项目正文或 Usage。
 - Chat、Embedding、Rerank、Image 是四个独立能力端口；不提供任意 URL、任意 JSON 推理代理。Agent/Meeting/Knowledge/Memory/Tool 的真实 consumer authority 由 D13/D14/D19/D21/D22/D24 分别绑定。
 - D08 B02 `6319d03` 已提供真实 Human Owner/Project gate、创建/恢复与当前路径解析；同 Tx 需预持 User SH+Project SH。其 AgentRun 仍 unbound、普通 Service 不获 Owner 权限，B03 LifecycleFacts/Service validator/参与者适配尚未接通。D07 最终根装配按实际已验提交绑定，不能以本基线 app 代码覆盖后来改动。
 - 不引入 Provider SDK 或升级依赖；Go 1.27.1、`GOTOOLCHAIN=local`、标准库编码/HTTP，加已验 D04 outbound、Secret、D03 PostgreSQL、D05 Object、D06 Outbox。Provider fixture 与真实供应商 smoke 是不同证据。
@@ -18,7 +20,7 @@
 | --- | --- | --- |
 | B01 纯契约与配置/用量存储 | `model/contract/{types,configuration,resolution,chat,nonchat,authority,references,events}.go`，`usage/contract/{types,query}.go`；`model/{authority,store,configuration,commands,references,resolver,secret_authority,audit_authority,events}.go`；`usage/{store,invocations,summary,query}.go`；本次新迁移；`tests/model` 对应 PG 测试 | 纯 contract（含本轮 planned read/serving variant）可独立定向验收后先行；配置/Usage 消费已验 D08 Human Owner/gate，真实验 Secret/Audit/Outbox/Unknown、T01–T08/T15；生命周期/未来 consumer 另待正式绑定，不以 fake authority 宣称生产接通 |
 | B02 真实调用、协议及恢复 | `model/{runtime,call,stream,retry,recovery,lifecycle,media}.go`、`model/adapter/{openai_chat,anthropic_messages,openai_embeddings,jina_rerank,openai_images,sse}.go`、协议版本清单与合成 fixture；`tests/model` 独占新增测试文件 | B01 稳定端口、§6 官方 wire 补证；D04 真实私网 HTTP/TLS fixture；T09–T14/T16，真实未来 consumer 未绑定仍拒绝 |
-| B03 管理/用量 HTTP 与根组合 | `model/http.go`、`usage/http.go`、`app/model.go`；新 `scripts/test-models.sh` 与既有 fixture 最小包列表增量；OpenAPI 对应模型/用量片段 | B01/B02、D07/D08 实际最终提交，T17/T18；§13 创建初值规则闭合后才完成全部 D09；不提前生产前端 D27 页面 |
+| B03 管理/用量 HTTP 与根组合 | `model/http.go`、`usage/http.go`、`app/model.go`；新 `scripts/test-models.sh` 与既有 fixture 最小包列表增量；OpenAPI 对应模型/用量片段 | B01/B02、D07/D08 实际最终提交，T17/T18；§13 系统会议 Summary 选择及消费按分卡实施验收后才完成相关门槛；不提前生产前端 D27 页面 |
 
 B01 按独立完整结果推进：C0 与 [B01-K System 配置原子存储](d09-b01-system-configuration.md)均已验；本块精确文件、Audit 增量及正式 `00015_model_configuration.sql` 以该卡和已验提交为准。00015 基于已验 00014 `30f5c29` 的连续前缀，未改旧迁移；后续 Usage 迁移仍另配编号。该 B01-K 阶段的 Project 路径当时明确 unbound；后续 Project 配置库已经消费正式 Human Secret/Outbox gate 并独立验收，生产 Project HTTP/root 仍未绑定。B01-K 本身没有 Secret 源变动，也未代决 Summary 初值、Jina/型号 conformance；当前 Resolver 库级结果不替代 Usage、生命周期和真实 consumer 的后续门槛。
 
@@ -60,7 +62,8 @@ B01 按独立完整结果推进：C0 与 [B01-K System 配置原子存储](d09-b
 | Provider | id/scope/project_id?/name/protocol/base_url/credential_ref?/provider_options/enabled/version/timestamps；scope 与 protocol 创建后不可变；System 可用四种能力协议，Project 只两种 chat 协议；name 为 1–128 Unicode 字符，不承担唯一身份 |
 | ModelConfig | id/provider_id/name/model_id/type/parameters/request_overwrite/header_overwrite/enabled/version/timestamps；provider_id/type 创建后不可变；model_id 1–256 UTF-8 bytes，不按展示名推断供应商型号或能力；不同 Provider 同名合法 |
 | PlatformSelection | 稳定 singleton ID/version；embedding、memory 必需；reranker、image 可空；全部仅 enabled System Model；memory 是支持目标 structured output 的 chat。首次尚未配置时明确 capability unavailable，不能写默认 Model 或宣称配置完整 |
-| ProjectModelSettings | project_id、version、meeting_summary_model_ref；只接受当前可见 enabled chat；不要求 tool/reasoning/structured/image 能力；不得保存任意空值当合法已配置结果；创建初值适用 §13 |
+| Meeting Summary Selection（目标） | 逻辑 `platform.meeting_summary`，独立 System singleton ID/version；管理员显式选择 enabled System chat，不要求 tool/reasoning/structured/image 能力；初始未配置不猜默认、不阻止 Project 创建，但生成失败；选择后不提供清空；不加入旧四用途 PUT，精确 S1 规格候选见新卡 |
+| ProjectModelSettings（历史未绑定） | 已提交旧类型含 project_id、version、meeting_summary_model_ref；保留其历史契约与验收输入，不再作为生产配置目标，不自动迁移或解释为系统选择 |
 | ResolvedModel | D01 字段仍为同一公开投影：snapshot_id 指不可变 Provider/Model/profile/adapter_revision/endpoint/config/稳定 CredentialRef/selection_version；credential_lease_ref 属于本次 consumer/lease owner 的独立持久绑定，不属于可跨 call 复用的配置身份。既有 serving snapshot 配新 call lease 沿 §4；不含明文，不把反序列化当权限 |
 
 base_url 仅 http/https、无 userinfo/query/fragment，固定合法 host/port/路径；保留精确路径语义，不猜测追加 `/v1`。协议 profile 定义相对 endpoint 的拼接，发出前仍走 D04 当前出站策略；HTTP 仅显式配置且 D04 允许，不能放宽 loopback/metadata 禁令。Provider 未配置凭据是否可调用由已核 profile 的明确认证模式决定，不能隐式发匿名请求。
@@ -73,11 +76,11 @@ Chat 参数固定 context_length、max_output、输入 modalities、tool_calls�
 
 ## 3. 存储、锁、命令与删除替换
 
-新 schema `agenteam_model` 存 providers/models/platform_selection/project_settings/commands/references/snapshots/snapshot_bindings/calls/invocations/execution_usage_summaries/lifecycle_checkpoints。不创建 Agent/Execution/Meeting/Knowledge 业务表。不可为未来业务实体增加跨域级联 FK。
+schema `agenteam_model` 的目标包含 providers/models/platform_selection/meeting_summary_selection/commands/references/snapshots/snapshot_bindings/calls/invocations/execution_usage_summaries/lifecycle_checkpoints。独立 `meeting_summary_selection` 由新 S1 卡负责；旧 project_settings 不再作为会议模型的生产存储目标，已提交旧契约/迁移历史不在此改写。不创建 Agent/Execution/Meeting/Knowledge 业务表。不可为未来业务实体增加跨域级联 FK。
 
 - providers/models 有 scope CHECK、版本 CHECK，Model→Provider 为 RESTRICT；Project provider/model 仅 chat。model refs 仅稳定 ID，显示名称不作唯一键。
 - commands UNIQUE(scope,scope_key,actor_subject,command,key_digest)，保存 canonical-v1 请求摘要、安全结果及 Event/Audit 身份。Human 主体为 UserID，排除 Session/HTTP trace；模型配置中禁止明文 credential，故不另造敏感摘要/keyring。
-- references UNIQUE(owner_kind,owner_id,role)，保存 project_id?/model_id/owner_version/reasoning_effort；kind 闭集 agent、project_summary、platform_selector，role区分 agent_model/approval_model/meeting_summary/embedding/memory/reranker/image。Agent上的 approval_model_ref 同属真实Agent配置，D10/D19负责其专用替代约束，不能因非generation而漏登记。它是与 owner canonical 同 Tx 更新的完整反向引用索引，不是异步投影。只有正式 owner authority 可注册/改写；未知 kind/缺 adapter 拒绝。
+- references UNIQUE(owner_kind,owner_id,role)，保存 project_id?/model_id/owner_version/reasoning_effort；已提交 kind 闭集含 agent、project_summary、platform_selector，role区分 agent_model/approval_model/meeting_summary/embedding/memory/reranker/image。新的系统会议 Summary 目标由独立 singleton 的 platform_selector / meeting_summary 引用负责，不带 Project owner；旧 project_summary 保持历史未绑定语义，不能自动重解释。Agent上的 approval_model_ref 同属真实Agent配置，D10/D19负责其专用替代约束，不能因非generation而漏登记。它是与 owner canonical 同 Tx 更新的完整反向引用索引，不是异步投影。只有正式 owner authority 可注册/改写；未知 kind/缺 adapter 拒绝。
 - snapshots 只保存 immutable identity/config JSON/稳定 CredentialRef，不复制输入/输出；snapshot_bindings UNIQUE(snapshot_id,lease_owner_kind,lease_owner_id) 保存 exact consumer/purpose、来源 variant/serving generation ID（仅该分支）、合法 LeaseID/ref 与创建事实；不固定 Secret value。calls 保存 consumer/snapshot及该 lease binding/input_digest+schema、固定 retry policy、process/fence/phase、accepted/finished/attempt ordinal；输入正文由原 consumer canonical 保存，不在 Usage 存第二份。
 - invocation UNIQUE(logical_call_id,attempt_index)，真实 reservation、dispatch 状态、ProcessID/fence、开始/确认发送/结束时间、安全错误、nullable Usage、terminal boolean（初始false）及terminal version；live Provider/Model FK 可空 ON DELETE SET NULL，历史 identity ID/名称/protocol/model_id snapshot 保留。invocation 的 ProjectID 不从 live Provider 推导。
 - execution_usage_summaries 主键(project_id,execution_id)，可重建版本、确定已发 attempt 数、dispatch_unknown 数、各 token sum/known_count/unknown_count；不写 D22 Execution 表。Meeting 源删除用独立 nullable source marker，保留已归属的历史 ID，不伪造第二条 Agent usage。
@@ -91,9 +94,9 @@ Chat 参数固定 context_length、max_output、输入 modalities、tool_calls�
 
 全局 `SystemConfigLock("model-references")`：普通 ModelRef 建立/更新/Resolve 用 SH；删除/替换 Model 用 EX。它与 command rank0、User/SystemConfig rank1、Project gate rank2、Agent rank4、Provider→Model→Credential→Execution 等 aggregate、record 一并初次收集。D06 Append 需要的 outbox-registration SH 也在这一次 union；`RequireHeldLocks` 只验证，不以重复 Acquire 伪装缺锁检查。
 
-删除流程：Tx 外查 D09 references 并向实际 owner 获取替换计划/全部父 gate；EX 屏障后重查完整集合与版本，校验 replacement enabled/visible/type/effort，逐 owner 同 Tx 改 canonical+reference，然后删除 Model/Audit/Event/receipt。一个不兼容或 lifecycle 拒绝即全回滚，不分批部分替换。System chat replacement 必须 System chat；管理员只获 exact ref rewrite 能力，返回安全计数，不获得他人项目正文/通用 Owner grant。未知 owner provider 且有真实索引行必须 unbound；空索引只有在这个完整 canonical 索引的正式屏障下才是有效“无引用”。
+删除流程：Tx 外查 D09 references 并向实际 owner 获取替换计划/全部父 gate；EX 屏障后重查完整集合与版本，校验 replacement enabled/visible/type/effort，逐 owner 同 Tx 改 canonical+reference，然后删除 Model/Audit/Event/receipt。一个不兼容或 lifecycle 拒绝即全回滚，不分批部分替换。System chat replacement 必须 System chat，并满足全部受影响用途；系统会议 Summary 引用只替换独立 selector，不批量改写 Project。管理员只获 exact ref rewrite 能力，返回安全计数，不获得他人项目正文/通用 Owner grant。未知 owner provider 且有真实索引行必须 unbound；空索引只有在这个完整 canonical 索引的正式屏障下才是有效“无引用”。
 
-Provider 删除须无 Models；释放其 Secret reference，不擅自删除仍被运行 lease 持有的 Secret。历史 snapshot/Usage 不阻止删除；live FK 变 NULL，快照不改。平台 embedding/memory selector 不能清空；reranker/image 可显式清空。必需 selector 当前无合法配置与数据库不可用是不同结果，不 fallback。
+Provider 删除须无 Models；释放其 Secret reference，不擅自删除仍被运行 lease 持有的 Secret。历史 snapshot/Usage 不阻止删除；live FK 变 NULL，快照不改。平台 embedding/memory selector 不能清空；reranker/image 可显式清空。独立会议 Summary 初始允许未配置，选择后本范围不提供清空；停用保留引用，新生成失败，删除须合法替代。必需 selector 当前无合法配置与数据库不可用是不同结果，不 fallback。
 
 ## 4. 正式规划、授权与 Secret 组合
 
@@ -123,7 +126,7 @@ PrepareDeleteModel(context.Context, identity.Actor, DeleteModelRequest) (Replace
 DeleteModelInTx(context.Context, foundation.Tx, DeleteModelRequest, ReplacementPlan) (CommandReceipt, error)
 ```
 
-Source 必填闭集，不以零值默认。current_selection 分支保持 SelectionRef=direct/platform/project_summary，ServingSnapshotID/ServingGenerationID 必须空；Select 返回 selected（ModelID/version）或仅可选 selector 的 not_configured。Resolve 锁后核当前 selector 或 consumer 长期 ModelRef，不能用过期 Select 绕过切换；新 Resolve 配置变化重规划，已提交 snapshot 不变。各 concrete plan 仅安全 RequiredLocks 投影，不接受 JSON；绑定 Actor 全身份，持久摘要仍以稳定主体为准。plan 含 source 完整绑定、精确配置/来源映射、snapshot/lease ID、consumer plan 和 Secret UsageDependencies；同 preparing 重入查原 snapshot/binding/lease。错实例、错 Tx Store、零/过期 Tx、缺锁/弱模式保持 D03 拒绝/poison。
+Source 必填闭集，不以零值默认。已提交 current_selection 的 SelectionRef 形状保留 direct/platform/project_summary，旧 project_summary 是历史未绑定分支，不自动改义。会议 Summary 的新目标为 platform.meeting_summary，由后继 S3 明确放开选择及用途映射，S1 不改变当前拒绝分支；它携带原 Project/Meeting consumer 事实，并固化独立 selector version/snapshot。ServingSnapshotID/ServingGenerationID 在 current_selection 必须空；Select 返回 selected（ModelID/version）或仅可选 selector 的 not_configured，会议 Summary 未配置时生成失败。Resolve 锁后核当前 selector 或 consumer 长期 ModelRef，不能用过期 Select 绕过切换；新逻辑 generation 取当前选择，同一已接受调用及重试保持原 snapshot。各 concrete plan 仅安全 RequiredLocks 投影，不接受 JSON；绑定 Actor 全身份，持久摘要仍以稳定主体为准。plan 含 source 完整绑定、精确配置/来源映射、snapshot/lease ID、consumer plan 和 Secret UsageDependencies；同 preparing 重入查原 snapshot/binding/lease。错实例、错 Tx Store、零/过期 Tx、缺锁/弱模式保持 D03 拒绝/poison。
 
 serving_snapshot 分支仅 knowledge_embedding 或 memory_embedding：ServingSnapshotID 与规范 UUID ServingGenerationID 必填，ModelRef/Selection/ReasoningEffort 必须空，LeaseOwner 必须 model_call，其 ID 为此次新的 logical_call_id。复用相同 DiscoverResolve/ResolveModelInTx，不另开事务：未来 D13/D14 的 ConsumerAuthority 必须从实际当前 serving generation 证明 Project/consumer、generation→snapshot/稳定 CredentialRef、原输入及新 call 归属；历史 SnapshotID 本身不是授权。Discover 收集来源 generation/current-serving gate、snapshot/binding、目标 call/lease 与 Secret 全部锁；一次 union 后重读全部映射，变化整 Tx RESOURCE_BUSY。snapshot 参数/profile/endpoint/selection_version 不随 live selector 或 config 改写；只新增本 call 的 snapshot_bindings+新 model_call LeaseID，同 Tx 记录，绝不使用或复活旧 call lease。来源不存在、Secret 无合法保留、当前权限不符或 provider 未绑分别失败；D13/D14 负责真实 generation 及其跨 call 的合法 Secret 保留，本模块不造该业务表/默认成功。
 
@@ -131,7 +134,7 @@ execution owner 可跨 turn/call 使用同稳定 ref：D09 从自己已提交的
 
 `ConsumerAuthority.Discover(ctx, ConsumerRequest) -> ConsumerDependencies` / `ValidateInTx(ctx,tx,request,deps) error` 为正式受信 provider：request 闭集 resolve/invoke/credential_read/retire/finalize，绑定 Actor、完整 consumer、ResolutionSource/serving generation（适用时）、snapshot/call/invocation/lease IDs、原输入 digest、Process/fence、requested action。Discover 不授权；Validate 重读当前 Project/Agent/Execution/Meeting/Tool cause 与固定输入事实，不自行补锁。新业务 invoke/credential_read 必须当前 active；retire/finalize 仅原 accepted fact、exact join/death/terminal fence，可收敛而不能发出请求。尚未实现的各 consumer 缺绑定返回 DEPENDENCY_UNBOUND，不能由 caller 自报 active/Owner。
 
-Consumer校验闭集：agent_generation/agent_compaction为agent，AgentID+ExecutionID必需、MeetingID仅实际关联；meeting_summary_initial/update为meeting，MeetingID+稳定OperationID必需、ExecutionID为空；approval_auto/image_generation为tool，真实OperationID必需，ExecutionID按原Tool事实而非伪造；knowledge_embedding为knowledge；memory_embedding/extraction/consolidation/reflection为memory且AgentID必需；rerank只knowledge/memory。非Execution consumer用自己的持久OperationID固定输入。所有分支ProjectID必需，request.Purpose与consumer.Purpose一致，Resolve的SelectionRef不得绕过对应System/Project selector。未知组合拒绝。
+Consumer校验闭集：agent_generation/agent_compaction为agent，AgentID+ExecutionID必需、MeetingID仅实际关联；meeting_summary_initial/update为meeting，MeetingID+稳定OperationID必需、ExecutionID为空；approval_auto/image_generation为tool，真实OperationID必需，ExecutionID按原Tool事实而非伪造；knowledge_embedding为knowledge；memory_embedding/extraction/consolidation/reflection为memory且AgentID必需；rerank只knowledge/memory。非Execution consumer用自己的持久OperationID固定输入。所有分支ProjectID必需，request.Purpose与consumer.Purpose一致，Resolve的SelectionRef不得绕过对应System/Project selector。会议两个 Purpose 的目标仅解析系统 platform.meeting_summary；不改变其它 Purpose、Agent compaction 的 Execution snapshot 或 Execution Summary read model。未知组合拒绝。
 
 构造拆分 `model.Authority`（只Store、Session/System/Project及consumer/reference事实端口）与 `model.Service`（再接Secret/Audit/Outbox/Usage/Outbound）；先建Authority供Secret UsagePlanner与Audit Models verifier注册，再建Service/Runtime，避免Service互相构造循环。跨域dispatcher保留已验Account/MCP等原分支，按正式purpose/owner/cause分派，不以nil成功。首次Provider尚无行时Discover只规划stable ProviderID/ref scope；最终Retain须同Tx真实Provider行+原配置command证明该scope/ref映射和当前权限，不能以caller“新建”bool授权。
 
@@ -295,9 +298,9 @@ D09先后端服务与HTTP，无匿名模型调用路由，无新增账户/System
 | 路由组（前缀沿D08正式Project路径适配） | 能力与权限 |
 | --- | --- |
 | `/system/model-providers`、`/system/models` 的list/get/create/update/delete | 当前System admin；Provider delete无级联；Model delete含显式replacement或合法selector清空 |
-| `/system/model-selection` get/update | 当前System admin；同一次更新全部提交/冲突；不回显Secret |
+| `/system/model-selection` get/update | 当前System admin；原四用途同一次更新全部提交/冲突；不回显Secret，不追加会议 Summary 第五字段 |
 | `/projects/{id}/model-providers`、`/projects/{id}/models`、`/projects/{id}/available-models` | 当前Owner；只管理Project chat，System候选安全只读 |
-| `/projects/{id}/meeting-model` get/update | 当前Owner；必需 enabled可见chat，初值按§13，不加新的创建表单默认 |
+| 系统会议 Summary 配置读写（后继 S2 另卡） | 当前System admin；独立状态/version/保存；不实现原拟定的 Project `/meeting-model`，不新增 Project selector 读写或创建默认 |
 | scope对应 `/model-credentials` create/update/delete | 仅D04 Secret正式Human命令，PurposeModel，独立receipt；敏感正文不log，不提供明文GET |
 | `/projects/{id}/model-usage`、`/model-usage/summary` | 当前Owner；§8过滤/游标/空值/安全时间统计，admin无他人访问豁免 |
 
@@ -313,7 +316,7 @@ C0 按主卡执行纯构建/unit/race/vet，其作者结果不代替独立源码
 | T02 权限 | 普通Human无法System写；admin不能读他人Project/Usage；每页当前Session/Owner；Agent/Meeting/Tool伪consumer或缺adapter拒绝；archived只读、active恢复新请求不复活旧call |
 | T03 migration | fresh与原schema→新migration真实升级；旧Audit合法行不变；非法scope/NULL CHECK/阶段组合拒绝；任一失败整Tx回滚；升级不猜模型或summary默认 |
 | T04 配置事务 | commands/currentauth→幂等→version；Secret引用、Model/Audit/Outbox同Tx故障全回滚；同key新Session同义重放，改字段冲突，权限撤销不泄露旧结果 |
-| T05 replacement | barrier后并发新增Agent/summary引用不能漏；多Project实际authority只受控改ref；不合法reasoning全回滚；Provider有Model拒删；System候选不含他人内容；liveFK清空历史snapshot仍完整 |
+| T05 replacement | barrier后并发新增Agent/系统Summary selector引用不能漏；Agent与系统selector同Tx替换，多Project实际authority只受控改Agent ref；替代不满足任一用途或reasoning即全回滚；Provider有Model拒删；System候选不含他人内容；liveFK清空历史snapshot仍完整 |
 | T06 Resolve | 同outerTx input capture+snapshot/binding+Secret lease原子；缺低序锁/SH升级/错issuer/映射变化拒绝；InTx零网络；commit丢回复不发出；current_selection用当前配置；serving_snapshot新call保持原endpoint/参数并新lease，旧call退休不复活，来源/retained ref缺失与未绑定拒绝；execution同ref/owner重用canonical LeaseID，不重复预分配撞键 |
 | T07 credential | 同execution lease下两个call的exact RequestID不得串读；旧attempt迟到、Discover后fence/current input/Process/mapping变更、错use均拒绝，不能借另一合法call；新read零ID/其他variant带ID拒绝；完整低序union，SystemSecret无伪scope；轮换下一attempt新值；Acquire/read/Audit/COMMIT Unknown零材料零发送；已全持锁的legacy Model Acquire/Release/Read仍PreparationRequired，planned同请求成功且已释放ID不复活；MCP execution/Account与零RequestID旧Binding逐字兼容 |
 | T08 invocation/summary | reserve未发不计真调用；同attempt finalize重复0增量、异义冲突；可靠usage NULL/0/部分/累计/overflow；三类COMMIT丢回复（真commit/rollback/仍挂起）；summary重建并发不漏增量 |
@@ -326,7 +329,7 @@ C0 按主卡执行纯构建/unit/race/vet，其作者结果不代替独立源码
 | T15 usage query | Owner隔离与每页权限撤回；page limit可改、cursor filter不可改；旧liveFK NULL仍按snapshot聚合；known/unknown分母、meeting speech单计、辅助purpose独立；大fixture真实索引/2s超时如实失败 |
 | T16 native provenance | 五profile官方固定schema来源、合成fixture正反与精确adapter_revision；有env凭据另行真实smoke才标Provider实测；无凭据可明确skip该smoke但不得把skip写通过 |
 | T17 HTTP/root | 真实System/Project provider、Origin/CSRF/当前Session、敏感请求零日志、幂等Unknown、唯一公共middleware；缺D08/consumer仍failclosed；healthy与productready分列 |
-| T18 settings/bootstrap | 按§13最终确认规则做首次配置、旧项目/原Create receipt重放及迁移；不假造Summary初值；D13只在完整新generation后切serving snapshot（后续真实集成责任单列） |
+| T18 settings/bootstrap | 系统会议Summary独立首次配置/version/未配置与旧四用途兼容；Project创建不因未配置阻塞、不复制模型初值，原Create receipt与Skills初始化保持；配置/Resolution/真实consumer按分卡验收；D13只在完整新generation后切serving snapshot（后续真实集成责任单列） |
 
 建议实现后的固定命令：
 
@@ -341,7 +344,7 @@ AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go GOTOOLCHAIN=local sh scripts/t
 
 ## 13. 明确待闭合事项
 
-1. **Project会议模型初值（产品含义，root已向用户询问）**：模型配置架构429–436行明确必填；[系统项目创建布局](../../frontend-design/layouts/system-pages.md)24行只名称/描述；[会议设置](../../frontend-design/layouts/project-settings.md)82行给选择器；未找到系统默认summary规则。D01只提供显式ModelRef解析，D08已验InitializationRequest/Receipt专属Skills，不可填入模型冒充完成。本稿不决定“创建后再配/创建必选/系统默认”，不改D08输入、不新增默认或用NULL宣称必填满足。确定规则后仅补必要初始化来源/version、同CreationID/key引用绑定、旧幂等优先及不猜值迁移；受影响初始化/HTTP/完整D09验收保持未满足，其他块可独立推进。
+1. **会议 Summary 系统选择（用户规则已确认，实施待闭合）**：系统管理员统一选择 enabled System chat，用于 Meeting Rolling Summary initial/update（含首轮标题），逻辑名 platform.meeting_summary。独立 singleton/version；初始未配置无默认，不阻止 Project 创建，但生成明确失败；Project 不保存/复制初值、不提供 override。选择后本范围不提供清空，停用保引用、新生成失败，删除须同Tx合法替代；同一已接受调用/重试保持原 snapshot，新逻辑 generation 才读取当前选择。旧 ProjectModelSettings/project_summary 保留历史未绑定语义，不自动迁移或改义。D08 InitializationRequest/Receipt 仍专属 Skills，创建输入和旧 receipt 不因此调整；[系统设置](../../frontend-design/layouts/system-settings.md)增加独立目标区域，[会议设置](../../frontend-design/layouts/project-settings.md)不再提供本地 selector。S1 配置库规格候选待独审，S2 HTTP/UI、S3 Resolution 及 D24 真实消费者分别后继实施；用户规则确认不代表任一块或完整 D09 已验收。
 2. **Provider conformance 与剩余 wire**：§6 四 profile 已有固定官方 SDK 字段事实及独立局部复核，不再称零官方源码；Jina、逐型号能力/互斥矩阵、完整 schema 子集和真实 server conformance 仍未验。SDK不证明账号/API可用，无真实smoke不宣称Provider实测。此限制不阻纯配置/锁/Usage或本轮公共契约，但B02/完整D09不得据源码证据宣称ready；后续联网/运行另行授权，不继续本轮研究。
 3. **真实跨模块实现**：已验 D08 B02 Human Owner/gate 可用，B03 lifecycle/Service validators仍待绑定；D07实际最终根提交、D10 Agent model-ref authority、D13/D14 serving source与长期Secret保留、D19Approval、D21ImageTool、D22Execution/Loop、D24Meeting分别接正式端口，缺实现不是空成功。可先独立验本轮纯契约，不代表完整D09依赖齐备。本次不改这些活动源码、迁移或产品界面。
 

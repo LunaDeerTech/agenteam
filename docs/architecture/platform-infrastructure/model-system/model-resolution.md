@@ -26,7 +26,7 @@ Model Resolver 不发起模型调用；实际调用由 [Chat Model Runtime](./ch
 
 ## Model Resolver
 
-Model Resolver 是平台共享能力。Agent Executor 在构造 AgentExecutionContext 时使用它；MeetingSummaryUpdater 等平台内部 chat Model consumer 也通过同一个 Resolver 解析 Project 可见 Model。
+Model Resolver 是平台共享能力。Agent Executor 在构造 AgentExecutionContext 时使用它；MeetingSummaryUpdater 也通过同一个 Resolver，带 Project/Meeting consumer 事实解析系统统一的 `platform.meeting_summary`。
 
 ~~~mermaid
 sequenceDiagram
@@ -64,12 +64,14 @@ Model Resolver 不发起模型调用。
 MeetingSummaryUpdater 调用：
 
 ```text
-resolve(project, meeting_summary_model_ref)
+resolve(current platform.meeting_summary, Project/Meeting consumer facts)
 -> ResolvedModel
 -> Unified Chat Model Contract
 ```
 
 Summary 调用不创建 Agent Execution，因此其 resolved model identity 记录在 Summary generator metadata / Model Invocation Usage 中，而不是 AgentExecutionContext。
+
+上述逻辑选择是目标契约，后续 Resolution 及 Meeting consumer 绑定仍须分别实施验收。新逻辑 generation 解析当前系统选择并固化 selector version / Model snapshot；同一已接受调用及重试保持原 snapshot，不能用当前 selector GET 改写历史。初始未配置或当前选择停用时新生成明确失败，不猜默认或切备用模型；Project 不提供 override，也不在创建时复制选择。
 
 会议辅助请求的 Usage 归 `meeting` consumer，保留 Project、Meeting 和用途；会议中 Agent 发言仍归 `agent`，不按来源重复写一份 usage。具体用途字段与可空关联由 D01/D09/D24 固定。
 

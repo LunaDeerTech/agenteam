@@ -1,0 +1,114 @@
+{
+  "format": 1,
+  "scope": "Specification and formal-design STATIC archive only; no implementation, dynamic test or resource acceptance.",
+  "product_reference": "6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9",
+  "decision_record_reference": "175694bf1157b77ea13268bcd8a47787e1a28acd",
+  "final_static_reference": "2ab562a63b604be2745ca9d283bc1349977806be",
+  "archive_worktree_head": "ba7ce7296b7c08d976d3fc3ce1e1d0b727a3f04f",
+  "accepted_card": {
+    "path": "docs/development/work-items/d09-system-meeting-summary-selection.md",
+    "sha256": "1f6f0022aef1e913eb09136d24ca7841319cdf0c02e04556afb7536054cc9cd1",
+    "revision": "rev1",
+    "relation": "Header and last administrative sentence updated after final STATIC; technical contract unchanged."
+  },
+  "sources": [
+    {
+      "source": "/workspace/scratch/summary-verification/preparation.md",
+      "sha256": "20b0b663fa4a1041bcf5f5b2ad112e36ea8abd37fe33c301d3f69817ae4c872b",
+      "bytes": 6367,
+      "archive": "objects/20b0b663fa4a1041bcf5f5b2ad112e36ea8abd37fe33c301d3f69817ae4c872b",
+      "purpose": "independent bounded preparation, not candidate acceptance"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/rev1-static-review.md",
+      "sha256": "c24e879cd9baf92a9e64ec5cc6a5440fd8be680bc7627498b96f31d3231a8a35",
+      "bytes": 8376,
+      "archive": "objects/c24e879cd9baf92a9e64ec5cc6a5440fd8be680bc7627498b96f31d3231a8a35",
+      "purpose": "complete rev1 technical STATIC and original D1 finding"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/final-static-review.md",
+      "sha256": "d9e6dc1bd1dbec33df5ae3960f8172b12034168011ff4c5d25b28ced7662e945",
+      "bytes": 5410,
+      "archive": "objects/d9e6dc1bd1dbec33df5ae3960f8172b12034168011ff4c5d25b28ced7662e945",
+      "purpose": "final bounded STATIC PASS, D1 closure and eleven actual design diffs"
+    },
+    {
+      "source": "/workspace/scratch/summary-design-docs/freeze.json",
+      "sha256": "e2567ddd78971e73b73c8a1398c5e21a56fb0a8e688352d6d4b745fb76b89313",
+      "bytes": 3932,
+      "archive": "objects/e2567ddd78971e73b73c8a1398c5e21a56fb0a8e688352d6d4b745fb76b89313",
+      "purpose": "eleven exact design paths and before/after fingerprints"
+    },
+    {
+      "source": "/workspace/scratch/summary-design-docs/changes.patch",
+      "sha256": "1693c5856d0a2bbea31943fe3dfd585bdd2ec99537bcc817005bafcb0669995d",
+      "bytes": 60626,
+      "archive": "objects/1693c5856d0a2bbea31943fe3dfd585bdd2ec99537bcc817005bafcb0669995d",
+      "purpose": "actual eleven-path patch, original context spaces preserved"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/recommendation.md",
+      "sha256": "49b6da1ee7bb9c2141960cb2e5ca1adaccb0359307dfd9992500383336830ebc",
+      "bytes": 12510,
+      "archive": "objects/49b6da1ee7bb9c2141960cb2e5ca1adaccb0359307dfd9992500383336830ebc",
+      "purpose": "historical recommendation; final rev1 determines the accepted S1 boundary"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/inputs.json",
+      "sha256": "876c99a2d1a6bf083b624a6333dd63ee535ed8610187e8ca0bc182002ebd7cba",
+      "bytes": 6903,
+      "archive": "objects/876c99a2d1a6bf083b624a6333dd63ee535ed8610187e8ca0bc182002ebd7cba",
+      "purpose": "37 bounded Git input fingerprints only; source tree not copied"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/spec-freeze.json",
+      "sha256": "555a12cbc7d3ff6430dd52f6346e0ab6352154ead609f0bc91902cf3c1ba3e09",
+      "bytes": 547,
+      "archive": "objects/555a12cbc7d3ff6430dd52f6346e0ab6352154ead609f0bc91902cf3c1ba3e09",
+      "purpose": "original rev1 freeze before D1 correction"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/header-correction-before.md",
+      "sha256": "046946ad0d4f23adeaa01511bb7e4e5bed076aee84469a74bf3b2caacd90e61c",
+      "bytes": 29427,
+      "archive": "objects/046946ad0d4f23adeaa01511bb7e4e5bed076aee84469a74bf3b2caacd90e61c",
+      "purpose": "original rev1 with wrong decision-source link"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/header-correction.json",
+      "sha256": "b51a12d29f092a76e025e4ae18c6ad31152b8fb1b9eb970f6fd9ce7fcefc2c1a",
+      "bytes": 468,
+      "archive": "objects/b51a12d29f092a76e025e4ae18c6ad31152b8fb1b9eb970f6fd9ce7fcefc2c1a",
+      "purpose": "D1 correction binding and unchanged section-one-onward bytes"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/summary-precision-edits.md",
+      "sha256": "a25ddcea6d3d6ddd004da1d7ed412075367950569ce30028640c190d71e996b3",
+      "bytes": 6701,
+      "archive": "objects/a25ddcea6d3d6ddd004da1d7ed412075367950569ce30028640c190d71e996b3",
+      "purpose": "bounded formal-design edit direction reviewed before actual diff"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/administrative-acceptance-before.md",
+      "sha256": "9b582d5df2b31742b34255ff1dcd42e6f37e47889908e64fba7d48abf9ec2ca0",
+      "bytes": 29463,
+      "archive": "objects/9b582d5df2b31742b34255ff1dcd42e6f37e47889908e64fba7d48abf9ec2ca0",
+      "purpose": "exact D1-corrected card used in final independent STATIC"
+    },
+    {
+      "source": "/workspace/scratch/next-frontier/administrative-acceptance.json",
+      "sha256": "967243a5526b235a7eba36ed2f1c5e3086964b4a93d516f92526e1750ea864a0",
+      "bytes": 523,
+      "archive": "objects/967243a5526b235a7eba36ed2f1c5e3086964b4a93d516f92526e1750ea864a0",
+      "purpose": "administrative acceptance update only, final card binding"
+    }
+  ],
+  "limitations": [
+    "The original recommendation and preparation reflect earlier boundaries; final rev1 includes deletion-impact schema and strict-client compatibility in S1.",
+    "Original D1 wrong-source link and its correction are both preserved.",
+    "The 37-entry manifest does not archive the dependency source tree or claim a runtime build graph.",
+    "Raw archived patch retains 123 trailing-space context lines to preserve its original hash.",
+    "No original command stdout or dynamic proof was synthesized from the narrative review reports."
+  ]
+}

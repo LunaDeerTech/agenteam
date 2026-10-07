@@ -65,7 +65,7 @@ Owner 的项目管理入口与 Agent 工具权限分别按 [Skills 架构](../..
 
 Project Provider 表单：name、protocol、base_url、credential、provider_options、enabled。Model 表单：name、model_id、type（只读 chat）、parameters、request_overwrite、header_overwrite、enabled。列表显示名称、协议 / 类型、enabled 与模型归属。
 
-“可用模型”展示系统与项目两种来源；System 配置只读，Project Owner 不能编辑系统 Provider Credential。删除引用中的 chat Model 先选择合法替代，更新 Agent 和会议摘要模型引用。
+“可用模型”展示系统与项目两种来源；System 配置只读，Project Owner 不能编辑系统 Provider Credential。删除引用中的 Project chat Model 先选择合法替代，更新受影响 Agent 引用；会议 Summary 只使用系统统一选择，不引用 Project chat Model。
 
 ## 5. MCP
 
@@ -79,7 +79,7 @@ Connections 列表展示 mcp_config_id 对应名称、state、enabled、auth_sta
 
 Variables 列表 / 表单字段：name、description、value；Secrets 列表只显示 name、description、配置状态及已授权 Agent，表单仅提供新值写入，不读取回显旧值。type 在对应创建入口固定；提供创建、更新、删除，删除影响需在确认中展示。
 
-会议配置只有 `meeting_summary_model_ref` 选择器，候选为项目可用 enabled chat Model；不显示 Agent Tools、Capability 或 reasoning effort。
+会议配置说明 Summary（initial/update，含首轮标题）由系统管理员统一配置模型；Project 不保存或复制模型初值，不提供本地选择器、override 或第二套编辑入口。系统初始未配置不阻止 Project 创建，但需要生成 Summary 时会明确失败。本说明不新增 Project 只读 HTTP，也不展示 Agent Tools、Capability 或 reasoning effort 配置。
 
 ## 7. Scheduler 与项目审计
 

@@ -182,8 +182,8 @@ Model System
 17. embedding / reranker / image generation 的独立 Adapter，首版分别支持 OpenAI Embeddings / Jina Rerank / OpenAI 图片生成及经实际验证的兼容 profile，不以兼容标签代替 conformance；
 18. image_generation 通过 Builtin generate-image Tool 消费；
 19. usage normalization，并把逐真实请求统计交给独立 Token Usage 模块；会议辅助调用使用 meeting consumer，Agent 发言仍归 Agent；
-20. ProjectConfig.meeting_summary_model_ref 与 Project 配置 UI；
-21. Provider / Model 物理删除、Agent model_ref / Project Meeting Summary Model 批量替换、PlatformModelSelection 引用处理，以及历史 snapshot 保留。
+20. 系统统一 `platform.meeting_summary` 与 System 平台模型用途同页独立配置 UI；独立 singleton/version，不改变原四用途整组配置，Project 不保存或复制该选择；
+21. Provider / Model 物理删除、Agent model_ref 与系统 Meeting Summary selector 的同事务替换、原四用途引用处理，以及历史 snapshot 保留。
 
 第一阶段不要求：
 

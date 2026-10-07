@@ -1,0 +1,30 @@
+# Meeting Summary Selection 独立影响准备
+
+状态：PREPARATION ONLY；未读取活动新卡，未形成该卡 STATIC 结论。独立 verification_worker，未参与实现、未再委派。2026-10-07 固定 Git 输入为 `175694bf1157b77ea13268bcd8a47787e1a28acd`。仅读取必要固定源码与指导文档；仅写本 scratch。未运行 Go、Node、数据库、服务、浏览器或资源；未修改业务、Git 或他人文件。
+
+已读仓库 AGENTS、团队 README 与 agenteam-verification SKILL；推荐来源为 `/workspace/scratch/next-frontier/recommendation.md`、`inputs.json`。以 Python hashlib + `git show 175694bf:<path>` 核对推荐清单37项：与 `6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9` 原清单相比，仅 tasks.md 有差异，其余36项SHA相同。当前未提交 account/http_boundary 与 Usage HTTP 是别的任务，不作为本结论输入。
+
+## S1 必须构成一个完整库结果
+
+1. 新 singleton/独立 version、明确 nullable model 状态、严格 System admin get/update/lookup、独立初始化；旧四用途 request/GET/PUT/PlatformSelection 不增字段。管理员仅选择 enabled System chat Model；Summary 不额外要求 memory 的 json_schema，也不引入清空。新 summary 与旧四用途都可独立未配置。
+2. canonical、反向引用、完整 mutation plan、当前权限、Audit、Event、receipt 在同一事务闭合。`audit_authority.go:39` 当前只验证旧 AfterSelection，必须真实读取和比较新 after-state 与完整引用；仅扩 role 或持锁不够。选择写持 model-references Shared；删除持 Exclusive，并以正式 singleton 锁及模型/Provider锁封住竞争。
+3. `references.go:59` 当前所有 platform_selector 引用都回到旧 owner。删除必须按精确 owner/role 处理两个 singleton，完整验证各自边集；同模型被 memory+summary 引用时替代满足二者，两个版本各仅推进一次，分别生成对应 configuration event，任一失败全部回滚。仍拒未绑定 agent/project_summary；不把旧 project_summary 自动转换为系统配置。
+4. `management_read.go:137` 当前全 platform 集只有旧四边（LIMIT 5），新完整并集须最多五边加第六哨兵并稳定排序，拒额外owner/role/version/effort等腐坏；不能仅在被删除模型局部检查。旧 HTTP 直接序列化该读结果；S1不得让现 strict client 接收到未知新group。S2须同时开放新写口、schema及删除影响 client/UI。
+5. `commands.go:90` 旧 model-command-v1 固定JSON结构参与digest；旧四用途、Provider/Model/delete 的原digest/plan/receipt/Audit/Event不可重解释。新请求采用新semantic discriminator，但若沿用 model.selection.update 与 model.system namespace，仍共享(user,kind,key)空间：跨用途同key异body应明确 IdempotencyKeyReused，而不是误称独立key空间。历史重放先于当前version/依赖检查，不回写当前选择。
+6. root追加的工程澄清待冻结核验：单独 InitializeMeetingSummarySelection，S1旧 Initialize/root不调用它；无singleton仅在完整新引用为空时可作为未初始化。必须区分 schema不存在/查询失败、表存在但未初始化、合法singleton model_id=NULL；不能把缺表或坏状态吞成未配置。新summary初始化/配置后，旧root HTTP/client兼容约束仍须由可执行契约说明。
+
+## 已定位的外溢边界
+
+- `http_configuration.go:211` generic lookup直接调用core；`commands.go:83` validCommand绑定Audit action。root已澄清新summary不加command kind/validCommand，沿用同形安全receipt，故需验证该共享语义及旧client resource/version绑定。
+- 新 Audit 若改 selector_kind 会破坏既有公开链：Go/SQL、`api/openapi/audit.json:5084`、`web/src/api/system-audit-metadata.ts:406` 都只认 platform。root已澄清保持 action/resource/selector_kind=platform，以独立SelectionID区分；冻结审查须确认无其他新Audit字段。
+- `web/src/api/system-models.ts:36,243` 只接受旧七组且有排序/总计/required/unbound交叉校验。新 platform_selector/meeting_summary 是第八组、required且bound；S2需要同时调整schema、parser、删除交互及代表测试。旧四用途页面 strict shape 不能追加第五字段。
+- S3不是删除一处拒绝：`resolution_policy.go:14,26` 仅direct/platform.memory，所有platform无json_schema会拒；draft硬编码Memory；`resolution_plan.go:192`及resolver.ValidateSelection另有旧selector锁。须明确新selector读取/版本/锁/profile，以及两会议Purpose映射；旧direct/memory语义与历史DTO验证保持。
+- 已committed resolution走原draft与snapshot读取，prepared仍会重读当前配置。S3应证明selector替换/停用/删除后同身份重放不变，新逻辑生成才读新version；不能宣称所有准备态都已经accepted。生产consumer/root仍nil，不以测试授权口冒充Meeting绑定。
+
+## 冻结后的有界 STATIC 与后续行为计划
+
+冻结卡与正式设计修订到达后，先绑定修订、基线、必要文件指纹和实际diff，核精确文件/迁移00020唯一所有权、S1/S2/S3契约及发布顺序；逐一检查产品语义、同事务事实链、历史命令兼容、旧HTTP/client/Audit投影和相对链接/fragment/Markdown。只读静审不运行产品资源，不审活动写入范围。
+
+未来实现获授权后，最小有意义行为覆盖：fresh及真实populated 1–19→20升级；旧历史receipt/digest与四用途字节兼容；未初始化/未配置/缺表/腐坏分支；非admin/Session撤权；选Project/disabled/非chat零副作用；同version竞争；Unknown等待原writer后确认；summary与memory共引同模型删除、跨Provider替代、替代能力不满足与事务中故障全回滚；完整canonical/引用/Audit/Event/receipt同Tx验证；S1默认HTTP旧shape与S2 strict client联动；S3两个Project共享selector、已accepted不漂移及direct/memory回归。真实fixture仅由root另授并绑定必要输入/实际命令/原日志/精确资源与退出清理证据。
+
+尚未验证：新卡、正式设计修订、实现、migration应用、HTTP/runtime、UI或任何真实资源。本文件风险是对固定现状和已知方向的准备，不是新方案验收或模块完成声明。停止写入后等待root交付冻结输入。

@@ -90,7 +90,7 @@ Meeting
 └── updated_at
 ```
 
-`title` 在首轮 finalize 时由 Meeting Summary Updater 使用当前 `meeting_summary_model_ref` 生成一次，并与首轮四字段 Summary 同事务提交。生成前 UI 使用“新会议”，该占位不写入生成标题。后续轮次、retry / regenerate 和恢复不重新生成已提交标题。标题不由用户在创建表单填写。
+`title` 在首轮 finalize 时由 Meeting Summary Updater 使用系统 `platform.meeting_summary` 为本次逻辑生成固化的 Model 生成一次，并与首轮四字段 Summary 同事务提交。生成前 UI 使用“新会议”，该占位不写入生成标题。后续轮次、retry / regenerate 和恢复不重新生成已提交标题。标题不由用户在创建表单填写。
 
 Meeting 不独立保存讨论主题；Summary 的 `goals` 概括讨论主题和目标。`proposal_content` 只保存 request-meeting 的提案理由与期望用户动作，可在批准前展示，不作为独立会话主题注入 Context，也不允许 Summary 反写它。
 

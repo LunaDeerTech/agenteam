@@ -1,0 +1,62 @@
+# 有界前沿核对与 Summary 决策影响建议
+
+固定输入：`/workspace/agenteam` HEAD `6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9`，核对时工作树干净。只读核对；没有运行 Go/Node/数据库/资源，也没有修改仓库或 Git。本建议不是正式规格或独立验收。
+
+## 已得 D08/D10/D12 结论
+
+| 候选 | 当前源码与接受证据 | 结论 |
+| --- | --- | --- |
+| D08 R4 归档终局/Restore/Retry | R1 `98262b4`、R2、R3 `3e399c3` 已验；`recovery-d08-lifecycle-runtime.md` 需要真实四域 participant；`artifact-project-stop-verification.md` 仍明确16源未提交、共享 Object guard BLOCKED；`recovery-project-domain-bindings.md` 只是规格通过 | 不能把规格当已绑定依赖；不启动 |
+| D10 Skills 初始化 | P1 `8872110` 已通过 `d10-p1-recovery-verification.md`，不是旧计划所写“待独审”；实际仅11个纯包/载体/builtin 文件。Object checker 已在 `a716ae2` 接受，旧 S01“checker不存在”已过时；但 `project/audit_facts.go` 仍拒 ObjectProducer，初始化专用权限/收敛路线与 SkillRevision cleanup 均缺，Skill PG/service不存在 | 不能直接实施并验收完整初始化；不以真实 builtin 代替已发布 Skill |
+| D12 B02 Human canonical 库 | B01 `914fd84`、C1 `71dc176`、C2 `f401c15`、C3 `231a384` 已验；实际 knowledge 仅 contract。Project AuditFacts 不接受 Knowledge；`external_event_authority.go` 只是 Model 专用 gate，非旧卡依赖的 generic Human gate；Object/Project生命周期依赖未闭合 | 不能按旧 B02 卡直接开工验收；更不能缩成预置行只读来宣布完整服务 |
+
+原三个卡没有当前即可验收的完整下一结果。D10“普通变量 Owner CRUD”可另作真实 PG 小库方向（不需要 Model/Secret/Object），但尚无当前正式契约，不能直接从新想法获得实施授权；本次新 Summary 决策优先，不扩成该新计划。Object/tools/SPA publication 三停止完全保持。
+
+## 新决定的精确语义
+
+用户已决定“系统管理员统一配置用于 summary 的模型”；root 已明确适用于 **Meeting Rolling Summary initial/update，含首轮标题**。建议正式表达为 `SelectionRef{kind:"platform", selector:"meeting_summary"}`，由管理员选择 enabled System chat Model；Project 消费每次新逻辑生成确定的当前系统选择，不复制 Project 默认、不允许 Project override。
+
+不改变 `agent_compaction`（`context-compaction.md §15` 明确使用 Execution 固化 snapshot）、Memory 三用途、Agent generation、审批、Execution Summary read model 或其它用途。Meeting 仍为 `MeetingConsumer`，保留 ProjectID/MeetingID/OperationID 与两种原 Purpose；不是 System consumer，也不产生 Agent Execution。首轮标题与四字段 Summary 仍同次 text 调用/同事务提交，`tools=[]`，不新增 structured-output/tool/reasoning 能力要求。
+
+## 最小一致契约建议
+
+1. **第五个系统用途，独立配置状态。** 推荐新建 model 域的单例 `meeting_summary_selection`（稳定ID、version、nullable model_id），逻辑仍属 Platform Model Selection。它可在原 embedding/memory 尚未配置时单独配置；系统模型用途页放同页独立编辑区。保留现有四用途 `PlatformSelection`/GET/PUT/整组保存的精确旧契约，不把新必填项追加入旧请求而使历史请求失效。独立存储是工程建议，正式规格可以比较同表独立列，但必须保持独立可配置与旧请求语义。
+2. **初始未配置是显式状态。** fresh/upgrade 都不挑默认模型、不复制 memory、不根据 Project 历史推断。GET 返回未配置；需要生成时明确失败，Meeting 保持其既定 `finalizing`/失败恢复规则。系统启动、Project 创建不因它未配置而失败；原 ready503 不变。沿原“必填用途”语义，本增量不增加清空/禁用 Summary 功能：第一次配置后只允许显式替换。
+3. **停用与删除。** Provider/Model 停用仍保留引用；后续新 resolution 失败，不静默切换。删除被选模型必须同事务给出 enabled System chat 替代；当同一模型同时被 memory 引用，替代仍须满足 memory 的 json_schema 能力。新引用是 `platform_selector/meeting_summary`，required=true、bound=true，无 ProjectID；旧 `project_summary` 索引/契约可保留只读历史与未绑定拒绝，绝不能自动当新系统选择或悄悄删除。
+4. **旧命令绝不重解释。** `commands.go` 的 `model-command-v1` 固定 JSON 参与 semantic digest，旧四用途 PUT/lookup 与 Provider/Model delete 的 receipts、plans、Audit/Event 原字节保持。新 Summary 使用独立 request/command semantic discriminator 与自己的版本；不能给旧 `PlatformSelection` 随手加可序列化字段。可复用 model 的当前 System 授权、命令/Unknown机制、`model.selection.update` Audit action 与配置 Event，但新 action/selector/command 子类必须在正式卡明确闭集；不凭复用名字跳过 plan/fact 校验。新 summary 别名不能与旧四项命令 key 产生未定义碰撞。
+5. **在途固定。** 新逻辑 generation 读取系统 selector 并冻结 selector version、model/provider identity、profile、snapshot 与 lease；selector 修改/停用/删除不改已持久 accepted snapshot。原 key/OperationID 重放或同一调用 retry 使用原 snapshot；新的逻辑 generation 才读新选择。旧实际 Secret lease/Usage历史保留，live FK 可空不改 snapshot。Summary metadata 的模型来源改为系统 selector，不把当前 GET 反填历史生成记录。
+6. **Resolver 不是简单删除拒绝分支。** 当前 `resolutionVariant` 只允许 direct/platform.memory，`resolutionProfile` 对所有 platform 强制 structured profile，`currentResolutionDraft` 直接取 Memory。须按 meeting_summary 显式分支读取新 selector，并允许已验 OpenAI text profile，不要求 json_schema。SelectionRequest 的 Purpose→selector 映射补两会议用途；锁计划加入新 singleton SH 与原 model-references SH，保存所读 version，最终同Tx重读、同原 consumer authority/Secret witness。Anthropic、宽 capabilities、新生产 consumer、Provider调用/root 不借此默认为已绑定。
+
+## 建议分成三个可验收结果
+
+### S1 系统 Summary canonical 与引用完整库（先行基础结果）
+
+直接依赖已接受 Model System/Project configuration、Account System authority、Secret、Audit、Outbox、PG，以及四用途选择/删除当前实现。准确来源：`d09-project-configuration-verification.md` (`de00c610`)、`current-model-resolution-verification.md` (`4295df7d`，只作为后续兼容输入)、`system-model-root-verification.md`、`system-model-management-reads-verification.md`、`system-model-selection-ui-verification.md` (`870ebbb9`)。不消费活动 Usage HTTP。
+
+交付真实配置 get/update/lookup、初始化未配置状态、同Tx反向索引、Model delete 原子替换、旧四用途/历史命令兼容。第一步不暴露新的 HTTP 写口；避免服务接受新引用后旧管理 HTTP/前端无法解析。新增引用的公共 deletion-impact 放 S2 联合开放，S1 库返回新 typed group 并固定接口，现有 HTTP须明确不提前开放新写能力。
+
+主要文件范围（正式卡再定精确新测试文件）：新 `internal/central/model/contract/meeting_summary.go` 与测试、新 `model/meeting_summary*.go`；窄改 `model/{commands,configuration,references,management_read,service,store,query}.go` 中实际需要的分派/初始化；`model/contract/references.go`；Audit metadata 如复用原action只按确切新selector分支改 `audit/contract/model.go`；必要 model authority/fact/event 分派随正式卡闭合，不能遗漏。新增迁移仅由root分配，候选 **00020**；当前已验连续前缀实际到00019。不得修改00015/00017/00018/00019。
+
+验收：fresh及真实populated 1–19升级；旧四用途数据/commands/receipts原字节；旧key重放历史版本而不回退当前；Session撤权/非admin拒绝；同版本竞争、Unknown+原writer确认、Summary与旧四用途同时引用同模型删除/替代、选用Project/disabled/非chat零副作用；配置和完整引用/Audit/Event/receipt原子性。没有 Meeting Runtime 或生成成功声明。
+
+### S2 系统 HTTP + 同页 Summary 设置与删除影响联合结果（消费 S1 接受）
+
+建议资源 `/api/v1/system/model-selection/meeting-summary`，属于现有 `/system/model-selection` 前缀；严格独立 GET/PUT/原命令lookup。`app/model.go` 现有前缀 dispatcher 可消费子路径，规格须核 exact routing，无需碰活动 `app/account.go`。不新增 Cookie owner 域：扩现有 modelSelection 域，同页独立草稿/确认/重放，当前 GET 与历史 receipt 严格分离；保存后模型已停用的观察仍允许保留合法历史配置并给出当前不可用状态。
+
+范围：`model/{http,http_configuration,http_dto,http_management}.go`、`api/openapi/model-system.json` 及配套测试、新卡自有 `tests/model` HTTP/root 代表；`web/src/api/system-model-selection.ts`、`composables/useSystemModelSelection.ts`、`views/system/SystemModelSelection{View,Editor}.vue`及现有 owner/App 接线和对应纯/浏览器测试。**同一结果**同时更新 `web/src/api/system-models.ts`、`SystemModelDeleteDialog.vue` 与 deletion-impact schema/测试，接受新 `platform_selector/meeting_summary` required group；现 strict client 会拒未知 group，不能仅改后端。
+
+验收：管理员真实配置与跨Provider替代；未配置/停用显示；未知写结果保留原 key/body/version 并显式重放；权限与共享Cookie实际尾部、Session恢复、旧四用途编辑/恢复回归，真实默认root路由及浏览器。前后端连同schema冻结后再联合开放；生产SPA停止项不恢复。最终后端README与 Usage HTTP 第15路径冲突，须root待Usage该路径交还后串行归位，不能并写。
+
+### S3 platform.meeting_summary current-resolution 完整库（消费 S1 接受，可与 S2 隔离实施）
+
+范围：`model/contract/{configuration,resolution}.go`及测试；`model/{resolution_policy,resolution_plan,resolution_store,resolution_secret}.go`中实际必要增量；新 `tests/model/meeting_summary_resolution*_test.go`。S1固定的 selector读取/版本口只读消费，不让S3并写S1或S2源。
+
+依赖 accepted current-resolution `4295df7d`、OpenAI text/structured库与已验Secret model usage。验收真实PG/Secret租约：两个Project消费同一selector；新生成读取新version、已接受同身份重放旧snapshot；停用/删除/替代竞争；未配置失败无默认；新 selector与原四项互不串扰；原 direct/platform.memory回归。consumer授权仍用原明示的严格测试事实口，生产Resolution保持nil；这不是Meeting真实consumer/Invocation/runtime/summary生成交付。D24真实生成仍等待其正式业务事实，不能用allow实现补口。
+
+## 文档决定归位与真实待定项
+
+当前设计原文受影响：`model-system/{model-configuration,model-resolution,README}.md`；`project-work-management/README.md` 的项目配置；`meeting/{meeting-context-summary,meeting-domain-model,README}.md`；`platform-infrastructure/README.md`；`frontend-design/layouts/{project-settings,system-settings}.md`；D09当前正式设计中 ProjectModelSettings/ModelRef/引用替换段落。须窄改为第五系统用途；旧验收报告与当时“待答”记录保留历史原文，只追加新的接受状态。
+
+此次无需向用户再问“默认选哪个”、是否所有Summary统一、是否Project复制默认：已明确系统管理员显式选择且仅会议用途。未配置安全失败、停用保引用、删除必须替代、在途snapshot不漂移均沿原规则。是否允许管理员主动清空是**新产品能力**，本次不加入，因此不阻塞开工。工程待决仅为root冻结独立selector存储/命令兼容形状、S1公共影响投影与S2发布顺序、迁移唯一排号及文件/资源窗口；不是用户产品问题。
+
+结论：优先正式化并实施 S1，完成真实PG/引用/旧receipt验收；S2/S3各自消费已接受S1后推进。无需依赖Object/tools/SPA三停止、Project初始化、D10 Skills、D12或活动Usage HTTP业务源码。Summary选择不改变ready503，也不宣称完整D09/D24完成。

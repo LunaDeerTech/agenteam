@@ -1,0 +1,33 @@
+# Meeting Summary 系统选择：最终有界 STATIC 结论
+
+**PASS。** 复用 rev1 完整技术 STATIC，结合本次 D1 修复及11份正式设计实际差量，未发现契约冲突或实施前技术阻断。用户决定、S1范围、后继S2/S3责任及历史兼容约束已一致；这仅是规格/正式设计静审通过，不是实现、构建、迁移、运行或完整D09/D24验收。
+
+## 本次固定范围
+
+- 当前基线：`2ab562a63b604be2745ca9d283bc1349977806be`。
+- 新卡：`docs/development/work-items/d09-system-meeting-summary-selection.md`，SHA256 `9b582d5df2b31742b34255ff1dcd42e6f37e47889908e64fba7d48abf9ec2ca0`。与保存的D1修复前原件逐字比较，只有页首来源文字/链接变化；§1以后技术部分逐字不变，SHA256 `d2e158c2aa95cb2bdf721ede8ba017c8f2b4e6b762f459649b9dd7212ffdf8be`。
+- 正式设计精确11路径及前后SHA：`/workspace/scratch/summary-design-docs/freeze.json`，SHA256 `e2567ddd78971e73b73c8a1398c5e21a56fb0a8e688352d6d4b745fb76b89313`。
+- 限定实际差量：`/workspace/scratch/summary-design-docs/changes.patch`，60626 bytes，SHA256 `1693c5856d0a2bbea31943fe3dfd585bdd2ec99537bcc817005bafcb0669995d`，+82/-91；实际 `git diff 2ab562a6 -- <11精确路径>` 与保存patch原字节一致。
+- 对照方向：`/workspace/scratch/next-frontier/summary-precision-edits.md`，SHA256 `a25ddcea6d3d6ddd004da1d7ed412075367950569ce30028640c190d71e996b3`。
+- 复用独立完整技术审：`/workspace/scratch/summary-verification/rev1-static-review.md`，SHA256 `c24e879cd9baf92a9e64ec5cc6a5440fd8be680bc7627498b96f31d3231a8a35`。35技术路径、双singleton/第六哨兵、同Tx事实、旧semantic及共享key、Audit platform、旧generic lookup、S1八组strict client联合交付、跨旧binary验收要求均无改动，未重复扩大审查或执行产品。
+
+## 差量结论
+
+1. **D1关闭。** 页首已准确链接 `recovery-2026-10-07-environment.md#保留边界`；目标文件及标题存在，固定175694bf该节就是本次用户决定来源。
+2. **模型来源统一。** Model配置/解析/索引、Meeting三页、Project领域说明、两份设置布局及D09工程规格均改为管理员选择 `platform.meeting_summary`，仅enabled System chat，无Project override、创建复制或第二编辑入口。Summary与原四用途独立状态/version，旧四项PUT不添字段。
+3. **状态与恢复一致。** 初始未配置无默认、不阻塞Project创建，生成明确失败；选择后本范围不可清空；停用保引用且新生成失败；删除需同Tx合法替代，多用途同时满足全部能力。新逻辑generation读当前选择，同一已accepted调用/重试保原selector version/snapshot；没有把当前GET写回历史。
+4. **用途边界保持。** 只Meeting initial/update含首轮标题；同次普通text调用、tools=[]、四字段、标题同事务及后续不重写规则保持。Meeting consumer/Project/Meeting/Operation及Usage归属不改，Agent compaction沿Execution snapshot、其它Purpose和Execution Summary read model未扩大。D08 Skills初始化与原创建receipt不变。
+5. **阶段及历史准确。** 正式设计明确目标契约与尚待实施；旧ProjectModelSettings/project_summary保留历史未绑定语义，不重解释、不自动迁移。S1不放开Resolver，S2负责HTTP/UI/root初始化，S3与D24分别负责Resolution/实际消费者；没有把规格通过记成产品接受。
+6. **正式范围闭合。** 逐段读完限定patch，实际11路径与precision表去重集合相同；未见清单外规则变动。受检正式architecture/layouts/D09设计中的旧 `meeting_summary_model_ref`仅剩已明确历史未绑定类型的说明。改名的两个旧章节anchor在docs Markdown中没有存量入链。
+
+非阻断的采纳页首收尾：新卡页首仍沿冻结候选状态写“上列架构中仍写 Project selector…将另行同步”。当前11页已同步，采纳时可把这一句改成已按本决定同步、目标能力仍待实施，并按实际状态归位“待独审”说明；无需改§1以后技术。此为阶段文字更新，不是新产品决定或新增技术缺口。
+
+## 实际检查和限制
+
+在 `/workspace/agenteam` 仅读冻结Markdown、保存patch/manifest和必要固定Git。Python进行了11源before/after SHA对照、实际限定patch原字节对照、D1前后unified diff及§1技术原字节对照；`git diff --check 2ab562a6 -- <11路径>` exit0、无诊断；独立Markdown检查158本地链接、8个fragment，均通过，UTF-8/LF/末尾换行/行尾空白检查通过。新卡D1目标fragment单独通过；`rg`检查旧标题入链无命中。
+
+另核 `docs/architecture/agent-loop/context-compaction.md`、AGENTS.md、tasks.md、development-plan.md 四受保护文件与基线逐字相同。没有使用另案Usage HTTP业务源。作者的链接统计与本次独立重算一致，但结论依据本次实际检查；纯文本检查不冒充产品运行。
+
+未执行Go、Node、schema运行、build/race、迁移、PG/MinIO、HTTP监听或浏览器；无新进程/数据库/容器/网络资源。跨旧binary、Unknown、事务、权限及HTTP/client行为验收仍须后续实现和独立实证，规格验收不能替代。
+
+本次本人仅新增此scratch报告，未改冻结源/业务/Git，前两份报告保留。已停止写入，无后台命令与自有资源。

@@ -1,0 +1,30 @@
+# Meeting Summary 决定：交文档负责人的精确段落清单
+
+固定产品6fa2ee72，决定记录175694bf。只整理建议，不改下面旧文档；新正式规格候选为 `docs/development/work-items/d09-system-meeting-summary-selection.md` rev1，待独审。接受之前只能写“用户规则已确认/规格待审”，不能写S1已实现。旧报告、历史待答记录保持原文。
+
+统一替换语义：系统管理员统一配置逻辑 `platform.meeting_summary`，enabled System chat、无Project override、无创建时复制。独立singleton/version，与旧四用途独立配置；初始未配置无自动默认，不阻止Project创建，生成明确失败。选择后本范围不提供清空；停用保引用、新生成失败；删除必须合法替代；同逻辑已接受调用/重试用固化snapshot，新generation才取当前选择。只Meeting initial/update（含首轮标题），其它Purpose不变。
+
+| 文件与精确锚点 | 最小改写 |
+| --- | --- |
+| `docs/architecture/platform-infrastructure/model-system/model-configuration.md`，“如果待删除chat Model仍被Agent.model_ref或ProjectConfig.meeting_summary_model_ref引用”及其列表/跨项目System替代说明（当前约200–210行） | Agent仍是原引用，Summary改系统selector引用；同Tx替换Agent与系统selector，多个用途共用模型时替代满足全部能力；不再批量改每个Project Summary |
+| 同文件，“此外，System chat Model还可以作为平台内部用途Model…”（约309行） | 系统Summary仅System chat；Project chat仅其原Agent等合法用途，Summary不再选Project Model |
+| 同文件 `### Platform Model Selection`（约377行） | 四用途列表增加独立Meeting Summary用途；明确原四项整组配置和Summary独立状态/版本，不写第五项追加入旧PUT；用途约束为System/chat/required-for-generation，不要求json_schema |
+| 同文件 `### Project Meeting Summary Model`至下一节（约420–454行） | 改标题为“系统 Meeting Summary Model”，移除ProjectConfig字段及Project候选；保留plain text、tools=[]、meeting usage分类，添加统一语义 |
+| 同文件Project设置Summary选择器示意与其说明（约581–598行） | 移至System模型用途同页独立区域；Project会议配置不再提供本地选择器，可说明消费系统统一模型；不创造未授权新的Project只读HTTP |
+| 同文件末尾职责项（约610行） | Agent字段保持；Project summary字段改系统meeting_summary selector；不改其它consumer |
+| `docs/architecture/platform-infrastructure/model-system/model-resolution.md`，§调用方中的MeetingSummaryUpdater（约29、64–72行） | `resolve(project, meeting_summary_model_ref)`改“带Project/Meeting consumer事实，解析当前platform.meeting_summary”；身份/Usage仍Meeting；同逻辑固化selector version/snapshot，不以当前GET改历史 |
+| `docs/architecture/platform-infrastructure/model-system/README.md`，编号20/21（约185行） | ProjectConfig/Project UI改系统统一Summary选择与System UI；引用替换包含系统selector，不再列Project Summary批量替换 |
+| `docs/architecture/platform-infrastructure/README.md`，配置职责“Project-specific model selection，例如Meeting Summary Model”（约108行） | 改成系统平台Summary用途；Project-specific只保留原本允许的配置，不另举新用途 |
+| `docs/architecture/project-work-management/README.md`，整个 `## 4. Project Meeting Config`正文（约118–128行） | 保留会议配置概念，正文改“Meeting Summary消费系统管理员统一配置的platform.meeting_summary，Project不保存/复制该模型引用”；链接仍指Model Resolution/Meeting Summary |
+| `docs/architecture/meeting/meeting-context-summary.md`，§首轮标题（约372行）、§Generator用当前Project配置条目（约423行） | 只改模型来源为系统统一选择，首轮标题/四字段/同次调用/事务/消息边界不变 |
+| 同文件 `### 15.1 Project Summary Model`（约475–506行） | 改“系统Summary模型”，系统管理员选择enabled System chat；删Project候选与Project表单；保留新生成失败/finalizing/no fallback，补初始未配置和在途固化 |
+| 同文件 §15.2 Context Window最后“用户应在Project Config中选择…”（约517行） | 改“由系统管理员选择足够context window的Summary Model”；不引入hidden chunking/fallback |
+| `docs/architecture/meeting/meeting-domain-model.md`，title首轮生成段（约93行） | “当前meeting_summary_model_ref”改当前系统selector所固化的Model；首轮同事务/标题不可重生成不变 |
+| `docs/architecture/meeting/README.md`，§11中Project Config字段与候选（约414–420行）、底部职责“Project Summary Model”（约653行） | 改系统统一用途和System chat，保留四字段/生成/有限重试；底部改“系统Meeting Summary Model” |
+| `docs/frontend-design/layouts/project-settings.md`，chat删除替代说明（约68行）、会议配置选择器（约82行） | Project chat不再因会议Summary引用而替换；会议配置去掉本地selector，说明由系统管理员统一配置，不添加第二套编辑入口 |
+| `docs/frontend-design/layouts/system-settings.md`，§3模型与Provider表“平台模型用途”及必需用途说明（约34–43行） | 增Meeting Summary，独立编辑/保存区；未配置清楚显示、配置成功不等于运行调用可用；旧四用途与Reranker/Image可选规则不变 |
+| `docs/development/work-items/d09-model-system-token-usage-design.md`，§schema表ProjectModelSettings、Summary初值未决项、SelectionRef/引用/删除/Resolution对应行 | 新决定后ProjectModelSettings不再生产实现，保留已提交旧契约作为历史未绑定类型；当前目标改新卡独立系统selector；旧project_summary不自动重解释；将“用户初值待答”更新为已确认规则而非实现已接受 |
+
+不要批量替换单词Summary：`agent-loop/context-compaction.md §15`完全保持；Execution Summary/Usage Summary统计类型/Memory用途/Meeting四字段内容及重试语义完全保持。D09既有recovery卡和验收报告内“当时待答”仅通过新入口追加当前状态，不改历史技术输入。新卡S1源码中 `SelectionRef` platform.meeting_summary 仍留S3正式放开，不在文档里宣称其已运行。
+
+以上锚点以标题及精确短语定位，行号只是固定输入下的便捷提示。文档负责人需逐段核前后差量与相对链接，涉及此清单外的实质规则先报root，不做全仓替换。

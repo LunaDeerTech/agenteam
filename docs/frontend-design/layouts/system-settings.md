@@ -33,11 +33,13 @@ Agent 模板 → 模板列表
 | --- | --- | --- |
 | Provider | name、protocol、base_url、enabled；Models 子列表 | name、protocol、base_url、credential 替换、provider_options、enabled；创建 / 编辑 / 删除 |
 | Model | name、model_id、type、enabled、所属 Provider | name、model_id、type、parameters、request_overwrite、header_overwrite、enabled；创建 / 编辑 / 删除 |
-| 平台模型用途 | Embedding、Reranker、Memory、Image Generation 当前引用 | 从合法 enabled System Model 中选择，不在此编辑参数 |
+| 平台模型用途 | Embedding、Reranker、Memory、Image Generation 当前引用；独立 Meeting Summary 配置状态与引用 | 从合法 enabled System Model 中选择，不在此编辑参数；原四项整组保存，Meeting Summary 同页独立编辑/保存 |
 
 System Model type 可选 chat / embedding / reranker / image_generation。chat parameters 展示 context_length、max_output、capabilities（input、tool_calling、parallel_tool_calls、streaming、reasoning、reasoning_efforts、structured_output）；其他类型按架构定义渲染其参数，不能复用错误的 chat 字段。
 
-chat Model 删除仍有引用时要求合法替代模型并说明受影响引用数量和类型，系统操作不提供跳转他人项目内容的入口；Provider 删除连同 Models 按领域规则处理。平台内部必需用途引用不可留空，Reranker / Image Generation 可不配置。
+chat Model 删除仍有引用时要求合法替代模型并说明受影响引用数量和类型，系统操作不提供跳转他人项目内容的入口；Provider 删除连同 Models 按领域规则处理。原四用途的必需引用规则不变，Reranker / Image Generation 可不配置。
+
+Meeting Summary 只允许选择 enabled System chat Model，有独立状态与版本，不加入旧四项 PUT；用途是会议 initial/update（含首轮标题），不要求 json_schema。初始未配置明确显示，不猜默认、不阻止 Project 创建；需要生成时明确失败。选择后不提供清空，停用保留引用并提示新生成不可用，删除须合法替代。配置成功不等于运行调用已可用，已接受调用及重试保持原 snapshot；Project 消费系统选择，不复制创建默认或提供 override。此处定义目标布局，配置库、HTTP/UI 与 Resolution 的实现和验收各自独立。
 
 协议选项与 Model 类型匹配：chat 首期范围为 openai-chat-completions / anthropic-messages；embedding、reranker、image_generation 分别按 OpenAI Embeddings、Jina Rerank、OpenAI 图片生成 profile。兼容端点只有实际验证后才能声明支持，不因名称或 URL 相似显示为已兼容；精确选项和校验由 Model System 规格落实，不在 UI 添加未支持的原生协议。
 

@@ -1,0 +1,22 @@
+{
+  "card": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-selection.md",
+  "sha256": "046946ad0d4f23adeaa01511bb7e4e5bed076aee84469a74bf3b2caacd90e61c",
+  "bytes": 29427,
+  "link_count": 13,
+  "checks": [
+    "relative_links",
+    "no_trailing_whitespace",
+    "balanced_fences"
+  ],
+  "not_run": [
+    "Go",
+    "Node",
+    "schema",
+    "resources",
+    "product_tests"
+  ],
+  "summary-precision-edits.md": {
+    "sha256": "a25ddcea6d3d6ddd004da1d7ed412075367950569ce30028640c190d71e996b3",
+    "bytes": 6701
+  }
+}

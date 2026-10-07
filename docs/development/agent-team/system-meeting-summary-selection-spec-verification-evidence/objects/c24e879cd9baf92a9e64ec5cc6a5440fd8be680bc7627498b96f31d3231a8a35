@@ -1,0 +1,44 @@
+# Meeting Summary Selection rev1 独立有界 STATIC
+
+结论：完整有界 STATIC 已完成，**未发现技术契约阻断**；S1最小完整结果、35路径及验收方向可采纳。归档前修正下述 D1 决定来源链接。正式架构尚未同步，本结论覆盖其冻结 precision 改动稿，不冒充最终正式文档审查；同步后仍须差量审。没有产品、构建、迁移应用或真实资源通过声明。
+
+## 固定输入与独立性
+
+- 候选：`docs/development/work-items/d09-system-meeting-summary-selection.md` rev1，29427 bytes，SHA256 `046946ad0d4f23adeaa01511bb7e4e5bed076aee84469a74bf3b2caacd90e61c`。
+- 改动稿：`/workspace/scratch/next-frontier/summary-precision-edits.md`，6701 bytes，SHA256 `a25ddcea6d3d6ddd004da1d7ed412075367950569ce30028640c190d71e996b3`。
+- Git：文档当前 `2ab562a63b604be2745ca9d283bc1349977806be`；产品参考 `6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9`；前次准备 `175694bf1157b77ea13268bcd8a47787e1a28acd`。35候选展开为20个已存在源及15个新路径；20旧源在2ab562a6与6fa2ee72逐字相同。15新路径在固定HEAD不存在。
+- 独立 verification_worker，未参与实施、未再委派。已读 AGENTS、团队 README、verification SKILL，复用本人固定准备，仅补读冻结卡、precision稿和必要源码/旧测试。没有读取另案 Usage HTTP 活动或冻结源码作为本次产品依赖。
+
+## D1：决定来源链接需修正
+
+卡第5行将“恢复记录新增用户决定”链接到 `recovery-2026-10-06-continuation.md`，其文件存在，但并非本次新决定来源。实际是 `docs/development/agent-team/recovery-2026-10-07-environment.md:25`，在固定175694bf明确记录系统管理员统一配置、会议initial/update含标题、compaction与Execution Summary不变。
+
+建议仅将该处目标改为 `../agent-team/recovery-2026-10-07-environment.md#保留边界`，或无fragment的该文件；不重写旧恢复档。此项先由root提示，本次已以固定Git独立确认。它是文档来源修正，不构成S1产品决定缺口。冻结rev1未被本人修改。
+
+## 技术核对通过范围
+
+| 范围 | 固定实现依据与结论 |
+| --- | --- |
+| 产品边界及三块结果 | §1/§7精确限定Meeting Rolling Summary initial/update含首轮标题；普通text、tools=[]、同事务标题沿旧规则。S1没有Resolver新分支、runtime/Usage/consumer/root绑定；S2负责初始化与GET/PUT/编辑恢复，S3负责Purpose映射/选择/profile/snapshot。没有把compaction或Execution Summary纳入。 |
+| 独立状态及schema | §2/§3.1区分缺表/坏状态、合法表无singleton、已初始化model=NULL；Get/Update不隐式造行，旧Initialize不读新表。独立初始化以旧技术singleton为前置，锁内核ID不同，不默认选择Model；先前1..15/16/17 Initialize证据不被误称未迁移20的新生产兼容。schema仅新表+精确role约束，不重写1–19/Audit/commands闭集。 |
+| 同Tx权限与事实 | 当前 `commands.go`/`configuration.go`/`audit_authority.go` 以prepared plan驱动正式Audit/Event；新卡明确将summary canonical与完整reference加入该事实链，单次完整锁union、同Store/Tx、当前Session/admin、锁内mapping检查、同Txcommand/receipt/Audit/Event。Get的3s/实际完成/零候选也完整。 |
+| 双singleton完整集合 | 当前 `references.go`只认旧owner，`management_read.go`全平台最多四边；§4改为exact两owner及canonical完整并集，确定排序，最多五边与第六哨兵。不存在新singleton不能掩盖额外owner/坏role。delete target反向集合、每个owner全边、canonical/version均在锁内复核。 |
+| 删除、停用及多用途能力 | required Summary无替代拒绝；同模型memory+summary时一个合法System chat替代满足二者，两个版本各进一次，先改canonical/引用再删Model，任一失败全回滚；每个实际改动owner一份配置Event，原Model/embedding事件保持。停用保引用，历史snapshot/Usage不变。 |
+| 旧semantic/receipt兼容 | `commands.go:90`的旧v1及Project wrapper保持；新semantic显式分派，私有plan新增字段omitempty，不重写旧原件，坏混合plan须拒绝。保留同namespace/user/action/key，跨新旧同key异义明确IDEMPOTENCY_KEY_REUSED；receipt优先于后来版本/目标状态，Unknown等待原writer并保原cause/attempt。 |
+| Audit与旧generic lookup | Audit仍原action/resource/selector_kind=platform及原字段，无需改现Go/SQL/OpenAPI/UI的literal闭集。`http_configuration.go:211`确实直接generic lookup；卡明确允许同形安全Summary receipt，且不将lookup当body同义确认或新权限。旧四项PUT不能用Summary ID变成新写口。 |
+| 现HTTP与strict客户端 | 当前 `http_management.go:67`直接返回library投影，现client最多7组且严格配对；§4.2在S1同时扩schema/API/parser/dialog/tests至8组，required+bound和词序正确，不隐藏新group。`useSystemModels.ts:401`按真实memory group追加json_schema要求，summary-only无需改composable；该文件可保持只读。原GET/PUT形状、新Summary路径404与generic lookup均有明确验收。 |
+| 路径与实际接缝 | 35路径展开正确，必要commands/configuration/reference/Audit-fact/event/management/schema/client/helper均在白名单；现有HTTP生产源无需修改即可承载新group，同形receipt也不需扩大contract/configuration.go。新服务方法可定义在新文件，旧Initialize/query.go/root只读符合阶段边界。没有发现必须写但未列的业务源。 |
+| 验收可执行性 | 六新真实顶层覆盖schema/授权/替换/Unknown/跨旧binary/现HTTP，12个旧顶层名字均存在。现owned PG descriptor能由独立父测试持有数据库生命周期，旧public API/旧Central驱动可真实写旧receipt后退出，再由候选迁移和重放；原wire COMMIT proxy/正式bootstrap-login/HTTP fixture提供必要可复用接缝。卡允许遇到精确fixture缺口先报，不授权改shared fixture。 |
+| precision改动稿 | 有界检索正式architecture、相关layouts及D09设计的旧Project Summary引用，所见命中均落在改动稿指定路径/锚点；统一语义保留历史project_summary未绑定类型，不静默迁移；明确不改compaction、其它用途、重试与历史验收档。此项仅审改动方向，最终实际diff待审。 |
+
+## 实际检查与证据界限
+
+本次只在 `/workspace/agenteam` 执行只读源码/文档检查：`sha256sum`、`wc -lc`、`git rev-parse HEAD`、`git status --short`；按固定Git读取 `git show <commit>:<path>`；`git grep -n` 有界定位引用、fixture、旧顶层与schema/client；Python只做文本解析、SHA/字节比较、候选路径展开、相对链接存在与空白检查，没有加载或执行产品代码。
+
+机械核对结果：35唯一技术路径=20旧+15新；20旧源无产品基线差异；13相对链接目标均存在，候选无fragment链接；12指定旧顶层均有精确声明（这是源码发现，不冒充go test -list）；候选UTF-8可读、LF、无行尾空白、一个闭合Go fence。D1为语义来源错误，不能由“链接存在”掩盖。一次按惯例查找 `tests/model/main_test.go` 得到该路径不存在，随后实际枚举确认此目录没有TestMain；未把通用TestMain提醒当作本包存在TestMain的事实，也没有执行任何cmd构建。
+
+后续实施必须另行固定旧binary构建闭包/实际驱动/源码指纹、真HTTP响应交由候选schema+strict parser消费的方式，以及动态资源命令/退出清理；它们现在尚不存在，不算已运行证据。旧二进制必须真实产生receipt，不能由候选fixture自造旧形状替代。现card明确这项硬门槛，具体驱动选择在其已授权测试路径内可实现；若要新增路径仍先报root。
+
+未执行：Go/Node/schema运行、编译、race、迁移、PG/MinIO/HTTP监听或浏览器；无数据库/容器/进程资源产生。既有测试通过历史不作为当前未实现S1的通过。尚未审正式架构实际同步稿与最终卡D1修复，收到冻结差量后续审。
+
+本人实际新增文件仅本报告；前次 `preparation.md`保持原字节。业务、卡、Git与他人文件无写入。报告完成后停止写入，无后台命令或自有资源。

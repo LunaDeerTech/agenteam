@@ -1,0 +1,191 @@
+{
+  "baseline": "6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9",
+  "scope": "bounded static source and accepted evidence; not runtime dependency closure",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "95e8794e3fdd20ab9498520011b6df53c8d362ba07e1fa9362f5ea2d963d1930",
+      "bytes": 42714
+    },
+    {
+      "path": "docs/development/agent-team/README.md",
+      "sha256": "9d8bad3c85cf2a34fd0d9360bbc9eb27ea5c76082222a174984f78d599701c40",
+      "bytes": 14625
+    },
+    {
+      "path": "docs/development/development-plan.md",
+      "sha256": "197ba265d706a3d02abd1718d7d3ddf61ebea11ffc23b29e0671f8da8012fcf8",
+      "bytes": 68496
+    },
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "sha256": "22896c43652e2f8f316cf94b476bc37ed513b937a74f0887912ee6b56df9d3b2",
+      "bytes": 274782
+    },
+    {
+      "path": "docs/development/agent-team/recovery-2026-10-06-continuation.md",
+      "sha256": "a5a629d17ae51b0c037b8efdf238f42b01afe46479a28779340af1021504ab18",
+      "bytes": 89086
+    },
+    {
+      "path": "docs/development/work-items/d10-skills-initialization.md",
+      "sha256": "87033b3a37d03568fa47441084d9153c3ce3d2bebf34c5949dd52150d4ea2f6b",
+      "bytes": 5101
+    },
+    {
+      "path": "docs/development/work-items/d12-b02-knowledge-service.md",
+      "sha256": "f1cc70efc15e6f7c9024b1db578cfe7333f4722c2ce8be50603c881c7ed7fba3",
+      "bytes": 24661
+    },
+    {
+      "path": "docs/development/work-items/recovery-d08-lifecycle-runtime.md",
+      "sha256": "e9597479bdf9c65b5bc3d748a6eedaa96ee77263bff9230869608d1942288d96",
+      "bytes": 41277
+    },
+    {
+      "path": "docs/development/agent-team/d10-p1-recovery-verification.md",
+      "sha256": "e0fff9717e5ace0ec3c300206073d29312fc823a2d90b39cd779803e1fc40960",
+      "bytes": 9015
+    },
+    {
+      "path": "docs/development/agent-team/artifact-project-stop-verification.md",
+      "sha256": "36e059e1a8b2cabaa3a4817c1531f38aadfedc5d7db60efc19c4a01fc8f41c4c",
+      "bytes": 9265
+    },
+    {
+      "path": "docs/development/agent-team/current-model-resolution-verification.md",
+      "sha256": "3da2b502e01432017c73240f09bab1a8fbe1d93b59dee1be21b971741f39baee",
+      "bytes": 8745
+    },
+    {
+      "path": "docs/development/agent-team/system-model-selection-ui-verification.md",
+      "sha256": "c742ec9d0f0e8b1647c2b06d1336c17d0c9c3ce3b773d975118735ccb514c292",
+      "bytes": 14981
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "8af3c658dbe1978f5f9b1cdae9820788a14c6775cc9e529ae0d4603cf925a439",
+      "bytes": 20680
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/model-system/model-resolution.md",
+      "sha256": "7a0c7d00ce84dcef95167cb38224d662fee6c57450e8752d60f02e0a7d1c0441",
+      "bytes": 8980
+    },
+    {
+      "path": "docs/architecture/meeting/meeting-context-summary.md",
+      "sha256": "f51fe785c44848c2c4a9d3e62d66689390a6657fa1261f6849fa8a4d85edc5d4",
+      "bytes": 21715
+    },
+    {
+      "path": "docs/architecture/agent-loop/context-compaction.md",
+      "sha256": "0762026a591f9d572a77cf2f71641704d748a42eb34337c69ef156102dec80e4",
+      "bytes": 22198
+    },
+    {
+      "path": "internal/central/project/audit_facts.go",
+      "sha256": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9",
+      "bytes": 3442
+    },
+    {
+      "path": "internal/central/project/external_event_authority.go",
+      "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519",
+      "bytes": 3243
+    },
+    {
+      "path": "internal/central/model/contract/configuration.go",
+      "sha256": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14",
+      "bytes": 19050
+    },
+    {
+      "path": "internal/central/model/contract/references.go",
+      "sha256": "6728cd6830d72988a91082d886e5a12843077381a53e38e7826665f1d4a09740",
+      "bytes": 5106
+    },
+    {
+      "path": "internal/central/model/commands.go",
+      "sha256": "c801fae31f25815e00ebe82c41a363d53d9a6ff5c2f246f99541cac91de948e7",
+      "bytes": 20400
+    },
+    {
+      "path": "internal/central/model/references.go",
+      "sha256": "880234288ab809df8ef1ad2af20d555ccd79ed6a6c31cd4a86d6883b3bd5c642",
+      "bytes": 5874
+    },
+    {
+      "path": "internal/central/model/configuration.go",
+      "sha256": "2f09ab296c592c207fe63705e8b2a26ce7089130ae3d40e0071856b77a7d410a",
+      "bytes": 13381
+    },
+    {
+      "path": "internal/central/model/management_read.go",
+      "sha256": "18d4324e23ab017d60c00d16c56acc13d4441be8c912d74e9b5c0a4f6c146820",
+      "bytes": 8892
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "bytes": 4230
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "sha256": "728830cce301d98ddb3069ef8af5b599b74dc03e17cc02ad25c7872f3a3993c1",
+      "bytes": 10211
+    },
+    {
+      "path": "internal/central/model/http.go",
+      "sha256": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc",
+      "bytes": 5386
+    },
+    {
+      "path": "internal/central/model/http_configuration.go",
+      "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+      "bytes": 7189
+    },
+    {
+      "path": "internal/central/model/http_dto.go",
+      "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+      "bytes": 9114
+    },
+    {
+      "path": "internal/central/app/model.go",
+      "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+      "bytes": 837
+    },
+    {
+      "path": "internal/central/audit/contract/model.go",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+      "bytes": 7724
+    },
+    {
+      "path": "db/migrations/00015_model_configuration.sql",
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af",
+      "bytes": 14847
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094
+    },
+    {
+      "path": "db/migrations/00019_account_invitation_delivery_read.sql",
+      "sha256": "618c53b3621d2bbe57c18d3e9626e38e9492faa95036ad1526e74772fa3e4100",
+      "bytes": 160
+    },
+    {
+      "path": "web/src/api/system-model-selection.ts",
+      "sha256": "3d5358dac44e2378c960ee7ae0cdc5546c9f488822fd6e22ddb4fda28d804bca",
+      "bytes": 7361
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+      "bytes": 13267
+    },
+    {
+      "path": "web/src/views/system/SystemModelDeleteDialog.vue",
+      "sha256": "df056eac828da1e756c9cec52182bf83680e1c6e6f0b9d34751d05069afd2872",
+      "bytes": 13013
+    }
+  ]
+}

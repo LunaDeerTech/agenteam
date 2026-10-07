@@ -104,8 +104,8 @@ flowchart TB
 
 - System Provider / Model；
 - Project Provider / Model；
-- Platform Model Selection；
-- Project-specific model selection，例如 Meeting Summary Model。
+- Platform Model Selection，包括系统统一的独立 Meeting Summary 用途；
+- Project-specific model selection，仅用于原有允许的项目配置，不包含 Meeting Summary override。
 
 所有 enabled 的 System chat Model 对所有 Project 可见。Project 也可以配置自己的 chat Model。
 

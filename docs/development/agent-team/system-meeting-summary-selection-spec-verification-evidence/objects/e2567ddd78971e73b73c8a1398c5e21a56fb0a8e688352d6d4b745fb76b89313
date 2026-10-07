@@ -1,0 +1,85 @@
+{
+  "repository": "/workspace/agenteam",
+  "baseline": "2ab562a63b604be2745ca9d283bc1349977806be",
+  "precision_source": "/workspace/scratch/next-frontier/summary-precision-edits.md",
+  "precision_sha256": "a25ddcea6d3d6ddd004da1d7ed412075367950569ce30028640c190d71e996b3",
+  "files": [
+    {
+      "path": "docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "before_sha256": "8af3c658dbe1978f5f9b1cdae9820788a14c6775cc9e529ae0d4603cf925a439",
+      "after_sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/model-system/model-resolution.md",
+      "before_sha256": "7a0c7d00ce84dcef95167cb38224d662fee6c57450e8752d60f02e0a7d1c0441",
+      "after_sha256": "25552b7ce4ebe8874cae06bf9525c241bbe86f7999fa0f3728cc2e3e0a9f9d63"
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/model-system/README.md",
+      "before_sha256": "3b1cfe82d227f217f6d6bea74e8acb023fe8ceacb3b2bb674c81bae7fc2f94ed",
+      "after_sha256": "ce51470f5d16b8b52307c72821f5e4e7bf145dd70cda21c34563ff3dfea1fae3"
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/README.md",
+      "before_sha256": "6e594198bf9a96df369ebec62638d80c60b7e6b485227b64cd005f71ffcbc0fe",
+      "after_sha256": "173466777726ab72793532eaed33f88b6fcde578190d00337eab33e5f9bc565d"
+    },
+    {
+      "path": "docs/architecture/project-work-management/README.md",
+      "before_sha256": "a49e4b3577ea2af78d93f127aac24b1df7ce76df355a999c007be13c3b505a65",
+      "after_sha256": "40b9f74b542baf493f2e8559ec966a46a25e23ddc265fb481a43b59d7a480760"
+    },
+    {
+      "path": "docs/architecture/meeting/meeting-context-summary.md",
+      "before_sha256": "f51fe785c44848c2c4a9d3e62d66689390a6657fa1261f6849fa8a4d85edc5d4",
+      "after_sha256": "dac8365babe6bd187a8958255399b790193195622706463d7aa096f5f5e82ecf"
+    },
+    {
+      "path": "docs/architecture/meeting/meeting-domain-model.md",
+      "before_sha256": "a9f37e1d9ce2d408a4c26272dd49fc8e9c485af196b07406412c1ff099969569",
+      "after_sha256": "f8347d9cbe683e3e0f2237b5b95af33d0df533364cd7fd2246588061a102c538"
+    },
+    {
+      "path": "docs/architecture/meeting/README.md",
+      "before_sha256": "f48510f007f0ae688ad95ff9b444792706bd587c88e972bc2dca0b676c0b02c9",
+      "after_sha256": "a42526a7cf104b2a4a0a88f49726f621a4816aabbad54c0d2fc9deea2d33b837"
+    },
+    {
+      "path": "docs/frontend-design/layouts/project-settings.md",
+      "before_sha256": "27b404dd1253c958cfbd048bb2f33b88dc85f95184013bc11c724823ab47793d",
+      "after_sha256": "ed5eaf1bc5c3565af29e0a262daccbdab1ce49e53e90843a74f3e0c5a66e8115"
+    },
+    {
+      "path": "docs/frontend-design/layouts/system-settings.md",
+      "before_sha256": "41bc84c2a672bce0c107de75f39e2c2365148ed8b5112df2d0abb680d45a23c8",
+      "after_sha256": "9f45c975acaab20c0c9879e27ffb430cbc82b2bedea7cf4f6683c5642515193a"
+    },
+    {
+      "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "before_sha256": "33da97d04ebc0d3bb89ef92a3451ec4ea80c2c99c60166ae8bd47a6e70df1af1",
+      "after_sha256": "2597bcceb2f200b5143a91f74d3f0afee14468aeced5aabe53f70719052996c5"
+    }
+  ],
+  "patch": {
+    "path": "changes.patch",
+    "sha256": "1693c5856d0a2bbea31943fe3dfd585bdd2ec99537bcc817005bafcb0669995d",
+    "bytes": 60626
+  },
+  "validation": {
+    "local_links": 158,
+    "fragments": 8,
+    "link_problems": [],
+    "utf8_lf_final_newline_whitespace": "PASS",
+    "markdown_fences": "PASS",
+    "git_diff_check": "PASS",
+    "protected_files_byte_identical_to_baseline": [
+      "docs/architecture/agent-loop/context-compaction.md",
+      "AGENTS.md",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/development-plan.md"
+    ],
+    "product_execution": false,
+    "git_mutations": false
+  },
+  "state": "author frozen; pending independent consistency review"
+}

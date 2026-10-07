@@ -369,7 +369,7 @@ Turn.running
 
 Summary 更新仍属于 Turn Runtime 的 finalize 控制流程，但 Summary 内容只消费 MeetingMessage，不需要把 Turn 对象注入模型上下文。
 
-首轮 finalize 同时生成一次 Meeting.title 与四字段 Summary，使用同一个解析后的 `meeting_summary_model_ref`、同次普通文本模型调用和相同 Message 边界。服务端解析校验后在同一事务写入标题与 Summary；成功之前 Turn 保持 finalizing。生成前 UI 展示“新会议”，不阻断首轮 Agent 执行。后续 finalize 仅更新 Summary，不因讨论变化或 regenerate 改写已生成标题。
+首轮 finalize 同时生成一次 Meeting.title 与四字段 Summary，使用系统 `platform.meeting_summary` 为本次逻辑生成固化的同一个 Model snapshot、同次普通文本模型调用和相同 Message 边界。服务端解析校验后在同一事务写入标题与 Summary；成功之前 Turn 保持 finalizing。生成前 UI 展示“新会议”，不阻断首轮 Agent 执行。后续 finalize 仅更新 Summary，不因讨论变化或 regenerate 改写已生成标题。
 
 Summary 更新是同步 finalize 步骤：
 
@@ -420,7 +420,7 @@ Summary Updater：
 - 不创建 Agent Execution；
 - 不读取 DecisionRequest / Approval Request 作为会话事实；
 - 固定通过统一 Model System 调用 chat Model；
-- 使用当前 Project 配置的 `meeting_summary_model_ref`；
+- 使用系统管理员统一配置的 `platform.meeting_summary`，保留本 Project/Meeting consumer 事实；
 - 只执行普通 text generation；
 - 不暴露任何 Tools；
 - 不发起 Tool Calling；
@@ -431,7 +431,7 @@ Summary Updater：
 Summary Model 只要求：
 
 - `type = chat`；
-- 当前 Project 可见且 enabled；
+- 新生成选择 enabled System Model，不接受 Project Model；
 - 支持 text input / output。
 
 不要求：
@@ -472,33 +472,21 @@ tools = []
 
 不写空 list、placeholder item 或模型自行补造的“无”条目。
 
-### 15.1 Project Summary Model
+### 15.1 系统 Summary Model
 
-Project Config 必须配置：
-
-```text
-meeting_summary_model_ref
-```
-
-它引用当前 Project 可用的 enabled chat Model：
+系统管理员统一配置：
 
 ```text
-all enabled System chat Models
-+
-enabled chat Models from current Project Providers
+platform.meeting_summary -> enabled System chat Model
 ```
 
-Project 配置页面显示为：
+该用途覆盖 Meeting Rolling Summary initial/update（含首轮标题），有独立 singleton / version，不加入原四用途整组 PUT。Project 消费系统选择，不保存模型引用、不在创建时复制初值，也不提供 override。System 平台模型用途页提供独立编辑/保存区，Project 会议配置不提供第二套选择器。
 
-```text
-Meeting Summary Model
-```
+该配置只选择已有 enabled System chat Model，不重复配置 Provider、Model 参数或 reasoning effort，也不要求 json_schema。初始未配置时不猜默认模型、不阻止 Project 创建；选择后本范围不提供清空。停用保留原引用，删除必须同事务替换为合法 Model。
 
-该配置只选择已有 ModelConfig，不重复配置 Provider、Model 参数或 reasoning effort。
+MeetingSummaryUpdater 每个新逻辑 generation 通过 Model Resolver 解析当前选择，并固化 selector version / Model snapshot；同一已接受调用及重试保持原 snapshot，不因管理员后来切换或停用而热换模型。当前 selector GET 不修改历史记录。此处是目标契约，配置库、Resolution 与真实 Meeting consumer 仍须分别实施验收。
 
-MeetingSummaryUpdater 每次生成 Summary 时通过 Model Resolver 解析该 Model。
-
-如果引用的 Model 被 disabled / 删除且尚未完成替换：
+初始未配置或所选 Model 当前不可用于新生成时：
 
 - Summary 生成失败；
 - Turn 保持 `finalizing`；
@@ -514,7 +502,7 @@ MeetingSummaryUpdater 每次生成 Summary 时通过 Model Resolver 解析该 Mo
 
 如果完整 Message History 超过所选 Summary Model 的 context window，Summary 更新明确失败。
 
-用户应在 Project Config 中选择具有足够 context window 的 Meeting Summary Model。
+系统管理员应选择具有足够 context window 的 Meeting Summary Model。
 
 后续如果确实需要支持超长 Meeting，再单独设计 hierarchical / chunked summarization，不在第一阶段隐式加入另一套压缩逻辑。
 

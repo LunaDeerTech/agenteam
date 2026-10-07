@@ -197,17 +197,17 @@ Provider 和 ModelConfig 支持物理删除，不要求长期保留 disabled 记
 
 #### 删除 chat Model
 
-如果待删除 chat Model 仍被 Agent.model_ref 或 ProjectConfig.meeting_summary_model_ref 引用，用户侧必须先通过删除确认弹窗选择替代 chat Model。
+如果待删除 chat Model 仍被 Agent.model_ref 或系统 `platform.meeting_summary` selector 引用，用户侧必须先通过删除确认弹窗选择替代 chat Model。
 
 确认删除时，服务端以一个事务性操作完成：
 
-1. 校验替代 Model 当前 enabled 且对所有受影响 Agent / Project 可见；
-2. 校验替代 Model 的 type = chat；
+1. 校验替代 Model 当前 enabled 且对所有受影响 Agent / Project 可见；系统 selector 的替代必须为 System Model；
+2. 校验替代 Model 的 type = chat，并满足全部受影响用途的能力要求；
 3. 校验受影响 Agent 的 reasoning_effort 在替代 Model 下仍然合法；存在不兼容配置时，删除流程必须先要求用户解决，不能留下无效 Agent 配置；
-4. 批量把所有受影响 Agent.model_ref 与 ProjectConfig.meeting_summary_model_ref 更新为替代 Model；
+4. 同事务把所有受影响 Agent.model_ref 与系统 selector 更新为替代 Model，分别更新其版本；
 5. 完成后物理删除原 ModelConfig。
 
-System chat Model 可能被多个 Project 的 Agent / Meeting Summary 配置引用，因此其替代 Model 必须是对全部受影响 Project 可见的 enabled System chat Model。
+System chat Model 可能被多个 Project 的 Agent 及系统 Meeting Summary selector 引用，因此其替代 Model 必须是对全部受影响 Project 可见的 enabled System chat Model。Summary 替换只更新系统 selector，不批量改写 Project 配置；同一 Model 还被 Memory 等用途引用时，替代必须同时满足各用途约束。
 
 Project chat Model 只影响所属 Project，可以替换为该 Project 当前可见的 enabled System chat Model 或 Project chat Model。
 
@@ -215,12 +215,13 @@ Project chat Model 只影响所属 Project，可以替换为该 Project 当前�
 
 #### 删除平台内部 Model
 
-如果待删除 Model 正被 PlatformModelSelection 引用：
+如果待删除 Model 正被平台用途 selector 引用：
 
 - embedding_model_ref：必须先选择另一个 enabled System embedding Model，不能清空；
 - reranker_model_ref：可以选择另一个 enabled System reranker Model，也可以清空；
 - memory_model_ref：必须先选择另一个 enabled System chat Model，不能清空；
 - image_generation_model_ref：可以选择另一个 enabled System image_generation Model，也可以清空。
+- 独立 `platform.meeting_summary`：必须先选择另一个 enabled System chat Model，不能清空。
 
 selector 更新完成后才能物理删除对应 ModelConfig。
 
@@ -306,7 +307,7 @@ flowchart TB
 
 Agent 通过 `model_ref` 选择当前 Project 可用的 chat Model，然后由 Agent Loop 通过 Unified Chat Model Contract 调用。
 
-此外，System chat Model 还可以作为平台内部用途 Model，例如 `memory_model_ref`；Project / System chat Model 也可以作为 Project Meeting Summary Model。不同 consumer 共用 Unified Chat Model Contract，但拥有各自独立的 selector、prompt、usage metadata 与业务生命周期。
+此外，System chat Model 还可以作为平台内部用途 Model，例如 `memory_model_ref` 和系统 `platform.meeting_summary`。Meeting Summary 只选择 System chat Model；Project chat Model 仍用于本 Project Agent 等原有合法用途。不同 consumer 共用 Unified Chat Model Contract，但拥有各自独立的 selector、prompt、usage metadata 与业务生命周期。
 
 System Provider 和 Project Provider 都可以配置 chat Model。
 
@@ -373,7 +374,7 @@ image_generation Model 第一阶段只能由 System Provider 配置。
 
 ### Platform Model Selection
 
-平台基础设施保存四个模型用途 selector：
+平台基础设施保留原四个模型用途 selector，并为 Meeting Summary 保存独立 selector：
 
 ~~~text
 PlatformModelSelection
@@ -381,6 +382,9 @@ PlatformModelSelection
 ├── reranker_model_ref?
 ├── memory_model_ref
 └── image_generation_model_ref?
+
+Meeting Summary Selection（独立 singleton / version）
+└── platform.meeting_summary
 ~~~
 
 它们只保存已配置 ModelConfig 的稳定 ID，不在 selector 中重复配置 Model 本身。
@@ -407,9 +411,15 @@ image_generation_model_ref
 -> System Model
 -> type = image_generation
 -> optional
+
+platform.meeting_summary
+-> System Model
+-> type = chat
+-> required for Meeting Summary generation
+-> 不要求 json_schema / structured output
 ~~~
 
-这四个 selector 都是平台级配置，不支持 Project override。
+所有这些 selector 都是平台级配置，不支持 Project override。原四项保持原整组配置与版本；Meeting Summary 使用独立状态、singleton 和版本，不作为第五字段加入原四项 PUT。
 
 Knowledge / Memory 共用同一组 embedding / reranker selector。
 
@@ -417,22 +427,19 @@ Agent Memory 的 extraction / consolidation / reflect 使用 memory_model_ref，
 
 如果 `image_generation_model_ref` 未配置，则平台没有可用的默认 image generation backend，`generate-image` Tool 不应作为可执行 Tool 暴露给 Agent。
 
-### Project Meeting Summary Model
+### 系统 Meeting Summary Model
 
-Meeting Rolling Summary 使用 Project 级 chat Model selector，而不是 PlatformModelSelection。
+系统管理员统一配置逻辑 `platform.meeting_summary`，用于 Meeting Rolling Summary initial/update（含首轮标题）。Project 消费系统选择，不保存或在创建时复制模型初值，也不提供 override；Agent compaction 沿原 Execution snapshot，其他 Purpose 与 Execution Summary read model 不变。
 
-```text
-ProjectConfig
-└── meeting_summary_model_ref
-```
+该独立 selector：
 
-`meeting_summary_model_ref`：
-
-- 必填；
 - 保存稳定 ModelConfig ID；
-- 必须引用当前 Project 可见的 enabled `type = chat` Model；
-- 可以引用 enabled System chat Model；
-- 也可以引用当前 Project Provider 下的 enabled chat Model。
+- 由系统管理员显式选择 enabled System `type = chat` Model，不接受 Project Model；
+- 初始可以未配置，不猜默认模型，也不阻止 Project 创建；未配置时 Summary 生成明确失败；
+- 一旦选择，本范围不提供清空；停用保留引用并阻止新生成，删除必须同事务替换为合法 Model；
+- 新逻辑 generation 解析当前选择并固化 selector version / Model snapshot；已接受的同一逻辑调用及重试继续使用原 snapshot，不因当前选择变化热换模型。
+
+这是已确认的目标契约；独立配置库及后续 Resolution / consumer 绑定须分别实施验收，本文不声明其已可运行。
 
 它不要求所选 Model 支持：
 
@@ -580,20 +587,13 @@ Image Generation Model -> optional System image_generation Model
 
 Agent 配置页只消费当前 Project 可用的 chat Model，并根据所选 Model 的 parameters.capabilities.reasoning_efforts 展示 reasoning_effort 选项。
 
-Project 配置页另外提供：
+System 平台模型用途同页提供独立编辑/保存区域：
 
 ```text
-Meeting
-└── Summary Model
+Meeting Summary Model -> enabled System chat Model
 ```
 
-它编辑 `ProjectConfig.meeting_summary_model_ref`，候选项与当前 Project 可用 chat Model 集合一致：
-
-```text
-all enabled System chat Models
-+
-enabled chat Models from current Project Providers
-```
+它编辑独立 `platform.meeting_summary`，明确显示未配置状态；保存成功不等于运行调用已可用。原四用途仍按原整组保存。Project 会议配置只说明消费系统统一模型，不提供本地选择器或第二个编辑入口；本说明不新增 Project 只读 HTTP。
 
 该选择器不展示 Agent Capability、Tools 或 reasoning effort 配置；Meeting Summary Generator 只执行普通 text generation。
 
@@ -607,7 +607,7 @@ enabled chat Models from current Project Providers
 - System Provider 支持 chat / embedding / reranker / image_generation，Project Provider 只支持 chat；
 - 非 chat 首版分别采用已验证的 OpenAI Embeddings、Jina Rerank、OpenAI 图片生成 profile；
 - PlatformModelSelection：embedding / optional reranker / memory / optional image_generation；
-- Agent model_ref / reasoning_effort 与 Project meeting_summary_model_ref；
+- Agent model_ref / reasoning_effort 与独立系统 platform.meeting_summary selector；
 - 会议辅助请求使用独立 meeting consumer，用途与关联 identity 由正式 usage 契约定义；
 - Provider Credential secret reference；
 - Provider / Model 物理删除、引用替换与历史 snapshot 保留约束。

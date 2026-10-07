@@ -117,13 +117,9 @@ Project Variables 是 Project 的长期配置对象，分为普通 Variable 和 
 
 ## 4. Project Meeting Config
 
-Project Config 第一阶段至少保存：
+Meeting Rolling Summary initial/update（含首轮标题）消费系统管理员统一配置的 `platform.meeting_summary`，Project 不保存或在创建时复制该模型引用，不提供本地 override，也不继承某个 Agent 的 model / capability。
 
-```text
-meeting_summary_model_ref
-```
-
-用于 Meeting Rolling Summary Generator，不继承某个 Agent 的 model / capability。
+系统初始未配置不阻止 Project 创建；需要生成 Summary 时明确失败，不猜默认模型。会议配置仍遵循本领域边界，不因此新增 Project 模型初始化或本地选择器。
 
 Model 解析见 [Model Resolution](../platform-infrastructure/model-system/model-resolution.md)，Meeting Summary 见 [Meeting Context & Summary](../meeting/meeting-context-summary.md)。
 
