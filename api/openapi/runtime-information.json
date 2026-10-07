@@ -1,0 +1,513 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam System runtime information",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/system/runtime-information": {
+      "get": {
+        "operationId": "getSystemRuntimeInformation",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current administrator only. One maximum 3s context starts before boundary/authentication, inherits earlier parent cancellation, and retains actual transaction/body/write/flush/callback ownership. Strict GET-only: no query (including bare ?), body, scope/identity override, CSRF or idempotency command. Boundary checks canonical Host/Origin/Fetch-Metadata before rejecting Path ambiguity/RawPath; no redirect or normalization. No probe, refresh, conditional 304, polling, lookup, build identity inference or external calls. Complete success body limit 16KiB; failure publishes no partial snapshot. Response 200 never means Central ready. Explicit Problem instance is /api/v1.",
+        "x-success-body-max-bytes": 16384,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Complete safe snapshot, UTF-8 body at most 16384 bytes. Always readiness.ready=false; does not query or refresh dependencies.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Content-Length": {
+                "description": "Complete encoded response length in bytes.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16384
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemRuntimeInformation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported query/body or ambiguous path.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current Session missing or revoked.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin or current administrator permission denied.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Canonical unknown resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "GET-only; Allow: GET. HEAD error has no body.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unclassified internal failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Required binding/data dependency unavailable, or transaction COMMIT_UNKNOWN with zero snapshot. Generic lookup advice does not create a command or lookup for this read.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session"
+      },
+      "LocalSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_local_session"
+      }
+    },
+    "schemas": {
+      "ObservedInstant": {
+        "$ref": "./common.json#/components/schemas/Instant",
+        "not": {
+          "const": "0001-01-01T00:00:00.000000Z"
+        },
+        "description": "Nonzero canonical UTC microsecond Instant; display timestamps need not be ordered."
+      },
+      "VersionString": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[ -~]{1,256}$",
+        "not": {
+          "pattern": "[^ -~]"
+        },
+        "description": "Exact last-success version, 1–256 printable ASCII bytes. No trim, normalization or truncation."
+      },
+      "CentralInformation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "safe_reason"
+        ],
+        "properties": {
+          "version": {
+            "type": "null"
+          },
+          "safe_reason": {
+            "const": "build_version_not_recorded"
+          }
+        }
+      },
+      "DatabaseLastSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "checked_at",
+          "received_at",
+          "postgresql_version",
+          "pgvector_version"
+        ],
+        "properties": {
+          "checked_at": {
+            "$ref": "#/components/schemas/ObservedInstant"
+          },
+          "received_at": {
+            "$ref": "#/components/schemas/ObservedInstant"
+          },
+          "postgresql_version": {
+            "$ref": "#/components/schemas/VersionString"
+          },
+          "pgvector_version": {
+            "$ref": "#/components/schemas/VersionString"
+          }
+        }
+      },
+      "DatabaseInformation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "safe_reason",
+          "last_success"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "unavailable",
+              "stale"
+            ]
+          },
+          "safe_reason": {
+            "enum": [
+              null,
+              "check_unavailable",
+              "sample_stale"
+            ]
+          },
+          "last_success": {
+            "$ref": "#/components/schemas/DatabaseLastSuccess"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "available"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "safe_reason": {
+                  "const": null
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "unavailable"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "safe_reason": {
+                  "const": "check_unavailable"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "stale"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "safe_reason": {
+                  "const": "sample_stale"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ObjectStorageInformation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "backend",
+          "assessment",
+          "status",
+          "safe_reason",
+          "last_success_received_at",
+          "details"
+        ],
+        "properties": {
+          "backend": {
+            "const": "minio"
+          },
+          "assessment": {
+            "const": "object_storage_aggregate"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "unavailable",
+              "stale"
+            ]
+          },
+          "safe_reason": {
+            "enum": [
+              null,
+              "check_unavailable",
+              "sample_stale"
+            ]
+          },
+          "last_success_received_at": {
+            "$ref": "#/components/schemas/ObservedInstant"
+          },
+          "details": {
+            "const": "not_reported"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "available"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "safe_reason": {
+                  "const": null
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "unavailable"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "safe_reason": {
+                  "const": "check_unavailable"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "stale"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "safe_reason": {
+                  "const": "sample_stale"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ReadinessInformation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ready",
+          "safe_reason"
+        ],
+        "properties": {
+          "ready": {
+            "const": false
+          },
+          "safe_reason": {
+            "type": "string",
+            "enum": [
+              "DEPENDENCY_UNAVAILABLE",
+              "DEPENDENCY_UNBOUND"
+            ]
+          }
+        }
+      },
+      "SystemRuntimeInformation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "observed_at",
+          "central",
+          "database",
+          "object_storage",
+          "readiness"
+        ],
+        "properties": {
+          "observed_at": {
+            "$ref": "#/components/schemas/ObservedInstant"
+          },
+          "central": {
+            "$ref": "#/components/schemas/CentralInformation"
+          },
+          "database": {
+            "$ref": "#/components/schemas/DatabaseInformation"
+          },
+          "object_storage": {
+            "$ref": "#/components/schemas/ObjectStorageInformation"
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/ReadinessInformation"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "anyOf": [
+                {
+                  "required": [
+                    "database"
+                  ],
+                  "properties": {
+                    "database": {
+                      "required": [
+                        "status"
+                      ],
+                      "properties": {
+                        "status": {
+                          "enum": [
+                            "unavailable",
+                            "stale"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "object_storage"
+                  ],
+                  "properties": {
+                    "object_storage": {
+                      "required": [
+                        "status"
+                      ],
+                      "properties": {
+                        "status": {
+                          "enum": [
+                            "unavailable",
+                            "stale"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "then": {
+              "properties": {
+                "readiness": {
+                  "properties": {
+                    "safe_reason": {
+                      "const": "DEPENDENCY_UNAVAILABLE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "description": "One authorized observation of existing cached values, not an active health probe or a ready success. Failed/stale components retain complete historical last_success; unavailable beats stale. Any failed/stale public foundation requires DEPENDENCY_UNAVAILABLE. Both public foundations available still allow it because other foundations can fail."
+      }
+    }
+  }
+}

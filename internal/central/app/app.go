@@ -67,20 +67,22 @@ type dependencies struct {
 	outboundConstruct  func(context.Context, config.Config, *outboundRuntime) error
 	outboundInitialize func(context.Context, *outboundRuntime) (egress, error)
 	observeAccount     func(*account.Service)
+	runtimeInformation runtimeInformationFactory
 }
 
 type startupResult struct {
-	health           postgres.DatabaseHealth
-	sampled          time.Time
-	objectSampled    time.Time
-	objectAvailable  bool
-	outboxSampled    time.Time
-	outboxAvailable  bool
-	accountSampled   time.Time
-	accountAvailable bool
-	err              error
-	code             lifecycle.FailureCode
-	securityFailure  bool
+	health             postgres.DatabaseHealth
+	sampled            time.Time
+	objectSampled      time.Time
+	objectAvailable    bool
+	outboxSampled      time.Time
+	outboxAvailable    bool
+	accountSampled     time.Time
+	accountAvailable   bool
+	runtimeInformation runtimeInformationFactory
+	err                error
+	code               lifecycle.FailureCode
+	securityFailure    bool
 }
 
 func run(ctx context.Context, cfg config.Config, logger processLogger, signals <-chan os.Signal, deps dependencies) error {
@@ -113,6 +115,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			return m.Migrate(ctx)
 		}
 	}
+	localAssembly := deps.bind != nil
 	if deps.bind == nil {
 		deps.bind = bindAccounts
 	}
@@ -132,6 +135,27 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	if control.Stopping() {
 		return stopStartup(logger, control, owned, initialized)
 	}
+	var monitor *healthMonitor
+	var runtimeHandler http.Handler
+	if initial.err == nil {
+		monitor = newHealthMonitor(initial.health, deps.health)
+		monitor.received = initial.sampled
+		monitor.objectReceived = initial.objectSampled
+		monitor.objectAvailable = initial.objectAvailable
+		monitor.outboxReceived = initial.outboxSampled
+		monitor.outboxAvailable = initial.outboxAvailable
+		monitor.accountReceived = initial.accountSampled
+		monitor.accountAvailable = initial.accountAvailable
+		monitor.accountBound = owned.accounts() != nil
+		// Only the existing package-local assembly without Account may omit this
+		// binding. Production always captures the factory in bindAccounts.
+		if !localAssembly || owned.accounts() != nil || initial.runtimeInformation != nil {
+			runtimeHandler, initial.err = bindRuntimeInformation(initial.runtimeInformation, monitor, owned)
+			if initial.err != nil {
+				initial.code, initial.securityFailure = lifecycle.InitializationFailed, true
+			}
+		}
+	}
 	if initial.err != nil {
 		if initial.code == lifecycle.InitializationFailed && !initial.securityFailure {
 			databaseFailure(logger, initial.err)
@@ -143,15 +167,6 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 		return lifecycle.NewFailure(initial.code, initial.err)
 	}
 
-	monitor := newHealthMonitor(initial.health, deps.health)
-	monitor.received = initial.sampled
-	monitor.objectReceived = initial.objectSampled
-	monitor.objectAvailable = initial.objectAvailable
-	monitor.outboxReceived = initial.outboxSampled
-	monitor.outboxAvailable = initial.outboxAvailable
-	monitor.accountReceived = initial.accountSampled
-	monitor.accountAvailable = initial.accountAvailable
-	monitor.accountBound = owned.accounts() != nil
 	healthContext, cancelHealth := context.WithCancel(context.Background())
 	defer cancelHealth()
 	healthDone := make(chan struct{})
@@ -167,6 +182,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			deps.handler = diagnostics
 		} else {
 			accountHandler := accounts.Handler()
+			accountHandler = systemRuntimeInformationRoutes(accountHandler, runtimeHandler)
 			deps.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/livez" || r.URL.Path == "/readyz" || r.URL.Path == "/diagnostics" {
 					diagnostics.ServeHTTP(w, r)
@@ -540,7 +556,7 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 		return failed(err)
 	}
 	logger.Database(logging.DatabaseHealthy, "", "", migration.Version)
-	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil, outboxSampled: outboxSampled, outboxAvailable: outboxService != nil, accountSampled: accountSampled, accountAvailable: accountService != nil}
+	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil, outboxSampled: outboxSampled, outboxAvailable: outboxService != nil, accountSampled: accountSampled, accountAvailable: accountService != nil, runtimeInformation: deps.runtimeInformation}
 }
 
 func stopStartup(logger processLogger, control *lifecycle.Controller, owned *resources, initialized <-chan startupResult) error {

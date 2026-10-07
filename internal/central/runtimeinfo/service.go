@@ -1,0 +1,240 @@
+// Package runtimeinfo reads an already observed, finite runtime snapshot after
+// current System authorization. It neither probes nor refreshes dependencies.
+package runtimeinfo
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+const readBudget = 3 * time.Second
+
+// Status describes the cached aggregate check, not individual subchecks.
+type Status string
+
+const (
+	Available   Status = "available"
+	Unavailable Status = "unavailable"
+	Stale       Status = "stale"
+)
+
+// DatabaseSuccess retains the last successful check, including on later failure.
+type DatabaseSuccess struct {
+	CheckedAt, ReceivedAt              foundation.Instant
+	PostgreSQLVersion, PGVectorVersion string
+}
+
+type DatabaseSnapshot struct {
+	Status      Status
+	LastSuccess DatabaseSuccess
+}
+
+type ObjectStorageSnapshot struct {
+	Status                Status
+	LastSuccessReceivedAt foundation.Instant
+}
+
+// Snapshot contains values only. Fixed HTTP facts (unknown build version,
+// MinIO aggregate assessment, ready=false) cannot be supplied by a Source.
+type Snapshot struct {
+	ObservedAt    foundation.Instant
+	Database      DatabaseSnapshot
+	ObjectStorage ObjectStorageSnapshot
+	Readiness     foundation.Code
+}
+
+// Validate rejects the entire observation instead of filling missing facts.
+// Display times need not be ordered: monotonic age belongs to the root Source.
+func (s Snapshot) Validate() error {
+	for _, value := range [...]foundation.Instant{s.ObservedAt, s.Database.LastSuccess.CheckedAt, s.Database.LastSuccess.ReceivedAt, s.ObjectStorage.LastSuccessReceivedAt} {
+		if value.Time().IsZero() || value.Validate() != nil {
+			return unavailable(nil)
+		}
+		if _, err := foundation.NewInstant(value.Time()); err != nil {
+			return unavailable(err)
+		}
+	}
+	for _, status := range [...]Status{s.Database.Status, s.ObjectStorage.Status} {
+		if status != Available && status != Unavailable && status != Stale {
+			return unavailable(nil)
+		}
+	}
+	for _, version := range [...]string{s.Database.LastSuccess.PostgreSQLVersion, s.Database.LastSuccess.PGVectorVersion} {
+		if len(version) == 0 || len(version) > 256 {
+			return unavailable(nil)
+		}
+		for i := range len(version) {
+			if version[i] < 0x20 || version[i] > 0x7e {
+				return unavailable(nil)
+			}
+		}
+	}
+	if s.Readiness != foundation.DependencyUnavailable && s.Readiness != foundation.DependencyUnbound {
+		return unavailable(nil)
+	}
+	if s.Readiness == foundation.DependencyUnbound && (s.Database.Status != Available || s.ObjectStorage.Status != Available) {
+		return unavailable(nil)
+	}
+	return nil
+}
+
+type Store interface {
+	WithinTx(context.Context, foundation.TransactionCause, func(context.Context, foundation.Tx) error) foundation.CommitResult
+	Acquire(context.Context, foundation.Tx, foundation.LockKey, foundation.LockMode) error
+}
+
+// Source synchronously copies existing observations; it must not start probes.
+type Source interface {
+	Snapshot(context.Context) (Snapshot, error)
+}
+
+type Service struct {
+	store    Store
+	sessions identity.SessionAuthority
+	system   identity.SystemAuthority
+	source   Source
+}
+
+// New only checks bindings. Construction performs no observation or other I/O.
+func New(store Store, sessions identity.SessionAuthority, system identity.SystemAuthority, source Source) (*Service, error) {
+	if nilPort(store) || nilPort(sessions) || nilPort(system) || nilPort(source) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	return &Service{store: store, sessions: sessions, system: system, source: source}, nil
+}
+
+type readAttempt struct{}
+
+// GetSystem owns the complete authorization, observation and transaction tail.
+// No candidate escapes until the transaction has actually returned Committed.
+func (s *Service) GetSystem(parent context.Context, actor identity.Actor) (Snapshot, error) {
+	ctx, cancel := context.WithTimeout(parent, readBudget)
+	defer cancel()
+	if actor.Validate() != nil || actor.Details().Kind != identity.Human {
+		return Snapshot{}, foundation.NewFault(foundation.Forbidden, foundation.NotStarted)
+	}
+	if s == nil || nilPort(s.store) || nilPort(s.sessions) || nilPort(s.system) || nilPort(s.source) {
+		return Snapshot{}, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	if err := contextError(ctx); err != nil {
+		return Snapshot{}, unavailable(err)
+	}
+	run, err := foundation.NewID[readAttempt]()
+	if err != nil {
+		return Snapshot{}, unavailable(err)
+	}
+	cause, err := foundation.NewRecoveryCause("runtimeinfo.system-read", run.String(), "")
+	if err != nil {
+		return Snapshot{}, unavailable(err)
+	}
+	lock, err := foundation.UserLock(actor.Details().UserID)
+	if err != nil {
+		return Snapshot{}, unavailable(err)
+	}
+	var candidate Snapshot
+	started, complete := false, false
+	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		if started || !tx.Valid() {
+			complete = false
+			return unavailable(nil)
+		}
+		started = true
+		if err := contextError(ctx); err != nil {
+			return unavailable(err)
+		}
+		if err := s.store.Acquire(ctx, tx, lock, foundation.Shared); err != nil {
+			return unavailable(err)
+		}
+		if err := contextError(ctx); err != nil {
+			return unavailable(err)
+		}
+		if err := s.sessions.RequireCurrentSession(ctx, tx, actor); err != nil {
+			return authorizationError(err)
+		}
+		if err := contextError(ctx); err != nil {
+			return unavailable(err)
+		}
+		grant, err := s.system.AuthorizeSystem(ctx, tx, actor, identity.Read)
+		if err != nil {
+			return authorizationError(err)
+		}
+		if !grant.Matches(actor, identity.SystemScope(), identity.Read) {
+			return unavailable(nil)
+		}
+		if err := contextError(ctx); err != nil {
+			return unavailable(err)
+		}
+		candidate, err = s.source.Snapshot(ctx)
+		if err != nil {
+			return unavailable(err)
+		}
+		if err = candidate.Validate(); err != nil {
+			return err
+		}
+		if err = contextError(ctx); err != nil {
+			return unavailable(err)
+		}
+		complete = true
+		return nil
+	})
+	switch result.State() {
+	case foundation.NotCommitted:
+		if fault := result.Fault(); fault != nil {
+			return Snapshot{}, fault
+		}
+		return Snapshot{}, foundation.NewFault(foundation.InternalError, foundation.NotCommitted)
+	case foundation.Committed:
+		if err := contextError(ctx); err != nil {
+			return Snapshot{}, unavailable(err)
+		}
+		if !complete {
+			return Snapshot{}, unavailable(nil)
+		}
+		return candidate, nil
+	default:
+		return Snapshot{}, foundation.NewFault(foundation.CommitUnknown, foundation.Unknown)
+	}
+}
+
+func nilPort(port any) bool {
+	if port == nil {
+		return true
+	}
+	v := reflect.ValueOf(port)
+	switch v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return v.IsNil()
+	default:
+		return false
+	}
+}
+
+func contextError(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if deadline, ok := ctx.Deadline(); ok && !time.Now().Before(deadline) {
+		return context.DeadlineExceeded
+	}
+	return nil
+}
+
+func unavailable(cause error) error {
+	return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted).WithCause(cause)
+}
+
+func authorizationError(err error) error {
+	var fault *foundation.Fault
+	if errors.As(err, &fault) && fault != nil {
+		switch fault.Code {
+		case foundation.Unauthenticated, foundation.SessionRevoked, foundation.Forbidden, foundation.DependencyUnbound:
+			return foundation.NewFault(fault.Code, foundation.NotStarted).WithCause(err)
+		}
+	}
+	return unavailable(err)
+}

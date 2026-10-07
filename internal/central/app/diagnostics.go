@@ -31,25 +31,7 @@ func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets 
 		}{"alive"})
 	})
 	router.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
-		code := foundation.DependencyUnbound
-		if _, ok := monitor.snapshot(); !ok {
-			code = foundation.DependencyUnavailable
-		}
-		if secrets == nil || !secrets.Status().Available {
-			code = foundation.DependencyUnavailable
-		}
-		if outboundService == nil || !outboundService.Status().Available {
-			code = foundation.DependencyUnavailable
-		}
-		if !monitor.outboxSnapshot() {
-			code = foundation.DependencyUnavailable
-		}
-		if !monitor.objectSnapshot() {
-			code = foundation.DependencyUnavailable
-		}
-		if !monitor.accountSnapshot() {
-			code = foundation.DependencyUnavailable
-		}
+		code := collectRuntimeObservation(monitor, secrets, outboundService).readiness()
 		httpapi.WriteProblem(w, r, foundation.NewFault(code, foundation.NotStarted))
 	})
 	router.HandleFunc("GET /diagnostics", func(w http.ResponseWriter, r *http.Request) {

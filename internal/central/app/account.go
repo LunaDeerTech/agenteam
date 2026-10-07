@@ -21,6 +21,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
+	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
 
@@ -231,6 +232,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
+	runtimeStore, ok := db.(runtimeinfo.Store)
+	if !ok || runtimeInformationNil(runtimeStore) {
+		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
 	authority, err := account.NewAuthority(store, cfg.AccountKeyring())
 	if err != nil {
 		return err
@@ -330,6 +335,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.core = core }) {
 		return context.Canceled
 	}
+	deps.runtimeInformation = runtimeInformationHandlerFactory(runtimeStore, authority, core, cfg.PublicOrigin())
 	if deps.observeAccount != nil {
 		deps.observeAccount(core)
 	}
