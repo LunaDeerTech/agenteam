@@ -1,0 +1,228 @@
+=== RUN   TestProjectCredentialHTTPPureConstruction
+--- PASS: TestProjectCredentialHTTPPureConstruction (0.00s)
+=== RUN   TestProjectCredentialHTTPPureCallOrder
+=== RUN   TestProjectCredentialHTTPPureCallOrder/unobserved
+=== RUN   TestProjectCredentialHTTPPureCallOrder/observed
+=== RUN   TestProjectCredentialHTTPPureCallOrder/late
+=== RUN   TestProjectCredentialHTTPPureCallOrder/absent
+=== RUN   TestProjectCredentialHTTPPureCallOrder/lookup_error
+=== RUN   TestProjectCredentialHTTPPureCallOrder/metadata_purpose
+=== RUN   TestProjectCredentialHTTPPureCallOrder/mutate_reject
+=== RUN   TestProjectCredentialHTTPPureCallOrder/unknown
+=== RUN   TestProjectCredentialHTTPPureCallOrder/material_conflict
+--- PASS: TestProjectCredentialHTTPPureCallOrder (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/unobserved (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/observed (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/late (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/absent (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/lookup_error (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/metadata_purpose (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/mutate_reject (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/unknown (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCallOrder/material_conflict (0.00s)
+=== RUN   TestProjectCredentialHTTPPureMetadataAndErrors
+=== RUN   TestProjectCredentialHTTPPureMetadataAndErrors/check
+=== RUN   TestProjectCredentialHTTPPureMetadataAndErrors/auth
+=== RUN   TestProjectCredentialHTTPPureMetadataAndErrors/service
+--- PASS: TestProjectCredentialHTTPPureMetadataAndErrors (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMetadataAndErrors/check (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMetadataAndErrors/auth (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMetadataAndErrors/service (0.00s)
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/missing//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/missing//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/cycle//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/cycle//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/unwrap_panic//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/unwrap_panic//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/typed_nil//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/typed_nil//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup
+=== RUN   TestProjectCredentialHTTPPureCapabilityOwnership/first_receiver_and_transparent_state
+--- PASS: TestProjectCredentialHTTPPureCapabilityOwnership (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/missing//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/missing//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/cycle//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/cycle//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/unwrap_panic//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/unwrap_panic//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/typed_nil//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/typed_nil//api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureCapabilityOwnership/first_receiver_and_transparent_state (0.00s)
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_false
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_true
+--- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin (0.04s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_false (0.02s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_true (0.02s)
+=== RUN   TestProjectCredentialHTTPPureBodyWriteAndFlushFailures
+=== RUN   TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/close_error
+=== RUN   TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/close_panic
+=== RUN   TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/write
+=== RUN   TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/short
+=== RUN   TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/flush
+=== RUN   TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/service_panic
+--- PASS: TestProjectCredentialHTTPPureBodyWriteAndFlushFailures (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/close_error (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/close_panic (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/short (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/flush (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureBodyWriteAndFlushFailures/service_panic (0.00s)
+=== RUN   TestProjectCredentialHTTPPureDamagedMetadataNeverReplays
+--- PASS: TestProjectCredentialHTTPPureDamagedMetadataNeverReplays (0.00s)
+=== RUN   TestProjectCredentialHTTPPureStrictWire
+=== RUN   TestProjectCredentialHTTPPureStrictWire/create
+=== RUN   TestProjectCredentialHTTPPureStrictWire/rotate
+=== RUN   TestProjectCredentialHTTPPureStrictWire/delete
+=== RUN   TestProjectCredentialHTTPPureStrictWire/lookup_create
+=== RUN   TestProjectCredentialHTTPPureStrictWire/lookup_update
+=== RUN   TestProjectCredentialHTTPPureStrictWire/lookup_delete
+=== RUN   TestProjectCredentialHTTPPureStrictWire/missing
+=== RUN   TestProjectCredentialHTTPPureStrictWire/null
+=== RUN   TestProjectCredentialHTTPPureStrictWire/empty
+=== RUN   TestProjectCredentialHTTPPureStrictWire/number
+=== RUN   TestProjectCredentialHTTPPureStrictWire/unknown
+=== RUN   TestProjectCredentialHTTPPureStrictWire/create_id_null
+=== RUN   TestProjectCredentialHTTPPureStrictWire/create_version
+=== RUN   TestProjectCredentialHTTPPureStrictWire/duplicate
+=== RUN   TestProjectCredentialHTTPPureStrictWire/case
+=== RUN   TestProjectCredentialHTTPPureStrictWire/trailing
+=== RUN   TestProjectCredentialHTTPPureStrictWire/utf8
+=== RUN   TestProjectCredentialHTTPPureStrictWire/media
+=== RUN   TestProjectCredentialHTTPPureStrictWire/encoding
+=== RUN   TestProjectCredentialHTTPPureStrictWire/no_key
+=== RUN   TestProjectCredentialHTTPPureStrictWire/two_keys
+=== RUN   TestProjectCredentialHTTPPureStrictWire/query
+=== RUN   TestProjectCredentialHTTPPureStrictWire/empty_query
+=== RUN   TestProjectCredentialHTTPPureStrictWire/bad_project
+=== RUN   TestProjectCredentialHTTPPureStrictWire/bad_ref
+=== RUN   TestProjectCredentialHTTPPureStrictWire/no_list
+=== RUN   TestProjectCredentialHTTPPureStrictWire/no_patch
+=== RUN   TestProjectCredentialHTTPPureStrictWire/no_lookup_get
+=== RUN   TestProjectCredentialHTTPPureStrictWire/null_ref
+=== RUN   TestProjectCredentialHTTPPureStrictWire/null_expected
+=== RUN   TestProjectCredentialHTTPPureStrictWire/lookup_value
+=== RUN   TestProjectCredentialHTTPPureStrictWire/wrong_kind
+=== RUN   TestProjectCredentialHTTPPureStrictWire/lookup_missing_ref
+=== RUN   TestProjectCredentialHTTPPureStrictWire/body_get
+=== RUN   TestProjectCredentialHTTPPureStrictWire/unknown_length
+=== RUN   TestProjectCredentialHTTPPureStrictWire/chunked
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_0_false
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_0_true
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_false
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_true
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_1_false
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_1_true
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_3_false
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_3_true
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_false#01
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_true#01
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_false#02
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_true#02
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_5_false
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_5_true
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_21_false
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_21_true
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_21_false#01
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_21_true#01
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_false#03
+=== RUN   TestProjectCredentialHTTPPureStrictWire/version_4_true#03
+--- PASS: TestProjectCredentialHTTPPureStrictWire (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/create (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/rotate (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/delete (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/lookup_create (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/lookup_update (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/lookup_delete (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/missing (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/null (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/empty (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/number (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/unknown (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/create_id_null (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/create_version (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/duplicate (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/case (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/trailing (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/utf8 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/media (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/encoding (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/no_key (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/two_keys (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/query (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/empty_query (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/bad_project (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/bad_ref (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/no_list (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/no_patch (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/no_lookup_get (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/null_ref (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/null_expected (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/lookup_value (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/wrong_kind (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/lookup_missing_ref (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/body_get (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/unknown_length (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/chunked (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_0_false (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_0_true (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_false (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_true (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_1_false (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_1_true (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_3_false (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_3_true (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_false#01 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_true#01 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_false#02 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_true#02 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_5_false (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_5_true (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_21_false (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_21_true (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_21_false#01 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_21_true#01 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_false#03 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureStrictWire/version_4_true#03 (0.00s)
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps
+    http_project_credentials_wire_test.go:120: maximum_POST raw_bytes=393228 decoded_bytes=65536 terminal_byte_verified=true
+    http_project_credentials_wire_test.go:120: maximum_PUT raw_bytes=393251 decoded_bytes=65536 terminal_byte_verified=true
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials0
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials1
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/PUT/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000190
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/PUT/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000191
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/DELETE/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000190
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/DELETE/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000191
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup0
+=== RUN   TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup1
+--- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps (0.02s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials0 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials1 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/PUT/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000190 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/PUT/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000191 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/DELETE/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000190 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/DELETE/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credentials/01900000-0000-7000-8000-0000000000191 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup0 (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps/POST/api/v1/projects/01900000-0000-7000-8000-000000000010/model-credential-commands/lookup1 (0.00s)
+=== RUN   TestProjectCredentialHTTPPureSafeProjection
+    http_project_credentials_wire_test.go:183: maximum_safe_observation_bytes=149 cap=1024
+--- PASS: TestProjectCredentialHTTPPureSafeProjection (0.00s)
+=== RUN   TestProjectCredentialHTTPPureSchema
+--- PASS: TestProjectCredentialHTTPPureSchema (0.09s)
+PASS

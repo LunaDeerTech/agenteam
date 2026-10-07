@@ -1,0 +1,131 @@
+db/migrations/00003_secret.sql
+21:   scope text NOT NULL CHECK(scope IN ('system','project')),
+22:   project_id uuid,
+23:   owner_kind smallint NOT NULL CHECK(owner_kind IN (1,2)),
+24:   owner_id uuid NOT NULL,
+25:   format integer NOT NULL CHECK(format=1),
+26:   algorithm text NOT NULL CHECK(algorithm='AES-256-GCM'),
+40:   scope text NOT NULL CHECK(scope IN ('system','project')),
+41:   project_id uuid,
+42:   scope_key text GENERATED ALWAYS AS(coalesce(project_id::text,'system')) STORED,
+43:   purpose text NOT NULL CHECK(purpose IN ('model','mcp','runner','smtp','object_storage','system')),
+44:   version bigint NOT NULL CHECK(version>0),
+45:   current_payload_id uuid NOT NULL UNIQUE REFERENCES agenteam_secret.secret_payloads(payload_id) DEFERRABLE INITIALLY DEFERRED,
+46:   CHECK((scope='system' AND project_id IS NULL) OR (scope='project' AND project_id IS NOT NULL)),
+52:   scope text NOT NULL CHECK(scope IN ('system','project')),
+53:   project_id uuid,
+54:   scope_key text GENERATED ALWAYS AS(coalesce(project_id::text,'system')) STORED,
+55:   consumer text NOT NULL CHECK(consumer IN ('model','mcp','runner','smtp','object_storage','system')),
+56:   owner_id uuid NOT NULL,
+57:   PRIMARY KEY(credential_id,consumer,owner_id),
+58:   FOREIGN KEY(credential_id,scope,scope_key) REFERENCES agenteam_secret.secrets(id,scope,scope_key),
+64:   scope text NOT NULL CHECK(scope IN ('system','project')),
+65:   project_id uuid,
+66:   scope_key text GENERATED ALWAYS AS(coalesce(project_id::text,'system')) STORED,
+67:   owner_kind text NOT NULL CHECK(owner_kind IN ('execution','model_call')),
+68:   owner_id uuid NOT NULL,
+69:   consumer text NOT NULL CHECK(consumer IN ('model','mcp','runner','smtp','object_storage','system')),
+70:   released boolean NOT NULL DEFAULT false,
+75: CREATE INDEX secret_lease_project ON agenteam_secret.secret_leases(project_id,id) WHERE scope='project';
+76: CREATE TABLE agenteam_secret.secret_command_receipts (
+77:   id uuid PRIMARY KEY,
+78:   scope text NOT NULL CHECK(scope IN ('system','project')),
+79:   project_id uuid,
+80:   scope_key text GENERATED ALWAYS AS(coalesce(project_id::text,'system')) STORED,
+81:   command_digest text NOT NULL CHECK(command_digest ~ '^sha256:[0-9a-f]{64}$'),
+82:   mutation_kind text NOT NULL CHECK(mutation_kind IN ('create','update','delete')),
+83:   credential_id uuid NOT NULL,
+84:   purpose text NOT NULL CHECK(purpose IN ('model','mcp','runner','smtp','object_storage','system')),
+85:   result_version bigint NOT NULL CHECK(result_version>0),
+
+internal/central/postgres/error.go
+57: 
+58: func failure(code Code, err error) *Error {
+59: 	e := &Error{code: code}
+60: 	if err != nil {
+61: 		e.cause = func() error { return err }
+62: 	}
+63: 	var pg *pgconn.PgError
+64: 	if errors.As(err, &pg) && validSQLState(pg.Code) {
+65: 		e.sqlState = pg.Code
+66: 	}
+67: 	return e
+68: }
+81: }
+82: func (e *Error) SQLState() string {
+83: 	if e == nil {
+84: 		return ""
+85: 	}
+86: 	return e.sqlState
+117: }
+118: func validSQLState(state string) bool {
+119: 	if len(state) != 5 {
+120: 		return false
+121: 	}
+122: 	for i := range state {
+123: 		if !(state[i] >= '0' && state[i] <= '9' || state[i] >= 'A' && state[i] <= 'Z') {
+124: 			return false
+125: 		}
+126: 	}
+127: 	return true
+
+internal/central/postgres/sql.go
+36: 	if err != nil {
+37: 		return tag, t.poisonWith(failure(SQLFailed, op.sqlError(err)))
+38: 	}
+39: 	return tag, nil
+40: }
+41: func (e *txExecutor) Query(ctx context.Context, sql string, args ...any) (*Rows, error) {
+42: 	t := e.transaction
+43: 	if err := t.enter(); err != nil {
+44: 		return nil, err
+45: 	}
+55: 		t.leave()
+56: 		return nil, t.poisonWith(failure(SQLFailed, err))
+57: 	}
+58: 	rows := &Rows{raw: raw, transaction: t, ctx: op, cancellation: op, cancel: cancel}
+59: 	rows.release = func() { t.mu.Lock(); t.rows = nil; t.mu.Unlock(); t.leave() }
+60: 	t.mu.Lock()
+64: }
+65: func (e *txExecutor) QueryRow(ctx context.Context, sql string, args ...any) Row {
+66: 	rows, err := e.Query(ctx, sql, args...)
+67: 	return oneRow{rows, err}
+68: }
+69: 
+118: 
+119: func (r oneRow) Scan(dest ...any) error {
+120: 	if r.err != nil {
+121: 		return r.err
+122: 	}
+123: 	defer r.rows.Close()
+
+internal/central/secret/write.go
+102: }
+103: func (s *Service) PrepareWrite(ctx context.Context, r sc.WriteRequest) (PreparedWrite, error) {
+104: 	if err := validateWrite(r); err != nil {
+105: 		return PreparedWrite{}, err
+106: 	}
+107: 	return s.prepareWrite(ctx, r, sc.ServiceWriteRequest{}, sc.WriteDependencies{})
+222: 	}
+223: 	prepared, err := s.PrepareWrite(ctx, r)
+224: 	if err != nil {
+225: 		return sc.MutationResult{}, err
+226: 	}
+227: 	cause, err := foundation.NewCommandsCause(r.Identity)
+228: 	if err != nil {
+229: 		return sc.MutationResult{}, invalid()
+230: 	}
+231: 	var result sc.MutationResult
+232: 	committed := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+233: 		if err := s.state().store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+234: 			return unavailable(err)
+235: 		}
+236: 		var err error
+237: 		result, err = s.ApplyPreparedWriteInTx(ctx, tx, prepared)
+494: 	var metadata sc.Metadata
+495: 	result := state.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+496: 		if err := state.store.AcquireAll(ctx, tx, locks); err != nil {
+497: 			return lookupError(err)
+498: 		}
+499: 		x, err := state.store.InTx(tx)
+500: 		if err != nil {

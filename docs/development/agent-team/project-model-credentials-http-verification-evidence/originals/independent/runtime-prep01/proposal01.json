@@ -1,0 +1,122 @@
+{
+  "status": "READY for root review; NO resource tests executed",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/candidate02/manifest.json",
+    "sha256": "6d855e9b160b0438d2aec5818e16d138afb7110eb14eb12617f06dbc2fe8d1c9"
+  },
+  "driver": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/driver.py",
+    "sha256": "6a72f3e0096fdebe75f46608a38bf3ba8912c97b0130b84eeb1282b648148beb"
+  },
+  "frozen_proposal": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/frozen-proposal.json",
+    "sha256": "c7f393920081ff78f896dae3bdee80097621de16190251cdd527bab8b3657ccd"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/closure.json",
+    "sha256": "5894568f0c6b22148b1f6bcefdf77f81369ec1318197bdbaa8d117d5805291e7"
+  },
+  "driver_delta": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/delta.diff",
+    "sha256": "f64c59b2d7be53fe4e47d79466eb31319b88a36ab2f0384db3d61f7238ad1caf"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/actual-graph01.json",
+    "sha256": "0f0ef764935f57404322c7d60293bd64d1f98dc835c5fee0620bc14e805a3350"
+  },
+  "probe": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_formatted_test.go",
+    "sha256": "6caea56b74997e84fbafcd70ae8e34dc0281ae22a30c4145f4ae88e0c0ec8ef0"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+    "sha256": "27d3ddeb3c2866736ec51ca56ac329b3cd8fa98f3d7a647128708e92ca46d16a"
+  },
+  "schema_parser": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/schema-check.py",
+    "sha256": "e7f8bd5df8d5ccff89ec7d165b2009e3e74f29623885a0c283a6bf0f158c8cdb"
+  },
+  "selectors": [
+    "^TestIndependentProjectCredentialAuthorityAndLookup$",
+    "^TestIndependentProjectCredentialRootAndTerminalACK$"
+  ],
+  "preparation": {
+    "format01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/format01/result.json",
+        "sha256": "3c942415d0a8caf5282570ffa15b4cfc15824b1f2e6d6382b4c2d1023e631215"
+      },
+      "seconds": 0.007398570000077598,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "graph-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/graph-race01/result.json",
+        "sha256": "c7a29e49cc42553e2940a8ba82585efbc87cac2aa32e88dce706d267155f8d2b"
+      },
+      "seconds": 0.25737807899713516,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "compile-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/compile-race01/result.json",
+        "sha256": "2d1a43be9668b9c2f160f2a92dc11ed619b1fc4b20b09e6455b214ef57e93ccd"
+      },
+      "seconds": 6.964804283998092,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "vet-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/vet-race01/result.json",
+        "sha256": "beff8efa11218e33ab540fac19b0553477c7ef539bcdc9543e9eb054ff41ebb9"
+      },
+      "seconds": 1.9019180569957825,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "list-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/list-race01/result.json",
+        "sha256": "319e362128b1b132c5c90bd57572c9f5425cceff2ac0b9aa042772b825cb3582"
+      },
+      "seconds": 1.0297787239978788,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "resource-input-gate01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/resource-input-gate01/result.json",
+        "sha256": "56c6c705ef85323dcced29eb677e3e13cd43f34dcae8d2a28d71c980c8c45852"
+      },
+      "seconds": 0.8585958050025511,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    }
+  },
+  "input_gate": {
+    "count": 3317,
+    "digest": "209290a8ecf3aa1e499aeab037ac319c59400b44658fac59939a3236387a631a"
+  },
+  "original_preflight_hash_typo": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/graph-invocation-original.json",
+    "sha256": "b83851f4bef912f56d1e2fc1fa6f944e7dc4420123b1b0a91f8d3861920a313e"
+  },
+  "runtime_budget": "fresh5GiB/livePID-starttime/daemon/seven exact resources each round; TopWatchdog120s includingCleanup, fixed package6m. A actualPASS+wait+doubleclear+inputsame before B; failure cleanup then stop/no retry. Original full20 fixture wrapper and actual tool/cgo0/python closure inherited. No custom tests/model TestMain; wrapper still consumes all20 original fixture packages.",
+  "required_authorization": "After author5 PG rounds actual completion and root explicit handover; frozen resource authorization currently false. B original bytes standard schema postcheck after freezing its actual source metadata; no synthetic substitute.",
+  "scope": "A complements current auth/archived/three SH/CommandEX/wrong liveTx/resource real Audit; B default root maximum material replay/lastbyte conflict/raw safe body; targeted real same-backend terminal-first COMMIT+idle ACK loss, separate passive lookup. Author owns normal100ms in-flight root shutdown and held4modes. Broad old library witness/cross-Store matrix remains explicit old-source evidence, not newly invented full HTTP coverage."
+}

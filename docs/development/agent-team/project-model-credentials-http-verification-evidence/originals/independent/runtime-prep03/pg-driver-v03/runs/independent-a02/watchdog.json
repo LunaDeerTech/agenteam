@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 37010.011868741,
+      "top": "TestIndependentProjectCredentialAuthorityAndLookup"
+    },
+    {
+      "event": "result",
+      "monotonic": 37014.759627849,
+      "observed_seconds": 4.747759108002356,
+      "reported_seconds": 4.75,
+      "state": "PASS",
+      "top": "TestIndependentProjectCredentialAuthorityAndLookup"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectCredentialAuthorityAndLookup"
+  ],
+  "failures": []
+}

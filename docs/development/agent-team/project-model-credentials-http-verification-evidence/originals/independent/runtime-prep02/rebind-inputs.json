@@ -1,0 +1,31 @@
+{
+  "previous_proposal": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/proposal01.json",
+    "sha256": "b054de98914c79e4f643002fd208fa7d66af7601b2145f4d363e4833ffbab634"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/candidate03/manifest.json",
+    "sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45"
+  },
+  "author_closure": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/closure.json",
+    "sha256": "c710918462af79b1fb08f734403f8a3ba8221ec991884b00fd53bb6aa0de30b3"
+  },
+  "author_graph": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/actual-graph-full02.json",
+    "sha256": "a670f98b64bec39e931662e6c096ec33c9b0ef0c7f4e6b0e8a1d120d5eee1504"
+  },
+  "private_source": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_formatted_test.go",
+    "sha256": "6caea56b74997e84fbafcd70ae8e34dc0281ae22a30c4145f4ae88e0c0ec8ef0"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+    "sha256": "a24cac75bb6f5271948bd568651ec1b1c15691f25600fde360e105a4401fd6e5"
+  },
+  "pregraph_plan": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/graph-plan01.json",
+    "sha256": "c552d4b8a947472699866b8d956b52a976235d4f7e0c71bb3d700110bf599630"
+  },
+  "scope": "Only parent candidate02\u219203 and inherited unknown test snapshot mapping; no private source/selector behavior change."
+}

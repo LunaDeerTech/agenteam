@@ -1,0 +1,19 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-independent-a",
+    "new-independent-b"
+  ],
+  "driver_sha256": "c8a072fe5a46207714d946f3a09370fcdae0c5e7811fad89de1f2f2bceef7e28",
+  "candidate_sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/closure.json",
+    "sha256": "89c5d7e5e95214ec508493aca25f3167608e41ee4c1ba8cece9659dfa7b91ecf"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/driver.py": "c8a072fe5a46207714d946f3a09370fcdae0c5e7811fad89de1f2f2bceef7e28",
+    "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/groups.json": "48210e47538e26a2728ea97f922d1e9bc25124c1e5011fd8c10819ea3a5b7902",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "authorization": "PREPARED private A repair; A01 original failure retained. No rerun or B resource execution until root renews window."
+}

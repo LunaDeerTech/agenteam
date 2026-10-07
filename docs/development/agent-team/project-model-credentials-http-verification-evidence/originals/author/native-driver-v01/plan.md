@@ -1,0 +1,11 @@
+# Project model credentials native proposal
+
+Prepared only; no native/socket/PG resources started. Candidate02 is the complete22-source freeze (four integration compile-only fixes; HTTP production02/unit02 unchanged). Ordinary/race controlled and natural30s+2s groups have actual0. Race binary model02-race.test is fixed in execution-freeze.json.
+
+Three serial rounds: keepalive (one listener/connection, four GET/HEAD requests and reusable deadline reset), slowbody (three listeners/subcases: incomplete mutation30s, lookup2s, parent120ms), writeclose (ten listeners/subcases: short/error writes, Flush error, Close error, panic, reset error, missing support, real blocked HEAD Flush and GET Write, and service-tail cancellation/actual join). Three exact native top names are in driver GROUPS; no other test body. A separate offline test.list verifies the three names before resource authorization.
+
+Absolute command after root grant: `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/scratch/project-model-credentials-http-author/native-driver-v01/driver.py keepalive --execute-authorized`, then replace mode with `slowbody`, then `writeclose`. Continue only after prior actual PASS, fixed inputs same, direct/adopted actualwait and two owned process/all TCP-port clear scans. On failure, finish owned retirement and stop later rounds; preserve original raw.
+
+Fresh≥2GiB and actual current PID/starttime/socket baseline per round. No historical PID/daemon baseline. Binary timeout45s, driver intervention55s; subsequent TERM/KILL/adopted≤15s and TCP/TIME_WAIT≤75s safety retirement are recorded separately. This does not claim publication30s/2s includes an arbitrary service/Close tail. No PG/Docker/MinIO. Existing accepted parser unchanged; listener counts1/3/10.
+
+Credential safety delta: strace exact closed allowlist `socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close`. No `%network`, `%all`, `read`, `write`, `send*`, `recv*`, material, Cookies, CSRF or raw request frames. Only lifecycle/endpoint metadata; normal Go test output uses safe assertions. Input-only hashes pass; runtime baseline is deliberately deferred to actual granted window.

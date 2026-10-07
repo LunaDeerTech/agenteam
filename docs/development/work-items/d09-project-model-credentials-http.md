@@ -1,5 +1,7 @@
 # D09 Project Owner 模型凭据管理 HTTP 与真实根绑定
 
+当前接受状态（2026-10-07）：**完整23路径产品已独立 PASS/root 采纳**，产品 `e4b1b89197da0e9027018fdb41f6ab3e04050b9d` 已推送且 root 核远端一致，含21技术实际修改、1不变技术项及README末件。实际版本组合、全部首红、3native/9PG与非owned daemon限制见[完整验收归档](../agent-team/project-model-credentials-http-verification.md)。生产基线承接已接受 Model Owner read `a0b012ce`；以下 rev2 规格时点说明保留为历史，§1–8技术原字节不变，不代表配置写入/UI或完整D09已完成。
+
 修订 rev2，2026-10-07。**完整限定独立 STATIC PASS（rev1 全审＋rev2 差量），root 已采纳；尚未授权产品实施、Go、native 或 PG。** 当前仅正式规格归位。实施须先等 [Project Model Owner read](d09-project-model-owner-read-http.md) 完整产品接受，再由 root 正式移交 `account.go`、`project_usage.go`、`security.go` 及相关共享测试，重新冻结实际输入；当前活动 read #1–13 不作已验依赖。
 
 固定已接受产品基线为 [Owner Update 完整19](../agent-team/project-owner-update-http-verification.md) `61bed1fcf47c362f420f6bb45158b227af581acf`，归档 `c839f965`。下列 §1–8 保持已独审 rev2 技术条款原字节；其中候选白名单和实施前门槛不构成业务执行授权，不得用旧根覆盖后继已接受增量。

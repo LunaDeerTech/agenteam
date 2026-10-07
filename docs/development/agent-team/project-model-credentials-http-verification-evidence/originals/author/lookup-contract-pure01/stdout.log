@@ -1,0 +1,317 @@
+=== RUN   TestAccountServiceWriteRoleMatrixAndSafePlans
+--- PASS: TestAccountServiceWriteRoleMatrixAndSafePlans (0.00s)
+=== RUN   TestAccountUsageClosedVariantsAndCopiedBinding
+--- PASS: TestAccountUsageClosedVariantsAndCopiedBinding (0.00s)
+=== RUN   TestMaterialOwnershipConcurrentUseAndDestroy
+--- PASS: TestMaterialOwnershipConcurrentUseAndDestroy (0.00s)
+=== RUN   TestModelUsageRequestIDClosedVariants
+=== RUN   TestModelUsageRequestIDClosedVariants/model/execution/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/execution/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/execution/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/execution/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/model/execution/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/model/model_call/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/model_call/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/model_call/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/model_call/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/model/model_call/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_response/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_response/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_response/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_response/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/model/account_response/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/execution/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/execution/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/execution/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/execution/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/execution/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/model_call/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/model_call/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/model_call/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/model_call/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/model_call/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_response/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_response/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_response/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_response/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/mcp/account_response/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/execution/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/execution/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/execution/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/execution/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/execution/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/model_call/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/model_call/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/model_call/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/model_call/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/model_call/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_response/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_response/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_response/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_response/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/system/account_response/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/execution/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/execution/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/execution/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/execution/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/execution/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/model_call/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/model_call/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/model_call/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/model_call/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/model_call/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/release_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_response/acquire_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_response/release_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_response/read_lease
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_response/retain_reference
+=== RUN   TestModelUsageRequestIDClosedVariants/smtp/account_response/release_reference
+--- PASS: TestModelUsageRequestIDClosedVariants (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/execution/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/execution/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/execution/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/execution/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/execution/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/model_call/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/model_call/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/model_call/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/model_call/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/model_call/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_delivery_attempt/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_response/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_response/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_response/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_response/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/model/account_response/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/execution/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/execution/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/execution/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/execution/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/execution/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/model_call/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/model_call/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/model_call/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/model_call/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/model_call/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_delivery_attempt/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_response/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_response/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_response/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_response/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/mcp/account_response/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/execution/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/execution/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/execution/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/execution/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/execution/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/model_call/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/model_call/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/model_call/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/model_call/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/model_call/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_delivery_attempt/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_response/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_response/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_response/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_response/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/system/account_response/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/execution/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/execution/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/execution/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/execution/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/execution/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/model_call/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/model_call/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/model_call/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/model_call/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/model_call/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_delivery_attempt/release_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_response/acquire_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_response/release_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_response/read_lease (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_response/retain_reference (0.00s)
+    --- PASS: TestModelUsageRequestIDClosedVariants/smtp/account_response/release_reference (0.00s)
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity/system/account_response/read_lease
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity/smtp/account_delivery_attempt/acquire_lease
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity/mcp/execution/read_lease
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity/model/model_call/acquire_lease
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity/model/model_call/release_lease
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity/model//retain_reference
+=== RUN   TestUsageBindingLegacyBytesAndInvocationIdentity/model//release_reference
+--- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity (0.00s)
+    --- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity/system/account_response/read_lease (0.00s)
+    --- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity/smtp/account_delivery_attempt/acquire_lease (0.00s)
+    --- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity/mcp/execution/read_lease (0.00s)
+    --- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity/model/model_call/acquire_lease (0.00s)
+    --- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity/model/model_call/release_lease (0.00s)
+    --- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity/model//retain_reference (0.00s)
+    --- PASS: TestUsageBindingLegacyBytesAndInvocationIdentity/model//release_reference (0.00s)
+=== RUN   TestCredentialIdentityAndGrantBoundaries
+--- PASS: TestCredentialIdentityAndGrantBoundaries (0.00s)
+=== RUN   TestWriteCommandLookupIdentityAndScope
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/actor
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/project
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/purpose
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/kind
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/namespace
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/owner
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/owners
+=== RUN   TestWriteCommandLookupIdentityAndScope/create/command
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/actor
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/project
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/purpose
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/kind
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/namespace
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/owner
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/owners
+=== RUN   TestWriteCommandLookupIdentityAndScope/update/command
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/owner
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/owners
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/command
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/actor
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/project
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/purpose
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/kind
+=== RUN   TestWriteCommandLookupIdentityAndScope/delete/namespace
+--- PASS: TestWriteCommandLookupIdentityAndScope (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/actor (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/project (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/purpose (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/kind (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/namespace (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/owner (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/owners (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/create/command (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/actor (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/project (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/purpose (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/kind (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/namespace (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/owner (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/owners (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/update/command (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/owner (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/owners (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/command (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/actor (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/project (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/purpose (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/kind (0.00s)
+    --- PASS: TestWriteCommandLookupIdentityAndScope/delete/namespace (0.00s)
+=== RUN   TestWriteCommandLookupSafeProjection
+--- PASS: TestWriteCommandLookupSafeProjection (0.00s)
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/extra
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/missing-project
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/reverse
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/other-project
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/other-user
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/ref
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/expected
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/scope
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/system
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/purpose
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/create/command
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/missing-project
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/reverse
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/other-project
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/other-user
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/extra
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/system
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/purpose
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/command
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/zero-version
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/overflow
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/ref-scope
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/update/scope
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/missing-project
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/reverse
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/other-project
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/other-user
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/extra
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/system
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/purpose
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/command
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/zero-version
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/overflow
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/ref-scope
+=== RUN   TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/scope
+--- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds (0.00s)
+    --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/extra (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/missing-project (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/reverse (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/other-project (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/other-user (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/ref (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/expected (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/scope (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/system (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/purpose (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/create/command (0.00s)
+    --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/missing-project (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/reverse (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/other-project (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/other-user (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/extra (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/system (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/purpose (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/command (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/zero-version (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/overflow (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/ref-scope (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/update/scope (0.00s)
+    --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/missing-project (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/reverse (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/other-project (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/other-user (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/extra (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/system (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/purpose (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/command (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/zero-version (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/overflow (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/ref-scope (0.00s)
+        --- PASS: TestProjectWriteCommandLookupIdentityScopeAndBounds/delete/scope (0.00s)
+PASS

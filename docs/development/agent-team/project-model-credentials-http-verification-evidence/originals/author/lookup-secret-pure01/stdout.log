@@ -1,0 +1,63 @@
+=== RUN   TestSecretPassiveLookupOnlyPublishesCommittedObservation
+=== RUN   TestSecretPassiveLookupOnlyPublishesCommittedObservation/committed/absent
+=== RUN   TestSecretPassiveLookupOnlyPublishesCommittedObservation/committed/present
+=== RUN   TestSecretPassiveLookupOnlyPublishesCommittedObservation/not_committed/absent
+=== RUN   TestSecretPassiveLookupOnlyPublishesCommittedObservation/not_committed/present
+=== RUN   TestSecretPassiveLookupOnlyPublishesCommittedObservation/unknown/absent
+=== RUN   TestSecretPassiveLookupOnlyPublishesCommittedObservation/unknown/present
+--- PASS: TestSecretPassiveLookupOnlyPublishesCommittedObservation (0.00s)
+    --- PASS: TestSecretPassiveLookupOnlyPublishesCommittedObservation/committed/absent (0.00s)
+    --- PASS: TestSecretPassiveLookupOnlyPublishesCommittedObservation/committed/present (0.00s)
+    --- PASS: TestSecretPassiveLookupOnlyPublishesCommittedObservation/not_committed/absent (0.00s)
+    --- PASS: TestSecretPassiveLookupOnlyPublishesCommittedObservation/not_committed/present (0.00s)
+    --- PASS: TestSecretPassiveLookupOnlyPublishesCommittedObservation/unknown/absent (0.00s)
+    --- PASS: TestSecretPassiveLookupOnlyPublishesCommittedObservation/unknown/present (0.00s)
+=== RUN   TestSecretPassiveLookupRejectsDependenciesFactsAndFailures
+=== RUN   TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/acquire
+=== RUN   TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/executor
+=== RUN   TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/held
+=== RUN   TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/session
+=== RUN   TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/grant
+=== RUN   TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/SQL
+--- PASS: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures (0.00s)
+    --- PASS: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/acquire (0.00s)
+    --- PASS: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/executor (0.00s)
+    --- PASS: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/held (0.00s)
+    --- PASS: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/session (0.00s)
+    --- PASS: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/grant (0.00s)
+    --- PASS: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/SQL (0.00s)
+=== RUN   TestSecretPassiveLookupCancellationAfterCommittedRead
+--- PASS: TestSecretPassiveLookupCancellationAfterCommittedRead (0.00s)
+=== RUN   TestSecretProjectPassiveLookupLocksAndTerminal
+=== RUN   TestSecretProjectPassiveLookupLocksAndTerminal/committed/absent
+=== RUN   TestSecretProjectPassiveLookupLocksAndTerminal/committed/present
+=== RUN   TestSecretProjectPassiveLookupLocksAndTerminal/not_committed/absent
+=== RUN   TestSecretProjectPassiveLookupLocksAndTerminal/not_committed/present
+=== RUN   TestSecretProjectPassiveLookupLocksAndTerminal/unknown/absent
+=== RUN   TestSecretProjectPassiveLookupLocksAndTerminal/unknown/present
+--- PASS: TestSecretProjectPassiveLookupLocksAndTerminal (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupLocksAndTerminal/committed/absent (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupLocksAndTerminal/committed/present (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupLocksAndTerminal/not_committed/absent (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupLocksAndTerminal/not_committed/present (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupLocksAndTerminal/unknown/absent (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupLocksAndTerminal/unknown/present (0.00s)
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/nil-project
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/typed-nil-project
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/session
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/session-before-unbound
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/project
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/grant
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/held
+=== RUN   TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/cancel-after-commit
+--- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/nil-project (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/typed-nil-project (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/session (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/session-before-unbound (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/project (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/grant (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/held (0.00s)
+    --- PASS: TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation/cancel-after-commit (0.00s)
+PASS

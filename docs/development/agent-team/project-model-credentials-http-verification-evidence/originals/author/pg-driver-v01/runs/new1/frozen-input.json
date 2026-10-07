@@ -1,0 +1,23 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-crud-authority",
+    "new-lookup-unknown",
+    "new-root",
+    "old-project",
+    "old-model"
+  ],
+  "driver_sha256": "8100301fdf1125eaf7c57fe67d2471b535cfe1488f7d84e98de7206801913fff",
+  "candidate_sha256": "6d855e9b160b0438d2aec5818e16d138afb7110eb14eb12617f06dbc2fe8d1c9",
+  "closure": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/closure.json",
+    "sha256": "5c03e1a575cacbe173541a000ea4cda2fd87a3e2b7f5799b89400c1d1149b396"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/driver.py": "8100301fdf1125eaf7c57fe67d2471b535cfe1488f7d84e98de7206801913fff",
+    "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/groups.json": "4d6368c5776339021f140b921b9d2ee64a483e5a47aa6fbea3f7367b8e9e00f2",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": true,
+  "authorization": "PREPARED ONLY. Requires explicit root unique resource window and administrative authorized freeze; no fixture has been started. Fresh local fixed images must be inspected with empty Docker config and no pull, current baseline per round. Native prerequisite must fully pass and retire."
+}

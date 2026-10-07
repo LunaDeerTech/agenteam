@@ -1,0 +1,388 @@
+{
+  "status": "PASS README-only STATIC; no business test rerun",
+  "readme": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/readme23/README.md",
+    "sha256": "b5b4444d61af796a9ecd5843b4de9cfd55981324e21ba1e6ef4b0c991bac0e5e"
+  },
+  "before": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/readme23/README-before.md",
+    "sha256": "7d0e0c0793b65d4360e2fa65b4b897fc592d0c3d1a78d06306928454da42c39e"
+  },
+  "manifest23": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/readme23/manifest23.json",
+    "sha256": "3e96f4ed032fbf299f064127f54e1e4125c269651de1bcd820c1a83b10fe9e6b"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/readme23/delta.diff",
+    "sha256": "504bd817cd653092887fc2922ebaaeb544b4a5d7989df7922f3d9c2dc666cf86"
+  },
+  "technical22_reused": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final22/result.json",
+    "sha256": "884de52c3d49f9716bd9f17496e4206d77c354db1af0704f6b941152c9e5292c"
+  },
+  "technical22_same": true,
+  "source23_actual_match": true,
+  "scope_count": 23,
+  "actual_modified_count": 22,
+  "unchanged_existing": "internal/central/app/project_usage_test.go",
+  "changes": [
+    {
+      "kind": "replace",
+      "old_start": 5,
+      "old_end": 5,
+      "new_start": 5,
+      "new_end": 5
+    },
+    {
+      "kind": "replace",
+      "old_start": 182,
+      "old_end": 182,
+      "new_start": 182,
+      "new_end": 204
+    }
+  ],
+  "usage_onward_byte_identical": true,
+  "system_summary_detail_unchanged": true,
+  "links_count": 56,
+  "fragment_count": 8,
+  "links": [
+    {
+      "target": "database.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "audit.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "secret.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/secret.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "outbound.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d05-object-storage-design.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-design.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../api/openapi/model-system.json",
+      "resolved": "/workspace/agenteam/api/openapi/model-system.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/recovery-d09-system-model-root.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-system-model-root.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "object-runtime.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/object-runtime.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/object-runtime-join-regression.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../api/openapi/account.json",
+      "resolved": "/workspace/agenteam/api/openapi/account.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "artifact.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/artifact.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/system-model-management-reads-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/system-model-management-reads-verification.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/recovery-d09-system-model-management-reads.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-system-model-management-reads.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d09-system-meeting-summary-selection.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d09-system-meeting-summary-settings.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-settings.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d09-system-meeting-summary-resolution.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-resolution.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/invocation-usage-ledger-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/invocation-usage-ledger-verification.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/recovery-d09-openai-chat-structured-wire.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/d09-openai-chat-structured-wire-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d09-openai-chat-structured-wire-verification.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d09-openai-embeddings-wire.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-openai-embeddings-wire.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "outbound.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d28-central-spa-hosting.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d28-central-spa-hosting.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/system-central-spa-hosting-spec-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "account.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "accountmail.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/accountmail.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/d26-authentication-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d26-authentication-verification.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/personal-settings-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/personal-settings-verification.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../agent-team/public-account-entry-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/public-account-entry-verification.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d07-account-session-smtp.md#当前进度",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d07-account-session-smtp.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "../../../deploy/central.env.example",
+      "resolved": "/workspace/agenteam/deploy/central.env.example",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../deploy/runner.env.example",
+      "resolved": "/workspace/agenteam/deploy/runner.env.example",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "audit.md#cursor-与部署配置",
+      "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "secret.md#部署配置与启动",
+      "resolved": "/workspace/agenteam/docs/development/backend/secret.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "account.md#部署输入与首次管理员",
+      "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "outbound.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "database.md#版本与配置",
+      "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "database.md#迁移与修复",
+      "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "account.md#正式-http-与资料头像",
+      "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "../../../api/openapi/model-system.json",
+      "resolved": "/workspace/agenteam/api/openapi/model-system.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "accountmail.md#smtp-与日志",
+      "resolved": "/workspace/agenteam/docs/development/backend/accountmail.md",
+      "exists": true,
+      "fragment_verified": true
+    },
+    {
+      "target": "../../../api/openapi/project-owner.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-owner.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d08-project-owner-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d08-project-owner-update-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-update-http.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../api/openapi/project-owner.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-owner.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../api/openapi/project-models.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-models.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d09-project-model-owner-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d09-project-model-credentials-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../api/openapi/project-model-credentials.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-model-credentials.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../api/openapi/project-usage.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-usage.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d09-project-usage-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-usage-read-http.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../../../api/openapi/runtime-information.json",
+      "resolved": "/workspace/agenteam/api/openapi/runtime-information.json",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d28-system-runtime-information-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d28-system-runtime-information-http.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "artifact.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/artifact.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d05-object-storage-research.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-research.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d05-object-storage-artifact.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-artifact.md",
+      "exists": true,
+      "fragment_verified": false
+    },
+    {
+      "target": "../work-items/d06-transactional-outbox-design.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d06-transactional-outbox-design.md",
+      "exists": true,
+      "fragment_verified": false
+    }
+  ],
+  "utf8_lf_final_newline_no_trailing_whitespace": true,
+  "no_go_or_resource_execution": true
+}

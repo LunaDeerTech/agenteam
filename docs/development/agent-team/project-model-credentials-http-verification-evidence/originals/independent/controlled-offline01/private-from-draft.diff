@@ -1,0 +1,366 @@
+--- original343
++++ formatted-own-cleanup
+@@ -1,6 +1,6 @@
+ package model
+ 
+-// Private overlay draft. It has not been formatted, compiled or run.
++// Independent controlled overlay. Execution status is recorded outside this source.
+ // It consumes production02 and its frozen credentialTestHandler/request seam.
+ // No listener, database, browser, subprocess or network client is created here.
+ 
+@@ -29,7 +29,7 @@
+ type ivCRWriter struct {
+ 	*httptest.ResponseRecorder
+ 	reads, writes, flushes atomic.Int32
+-	readHook, writeHook func(int32, time.Time) error
++	readHook, writeHook    func(int32, time.Time) error
+ }
+ 
+ func ivCRNewWriter() *ivCRWriter {
+@@ -37,12 +37,16 @@
+ }
+ func (w *ivCRWriter) SetReadDeadline(at time.Time) error {
+ 	n := w.reads.Add(1)
+-	if w.readHook != nil { return w.readHook(n, at) }
++	if w.readHook != nil {
++		return w.readHook(n, at)
++	}
+ 	return nil
+ }
+ func (w *ivCRWriter) SetWriteDeadline(at time.Time) error {
+ 	n := w.writes.Add(1)
+-	if w.writeHook != nil { return w.writeHook(n, at) }
++	if w.writeHook != nil {
++		return w.writeHook(n, at)
++	}
+ 	return nil
+ }
+ func (w *ivCRWriter) FlushError() error {
+@@ -52,17 +56,22 @@
+ }
+ 
+ type ivCRBody struct {
+-	reader io.Reader
+-	closes atomic.Int32
++	reader    io.Reader
++	closes    atomic.Int32
+ 	closeHook func() error
+ }
++
+ func (b *ivCRBody) Read(p []byte) (int, error) { return b.reader.Read(p) }
+ func (b *ivCRBody) Close() error {
+ 	b.closes.Add(1)
+-	if b.closeHook != nil { return b.closeHook() }
++	if b.closeHook != nil {
++		return b.closeHook()
++	}
+ 	return nil
+ }
+-type ivCRReturn struct { aborted, foreignPanic bool }
++
++type ivCRReturn struct{ aborted, foreignPanic bool }
++
+ func ivCRServe(h http.Handler, w http.ResponseWriter, r *http.Request) (out ivCRReturn) {
+ 	defer func() {
+ 		if value := recover(); value != nil {
+@@ -86,14 +95,19 @@
+ }
+ func ivCRCode(t *testing.T, w *ivCRWriter, status int, code f.Code) {
+ 	t.Helper()
+-	var result struct { Code f.Code `json:"code"` }
++	var result struct {
++		Code f.Code `json:"code"`
++	}
+ 	if w.Code != status || json.Unmarshal(w.Body.Bytes(), &result) != nil || result.Code != code {
+ 		t.Fatal("unexpected safe status/code")
+ 	}
+ }
+ func ivCRLogCode(t *testing.T, data []byte, want f.Code) {
+ 	t.Helper()
+-	var event struct { Event string `json:"event"`; Code string `json:"code"` }
++	var event struct {
++		Event string `json:"event"`
++		Code  string `json:"code"`
++	}
+ 	if json.Unmarshal(bytes.TrimSpace(data), &event) != nil || event.Event != "http_request" || event.Code != string(want) {
+ 		t.Fatal("tracked writer lost safe request code")
+ 	}
+@@ -102,7 +116,8 @@
+ 	t.Helper()
+ 	select {
+ 	case <-done:
+-	case <-time.After(2 * time.Second): t.Fatal("controlled phase did not complete: " + stage)
++	case <-time.After(2 * time.Second):
++		t.Fatal("controlled phase did not complete: " + stage)
+ 	}
+ }
+ 
+@@ -110,8 +125,12 @@
+ 	t.Run("worst_65536_bytes_exact_raw_cap", func(t *testing.T) {
+ 		value := make([]byte, sc.MaxValueBytes)
+ 		defer clear(value)
+-		raw, err := json.Marshal(struct { Value string `json:"value"` }{string(value)})
+-		if err != nil { t.Fatal("encode failed") }
++		raw, err := json.Marshal(struct {
++			Value string `json:"value"`
++		}{string(value)})
++		if err != nil {
++			t.Fatal("encode failed")
++		}
+ 		defer clear(raw)
+ 		if bytes.Count(raw, []byte(`\u0000`)) != sc.MaxValueBytes || len(raw) >= credentialMaterialBodyBytes {
+ 			t.Fatal("actual worst-case representation exceeds body contract")
+@@ -130,26 +149,36 @@
+ 						return errors.New("complete material mismatch")
+ 					}
+ 					return nil
+-				}); err != nil { t.Fatal("complete material not delivered") }
++				}); err != nil {
++					t.Fatal("complete material not delivered")
++				}
+ 				return sc.MutationResult{Metadata: sc.Metadata{CredentialRef: credentialTestRef(), Purpose: sc.Model, Version: 1}}, nil
+ 			}
+ 			padded := make([]byte, credentialMaterialBodyBytes+extra)
+ 			copy(padded, raw)
+-			for i := len(raw); i < len(padded); i++ { padded[i] = ' ' }
++			for i := len(raw); i < len(padded); i++ {
++				padded[i] = ' '
++			}
+ 			r, body := ivCRRequest("POST", credentialTestCollection, padded)
+ 			w := ivCRNewWriter()
+ 			var logs bytes.Buffer
+ 			returned := ivCRServe(ivCRTracked(h, &logs), w, r)
+ 			clear(padded)
+-			if returned.aborted || returned.foreignPanic || body.closes.Load() != 1 { t.Fatal("raw cap ownership") }
++			if returned.aborted || returned.foreignPanic || body.closes.Load() != 1 {
++				t.Fatal("raw cap ownership")
++			}
+ 			if extra == 0 {
+ 				if w.Code != 200 || service.writes.Load() != 1 || service.reads.Load() != 0 || service.lookups.Load() != 0 {
+ 					t.Fatal("exact raw cap rejected or extra service calls")
+ 				}
+-				if held.Use(func([]byte) error { return nil }) == nil { t.Fatal("material survived response") }
++				if held.Use(func([]byte) error { return nil }) == nil {
++					t.Fatal("material survived response")
++				}
+ 			} else {
+ 				ivCRCode(t, w, 413, f.PayloadTooLarge)
+-				if service.writes.Load()+service.reads.Load()+service.lookups.Load() != 0 { t.Fatal("oversized body reached service") }
++				if service.writes.Load()+service.reads.Load()+service.lookups.Load() != 0 {
++					t.Fatal("oversized body reached service")
++				}
+ 			}
+ 			if bytes.Contains(w.Body.Bytes(), []byte(`\u0000`)) || bytes.Contains(logs.Bytes(), []byte(`\u0000`)) || bytes.Contains(logs.Bytes(), []byte("original-key")) {
+ 				t.Fatal("material/key entered safe output")
+@@ -159,7 +188,7 @@
+ 	})
+ 
+ 	t.Run("strict_presence_and_null_with_tracked_code", func(t *testing.T) {
+-		for _, test := range []struct { name, method, path, body string }{
++		for _, test := range []struct{ name, method, path, body string }{
+ 			{"create_missing", "POST", credentialTestCollection, `{}`},
+ 			{"create_null", "POST", credentialTestCollection, `{"value":null}`},
+ 			{"update_expected_null", "PUT", credentialTestDetail, `{"expected_version":null,"value":"v"}`},
+@@ -175,10 +204,14 @@
+ 				w := ivCRNewWriter()
+ 				var logs bytes.Buffer
+ 				returned := ivCRServe(ivCRTracked(h, &logs), w, r)
+-				if returned.aborted || returned.foreignPanic || body.closes.Load() != 1 { t.Fatal("strict input ownership") }
++				if returned.aborted || returned.foreignPanic || body.closes.Load() != 1 {
++					t.Fatal("strict input ownership")
++				}
+ 				ivCRCode(t, w, 400, f.InvalidArgument)
+ 				ivCRLogCode(t, logs.Bytes(), f.InvalidArgument)
+-				if service.writes.Load()+service.reads.Load()+service.lookups.Load() != 0 { t.Fatal("strict input reached service") }
++				if service.writes.Load()+service.reads.Load()+service.lookups.Load() != 0 {
++					t.Fatal("strict input reached service")
++				}
+ 			})
+ 		}
+ 	})
+@@ -186,8 +219,10 @@
+ 	t.Run("delete_damaged_metadata_cannot_be_hidden_by_late_receipt", func(t *testing.T) {
+ 		h, _, service := credentialTestHandler(t)
+ 		service.lookup = func(_ context.Context, request sc.WriteCommandLookupRequest) (sc.WriteCommandObservation, error) {
+-			if service.lookups.Load() == 1 { return sc.WriteCommandObservation{}, nil }
+-			result := sc.MutationResult{Metadata: sc.Metadata{CredentialRef: request.Ref, Purpose: sc.Model, Version: request.ExpectedVersion+1}, Deleted: true}
++			if service.lookups.Load() == 1 {
++				return sc.WriteCommandObservation{}, nil
++			}
++			result := sc.MutationResult{Metadata: sc.Metadata{CredentialRef: request.Ref, Purpose: sc.Model, Version: request.ExpectedVersion + 1}, Deleted: true}
+ 			return sc.WriteCommandObservation{Observed: true, Result: &result}, nil
+ 		}
+ 		service.metadata = func(context.Context, id.Actor, sc.CredentialRef) (sc.Metadata, error) {
+@@ -198,7 +233,9 @@
+ 		w := ivCRNewWriter()
+ 		var logs bytes.Buffer
+ 		returned := ivCRServe(ivCRTracked(h, &logs), w, r)
+-		if returned.aborted || returned.foreignPanic || body.closes.Load() != 1 { t.Fatal("metadata rejection ownership") }
++		if returned.aborted || returned.foreignPanic || body.closes.Load() != 1 {
++			t.Fatal("metadata rejection ownership")
++		}
+ 		ivCRCode(t, w, 503, f.DependencyUnavailable)
+ 		ivCRLogCode(t, logs.Bytes(), f.DependencyUnavailable)
+ 		if service.lookups.Load() != 1 || service.reads.Load() != 1 || service.writes.Load() != 0 || bytes.Contains(w.Body.Bytes(), []byte("credential_id")) {
+@@ -214,8 +251,13 @@
+ 				defer clear(value)
+ 				const marker = "independent-material-tail-sentinel"
+ 				copy(value[len(value)-len(marker):], marker)
+-				raw, err := json.Marshal(struct { Expected string `json:"expected_version"`; Value string `json:"value"` }{"1", string(value)})
+-				if err != nil { t.Fatal("encode failed") }
++				raw, err := json.Marshal(struct {
++					Expected string `json:"expected_version"`
++					Value    string `json:"value"`
++				}{"1", string(value)})
++				if err != nil {
++					t.Fatal("encode failed")
++				}
+ 				defer clear(raw)
+ 				var held sc.SecretMaterial
+ 				service.lookup = func(_ context.Context, request sc.WriteCommandLookupRequest) (sc.WriteCommandObservation, error) {
+@@ -228,28 +270,51 @@
+ 						return sc.MutationResult{}, errors.New("original request changed")
+ 					}
+ 					if err := request.Value.Use(func(got []byte) error {
+-						if !bytes.Equal(got, value) { return errors.New("full material changed") }
++						if !bytes.Equal(got, value) {
++							return errors.New("full material changed")
++						}
+ 						return nil
+-					}); err != nil { t.Error("full material not delivered") }
++					}); err != nil {
++						t.Error("full material not delivered")
++					}
+ 					for _, format := range []string{"%v", "%+v", "%#v"} {
+-						if strings.Contains(fmt.Sprintf(format, request), marker) { t.Error("format leaked material") }
+-						if fmt.Sprintf(format, request.Value) != "secret_material" { t.Error("material format is not a safe marker") }
++						if strings.Contains(fmt.Sprintf(format, request), marker) {
++							t.Error("format leaked material")
++						}
++						if fmt.Sprintf(format, request.Value) != "secret_material" {
++							t.Error("material format is not a safe marker")
++						}
+ 					}
+ 					encoded, e := json.Marshal(request)
+-					if e != nil || bytes.Contains(encoded, []byte(marker)) { t.Error("safe JSON leaked material") }
++					if e != nil || bytes.Contains(encoded, []byte(marker)) {
++						t.Error("safe JSON leaked material")
++					}
+ 					encodedMaterial, e := json.Marshal(request.Value)
+-					if e != nil || string(encodedMaterial) != `"secret_material"` { t.Error("material JSON is not a safe marker") }
+-					if mode == "panic" { panic(marker) }
++					if e != nil || string(encodedMaterial) != `"secret_material"` {
++						t.Error("material JSON is not a safe marker")
++					}
++					if mode == "panic" {
++						panic(marker)
++					}
+ 					return sc.MutationResult{}, f.NewFault(f.CommitUnknown, f.Unknown).WithCause(errors.New(marker))
+ 				}
+ 				r, body := ivCRRequest("PUT", credentialTestDetail, raw)
+ 				w := ivCRNewWriter()
+ 				var logs bytes.Buffer
+ 				returned := ivCRServe(ivCRTracked(h, &logs), w, r)
+-				if returned.foreignPanic || returned.aborted != (mode == "panic") || body.closes.Load() != 1 { t.Fatal("material error/panic ownership") }
+-				if service.lookups.Load() != 1 || service.reads.Load() != 0 || service.writes.Load() != 1 { t.Fatal("observation bypassed write or caused implicit retry") }
+-				if held.Use(func([]byte) error { return nil }) == nil { t.Fatal("material survived error/panic") }
+-				if mode == "unknown" { ivCRCode(t, w, 503, f.CommitUnknown); ivCRLogCode(t, logs.Bytes(), f.CommitUnknown) }
++				if returned.foreignPanic || returned.aborted != (mode == "panic") || body.closes.Load() != 1 {
++					t.Fatal("material error/panic ownership")
++				}
++				if service.lookups.Load() != 1 || service.reads.Load() != 0 || service.writes.Load() != 1 {
++					t.Fatal("observation bypassed write or caused implicit retry")
++				}
++				if held.Use(func([]byte) error { return nil }) == nil {
++					t.Fatal("material survived error/panic")
++				}
++				if mode == "unknown" {
++					ivCRCode(t, w, 503, f.CommitUnknown)
++					ivCRLogCode(t, logs.Bytes(), f.CommitUnknown)
++				}
+ 				if bytes.Contains(w.Body.Bytes(), []byte(marker)) || bytes.Contains(logs.Bytes(), []byte(marker)) || bytes.Contains(logs.Bytes(), []byte("original-key")) {
+ 					t.Fatal("material/key escaped into output or log")
+ 				}
+@@ -265,12 +330,19 @@
+ 		var returned ivCRReturn
+ 		w := ivCRNewWriter()
+ 		w.readHook = func(n int32, _ time.Time) error {
+-			if n == 2 { close(entered); <-release; panic("private setter diagnostic") }
++			if n == 2 {
++				close(entered)
++				<-release
++				panic("private setter diagnostic")
++			}
+ 			return nil
+ 		}
+ 		service.metadata = func(context.Context, id.Actor, sc.CredentialRef) (sc.Metadata, error) {
+ 			cancel()
+-			select { case <-entered: case <-time.After(time.Second): }
++			select {
++			case <-entered:
++			case <-time.After(time.Second):
++			}
+ 			return sc.Metadata{}, context.Canceled
+ 		}
+ 		r, body := ivCRRequest("GET", credentialTestDetail, nil)
+@@ -278,19 +350,26 @@
+ 		body.closeHook = func() error { close(closeAttempted); panic("private Close diagnostic") }
+ 		var logs bytes.Buffer
+ 		t.Cleanup(func() {
+-			releaseOnce.Do(func() { close(release) }); cancel()
+-			select { case <-done: case <-time.After(2*time.Second): t.Error("controlled handler failed actual join") }
++			releaseOnce.Do(func() { close(release) })
++			cancel()
++			<-done // Actual owned join even after a fatal assertion; outer budget owns failure.
+ 		})
+ 		go func() { defer close(done); returned = ivCRServe(ivCRTracked(h, &logs), w, r) }()
+ 		ivCRWait(t, entered, "cancel callback entered")
+ 		ivCRWait(t, closeAttempted, "owned Close attempted")
+-		select { case <-done: t.Fatal("handler returned while callback was blocked"); case <-time.After(20*time.Millisecond): }
++		select {
++		case <-done:
++			t.Fatal("handler returned while callback was blocked")
++		case <-time.After(20 * time.Millisecond):
++		}
+ 		releaseOnce.Do(func() { close(release) })
+ 		ivCRWait(t, done, "handler returned after callback")
+ 		if !returned.aborted || returned.foreignPanic || body.closes.Load() != 1 || w.writes.Load() < 3 || w.Body.Len() != 0 || w.flushes.Load() != 0 {
+ 			t.Fatal("callback panic skipped other setter/Close/join or published response")
+ 		}
+-		if bytes.Contains(logs.Bytes(), []byte("private")) { t.Fatal("panic diagnostic leaked") }
++		if bytes.Contains(logs.Bytes(), []byte("private")) {
++			t.Fatal("panic diagnostic leaked")
++		}
+ 	})
+ 
+ 	t.Run("start_read_panic_still_owns_body_and_other_setter", func(t *testing.T) {
+@@ -325,11 +404,15 @@
+ 		w := ivCRNewWriter()
+ 		var readResets atomic.Int32
+ 		w.readHook = func(_ int32, at time.Time) error {
+-			if at.IsZero() { readResets.Add(1) }
++			if at.IsZero() {
++				readResets.Add(1)
++			}
+ 			return nil
+ 		}
+ 		w.writeHook = func(_ int32, at time.Time) error {
+-			if at.IsZero() { panic("private reset diagnostic") }
++			if at.IsZero() {
++				panic("private reset diagnostic")
++			}
+ 			return nil
+ 		}
+ 		r, body := ivCRRequest("GET", credentialTestDetail, nil)
+@@ -338,6 +421,8 @@
+ 		if !returned.aborted || returned.foreignPanic || body.closes.Load() != 1 || readResets.Load() != 1 || w.flushes.Load() != 1 || w.Code != 200 {
+ 			t.Fatal("reset failure falsely returned reusable connection")
+ 		}
+-		if bytes.Contains(logs.Bytes(), []byte("private reset")) { t.Fatal("reset panic diagnostic leaked") }
+-	})
+-}
++		if bytes.Contains(logs.Bytes(), []byte("private reset")) {
++			t.Fatal("reset panic diagnostic leaked")
++		}
++	})
++}

@@ -1,0 +1,15 @@
+{
+  "id": "CRD-UNIT-02",
+  "kind": "controlled test failure-path ownership gap",
+  "status": "REPORTED_TO_ROOT",
+  "source": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/model/http_project_credentials_test.go",
+    "sha256": "7388c40b1d7cedd7f642a529aa53cb4ff22c00081422f923908a872c9873a927",
+    "bytes": 18880
+  },
+  "location": "TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_*",
+  "finding": "defer releaseOnce only unblocks; actual summaryJoined is only on normal test path. Fatal at early returned check exits without waiting for launched handler goroutine.",
+  "minimal_fix": "independent done channel closed by goroutine defer, t.Cleanup cancel + release + wait done even when result already consumed; timeout reports incomplete join, never proof of cleanup",
+  "product_change_required": false,
+  "dynamic_failure": "not run; source-only cleanup analysis"
+}

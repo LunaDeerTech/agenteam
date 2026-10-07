@@ -1,0 +1,137 @@
+{
+  "manifest": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/manifest.json",
+    "sha256": "523cde732ef30a94d005226f364ecd8a3dff20b7d9da897a8fba762d742a4c3f",
+    "bytes": 5318
+  },
+  "files": {
+    "internal/central/secret/contract/write_lookup.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/secret/contract/write_lookup.go",
+      "sha256": "00a3d67da27211f8dbc760729ce2a88756a7845e0d87236f23a0b2a13cb423f4",
+      "bytes": 1995
+    },
+    "internal/central/secret/contract/write_lookup_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/secret/contract/write_lookup_test.go",
+      "sha256": "cf2f88eb90262534616787393d9a7b4b283cd6f8c13bdd609f08a13a128ad36b",
+      "bytes": 5983
+    },
+    "internal/central/secret/write_lookup.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/secret/write_lookup.go",
+      "sha256": "af9ffabe8b2ef56c5539dc317693c92983ccdb231680d2445a544f338cc65633",
+      "bytes": 4645
+    },
+    "internal/central/secret/write_lookup_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/secret/write_lookup_test.go",
+      "sha256": "1a15fe0fb65a68893f043890731f8f524e1e0c9339a12dcdfb9be2e3b1afb540",
+      "bytes": 15419
+    },
+    "internal/central/model/http_project_credentials.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/model/http_project_credentials.go",
+      "sha256": "af55eb294e131d779bc7cfc1fc892c522f07da86666e088b73af51ac4513a878",
+      "bytes": 12456
+    },
+    "internal/central/model/http_project_credentials_wire.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/model/http_project_credentials_wire.go",
+      "sha256": "cc1342583a0c7c37b8e5eb5bae31d168f2b87fbbbcf60ae9a1bc1877f42075df",
+      "bytes": 6973
+    },
+    "internal/central/model/http_project_credentials_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/model/http_project_credentials_test.go",
+      "sha256": "7388c40b1d7cedd7f642a529aa53cb4ff22c00081422f923908a872c9873a927",
+      "bytes": 18880
+    },
+    "internal/central/model/http_project_credentials_wire_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/model/http_project_credentials_wire_test.go",
+      "sha256": "e0f09685a5151e775d2ccd55f10d2b6dab1466f369b8cde7179ef30a777eebfe",
+      "bytes": 13655
+    },
+    "internal/central/model/http_project_credentials_native_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/model/http_project_credentials_native_test.go",
+      "sha256": "67bd346645e1efc4a8ec88806a71591ddbc30d5dd813e9cbf67300b7974df74b",
+      "bytes": 8189
+    },
+    "api/openapi/project-model-credentials.json": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/api/openapi/project-model-credentials.json",
+      "sha256": "24b16a9e3f1d1b3ffe8847ffe3e463bd9b9bf58f9c489ab0e0fe7391bc990e83",
+      "bytes": 26263
+    },
+    "internal/central/app/project_credentials.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/app/project_credentials.go",
+      "sha256": "1d155adeaef744b05c75071a828ee6aee3002ab4cba3848f92a14dda0b2a8dd5",
+      "bytes": 995
+    },
+    "internal/central/app/project_credentials_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/app/project_credentials_test.go",
+      "sha256": "139525a6ccf4decf256e61c0ebc7090dd7f98d9f71adc21161a74b237613a5af",
+      "bytes": 2149
+    },
+    "internal/central/app/account.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/app/account.go",
+      "sha256": "89d01abf651ca247515ae8226c739469b86ed01ac6cb4a717cdd3091633e79e7",
+      "bytes": 16108
+    },
+    "internal/central/app/project_usage.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/app/project_usage.go",
+      "sha256": "13abb6bbdc4d38d40b1ba627aa989aec503ffe55c7a310dd42d11acc33d81275",
+      "bytes": 3274
+    },
+    "internal/central/app/project_usage_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/app/project_usage_test.go",
+      "sha256": "5321f1119dc32d075b8e332cf132c03ad5864e700bf25f9ba6bff4cd2ad272cf",
+      "bytes": 6754
+    },
+    "internal/central/app/security.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/app/security.go",
+      "sha256": "0804ec5ab4c3b8566d3f933881415779bf354eaa89a1bb85e0fb4fb09bd0a7a4",
+      "bytes": 1857
+    },
+    "internal/central/app/model_test.go": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate01/src/internal/central/app/model_test.go",
+      "sha256": "b14de7d51def16e5a49a4e2ea83ca1591907ec2c4ae1f71b94325d37aabf9483",
+      "bytes": 6456
+    }
+  },
+  "source_count": 17,
+  "production02_six_unchanged": [
+    "internal/central/model/http_project_credentials.go",
+    "internal/central/model/http_project_credentials_wire.go",
+    "internal/central/app/project_credentials.go",
+    "internal/central/app/account.go",
+    "internal/central/app/project_usage.go",
+    "internal/central/app/security.go"
+  ],
+  "lookup01_four_unchanged": true,
+  "schema": {
+    "ordinary_json_parse": true,
+    "operation_count": 6,
+    "all_refs_resolve_in_fixed_local_documents": true,
+    "ref_count": 47,
+    "common": {
+      "path": "/workspace/scratch/project-model-credentials-http-spec/fixed/api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091
+    },
+    "standard_schema_validation": "not independently executed"
+  },
+  "integration_sources_read": false,
+  "native_resource_run": false,
+  "test_names": [
+    "TestProjectCredentialHTTPPureConstruction",
+    "TestProjectCredentialHTTPPureCallOrder",
+    "TestProjectCredentialHTTPPureMetadataAndErrors",
+    "TestProjectCredentialHTTPPureCapabilityOwnership",
+    "TestProjectCredentialHTTPPureDeadlinePanicAndJoin",
+    "TestProjectCredentialHTTPPureBodyWriteAndFlushFailures",
+    "TestProjectCredentialHTTPPureDamagedMetadataNeverReplays",
+    "TestProjectCredentialHTTPPureNaturalBudgets",
+    "TestProjectCredentialHTTPPureStrictWire",
+    "TestProjectCredentialHTTPPureMaximumMaterialAndBodyCaps",
+    "TestProjectCredentialHTTPPureSafeProjection",
+    "TestProjectCredentialHTTPPureSchema",
+    "TestModelProjectCredentialNativeKeepalive",
+    "TestModelProjectCredentialNativeBodyDeadline",
+    "TestModelProjectCredentialNativeWriteAndClose",
+    "TestProjectCredentialsRootPureMissingDependencies",
+    "TestProjectCredentialsRootPureRouteOwnership"
+  ]
+}

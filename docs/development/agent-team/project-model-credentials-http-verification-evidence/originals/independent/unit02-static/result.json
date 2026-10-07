@@ -1,0 +1,32 @@
+{
+  "conclusion": "PASS: STATIC #1\u201317 only",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate02/manifest.json",
+    "sha256": "e185ad5f10893cf55176868932281ecf36e7600e5e5715dc797a36fc4ddf60b4"
+  },
+  "previous_checks": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/unit01-static/checks.json",
+    "sha256": "73dba58accdef7f8361cfd9d29f444aa9e29fb1787343729595b053d852c81dc"
+  },
+  "original_finding": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/unit01-static/finding02.json",
+    "sha256": "9a3e3a3fd120117077d2c807c5b31bafc2121ef07ef07d3ddd787ef6890269ea"
+  },
+  "production_review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/production02-static/result.json",
+    "sha256": "88d6d30dd62b20ef371d3fefecc6512d68680d2974b1082af98cf3bf42a12ed5"
+  },
+  "lookup_review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/lookup01-static/result.json",
+    "sha256": "10683966591448ec46db2f758661f4d732a8af318e0d9a81f3e6d4e4d5f79d59"
+  },
+  "changed": [
+    "internal/central/model/http_project_credentials_test.go"
+  ],
+  "closure_of": "CRD-UNIT-02",
+  "review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/unit02-static/review.md",
+    "sha256": "334f090d1ea56279e7b3f736c0b3c5b777923266b2c8934c979186f86946d303"
+  },
+  "runtime": "not executed; integration/native pending"
+}

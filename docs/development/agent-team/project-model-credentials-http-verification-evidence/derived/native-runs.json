@@ -1,0 +1,492 @@
+{
+  "derived_not_original": true,
+  "description": "Parsed command/result fields; original full hashes and omitted repeated maps listed per record.",
+  "items": [
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/keepalive/command.json",
+        "sha256": "df6798676da6ccdf375a9a3705f7284e6946268f530c7e193daed22224356d72",
+        "bytes": 1192463
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "keepalive",
+        "driver_sha256": "f4239f6e2244788d8dbb65662de63f2e005b5c38a1d9e1e4f7d11fb551c2ffb7",
+        "driver_pid": 900712,
+        "driver_stat": {
+          "pid": 900712,
+          "starttime": "3519346",
+          "ppid": 850,
+          "pgrp": 900712,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close",
+          "-o",
+          "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/keepalive/trace.raw",
+          "/workspace/scratch/project-model-credentials-http-author/model02-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=45s",
+          "-test.run=^TestModelProjectCredentialNativeKeepalive$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/keepalive/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 55,
+        "cleanup_grace_seconds": 15,
+        "started": 1791409242.5213099,
+        "direct_pid": {
+          "pid": 900715,
+          "starttime": "3519435",
+          "ppid": 900712,
+          "pgrp": 900715,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 1.2421101920044748,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 900715,
+            "starttime": "3519435",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791409243.7634923
+          },
+          {
+            "role": "adopted",
+            "pid": 900719,
+            "starttime": "3519435",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791409243.7678065
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 900715,
+            "starttime": "3519435",
+            "ppid": 900712,
+            "pgrp": 900715,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791409242.5217981
+          },
+          {
+            "pid": 900719,
+            "starttime": "3519435",
+            "ppid": 900712,
+            "pgrp": 900715,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791409242.5364368
+          }
+        ],
+        "execution_finished": 1791409243.772074,
+        "inputs_unchanged": true,
+        "finished": 1791409305.424494,
+        "listener_ports": [
+          44573
+        ],
+        "all_ports": [
+          40318,
+          44573
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "1b2785b36dc01889f46d7654ca8295af6a9e37df49c353f6366b293d5ecf554c",
+        "raw_sha256": "39209051da9112ab436004a2c1d3cbac238639b7c068cc0e573b9169bba2b31c",
+        "test_results": {
+          "top_passes": [
+            "TestModelProjectCredentialNativeKeepalive"
+          ],
+          "sub_passes": [],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 1,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 3,
+          "canonical_json_sha256": "311731e370ce50046ff4108e9479aee89d7ae71398cb968f94a35feb101ab3a7"
+        },
+        "after": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 3,
+          "canonical_json_sha256": "311731e370ce50046ff4108e9479aee89d7ae71398cb968f94a35feb101ab3a7"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/slowbody/command.json",
+        "sha256": "0610d14ecaebb430db687125225cf31d301b0e81de7d599e0c1bf3a28fecca8c",
+        "bytes": 1192741
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "slowbody",
+        "driver_sha256": "f4239f6e2244788d8dbb65662de63f2e005b5c38a1d9e1e4f7d11fb551c2ffb7",
+        "driver_pid": 901512,
+        "driver_stat": {
+          "pid": 901512,
+          "starttime": "3527096",
+          "ppid": 850,
+          "pgrp": 901512,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close",
+          "-o",
+          "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/slowbody/trace.raw",
+          "/workspace/scratch/project-model-credentials-http-author/model02-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=45s",
+          "-test.run=^TestModelProjectCredentialNativeBodyDeadline$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/slowbody/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 55,
+        "cleanup_grace_seconds": 15,
+        "started": 1791409320.0035906,
+        "direct_pid": {
+          "pid": 901538,
+          "starttime": "3527183",
+          "ppid": 901512,
+          "pgrp": 901538,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 33.20366112299962,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 901538,
+            "starttime": "3527183",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791409353.207285
+          },
+          {
+            "role": "adopted",
+            "pid": 901542,
+            "starttime": "3527183",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791409353.2128575
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 901538,
+            "starttime": "3527183",
+            "ppid": 901512,
+            "pgrp": 901538,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791409320.004045
+          },
+          {
+            "pid": 901542,
+            "starttime": "3527183",
+            "ppid": 901512,
+            "pgrp": 901538,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791409320.0157158
+          }
+        ],
+        "execution_finished": 1791409353.2176948,
+        "inputs_unchanged": true,
+        "finished": 1791409415.9515982,
+        "listener_ports": [
+          40311,
+          41961,
+          42841
+        ],
+        "all_ports": [
+          34960,
+          39894,
+          40311,
+          41961,
+          42841,
+          57684
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "fe9d0676aac63210ea68eb523d81ddea68f789e56db8b6d005e9b80cc67776c9",
+        "raw_sha256": "e5ebdbaa1258c602ad8d0bf6a75f879820ee4c0b3029c008f70d7da984c73b8b",
+        "test_results": {
+          "top_passes": [
+            "TestModelProjectCredentialNativeBodyDeadline"
+          ],
+          "sub_passes": [
+            "TestModelProjectCredentialNativeBodyDeadline/natural_write",
+            "TestModelProjectCredentialNativeBodyDeadline/natural_lookup",
+            "TestModelProjectCredentialNativeBodyDeadline/earlier_parent"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 3,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 3,
+          "canonical_json_sha256": "311731e370ce50046ff4108e9479aee89d7ae71398cb968f94a35feb101ab3a7"
+        },
+        "after": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 3,
+          "canonical_json_sha256": "311731e370ce50046ff4108e9479aee89d7ae71398cb968f94a35feb101ab3a7"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/writeclose/command.json",
+        "sha256": "eaa0deee1fb19523d9575a0f7eb7f5221e4ed748c0b76a493c374755b2850164",
+        "bytes": 1193459
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "writeclose",
+        "driver_sha256": "f4239f6e2244788d8dbb65662de63f2e005b5c38a1d9e1e4f7d11fb551c2ffb7",
+        "driver_pid": 902694,
+        "driver_stat": {
+          "pid": 902694,
+          "starttime": "3538150",
+          "ppid": 850,
+          "pgrp": 902694,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close",
+          "-o",
+          "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/writeclose/trace.raw",
+          "/workspace/scratch/project-model-credentials-http-author/model02-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=45s",
+          "-test.run=^TestModelProjectCredentialNativeWriteAndClose$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/writeclose/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 55,
+        "cleanup_grace_seconds": 15,
+        "started": 1791409430.5666625,
+        "direct_pid": {
+          "pid": 902718,
+          "starttime": "3538239",
+          "ppid": 902694,
+          "pgrp": 902718,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 2.124134461999347,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 902718,
+            "starttime": "3538239",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791409432.6908283
+          },
+          {
+            "role": "adopted",
+            "pid": 902722,
+            "starttime": "3538239",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791409432.697009
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 902718,
+            "starttime": "3538239",
+            "ppid": 902694,
+            "pgrp": 902718,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791409430.5671234
+          },
+          {
+            "pid": 902722,
+            "starttime": "3538239",
+            "ppid": 902694,
+            "pgrp": 902718,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791409430.5786276
+          }
+        ],
+        "execution_finished": 1791409432.702089,
+        "inputs_unchanged": true,
+        "finished": 1791409493.4147706,
+        "listener_ports": [
+          33663,
+          34261,
+          35725,
+          36579,
+          39389,
+          41013,
+          41209,
+          44807,
+          45183,
+          45645
+        ],
+        "all_ports": [
+          33663,
+          34261,
+          35725,
+          36579,
+          38300,
+          38956,
+          39389,
+          40278,
+          41013,
+          41116,
+          41209,
+          44807,
+          45183,
+          45645,
+          49428,
+          51836,
+          52230,
+          56742,
+          60308,
+          60674
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "0c087a3de5f97e7e57d4009ffb59678236bb0adfdbabb4325abecbf0200a8569",
+        "raw_sha256": "64e0ddc1be39872246befd18ec5444b12cdbea62b55abdd4f214852b4336b848",
+        "test_results": {
+          "top_passes": [
+            "TestModelProjectCredentialNativeWriteAndClose"
+          ],
+          "sub_passes": [
+            "TestModelProjectCredentialNativeWriteAndClose/short",
+            "TestModelProjectCredentialNativeWriteAndClose/write_error",
+            "TestModelProjectCredentialNativeWriteAndClose/flush_error",
+            "TestModelProjectCredentialNativeWriteAndClose/close_error",
+            "TestModelProjectCredentialNativeWriteAndClose/panic",
+            "TestModelProjectCredentialNativeWriteAndClose/reset_error",
+            "TestModelProjectCredentialNativeWriteAndClose/unsupported",
+            "TestModelProjectCredentialNativeWriteAndClose/blocked_head_flush",
+            "TestModelProjectCredentialNativeWriteAndClose/blocked_get_write",
+            "TestModelProjectCredentialNativeWriteAndClose/service_tail_actual_join"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 10,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 3,
+          "canonical_json_sha256": "311731e370ce50046ff4108e9479aee89d7ae71398cb968f94a35feb101ab3a7"
+        },
+        "after": {
+          "reason": "Repeated source/input/package map omitted",
+          "items": 3,
+          "canonical_json_sha256": "311731e370ce50046ff4108e9479aee89d7ae71398cb968f94a35feb101ab3a7"
+        }
+      }
+    }
+  ]
+}

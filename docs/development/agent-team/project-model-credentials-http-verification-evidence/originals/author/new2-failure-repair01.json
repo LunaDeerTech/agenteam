@@ -1,0 +1,35 @@
+{
+  "status": "Author new2 first failure preserved; candidate03 actual rerun PASS, other unexecuted resources still in progress",
+  "failure": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/result.json",
+    "sha256": "7f55fc0da9f1b78fb6d2bda6034878e2acef625a47c8d119728d626b1b0d0f07"
+  },
+  "failure_raw": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/raw.log",
+    "sha256": "902974edbe618478aed3c2c5dfb6792611b10a7a86052c2a0f8927061c4ac688"
+  },
+  "observed": "PassiveLookup top PASS; nonce Unknown subcase PASS; all three final modes failed at proxy.reached checkpoint. Original raw did not record SQLSTATE or hook error. Actualwait/7 resource owned doublecleanup completed.",
+  "attribution": "High-confidence static test predicate type conflict: project_id UUID and scope_key text shared one $1. Do not claim original run captured SQLSTATE.",
+  "repair": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/candidate03/delta.diff",
+    "sha256": "124361ed277538b349f891c21e5aa26bb19a441e848c045b7e4d0213b1a61bbf"
+  },
+  "scope": "Only unknown integration test, explicit separate UUID/text parameters and safe stage/SQLSTATE-only diagnostic before checkpoint; all target identity/locks/unique backend/terminal assertions and budgets retained. Product21 other files unchanged.",
+  "compile": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/integration-model-compile03/result.json",
+    "sha256": "3ec6965f31752838e3b5bcd0f2dcad502dad08d64b285704b46e70f4cf2b5537"
+  },
+  "list": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/integration-model-list02/result.json",
+    "sha256": "37f64f6fe04f1ba94ea127dbb4e77ea2bcac5e7e94e3c802004545ac6cf6ccf6"
+  },
+  "rerun": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/result.json",
+    "sha256": "06ec561e14c4e3f55e158af0acd97a81927fc96b21e16e0b6b4d9f0893c8f843"
+  },
+  "rerun_raw": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/raw.log",
+    "sha256": "a46c3d98683a5a218dfd0e1d1e00f0a6398b0071881c15b91278bea40cfb298a"
+  },
+  "rerun_observed": "All four modes target-backend-armed status503 then original pending/terminal assertions passed. 2top6sub overall; actualwait/7 resource owned doublecleanup, input same. No new test claims server terminal preceded HTTP Unknown; independent complements this."
+}

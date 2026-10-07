@@ -1,0 +1,48 @@
+{
+  "time_utc": "2026-10-07T21:54:38.541681+00:00",
+  "status": "PASS bounded candidate03 delta STATIC; original new2 remains FAIL; resource rerun and full product acceptance pending",
+  "scope": [
+    "tests/model/project_credentials_http_unknown_test.go"
+  ],
+  "all_22_snapshots_verified": true,
+  "unchanged_paths_reused": 21,
+  "original_observation": {
+    "driver_exit": 1,
+    "passive_lookup": "PASS",
+    "prepare_nonce": "PASS",
+    "three_final_modes": "checkpoint timeout at original line121; original HTTP status/SQLSTATE not recorded"
+  },
+  "attribution": "High-confidence static test-hook SQL defect: one inferred parameter was compared with both uuid project_id and text scope_key. No claim of an observed original SQLSTATE or observed final target backend.",
+  "repair_static": "Independent explicitly cast UUID/text parameters plus separate digest; fixed diagnostic stage/status and validated SQLSTATE only; original 503/CommitUnknown assertion now precedes proxy checkpoint wait.",
+  "preserved": [
+    "one tagged original Execute",
+    "same original Tx; Command EX/User SH/Project SH",
+    "exact Project/receipt/digest and unique backend owner",
+    "held pending writer then separate actual terminal completion",
+    "original no-confirm/zero-candidate assertions",
+    "release/owned proxy and Logout actual wait cleanup",
+    "unchanged production and unit02"
+  ],
+  "original_cleanup": {
+    "actual_wait": true,
+    "adopted_waits": 0,
+    "forced_tail_actions": 0,
+    "seven_exact_resources_absent_twice": true,
+    "owned_empty_twice": true,
+    "inputs_identical": true,
+    "watchdog_joined": true,
+    "nonowned_pid1_zombies": "Remain explicitly outside task ownership/wait; no whole-machine clean claim"
+  },
+  "private_probe": "No equivalent scope_key same-parameter expression; no change or rerun made.",
+  "checks_executed": "Read-only fixed snapshot hash/diff checks, accepted Git reads and fixed author raw/result/cleanup inspection via Python; no Go/test/DB/socket/container execution.",
+  "limitations": [
+    "Original raw does not prove the exact SQLSTATE",
+    "No candidate03 runtime acceptance yet",
+    "Author held proxy is pending-to-terminal, not terminal-first ACK loss",
+    "Independent A/B resource execution remains unstarted and requires root explicit authorization"
+  ],
+  "source_index": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/failure-analysis-new2-candidate03/sources.json",
+    "sha256": "c76f06a976d77f90bdb280821c3b07fd77f90ad32b46ab6a6f5dce8188b882e1"
+  }
+}

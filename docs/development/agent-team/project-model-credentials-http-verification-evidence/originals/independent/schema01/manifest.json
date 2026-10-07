@@ -1,0 +1,85 @@
+{
+  "source_run": "independent-b01",
+  "candidate_sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45",
+  "source_result": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/result.json",
+    "sha256": "98b020229a79a7d725c3bd9fe8dd9e508e5e02a888424f753e97f03012c5ed73"
+  },
+  "source_frozen": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/frozen-input.json",
+    "sha256": "759b400c53acac4223fc11e5ab230f08ccd343e7765dad5a71fed838c407782d"
+  },
+  "project_schema_sha256": "24b16a9e3f1d1b3ffe8847ffe3e463bd9b9bf58f9c489ab0e0fe7391bc990e83",
+  "project_schema_uri": "https://schemas.agenteam.test/project-model-credentials.json",
+  "schemas": [
+    {
+      "path": "/workspace/scratch/project-model-credentials-http-author/candidate01/src/api/openapi/project-model-credentials.json",
+      "sha256": "24b16a9e3f1d1b3ffe8847ffe3e463bd9b9bf58f9c489ab0e0fe7391bc990e83",
+      "uri": "https://schemas.agenteam.test/project-model-credentials.json"
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "uri": "https://schemas.agenteam.test/common.json"
+    }
+  ],
+  "responses": [
+    {
+      "name": "independent-create",
+      "body": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-create.json",
+        "sha256": "159b60da029669a2874c6139f3545e523af1bd0995a8ac4d48ff40bf4a2e115e"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-create-source.json",
+        "sha256": "57b870ed4bb456feaac89dd91add5c91a5875e2a2d5cba560dd5d4cc3611f05c"
+      },
+      "schema": "Mutation",
+      "method": "POST",
+      "http_path": "/api/v1/projects/01a1186c-bf0e-7d6c-ba63-805d80295761/model-credentials"
+    },
+    {
+      "name": "independent-metadata",
+      "body": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-metadata.json",
+        "sha256": "82e0f2626de8f5134f4331c2f09f2802e6ea0abee5fd2a75af46f50ae020b103"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-metadata-source.json",
+        "sha256": "2984fdc662e220e8bc467902ac0bd27722b15c9d78e63308b1194bd3d2ecabe8"
+      },
+      "schema": "Metadata",
+      "method": "GET",
+      "http_path": "/api/v1/projects/01a1186c-bf0e-7d6c-ba63-805d80295761/model-credentials/01a1186c-c18e-7efc-9261-8be253b16277"
+    },
+    {
+      "name": "independent-lookup",
+      "body": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-lookup.json",
+        "sha256": "02e677abc780abf313383fdaaa1aeab1f90da1824271cc49524b75afdb4c036a"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-lookup-source.json",
+        "sha256": "a42639e6e4632b223f28e9dee56e52739a62ca61230f22063a1d598dab3f7786"
+      },
+      "schema": "Observation",
+      "method": "POST",
+      "http_path": "/api/v1/projects/01a1186c-bf0e-7d6c-ba63-805d80295761/model-credential-commands/lookup"
+    },
+    {
+      "name": "independent-terminal-lookup",
+      "body": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-terminal-lookup.json",
+        "sha256": "0904eb033bdee837467c429505cb9fffbc25f591127e29d6454f29813705f110"
+      },
+      "source": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/safe-http-evidence/independent-terminal-lookup-source.json",
+        "sha256": "9d5ea0b649618c31f782c64629cadbf4ce620d2e25d4880511ea4071e8c36ac5"
+      },
+      "schema": "Observation",
+      "method": "POST",
+      "http_path": "/api/v1/projects/01a1186c-bf0e-7d6c-ba63-805d80295761/model-credential-commands/lookup"
+    }
+  ],
+  "original_bytes_reencoded": false
+}

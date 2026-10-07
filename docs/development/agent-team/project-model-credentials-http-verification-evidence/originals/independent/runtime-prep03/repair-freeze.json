@@ -1,0 +1,27 @@
+{
+  "original_failure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/independent-a01-failure01/result.json",
+    "sha256": "de86b24a12d6982e21bd0beee5785ac911b5966470d81a265cc6da2773a4151b"
+  },
+  "old_probe": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_formatted_test.go",
+    "sha256": "6caea56b74997e84fbafcd70ae8e34dc0281ae22a30c4145f4ae88e0c0ec8ef0"
+  },
+  "new_probe": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/independent_project_credentials_test.go",
+    "sha256": "640fbf09f4f03700f25eac662dceff1ead15168cdb59e4b980de1cf8b95b0169"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/probe-delta.diff",
+    "sha256": "c4fed05a957d0a3ca63c745e72bc314d99b5121143f2bbcda5decff17bfeb732"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/candidate03/manifest.json",
+    "sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45"
+  },
+  "scope": "Only private A otherTx creation context and assertion order; status remains503, real originalctx/witness Append retained, no production/B changes",
+  "prepare_plan": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/prepare-plan01.json",
+    "sha256": "acbfd27e2f5d87ecc449b8eccedd956e808dfc178c27823e72eccff9c6b60705"
+  }
+}

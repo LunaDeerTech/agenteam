@@ -1,0 +1,19 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-independent-a",
+    "new-independent-b"
+  ],
+  "driver_sha256": "ea78e1c1de79ba0be2ba25c759a380fc92d6890d4f5b24dd08b1ae91f0a891ef",
+  "candidate_sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/closure.json",
+    "sha256": "736248235cca007d997cdf95975f6d697b1881b3e534d98b6e94853bda12b6d3"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/driver.py": "ea78e1c1de79ba0be2ba25c759a380fc92d6890d4f5b24dd08b1ae91f0a891ef",
+    "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/groups.json": "48210e47538e26a2728ea97f922d1e9bc25124c1e5011fd8c10819ea3a5b7902",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "authorization": "PREPARED ONLY; root has authorized rebind/offline, not independent resources. Wait author remaining PG rounds plus root explicit window."
+}

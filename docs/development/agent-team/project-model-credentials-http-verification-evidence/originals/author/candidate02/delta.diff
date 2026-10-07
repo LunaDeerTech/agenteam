@@ -1,0 +1,52 @@
+--- candidate01/tests/model/project_credentials_http_authority_test.go
++++ candidate02/tests/model/project_credentials_http_authority_test.go
+@@ -195,7 +195,7 @@
+ 	}
+ 	v.unchanged(t, stable)
+ 	for _, secret := range []string{"lookup-private", v.ownerBrowser.cookie, v.ownerBrowser.csrf} {
+-		if strings.Contains(v.logs.String(), secret) {
++		if strings.Contains(v.logs.text(), secret) {
+ 			t.Fatal("lookup leaked protected input")
+ 		}
+ 	}
+--- candidate01/tests/model/project_credentials_http_fixture_test.go
++++ candidate02/tests/model/project_credentials_http_fixture_test.go
+@@ -7,7 +7,6 @@
+ 	"context"
+ 	"crypto/sha256"
+ 	"encoding/hex"
+-	"encoding/json"
+ 	"log/slog"
+ 	"net/http"
+ 	"net/http/httptest"
+--- candidate01/tests/model/project_credentials_http_test.go
++++ candidate02/tests/model/project_credentials_http_test.go
+@@ -56,7 +56,7 @@
+ 	if rotated.object(t)["version"] != "2" {
+ 		t.Fatal("rotation version")
+ 	}
+-	_, e = v.service.DeleteProvider(testContext(t), mc.DeleteProviderRequest{CommandMeta: v.projectMeta(t, "provider-release"), ProviderID: provider.ID, ExpectedVersion: provider.Version})
++	_, e = v.service.DeleteProvider(testContext(t), mc.DeleteProviderRequest{CommandMeta: v.projectMeta(t, "provider-release"), ID: provider.ID, ExpectedVersion: provider.Version})
+ 	if e != nil {
+ 		t.Fatal("formal reference release", e)
+ 	}
+@@ -95,7 +95,7 @@
+ 		t.Fatal("false observation shape")
+ 	}
+ 	for _, private := range []string{"rotated-private-material", "changed-private-material", createKey, v.ownerBrowser.cookie, v.ownerBrowser.csrf} {
+-		if strings.Contains(v.logs.String(), private) {
++		if strings.Contains(v.logs.text(), private) {
+ 			t.Fatal("sensitive material entered log")
+ 		}
+ 	}
+--- candidate01/tests/model/project_credentials_http_unknown_test.go
++++ candidate02/tests/model/project_credentials_http_unknown_test.go
+@@ -177,7 +177,7 @@
+ 				t.Fatal("committed unknown facts incomplete")
+ 			}
+ 			for _, material := range []string{"physical-private-material", browser.cookie, browser.csrf} {
+-				if strings.Contains(v.logs.String(), material) {
++				if strings.Contains(v.logs.text(), material) {
+ 					t.Fatal("Unknown evidence leaked material")
+ 				}
+ 			}

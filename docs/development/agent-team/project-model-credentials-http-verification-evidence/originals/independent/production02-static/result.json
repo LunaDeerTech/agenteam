@@ -1,0 +1,31 @@
+{
+  "status": "BOUNDED_PRODUCTION_STATIC_PASS",
+  "product_acceptance": false,
+  "manifest": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/production02/manifest.json",
+    "sha256": "aad4a23af29e996e0b434f7d0632751092812014411a63f9b8f5cb8a1abeada4",
+    "bytes": 2496
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/production02-static/checks.json",
+    "sha256": "8be7f9ecfd84be60d36164c5815c728413cee226ad6b3f2ac86d9e92633123cf",
+    "bytes": 3160
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/production02-static/review.md",
+    "sha256": "cffc14c185d25d0602a46f20544e86a2020203b34e63bba7103609bb63f79afc",
+    "bytes": 1609
+  },
+  "closed_finding": {
+    "id": "CRD-PROD-01",
+    "closure": "static only; regression source present, runtime pending",
+    "original": "/workspace/scratch/project-owner-credential-http-verification/production01-static/finding01.json"
+  },
+  "version_combination": [
+    "lookup01-static result10683966591448ec46db2f758661f4d732a8af318e0d9a81f3e6d4e4d5f79d59",
+    "production01 six-source review except CRD-PROD-01",
+    "production02 one-production-source fix and pointed regression source review"
+  ],
+  "no_dynamic_execution": true,
+  "stopped_writing": true
+}

@@ -1,0 +1,40 @@
+=== RUN   TestIndependentProjectCredentialHTTPControls
+=== RUN   TestIndependentProjectCredentialHTTPControls/worst_65536_bytes_exact_raw_cap
+    zz_independent_credential_controls_test.go:187: material_bytes=65536 encoded_body_bytes=393228 accepted_raw_cap=409600 rejected_raw_bytes=409601
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/create_missing
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/create_null
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/update_expected_null
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/update_value_missing
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/delete_number
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/lookup_create_null_ref
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/lookup_update_missing_version
+=== RUN   TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/case_alias
+=== RUN   TestIndependentProjectCredentialHTTPControls/delete_damaged_metadata_cannot_be_hidden_by_late_receipt
+=== RUN   TestIndependentProjectCredentialHTTPControls/observed_still_executes_original_material_once_and_destroys
+=== RUN   TestIndependentProjectCredentialHTTPControls/observed_still_executes_original_material_once_and_destroys/unknown
+=== RUN   TestIndependentProjectCredentialHTTPControls/observed_still_executes_original_material_once_and_destroys/panic
+=== RUN   TestIndependentProjectCredentialHTTPControls/callback_read_setter_panic_and_close_panic_still_join
+=== RUN   TestIndependentProjectCredentialHTTPControls/start_read_panic_still_owns_body_and_other_setter
+=== RUN   TestIndependentProjectCredentialHTTPControls/committed_response_cannot_gain_problem_suffix
+=== RUN   TestIndependentProjectCredentialHTTPControls/reset_write_panic_aborts_after_completed_response
+--- PASS: TestIndependentProjectCredentialHTTPControls (0.13s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/worst_65536_bytes_exact_raw_cap (0.08s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/create_missing (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/create_null (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/update_expected_null (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/update_value_missing (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/delete_number (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/lookup_create_null_ref (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/lookup_update_missing_version (0.00s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/strict_presence_and_null_with_tracked_code/case_alias (0.00s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/delete_damaged_metadata_cannot_be_hidden_by_late_receipt (0.00s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/observed_still_executes_original_material_once_and_destroys (0.02s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/observed_still_executes_original_material_once_and_destroys/unknown (0.01s)
+        --- PASS: TestIndependentProjectCredentialHTTPControls/observed_still_executes_original_material_once_and_destroys/panic (0.01s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/callback_read_setter_panic_and_close_panic_still_join (0.02s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/start_read_panic_still_owns_body_and_other_setter (0.00s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/committed_response_cannot_gain_problem_suffix (0.00s)
+    --- PASS: TestIndependentProjectCredentialHTTPControls/reset_write_panic_aborts_after_completed_response (0.00s)
+PASS

@@ -1,0 +1,59 @@
+{
+  "status": "original A01 FAIL retained; private nested-Tx construction defect; B not started",
+  "actual_observation": "line108 HTTP500/InternalError/not_committed vs expected503; top4.71s, command51.912s",
+  "static_attribution": "original ctx contains postgres transaction marker. WithinTxOptions detects nesting before callback, poisons parent with TransactionNested. Parent poison takes precedence over callback and rejected produces InternalError/not_committed; Secret commitError returns it unchanged. No product error mapping change warranted.",
+  "unreached_assertions": [
+    "wrong live-Tx callback/rejection flags after line108",
+    "outer real resource rejection counters",
+    "complete facts unchanged and version2 after rejecting write"
+  ],
+  "authorized_minimal_repair": "private A only: independent bounded testContext for constructing otherTx; retain original ctx/witness for real AppendInTx; capture response and assert actual otherTx entry/rejection first, preserve503 and facts checks",
+  "cleanup": {
+    "actualwait": true,
+    "adopted_count": 0,
+    "forced_tail": 0,
+    "seven_resources_twice_absent": true,
+    "owned_runtime_twice_empty": true,
+    "inputs_same": true,
+    "watchdog_joined": true,
+    "new_nonowned_pid1": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 967631,
+        "ppid": 1,
+        "starttime": "3654931",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 968089,
+        "ppid": 1,
+        "starttime": "3655293",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 968452,
+        "ppid": 1,
+        "starttime": "3655471",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 968976,
+        "ppid": 1,
+        "starttime": "3655659",
+        "state": "Z"
+      }
+    ]
+  },
+  "sources": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/independent-a01-failure01/sources.json",
+    "sha256": "46d14b348e8770df7ab0e36d13c27e20705a62d6744a53cfa3e07bed4e1c6130"
+  },
+  "no_resource_rerun": true
+}

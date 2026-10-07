@@ -1,0 +1,74 @@
+{
+  "derived_not_original": true,
+  "items": [
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/execution-freeze.json",
+        "sha256": "384f9807e6135762b1ec4c3654fc750c030d9cc0046baccbe59a670d41325f1a",
+        "bytes": 611640
+      },
+      "retained_fields": {
+        "accepted_input": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/offline-input22.json",
+          "sha256": "c34cb7906b8a4cea42b0d37e4b5d9f0a41a5bccf904a16fa893abf061e071ffc"
+        },
+        "own_existing_delta": [
+          "/workspace/agenteam/internal/central/app/account.go",
+          "/workspace/agenteam/internal/central/app/model_test.go",
+          "/workspace/agenteam/internal/central/app/project_usage.go",
+          "/workspace/agenteam/internal/central/app/security.go",
+          "/workspace/agenteam/internal/central/secret/contract/write_lookup.go",
+          "/workspace/agenteam/internal/central/secret/write_lookup.go"
+        ],
+        "status": "conservative pregraph; current local graph must verify no additional GoFiles/embed",
+        "scope_reduction": "ordinary model/app graph only; excluded unused integration package file sets so new tests/model sources are independent authoring, not actual compiler dependencies",
+        "delta": "Remove unused foundation import from new wire test; original raw source in compile-first-red01; no graph or production change.",
+        "candidate": "/workspace/scratch/project-model-credentials-http-author/unit-candidate02/manifest.json",
+        "candidate_manifest": "/workspace/scratch/project-model-credentials-http-author/candidate02/manifest.json",
+        "candidate_sha256": "6d855e9b160b0438d2aec5818e16d138afb7110eb14eb12617f06dbc2fe8d1c9",
+        "source_suffixes": [
+          ".go",
+          ".s",
+          ".S",
+          ".c",
+          ".h",
+          ".cc",
+          ".cpp",
+          ".cxx",
+          ".m",
+          ".mm",
+          ".f",
+          ".F",
+          ".for",
+          ".f90",
+          ".swig",
+          ".swigcxx",
+          ".syso"
+        ],
+        "permitted_modes": [
+          "keepalive",
+          "slowbody",
+          "writeclose"
+        ],
+        "authorization": "PREPARED ONLY: explicit root native window required",
+        "trace_policy": "Exact no-buffer syscall allowlist only; no %network/all/send/recv/read/write. No request material in trace.",
+        "template": {
+          "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/driver.py",
+          "sha256": "a3a041b9ad919905de108b0d5132a63aadf41560058607208c186d7f4831ddcf"
+        }
+      },
+      "omitted_fields": {
+        "files": {
+          "reason": "Large repeated input/package map excluded",
+          "items": 2821,
+          "canonical_json_sha256": "4c9593212273dbc55725e976d2fa404959ddf23f0fe72a81c10452b0b54387e8"
+        },
+        "package_file_sets": {
+          "reason": "Large repeated input/package map excluded",
+          "items": 391,
+          "canonical_json_sha256": "69b4f28593cb671d7874730da34577bfe1c6205f91070ac8bbbecebf64fc164e"
+        }
+      }
+    }
+  ]
+}

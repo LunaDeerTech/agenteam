@@ -1,0 +1,98 @@
+{
+  "status": "PASS complete bounded technical22; README23 separately pending",
+  "time_utc": "2026-10-07T22:14:52.150079+00:00",
+  "scope": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final22/sources.json",
+    "sha256": "8f36b3efa1c6bb339144f78b725afad31a0640f4e9a7f213656bc9b1af087171"
+  },
+  "pg_and_daemon_evidence": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final22/pg-rounds-and-daemons.json",
+    "sha256": "cc4cf1fe2dbfdd15aba56ebffd94d2773dcfeb12d6bb33563fa64e6bf3712ec6"
+  },
+  "evidence": {
+    "complete_bounded_static22": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/integration-static01/result.json",
+      "sha256": "65f05ebd0157f53bdf67997fca2005d0d1c9d42f3094ce88c5103ee0442d7913"
+    },
+    "candidate03_delta_and_author_original_failure": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/failure-analysis-new2-candidate03/result.json",
+      "sha256": "ef11bcad23ac983f24001648b0917ec745e4175910280209db44cae245657233"
+    },
+    "independent_controlled_ordinary_race": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/result.json",
+      "sha256": "834ce08ad951032b1e05f79c3ab2e8c9302fc443c6ac7d43260a28c717cd0e4d"
+    },
+    "author_actual_evidence_review": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/author-actual-review01/result.json",
+      "sha256": "5cb70bc7ec7fbbe7275a3c8891e79abe7221198d1649920f95eea2c8a8bcf030"
+    },
+    "author_result_index": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/author-results01.json",
+      "sha256": "01ec101ae442e34e1e42280a9bd09c82fcd62c4773e4edcc8473514a5898604d"
+    },
+    "native_actual_summary": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/result-summary.json",
+      "sha256": "22ff971de08f3908221196548edb80ca8ce2bcbfa6c7f5bc3a93a58ad3b947e1"
+    },
+    "independent_A01_failure": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/independent-a01-failure01/result.json",
+      "sha256": "de86b24a12d6982e21bd0beee5785ac911b5966470d81a265cc6da2773a4151b"
+    },
+    "private_A_repair_freeze": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/repair-freeze.json",
+      "sha256": "dd6bc9b7a4b822fb796450a24957674b7275c223f8b1fb0ec65ff5f6d5683285"
+    },
+    "independent_A02": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02/result.json",
+      "sha256": "96632cffe570099ecd5c474ef68e16d0c1fdd13865342f9bee3ad80fdd7e74ac"
+    },
+    "independent_B01": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/result.json",
+      "sha256": "98b020229a79a7d725c3bd9fe8dd9e508e5e02a888424f753e97f03012c5ed73"
+    },
+    "actual_body_manifest": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/schema01/manifest.json",
+      "sha256": "9b5fcda6585f6dca5542c54d2ffbf69c036c0824165239fbc552c0266a776c4b"
+    },
+    "actual_body_schema_result": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/schema01/runs/original-bodies01/result.json",
+      "sha256": "1042e3cc75a8ff15706f6d70da0d51710fd92c9d6518b5e3cc70cabe5aebf763"
+    },
+    "actual_body_schema_output": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/schema01/runs/original-bodies01/stdout.log",
+      "sha256": "860bb153477a220bb2308bffa7fb7a890f6bd1702a4d05219ac08775fdf58ab9"
+    }
+  },
+  "effective_combination": "production02 + unit02 + candidate03 one integration hook repair; controlled ordinary/race + author candidate02 native3 + versioned author5new/14old + independent private-repaired A02 and unchanged B01 + four actual original body schema validations",
+  "technical_scope_count": 22,
+  "actual_product_edits": 21,
+  "tests": {
+    "author_pg_new_top": 5,
+    "author_pg_old_top": 14,
+    "author_native_top": 3,
+    "author_native_nested": 13,
+    "author_native_listeners": 14,
+    "independent_controlled_top_per_ordinary_race": 1,
+    "independent_controlled_nested_per_run": 18,
+    "independent_real_top_pass": 2,
+    "actual_original_safe_bodies": 4
+  },
+  "original_failures_and_repairs": [
+    "CRD-PROD-01 malformed nil-error Metadata must fail closed, fixed production02; no observed late receipt rescues invalid projection",
+    "CRD-UNIT-02 callback failure cleanup needed actual wait, fixed unit02",
+    "Author two compile failures retained; accepted test-only fixes",
+    "Author original new2 final checkpoint FAIL; candidate03 distinct UUID/text parameters + safe diagnostics; rerun actual PASS, no original SQLSTATE claim",
+    "Independent A01 nested context poisoned original Tx; only private A independent bounded otherTx/ordering fixed, A02 PASS; 503 expectation retained",
+    "Original pre-execution closure/graph invocation failures retained in referenced preparation evidence"
+  ],
+  "limits": [
+    "README23 not yet reviewed; no complete D09/D08/E01 or D24 acceptance",
+    "Current Read lookup is passive; successful mutations still uniquely Execute under current Mutate before receipt; no API material projection",
+    "SecretMaterial destroy/byte clearing does not claim Go string erasure",
+    "Strict formal account identity; Project Create fixture uses accepted persisted test Skills, not new production initialization",
+    "Author pending-to-terminal and independent B server COMMIT+idle before ACK loss are separate real evidence",
+    "Default root forced return does not prove every inner component joined; task-owned process/proxy/runtime completion is separately evidenced",
+    "Nine PG rounds exact daemon difference is nonowned/nonwaited, not whole-machine cleanup"
+  ],
+  "resources": "All actual independent commands and resource windows completed; no active owned work. Further action only separate README STATIC review."
+}

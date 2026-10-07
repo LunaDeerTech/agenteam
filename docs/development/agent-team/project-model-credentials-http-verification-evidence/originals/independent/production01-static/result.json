@@ -1,0 +1,29 @@
+{
+  "status": "STATIC_HOLD",
+  "scope": "production01 six paths only",
+  "input_manifest": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/production01/manifest.json",
+    "sha256": "0235de8044114239a752bbf81015fd5afb2e55df244401d87ed517c70670c998",
+    "bytes": 2292
+  },
+  "blocking_findings": [
+    {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/production01-static/finding01.json",
+      "sha256": "7b68b356b052f29ce98dd3b680ff243ec0e5b8f3a0928420187476971fed7bfd",
+      "bytes": 1832
+    }
+  ],
+  "review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/production01-static/review.md",
+    "sha256": "47474de1df4be313ce3c82f6673467c5054b2de34e56111aa03cb340a139d7b5",
+    "bytes": 4597
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/production01-static/checks.json",
+    "sha256": "81ebb5193aafd90a77e52ae93794df817ae74eb18da7e4847882eb84c6bd7fe5",
+    "bytes": 7609
+  },
+  "other_static_boundaries": "no additional blocker found",
+  "execution": "static inspection only; no Go/schema/native/PG",
+  "next": "root-coordinated handler/test fix then frozen minimal delta review; preserve production01; full22 and README23 pending"
+}

@@ -1,0 +1,55 @@
+{
+  "status": "STATIC execution gates PASS; no resources executed by verifier",
+  "sources": {
+    "native-driver-v01/driver.py": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/driver.py",
+      "sha256": "f4239f6e2244788d8dbb65662de63f2e005b5c38a1d9e1e4f7d11fb551c2ffb7"
+    },
+    "native-driver-v01/execution-freeze.json": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/execution-freeze.json",
+      "sha256": "384f9807e6135762b1ec4c3654fc750c030d9cc0046baccbe59a670d41325f1a"
+    },
+    "native-driver-v01/trace_parser.py": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/trace_parser.py",
+      "sha256": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a"
+    },
+    "native-driver-v01/plan.md": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/plan.md",
+      "sha256": "b8e9104c62459fe26d3f29274cdb60ccdb1360f0dabed9011f9215655e753bec"
+    },
+    "pg-driver-v01/driver.py": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/driver.py",
+      "sha256": "8100301fdf1125eaf7c57fe67d2471b535cfe1488f7d84e98de7206801913fff"
+    },
+    "pg-driver-v01/closure.json": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/closure.json",
+      "sha256": "5c03e1a575cacbe173541a000ea4cda2fd87a3e2b7f5799b89400c1d1149b396"
+    },
+    "pg-driver-v01/frozen-proposal.json": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/frozen-proposal.json",
+      "sha256": "d2e5f1aeed507e1260f582a437cab2c4263bda854fc8213d517162f4d437472b"
+    },
+    "pg-driver-v01/input-only01.json": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/input-only01.json",
+      "sha256": "e6a258fbfe2c6dd593c3f265dbb2e57c719e407b550be59b37679d033abee054"
+    },
+    "pg-driver-v01/delta.diff": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/delta.diff",
+      "sha256": "7d6775532fa97c608b9c0b83cf3b3a0f27af0645f6b3b00f5ba948bd5f95b9a6"
+    },
+    "pg-driver-v01/plan.md": {
+      "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/plan.md",
+      "sha256": "06ba5800c8477ecbad5202bb286ea29baaae4669bde0f8605f84a7c51e80365e"
+    }
+  },
+  "native": "exact10 safe lifecycle syscall allowlist, test45s/intervention55s, native3 only1/3/10listeners, current all2821file/sets match, accepted parser identical; actual run PID/pgrp/waits/allTCP including TIME_WAIT must close",
+  "pg": "5 exact groups new2+2+1 and old5+9; only groups and4safe credential env additions; resource/TopWatchdog/cleanup AST unchanged; 62delta hashes and3parents match; author3291input accepted. New tops120s throughCleanup; old groups retain original6m. Seven resource baseline+fullmount+actualwait+doubleclear",
+  "limitations": [
+    "native and PG are root-controlled separate exclusive windows",
+    "old System Unknown remains result decoration",
+    "terminal-first Project HTTP representative assigned independent A/B",
+    "no claim of forced-root all-inner join",
+    "fresh live baselines, not historic PID sets"
+  ],
+  "preparation_note": "Initial inline static delta hash check compared a file digest to its metadata object; corrected to row.sha256 without any runtime invocation or product change."
+}

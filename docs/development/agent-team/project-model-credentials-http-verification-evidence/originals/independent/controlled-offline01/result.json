@@ -1,0 +1,74 @@
+{
+  "conclusion": "PASS: independent controlled HTTP only",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate02/manifest.json",
+    "sha256": "e185ad5f10893cf55176868932281ecf36e7600e5e5715dc797a36fc4ddf60b4"
+  },
+  "proposal": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/proposal01.json",
+    "sha256": "6049c797078915e41821cd1dc4f5fdb373d7fdaf8f444dc2748dfe03c19c629c"
+  },
+  "execution_plan": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/behavior-plan05.json",
+    "sha256": "ac1438fbe4c4b5ddcb9150b72446e572f061d4defec6c16520695997a11e764e"
+  },
+  "authorization": "root message explicitly authorized exact ordinary then conditional race, test40s/wrapper45s; frozen plan retained prior proposal status",
+  "runs": {
+    "normal": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-normal01/result.json",
+        "sha256": "08c25fd96461c31fe716ea1e70a6ca81afc9702ca04a6f1c3e59c7787e5d1ccd"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-normal01/stdout.log",
+        "sha256": "ed6c6da7383da43599c963935a30b4af351eb5d1bdc6ab2b840c32df89239b8e"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-normal01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "top_count": 1,
+      "nested_nodes": 18,
+      "actual_exit": 0,
+      "seconds": 0.06941635800467338,
+      "actual_direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_empty_twice": true,
+      "input_unchanged": true,
+      "cleanup_signals": []
+    },
+    "race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-race01/result.json",
+        "sha256": "a7b55a019844372ee448b87c6d024f3f44a7afdfa2b5aff27847b24ce57f2d63"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-race01/stdout.log",
+        "sha256": "965368c83310c484f9291fb02f5d24eaf13cae24bafa22f28e54f7f432bc237d"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-race01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "top_count": 1,
+      "nested_nodes": 18,
+      "actual_exit": 0,
+      "seconds": 1.1698976140032755,
+      "actual_direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_empty_twice": true,
+      "input_unchanged": true,
+      "cleanup_signals": []
+    }
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/review.md",
+    "sha256": "a8030cadd1c857a211ddd831c3254a8cde68a0a8d6719e645dd1ae6275519533"
+  },
+  "limitations": [
+    "controlled fake business ports, no real authority/Audit/PG claim",
+    "no native/schema or integration resource run",
+    "does not erase Go strings",
+    "whole22 acceptance pending"
+  ]
+}

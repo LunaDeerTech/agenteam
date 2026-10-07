@@ -1,0 +1,33 @@
+{
+  "status": "BOUNDED_STATIC_PASS",
+  "scope": "card #1-4 only, lookup01 fixed snapshots",
+  "product_acceptance": false,
+  "blocking_findings": [],
+  "review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/lookup01-static/review.md",
+    "sha256": "8377975e14233ba0165024561e9e705ee28569969addd994e022d21ca4feae1e",
+    "bytes": 3129
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/lookup01-static/checks.json",
+    "sha256": "df62402222c5f02c8a1ca1d0629a5bf7891090f11e205ffe2ce3ce0b422903d8",
+    "bytes": 5381
+  },
+  "not_run": [
+    "Go compile/pure/race/vet",
+    "PostgreSQL",
+    "native",
+    "schema"
+  ],
+  "remaining": [
+    "author offline result binding",
+    "full 22-source frozen candidate STATIC",
+    "independent controlled/real A/B and real body schema",
+    "deferred README23"
+  ],
+  "limits": [
+    "current Project passive lookup added; real ownership/lock behavior pending",
+    "Unknown uses unchanged commitError classification; no claim that AttemptID/Cause is newly exposed",
+    "controlled fake tests are source inspection, not runtime evidence"
+  ]
+}

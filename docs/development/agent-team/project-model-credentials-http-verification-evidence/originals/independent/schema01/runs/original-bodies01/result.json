@@ -1,0 +1,69 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/schema-check.py",
+    "/workspace/scratch/project-owner-credential-http-verification/schema01/manifest.json",
+    "9b5fcda6585f6dca5542c54d2ffbf69c036c0824165239fbc552c0266a776c4b"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+    "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/schema01/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2",
+    "LC_ALL": "C",
+    "TZ": "UTC",
+    "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+  "plan_sha256": "66a8066b7a563f447da0d708ce6f2d452b647f624b3a703a800ff546249bb3b4",
+  "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "started_unix": 1791411203.7329943,
+  "subreaper": true,
+  "main_pid": 993427,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.10253858799842419,
+  "total_seconds": 1.0059944269960397,
+  "observed_processes": [
+    {
+      "pid": 993427,
+      "starttime": "3715556",
+      "ppid": 993404,
+      "pgrp": 993427,
+      "state": "R"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791411203.847926,
+      "remaining": []
+    },
+    {
+      "time": 1791411203.9537106,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "stdout_sha256": "860bb153477a220bb2308bffa7fb7a890f6bd1702a4d05219ac08775fdf58ab9",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

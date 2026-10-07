@@ -1,0 +1,20 @@
+54: === RUN   TestModelProjectCredentialHTTPPassiveLookup
+55: === RUN   TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-create
+56: === RUN   TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-absent
+57: --- PASS: TestModelProjectCredentialHTTPPassiveLookup (4.33s)
+58:     --- PASS: TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-create (0.17s)
+59:     --- PASS: TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-absent (0.18s)
+60: === RUN   TestModelProjectCredentialHTTPUnknown
+61: === RUN   TestModelProjectCredentialHTTPUnknown/prepare_nonce
+62:     project_credentials_http_unknown_test.go:184: physical target phase prepare_nonce backend 139 HTTP one Execute returned Unknown; private original writer terminal separately released and observed; no raw protocol persisted
+63: === RUN   TestModelProjectCredentialHTTPUnknown/final_commit
+64:     project_credentials_http_unknown_test.go:121: owned fixture checkpoint not reached
+65: === RUN   TestModelProjectCredentialHTTPUnknown/final_rollback
+66:     project_credentials_http_unknown_test.go:121: owned fixture checkpoint not reached
+67: === RUN   TestModelProjectCredentialHTTPUnknown/final_pending_revoke
+68:     project_credentials_http_unknown_test.go:121: owned fixture checkpoint not reached
+69: --- FAIL: TestModelProjectCredentialHTTPUnknown (20.24s)
+70:     --- PASS: TestModelProjectCredentialHTTPUnknown/prepare_nonce (0.39s)
+71:     --- FAIL: TestModelProjectCredentialHTTPUnknown/final_commit (5.44s)
+72:     --- FAIL: TestModelProjectCredentialHTTPUnknown/final_rollback (5.43s)
+73:     --- FAIL: TestModelProjectCredentialHTTPUnknown/final_pending_revoke (5.48s)

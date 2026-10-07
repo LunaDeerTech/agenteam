@@ -1,0 +1,14 @@
+{
+  "base_index": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/actual-graph-full01.json",
+    "sha256": "bb0635ed959a83f88c3d234f9f5ea3ebcb6bd304cf87950b6e1e7b7bb2a14f37"
+  },
+  "effective_candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/candidate03/manifest.json",
+    "sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45"
+  },
+  "effective_files_delta": {
+    "/workspace/agenteam/tests/model/project_credentials_http_unknown_test.go": "3923306acb584cf9c908c2f95239e827442995c31c201b0cb1a867297464a292"
+  },
+  "graph_reuse": "Only one test source changed; errors import was already in ordinary/race/fullfixture actual closures. Same package/file set and transitively consumed inputs. Affected racecompile/list refreshed; no production or tools change."
+}

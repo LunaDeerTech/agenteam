@@ -1,0 +1,152 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.44.210.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=f8e149024dc522f317728f4f41eb348a
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=d4dc0c4df7cb79b95adf332e54a7cba0
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.279s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.013s [no tests to run]
+=== RUN   TestProjectSecretAuditBindingCRUD
+--- PASS: TestProjectSecretAuditBindingCRUD (1.29s)
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/revoked-session
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/foreign-owner
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/admin
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/owner-changed
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/archiving-after-prepare
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/archived-after-prepare
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/deleting-after-prepare
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/uninitialized
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/missing-lock
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/wrong-project-lock
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/foreign-tx
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/replay-rechecks-current-gate
+--- PASS: TestProjectSecretAuditBindingCurrentAuthority (12.62s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/revoked-session (1.04s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/foreign-owner (1.03s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/admin (0.99s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/owner-changed (1.00s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/archiving-after-prepare (1.02s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/archived-after-prepare (1.25s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/deleting-after-prepare (1.11s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/uninitialized (1.00s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/missing-lock (1.08s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/wrong-project-lock (0.99s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/foreign-tx (1.03s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/replay-rechecks-current-gate (1.07s)
+=== RUN   TestProjectSecretAuditBindingFactRejection
+=== RUN   TestProjectSecretAuditBindingFactRejection/no-witness
+=== RUN   TestProjectSecretAuditBindingFactRejection/resource
+=== RUN   TestProjectSecretAuditBindingFactRejection/session
+=== RUN   TestProjectSecretAuditBindingFactRejection/metadata
+=== RUN   TestProjectSecretAuditBindingFactRejection/action
+=== RUN   TestProjectSecretAuditBindingFactRejection/cause
+=== RUN   TestProjectSecretAuditBindingFactRejection/ordinal
+=== RUN   TestProjectSecretAuditBindingFactRejection/producer
+=== RUN   TestProjectSecretAuditBindingFactRejection/association
+=== RUN   TestProjectSecretAuditBindingFactRejection/scope
+=== RUN   TestProjectSecretAuditBindingFactRejection/outcome
+=== RUN   TestProjectSecretAuditBindingFactRejection/direct-append
+=== RUN   TestProjectSecretAuditBindingFactRejection/captured-new-tx
+=== RUN   TestProjectSecretAuditBindingFactRejection/captured-other-store
+--- PASS: TestProjectSecretAuditBindingFactRejection (1.25s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/no-witness (0.02s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/resource (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/session (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/metadata (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/action (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/cause (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/ordinal (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/producer (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/association (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/scope (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/outcome (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/direct-append (0.00s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/captured-new-tx (0.00s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/captured-other-store (0.04s)
+=== RUN   TestProjectSecretAuditBindingUnknown
+=== RUN   TestProjectSecretAuditBindingUnknown/committed
+    b03_secret_audit_test.go:434: final command protocol: [1:backend-200 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:commit-idle-ack-dropped 2:cancel]
+=== RUN   TestProjectSecretAuditBindingUnknown/rollback
+    b03_secret_audit_test.go:434: final command protocol: [1:backend-208 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 2:cancel 1:backend-closed]
+=== RUN   TestProjectSecretAuditBindingUnknown/pending
+    b03_secret_audit_test.go:434: final command protocol: [1:backend-216 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 2:cancel 2:backend-closed 3:backend-219 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:send-COMMIT 3:tag-COMMIT 3:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I]
+--- PASS: TestProjectSecretAuditBindingUnknown (3.69s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/committed (1.08s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/rollback (1.22s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/pending (1.39s)
+=== RUN   TestProjectSecretMetadataReadCompatibility
+=== RUN   TestProjectSecretMetadataReadCompatibility/scope-specific-ports-and-complete-lock-union
+=== RUN   TestProjectSecretMetadataReadCompatibility/system-admin-does-not-own-project
+=== RUN   TestProjectSecretMetadataReadCompatibility/missing-lock-or-foreign-store
+=== RUN   TestProjectSecretMetadataReadCompatibility/revoked-current-session-precedes-project-existence
+=== RUN   TestProjectSecretMetadataReadCompatibility/original-read-gate-archiving
+=== RUN   TestProjectSecretMetadataReadCompatibility/original-read-gate-archived
+=== RUN   TestProjectSecretMetadataReadCompatibility/original-read-gate-deleting
+--- PASS: TestProjectSecretMetadataReadCompatibility (4.48s)
+    --- PASS: TestProjectSecretMetadataReadCompatibility/scope-specific-ports-and-complete-lock-union (0.01s)
+    --- PASS: TestProjectSecretMetadataReadCompatibility/system-admin-does-not-own-project (0.01s)
+    --- PASS: TestProjectSecretMetadataReadCompatibility/missing-lock-or-foreign-store (0.03s)
+    --- PASS: TestProjectSecretMetadataReadCompatibility/revoked-current-session-precedes-project-existence (0.00s)
+    --- PASS: TestProjectSecretMetadataReadCompatibility/original-read-gate-archiving (1.19s)
+    --- PASS: TestProjectSecretMetadataReadCompatibility/original-read-gate-archived (1.10s)
+    --- PASS: TestProjectSecretMetadataReadCompatibility/original-read-gate-deleting (1.08s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	24.353s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+D03 fixture cleanup checked for nonce edc6ffd5614a8592ce08eb09a5a16e7b
+D04 outbound fixture cleanup checked for nonce d4dc0c4df7cb79b95adf332e54a7cba0
+D05 object fixture exact resource cleanup checked nonce=f8e149024dc522f317728f4f41eb348a

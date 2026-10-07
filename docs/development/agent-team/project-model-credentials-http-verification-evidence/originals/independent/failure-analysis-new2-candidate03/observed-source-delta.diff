@@ -1,0 +1,97 @@
+--- candidate02/tests/model/project_credentials_http_unknown_test.go
++++ candidate03/tests/model/project_credentials_http_unknown_test.go
+@@ -4,6 +4,7 @@
+ 
+ import (
+ 	"context"
++	"errors"
+ 	"net"
+ 	"net/url"
+ 	"strings"
+@@ -66,6 +67,18 @@
+ 			user, _ := f.UserLock(browser.actor.Details().UserID)
+ 			var armed atomic.Bool
+ 			var armedPID atomic.Int32
++			var hookStage, hookSQLState atomic.Value
++			hookStage.Store("not-entered")
++			hookSQLState.Store("")
++			recordHookError := func(stage string, err error) error {
++				hookStage.Store(stage)
++				var state interface{ SQLState() string }
++				if err != nil && errors.As(err, &state) {
++					// postgres.Error exposes only its validated five-character SQLSTATE.
++					hookSQLState.Store(state.SQLState())
++				}
++				return err
++			}
+ 			tracked.hooks(func(ctx context.Context, tx f.Tx, c f.TransactionCause) error {
+ 				if ctx.Value(projectCredentialTargetKey{}) != lookup.Identity.Canonical() || armed.Load() {
+ 					return nil
+@@ -74,30 +87,32 @@
+ 				if !phase {
+ 					return nil
+ 				}
++				hookStage.Store("target-phase-matched")
+ 				x, e := raw.InTx(tx)
+ 				if e != nil {
+-					return e
++					return recordHookError("same-tx-executor", e)
+ 				}
+ 				var pid int32
+ 				if mode == "prepare_nonce" {
+ 					var high int64
+ 					e = x.QueryRow(ctx, `SELECT pg_backend_pid(),nonce_high_water FROM agenteam_secret.secret_master_registry WHERE version=1`).Scan(&pid, &high)
+ 					if e != nil {
+-						return e
++						return recordHookError("nonce-high-water", e)
+ 					}
+ 					if high < 1024 {
+ 						return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+ 					}
+ 				} else {
+ 					if e = raw.RequireHeldLocks(ctx, tx, []f.LockRequest{{Key: command, Mode: f.Exclusive}, {Key: user, Mode: f.Shared}, {Key: project, Mode: f.Shared}}); e != nil {
+-						return e
++						return recordHookError("required-command-user-project-locks", e)
+ 					}
+ 					var count int
+-					e = x.QueryRow(ctx, `SELECT pg_backend_pid(),count(*) FROM agenteam_secret.secret_command_receipts WHERE project_id=$1 AND scope='project' AND scope_key=$1 AND command_digest=$2 AND mutation_kind='create' AND purpose='model' AND result_version=1 AND NOT deleted`, v.project.ID.String(), string(digest)).Scan(&pid, &count)
++					e = x.QueryRow(ctx, `SELECT pg_backend_pid(),count(*) FROM agenteam_secret.secret_command_receipts WHERE project_id=$1::uuid AND scope='project' AND scope_key=$2::text AND command_digest=$3 AND mutation_kind='create' AND purpose='model' AND result_version=1 AND NOT deleted`, v.project.ID.String(), v.project.ID.String(), string(digest)).Scan(&pid, &count)
+ 					if e != nil {
+-						return e
++						return recordHookError("final-project-safe-receipt", e)
+ 					}
+ 					if count != 1 {
++						hookStage.Store("final-project-safe-receipt-count")
+ 						return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+ 					}
+ 					n := uint64(command.AdvisoryKey())
+@@ -105,12 +120,14 @@
+ 					var unique int32
+ 					e = x.QueryRow(ctx, `SELECT count(*),COALESCE(min(pid),0) FROM pg_locks WHERE locktype='advisory' AND database=(SELECT oid FROM pg_database WHERE datname=current_database()) AND classid::bigint=$1 AND objid::bigint=$2 AND objsubid=1 AND granted AND mode='ExclusiveLock'`, int64(uint32(n>>32)), int64(uint32(n))).Scan(&owners, &unique)
+ 					if e != nil {
+-						return e
++						return recordHookError("unique-command-writer", e)
+ 					}
+ 					if owners != 1 || unique != pid {
++						hookStage.Store("unique-command-writer-binding")
+ 						return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+ 					}
+ 				}
++				hookStage.Store("target-backend-armed")
+ 				armedPID.Store(pid)
+ 				armed.Store(true)
+ 				proxy.targetPID.Store(pid)
+@@ -118,11 +135,12 @@
+ 			}, nil)
+ 			before := v.facts(t)
+ 			response := v.request(t, browser, "POST", v.collection(), key, projectUpdateJSON(t, map[string]any{"value": "physical-private-material"}))
++			t.Logf("target diagnostic phase=%s stage=%s sqlstate=%s status=%d", mode, hookStage.Load(), hookSQLState.Load(), response.status)
++			response.problem(t, 503, f.CommitUnknown)
+ 			waitSignal(t, proxy.reached)
+ 			if !armed.Load() || armedPID.Load() != proxy.backendPID.Load() || port.writes.Load() != 1 || port.lookups.Load() != 0 {
+ 				t.Fatal("physical target or no-confirm ownership lost")
+ 			}
+-			response.problem(t, 503, f.CommitUnknown)
+ 			if mode != "prepare_nonce" {
+ 				pendingCtx, cancel := context.WithTimeout(testContext(t), 120*time.Millisecond)
+ 				observed, e := v.writer.LookupWriteCommand(pendingCtx, lookup)

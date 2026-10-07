@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 37090.706346237,
+      "top": "TestIndependentProjectCredentialRootAndTerminalACK"
+    },
+    {
+      "event": "result",
+      "monotonic": 37095.188671267,
+      "observed_seconds": 4.482325030003267,
+      "reported_seconds": 4.48,
+      "state": "PASS",
+      "top": "TestIndependentProjectCredentialRootAndTerminalACK"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectCredentialRootAndTerminalACK"
+  ],
+  "failures": []
+}

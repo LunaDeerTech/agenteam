@@ -1,0 +1,49 @@
+{
+  "phase": "Frozen actual B original body bytes through standard Draft202012Validator/FormatChecker; no resources",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/schema01/closure.json",
+    "sha256": "56a891e56e27f3847ea18e667bc701cd49980cb88dbbd7f0a3e357a6486796b4"
+  },
+  "runner_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+  "tools": {
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "output_root": "/workspace/scratch/project-owner-credential-http-verification/schema01/runs",
+  "cwd": "/workspace/agenteam",
+  "environment": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+    "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/schema01/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2",
+    "LC_ALL": "C",
+    "TZ": "UTC",
+    "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "commands": [
+    {
+      "label": "original-bodies01",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/schema-check.py",
+        "/workspace/scratch/project-owner-credential-http-verification/schema01/manifest.json",
+        "9b5fcda6585f6dca5542c54d2ffbf69c036c0824165239fbc552c0266a776c4b"
+      ]
+    }
+  ],
+  "behavior_authorized": false
+}

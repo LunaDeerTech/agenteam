@@ -1,0 +1,155 @@
+=== RUN   TestModelRootRequiredConstructionDependencies
+=== RUN   TestModelRootRequiredConstructionDependencies/audit/missing-store
+=== RUN   TestModelRootRequiredConstructionDependencies/audit/wrong-store
+=== RUN   TestModelRootRequiredConstructionDependencies/audit/missing-account
+=== RUN   TestModelRootRequiredConstructionDependencies/audit/missing-model
+=== RUN   TestModelRootRequiredConstructionDependencies/audit/missing-project
+=== RUN   TestModelRootRequiredConstructionDependencies/secret/missing-store
+=== RUN   TestModelRootRequiredConstructionDependencies/secret/wrong-store
+=== RUN   TestModelRootRequiredConstructionDependencies/secret/missing-account
+=== RUN   TestModelRootRequiredConstructionDependencies/secret/missing-audit
+=== RUN   TestModelRootRequiredConstructionDependencies/secret/missing-router
+--- PASS: TestModelRootRequiredConstructionDependencies (0.09s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/audit/missing-store (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/audit/wrong-store (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/audit/missing-account (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/audit/missing-model (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/audit/missing-project (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/secret/missing-store (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/secret/wrong-store (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/secret/missing-account (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/secret/missing-audit (0.00s)
+    --- PASS: TestModelRootRequiredConstructionDependencies/secret/missing-router (0.00s)
+=== RUN   TestProjectCredentialsRootPureMissingDependencies
+--- PASS: TestProjectCredentialsRootPureMissingDependencies (0.00s)
+=== RUN   TestProjectCredentialsRootPureRouteOwnership
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials/bad-id
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credential-commands/lookup
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/bad-id/model-credentials
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials/
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials/a/b
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credential-commands/lookup/
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-providers
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/available-chat-models
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/resolve
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/system/model-credentials
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/system/model-selection/meeting-summary
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//api/v1/session
+=== RUN   TestProjectCredentialsRootPureRouteOwnership//readyz
+--- PASS: TestProjectCredentialsRootPureRouteOwnership (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials/bad-id (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credential-commands/lookup (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/bad-id/model-credentials (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials/ (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credentials/a/b (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-credential-commands/lookup/ (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-providers (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/available-chat-models (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001 (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/projects/resolve (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/system/model-credentials (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/system/model-selection/meeting-summary (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//api/v1/session (0.00s)
+    --- PASS: TestProjectCredentialsRootPureRouteOwnership//readyz (0.00s)
+=== RUN   TestProjectModelsRootPureMissingDependencies
+--- PASS: TestProjectModelsRootPureMissingDependencies (0.00s)
+=== RUN   TestProjectModelsRootPureRouteOwnership
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-providers
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-providers/bad-id
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models/bad-id
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/available-chat-models
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/bad-id/models
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models/
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models/a/b
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/available-chat-models/extra
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models-other
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/archive
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/resolve
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/session
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/system/model-selection/meeting-summary
+=== RUN   TestProjectModelsRootPureRouteOwnership//api/v1/system/models
+=== RUN   TestProjectModelsRootPureRouteOwnership//readyz
+--- PASS: TestProjectModelsRootPureRouteOwnership (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-providers (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-providers/bad-id (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models/bad-id (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/available-chat-models (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/bad-id/models (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models/ (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models/a/b (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/available-chat-models/extra (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/models-other (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/archive (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001 (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/resolve (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/session (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/system/model-selection/meeting-summary (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//api/v1/system/models (0.00s)
+    --- PASS: TestProjectModelsRootPureRouteOwnership//readyz (0.00s)
+=== RUN   TestProjectUsageRootPureConstructionAndReadOnly
+--- PASS: TestProjectUsageRootPureConstructionAndReadOnly (0.00s)
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure/normal
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure/expired
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure/model_error
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure/model_cancels
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure/summary_error
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure/summary_cancels
+=== RUN   TestProjectUsageRootPureStartupContextAndFailure/usage_error
+--- PASS: TestProjectUsageRootPureStartupContextAndFailure (0.01s)
+    --- PASS: TestProjectUsageRootPureStartupContextAndFailure/normal (0.00s)
+    --- PASS: TestProjectUsageRootPureStartupContextAndFailure/expired (0.00s)
+    --- PASS: TestProjectUsageRootPureStartupContextAndFailure/model_error (0.00s)
+    --- PASS: TestProjectUsageRootPureStartupContextAndFailure/model_cancels (0.00s)
+    --- PASS: TestProjectUsageRootPureStartupContextAndFailure/summary_error (0.00s)
+    --- PASS: TestProjectUsageRootPureStartupContextAndFailure/summary_cancels (0.00s)
+    --- PASS: TestProjectUsageRootPureStartupContextAndFailure/usage_error (0.00s)
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/resolve
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/bad-id/model-usage
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/resolve/
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects//model-usage
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/x/y/model-usage
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/resolve-other
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/session
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//readyz
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/system/models
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/system/outbound-policy
+=== RUN   TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/system/audit
+--- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/resolve (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/summary (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/bad-id/model-usage (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/resolve/ (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/01900000-0000-7000-8000-000000000001/model-usage/ (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects//model-usage (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/x/y/model-usage (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/projects/resolve-other (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/session (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//readyz (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/system/models (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/system/outbound-policy (0.00s)
+    --- PASS: TestProjectUsageRootPureRoutesPreserveOriginalChain//api/v1/system/audit (0.00s)
+PASS

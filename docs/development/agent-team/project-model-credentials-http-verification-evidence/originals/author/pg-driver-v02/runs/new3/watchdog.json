@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 36202.33488196,
+      "top": "TestModelProjectCredentialHTTPDefaultRoot"
+    },
+    {
+      "event": "result",
+      "monotonic": 36208.322372768,
+      "observed_seconds": 5.987490808001894,
+      "reported_seconds": 5.99,
+      "state": "PASS",
+      "top": "TestModelProjectCredentialHTTPDefaultRoot"
+    }
+  ],
+  "expected": [
+    "TestModelProjectCredentialHTTPDefaultRoot"
+  ],
+  "failures": []
+}

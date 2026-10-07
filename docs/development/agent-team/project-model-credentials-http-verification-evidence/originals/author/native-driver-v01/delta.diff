@@ -1,0 +1,40 @@
+--- /workspace/scratch/project-owner-update-http-author/native-driver-v02/driver.py
++++ /workspace/scratch/project-model-credentials-http-author/native-driver-v01/driver.py
+@@ -1,10 +1,10 @@
+ from pathlib import Path
+ import os,sys,json,hashlib,subprocess,time,signal,ctypes,re,shutil
+-BASE=Path('/workspace/scratch/project-owner-update-http-author/native-driver-v02')
+-REPO=Path('/workspace/agenteam/internal/central/project/http')
++BASE=Path('/workspace/scratch/project-model-credentials-http-author/native-driver-v01')
++REPO=Path('/workspace/agenteam/internal/central/model')
+ from trace_parser import parse_trace
+ FROZEN=json.loads((BASE/'execution-freeze.json').read_text())
+-GROUPS={'list':('^TestProjectOwnerUpdateNative(Keepalive|BodyDeadline|WriteAndClose)$',0,0), 'keepalive':('^TestProjectOwnerUpdateNativeKeepalive$',1,0), 'slowbody':('^TestProjectOwnerUpdateNativeBodyDeadline$',3,3), 'writeclose':('^TestProjectOwnerUpdateNativeWriteAndClose$',4,4)}
++GROUPS={'list':('^TestModelProjectCredentialNative(Keepalive|BodyDeadline|WriteAndClose)$',0,0), 'keepalive':('^TestModelProjectCredentialNativeKeepalive$',1,0), 'slowbody':('^TestModelProjectCredentialNativeBodyDeadline$',3,3), 'writeclose':('^TestModelProjectCredentialNativeWriteAndClose$',10,10)}
+ MODE=sys.argv[1]
+ assert MODE in GROUPS
+ assert MODE in FROZEN['permitted_modes']
+@@ -33,11 +33,11 @@
+ initial=procscan();save('baseline-processes.json',initial)
+ tmp=OUT/'tmp';tmp.mkdir()
+ env={'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin','HOME':'/home/agent','TMPDIR':str(tmp),'GOTOOLCHAIN':'local','GOENV':'off','GOPROXY':'off','GOSUMDB':'off','GOPATH':'/workspace/go','GOMODCACHE':'/workspace/go/pkg/mod','GOCACHE':'/workspace/.cache/go-build','GOWORK':'off','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -p=1','GOMAXPROCS':'2'}
+-if MODE!='list':env['AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE']='1'
+-binary=['/workspace/scratch/project-owner-update-http-author/http-race06.test']
++if MODE!='list':env['AGENTEAM_PROJECT_CREDENTIAL_NATIVE']='1'
++binary=['/workspace/scratch/project-model-credentials-http-author/model02-race.test']
+ if MODE=='list':binary+=['-test.list='+SELECTOR]
+ else:binary+=['-test.count=1','-test.parallel=1','-test.timeout=45s','-test.run='+SELECTOR,'-test.v']
+-command=['/usr/bin/strace','-D','-f','-ttt','-yy','-e','trace=%network,%process,close','-o',str(OUT/'trace.raw')]+binary
++command=['/usr/bin/strace','-D','-f','-ttt','-yy','-e','trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close','-o',str(OUT/'trace.raw')]+binary
+ record={'mode':MODE,'driver_sha256':sha(__file__),'driver_pid':os.getpid(),'driver_stat':stat(os.getpid()),'subreaper':True,'command':command,'env':env,'cwd':str(REPO),'budget_seconds':55,'cleanup_grace_seconds':15,'started':time.time(),'before':before}
+ owned={};waits=[];signals=[]
+ def observe(pgid):
+@@ -114,7 +114,7 @@
+ raw=(OUT/'raw.log').read_text()
+ if MODE=='list':
+  names=[line for line in raw.splitlines() if line.startswith('Test')]
+- tests_ok=names==['TestProjectOwnerUpdateNativeKeepalive','TestProjectOwnerUpdateNativeBodyDeadline','TestProjectOwnerUpdateNativeWriteAndClose']
++ tests_ok=names==['TestModelProjectCredentialNativeKeepalive','TestModelProjectCredentialNativeBodyDeadline','TestModelProjectCredentialNativeWriteAndClose']
+  counts={'listed':names,'test_bodies':False}
+ else:
+  names=re.findall(r'^\s*--- PASS: (\S+)',raw,re.M)

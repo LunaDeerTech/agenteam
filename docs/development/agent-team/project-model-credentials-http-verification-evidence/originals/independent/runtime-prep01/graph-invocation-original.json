@@ -1,0 +1,7 @@
+{
+  "actual_wrapper_exit": 1,
+  "provided_plan_sha256": "1ab0e152867a58db051ae948b596509e0a063e982d61d8106ce4c5fb0c9f8717c",
+  "actual_plan_sha256": "6fbf60fc42635dc242afe672ff02b808ffa8a6ab0049b4a494aa9975b9379bdd",
+  "message": "bound input mismatch; accidental wrong hash in invocation rejected before run directory, child process, Go or resources",
+  "fix": "invoke same unchanged frozen plan with actual SHA; no product or plan changes"
+}

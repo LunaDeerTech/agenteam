@@ -1,0 +1,31 @@
+{
+  "new-crud-authority": [
+    "TestModelProjectCredentialHTTPCRUDAndHistory",
+    "TestModelProjectCredentialHTTPCurrentAuthorityAndFacts"
+  ],
+  "new-lookup-unknown": [
+    "TestModelProjectCredentialHTTPPassiveLookup",
+    "TestModelProjectCredentialHTTPUnknown"
+  ],
+  "new-root": [
+    "TestModelProjectCredentialHTTPDefaultRoot"
+  ],
+  "old-project": [
+    "TestProjectSecretAuditBindingCRUD",
+    "TestProjectSecretAuditBindingCurrentAuthority",
+    "TestProjectSecretAuditBindingFactRejection",
+    "TestProjectSecretAuditBindingUnknown",
+    "TestProjectSecretMetadataReadCompatibility"
+  ],
+  "old-model": [
+    "TestModelSystemHTTPCredentialWritesAndBinding",
+    "TestModelSystemHTTPPassiveCredentialLookup",
+    "TestModelSystemHTTPPassiveLookupLocksAndFailures",
+    "TestModelSystemHTTPUnknownAndHistoricalResults",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelMeetingSummarySettingsRoot",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelProjectConfigurationHTTPDefaultRoot"
+  ]
+}

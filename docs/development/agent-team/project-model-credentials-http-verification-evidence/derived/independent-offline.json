@@ -1,0 +1,4272 @@
+{
+  "derived_not_original": true,
+  "description": "Parsed command/result fields; original full hashes and omitted repeated maps listed per record.",
+  "items": [
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-normal01/command.json",
+        "sha256": "565dd10e6ccee5b879e1ece4716d54f49fe7de759f6ad21534d36227f40cd056",
+        "bytes": 1544
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test",
+          "-test.run=^TestIndependentProjectCredentialHTTPControls$",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "ac1438fbe4c4b5ddcb9150b72446e572f061d4defec6c16520695997a11e764e",
+        "tool_before_sha256": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+        "started_unix": 1791408839.8869162,
+        "subreaper": true,
+        "main_pid": 895626
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-normal01/result.json",
+        "sha256": "08c25fd96461c31fe716ea1e70a6ca81afc9702ca04a6f1c3e59c7787e5d1ccd",
+        "bytes": 2373
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test",
+          "-test.run=^TestIndependentProjectCredentialHTTPControls$",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "ac1438fbe4c4b5ddcb9150b72446e572f061d4defec6c16520695997a11e764e",
+        "tool_before_sha256": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+        "started_unix": 1791408839.8869162,
+        "subreaper": true,
+        "main_pid": 895626,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.06941635800467338,
+        "total_seconds": 0.9613682679992053,
+        "observed_processes": [
+          {
+            "pid": 895626,
+            "starttime": "3479171",
+            "ppid": 895602,
+            "pgrp": 895626,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408839.9679306,
+            "remaining": []
+          },
+          {
+            "time": 1791408840.0732918,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+        "stdout_sha256": "ed6c6da7383da43599c963935a30b4af351eb5d1bdc6ab2b840c32df89239b8e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-race01/command.json",
+        "sha256": "376c9e358c1c119920dfcf1c7970390fd095453b6f6464ef6fc179f29857ced7",
+        "bytes": 1542
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test",
+          "-test.run=^TestIndependentProjectCredentialHTTPControls$",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "ac1438fbe4c4b5ddcb9150b72446e572f061d4defec6c16520695997a11e764e",
+        "tool_before_sha256": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5",
+        "started_unix": 1791408851.4224246,
+        "subreaper": true,
+        "main_pid": 895747
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/behavior-race01/result.json",
+        "sha256": "a7b55a019844372ee448b87c6d024f3f44a7afdfa2b5aff27847b24ce57f2d63",
+        "bytes": 2369
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test",
+          "-test.run=^TestIndependentProjectCredentialHTTPControls$",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "ac1438fbe4c4b5ddcb9150b72446e572f061d4defec6c16520695997a11e764e",
+        "tool_before_sha256": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5",
+        "started_unix": 1791408851.4224246,
+        "subreaper": true,
+        "main_pid": 895747,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 1.1698976140032755,
+        "total_seconds": 2.021764819000964,
+        "observed_processes": [
+          {
+            "pid": 895747,
+            "starttime": "3480325",
+            "ppid": 895744,
+            "pgrp": 895747,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408852.6025808,
+            "remaining": []
+          },
+          {
+            "time": 1791408852.7074387,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5",
+        "stdout_sha256": "965368c83310c484f9291fb02f5d24eaf13cae24bafa22f28e54f7f432bc237d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/compile-normal01/command.json",
+        "sha256": "8036e45c1806fc9d265345098266fcaa322d18f027252e553d209b5c218668ee",
+        "bytes": 1520
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "4bc3f9f95a313618efb599a96670b6e1bf82956ca1848b064fe31d8ecfb086e2",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408725.2761364,
+        "subreaper": true,
+        "main_pid": 894216
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/compile-normal01/result.json",
+        "sha256": "64a1c176fb675f20a2660a7f52d2c98f151434b6f64312000c0030771b136737",
+        "bytes": 2814
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "4bc3f9f95a313618efb599a96670b6e1bf82956ca1848b064fe31d8ecfb086e2",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408725.2761364,
+        "subreaper": true,
+        "main_pid": 894216,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 3.180114159004006,
+        "total_seconds": 4.009833769006946,
+        "observed_processes": [
+          {
+            "pid": 894216,
+            "starttime": "3467710",
+            "ppid": 894194,
+            "pgrp": 894216,
+            "state": "Z"
+          },
+          {
+            "pid": 894237,
+            "starttime": "3467725",
+            "ppid": 894216,
+            "pgrp": 894216,
+            "state": "R"
+          },
+          {
+            "pid": 894267,
+            "starttime": "3467956",
+            "ppid": 894216,
+            "pgrp": 894216,
+            "state": "Z"
+          },
+          {
+            "pid": 894275,
+            "starttime": "3467960",
+            "ppid": 894216,
+            "pgrp": 894216,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408728.4673378,
+            "remaining": []
+          },
+          {
+            "time": 1791408728.5723734,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true,
+        "binary_sha256": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e"
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/compile-race01/command.json",
+        "sha256": "b416384fc6403a9572d3f59fcc946fe05b062eb58ae151f89d8b7d80a538e3ed",
+        "bytes": 1531
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "4bc3f9f95a313618efb599a96670b6e1bf82956ca1848b064fe31d8ecfb086e2",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408737.6061847,
+        "subreaper": true,
+        "main_pid": 894381
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/compile-race01/result.json",
+        "sha256": "63e77b7309587000ee4103dad68c97ee0bc712875b7616b05e6012f8d24307ea",
+        "bytes": 2824
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "4bc3f9f95a313618efb599a96670b6e1bf82956ca1848b064fe31d8ecfb086e2",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408737.6061847,
+        "subreaper": true,
+        "main_pid": 894381,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 4.725174929997593,
+        "total_seconds": 5.583390831001452,
+        "observed_processes": [
+          {
+            "pid": 894381,
+            "starttime": "3468943",
+            "ppid": 894378,
+            "pgrp": 894381,
+            "state": "Z"
+          },
+          {
+            "pid": 894420,
+            "starttime": "3468959",
+            "ppid": 894381,
+            "pgrp": 894381,
+            "state": "Z"
+          },
+          {
+            "pid": 894466,
+            "starttime": "3469319",
+            "ppid": 894381,
+            "pgrp": 894381,
+            "state": "S"
+          },
+          {
+            "pid": 894474,
+            "starttime": "3469323",
+            "ppid": 894381,
+            "pgrp": 894381,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408742.341685,
+            "remaining": []
+          },
+          {
+            "time": 1791408742.4463818,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true,
+        "binary_sha256": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5"
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/format01/command.json",
+        "sha256": "6e2afbe7ec937b26708a2ff285e32107827b2ce997617b7043df24ac8bfa84c6",
+        "bytes": 1453
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-prep01/independent_credential_controls_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay01.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "3c450b600528ca626fe067d78860a809b268064f67d5534a34462bc30af5ba5b",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791408583.6570854,
+        "subreaper": true,
+        "main_pid": 892269
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/format01/result.json",
+        "sha256": "ed0e5c3f03b96f04c52f07e9ec48cfbf5653c14997d429139afd8dd793969b94",
+        "bytes": 2283
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-prep01/independent_credential_controls_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay01.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "3c450b600528ca626fe067d78860a809b268064f67d5534a34462bc30af5ba5b",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791408583.6570854,
+        "subreaper": true,
+        "main_pid": 892269,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.007482751003408339,
+        "total_seconds": 0.8503954280022299,
+        "observed_processes": [
+          {
+            "pid": 892269,
+            "starttime": "3453548",
+            "ppid": 892266,
+            "pgrp": 892269,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408583.6748462,
+            "remaining": []
+          },
+          {
+            "time": 1791408583.7822416,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "stdout_sha256": "cac6af0040c2591be476216f2b5dc9f7da513add475a55d5328416311a310c51",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/format02/command.json",
+        "sha256": "ffcb69c39bc7b09d5dfdeea49eae8ab14183660fa801d937c89bd28a38af5808",
+        "bytes": 1466
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/independent_credential_controls_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "7d9300dd8834fc6a58a77c7ffdf27e507c6f4e1440384de3d482ac3cfa09819c",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791408643.9724646,
+        "subreaper": true,
+        "main_pid": 893022
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/format02/result.json",
+        "sha256": "00b6071f0278c8077265c14dc75afeb86c0f02b0018ec75718f048a5c0d5d9ea",
+        "bytes": 2296
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/independent_credential_controls_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "7d9300dd8834fc6a58a77c7ffdf27e507c6f4e1440384de3d482ac3cfa09819c",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791408643.9724646,
+        "subreaper": true,
+        "main_pid": 893022,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.008148441003868356,
+        "total_seconds": 0.8541402820046642,
+        "observed_processes": [
+          {
+            "pid": 893022,
+            "starttime": "3459580",
+            "ppid": 893019,
+            "pgrp": 893022,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408643.9905083,
+            "remaining": []
+          },
+          {
+            "time": 1791408644.0954363,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/graph-normal01/command.json",
+        "sha256": "7f6a9e9541fb978350fea7dd13cde2d8833ba334f1f49dec877fbbc72295bb87",
+        "bytes": 1406
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "7d9300dd8834fc6a58a77c7ffdf27e507c6f4e1440384de3d482ac3cfa09819c",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408649.2320552,
+        "subreaper": true,
+        "main_pid": 893095
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/graph-normal01/result.json",
+        "sha256": "5836057565a2bef92db92861feaabd046b3161f2ac39604e85c8172cfce35631",
+        "bytes": 2361
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "7d9300dd8834fc6a58a77c7ffdf27e507c6f4e1440384de3d482ac3cfa09819c",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408649.2320552,
+        "subreaper": true,
+        "main_pid": 893095,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.23594206699635834,
+        "total_seconds": 1.062811267998768,
+        "observed_processes": [
+          {
+            "pid": 893095,
+            "starttime": "3460106",
+            "ppid": 893071,
+            "pgrp": 893095,
+            "state": "S"
+          },
+          {
+            "pid": 893100,
+            "starttime": "3460112",
+            "ppid": 893095,
+            "pgrp": 893095,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408649.4786913,
+            "remaining": []
+          },
+          {
+            "time": 1791408649.5832822,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "d956c68bdb2120db0da6e0b57115dd85bcca9849af24b15e1b04dca8375ec448",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/graph-race01/command.json",
+        "sha256": "d06b7b15d4218d7033e4dec54e359a59721b05050d24bcdbd27bc30958e24182",
+        "bytes": 1419
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "7d9300dd8834fc6a58a77c7ffdf27e507c6f4e1440384de3d482ac3cfa09819c",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408655.2052512,
+        "subreaper": true,
+        "main_pid": 893221
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/graph-race01/result.json",
+        "sha256": "caf9b9fad5d41493c3b3718fa5603ff758ff882edcda0841545e8777f8cc53aa",
+        "bytes": 2373
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "7d9300dd8834fc6a58a77c7ffdf27e507c6f4e1440384de3d482ac3cfa09819c",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408655.2052512,
+        "subreaper": true,
+        "main_pid": 893221,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.22392638899327721,
+        "total_seconds": 1.052630247999332,
+        "observed_processes": [
+          {
+            "pid": 893221,
+            "starttime": "3460703",
+            "ppid": 893194,
+            "pgrp": 893221,
+            "state": "S"
+          },
+          {
+            "pid": 893226,
+            "starttime": "3460710",
+            "ppid": 893221,
+            "pgrp": 893221,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408655.4396648,
+            "remaining": []
+          },
+          {
+            "time": 1791408655.544658,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "f760e482f45f4ffdf4420c1212d8c26923d2d2a5a40e8fbde0a2045e29294092",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/list-normal01/command.json",
+        "sha256": "3eb16245e4d805e5fba767e10220956ae6aae91e1891368c5d5a463c1cdb938f",
+        "bytes": 1460
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test",
+          "-test.list=^TestIndependentProjectCredentialHTTPControls$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "925d293e19c927535c4d32771b593aab110811b2e100b3e9a95d3edfe04dc8f1",
+        "tool_before_sha256": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+        "started_unix": 1791408775.2125335,
+        "subreaper": true,
+        "main_pid": 894917
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/list-normal01/result.json",
+        "sha256": "edeb00b01ab64d6e774d4d24ecc96e64c8da79fe44a4d893c29a8b8d9da7b8df",
+        "bytes": 2289
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test",
+          "-test.list=^TestIndependentProjectCredentialHTTPControls$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "925d293e19c927535c4d32771b593aab110811b2e100b3e9a95d3edfe04dc8f1",
+        "tool_before_sha256": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+        "started_unix": 1791408775.2125335,
+        "subreaper": true,
+        "main_pid": 894917,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.009021530000609346,
+        "total_seconds": 0.9041497430007439,
+        "observed_processes": [
+          {
+            "pid": 894917,
+            "starttime": "3472704",
+            "ppid": 894894,
+            "pgrp": 894917,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408775.231193,
+            "remaining": []
+          },
+          {
+            "time": 1791408775.3360205,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+        "stdout_sha256": "d1623f17b790ea41d9ddf9ebdf123e36ad103281664bafb7025c3f62f5f79851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/list-race01/command.json",
+        "sha256": "a9b3e47ca1caf3588b49d87041d7ba8c27df6ce3e8931986304bfcebb4a8f601",
+        "bytes": 1458
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test",
+          "-test.list=^TestIndependentProjectCredentialHTTPControls$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "925d293e19c927535c4d32771b593aab110811b2e100b3e9a95d3edfe04dc8f1",
+        "tool_before_sha256": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5",
+        "started_unix": 1791408785.9426875,
+        "subreaper": true,
+        "main_pid": 895035
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/list-race01/result.json",
+        "sha256": "d401c57f11a4a3d6f7448f6b744cfaf7d9eceebadbb6ee46f8ad989e1f3691de",
+        "bytes": 2286
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test",
+          "-test.list=^TestIndependentProjectCredentialHTTPControls$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "925d293e19c927535c4d32771b593aab110811b2e100b3e9a95d3edfe04dc8f1",
+        "tool_before_sha256": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5",
+        "started_unix": 1791408785.9426875,
+        "subreaper": true,
+        "main_pid": 895035,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 1.0292606470029568,
+        "total_seconds": 1.9430455490000895,
+        "observed_processes": [
+          {
+            "pid": 895035,
+            "starttime": "3473777",
+            "ppid": 895011,
+            "pgrp": 895035,
+            "state": "S"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408786.9859786,
+            "remaining": []
+          },
+          {
+            "time": 1791408787.0909429,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5",
+        "stdout_sha256": "d1623f17b790ea41d9ddf9ebdf123e36ad103281664bafb7025c3f62f5f79851",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/vet-race01/command.json",
+        "sha256": "32f2e44233b09d338634c4a2becf28dad4acf701b640e34faff81104a5f556ef",
+        "bytes": 1379
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "4bc3f9f95a313618efb599a96670b6e1bf82956ca1848b064fe31d8ecfb086e2",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408748.8567753,
+        "subreaper": true,
+        "main_pid": 894574
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/vet-race01/result.json",
+        "sha256": "f32ee79d5dea5c6b1485d4d4a7e15b28b5bf98fa2af867e35329638e3fc99c25",
+        "bytes": 3349
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "./internal/central/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+        "plan_sha256": "4bc3f9f95a313618efb599a96670b6e1bf82956ca1848b064fe31d8ecfb086e2",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791408748.8567753,
+        "subreaper": true,
+        "main_pid": 894574,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 1.0302566829996067,
+        "total_seconds": 1.8741182040030253,
+        "observed_processes": [
+          {
+            "pid": 894574,
+            "starttime": "3470068",
+            "ppid": 894570,
+            "pgrp": 894574,
+            "state": "R"
+          },
+          {
+            "pid": 894601,
+            "starttime": "3470088",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "R"
+          },
+          {
+            "pid": 894605,
+            "starttime": "3470091",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "R"
+          },
+          {
+            "pid": 894609,
+            "starttime": "3470097",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "S"
+          },
+          {
+            "pid": 894613,
+            "starttime": "3470111",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "S"
+          },
+          {
+            "pid": 894617,
+            "starttime": "3470117",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "R"
+          },
+          {
+            "pid": 894621,
+            "starttime": "3470120",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "R"
+          },
+          {
+            "pid": 894625,
+            "starttime": "3470138",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "R"
+          },
+          {
+            "pid": 894629,
+            "starttime": "3470142",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "S"
+          },
+          {
+            "pid": 894633,
+            "starttime": "3470147",
+            "ppid": 894574,
+            "pgrp": 894574,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791408749.8971393,
+            "remaining": []
+          },
+          {
+            "time": 1791408750.002014,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/compile-race01/command.json",
+        "sha256": "ac32c709ca21c5f7d7270a01b52f477f4271a80682eb12e76f69021e3ed863a8",
+        "bytes": 1529
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/bin/independent-race01.test",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4c62a0312007c981c9b5a25326f9fede5d7402846d931e583cad3f16df06e9fe",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791409505.531324,
+        "subreaper": true,
+        "main_pid": 903570
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/compile-race01/result.json",
+        "sha256": "2d1a43be9668b9c2f160f2a92dc11ed619b1fc4b20b09e6455b214ef57e93ccd",
+        "bytes": 2695
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/bin/independent-race01.test",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4c62a0312007c981c9b5a25326f9fede5d7402846d931e583cad3f16df06e9fe",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791409505.531324,
+        "subreaper": true,
+        "main_pid": 903570,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 6.964804283998092,
+        "total_seconds": 7.909088175998477,
+        "observed_processes": [
+          {
+            "pid": 903570,
+            "starttime": "3545736",
+            "ppid": 903567,
+            "pgrp": 903570,
+            "state": "Z"
+          },
+          {
+            "pid": 903589,
+            "starttime": "3545753",
+            "ppid": 903570,
+            "pgrp": 903570,
+            "state": "S"
+          },
+          {
+            "pid": 903663,
+            "starttime": "3546285",
+            "ppid": 903570,
+            "pgrp": 903570,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791409512.5064356,
+            "remaining": []
+          },
+          {
+            "time": 1791409512.610962,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true,
+        "binary_sha256": "4e0321a589f247c085b72b3d076b21c948d35680815bd6e5c8cccb06bdfcfb20"
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/format01/command.json",
+        "sha256": "365fb70bcd57be4190a365dac6b333026d203f303ad17659791c0870a81b528b",
+        "bytes": 1437
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay01.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "a916f924282d1168832370afceb87acae1ddf80ef057960928849cf9448fa997",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791409432.157077,
+        "subreaper": true,
+        "main_pid": 902749
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/format01/result.json",
+        "sha256": "3c942415d0a8caf5282570ffa15b4cfc15824b1f2e6d6382b4c2d1023e631215",
+        "bytes": 2266
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay01.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "a916f924282d1168832370afceb87acae1ddf80ef057960928849cf9448fa997",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791409432.157077,
+        "subreaper": true,
+        "main_pid": 902749,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.007398570000077598,
+        "total_seconds": 0.9625374909956008,
+        "observed_processes": [
+          {
+            "pid": 902749,
+            "starttime": "3538398",
+            "ppid": 902727,
+            "pgrp": 902749,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791409432.174536,
+            "remaining": []
+          },
+          {
+            "time": 1791409432.2795174,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "stdout_sha256": "6caea56b74997e84fbafcd70ae8e34dc0281ae22a30c4145f4ae88e0c0ec8ef0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/graph-race01/command.json",
+        "sha256": "088e27e50ad0c3c7127b894582ffb4579874018b7598857f518295c2f104e7a7",
+        "bytes": 1421
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "6fbf60fc42635dc242afe672ff02b808ffa8a6ab0049b4a494aa9975b9379bdd",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791409476.0288715,
+        "subreaper": true,
+        "main_pid": 903219
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/graph-race01/result.json",
+        "sha256": "c7a29e49cc42553e2940a8ba82585efbc87cac2aa32e88dce706d267155f8d2b",
+        "bytes": 2377
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "6fbf60fc42635dc242afe672ff02b808ffa8a6ab0049b4a494aa9975b9379bdd",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791409476.0288715,
+        "subreaper": true,
+        "main_pid": 903219,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.25737807899713516,
+        "total_seconds": 1.1626474259974202,
+        "observed_processes": [
+          {
+            "pid": 903219,
+            "starttime": "3542785",
+            "ppid": 903195,
+            "pgrp": 903219,
+            "state": "S"
+          },
+          {
+            "pid": 903224,
+            "starttime": "3542793",
+            "ppid": 903219,
+            "pgrp": 903219,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791409476.2971556,
+            "remaining": []
+          },
+          {
+            "time": 1791409476.4019213,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "83c3091743876654cf74cbbc13f6745c57e0f3f845cfd9c11315d4c4c6f2def0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/list-race01/command.json",
+        "sha256": "8283ebecebcba697db14040fbf014b0f995df9ee251a2f7b1fc922704dce50c4",
+        "bytes": 1470
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/bin/independent-race01.test",
+          "-test.list=^TestIndependentProjectCredential(AuthorityAndLookup|RootAndTerminalACK)$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "51a8cfacc20fca5bcfb57c7c78d2e39703a8bb7d8824903eb088a7e503af2c6e",
+        "tool_before_sha256": "4e0321a589f247c085b72b3d076b21c948d35680815bd6e5c8cccb06bdfcfb20",
+        "started_unix": 1791409558.9785852,
+        "subreaper": true,
+        "main_pid": 904280
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/list-race01/result.json",
+        "sha256": "319e362128b1b132c5c90bd57572c9f5425cceff2ac0b9aa042772b825cb3582",
+        "bytes": 2297
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/bin/independent-race01.test",
+          "-test.list=^TestIndependentProjectCredential(AuthorityAndLookup|RootAndTerminalACK)$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "51a8cfacc20fca5bcfb57c7c78d2e39703a8bb7d8824903eb088a7e503af2c6e",
+        "tool_before_sha256": "4e0321a589f247c085b72b3d076b21c948d35680815bd6e5c8cccb06bdfcfb20",
+        "started_unix": 1791409558.9785852,
+        "subreaper": true,
+        "main_pid": 904280,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 1.0297787239978788,
+        "total_seconds": 1.9902223850003793,
+        "observed_processes": [
+          {
+            "pid": 904280,
+            "starttime": "3551080",
+            "ppid": 904255,
+            "pgrp": 904280,
+            "state": "S"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791409560.019001,
+            "remaining": []
+          },
+          {
+            "time": 1791409560.1242092,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "4e0321a589f247c085b72b3d076b21c948d35680815bd6e5c8cccb06bdfcfb20",
+        "stdout_sha256": "84aff966912a711d0142b3392ec1e2e6f73796b69ae13f34c1230c139d208dd7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/resource-input-gate01/command.json",
+        "sha256": "08ca389877059b4f64628611d69d27aac85f956e0045058c1a824e40b86556b3",
+        "bytes": 1692
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/driver.py",
+          "--name",
+          "preflight-only",
+          "--group",
+          "new-independent-a",
+          "--frozen",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/frozen-proposal.json",
+          "--check-input-only"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "d43ea890259afc7a21d693c0f8bdb015faf4deb6cb6bedb26af61c54c63048f1",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791409619.9678416,
+        "subreaper": true,
+        "main_pid": 909836
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/resource-input-gate01/result.json",
+        "sha256": "56c6c705ef85323dcced29eb677e3e13cd43f34dcae8d2a28d71c980c8c45852",
+        "bytes": 2519
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/driver.py",
+          "--name",
+          "preflight-only",
+          "--group",
+          "new-independent-a",
+          "--frozen",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/pg-driver-v01/frozen-proposal.json",
+          "--check-input-only"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "d43ea890259afc7a21d693c0f8bdb015faf4deb6cb6bedb26af61c54c63048f1",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791409619.9678416,
+        "subreaper": true,
+        "main_pid": 909836,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.8585958050025511,
+        "total_seconds": 1.7659984080019058,
+        "observed_processes": [
+          {
+            "pid": 909836,
+            "starttime": "3557179",
+            "ppid": 909718,
+            "pgrp": 909836,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791409620.8384464,
+            "remaining": []
+          },
+          {
+            "time": 1791409620.944554,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "stdout_sha256": "f3008d0413cb3164e18825a5513453343a7b880008208e8dd19aa984ce7fb4c3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/vet-race01/command.json",
+        "sha256": "c5bb8539e788821d6702c5844fa259d6b13c2977c7dbb8d5cb9259458b5976d8",
+        "bytes": 1381
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4c62a0312007c981c9b5a25326f9fede5d7402846d931e583cad3f16df06e9fe",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791409544.8269038,
+        "subreaper": true,
+        "main_pid": 904009
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/runs/vet-race01/result.json",
+        "sha256": "beff8efa11218e33ab540fac19b0553477c7ef539bcdc9543e9eb054ff41ebb9",
+        "bytes": 4875
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/overlay02.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4c62a0312007c981c9b5a25326f9fede5d7402846d931e583cad3f16df06e9fe",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791409544.8269038,
+        "subreaper": true,
+        "main_pid": 904009,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 1.9019180569957825,
+        "total_seconds": 2.8476866829951177,
+        "observed_processes": [
+          {
+            "pid": 904009,
+            "starttime": "3549665",
+            "ppid": 903986,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904040,
+            "starttime": "3549690",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904044,
+            "starttime": "3549694",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904048,
+            "starttime": "3549700",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904052,
+            "starttime": "3549717",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904060,
+            "starttime": "3549727",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904064,
+            "starttime": "3549744",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904068,
+            "starttime": "3549749",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904072,
+            "starttime": "3549753",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904076,
+            "starttime": "3549757",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904080,
+            "starttime": "3549761",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904084,
+            "starttime": "3549766",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904089,
+            "starttime": "3549777",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904093,
+            "starttime": "3549780",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904097,
+            "starttime": "3549786",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904113,
+            "starttime": "3549790",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          },
+          {
+            "pid": 904124,
+            "starttime": "3549794",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904130,
+            "starttime": "3549797",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904134,
+            "starttime": "3549801",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904138,
+            "starttime": "3549806",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904142,
+            "starttime": "3549814",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "S"
+          },
+          {
+            "pid": 904146,
+            "starttime": "3549817",
+            "ppid": 904009,
+            "pgrp": 904009,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791409546.739651,
+            "remaining": []
+          },
+          {
+            "time": 1791409546.8443084,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/compile-race02/command.json",
+        "sha256": "00233c02f9336cf2a712a5f0d7aea57061d27b66c4bf300ab6b2d86821414887",
+        "bytes": 1530
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/bin/independent-race02.test",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "534c155cc6e37b31a6db3543f7a056920956ec3103797f22b2e7e0729003b48e",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410191.9053504,
+        "subreaper": true,
+        "main_pid": 936534
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/compile-race02/result.json",
+        "sha256": "4549a69be9e536433aab550f83a2476eb690c55cbf043e0329ed0a7bf8490c20",
+        "bytes": 2824
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/bin/independent-race02.test",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "534c155cc6e37b31a6db3543f7a056920956ec3103797f22b2e7e0729003b48e",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410191.9053504,
+        "subreaper": true,
+        "main_pid": 936534,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 6.4106560190048185,
+        "total_seconds": 7.315382294000301,
+        "observed_processes": [
+          {
+            "pid": 936534,
+            "starttime": "3614373",
+            "ppid": 936510,
+            "pgrp": 936534,
+            "state": "S"
+          },
+          {
+            "pid": 936553,
+            "starttime": "3614391",
+            "ppid": 936534,
+            "pgrp": 936534,
+            "state": "R"
+          },
+          {
+            "pid": 936607,
+            "starttime": "3614880",
+            "ppid": 936534,
+            "pgrp": 936534,
+            "state": "R"
+          },
+          {
+            "pid": 936615,
+            "starttime": "3614885",
+            "ppid": 936534,
+            "pgrp": 936534,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410198.327086,
+            "remaining": []
+          },
+          {
+            "time": 1791410198.4319956,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true,
+        "binary_sha256": "d097cd398caef682e0a9ad597a0b97d339a9ed0e9b3d48331b7c770ef7080b0c"
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/graph-race02/command.json",
+        "sha256": "e7be9d8783586b50c778e3d3ddd65b7223949391c48a0053c83dd5ae0649487b",
+        "bytes": 1421
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "c552d4b8a947472699866b8d956b52a976235d4f7e0c71bb3d700110bf599630",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410154.1644962,
+        "subreaper": true,
+        "main_pid": 936097
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/graph-race02/result.json",
+        "sha256": "7b5d661674b16b2e0bc30b61b48f120d9054f3a4c7ed720f32721c42ecf1203d",
+        "bytes": 2377
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "c552d4b8a947472699866b8d956b52a976235d4f7e0c71bb3d700110bf599630",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410154.1644962,
+        "subreaper": true,
+        "main_pid": 936097,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.26810440499684773,
+        "total_seconds": 1.1704737929976545,
+        "observed_processes": [
+          {
+            "pid": 936097,
+            "starttime": "3610599",
+            "ppid": 936075,
+            "pgrp": 936097,
+            "state": "Z"
+          },
+          {
+            "pid": 936104,
+            "starttime": "3610609",
+            "ppid": 936097,
+            "pgrp": 936097,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410154.4435623,
+            "remaining": []
+          },
+          {
+            "time": 1791410154.5486698,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "83c3091743876654cf74cbbc13f6745c57e0f3f845cfd9c11315d4c4c6f2def0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/images-a01/command.json",
+        "sha256": "b62aad7f063bf0f0b27a4c4890f242e262531c92aa4774590e0e4be3a4f05e0e",
+        "bytes": 1462
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/local-image-gate.py",
+          "a01"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "72dc3dad4ee00928326aaa08016c9002085b917f7c6293582ee49e8ceb9e5017",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791410586.2154176,
+        "subreaper": true,
+        "main_pid": 967113
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/images-a01/result.json",
+        "sha256": "4397d38a0410ca58cba084bb21bf45bae62dcd2d918fa253bf85264b08d4713c",
+        "bytes": 2289
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/local-image-gate.py",
+          "a01"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "72dc3dad4ee00928326aaa08016c9002085b917f7c6293582ee49e8ceb9e5017",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791410586.2154176,
+        "subreaper": true,
+        "main_pid": 967113,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.10721439500048291,
+        "total_seconds": 1.0456549250011449,
+        "observed_processes": [
+          {
+            "pid": 967113,
+            "starttime": "3653804",
+            "ppid": 967090,
+            "pgrp": 967113,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410586.3362436,
+            "remaining": []
+          },
+          {
+            "time": 1791410586.44249,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "stdout_sha256": "989909aae70cac72e94c90dc69699a069f2becd60485b6337573f09339563acc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/list-race02/command.json",
+        "sha256": "d2591fed240ee75fe934157ea47b7100dd7c65de832573f1624747ac4fea6f5f",
+        "bytes": 1469
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/bin/independent-race02.test",
+          "-test.list=^TestIndependentProjectCredential(AuthorityAndLookup|RootAndTerminalACK)$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "b24b201413b1607d39ae6f55729bf988ef7d067de1c6cafd2dab1366623c7383",
+        "tool_before_sha256": "d097cd398caef682e0a9ad597a0b97d339a9ed0e9b3d48331b7c770ef7080b0c",
+        "started_unix": 1791410225.947419,
+        "subreaper": true,
+        "main_pid": 939611
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/list-race02/result.json",
+        "sha256": "dba133294e1eede239bdaca16101bd428932e5074d3487bfa86ab7a7aaf089e9",
+        "bytes": 2296
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/bin/independent-race02.test",
+          "-test.list=^TestIndependentProjectCredential(AuthorityAndLookup|RootAndTerminalACK)$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "b24b201413b1607d39ae6f55729bf988ef7d067de1c6cafd2dab1366623c7383",
+        "tool_before_sha256": "d097cd398caef682e0a9ad597a0b97d339a9ed0e9b3d48331b7c770ef7080b0c",
+        "started_unix": 1791410225.947419,
+        "subreaper": true,
+        "main_pid": 939611,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 1.0169356589976815,
+        "total_seconds": 1.9708117729969672,
+        "observed_processes": [
+          {
+            "pid": 939611,
+            "starttime": "3617777",
+            "ppid": 939553,
+            "pgrp": 939611,
+            "state": "S"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410226.9815333,
+            "remaining": []
+          },
+          {
+            "time": 1791410227.087382,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "d097cd398caef682e0a9ad597a0b97d339a9ed0e9b3d48331b7c770ef7080b0c",
+        "stdout_sha256": "84aff966912a711d0142b3392ec1e2e6f73796b69ae13f34c1230c139d208dd7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/resource-input-gate02/command.json",
+        "sha256": "6f89484d2b1079671c6ab4cca775503d001a75fb2470eb165411a861bd2d35c3",
+        "bytes": 1692
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/driver.py",
+          "--name",
+          "preflight-only",
+          "--group",
+          "new-independent-a",
+          "--frozen",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/frozen-proposal.json",
+          "--check-input-only"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "abc5c03f62d37cfb98bc7ea3de25cbe60bfd317d20a35c98441911bea84af00b",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791410262.4971714,
+        "subreaper": true,
+        "main_pid": 943696
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/resource-input-gate02/result.json",
+        "sha256": "335383e2ba07d1cd7d6678137e81092109015fddea7113a4e6c20d0ef7462414",
+        "bytes": 2520
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/driver.py",
+          "--name",
+          "preflight-only",
+          "--group",
+          "new-independent-a",
+          "--frozen",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/frozen-proposal.json",
+          "--check-input-only"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "abc5c03f62d37cfb98bc7ea3de25cbe60bfd317d20a35c98441911bea84af00b",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791410262.4971714,
+        "subreaper": true,
+        "main_pid": 943696,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.8957574939995538,
+        "total_seconds": 1.8013549500028603,
+        "observed_processes": [
+          {
+            "pid": 943696,
+            "starttime": "3621432",
+            "ppid": 943517,
+            "pgrp": 943696,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410263.4046254,
+            "remaining": []
+          },
+          {
+            "time": 1791410263.5097933,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "stdout_sha256": "1d1f67087dcae8e80f027f30edb49e15d4aa302d82326aa3a15c78976979e2a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/vet-race02/command.json",
+        "sha256": "841d1f5f54fba7a519ed4867ef21dfc4aea8202cea7fc58e5dadf39d5fa7a57d",
+        "bytes": 1380
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "534c155cc6e37b31a6db3543f7a056920956ec3103797f22b2e7e0729003b48e",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410207.754931,
+        "subreaper": true,
+        "main_pid": 936761
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/vet-race02/result.json",
+        "sha256": "ca9448a488ff02051b427f9fd2be44310428f74a15ff175f2e81005597431bc6",
+        "bytes": 2335
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "534c155cc6e37b31a6db3543f7a056920956ec3103797f22b2e7e0729003b48e",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410207.754931,
+        "subreaper": true,
+        "main_pid": 936761,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.7120247639977606,
+        "total_seconds": 1.7042632789962227,
+        "observed_processes": [
+          {
+            "pid": 936761,
+            "starttime": "3615958",
+            "ppid": 936735,
+            "pgrp": 936761,
+            "state": "S"
+          },
+          {
+            "pid": 936929,
+            "starttime": "3615987",
+            "ppid": 936761,
+            "pgrp": 936761,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410208.4784489,
+            "remaining": []
+          },
+          {
+            "time": 1791410208.5844276,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/compile-race03/command.json",
+        "sha256": "127d516195e39fcd7901dcb7d9d669372f615058f3a08238981e69f90933e3ca",
+        "bytes": 1529
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/bin/independent-race03.test",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "754b3174ab2af2e239ca68b78ded89578852316686bcbbe8af0f67440c5d4722",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410854.998439,
+        "subreaper": true,
+        "main_pid": 976542
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/compile-race03/result.json",
+        "sha256": "2a09778d2590150462d2e85b7835a281172500a3d89b05c42ca4deae3b659bdb",
+        "bytes": 2825
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/bin/independent-race03.test",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "754b3174ab2af2e239ca68b78ded89578852316686bcbbe8af0f67440c5d4722",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410854.998439,
+        "subreaper": true,
+        "main_pid": 976542,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 6.2956960890005575,
+        "total_seconds": 7.2073430879972875,
+        "observed_processes": [
+          {
+            "pid": 976542,
+            "starttime": "3680682",
+            "ppid": 976539,
+            "pgrp": 976542,
+            "state": "R"
+          },
+          {
+            "pid": 976561,
+            "starttime": "3680699",
+            "ppid": 976542,
+            "pgrp": 976542,
+            "state": "S"
+          },
+          {
+            "pid": 976627,
+            "starttime": "3681180",
+            "ppid": 976542,
+            "pgrp": 976542,
+            "state": "R"
+          },
+          {
+            "pid": 976635,
+            "starttime": "3681184",
+            "ppid": 976542,
+            "pgrp": 976542,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410861.3055747,
+            "remaining": []
+          },
+          {
+            "time": 1791410861.4111044,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true,
+        "binary_sha256": "8f7887bd1fb9c90d91335c32a71baad482461b4be58b7a5d0531ce0cf948e7f6"
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/format03/command.json",
+        "sha256": "31f5c0fa4d85e8dac2dd3c40c54721f1a5504fe0124f64353d877cbf2f596349",
+        "bytes": 1448
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/independent_project_credentials_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "acbfd27e2f5d87ecc449b8eccedd956e808dfc178c27823e72eccff9c6b60705",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791410804.8326128,
+        "subreaper": true,
+        "main_pid": 975982
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/format03/result.json",
+        "sha256": "ccf433db3ab9d737955d9b161d8fc73a45ee137cfe0cb05289cc6dd6a1861bf1",
+        "bytes": 2278
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/independent_project_credentials_test.go"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "acbfd27e2f5d87ecc449b8eccedd956e808dfc178c27823e72eccff9c6b60705",
+        "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "started_unix": 1791410804.8326128,
+        "subreaper": true,
+        "main_pid": 975982,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.007907040002464782,
+        "total_seconds": 0.9313294230014435,
+        "observed_processes": [
+          {
+            "pid": 975982,
+            "starttime": "3675666",
+            "ppid": 975979,
+            "pgrp": 975982,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410804.8522651,
+            "remaining": []
+          },
+          {
+            "time": 1791410804.9577577,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/graph-race03/command.json",
+        "sha256": "a385647fe8aa1b5dd24e2f717aab33abb0d3359ea69a1dbee058785d7f8d023d",
+        "bytes": 1420
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "acbfd27e2f5d87ecc449b8eccedd956e808dfc178c27823e72eccff9c6b60705",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410826.002449,
+        "subreaper": true,
+        "main_pid": 976200
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/graph-race03/result.json",
+        "sha256": "d8c8d41f954d01c5cd23165fb6cb93f98b1c0a4fc7a84618f186adce19ab406b",
+        "bytes": 2375
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "acbfd27e2f5d87ecc449b8eccedd956e808dfc178c27823e72eccff9c6b60705",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410826.002449,
+        "subreaper": true,
+        "main_pid": 976200,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.2382751789991744,
+        "total_seconds": 1.1194964669994079,
+        "observed_processes": [
+          {
+            "pid": 976200,
+            "starttime": "3677783",
+            "ppid": 976197,
+            "pgrp": 976200,
+            "state": "S"
+          },
+          {
+            "pid": 976205,
+            "starttime": "3677791",
+            "ppid": 976200,
+            "pgrp": 976200,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410826.2521446,
+            "remaining": []
+          },
+          {
+            "time": 1791410826.3571563,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "83c3091743876654cf74cbbc13f6745c57e0f3f845cfd9c11315d4c4c6f2def0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/images-a02/command.json",
+        "sha256": "c9d9a99c3b40d7897c89e7ce3f5da788a3fd64922aa69135bada532ff00cf0ac",
+        "bytes": 1461
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/local-image-gate.py",
+          "a02"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4a9955beff3fe8001a1f63306cd442e456c0f873912f5e5a025cced10776e78d",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791411012.915509,
+        "subreaper": true,
+        "main_pid": 978245
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/images-a02/result.json",
+        "sha256": "1077b750b799df50890216d4b4976e0a9e99fb380a8be8a62864745d14b69e54",
+        "bytes": 2413
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/local-image-gate.py",
+          "a02"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4a9955beff3fe8001a1f63306cd442e456c0f873912f5e5a025cced10776e78d",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791411012.915509,
+        "subreaper": true,
+        "main_pid": 978245,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.101780705001147,
+        "total_seconds": 1.019821438996587,
+        "observed_processes": [
+          {
+            "pid": 978245,
+            "starttime": "3696474",
+            "ppid": 978221,
+            "pgrp": 978245,
+            "state": "S"
+          },
+          {
+            "pid": 978246,
+            "starttime": "3696481",
+            "ppid": 978245,
+            "pgrp": 978245,
+            "state": "S"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791411013.028818,
+            "remaining": []
+          },
+          {
+            "time": 1791411013.1338768,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "stdout_sha256": "98325d6a4e940cc6e385dfba9b69952a2b60479f3c07e86bf09e8f00784b5f3e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/images-b01/command.json",
+        "sha256": "5e4813dc9408804c7a5c960c340e168ae7fc2a9e93b22dc63735e84b28e86c12",
+        "bytes": 1462
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/local-image-gate.py",
+          "b01"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4a9955beff3fe8001a1f63306cd442e456c0f873912f5e5a025cced10776e78d",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791411086.2377887,
+        "subreaper": true,
+        "main_pid": 985471
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/images-b01/result.json",
+        "sha256": "2bb1b89655d8d58ba9298445a5b457d7fa21c3c8346215829439c2cdf3b37234",
+        "bytes": 2291
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/local-image-gate.py",
+          "b01"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "4a9955beff3fe8001a1f63306cd442e456c0f873912f5e5a025cced10776e78d",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791411086.2377887,
+        "subreaper": true,
+        "main_pid": 985471,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.13779865699325455,
+        "total_seconds": 1.0563252569991164,
+        "observed_processes": [
+          {
+            "pid": 985471,
+            "starttime": "3703806",
+            "ppid": 985467,
+            "pgrp": 985471,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791411086.3871713,
+            "remaining": []
+          },
+          {
+            "time": 1791411086.4926002,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "stdout_sha256": "a972742f2498de1535d40784b28027d7638221253a33d600c7d5b8d177175dde",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/list-race03/command.json",
+        "sha256": "56667be7055cfe61bfdfa3041cd426925a747b7499141622fea39e9a81ffa3f0",
+        "bytes": 1470
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/bin/independent-race03.test",
+          "-test.list=^TestIndependentProjectCredential(AuthorityAndLookup|RootAndTerminalACK)$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "7916294e4e1ddc2b098fe960e787f40abfefa329cf8cad3f5cba86030ab8e7f1",
+        "tool_before_sha256": "8f7887bd1fb9c90d91335c32a71baad482461b4be58b7a5d0531ce0cf948e7f6",
+        "started_unix": 1791410921.2478015,
+        "subreaper": true,
+        "main_pid": 977288
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/list-race03/result.json",
+        "sha256": "772b1834a2a565b330acdd950684a46b115895b63522adde3fa83e278b3451c6",
+        "bytes": 2296
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/bin/independent-race03.test",
+          "-test.list=^TestIndependentProjectCredential(AuthorityAndLookup|RootAndTerminalACK)$"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "7916294e4e1ddc2b098fe960e787f40abfefa329cf8cad3f5cba86030ab8e7f1",
+        "tool_before_sha256": "8f7887bd1fb9c90d91335c32a71baad482461b4be58b7a5d0531ce0cf948e7f6",
+        "started_unix": 1791410921.2478015,
+        "subreaper": true,
+        "main_pid": 977288,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 1.017207035998581,
+        "total_seconds": 2.020676063002611,
+        "observed_processes": [
+          {
+            "pid": 977288,
+            "starttime": "3687307",
+            "ppid": 977285,
+            "pgrp": 977288,
+            "state": "S"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410922.2758904,
+            "remaining": []
+          },
+          {
+            "time": 1791410922.3810833,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "8f7887bd1fb9c90d91335c32a71baad482461b4be58b7a5d0531ce0cf948e7f6",
+        "stdout_sha256": "84aff966912a711d0142b3392ec1e2e6f73796b69ae13f34c1230c139d208dd7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/resource-input-gate03/command.json",
+        "sha256": "db241d3e239c79ae65ed57c225dc6e25a592aba1b48f3b51f580bd949764d47b",
+        "bytes": 1692
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/driver.py",
+          "--name",
+          "preflight-only",
+          "--group",
+          "new-independent-a",
+          "--frozen",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/frozen-proposal.json",
+          "--check-input-only"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "01d503df32c82e060966152a6e42272243678ae32f67ee172e8bb9d367e5e2b5",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791410935.5458465,
+        "subreaper": true,
+        "main_pid": 977440
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/resource-input-gate03/result.json",
+        "sha256": "d770c8eec8e7ecc5b25aac436ad641d214f5dd80274516d1f2fa75e9f83b415f",
+        "bytes": 2520
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/driver.py",
+          "--name",
+          "preflight-only",
+          "--group",
+          "new-independent-a",
+          "--frozen",
+          "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/frozen-proposal.json",
+          "--check-input-only"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "01d503df32c82e060966152a6e42272243678ae32f67ee172e8bb9d367e5e2b5",
+        "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "started_unix": 1791410935.5458465,
+        "subreaper": true,
+        "main_pid": 977440,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.8246347579988651,
+        "total_seconds": 1.7349965230023372,
+        "observed_processes": [
+          {
+            "pid": 977440,
+            "starttime": "3688737",
+            "ppid": 977437,
+            "pgrp": 977440,
+            "state": "Z"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410936.3827379,
+            "remaining": []
+          },
+          {
+            "time": 1791410936.4886096,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "stdout_sha256": "fecdf98dfa57c92f77094eb4629e6daeec1d3938b2cad008f1191524d644c190",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/vet-race03/command.json",
+        "sha256": "6aa94b3f993acadd0992ebdd835f4e38083f57423956ee34090199bc3b54af85",
+        "bytes": 1381
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "754b3174ab2af2e239ca68b78ded89578852316686bcbbe8af0f67440c5d4722",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410905.1986804,
+        "subreaper": true,
+        "main_pid": 977103
+      },
+      "omitted_fields": {}
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/runs/vet-race03/result.json",
+        "sha256": "44bf64fa787c85b07473cad54e1b77f9c228dc6fa2d6cb4f44f089b56f077b59",
+        "bytes": 2335
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/model"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/overlay04.json",
+          "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "LC_ALL": "C",
+          "TZ": "UTC",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+        },
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 45,
+        "driver_sha256": "e1168dbcd985fb152063c56f70ecc735d29bfbacfcb826119cfa65d1a15a6867",
+        "plan_sha256": "754b3174ab2af2e239ca68b78ded89578852316686bcbbe8af0f67440c5d4722",
+        "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "started_unix": 1791410905.1986804,
+        "subreaper": true,
+        "main_pid": 977103,
+        "actual_exit": 0,
+        "actual_wait": true,
+        "execution_seconds": 0.5536170199993649,
+        "total_seconds": 1.4502647160043125,
+        "observed_processes": [
+          {
+            "pid": 977103,
+            "starttime": "3685702",
+            "ppid": 977080,
+            "pgrp": 977103,
+            "state": "Z"
+          },
+          {
+            "pid": 977129,
+            "starttime": "3685724",
+            "ppid": 977103,
+            "pgrp": 977103,
+            "state": "R"
+          }
+        ],
+        "adopted_waits": [],
+        "cleanup_actions": [],
+        "cleanup_twice": [
+          {
+            "time": 1791410905.7651868,
+            "remaining": []
+          },
+          {
+            "time": 1791410905.871206,
+            "remaining": []
+          }
+        ],
+        "input_unchanged": true,
+        "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "success_extra": true,
+        "passed": true
+      },
+      "omitted_fields": {}
+    }
+  ]
+}

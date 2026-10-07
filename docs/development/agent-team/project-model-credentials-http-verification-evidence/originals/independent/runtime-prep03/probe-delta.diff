@@ -1,0 +1,29 @@
+--- /workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_formatted_test.go
++++ /workspace/scratch/project-owner-credential-http-verification/runtime-prep03/independent_project_credentials_test.go
+@@ -80,7 +80,11 @@
+ 	// rejects the entire canonical/receipt/Audit transaction.
+ 	var wrongTxReached, wrongTxRejected atomic.Bool
+ 	v.tap.before = func(ctx context.Context, original f.Tx, entry ac.Entry, key ac.AppendKey) (ac.Entry, ac.AppendKey) {
+-		out := v.raw.WithinTx(ctx, recoveryCause(t), func(inner context.Context, other f.Tx) error {
++		// Use a fresh bounded root context to create a second real transaction;
++		// keep ctx below only for the original Secret witness at AppendInTx.
++		otherCtx, cancelOther := context.WithTimeout(testContext(t), 2*time.Second)
++		defer cancelOther()
++		out := v.raw.WithinTx(otherCtx, recoveryCause(t), func(inner context.Context, other f.Tx) error {
+ 			if other == original {
+ 				t.Fatal("fixture did not acquire a fresh Tx")
+ 			}
+@@ -105,11 +109,12 @@
+ 	}
+ 	t.Cleanup(func() { v.tap.before = nil; v.tracked.hooks(nil, nil) })
+ 	calls, rejected := v.tap.calls.Load(), v.tap.rejected.Load()
+-	v.request(t, v.ownerBrowser, "PUT", path, "independent-a-reject", projectUpdateJSON(t, map[string]any{"expected_version": "2", "value": "must-not-commit"})).problem(t, 503, f.DependencyUnavailable)
++	response := v.request(t, v.ownerBrowser, "PUT", path, "independent-a-reject", projectUpdateJSON(t, map[string]any{"expected_version": "2", "value": "must-not-commit"}))
+ 	v.tap.before = nil
+ 	if !wrongTxReached.Load() || !wrongTxRejected.Load() || v.tap.calls.Load() != calls+1 || v.tap.rejected.Load() != rejected+1 {
+ 		t.Fatal("actual wrong-Tx/resource validator rejection missing")
+ 	}
++	response.problem(t, 503, f.DependencyUnavailable)
+ 	v.unchanged(t, before)
+ 	if v.request(t, v.ownerBrowser, "GET", path, "", nil).want(t, 200).object(t)["version"] != "2" {
+ 		t.Fatal("rejected canonical mutation escaped")

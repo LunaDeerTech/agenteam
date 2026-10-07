@@ -1,0 +1,55 @@
+--- unit01/internal/central/model/http_project_credentials_test.go
++++ unit02/internal/central/model/http_project_credentials_test.go
+@@ -363,7 +363,16 @@
+ 			}}
+ 			r := credentialTestRequest("GET", credentialTestDetail, "").WithContext(ctx)
+ 			r.Body = body
+-			go func() { returned <- summaryAborts(func() { h.ServeHTTP(w, r) }) }()
++			done := make(chan struct{})
++			t.Cleanup(func() {
++				cancel()
++				releaseOnce()
++				<-done // Always join, including a fatal assertion before result receive.
++			})
++			go func() {
++				defer close(done)
++				returned <- summaryAborts(func() { h.ServeHTTP(w, r) })
++			}()
+ 			<-entered
+ 			select {
+ 			case <-returned:
+@@ -474,3 +483,34 @@
+ 		})
+ 	}
+ }
++
++func TestProjectCredentialHTTPPureTrackedProblemAndCommitted(t *testing.T) {
++	for _, committed := range []bool{false, true} {
++		t.Run(strconv.FormatBool(committed), func(t *testing.T) {
++			h, b, s := credentialTestHandler(t)
++			w := summaryWriter()
++			var logs bytes.Buffer
++			body := &summaryHTTPBody{Reader: strings.NewReader("")}
++			r := credentialTestRequest("GET", credentialTestDetail, "")
++			r.Body = body
++			b.check = func(w http.ResponseWriter, r *http.Request) error {
++				if committed {
++					w.WriteHeader(http.StatusAccepted)
++					_, _ = w.Write([]byte("already-owned"))
++				}
++				return f.NewFault(f.Forbidden, f.NotStarted)
++			}
++			aborted := summaryAborts(func() { httpapi.Handler(slog.New(slog.NewJSONHandler(&logs, nil)), h).ServeHTTP(w, r) })
++			if s.reads.Load()+s.lookups.Load()+s.writes.Load() != 0 || body.closes.Load() != 1 {
++				t.Fatal("boundary failure lost ownership")
++			}
++			if committed {
++				if !aborted || w.Code != 202 || w.Body.String() != "already-owned" {
++					t.Fatal("tracked committed response was written twice")
++				}
++			} else if aborted || w.Code != 403 || !strings.Contains(logs.String(), `"code":"FORBIDDEN"`) || !strings.Contains(logs.String(), `"status":403`) {
++				t.Fatal("controller adapter hid Problem tracking")
++			}
++		})
++	}
++}

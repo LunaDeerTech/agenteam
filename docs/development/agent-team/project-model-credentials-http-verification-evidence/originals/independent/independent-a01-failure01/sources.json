@@ -1,0 +1,84 @@
+{
+  "raw.log": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/raw.log",
+    "sha256": "e7fe10b6cf390697811fcdef0017b6122657f8bef9a2b54ecf6b80aa7b9c5220"
+  },
+  "result.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/result.json",
+    "sha256": "5ffa1b71d2a095e2b709a9df6d13a1387aad4dacb866971fbb3cb0ce7bc936e4"
+  },
+  "command.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/command.json",
+    "sha256": "8b8116358f2f59e47dc85d14dcc57212b598b5aedbc1d691621c332b7b1486b7"
+  },
+  "cleanup.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/cleanup.json",
+    "sha256": "371e47533c07a9db618e916f31fba93557b9a4b6a690fabb62ae0fe88d6b85a2"
+  },
+  "input-before.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/input-before.json",
+    "sha256": "c25d3f9ab448c7d9d4f0c0770a7ce032bccf69a3e34d12a213083c598260af26"
+  },
+  "input-after.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/input-after.json",
+    "sha256": "c25d3f9ab448c7d9d4f0c0770a7ce032bccf69a3e34d12a213083c598260af26"
+  },
+  "watchdog.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/watchdog.json",
+    "sha256": "052bdb096d5e0f30d0dd8953b94f6eae93b9b655dc1077c5e1220c44421fe364"
+  },
+  "owned-tail-retirement.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/owned-tail-retirement.json",
+    "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+  },
+  "process-baseline.json": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/process-baseline.json",
+    "sha256": "aa5bf6b980945b76ccb9c152b28d7a68acca12aa72547097ad74cd18660c2090"
+  },
+  "private_probe": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_formatted_test.go",
+    "sha256": "6caea56b74997e84fbafcd70ae8e34dc0281ae22a30c4145f4ae88e0c0ec8ef0"
+  },
+  "authorized_frozen": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/frozen-authorized.json",
+    "sha256": "65e594df00ea711e94d0364b8b796165075e99e306904bb9ec373ee6615ee4f1"
+  },
+  "fixed_sources": [
+    {
+      "commit": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+      "path": "internal/central/postgres/transaction.go",
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "read_exit": 0
+    },
+    {
+      "commit": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+      "path": "internal/central/secret/service.go",
+      "sha256": "26f6f876e502e7d26afe9b43c11732d72356826d787baa4950b44ed15dac6906",
+      "read_exit": 0
+    },
+    {
+      "commit": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+      "path": "internal/central/secret/write.go",
+      "sha256": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f",
+      "read_exit": 0
+    },
+    {
+      "commit": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+      "path": "internal/central/secret/project_audit.go",
+      "sha256": "2f05d1ec7e33f9e97b201804b2865a547fb5c50d6e0bbd0d71f4b779e802e6ba",
+      "read_exit": 0
+    },
+    {
+      "commit": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+      "path": "internal/central/audit/service.go",
+      "sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+      "read_exit": 0
+    },
+    {
+      "commit": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+      "path": "internal/central/audit/error.go",
+      "sha256": "ad980308d48166a978891ad999adbf4309dee28fe201bf40e3629192712a58d8",
+      "read_exit": 0
+    }
+  ]
+}

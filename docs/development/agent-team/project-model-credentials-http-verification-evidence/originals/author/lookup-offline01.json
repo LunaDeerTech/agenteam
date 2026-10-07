@@ -1,0 +1,139 @@
+{
+  "lookup_manifest_sha256": "0a217020e6a7050774bff10d1938bee6538cf60f5c44df037ac8222e1a5fca56",
+  "scope": "Secret contract all pure plus exact TestSecret(Project)?PassiveLookup; no resource/native",
+  "rows": [
+    {
+      "name": "lookup-graph-normal01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-graph-normal01/result.json",
+      "sha256": "b0e2e069b645a2ab6f396b1eb0dcbcb7e3aa8929a330858272398305a3b061f9",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "lookup-graph-normal02",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-graph-normal02/result.json",
+      "sha256": "079bf4ac2fa3a2b9be249c6a29b4266064ec380578ed810c9274359122670c2d",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "lookup-graph-race01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-graph-race01/result.json",
+      "sha256": "8cf802262493cd112dec69f2afbb0c29b876be146c4078d039746ba39031b617",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "lookup-contract-compile01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-compile01/result.json",
+      "sha256": "014b70de4d0886f0adb8a9a986dab0303940f5da0e8b44e179212fd3cfaf894d",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "lookup-secret-compile01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-compile01/result.json",
+      "sha256": "62e426c2ec48897a3a608b63fc55fea68de1be87cd7c2af591d65f65cb67d8b1",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "lookup-contract-pure01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-pure01/result.json",
+      "sha256": "056f3d1d0d27a1aa8796c8f9ebe32bbf4cf7553a08f5c4706b80bed9346b33f4",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 9,
+      "nested": 149
+    },
+    {
+      "name": "lookup-secret-pure01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-pure01/result.json",
+      "sha256": "e7bd6afa0dcb6b04914f29fb6c454ab5c67879d03f2c548c4ea23360df068736",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 5,
+      "nested": 26
+    },
+    {
+      "name": "lookup-contract-racecompile01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-racecompile01/result.json",
+      "sha256": "8f9012f2348f9299a8c8cc3358995309fb56c3fc35e620f2f51752bbf234d865",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "lookup-secret-racecompile01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-racecompile01/result.json",
+      "sha256": "61787d1932f8e556c8613c90c10d8e769e3d99f95b9e3711e91a22b9cdfd22d0",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "lookup-contract-race01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-race01/result.json",
+      "sha256": "ca92fff06c8bb48aeb0f9cae5a42e10e148f328f0c00b9fb894d32c578cc97ff",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 9,
+      "nested": 149
+    },
+    {
+      "name": "lookup-secret-race01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-race01/result.json",
+      "sha256": "b77ab16915a75c0b12351460ec1036544e311e97acd35f1cba01c0af558c875c",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 5,
+      "nested": 26
+    },
+    {
+      "name": "lookup-racevet01",
+      "result": "/workspace/scratch/project-model-credentials-http-author/lookup-racevet01/result.json",
+      "sha256": "2f05134719eec404af9385066c4087018f705ff1ef7ccb4d2bcae9f5a0b01625",
+      "exit": 0,
+      "wait": true,
+      "owned_empty": 2,
+      "inputs_match": true,
+      "top": 0,
+      "nested": 0
+    }
+  ],
+  "graph_initial_limit": "normal01 extra20 migration embed; fixed using accepted read actual hash; normal02/race01 extra0"
+}

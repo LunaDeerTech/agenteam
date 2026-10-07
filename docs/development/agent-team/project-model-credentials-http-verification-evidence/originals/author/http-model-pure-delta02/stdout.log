@@ -1,0 +1,29 @@
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/read
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/write
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_false
+=== RUN   TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_true
+--- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin (0.04s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/start/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/abort/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/reset/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/read (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback/write (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_false (0.02s)
+    --- PASS: TestProjectCredentialHTTPPureDeadlinePanicAndJoin/callback_owned_close_true (0.02s)
+=== RUN   TestProjectCredentialHTTPPureTrackedProblemAndCommitted
+=== RUN   TestProjectCredentialHTTPPureTrackedProblemAndCommitted/false
+=== RUN   TestProjectCredentialHTTPPureTrackedProblemAndCommitted/true
+--- PASS: TestProjectCredentialHTTPPureTrackedProblemAndCommitted (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureTrackedProblemAndCommitted/false (0.00s)
+    --- PASS: TestProjectCredentialHTTPPureTrackedProblemAndCommitted/true (0.00s)
+PASS

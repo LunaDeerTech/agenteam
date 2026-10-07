@@ -1,0 +1,33 @@
+{
+  "status": "PASS complete bounded23 including final README; 22 actual edits",
+  "time_utc": "2026-10-07T22:17:59.329924+00:00",
+  "technical22": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final22/result.json",
+    "sha256": "884de52c3d49f9716bd9f17496e4206d77c354db1af0704f6b941152c9e5292c"
+  },
+  "readme_sha256": "b5b4444d61af796a9ecd5843b4de9cfd55981324e21ba1e6ef4b0c991bac0e5e",
+  "author_manifest23": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/readme23/manifest23.json",
+    "sha256": "3e96f4ed032fbf299f064127f54e1e4125c269651de1bcd820c1a83b10fe9e6b"
+  },
+  "scope23": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final23/sources.json",
+    "sha256": "336a24343266256c4b0f8e5cfc2140a35ed249e09617b4e885f6980fffbba85f"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final23/checks.json",
+    "sha256": "55d00ad26ccde2b33421d6f02194a05fec8cb4f55cb81ba70c021a56d17d7229"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/final23/review.md",
+    "sha256": "31e32b4a48d70c8886bd6ac3e074d835a1dd51a977304ef8b0c3a9c289e7af80"
+  },
+  "new_execution": "README fixed byte/diff/link/fragment/hash checks only; no Go/native/PG rerun",
+  "source22_unchanged": true,
+  "links": 56,
+  "fragments": 8,
+  "original_failures_preserved": true,
+  "resources_closed": true,
+  "stopped_writing": true,
+  "limits": "All final22 limits remain, including exact nonowned/nonwaited daemon difference, forced-root inner join boundary, string-erasure nonclaim, stopped tasks and unbound D24/Resolution/Invocations; no whole D09 completion."
+}

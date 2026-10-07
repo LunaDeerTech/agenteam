@@ -1,0 +1,96 @@
+{
+  "status": "All three explicitly granted native rounds actual PASS and retired; resource window released; PG not started",
+  "candidate_sha256": "6d855e9b160b0438d2aec5818e16d138afb7110eb14eb12617f06dbc2fe8d1c9",
+  "freeze_sha256": "384f9807e6135762b1ec4c3654fc750c030d9cc0046baccbe59a670d41325f1a",
+  "rounds": [
+    {
+      "mode": "keepalive",
+      "command": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/keepalive/command.json",
+      "sha256": "df6798676da6ccdf375a9a3705f7284e6946268f530c7e193daed22224356d72",
+      "pass": true,
+      "exit": 0,
+      "top": 1,
+      "nested": 0,
+      "listeners": 1,
+      "direct_wait": 1,
+      "adopted_wait": 1,
+      "full_tcp_owned_double_zero": true,
+      "inputs_same": true,
+      "trace_syscall_subset": [
+        "accept4",
+        "bind",
+        "close",
+        "connect",
+        "getpeername",
+        "getsockname",
+        "listen",
+        "socket"
+      ],
+      "trace_sha256": "1b2785b36dc01889f46d7654ca8295af6a9e37df49c353f6366b293d5ecf554c",
+      "test_elapsed": 1.2421101920044748,
+      "full_round_elapsed": 62.90318417549133
+    },
+    {
+      "mode": "slowbody",
+      "command": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/slowbody/command.json",
+      "sha256": "0610d14ecaebb430db687125225cf31d301b0e81de7d599e0c1bf3a28fecca8c",
+      "pass": true,
+      "exit": 0,
+      "top": 1,
+      "nested": 3,
+      "listeners": 3,
+      "direct_wait": 1,
+      "adopted_wait": 1,
+      "full_tcp_owned_double_zero": true,
+      "inputs_same": true,
+      "trace_syscall_subset": [
+        "accept4",
+        "bind",
+        "close",
+        "connect",
+        "getpeername",
+        "getsockname",
+        "listen",
+        "socket"
+      ],
+      "trace_sha256": "fe9d0676aac63210ea68eb523d81ddea68f789e56db8b6d005e9b80cc67776c9",
+      "test_elapsed": 33.20366112299962,
+      "full_round_elapsed": 95.94800758361816
+    },
+    {
+      "mode": "writeclose",
+      "command": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/writeclose/command.json",
+      "sha256": "eaa0deee1fb19523d9575a0f7eb7f5221e4ed748c0b76a493c374755b2850164",
+      "pass": true,
+      "exit": 0,
+      "top": 1,
+      "nested": 10,
+      "listeners": 10,
+      "direct_wait": 1,
+      "adopted_wait": 1,
+      "full_tcp_owned_double_zero": true,
+      "inputs_same": true,
+      "trace_syscall_subset": [
+        "accept4",
+        "bind",
+        "close",
+        "connect",
+        "getpeername",
+        "getsockname",
+        "listen",
+        "socket"
+      ],
+      "trace_sha256": "0c087a3de5f97e7e57d4009ffb59678236bb0adfdbabb4325abecbf0200a8569",
+      "test_elapsed": 2.124134461999347,
+      "full_round_elapsed": 62.8481080532074
+    }
+  ],
+  "totals": {
+    "top": 3,
+    "nested": 13,
+    "listeners": 14,
+    "direct_actual_wait": 3,
+    "adopted_actual_wait": 3
+  },
+  "limit": "Only native HTTP; no PG/default root dynamic acceptance yet. Publication budget and separate TCP retirement are reported separately. All traces only closed10 no-buffer syscall allowlist."
+}

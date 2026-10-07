@@ -1,0 +1,38 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 36065.73106718,
+      "top": "TestModelProjectCredentialHTTPPassiveLookup"
+    },
+    {
+      "event": "result",
+      "monotonic": 36069.864810876,
+      "observed_seconds": 4.133743696002057,
+      "reported_seconds": 4.13,
+      "state": "PASS",
+      "top": "TestModelProjectCredentialHTTPPassiveLookup"
+    },
+    {
+      "event": "run",
+      "monotonic": 36069.864810876,
+      "top": "TestModelProjectCredentialHTTPUnknown"
+    },
+    {
+      "event": "result",
+      "monotonic": 36075.910465124,
+      "observed_seconds": 6.045654247995117,
+      "reported_seconds": 6.05,
+      "state": "PASS",
+      "top": "TestModelProjectCredentialHTTPUnknown"
+    }
+  ],
+  "expected": [
+    "TestModelProjectCredentialHTTPPassiveLookup",
+    "TestModelProjectCredentialHTTPUnknown"
+  ],
+  "failures": []
+}

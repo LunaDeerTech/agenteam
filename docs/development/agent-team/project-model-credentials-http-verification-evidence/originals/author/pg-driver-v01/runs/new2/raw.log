@@ -1,0 +1,88 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.186.177.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=778712bf28f7a1f2ef7744bc80c5ca18
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=5290e5d0ad40aa3b4473d0ba5e8016c5
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.300s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+=== RUN   TestModelProjectCredentialHTTPPassiveLookup
+=== RUN   TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-create
+=== RUN   TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-absent
+--- PASS: TestModelProjectCredentialHTTPPassiveLookup (4.33s)
+    --- PASS: TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-create (0.17s)
+    --- PASS: TestModelProjectCredentialHTTPPassiveLookup/terminal_lookup-absent (0.18s)
+=== RUN   TestModelProjectCredentialHTTPUnknown
+=== RUN   TestModelProjectCredentialHTTPUnknown/prepare_nonce
+    project_credentials_http_unknown_test.go:184: physical target phase prepare_nonce backend 139 HTTP one Execute returned Unknown; private original writer terminal separately released and observed; no raw protocol persisted
+=== RUN   TestModelProjectCredentialHTTPUnknown/final_commit
+    project_credentials_http_unknown_test.go:121: owned fixture checkpoint not reached
+=== RUN   TestModelProjectCredentialHTTPUnknown/final_rollback
+    project_credentials_http_unknown_test.go:121: owned fixture checkpoint not reached
+=== RUN   TestModelProjectCredentialHTTPUnknown/final_pending_revoke
+    project_credentials_http_unknown_test.go:121: owned fixture checkpoint not reached
+--- FAIL: TestModelProjectCredentialHTTPUnknown (20.24s)
+    --- PASS: TestModelProjectCredentialHTTPUnknown/prepare_nonce (0.39s)
+    --- FAIL: TestModelProjectCredentialHTTPUnknown/final_commit (5.44s)
+    --- FAIL: TestModelProjectCredentialHTTPUnknown/final_rollback (5.43s)
+    --- FAIL: TestModelProjectCredentialHTTPUnknown/final_pending_revoke (5.48s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/model	24.607s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce b459033977a879ec1b8d445639e6357c
+D04 outbound fixture cleanup checked for nonce 5290e5d0ad40aa3b4473d0ba5e8016c5
+D05 object fixture exact resource cleanup checked nonce=778712bf28f7a1f2ef7744bc80c5ca18

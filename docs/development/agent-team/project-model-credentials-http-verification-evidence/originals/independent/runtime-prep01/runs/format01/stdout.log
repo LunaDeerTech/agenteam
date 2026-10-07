@@ -1,0 +1,399 @@
+//go:build integration
+
+package model_test
+
+// Private draft: no resource execution has been authorized for this source.
+// Formal identity, Secret/Audit construction, canonical fixture and root helpers
+// are frozen author candidate02/accepted a0b012ce dependencies, not mocks.
+
+import (
+	"bytes"
+	"context"
+	"encoding/binary"
+	"io"
+	"net"
+	"net/url"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+func TestIndependentProjectCredentialAuthorityAndLookup(t *testing.T) {
+	projectCredentialTop(t)
+	v := newProjectCredentialFixture(t)
+	target := v.create(t, "independent-a-create", "independent-a-material")
+	path := v.collection() + "/" + target
+	rotation := projectUpdateJSON(t, map[string]any{"expected_version": "1", "value": "independent-a-rotation"})
+	v.request(t, v.ownerBrowser, "PUT", path, "independent-a-update", rotation).want(t, 200)
+	lookup := v.lookup(t, v.ownerBrowser, "independent-a-update", sc.Update, target, 1)
+	command, _ := f.CommandLock(lookup.Identity)
+	user, _ := f.UserLock(lookup.Actor.Details().UserID)
+	project, _ := f.ProjectLock(v.project.ID.String())
+	var held atomic.Int32
+	v.tracked.hooks(func(ctx context.Context, tx f.Tx, cause f.TransactionCause) error {
+		if !projectCredentialLookupCause(cause) {
+			return nil
+		}
+		held.Add(1)
+		return v.raw.RequireHeldLocks(ctx, tx, []f.LockRequest{{Key: command, Mode: f.Shared}, {Key: user, Mode: f.Shared}, {Key: project, Mode: f.Shared}})
+	}, nil)
+	observation, err := v.writer.LookupWriteCommand(testContext(t), lookup)
+	v.tracked.hooks(nil, nil)
+	if err != nil || !observation.Observed || held.Load() != 1 || observation.Result.Metadata.Version != 2 {
+		t.Fatal("actual three-SH lookup lost committed update")
+	}
+	before := v.facts(t)
+	release := managementHold(t, &systemHTTPFixture{fixture: v.fixture}, command, f.Exclusive)
+	ctx, cancel := context.WithTimeout(testContext(t), 150*time.Millisecond)
+	blocked, err := v.writer.LookupWriteCommand(ctx, lookup)
+	cancel()
+	release()
+	if err == nil || blocked.Observed || blocked.Result != nil {
+		t.Fatal("live original command lock became absence")
+	}
+	v.unchanged(t, before)
+	projectCredentialCanonical(t, v, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=clock_timestamp(),updated_at=clock_timestamp(),version=version+1 WHERE id=$1`, v.project.ID.String())
+	if v.request(t, v.ownerBrowser, "POST", v.lookupPath(), "independent-a-update", projectCredentialLookupBody(t, sc.Update, target, 1)).want(t, 200).object(t)["observed"] != true {
+		t.Fatal("archived passive Read lost history")
+	}
+	v.request(t, v.ownerBrowser, "PUT", path, "independent-a-update", rotation).problem(t, 409, f.ProjectNotActive)
+	v.unchanged(t, before)
+	projectCredentialCanonical(t, v, `UPDATE agenteam_project.projects SET lifecycle='active',archived_at=NULL,updated_at=clock_timestamp(),version=version+1 WHERE id=$1`, v.project.ID.String())
+	renewed := v.login(t, v.ownerBrowser.email)
+	if err := v.core.Logout(testContext(t), account.LogoutRequest{Actor: renewed.actor, Key: "independent-a-logout"}); err != nil {
+		t.Fatal("formal Logout did not commit")
+	}
+	v.request(t, renewed, "POST", v.lookupPath(), "independent-a-update", projectCredentialLookupBody(t, sc.Update, target, 1)).problem(t, 401, f.SessionRevoked)
+	v.request(t, renewed, "PUT", path, "independent-a-update", rotation).problem(t, 401, f.SessionRevoked)
+	current := v.login(t, v.ownerBrowser.email)
+	v.request(t, current, "POST", v.lookupPath(), "independent-a-update", projectCredentialLookupBody(t, sc.Update, target, 1)).want(t, 200)
+	// Wrong current Tx must reach the real Audit/Project witness gate. Then a
+	// different valid Entry resource reaches it in the original mutation and
+	// rejects the entire canonical/receipt/Audit transaction.
+	var wrongTxReached, wrongTxRejected atomic.Bool
+	v.tap.before = func(ctx context.Context, original f.Tx, entry ac.Entry, key ac.AppendKey) (ac.Entry, ac.AppendKey) {
+		out := v.raw.WithinTx(ctx, recoveryCause(t), func(inner context.Context, other f.Tx) error {
+			if other == original {
+				t.Fatal("fixture did not acquire a fresh Tx")
+			}
+			if err := v.raw.AcquireAll(inner, other, []f.LockRequest{{Key: user, Mode: f.Shared}, {Key: project, Mode: f.Shared}}); err != nil {
+				return err
+			}
+			wrongTxReached.Store(true)
+			_, err := v.tap.next.AppendInTx(ctx, other, entry, key)
+			wrongTxRejected.Store(err != nil)
+			return err
+		})
+		if out.State() == f.Committed {
+			t.Fatal("captured witness accepted a different live Tx")
+		}
+		fields := entry.Fields()
+		fields.Resource, _ = ac.NewResource(ac.SecretResource, newID[struct{}](t).String())
+		changed, err := ac.NewEntry(fields)
+		if err != nil {
+			t.Fatal("invalid independent Audit tamper")
+		}
+		return changed, key
+	}
+	t.Cleanup(func() { v.tap.before = nil; v.tracked.hooks(nil, nil) })
+	calls, rejected := v.tap.calls.Load(), v.tap.rejected.Load()
+	v.request(t, v.ownerBrowser, "PUT", path, "independent-a-reject", projectUpdateJSON(t, map[string]any{"expected_version": "2", "value": "must-not-commit"})).problem(t, 503, f.DependencyUnavailable)
+	v.tap.before = nil
+	if !wrongTxReached.Load() || !wrongTxRejected.Load() || v.tap.calls.Load() != calls+1 || v.tap.rejected.Load() != rejected+1 {
+		t.Fatal("actual wrong-Tx/resource validator rejection missing")
+	}
+	v.unchanged(t, before)
+	if v.request(t, v.ownerBrowser, "GET", path, "", nil).want(t, 200).object(t)["version"] != "2" {
+		t.Fatal("rejected canonical mutation escaped")
+	}
+}
+
+func TestIndependentProjectCredentialRootAndTerminalACK(t *testing.T) {
+	projectCredentialTop(t)
+	v := newProjectCredentialFixture(t)
+	root := startProjectUsageRoot(t, v.projectUsageHTTPFixture)
+	value := bytes.Repeat([]byte{'r'}, sc.MaxValueBytes)
+	value[len(value)-1] = 'x'
+	defer clear(value)
+	body := projectUpdateJSON(t, map[string]any{"value": string(value)})
+	defer clear(body)
+	before := v.facts(t)
+	created := projectUpdateRootRequest(t, root, v.ownerBrowser, "POST", v.collection(), "independent-root-original", body).want(t, 200)
+	target := created.object(t)["credential_id"].(string)
+	path := v.collection() + "/" + target
+	after := v.facts(t)
+	if after.Canonical != before.Canonical+1 || after.Receipts != before.Receipts+1 || after.Audits != before.Audits+1 || after.Events != before.Events {
+		t.Fatal("root same-Store Secret/Audit effect missing")
+	}
+	if !bytes.Equal(projectUpdateRootRequest(t, root, v.ownerBrowser, "POST", v.collection(), "independent-root-original", body).want(t, 200).body, created.body) {
+		t.Fatal("root original-material replay changed")
+	}
+	value[len(value)-1] = 'y'
+	altered := projectUpdateJSON(t, map[string]any{"value": string(value)})
+	defer clear(altered)
+	projectUpdateRootRequest(t, root, v.ownerBrowser, "POST", v.collection(), "independent-root-original", altered).problem(t, 409, f.IdempotencyKeyReused)
+	v.unchanged(t, after)
+	metadata := projectUpdateRootRequest(t, root, v.ownerBrowser, "GET", path, "", nil).want(t, 200)
+	head := projectUpdateRootRequest(t, root, v.ownerBrowser, "HEAD", path, "", nil).want(t, 200)
+	if len(head.body) != 0 || head.headers.Get("Content-Length") != metadata.headers.Get("Content-Length") {
+		t.Fatal("root HEAD representation mismatch")
+	}
+	observed := projectUpdateRootRequest(t, root, v.ownerBrowser, "POST", v.lookupPath(), "independent-root-original", projectCredentialLookupBody(t, sc.Create, "", 0)).want(t, 200)
+	for _, tc := range []struct {
+		name, method, path string
+		response           systemHTTPResponse
+	}{{"independent-create", "POST", v.collection(), created}, {"independent-metadata", "GET", path, metadata}, {"independent-lookup", "POST", v.lookupPath(), observed}} {
+		projectCredentialExport(t, tc.name, tc.method, tc.path, tc.response)
+	}
+	root.stop(t)
+	if !strings.Contains(root.logs.String(), `"outcome":"drained"`) || strings.Contains(root.logs.String(), "independent-root-original") || strings.Contains(root.logs.String(), string(value)) {
+		t.Fatal("root drain/log boundary")
+	}
+	ivCredentialTerminalFirst(t, v)
+}
+
+func ivCredentialTerminalFirst(t *testing.T, v *projectCredentialFixture) {
+	proxy := ivNewCredentialACKProxy(t, net.JoinHostPort("127.0.0.1", v.db.Fixture.Port))
+	u, err := url.Parse(v.db.Fixture.URL(v.db.Name))
+	if err != nil {
+		t.Fatal("owned fixture URL")
+	}
+	u.Host = proxy.listener.Addr().String()
+	raw := openStore(t, v.db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable"}))
+	tracked := &projectUsageHTTPStore{Store: raw}
+	service, _ := projectCredentialService(t, v.projectUsageHTTPFixture, tracked)
+	port := &projectCredentialTaggedWrites{HumanWriteCommands: service}
+	old := v.handler
+	v.install(t, port)
+	t.Cleanup(func() { v.handler = old; tracked.hooks(nil, nil) })
+	key := "independent-terminal-first"
+	lookup := v.lookup(t, v.ownerBrowser, key, sc.Create, "", 0)
+	digest, _ := cursor.Digest([]byte(lookup.Identity.Canonical()))
+	command, _ := f.CommandLock(lookup.Identity)
+	user, _ := f.UserLock(lookup.Actor.Details().UserID)
+	project, _ := f.ProjectLock(v.project.ID.String())
+	var armed atomic.Bool
+	original := make(chan f.CommitResult, 1)
+	tracked.hooks(func(ctx context.Context, tx f.Tx, cause f.TransactionCause) error {
+		if cause.Kind() != f.CommandsCause || cause.Details().Primary.Canonical() != lookup.Identity.Canonical() {
+			return nil
+		}
+		if ctx.Value(projectCredentialTargetKey{}) != lookup.Identity.Canonical() {
+			return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+		}
+		if err := raw.RequireHeldLocks(ctx, tx, []f.LockRequest{{Key: command, Mode: f.Exclusive}, {Key: user, Mode: f.Shared}, {Key: project, Mode: f.Shared}}); err != nil {
+			return err
+		}
+		x, err := raw.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var pid int32
+		var complete bool
+		err = x.QueryRow(ctx, `SELECT pg_backend_pid(),EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts r JOIN agenteam_secret.secrets s ON s.id=r.credential_id JOIN agenteam_audit.audit_records a ON a.cause_ref=r.command_digest AND a.resource_id=s.id WHERE r.project_id=$1 AND r.command_digest=$2 AND r.mutation_kind='create' AND r.purpose='model' AND r.result_version=1 AND NOT r.deleted AND a.producer='secret' AND a.action='secret.create' AND a.ordinal=0 AND a.project_id=r.project_id)`, v.project.ID.String(), string(digest)).Scan(&pid, &complete)
+		if err != nil {
+			return err
+		}
+		if !complete {
+			return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+		}
+		n := uint64(command.AdvisoryKey())
+		var owners int
+		var owner int32
+		err = x.QueryRow(ctx, `SELECT count(*),COALESCE(min(pid),0) FROM pg_locks WHERE locktype='advisory' AND database=(SELECT oid FROM pg_database WHERE datname=current_database()) AND classid::bigint=$1 AND objid::bigint=$2 AND objsubid=1 AND granted AND mode='ExclusiveLock'`, int64(uint32(n>>32)), int64(uint32(n))).Scan(&owners, &owner)
+		if err != nil {
+			return err
+		}
+		if owners != 1 || owner != pid || !armed.CompareAndSwap(false, true) {
+			return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+		}
+		proxy.target.Store(pid)
+		return nil
+	}, func(cause f.TransactionCause, result f.CommitResult) f.CommitResult {
+		if cause.Kind() == f.CommandsCause && cause.Details().Primary.Canonical() == lookup.Identity.Canonical() {
+			original <- result
+		}
+		return result // actual Store state; never a result decorator
+	})
+	before := v.facts(t)
+	response := v.request(t, v.ownerBrowser, "POST", v.collection(), key, projectUpdateJSON(t, map[string]any{"value": "independent-terminal-material"}))
+	select {
+	case <-proxy.ackDropped:
+	default:
+		t.Fatal("HTTP returned before targeted server COMMIT+idle")
+	}
+	result := <-original
+	if !armed.Load() || proxy.committedPID.Load() <= 0 || port.writes.Load() != 1 || port.lookups.Load() != 0 || result.State() != f.Unknown {
+		t.Fatal("actual committed ACKloss became success/retry")
+	}
+	response.problem(t, 503, f.CommitUnknown)
+	if bytes.Contains(response.body, []byte("credential_id")) {
+		t.Fatal("Unknown leaked mutation candidate")
+	}
+	tracked.hooks(nil, nil)
+	after := v.facts(t)
+	if after.Canonical != before.Canonical+1 || after.Receipts != before.Receipts+1 || after.Audits != before.Audits+1 || after.Events != before.Events {
+		t.Fatal("terminal-first commit facts not visible")
+	}
+	lookupResponse := v.request(t, v.ownerBrowser, "POST", v.lookupPath(), key, projectCredentialLookupBody(t, sc.Create, "", 0)).want(t, 200)
+	if lookupResponse.object(t)["observed"] != true {
+		t.Fatal("separate passive lookup missed committed receipt")
+	}
+	projectCredentialExport(t, "independent-terminal-lookup", "POST", v.lookupPath(), lookupResponse)
+	v.unchanged(t, after)
+	t.Log("target backend", proxy.committedPID.Load(), "actual server COMMIT+idle before HTTP Unknown; unique Execute; later public lookup separately authorized; no protocol/request payload persisted")
+}
+
+// Minimal derivation of accepted projectModelPGTrace: target backend matching,
+// no protocol/log payload, and Close waits both directions plus accept/serve.
+type ivCredentialACKProxy struct {
+	listener             net.Listener
+	upstream             string
+	mu                   sync.Mutex
+	closing              bool
+	connections          map[net.Conn]bool
+	wg                   sync.WaitGroup
+	target, committedPID atomic.Int32
+	ackDropped           chan struct{}
+}
+
+func ivNewCredentialACKProxy(t *testing.T, upstream string) *ivCredentialACKProxy {
+	t.Helper()
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("private listener acquisition failed")
+	}
+	p := &ivCredentialACKProxy{listener: l, upstream: upstream, connections: map[net.Conn]bool{}, ackDropped: make(chan struct{})}
+	p.wg.Add(1)
+	go func() {
+		defer p.wg.Done()
+		for {
+			c, e := l.Accept()
+			if e != nil {
+				return
+			}
+			if !p.add(c) {
+				return
+			}
+			p.wg.Add(1)
+			go p.serve(c)
+		}
+	}()
+	t.Cleanup(func() {
+		_ = l.Close()
+		p.mu.Lock()
+		p.closing = true
+		for c := range p.connections {
+			_ = c.Close()
+		}
+		p.mu.Unlock()
+		p.wg.Wait()
+	})
+	return p
+}
+func (p *ivCredentialACKProxy) add(c net.Conn) bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if p.closing {
+		_ = c.Close()
+		return false
+	}
+	p.connections[c] = true
+	return true
+}
+func (p *ivCredentialACKProxy) remove(c net.Conn) {
+	_ = c.Close()
+	p.mu.Lock()
+	delete(p.connections, c)
+	p.mu.Unlock()
+}
+func (p *ivCredentialACKProxy) serve(client net.Conn) {
+	defer p.wg.Done()
+	defer p.remove(client)
+	server, err := net.DialTimeout("tcp", p.upstream, 3*time.Second)
+	if err != nil {
+		return
+	}
+	if !p.add(server) {
+		return
+	}
+	defer p.remove(server)
+	var header [4]byte
+	if _, err = io.ReadFull(client, header[:]); err != nil {
+		return
+	}
+	size := binary.BigEndian.Uint32(header[:])
+	if size < 8 || size > 1<<20 {
+		return
+	}
+	startup := make([]byte, int(size))
+	copy(startup, header[:])
+	if _, err = io.ReadFull(client, startup[4:]); err != nil {
+		return
+	}
+	if _, err = server.Write(startup); err != nil {
+		return
+	}
+	clear(startup)
+	var backend atomic.Int32
+	var drop atomic.Bool
+	done := make(chan struct{}, 2)
+	go func() {
+		defer func() { done <- struct{}{} }()
+		for {
+			frame, e := readModelPGFrame(client)
+			if e != nil {
+				return
+			}
+			if frame[0] == 'Q' && strings.EqualFold(strings.Trim(string(frame[5:]), "\x00; \t\r\n"), "COMMIT") && backend.Load() > 0 && p.target.CompareAndSwap(backend.Load(), 0) {
+				drop.Store(true)
+			}
+			_, e = server.Write(frame)
+			clear(frame)
+			if e != nil {
+				return
+			}
+		}
+	}()
+	go func() {
+		defer func() { done <- struct{}{} }()
+		for {
+			frame, e := readModelPGFrame(server)
+			if e != nil {
+				return
+			}
+			if frame[0] == 'K' && len(frame) >= 9 {
+				backend.Store(int32(binary.BigEndian.Uint32(frame[5:9])))
+			}
+			if drop.Load() && frame[0] == 'C' && string(frame[5:]) == "COMMIT\x00" {
+				ready, e := readModelPGFrame(server)
+				if e != nil || ready[0] != 'Z' || len(ready) != 6 || ready[5] != 'I' {
+					return
+				}
+				clear(frame)
+				clear(ready)
+				p.committedPID.Store(backend.Load())
+				close(p.ackDropped)
+				_ = client.Close()
+				return
+			}
+			_, e = client.Write(frame)
+			clear(frame)
+			if e != nil {
+				return
+			}
+		}
+	}()
+	<-done
+	_ = client.Close()
+	_ = server.Close()
+	<-done
+}

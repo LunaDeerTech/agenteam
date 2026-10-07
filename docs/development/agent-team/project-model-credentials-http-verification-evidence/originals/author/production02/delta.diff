@@ -1,0 +1,13 @@
+--- production01/internal/central/model/http_project_credentials.go
++++ production02/internal/central/model/http_project_credentials.go
+@@ -379,7 +379,9 @@
+ 		metadata, beforeErr := h.writes.Metadata(ctx, r.Actor, r.Ref)
+ 		if beforeErr == nil {
+ 			if metadata.CredentialRef.Validate() != nil || !metadata.Purpose.Valid() || metadata.Version.Validate() != nil || !metadata.CredentialRef.Equal(r.Ref) {
+-				beforeErr = unavailable(nil)
++				// A damaged successful projection is never a metadata race. Do
++				// not let a later receipt observation admit a write candidate.
++				return sc.MutationResult{}, unavailable(nil)
+ 			} else if metadata.Purpose != sc.Model {
+ 				beforeErr = fault(f.NotFound)
+ 			} else if metadata.Version != r.ExpectedVersion {

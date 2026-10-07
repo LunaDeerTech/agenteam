@@ -1,0 +1,155 @@
+{
+  "status": "READY; behavior and resources NOT RUN",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/unit-candidate02/manifest.json",
+    "sha256": "e185ad5f10893cf55176868932281ecf36e7600e5e5715dc797a36fc4ddf60b4"
+  },
+  "driver": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/offline-run.py",
+    "sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/closure03.json",
+    "sha256": "c7c5aaf6d48fd08a90d617b508010c86354cacb385eac36f08e2c869118c4c4e"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/actual-probe-graph01.json",
+    "sha256": "e97a17631c61d50b51bcd5dfb0ad9a3d34372612f2826dceed716f6a03f74d58"
+  },
+  "private_probe": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/independent_credential_controls_test.go",
+    "sha256": "be9c4e21554b967b85666ce6a6966bff8c5982157425d041d1f40d5507fa38d1"
+  },
+  "private_delta": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/private-from-draft.diff",
+    "sha256": "8373bccfca51b23e64b56e5f5eff5584842f3a0db2858261fb03f2bafd92ac88"
+  },
+  "plan": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/behavior-plan05.json",
+    "sha256": "ac1438fbe4c4b5ddcb9150b72446e572f061d4defec6c16520695997a11e764e"
+  },
+  "selectors": [
+    "^TestIndependentProjectCredentialHTTPControls$"
+  ],
+  "runtime": "Only 8 independent controlled branches + nested strict cases; no natural32s author group, no native, no app tests, no integration tests/model, no resource/TestMain/socket/HTTP client/subprocess body. Public middleware and handler with controlled fakes; does not prove real Session/Audit/PG.",
+  "budget": "each binary test40s, wrapper execution45s then actual owned cleanup; compile used -p=1/offline readonly; GOMAXPROCS2. Count1 parallel1; no retries.",
+  "binary_hashes": {
+    "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+    "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5"
+  },
+  "preparation_results": {
+    "format01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/format01/result.json",
+        "sha256": "ed0e5c3f03b96f04c52f07e9ec48cfbf5653c14997d429139afd8dd793969b94"
+      },
+      "exit": 0,
+      "seconds": 0.007482751003408339,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "format02": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/format02/result.json",
+        "sha256": "00b6071f0278c8077265c14dc75afeb86c0f02b0018ec75718f048a5c0d5d9ea"
+      },
+      "exit": 0,
+      "seconds": 0.008148441003868356,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "graph-normal01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/graph-normal01/result.json",
+        "sha256": "5836057565a2bef92db92861feaabd046b3161f2ac39604e85c8172cfce35631"
+      },
+      "exit": 0,
+      "seconds": 0.23594206699635834,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "graph-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/graph-race01/result.json",
+        "sha256": "caf9b9fad5d41493c3b3718fa5603ff758ff882edcda0841545e8777f8cc53aa"
+      },
+      "exit": 0,
+      "seconds": 0.22392638899327721,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "compile-normal01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/compile-normal01/result.json",
+        "sha256": "64a1c176fb675f20a2660a7f52d2c98f151434b6f64312000c0030771b136737"
+      },
+      "exit": 0,
+      "seconds": 3.180114159004006,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "compile-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/compile-race01/result.json",
+        "sha256": "63e77b7309587000ee4103dad68c97ee0bc712875b7616b05e6012f8d24307ea"
+      },
+      "exit": 0,
+      "seconds": 4.725174929997593,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "vet-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/vet-race01/result.json",
+        "sha256": "f32ee79d5dea5c6b1485d4d4a7e15b28b5bf98fa2af867e35329638e3fc99c25"
+      },
+      "exit": 0,
+      "seconds": 1.0302566829996067,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "list-normal01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/list-normal01/result.json",
+        "sha256": "edeb00b01ab64d6e774d4d24ecc96e64c8da79fe44a4d893c29a8b8d9da7b8df"
+      },
+      "exit": 0,
+      "seconds": 0.009021530000609346,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    },
+    "list-race01": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs/list-race01/result.json",
+        "sha256": "d401c57f11a4a3d6f7448f6b744cfaf7d9eceebadbb6ee46f8ad989e1f3691de"
+      },
+      "exit": 0,
+      "seconds": 1.0292606470029568,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "cleanup_empty_twice": true,
+      "input_unchanged": true
+    }
+  },
+  "original_note": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/graph-parser-original-note.json",
+    "sha256": "a94cb92b4606d1dac17740fe6a34594e2579498bcb64ee7099346ff8788d4e7b"
+  },
+  "scope": "only own scratch; original343 draft retained; parent17 fixed snapshots overlaid, generated testmain no custom hooks; full22 static separately in progress"
+}

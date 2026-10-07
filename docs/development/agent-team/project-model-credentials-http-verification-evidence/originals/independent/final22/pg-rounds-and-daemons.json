@@ -1,0 +1,938 @@
+{
+  "total_actual_pg_rounds": 9,
+  "author_rounds": 6,
+  "independent_rounds": 3,
+  "original_failures": [
+    "author v01/new2",
+    "independent A01"
+  ],
+  "rounds": [
+    {
+      "run": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "a3c229414cd65211fdddc967d7852ead5e7a07dd7ccce2db4155150d1a830259"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/raw.log",
+        "sha256": "0f73a0dc25a921ab2b01927b569e54741fbd93b7ddc741b7a7a492f3dbbe5b09"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/process-baseline.json",
+        "sha256": "3e12878494c2706cedb0b85e09b07e66866035e0449ddd176669557304f95043"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/cleanup.json",
+        "sha256": "b0e74731afa1e58f102eeee9c8bc1944b29de8777dab2e89efc81f452af9ed51"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/input-before.json",
+        "sha256": "d0873813576f625e44839c26922f15923dce47057733823f6961d2fd0f38f3cb"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/input-after.json",
+        "sha256": "d0873813576f625e44839c26922f15923dce47057733823f6961d2fd0f38f3cb"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 299,
+      "pid1_z_after": 303,
+      "shim_z_before": 248,
+      "shim_z_after": 252,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 904796,
+          "ppid": 1,
+          "starttime": "3553361",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 905232,
+          "ppid": 1,
+          "starttime": "3553646",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 905510,
+          "ppid": 1,
+          "starttime": "3553840",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 906107,
+          "ppid": 1,
+          "starttime": "3554026",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "7f55fc0da9f1b78fb6d2bda6034878e2acef625a47c8d119728d626b1b0d0f07"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/raw.log",
+        "sha256": "902974edbe618478aed3c2c5dfb6792611b10a7a86052c2a0f8927061c4ac688"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/process-baseline.json",
+        "sha256": "218a044743bedfbbbda59321120f08794f0d206e2cba06a2e69af45aef7825eb"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/cleanup.json",
+        "sha256": "ca481ccfbc6590f5e718a201bdad4fa728085f0fc7c06267e90ab1ed362fa94e"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/input-before.json",
+        "sha256": "d0873813576f625e44839c26922f15923dce47057733823f6961d2fd0f38f3cb"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/input-after.json",
+        "sha256": "d0873813576f625e44839c26922f15923dce47057733823f6961d2fd0f38f3cb"
+      },
+      "exit": 1,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 303,
+      "pid1_z_after": 307,
+      "shim_z_before": 252,
+      "shim_z_after": 256,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 916202,
+          "ppid": 1,
+          "starttime": "3565756",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 916654,
+          "ppid": 1,
+          "starttime": "3566131",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 916972,
+          "ppid": 1,
+          "starttime": "3566309",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 917524,
+          "ppid": 1,
+          "starttime": "3566482",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/result.json",
+        "sha256": "06ec561e14c4e3f55e158af0acd97a81927fc96b21e16e0b6b4d9f0893c8f843"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/raw.log",
+        "sha256": "a46c3d98683a5a218dfd0e1d1e00f0a6398b0071881c15b91278bea40cfb298a"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/process-baseline.json",
+        "sha256": "5d4067ef86f9a004ff14c17fdb875f4367228e26ea15df4f0b027c20a678c35f"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/cleanup.json",
+        "sha256": "1cbc0e05a15ec33df2ccc8b238665fd37a362991b167d2468d5ab99e6d18af86"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/input-before.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/input-after.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 307,
+      "pid1_z_after": 311,
+      "shim_z_before": 256,
+      "shim_z_after": 260,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 928478,
+          "ppid": 1,
+          "starttime": "3602876",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 929015,
+          "ppid": 1,
+          "starttime": "3603276",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 929286,
+          "ppid": 1,
+          "starttime": "3603475",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 929887,
+          "ppid": 1,
+          "starttime": "3603656",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/result.json",
+        "sha256": "3f82bfcf7b36fdba51d0dd0d10c6b2e22f5a7771fc2b25932d4a2820b04e6fe9"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/raw.log",
+        "sha256": "34067588aa6a08daf70e5d6880c68cb157b43764795f87c5c98e20ec2c5c67c2"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/process-baseline.json",
+        "sha256": "51f00beee2b682764b6f9f028cfd72e3b2865b8d503aa08dddaa2f730303fd33"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/cleanup.json",
+        "sha256": "de51e04ce16dedbd2b38e6aead28c1c3a6b2428049c7c84dd6c338e16aed42e3"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/input-before.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/input-after.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 311,
+      "pid1_z_after": 315,
+      "shim_z_before": 260,
+      "shim_z_after": 264,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 937292,
+          "ppid": 1,
+          "starttime": "3616442",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 937747,
+          "ppid": 1,
+          "starttime": "3616843",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 938112,
+          "ppid": 1,
+          "starttime": "3617078",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 938637,
+          "ppid": 1,
+          "starttime": "3617278",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/result.json",
+        "sha256": "cc62d314493eef42caa34fa319d7a6fc0dedaaba58a8a6046af4a5b1d6965e0f"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/raw.log",
+        "sha256": "758cc4ec3d85f7795dece709f06c601e32a6a86afc437ba0fecc228dc67d0dbf"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/process-baseline.json",
+        "sha256": "5c881bf004a034582f2e1622ab217feeb03568290d541775d271c5c0f7d13da6"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/cleanup.json",
+        "sha256": "e6895cbe70141f39b706440ed68aa253248988e43e2ac5f925649c9e4667a4b3"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/input-before.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/input-after.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 315,
+      "pid1_z_after": 319,
+      "shim_z_before": 264,
+      "shim_z_after": 268,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 945087,
+          "ppid": 1,
+          "starttime": "3625502",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 945539,
+          "ppid": 1,
+          "starttime": "3625799",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 945810,
+          "ppid": 1,
+          "starttime": "3625994",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 946396,
+          "ppid": 1,
+          "starttime": "3626172",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/result.json",
+        "sha256": "e592e27db1b12e6eef0041846dca297c9f245716ef03701b42777cc50471f9a1"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/raw.log",
+        "sha256": "784bd238d8f6daa7890aca0f38489ebc3793ccbdcfea3ce16d385bff3bedc46b"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/process-baseline.json",
+        "sha256": "adca91a26f5281c33a6f6e971cd6ba2b7563cac2472e647a52755933650a6e99"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/cleanup.json",
+        "sha256": "44c3d0bdcea36894a1980a3f927ae5ce111abf4bcfc100e974be9b384590493a"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/input-before.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/input-after.json",
+        "sha256": "b98656f3dec07a88a55af7c3ef6b27c10a0ace1cd80f70d230c8d8e1600a3f9d"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 319,
+      "pid1_z_after": 323,
+      "shim_z_before": 268,
+      "shim_z_after": 272,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 954968,
+          "ppid": 1,
+          "starttime": "3636268",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 955319,
+          "ppid": 1,
+          "starttime": "3636484",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 955593,
+          "ppid": 1,
+          "starttime": "3636677",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 956193,
+          "ppid": 1,
+          "starttime": "3636866",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/result.json",
+        "sha256": "5ffa1b71d2a095e2b709a9df6d13a1387aad4dacb866971fbb3cb0ce7bc936e4"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/raw.log",
+        "sha256": "e7fe10b6cf390697811fcdef0017b6122657f8bef9a2b54ecf6b80aa7b9c5220"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/process-baseline.json",
+        "sha256": "aa5bf6b980945b76ccb9c152b28d7a68acca12aa72547097ad74cd18660c2090"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/cleanup.json",
+        "sha256": "371e47533c07a9db618e916f31fba93557b9a4b6a690fabb62ae0fe88d6b85a2"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/input-before.json",
+        "sha256": "c25d3f9ab448c7d9d4f0c0770a7ce032bccf69a3e34d12a213083c598260af26"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/runs/independent-a01/input-after.json",
+        "sha256": "c25d3f9ab448c7d9d4f0c0770a7ce032bccf69a3e34d12a213083c598260af26"
+      },
+      "exit": 1,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 323,
+      "pid1_z_after": 327,
+      "shim_z_before": 272,
+      "shim_z_after": 276,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 967631,
+          "ppid": 1,
+          "starttime": "3654931",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 968089,
+          "ppid": 1,
+          "starttime": "3655293",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 968452,
+          "ppid": 1,
+          "starttime": "3655471",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 968976,
+          "ppid": 1,
+          "starttime": "3655659",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02",
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02/result.json",
+        "sha256": "96632cffe570099ecd5c474ef68e16d0c1fdd13865342f9bee3ad80fdd7e74ac"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02/raw.log",
+        "sha256": "dcd2ef11a7774f15ed1a83dfe7ec00f3a889c7cb81f34d5052be56c0f8c978c3"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02/process-baseline.json",
+        "sha256": "6a8926218c0ac22a389cbab8b0717638f488306b0d2655835d7681ee235355ea"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02/cleanup.json",
+        "sha256": "d48f723200efa2b4bdb8d2b5359ea9d2a9d9b06e80214eb647e2235f0b332e37"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02/input-before.json",
+        "sha256": "fcfce50ae6f0673e50759fd3e20d1239cb601bb0a5cb1cbfc1809c6bb1f81226"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-a02/input-after.json",
+        "sha256": "fcfce50ae6f0673e50759fd3e20d1239cb601bb0a5cb1cbfc1809c6bb1f81226"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 327,
+      "pid1_z_after": 331,
+      "shim_z_before": 276,
+      "shim_z_after": 280,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 978612,
+          "ppid": 1,
+          "starttime": "3697404",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 978972,
+          "ppid": 1,
+          "starttime": "3697661",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 979341,
+          "ppid": 1,
+          "starttime": "3697858",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 979844,
+          "ppid": 1,
+          "starttime": "3698042",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/result.json",
+        "sha256": "98b020229a79a7d725c3bd9fe8dd9e508e5e02a888424f753e97f03012c5ed73"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/raw.log",
+        "sha256": "a7bcd5d909b142cb03a93f8c01df1ee2edb871ea42f95fd1e13b75766367aff0"
+      },
+      "baseline": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/process-baseline.json",
+        "sha256": "6c6547e71278427c394511270c0c6f9952b7f81d5b54925fea4bdb5920d5d327"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/cleanup.json",
+        "sha256": "bdea08f19a8b5b539db1864a01ff2213f0df20c4a34ec677bf143f5b218c9fab"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/input-before.json",
+        "sha256": "fcfce50ae6f0673e50759fd3e20d1239cb601bb0a5cb1cbfc1809c6bb1f81226"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep03/pg-driver-v03/runs/independent-b01/input-after.json",
+        "sha256": "fcfce50ae6f0673e50759fd3e20d1239cb601bb0a5cb1cbfc1809c6bb1f81226"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "adopted_wait_count": 0,
+      "seven_doubleclear": true,
+      "inputs_same": true,
+      "pid1_z_before": 331,
+      "pid1_z_after": 335,
+      "shim_z_before": 280,
+      "shim_z_after": 284,
+      "new_nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 986027,
+          "ppid": 1,
+          "starttime": "3705250",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 986557,
+          "ppid": 1,
+          "starttime": "3705691",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 986930,
+          "ppid": 1,
+          "starttime": "3705942",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 987520,
+          "ppid": 1,
+          "starttime": "3706116",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "exact_shim_union": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 904796,
+      "ppid": 1,
+      "starttime": "3553361",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 905232,
+      "ppid": 1,
+      "starttime": "3553646",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 905510,
+      "ppid": 1,
+      "starttime": "3553840",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 906107,
+      "ppid": 1,
+      "starttime": "3554026",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 916202,
+      "ppid": 1,
+      "starttime": "3565756",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 916654,
+      "ppid": 1,
+      "starttime": "3566131",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 916972,
+      "ppid": 1,
+      "starttime": "3566309",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 917524,
+      "ppid": 1,
+      "starttime": "3566482",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 928478,
+      "ppid": 1,
+      "starttime": "3602876",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 929015,
+      "ppid": 1,
+      "starttime": "3603276",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 929286,
+      "ppid": 1,
+      "starttime": "3603475",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 929887,
+      "ppid": 1,
+      "starttime": "3603656",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 937292,
+      "ppid": 1,
+      "starttime": "3616442",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 937747,
+      "ppid": 1,
+      "starttime": "3616843",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 938112,
+      "ppid": 1,
+      "starttime": "3617078",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 938637,
+      "ppid": 1,
+      "starttime": "3617278",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 945087,
+      "ppid": 1,
+      "starttime": "3625502",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 945539,
+      "ppid": 1,
+      "starttime": "3625799",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 945810,
+      "ppid": 1,
+      "starttime": "3625994",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 946396,
+      "ppid": 1,
+      "starttime": "3626172",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 954968,
+      "ppid": 1,
+      "starttime": "3636268",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 955319,
+      "ppid": 1,
+      "starttime": "3636484",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 955593,
+      "ppid": 1,
+      "starttime": "3636677",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 956193,
+      "ppid": 1,
+      "starttime": "3636866",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 967631,
+      "ppid": 1,
+      "starttime": "3654931",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 968089,
+      "ppid": 1,
+      "starttime": "3655293",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 968452,
+      "ppid": 1,
+      "starttime": "3655471",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 968976,
+      "ppid": 1,
+      "starttime": "3655659",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 978612,
+      "ppid": 1,
+      "starttime": "3697404",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 978972,
+      "ppid": 1,
+      "starttime": "3697661",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 979341,
+      "ppid": 1,
+      "starttime": "3697858",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 979844,
+      "ppid": 1,
+      "starttime": "3698042",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 986027,
+      "ppid": 1,
+      "starttime": "3705250",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 986557,
+      "ppid": 1,
+      "starttime": "3705691",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 986930,
+      "ppid": 1,
+      "starttime": "3705942",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 987520,
+      "ppid": 1,
+      "starttime": "3706116",
+      "state": "Z"
+    }
+  ],
+  "new_shim_count": 36,
+  "first_actual_shim_count": 248,
+  "last_actual_shim_count": 284,
+  "new_nonshim_in_rounds": [],
+  "owned": false,
+  "task_waited": false,
+  "limit": "Exact observed PID/starttime set difference, not arithmetic inference. Baseline unrelated resources preserved; no PID1 manipulation or whole-machine cleanup claim."
+}

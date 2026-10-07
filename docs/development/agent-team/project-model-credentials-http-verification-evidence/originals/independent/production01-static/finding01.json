@@ -1,0 +1,32 @@
+{
+  "id": "CRD-PROD-01",
+  "severity": "blocking specification mismatch",
+  "status": "CONFIRMED_ROOT_ACCEPTED",
+  "input_manifest": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/production01/manifest.json",
+    "sha256": "0235de8044114239a752bbf81015fd5afb2e55df244401d87ed517c70670c998",
+    "bytes": 2292
+  },
+  "source": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/production01/src/internal/central/model/http_project_credentials.go",
+    "sha256": "b4cf7addda458c222fd92fe3b75a2ecaf43c256e7ca5f5b489687d1a14b1ad50",
+    "bytes": 12304
+  },
+  "lines": [
+    379,
+    399
+  ],
+  "requirement": "rev2 §2 damaged ref/scope/version => DependencyUnavailable and zero successful candidate; §4 late receipt protects original Metadata failures and legitimate purpose/version race",
+  "counterexample": {
+    "request": "valid PUT or DELETE, exact Project/ref/key/expected",
+    "first_lookup": "Observed false, Result nil",
+    "metadata": "nil error but invalid ref OR valid foreign-scope/wrong-ID ref OR invalid version",
+    "second_lookup_if_called": "valid Observed true matching original request",
+    "execute_if_called": "valid successful result"
+  },
+  "actual_static_flow": "381-382 set beforeErr unavailable -> 390-400 late lookup -> 403 budget -> 407 ExecuteWrite; can return success",
+  "required_flow": "reject malformed successful Metadata immediately: first lookup count1, Metadata count1, late lookup count0, ExecuteWrite count0; safety error only",
+  "minimal_fix": "new handler branch plus controlled regression; preserve real Metadata errors and valid wrong-purpose/version late-lookup behavior; no Secret library change",
+  "dynamic_reproduction": "NOT RUN; source-complete branch proof, root accepted engineering attribution",
+  "original_preserved": true
+}

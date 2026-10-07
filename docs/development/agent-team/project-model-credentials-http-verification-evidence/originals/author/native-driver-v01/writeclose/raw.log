@@ -1,0 +1,23 @@
+=== RUN   TestModelProjectCredentialNativeWriteAndClose
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/short
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/write_error
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/flush_error
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/close_error
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/panic
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/reset_error
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/unsupported
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/blocked_head_flush
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/blocked_get_write
+=== RUN   TestModelProjectCredentialNativeWriteAndClose/service_tail_actual_join
+--- PASS: TestModelProjectCredentialNativeWriteAndClose (1.09s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/short (0.00s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/write_error (0.00s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/flush_error (0.00s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/close_error (0.00s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/panic (0.00s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/reset_error (0.00s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/unsupported (0.00s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/blocked_head_flush (0.45s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/blocked_get_write (0.46s)
+    --- PASS: TestModelProjectCredentialNativeWriteAndClose/service_tail_actual_join (0.15s)
+PASS

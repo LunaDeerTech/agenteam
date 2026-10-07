@@ -1,0 +1,769 @@
+{
+  "status": "accepted evidence inspected; no independent rerun of author tests",
+  "author_summary": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/author-results01.json",
+    "sha256": "01ec101ae442e34e1e42280a9bd09c82fcd62c4773e4edcc8473514a5898604d"
+  },
+  "effective_candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/candidate03/manifest.json",
+    "sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45"
+  },
+  "pg": [
+    {
+      "run": "new1",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "a3c229414cd65211fdddc967d7852ead5e7a07dd7ccce2db4155150d1a830259"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/raw.log",
+        "sha256": "0f73a0dc25a921ab2b01927b569e54741fbd93b7ddc741b7a7a492f3dbbe5b09"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/cleanup.json",
+        "sha256": "b0e74731afa1e58f102eeee9c8bc1944b29de8777dab2e89efc81f452af9ed51"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new1/watchdog.json",
+        "sha256": "9cabeecc72edcd790b5233a10ca982d0353fc77d8b7c44b03136ef59ca24dbe5"
+      },
+      "exit": 0,
+      "top_pass": 2,
+      "nested_pass": 4,
+      "original_failure": false,
+      "actualwait_and_seven_doubleclear": true
+    },
+    {
+      "run": "new2",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "7f55fc0da9f1b78fb6d2bda6034878e2acef625a47c8d119728d626b1b0d0f07"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/raw.log",
+        "sha256": "902974edbe618478aed3c2c5dfb6792611b10a7a86052c2a0f8927061c4ac688"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/cleanup.json",
+        "sha256": "ca481ccfbc6590f5e718a201bdad4fa728085f0fc7c06267e90ab1ed362fa94e"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v01/runs/new2/watchdog.json",
+        "sha256": "28c49fe2a3c68665270f4caaf43fd1016f568183eb87bea9d7ccd2d9ad20a4fa"
+      },
+      "exit": 1,
+      "top_pass": 1,
+      "nested_pass": 3,
+      "original_failure": true,
+      "actualwait_and_seven_doubleclear": true
+    },
+    {
+      "run": "new2-rerun",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/result.json",
+        "sha256": "06ec561e14c4e3f55e158af0acd97a81927fc96b21e16e0b6b4d9f0893c8f843"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/raw.log",
+        "sha256": "a46c3d98683a5a218dfd0e1d1e00f0a6398b0071881c15b91278bea40cfb298a"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/cleanup.json",
+        "sha256": "1cbc0e05a15ec33df2ccc8b238665fd37a362991b167d2468d5ab99e6d18af86"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new2-rerun/watchdog.json",
+        "sha256": "9485cf29118a6275836cb1c64767d0fe42fedd44fec801bdbde3de950dfb76b5"
+      },
+      "exit": 0,
+      "top_pass": 2,
+      "nested_pass": 6,
+      "original_failure": false,
+      "actualwait_and_seven_doubleclear": true
+    },
+    {
+      "run": "new3",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/result.json",
+        "sha256": "3f82bfcf7b36fdba51d0dd0d10c6b2e22f5a7771fc2b25932d4a2820b04e6fe9"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/raw.log",
+        "sha256": "34067588aa6a08daf70e5d6880c68cb157b43764795f87c5c98e20ec2c5c67c2"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/cleanup.json",
+        "sha256": "de51e04ce16dedbd2b38e6aead28c1c3a6b2428049c7c84dd6c338e16aed42e3"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/new3/watchdog.json",
+        "sha256": "a468028782fd96479af92ae878ddcc8d8a8cb1287bfac085fe75f078300dba6c"
+      },
+      "exit": 0,
+      "top_pass": 1,
+      "nested_pass": 2,
+      "original_failure": false,
+      "actualwait_and_seven_doubleclear": true
+    },
+    {
+      "run": "old1",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/result.json",
+        "sha256": "cc62d314493eef42caa34fa319d7a6fc0dedaaba58a8a6046af4a5b1d6965e0f"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/raw.log",
+        "sha256": "758cc4ec3d85f7795dece709f06c601e32a6a86afc437ba0fecc228dc67d0dbf"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/cleanup.json",
+        "sha256": "e6895cbe70141f39b706440ed68aa253248988e43e2ac5f925649c9e4667a4b3"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old1/watchdog.json",
+        "sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf"
+      },
+      "exit": 0,
+      "top_pass": 5,
+      "nested_pass": 36,
+      "original_failure": false,
+      "actualwait_and_seven_doubleclear": true
+    },
+    {
+      "run": "old2",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/result.json",
+        "sha256": "e592e27db1b12e6eef0041846dca297c9f245716ef03701b42777cc50471f9a1"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/raw.log",
+        "sha256": "784bd238d8f6daa7890aca0f38489ebc3793ccbdcfea3ce16d385bff3bedc46b"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/cleanup.json",
+        "sha256": "44c3d0bdcea36894a1980a3f927ae5ce111abf4bcfc100e974be9b384590493a"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/pg-driver-v02/runs/old2/watchdog.json",
+        "sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf"
+      },
+      "exit": 0,
+      "top_pass": 9,
+      "nested_pass": 23,
+      "original_failure": false,
+      "actualwait_and_seven_doubleclear": true
+    }
+  ],
+  "pg_effective_combination": "candidate02 new1 + candidate03 new2-rerun/new3/old1/old2; original candidate02 new2 FAIL retained",
+  "pg_unique": {
+    "new_top": 5,
+    "old_top": 14
+  },
+  "native_summary": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/result-summary.json",
+    "sha256": "22ff971de08f3908221196548edb80ca8ce2bcbfa6c7f5bc3a93a58ad3b947e1"
+  },
+  "native": [
+    {
+      "mode": "keepalive",
+      "command": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/keepalive/command.json",
+        "sha256": "df6798676da6ccdf375a9a3705f7284e6946268f530c7e193daed22224356d72"
+      },
+      "direct_wait": 1,
+      "adopted_wait": 1,
+      "listeners": 1,
+      "top": 1,
+      "nested": 0,
+      "full_tcp_double_zero": true
+    },
+    {
+      "mode": "slowbody",
+      "command": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/slowbody/command.json",
+        "sha256": "0610d14ecaebb430db687125225cf31d301b0e81de7d599e0c1bf3a28fecca8c"
+      },
+      "direct_wait": 1,
+      "adopted_wait": 1,
+      "listeners": 3,
+      "top": 1,
+      "nested": 3,
+      "full_tcp_double_zero": true
+    },
+    {
+      "mode": "writeclose",
+      "command": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/native-driver-v01/writeclose/command.json",
+        "sha256": "eaa0deee1fb19523d9575a0f7eb7f5221e4ed748c0b76a493c374755b2850164"
+      },
+      "direct_wait": 1,
+      "adopted_wait": 1,
+      "listeners": 10,
+      "top": 1,
+      "nested": 10,
+      "full_tcp_double_zero": true
+    }
+  ],
+  "offline_summary": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/offline-summary01.json",
+    "sha256": "c0c51ca4c282543b642651e90ea4748b37aef831020d1510c0a4aeed0bc4c547"
+  },
+  "offline_rows": [
+    {
+      "run": "cmd-central-build01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/cmd-central-build01/result.json",
+        "sha256": "6ceb9ab229275f44accb4b2e94cc6958c44d923779bc978c0308d313d83cd862"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "cmd-runner-build01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/cmd-runner-build01/result.json",
+        "sha256": "7857b4a7e144988e83f4d2c9bfed9c1ccd441eaafb64b196af4b9fd45ac5daf4"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "dynamic-cmd-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/dynamic-cmd-graph01/result.json",
+        "sha256": "c328098384cbed6f94f4a3ca05aa1889aab67381cce6f16cf352af3d6cd56845"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "dynamic-outbound-cgo0-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/dynamic-outbound-cgo0-graph01/result.json",
+        "sha256": "1c47ff53fddf2fdfab64d4c54f3c347a024e6b0d844900eff55a406c859e0f93"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "format-http02",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/format-http02/result.json",
+        "sha256": "8a0d6edd19a9d51e5d18079605b8608aa2c1681a747f1ac8c6d06455d5db5e70"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "format-integration01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/format-integration01/result.json",
+        "sha256": "0bd35bac807bee33ae17e50b596b8910f86b97f481d529753a49d8eb631b8595"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "format-lookup01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/format-lookup01/result.json",
+        "sha256": "21dbba8f49d7460a7dc3ade9576f11726c6dd545f4bcb8aceb36bb029ef24b18"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "format-production01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/format-production01/result.json",
+        "sha256": "f491cd46ce74843d5f6e2e3a677ecfa344fdfd0101314e78217a126e3c950a91"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "format-unit03",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/format-unit03/result.json",
+        "sha256": "83978743977581293e77fd57ec1b2bab8894023ca6ad0faa6e7a2b9b9f58b831"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "format-unit04",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/format-unit04/result.json",
+        "sha256": "4ca654ceae7f15d0183289102183b2216447452e73cf9760f12cd3b3a8a42bb8"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "full-fixture-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/full-fixture-graph01/result.json",
+        "sha256": "dffacabf043848a5616c3f00ef69c0e5baf139b3298bb6583d289948e967eac5"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-app-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-app-compile01/result.json",
+        "sha256": "39e0c5786115fd8f2fa73e6b8e188b0f1e0db995002546714badfca7ddd5256f"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-app-list01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-app-list01/result.json",
+        "sha256": "5a8a87824f89c14e59b488e44f27e77e18b9ddfb39f128fd16b6ca6db8eb5ca6"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-app-pure01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-app-pure01/result.json",
+        "sha256": "6443bbbc0a3de719b3e931e87ef6fb5bc82e7ae6c3ed9209ec29eeadf4c7d0c4"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-app-race01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-app-race01/result.json",
+        "sha256": "9e09a4b54a5b4ef5036034ea46488fc4b8d91567665fe68b412c16baed0278cf"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-app-racecompile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-app-racecompile01/result.json",
+        "sha256": "cedbfc46ce4c5c28c72468fa703a3a0838a0bb312c34d047dcab8451ff4a3185"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-graph-normal01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-graph-normal01/result.json",
+        "sha256": "36d3a6abc32b2253ebadf037c43e87827e7dc5acf968f2fb3b9f9cb6d75f4285"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-graph-normal03",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-graph-normal03/result.json",
+        "sha256": "88c0dd8e5ebd9e0bfbfe449c6b5b0b6fa1bb1516add9266b390c86e1dc2aa3e3"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-graph-race02",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-graph-race02/result.json",
+        "sha256": "456bc7233fd7ecff9d7e04ac6e2eb61fde1caa20973676a4520a303f72bfe216"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-graph-race03",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-graph-race03/result.json",
+        "sha256": "1f56450351361ed1b2c800d864e676b1a1e78beaeb9a21bee5a274d5c532c5d9"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-app-racevet01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-app-racevet01/result.json",
+        "sha256": "051103e7c45e2eb35e22ba7d78ab4e5e14185909a323d3385d71deb62d88a40d"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-compile02",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-compile02/result.json",
+        "sha256": "f35e0c2beed12cf80ef9b0eb2d5873ca5a2e45f2facebab2364b16e65c8e9aaf"
+      },
+      "exit": 1,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-compile03",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-compile03/result.json",
+        "sha256": "1e44a8f214d7bf00fc54d3e2f9c7d82783d99b97eaa1dff5d73283fd40906065"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-compile04",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-compile04/result.json",
+        "sha256": "6a7d9ad0f950493a254243f36ae5031bf60a2f32968dad4c1534ce6845b0d8c4"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-list01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-list01/result.json",
+        "sha256": "79b32e31185e74a0b3bd08e0274ce3eccc0982510694a4808c06b6ac40bdfa00"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-natural-race01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-natural-race01/result.json",
+        "sha256": "aa38c516423fe89ddbfce107a6c061e60e1c1eb347cabd40aafbc5d350704742"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-natural01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-natural01/result.json",
+        "sha256": "32a187074345e11bdac2c64d7d75e358855a46ec55282e08d2795a0adf19c472"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-pure-delta02",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-pure-delta02/result.json",
+        "sha256": "7b154c59f75b55672142236a319dc66914dfbb6e58a3f47c0c26415041a13a7f"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-pure01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-pure01/result.json",
+        "sha256": "4fe7ec09cef48adf6c62580c14cb20e6b8e2c4c4567ccc62acba569887638dca"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-race01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-race01/result.json",
+        "sha256": "d056968a8b2fea43f7c9dd013d7b6d2e1007454342fcb6a04f55dda64780b6d2"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "http-model-racecompile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/http-model-racecompile01/result.json",
+        "sha256": "5f4ee4e9485826db4e1c945af464dbc35545b06e8803d87be65c6e88d7a67a7c"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/integration-graph01/result.json",
+        "sha256": "dc4bf8094719e6e742539968896a6630201e9e86bb6f3a4d9cf30cf9dafc94ce"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-model-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/integration-model-compile01/result.json",
+        "sha256": "3e437c589b56bea13b9027f58e5e2a0bbb0f6e17c3ecaa86700e35171d2c394d"
+      },
+      "exit": 1,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-model-compile02",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/integration-model-compile02/result.json",
+        "sha256": "ed07ca3d51e36f3227a1501efd424d00b611cfabee29bdb9f6af1310ae1813a4"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-model-list01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/integration-model-list01/result.json",
+        "sha256": "26fcea89a630c4d520032027c7238f0ced109e9a2671f7739cd291d6fd10e4e1"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-project-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/integration-project-compile01/result.json",
+        "sha256": "8dc7947870ee691c680cfcb85ac2422c6f864a0af9e825b927a5b320c76c48c6"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "integration-project-list01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/integration-project-list01/result.json",
+        "sha256": "fd88b76506cc14b137e135d678fb0a79f260f4802b769bcbdf9ea65618fa04a0"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-contract-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-compile01/result.json",
+        "sha256": "014b70de4d0886f0adb8a9a986dab0303940f5da0e8b44e179212fd3cfaf894d"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-contract-pure01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-pure01/result.json",
+        "sha256": "056f3d1d0d27a1aa8796c8f9ebe32bbf4cf7553a08f5c4706b80bed9346b33f4"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-contract-race01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-race01/result.json",
+        "sha256": "ca92fff06c8bb48aeb0f9cae5a42e10e148f328f0c00b9fb894d32c578cc97ff"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-contract-racecompile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-contract-racecompile01/result.json",
+        "sha256": "8f9012f2348f9299a8c8cc3358995309fb56c3fc35e620f2f51752bbf234d865"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-graph-normal01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-graph-normal01/result.json",
+        "sha256": "b0e2e069b645a2ab6f396b1eb0dcbcb7e3aa8929a330858272398305a3b061f9"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-graph-normal02",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-graph-normal02/result.json",
+        "sha256": "079bf4ac2fa3a2b9be249c6a29b4266064ec380578ed810c9274359122670c2d"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-graph-race01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-graph-race01/result.json",
+        "sha256": "8cf802262493cd112dec69f2afbb0c29b876be146c4078d039746ba39031b617"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-racevet01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-racevet01/result.json",
+        "sha256": "2f05134719eec404af9385066c4087018f705ff1ef7ccb4d2bcae9f5a0b01625"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-secret-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-compile01/result.json",
+        "sha256": "62e426c2ec48897a3a608b63fc55fea68de1be87cd7c2af591d65f65cb67d8b1"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-secret-pure01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-pure01/result.json",
+        "sha256": "e7bd6afa0dcb6b04914f29fb6c454ab5c67879d03f2c548c4ea23360df068736"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-secret-race01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-race01/result.json",
+        "sha256": "b77ab16915a75c0b12351460ec1036544e311e97acd35f1cba01c0af558c875c"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "lookup-secret-racecompile01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/lookup-secret-racecompile01/result.json",
+        "sha256": "61787d1932f8e556c8613c90c10d8e769e3d99f95b9e3711e91a22b9cdfd22d0"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    },
+    {
+      "run": "native-list01",
+      "result": {
+        "path": "/workspace/scratch/project-model-credentials-http-author/native-list01/result.json",
+        "sha256": "7722fe0ca13a4cc88a854e90034f8e16795cef1f4debab078e46adec8b1929b0"
+      },
+      "exit": 0,
+      "actualwait": true,
+      "remaining": 0,
+      "inputs_same": true
+    }
+  ],
+  "limits": [
+    "Author heldproxy covers pending-to-terminal, not terminal-first ACKloss; independent B owns terminal-first.",
+    "Forced root return is not all inner components joined; separate proxy/process teardown remains distinct.",
+    "Daemon/PID1 zombies are nonowned, not waited; exact union will include independent rounds in final record.",
+    "Real author failure raw has checkpoint errors, not original SQLSTATE; static attribution and candidate03 rerun remain separate."
+  ]
+}

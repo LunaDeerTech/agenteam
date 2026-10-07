@@ -1,0 +1,40 @@
+900715 1791409242.525320 close(3</etc/ld.so.cache>) = 0
+900715 1791409242.526006 close(3</usr/lib/x86_64-linux-gnu/libc.so.6>) = 0
+900715 1791409242.526971 close(3</proc/900715/maps>) = 0
+900715 1791409242.527209 close(3</sys/kernel/mm/transparent_hugepage/hpage_pmd_size>) = 0
+900715 1791409242.531539 close(3</proc/900715/environ>) = 0
+900715 1791409242.531806 close(3</proc/900715/cmdline>) = 0
+900715 1791409242.534473 close(3</proc/900715/cgroup>) = 0
+900715 1791409242.534660 close(3</proc/900715/mountinfo>) = 0
+900715 1791409242.543755 close(5</etc/machine-id>) = 0
+900715 1791409242.546661 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCP:[2372533]>
+900715 1791409242.546871 close(5<TCP:[2372533]>) = 0
+900715 1791409242.546935 socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCPv6:[2372534]>
+900715 1791409242.547031 bind(5<TCPv6:[2372534]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+900715 1791409242.547172 socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 6<TCPv6:[2372535]>
+900715 1791409242.547259 bind(6<TCPv6:[2372535]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+900715 1791409242.547323 close(6<TCPv6:[2372535]>) = 0
+900715 1791409242.547394 close(5<TCPv6:[2372534]>) = 0
+900715 1791409242.547448 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_MPTCP) = -1 EPROTONOSUPPORT (Protocol not supported)
+900715 1791409242.547534 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[2372537]>
+900715 1791409242.547962 close(6</proc/sys/net/core/somaxconn>) = 0
+900715 1791409242.548059 bind(5<TCP:[2372537]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+900715 1791409242.548160 listen(5<TCP:[2372537]>, 4096) = 0
+900715 1791409242.548260 getsockname(5<TCP:[2372537]>, {sa_family=AF_INET, sin_port=htons(44573), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+900715 1791409242.548490 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 6<TCP:[2372538]>
+900715 1791409242.548580 connect(6<TCP:[2372538]>, {sa_family=AF_INET, sin_port=htons(44573), sin_addr=inet_addr("127.0.0.1")}, 16 <unfinished ...>
+900721 1791409242.548865 accept4(5<TCP:[2372537]>, 0xc00006199c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+900715 1791409242.548962 <... connect resumed>) = -1 EINPROGRESS (Operation now in progress)
+900721 1791409242.549019 accept4(5<TCP:[2372537]>, {sa_family=AF_INET, sin_port=htons(40318), sin_addr=inet_addr("127.0.0.1")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[2373425]>
+900721 1791409242.549193 getsockname(7<TCP:[2373425]>, {sa_family=AF_INET, sin_port=htons(44573), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+900715 1791409242.549260 getpeername(6<TCP:[2372538]>, {sa_family=AF_INET, sin_port=htons(44573), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+900715 1791409242.549341 getsockname(6<TCP:[2372538]>, {sa_family=AF_INET, sin_port=htons(40318), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+900721 1791409242.549533 accept4(5<TCP:[2372537]>, 0xc00006199c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+900722 1791409242.753063 close(6<TCP:[2372538]>) = 0
+900722 1791409242.753263 close(5<TCP:[2372537]>) = 0
+900715 1791409242.753337 close(7<TCP:[2373425]>) = 0
+900723 1791409243.754145 +++ exited with 0 +++
+900722 1791409243.754193 +++ exited with 0 +++
+900721 1791409243.754198 +++ exited with 0 +++
+900720 1791409243.754230 +++ exited with 0 +++
+900715 1791409243.755303 +++ exited with 0 +++

@@ -1,0 +1,261 @@
+{
+  "product_baseline": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+  "provenance": "root accepted/pushed and explicit shared-root handover; no Git invoked",
+  "spec_commit": "9a2a9a1a",
+  "spec_archive": "b498c0bc",
+  "scope": [
+    {
+      "number": 1,
+      "path": "internal/central/secret/contract/write_lookup.go"
+    },
+    {
+      "number": 2,
+      "path": "internal/central/secret/contract/write_lookup_test.go"
+    },
+    {
+      "number": 3,
+      "path": "internal/central/secret/write_lookup.go"
+    },
+    {
+      "number": 4,
+      "path": "internal/central/secret/write_lookup_test.go"
+    },
+    {
+      "number": 5,
+      "path": "internal/central/model/http_project_credentials.go"
+    },
+    {
+      "number": 6,
+      "path": "internal/central/model/http_project_credentials_wire.go"
+    },
+    {
+      "number": 7,
+      "path": "internal/central/model/http_project_credentials_test.go"
+    },
+    {
+      "number": 8,
+      "path": "internal/central/model/http_project_credentials_wire_test.go"
+    },
+    {
+      "number": 9,
+      "path": "internal/central/model/http_project_credentials_native_test.go"
+    },
+    {
+      "number": 10,
+      "path": "api/openapi/project-model-credentials.json"
+    },
+    {
+      "number": 11,
+      "path": "internal/central/app/project_credentials.go"
+    },
+    {
+      "number": 12,
+      "path": "internal/central/app/project_credentials_test.go"
+    },
+    {
+      "number": 13,
+      "path": "internal/central/app/account.go"
+    },
+    {
+      "number": 14,
+      "path": "internal/central/app/project_usage.go"
+    },
+    {
+      "number": 15,
+      "path": "internal/central/app/project_usage_test.go"
+    },
+    {
+      "number": 16,
+      "path": "internal/central/app/security.go"
+    },
+    {
+      "number": 17,
+      "path": "internal/central/app/model_test.go"
+    },
+    {
+      "number": 18,
+      "path": "tests/model/project_credentials_http_fixture_test.go"
+    },
+    {
+      "number": 19,
+      "path": "tests/model/project_credentials_http_test.go"
+    },
+    {
+      "number": 20,
+      "path": "tests/model/project_credentials_http_authority_test.go"
+    },
+    {
+      "number": 21,
+      "path": "tests/model/project_credentials_http_unknown_test.go"
+    },
+    {
+      "number": 22,
+      "path": "tests/model/project_credentials_http_root_test.go"
+    },
+    {
+      "number": 23,
+      "path": "docs/development/backend/README.md"
+    }
+  ],
+  "frozen_base_files": {
+    "internal/central/secret/contract/write_lookup.go": {
+      "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/secret/contract/write_lookup.go",
+      "bytes": 1769
+    },
+    "internal/central/secret/contract/write_lookup_test.go": {
+      "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/secret/contract/write_lookup_test.go",
+      "bytes": 3306
+    },
+    "internal/central/secret/write_lookup.go": {
+      "sha256": "971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/secret/write_lookup.go",
+      "bytes": 3929
+    },
+    "internal/central/secret/write_lookup_test.go": {
+      "sha256": "38f1b7a06e019e37ea93917e3e5b0ddba092589c42ae32f8b51157fcec82f5f7",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/secret/write_lookup_test.go",
+      "bytes": 9765
+    },
+    "internal/central/app/account.go": {
+      "sha256": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/app/account.go",
+      "bytes": 15919
+    },
+    "internal/central/app/project_usage.go": {
+      "sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/app/project_usage.go",
+      "bytes": 2789
+    },
+    "internal/central/app/project_usage_test.go": {
+      "sha256": "5321f1119dc32d075b8e332cf132c03ad5864e700bf25f9ba6bff4cd2ad272cf",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/app/project_usage_test.go",
+      "bytes": 6754
+    },
+    "internal/central/app/security.go": {
+      "sha256": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/app/security.go",
+      "bytes": 1703
+    },
+    "internal/central/app/model_test.go": {
+      "sha256": "add9f36b02578dc62291d9fe89ffd2df99274cd4d492f1d2f79f6a6d8f2f1dfc",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/app/model_test.go",
+      "bytes": 6211
+    },
+    "internal/central/model/http_project.go": {
+      "sha256": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/model/http_project.go",
+      "bytes": 10169
+    },
+    "internal/central/model/http_project_wire.go": {
+      "sha256": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/model/http_project_wire.go",
+      "bytes": 17785
+    },
+    "internal/central/model/http_project_test.go": {
+      "sha256": "201ce042584df39b07171277a9e57a8bf8f470f492cc07245a43597dcfb2ef0f",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/model/http_project_test.go",
+      "bytes": 15387
+    },
+    "internal/central/model/http_project_wire_test.go": {
+      "sha256": "6b0de60bfd3bd066682fac72a62a4e04b6b0657c7bd83d21227216c9db450a65",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/model/http_project_wire_test.go",
+      "bytes": 15228
+    },
+    "internal/central/model/http_project_native_test.go": {
+      "sha256": "9b8034329af2f6af7daede6a95b4c0580631b39353b081265fbbf0e58dcd046d",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/model/http_project_native_test.go",
+      "bytes": 10730
+    },
+    "api/openapi/project-models.json": {
+      "sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/api/openapi/project-models.json",
+      "bytes": 138483
+    },
+    "internal/central/app/project_models.go": {
+      "sha256": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/app/project_models.go",
+      "bytes": 834
+    },
+    "internal/central/app/project_models_test.go": {
+      "sha256": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/internal/central/app/project_models_test.go",
+      "bytes": 1963
+    },
+    "tests/model/project_configuration_http_fixture_test.go": {
+      "sha256": "3a61ac0505bb2b14635e1f99b8e1c4951da334734fbc4584d0ac56af8ac2db0a",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/tests/model/project_configuration_http_fixture_test.go",
+      "bytes": 5337
+    },
+    "tests/model/project_configuration_http_test.go": {
+      "sha256": "5c2957a82e67eaa2969971fc7026f94157bf43bb1f5fad08bd84097387b183f4",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/tests/model/project_configuration_http_test.go",
+      "bytes": 10415
+    },
+    "tests/model/project_configuration_http_terminal_test.go": {
+      "sha256": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/tests/model/project_configuration_http_terminal_test.go",
+      "bytes": 19442
+    },
+    "tests/model/project_configuration_http_root_test.go": {
+      "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/tests/model/project_configuration_http_root_test.go",
+      "bytes": 5901
+    },
+    "docs/development/backend/README.md": {
+      "sha256": "7d0e0c0793b65d4360e2fa65b4b897fc592d0c3d1a78d06306928454da42c39e",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/docs/development/backend/README.md",
+      "bytes": 59731
+    },
+    "go.mod": {
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/go.mod",
+      "bytes": 1468
+    },
+    "go.sum": {
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/go.sum",
+      "bytes": 8391
+    },
+    "docs/development/work-items/d09-project-model-credentials-http.md": {
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/base01/docs/development/work-items/d09-project-model-credentials-http.md",
+      "bytes": 30831
+    }
+  },
+  "absent_new_technical_paths": [
+    "internal/central/model/http_project_credentials.go",
+    "internal/central/model/http_project_credentials_wire.go",
+    "internal/central/model/http_project_credentials_test.go",
+    "internal/central/model/http_project_credentials_wire_test.go",
+    "internal/central/model/http_project_credentials_native_test.go",
+    "api/openapi/project-model-credentials.json",
+    "internal/central/app/project_credentials.go",
+    "internal/central/app/project_credentials_test.go",
+    "tests/model/project_credentials_http_fixture_test.go",
+    "tests/model/project_credentials_http_test.go",
+    "tests/model/project_credentials_http_authority_test.go",
+    "tests/model/project_credentials_http_unknown_test.go",
+    "tests/model/project_credentials_http_root_test.go"
+  ],
+  "existing_technical_paths": [
+    "internal/central/secret/contract/write_lookup.go",
+    "internal/central/secret/contract/write_lookup_test.go",
+    "internal/central/secret/write_lookup.go",
+    "internal/central/secret/write_lookup_test.go",
+    "internal/central/app/account.go",
+    "internal/central/app/project_usage.go",
+    "internal/central/app/project_usage_test.go",
+    "internal/central/app/security.go",
+    "internal/central/app/model_test.go"
+  ],
+  "authorization": "implementation #1–22 and necessary offline 45s checks; README23/native/PG/socket/network resources not authorized",
+  "plan": [
+    "Four Secret lookup contract/implementation sources with same-Tx Project authority and lock tests",
+    "Private Project credential HTTP wire/budget/IO ownership plus safe schema and unit/native sources",
+    "Same accepted root Secret checker/sole ProjectAuthority binding; preserve accepted read increment",
+    "Five real integration tops and exact original regressions; freeze complete candidate for independent STATIC",
+    "Actual import/embed/TestMain/schema/dynamiccmd graph; frozen offline checks and native/PG plans only until resource window granted"
+  ]
+}

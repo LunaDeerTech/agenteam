@@ -1,0 +1,38 @@
+{
+  "status": "FROZEN production six paths; no compile/runtime claim; accepted root a0b012ce",
+  "files": {
+    "internal/central/model/http_project_credentials.go": {
+      "sha256": "b4cf7addda458c222fd92fe3b75a2ecaf43c256e7ca5f5b489687d1a14b1ad50",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production01/src/internal/central/model/http_project_credentials.go"
+    },
+    "internal/central/model/http_project_credentials_wire.go": {
+      "sha256": "cc1342583a0c7c37b8e5eb5bae31d168f2b87fbbbcf60ae9a1bc1877f42075df",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production01/src/internal/central/model/http_project_credentials_wire.go"
+    },
+    "internal/central/app/project_credentials.go": {
+      "sha256": "1d155adeaef744b05c75071a828ee6aee3002ab4cba3848f92a14dda0b2a8dd5",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production01/src/internal/central/app/project_credentials.go"
+    },
+    "internal/central/app/account.go": {
+      "sha256": "89d01abf651ca247515ae8226c739469b86ed01ac6cb4a717cdd3091633e79e7",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production01/src/internal/central/app/account.go"
+    },
+    "internal/central/app/project_usage.go": {
+      "sha256": "13abb6bbdc4d38d40b1ba627aa989aec503ffe55c7a310dd42d11acc33d81275",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production01/src/internal/central/app/project_usage.go"
+    },
+    "internal/central/app/security.go": {
+      "sha256": "0804ec5ab4c3b8566d3f933881415779bf354eaa89a1bb85e0fb4fb09bd0a7a4",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production01/src/internal/central/app/security.go"
+    }
+  },
+  "lookup_dependency": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/lookup01/manifest.json",
+    "sha256": "0a217020e6a7050774bff10d1938bee6538cf60f5c44df037ac8222e1a5fca56"
+  },
+  "base_input": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/base01.json",
+    "sha256": "01c353810b5d0bd9342e4f4ce1d8168efa7a4041ce42d80f345c04a7a3e64513"
+  },
+  "tests_pending": "HTTP/root/schema/integration still under construction; six production sources stop writing"
+}

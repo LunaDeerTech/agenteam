@@ -1,0 +1,38 @@
+{
+  "status": "FROZEN production02 six sources plus controlled regression tests; not compiled",
+  "previous": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/production01/manifest.json",
+    "sha256": "0235de8044114239a752bbf81015fd5afb2e55df244401d87ed517c70670c998"
+  },
+  "files": {
+    "internal/central/model/http_project_credentials.go": {
+      "sha256": "af55eb294e131d779bc7cfc1fc892c522f07da86666e088b73af51ac4513a878",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production02/src/internal/central/model/http_project_credentials.go"
+    },
+    "internal/central/model/http_project_credentials_wire.go": {
+      "sha256": "cc1342583a0c7c37b8e5eb5bae31d168f2b87fbbbcf60ae9a1bc1877f42075df",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production02/src/internal/central/model/http_project_credentials_wire.go"
+    },
+    "internal/central/app/project_credentials.go": {
+      "sha256": "1d155adeaef744b05c75071a828ee6aee3002ab4cba3848f92a14dda0b2a8dd5",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production02/src/internal/central/app/project_credentials.go"
+    },
+    "internal/central/app/account.go": {
+      "sha256": "89d01abf651ca247515ae8226c739469b86ed01ac6cb4a717cdd3091633e79e7",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production02/src/internal/central/app/account.go"
+    },
+    "internal/central/app/project_usage.go": {
+      "sha256": "13abb6bbdc4d38d40b1ba627aa989aec503ffe55c7a310dd42d11acc33d81275",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production02/src/internal/central/app/project_usage.go"
+    },
+    "internal/central/app/security.go": {
+      "sha256": "0804ec5ab4c3b8566d3f933881415779bf354eaa89a1bb85e0fb4fb09bd0a7a4",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production02/src/internal/central/app/security.go"
+    },
+    "internal/central/model/http_project_credentials_test.go": {
+      "sha256": "14e56cc8b08c16188927a474cd5c9c19f473227fc03768028d0f913cc10c8d32",
+      "snapshot": "/workspace/scratch/project-model-credentials-http-author/production02/src/internal/central/model/http_project_credentials_test.go"
+    }
+  },
+  "fix": "CRD-PROD-01 only production delta: malformed successful metadata returns unavailable immediately. Regression test prepares otherwise-observed second lookup, asserts first lookup only/write0."
+}

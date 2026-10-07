@@ -1,0 +1,9 @@
+{
+  "runs": [
+    "http-graph-race01",
+    "http-model-compile01"
+  ],
+  "outcome": "pre-execution frozen source mismatch; subprocess not spawned; no command.json/raw/result exists",
+  "cause": "Conservative accepted closure included tests/model file set; newly authored fixture is not in actual model/app graph",
+  "fix": "http-pregraph02 narrowed filesets/local inputs to actual ordinary graph; independent integration authoring no longer affects model/app"
+}

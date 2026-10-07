@@ -1,0 +1,151 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.97.34.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=50c9571f2684835dbefc5e43d87dd917
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=445e78e71ba56a96586de3e1997236a3
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.329s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+=== RUN   TestModelMeetingSummarySettingsRoot
+=== RUN   TestModelMeetingSummarySettingsRoot/default_init_restart_and_old_routes
+=== RUN   TestModelMeetingSummarySettingsRoot/missing_table
+=== RUN   TestModelMeetingSummarySettingsRoot/corrupt_fact
+=== RUN   TestModelMeetingSummarySettingsRoot/held_summary_lock
+--- PASS: TestModelMeetingSummarySettingsRoot (15.36s)
+    --- PASS: TestModelMeetingSummarySettingsRoot/default_init_restart_and_old_routes (3.41s)
+    --- PASS: TestModelMeetingSummarySettingsRoot/missing_table (2.34s)
+    --- PASS: TestModelMeetingSummarySettingsRoot/corrupt_fact (2.47s)
+    --- PASS: TestModelMeetingSummarySettingsRoot/held_summary_lock (7.13s)
+=== RUN   TestModelProjectConfigurationHTTPDefaultRoot
+    project_configuration_http_root_test.go:111: default app.Run: original init failure publishes no listener; fresh Model/Summary singleton restored and restart stable; sole Project authority binds all five resources; existing Update/lookup/Ownerread/Usage/System retained; actual root drain; production Resolution/Invocations remain unbound
+--- PASS: TestModelProjectConfigurationHTTPDefaultRoot (5.62s)
+=== RUN   TestModelProjectSecretReferencesAndAtomicEffects
+=== RUN   TestModelProjectSecretReferencesAndAtomicEffects/secret
+=== RUN   TestModelProjectSecretReferencesAndAtomicEffects/audit
+=== RUN   TestModelProjectSecretReferencesAndAtomicEffects/event
+--- PASS: TestModelProjectSecretReferencesAndAtomicEffects (1.48s)
+    --- PASS: TestModelProjectSecretReferencesAndAtomicEffects/secret (0.04s)
+    --- PASS: TestModelProjectSecretReferencesAndAtomicEffects/audit (0.05s)
+    --- PASS: TestModelProjectSecretReferencesAndAtomicEffects/event (0.07s)
+=== RUN   TestModelProjectOwnerUpdateHTTPRootBinding
+=== RUN   TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-3s
+    project_owner_update_http_root_test.go:289: target Project/update planned fact + unique registry waiter holding exact command lock bound original backend 186 shutdown 3s proxy original COMMIT terminal separately joined; forced root return does not prove inner joins
+=== RUN   TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-100ms
+    project_owner_update_http_root_test.go:289: target Project/update planned fact + unique registry waiter holding exact command lock bound original backend 195 shutdown 100ms proxy original COMMIT terminal separately joined; forced root return does not prove inner joins
+=== NAME  TestModelProjectOwnerUpdateHTTPRootBinding
+    project_owner_update_http_root_test.go:114: public default root real Audit/Outbox/Project Service; original key preserved, current GET differs from historical receipt; actual shutdown
+--- PASS: TestModelProjectOwnerUpdateHTTPRootBinding (6.82s)
+    --- PASS: TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-3s (0.66s)
+    --- PASS: TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-100ms (1.66s)
+=== RUN   TestModelProjectUsageHTTPRootBinding
+    project_usage_http_root_test.go:239: public default app.Run read formally prepared nonempty Usage, six GET/HEAD responses and old routes shared one connection; readiness stayed false; shutdown actually joined
+--- PASS: TestModelProjectUsageHTTPRootBinding (4.26s)
+=== RUN   TestModelSystemHTTPCredentialWritesAndBinding
+=== RUN   TestModelSystemHTTPCredentialWritesAndBinding/non-model-PUT
+=== RUN   TestModelSystemHTTPCredentialWritesAndBinding/non-model-DELETE
+=== RUN   TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-purpose
+    system_http_credentials_test.go:158: real Metadata version=1; concurrent Human update committed version=2; original HTTP expected=1 rejected with no additional business facts
+=== RUN   TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-version
+    system_http_credentials_test.go:158: real Metadata version=1; concurrent Human update committed version=2; original HTTP expected=1 rejected with no additional business facts
+--- PASS: TestModelSystemHTTPCredentialWritesAndBinding (2.17s)
+    --- PASS: TestModelSystemHTTPCredentialWritesAndBinding/non-model-PUT (0.02s)
+    --- PASS: TestModelSystemHTTPCredentialWritesAndBinding/non-model-DELETE (0.02s)
+    --- PASS: TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-purpose (0.04s)
+    --- PASS: TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-version (0.04s)
+=== RUN   TestModelSystemHTTPPassiveCredentialLookup
+    system_http_credentials_test.go:233: passive read transactions=12, ExecuteWrite=0, payload/digest reads=0; complete Secret/Audit/Outbox facts and nonce high water unchanged
+--- PASS: TestModelSystemHTTPPassiveCredentialLookup (3.03s)
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/uninitialized-read
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-command
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-user
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/not-committed
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/unknown
+    system_http_credentials_test.go:311: actual passive read CommitResult=committed; target=unknown receiptReads=1 heldChecks=3
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-present
+    system_http_credentials_test.go:311: actual passive read CommitResult=committed; target=cancel-committed-present receiptReads=1 heldChecks=3
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-absent
+    system_http_credentials_test.go:311: actual passive read CommitResult=committed; target=cancel-committed-absent receiptReads=1 heldChecks=3
+=== RUN   TestModelSystemHTTPPassiveLookupLocksAndFailures/current-after-entry
+--- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures (2.94s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/uninitialized-read (0.02s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-command (0.16s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-user (0.16s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/not-committed (0.01s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/unknown (0.01s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-present (0.01s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-absent (0.01s)
+    --- PASS: TestModelSystemHTTPPassiveLookupLocksAndFailures/current-after-entry (0.50s)
+=== RUN   TestModelSystemHTTPUnknownAndHistoricalResults
+=== RUN   TestModelSystemHTTPUnknownAndHistoricalResults/model-confirmed
+    system_http_credentials_test.go:388: Model final canonical/receipt Tx actual=committed -> formal Store Unknown
+    system_http_credentials_test.go:403: original replayScope confirmation succeeded; service/HTTP 200 original receipt
+=== RUN   TestModelSystemHTTPUnknownAndHistoricalResults/model-still-unknown
+    system_http_credentials_test.go:388: Model final canonical/receipt Tx actual=committed -> formal Store Unknown
+    system_http_credentials_test.go:411: original replayScope confirmation rejected by bounded formal Store result; service/HTTP remained Unknown/503
+=== NAME  TestModelSystemHTTPUnknownAndHistoricalResults
+    system_http_credentials_test.go:431: Secret final mutation/receipt Tx actual=committed -> formal Store Unknown; raw identity hash=sha256:2c01eb51f5bc6e1e2e74067ff5c038affa8bc8a3b2046f46176540e41a9c4e80 canonical receipt digest=sha256:a99bc6fa161bfe4935c68889b35fdec77526113bae0d85cd5c90d5ceaf2ae404 heldChecks=5
+    system_http_credentials_test.go:445: Secret service/HTTP directly returned Unknown/503 with exactly one ExecuteWrite
+    system_http_credentials_test.go:459: deleted credential create/update/delete historical receipt replay preserved; changed material same identity rejected by original ExecuteWrite digest
+--- PASS: TestModelSystemHTTPUnknownAndHistoricalResults (2.17s)
+    --- PASS: TestModelSystemHTTPUnknownAndHistoricalResults/model-confirmed (0.05s)
+    --- PASS: TestModelSystemHTTPUnknownAndHistoricalResults/model-still-unknown (0.04s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	44.885s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+D03 fixture cleanup checked for nonce 940056bc7118038f4e03714eb3c9e5ca
+D04 outbound fixture cleanup checked for nonce 445e78e71ba56a96586de3e1997236a3
+D05 object fixture exact resource cleanup checked nonce=50c9571f2684835dbefc5e43d87dd917

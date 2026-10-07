@@ -1,0 +1,134 @@
+{
+  "status": "READY candidate03 minimal rebind; all affected offline checks PASS; no independent resource execution",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/candidate03/manifest.json",
+    "sha256": "a362e55ac9007d0a39dcbe885b7c73a46a05c1e6dc05ad7ad56ed20b022fed45"
+  },
+  "driver": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/driver.py",
+    "sha256": "ea78e1c1de79ba0be2ba25c759a380fc92d6890d4f5b24dd08b1ae91f0a891ef"
+  },
+  "frozen_proposal": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/frozen-proposal.json",
+    "sha256": "fa96e72f0252dae279dac54ba5b15d229a34e51e68ea4f614f85e09468b6a794"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/closure.json",
+    "sha256": "736248235cca007d997cdf95975f6d697b1881b3e534d98b6e94853bda12b6d3"
+  },
+  "driver_delta": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/delta.diff",
+    "sha256": "a77bbfe180cee7c0a28636f6fe53445f62446016e1d0378ca03a83ad9d206348"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/actual-graph02.json",
+    "sha256": "5867f3cf83a7e74a83b825e90f5f7629e500fe07d3e95bb5977eda23f55d1b8d"
+  },
+  "probe": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/independent_project_credentials_formatted_test.go",
+    "sha256": "6caea56b74997e84fbafcd70ae8e34dc0281ae22a30c4145f4ae88e0c0ec8ef0"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/overlay03.json",
+    "sha256": "a24cac75bb6f5271948bd568651ec1b1c15691f25600fde360e105a4401fd6e5"
+  },
+  "schema_parser": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/schema-check.py",
+    "sha256": "e7f8bd5df8d5ccff89ec7d165b2009e3e74f29623885a0c283a6bf0f158c8cdb"
+  },
+  "selectors": [
+    "^TestIndependentProjectCredentialAuthorityAndLookup$",
+    "^TestIndependentProjectCredentialRootAndTerminalACK$"
+  ],
+  "preparation": {
+    "graph-race02": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/graph-race02/result.json",
+        "sha256": "7b5d661674b16b2e0bc30b61b48f120d9054f3a4c7ed720f32721c42ecf1203d"
+      },
+      "seconds": 0.26810440499684773,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "compile-race02": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/compile-race02/result.json",
+        "sha256": "4549a69be9e536433aab550f83a2476eb690c55cbf043e0329ed0a7bf8490c20"
+      },
+      "seconds": 6.4106560190048185,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "vet-race02": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/vet-race02/result.json",
+        "sha256": "ca9448a488ff02051b427f9fd2be44310428f74a15ff175f2e81005597431bc6"
+      },
+      "seconds": 0.7120247639977606,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "list-race02": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/list-race02/result.json",
+        "sha256": "dba133294e1eede239bdaca16101bd428932e5074d3487bfa86ab7a7aaf089e9"
+      },
+      "seconds": 1.0169356589976815,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    },
+    "resource-input-gate02": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/runs/resource-input-gate02/result.json",
+        "sha256": "335383e2ba07d1cd7d6678137e81092109015fddea7113a4e6c20d0ef7462414"
+      },
+      "seconds": 0.8957574939995538,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "empty_twice": true,
+      "input_unchanged": true
+    }
+  },
+  "input_gate": {
+    "count": 3319,
+    "digest": "77f78caebb7a3cf0b016eb98615520ca7c572231110f04d73dd9bd925f9c53f8"
+  },
+  "original_preflight_hash_typo": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/graph-invocation-original.json",
+    "sha256": "b83851f4bef912f56d1e2fc1fa6f944e7dc4420123b1b0a91f8d3861920a313e"
+  },
+  "runtime_budget": "fresh5GiB/livePID-starttime/daemon/seven exact resources each round; TopWatchdog120s includingCleanup, fixed package6m. A actualPASS+wait+doubleclear+inputsame before B; failure cleanup then stop/no retry. Original full20 fixture wrapper and actual tool/cgo0/python closure inherited. No custom tests/model TestMain; wrapper still consumes all20 original fixture packages.",
+  "required_authorization": "Independent resources still unauthorized. Wait remaining author PG rounds complete/cleanup and root explicit actual execution instruction; fresh live baselines and all original gates required per round.",
+  "scope": "A complements current auth/archived/three SH/CommandEX/wrong liveTx/resource real Audit; B default root maximum material replay/lastbyte conflict/raw safe body; targeted real same-backend terminal-first COMMIT+idle ACK loss, separate passive lookup. Author owns normal100ms in-flight root shutdown and held4modes. Broad old library witness/cross-Store matrix remains explicit old-source evidence, not newly invented full HTTP coverage.",
+  "previous_proposal": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep01/proposal01.json",
+    "sha256": "b054de98914c79e4f643002fd208fa7d66af7601b2145f4d363e4833ffbab634"
+  },
+  "driver_ast_delta": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/pg-driver-v02/ast-delta.json",
+    "sha256": "a6cceb4c4325678f2f915b2a63621d6e4fde5c983fd0d722c7508c3b92281a1a"
+  },
+  "compiled_binary": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/runtime-prep02/bin/independent-race02.test",
+    "sha256": "d097cd398caef682e0a9ad597a0b97d339a9ed0e9b3d48331b7c770ef7080b0c"
+  },
+  "reused_unchanged": [
+    "private formatted probe bytes and selector pair",
+    "original gofmt actual0",
+    "schema parser bytes (not executed until actual B body freeze)",
+    "all budget/resource/cleanup functions; only overlay path in runtime_environment changed",
+    "full20 fixture/dynamic/CGO0/tool runtime parent and Python173+20schemaJSON via candidate03 parent closure"
+  ],
+  "original_new2_failure_and_static_delta": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/failure-analysis-new2-candidate03/result.json",
+    "sha256": "ef11bcad23ac983f24001648b0917ec745e4175910280209db44cae245657233"
+  }
+}

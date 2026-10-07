@@ -1,0 +1,63 @@
+{
+  "phase": "PROPOSED exact independent controlled behavior; root authorization required",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/closure03.json",
+    "sha256": "c7c5aaf6d48fd08a90d617b508010c86354cacb385eac36f08e2c869118c4c4e"
+  },
+  "runner_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "tools": {
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test": "c253db94ac048a9adaf4574dce180c94a89cc83318decc7fbec43a76b41ead2e",
+    "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test": "8a56703bd0b38e8ea48d86f5fd1e57e10235e774854029131aab095c0e755ac5"
+  },
+  "output_root": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/runs",
+  "cwd": "/workspace/agenteam",
+  "environment": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/overlay02.json",
+    "TMPDIR": "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2",
+    "LC_ALL": "C",
+    "TZ": "UTC",
+    "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+  },
+  "commands": [
+    {
+      "label": "behavior-normal01",
+      "argv": [
+        "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-normal01.test",
+        "-test.run=^TestIndependentProjectCredentialHTTPControls$",
+        "-test.count=1",
+        "-test.parallel=1",
+        "-test.timeout=40s",
+        "-test.v"
+      ]
+    },
+    {
+      "label": "behavior-race01",
+      "argv": [
+        "/workspace/scratch/project-owner-credential-http-verification/controlled-offline01/bin/controls-race01.test",
+        "-test.run=^TestIndependentProjectCredentialHTTPControls$",
+        "-test.count=1",
+        "-test.parallel=1",
+        "-test.timeout=40s",
+        "-test.v"
+      ]
+    }
+  ],
+  "behavior_authorized": false
+}
