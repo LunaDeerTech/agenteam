@@ -1,0 +1,35 @@
+{
+  "status": "READ_ONLY_PROPOSED_TEST_ONLY_NOT_APPLIED_NO_RERUN",
+  "source": {
+    "path": "/workspace/agenteam/tests/model/project_configuration_http_test.go",
+    "sha256": "7ee9e542ce749bbcf49ddfc631dfe02c8202b088274cefc50a9d88bc049a536b"
+  },
+  "patch_sha256": "2f4b047574ec0fe34fe3b27a4483b936dc24222165d3822c54f13f6c768f7283",
+  "failure_result": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/result.json",
+    "sha256": "3864f13f3b23771929d9dc45d0e4967255f1d7b9405bf537eda9e0627fff7e0a"
+  },
+  "proven_failure": "actual http.ErrAbortHandler at http_project.go:220 after execute returned and context expired; no cap503 and no emitted safe body; original raw does not separately time the library vs bounded preflight, so do not attribute all 3.04s solely to DB/library",
+  "data_change": {
+    "old_count": 1048576,
+    "old_token_bytes": 9,
+    "new_count": 262144,
+    "new_token_bytes": 32,
+    "new_token_format": "r%031x",
+    "minimum_reasoning_efforts_array_json_bytes": 9175041,
+    "cap_bytes": 8388608,
+    "exceeds_cap_by_at_least_bytes": 786433,
+    "unique_reason": "fixed-width hexadecimal index is injective over [0,262143]",
+    "valid_reason": "Capabilities.Reasoning=true and safeToken alphabet r/0-9/a-f, exact32 bytes, all tokens unique; original Validate() remains required at runtime"
+  },
+  "preserved": [
+    "same single stored capabilities JSON through detail/list/available GET+HEAD",
+    "original real COMMIT-ACK-drop Read Unknown priority on same oversize record",
+    "same formal library and real PG; accepted SQL preparation only",
+    "2s publication/120s newtop inclcleanup/6m package",
+    "zero successful prefix, HEAD empty entity, exact503 DependencyUnavailable NotStarted",
+    "production13 other source bytes and contract unchanged"
+  ],
+  "validation_plan": "after root authorization apply only #11 two-line delta; freeze candidate04; affected integration-race compile+exact bounded list only; fixed graphs with one hash delta; independent test STATIC; real new-bounded rerun only when root grants; new-root/old remain stopped until PASS actualwait/doublecleanup/input same",
+  "limits": "fewer elements reduces existing per-element decode/Validate map overhead but is not proof timing will fit2s; no claimed DB/library allocation/RSS bound, no new production budget"
+}

@@ -1,0 +1,48 @@
+{
+  "graph01": {
+    "actual_packages": 395,
+    "actual_source_files": 2491,
+    "added_virtual_source": {
+      "/workspace/agenteam/internal/central/model/independent_project_http_test.go": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-probes01/independent_test.go",
+        "sha256": "101716737db2881d71b7b8c23a19a4f056c4c2924d0979a4275fc805a55adf3c"
+      }
+    },
+    "removed": [],
+    "generated_testmain": [
+      {
+        "path": "/workspace/.cache/go-build/2e/2e528d03e404172f1499af90e8d87f66937bb517f62e457dc051ef5091030895-d",
+        "sha256": "2e528d03e404172f1499af90e8d87f66937bb517f62e457dc051ef5091030895"
+      },
+      {
+        "path": "/workspace/.cache/go-build/e7/e7c0d479f2b961c39934cdc28e6eaaf7b54ad639aeacf260eac20785a6eb3335-d",
+        "sha256": "e7c0d479f2b961c39934cdc28e6eaaf7b54ad639aeacf260eac20785a6eb3335"
+      }
+    ],
+    "basis": "/workspace/scratch/project-model-owner-read-http-author/graph-normal01/actual-graph.json",
+    "raw_sha256": "b79ffcd88265c6aa02e3ef92a170e422842a612854b0f3f9782df3372e2cae26"
+  },
+  "graph-race01": {
+    "actual_packages": 397,
+    "actual_source_files": 2497,
+    "added_virtual_source": {
+      "/workspace/agenteam/internal/central/model/independent_project_http_test.go": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-probes01/independent_test.go",
+        "sha256": "101716737db2881d71b7b8c23a19a4f056c4c2924d0979a4275fc805a55adf3c"
+      }
+    },
+    "removed": [],
+    "generated_testmain": [
+      {
+        "path": "/workspace/.cache/go-build/2e/2e528d03e404172f1499af90e8d87f66937bb517f62e457dc051ef5091030895-d",
+        "sha256": "2e528d03e404172f1499af90e8d87f66937bb517f62e457dc051ef5091030895"
+      },
+      {
+        "path": "/workspace/.cache/go-build/e7/e7c0d479f2b961c39934cdc28e6eaaf7b54ad639aeacf260eac20785a6eb3335-d",
+        "sha256": "e7c0d479f2b961c39934cdc28e6eaaf7b54ad639aeacf260eac20785a6eb3335"
+      }
+    ],
+    "basis": "/workspace/scratch/project-model-owner-read-http-author/graph-race01/actual-graph.json",
+    "raw_sha256": "bae85c0e04d361b3a8c114d67e112ce4a280d08ee1d3d334f107a76db69196db"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "accepted_product": "61bed1fcf47c362f420f6bb45158b227af581acf",
+  "spec_commit": "f68c5c95",
+  "spec_archive": "70974605",
+  "card_sha256": "28fb448189e3845c6be2a169f42cd1445d731a2383f29c78d592c59cb1debdce",
+  "scope": [
+    "internal/central/model/http_project.go",
+    "internal/central/model/http_project_wire.go",
+    "internal/central/model/http_project_test.go",
+    "internal/central/model/http_project_wire_test.go",
+    "internal/central/model/http_project_native_test.go",
+    "api/openapi/project-models.json",
+    "internal/central/app/project_models.go",
+    "internal/central/app/project_models_test.go",
+    "internal/central/app/account.go",
+    "tests/model/project_configuration_http_fixture_test.go",
+    "tests/model/project_configuration_http_test.go",
+    "tests/model/project_configuration_http_terminal_test.go",
+    "tests/model/project_configuration_http_root_test.go"
+  ],
+  "account_handover_sha256": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8",
+  "Update_final19": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/final19/result.json",
+    "sha256": "e80da9c172b6bd3af1178e8436116609a59bb9e26f7ae28bc4d05a1cf6145e95",
+    "all19_current_files_match": true
+  },
+  "authorization": "Implementation/format/freeze plus required offline graph compile pure race vet schema two cmds exact-list, each45s subreaper actualwait/double owned empty",
+  "not_authorized": [
+    "README",
+    "native",
+    "PG",
+    "Git",
+    "subdelegation"
+  ],
+  "governance_documents_excluded_from_runtime_freeze": true,
+  "restart_inflight_commands_or_owned_resources": false
+}

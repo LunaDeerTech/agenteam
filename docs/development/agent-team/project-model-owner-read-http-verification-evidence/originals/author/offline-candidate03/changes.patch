@@ -1,0 +1,145 @@
+--- candidate02/internal/central/model/http_project_test.go
++++ candidate03/internal/central/model/http_project_test.go
+@@ -9,6 +9,7 @@
+ 	"net/http"
+ 	"net/http/httptest"
+ 	"strings"
++	"sync"
+ 	"sync/atomic"
+ 	"testing"
+ 	"time"
+@@ -279,7 +280,10 @@
+ 			if strings.HasPrefix(phase, "cancel_") {
+ 				s.call = func(c context.Context, _ id.Actor, _ id.ProjectID, _ ProjectQuery, _ projectHTTPKind, _ string) error {
+ 					cancel()
+-					<-entered
++					select {
++					case <-entered:
++					case <-release:
++					}
+ 					return c.Err()
+ 				}
+ 			} else if strings.HasPrefix(phase, "finish_abort_") {
+@@ -287,8 +291,7 @@
+ 					panic("service")
+ 				}
+ 			}
+-			done := make(chan bool, 1)
+-			go func() { done <- summaryAborts(func() { h.ServeHTTP(w, r) }) }()
++			done, unblock := projectHTTPAsync(t, cancel, release, func() { h.ServeHTTP(w, r) })
+ 			if strings.HasPrefix(phase, "cancel_") {
+ 				select {
+ 				case <-entered:
+@@ -300,7 +303,7 @@
+ 					t.Fatal("returned before callback actual join")
+ 				case <-time.After(10 * time.Millisecond):
+ 				}
+-				close(release)
++				unblock()
+ 			}
+ 			if !summaryJoined(t, done) || body.closes.Load() != 1 {
+ 				t.Fatal("panic escaped abort/Close")
+@@ -339,8 +342,7 @@
+ 			case "flush":
+ 				w.flush = func() error { block(); return nil }
+ 			}
+-			done := make(chan bool, 1)
+-			go func() { done <- summaryAborts(func() { h.ServeHTTP(w, r) }) }()
++			done, unblock := projectHTTPAsync(t, cancel, release, func() { h.ServeHTTP(w, r) })
+ 			select {
+ 			case <-entered:
+ 			case <-time.After(time.Second):
+@@ -352,7 +354,7 @@
+ 				t.Fatal("context cancellation substituted for join")
+ 			case <-time.After(10 * time.Millisecond):
+ 			}
+-			close(release)
++			unblock()
+ 			if !summaryJoined(t, done) || body.closes.Load() != 1 {
+ 				t.Fatal("tail not aborted/joined")
+ 			}
+@@ -389,3 +391,15 @@
+ 		})
+ 	}
+ }
++
++// Register ownership before launch. Fatal on an entry/negative assertion still
++// releases every private seam and waits for the actual handler/callback tail.
++func projectHTTPAsync(t *testing.T, cancel context.CancelFunc, release chan struct{}, fn func()) (<-chan bool, func()) {
++	t.Helper()
++	var once sync.Once
++	unblock := func() { once.Do(func() { close(release) }) }
++	done, joined := make(chan bool, 1), make(chan struct{})
++	t.Cleanup(func() { unblock(); cancel(); <-joined })
++	go func() { defer close(joined); done <- summaryAborts(fn) }()
++	return done, unblock
++}
+--- candidate02/internal/central/model/http_project_native_test.go
++++ candidate03/internal/central/model/http_project_native_test.go
+@@ -8,6 +8,7 @@
+ 	"net/http"
+ 	"os"
+ 	"strings"
++	"sync"
+ 	"sync/atomic"
+ 	"testing"
+ 	"time"
+@@ -119,22 +120,34 @@
+ 	t.Run("noncooperative_service_actual_tail", func(t *testing.T) {
+ 		h, _, s := projectHTTPTestHandler(t)
+ 		entered, release := make(chan struct{}), make(chan struct{})
++		var once sync.Once
++		var owners sync.WaitGroup
++		unblock := func() { once.Do(func() { close(release) }) }
+ 		s.call = func(ctx context.Context, _ id.Actor, _ id.ProjectID, _ ProjectQuery, _ projectHTTPKind, _ string) error {
+ 			close(entered)
+ 			<-release
+ 			return ctx.Err()
+ 		}
+ 		address, results, _ := summaryNativeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++			owners.Add(1)
++			defer owners.Done()
+ 			ctx, cancel := context.WithTimeout(r.Context(), 120*time.Millisecond)
+ 			defer cancel()
+ 			h.ServeHTTP(w, r.WithContext(ctx))
+ 		}), false)
++		// Runs before the accepted listener cleanup, which closes and joins all
++		// connections/Serve, including any request arriving after this Wait.
++		t.Cleanup(func() { unblock(); owners.Wait() })
+ 		conn := summaryNativeDial(t, address, false)
+ 		_, e := io.WriteString(conn, "GET "+projectHTTPTestBase+"/models HTTP/1.1\r\nHost: "+address+"\r\n\r\n")
+ 		if e != nil {
+ 			t.Fatal(e)
+ 		}
+-		<-entered
++		select {
++		case <-entered:
++		case <-time.After(time.Second):
++			t.Fatal("native service did not enter")
++		}
+ 		timer := time.NewTimer(200 * time.Millisecond)
+ 		<-timer.C
+ 		select {
+@@ -142,7 +155,7 @@
+ 			t.Fatal("cancel substituted for service join")
+ 		default:
+ 		}
+-		close(release)
++		unblock()
+ 		if !summaryNativeTerminal(t, results, time.Second).aborted {
+ 			t.Fatal("late service published")
+ 		}
+@@ -197,7 +210,12 @@
+ 			if e != nil {
+ 				t.Fatal(e)
+ 			}
+-			writer := <-seen
++			var writer *summaryNativeWriter
++			select {
++			case writer = <-seen:
++			case <-time.After(time.Second):
++				t.Fatal("native writer did not enter")
++			}
+ 			terminal := summaryNativeTerminal(t, results, 3*time.Second)
+ 			if !terminal.aborted || closes.Load() != 1 {
+ 				t.Fatal("native terminal/Close missing")

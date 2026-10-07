@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "/workspace/agenteam/internal/central/model/http_project.go"
+  ],
+  "cwd": "/workspace/agenteam",
+  "environment_overrides": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "subreaper": true,
+  "driver_pid": 741262,
+  "driver_sha256": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+  "frozen_manifest_sha256": "423a949471e57361c7e9edab54b2e7aed0ceccf8fcc9d1bf83b8eb83aa5805d4",
+  "started_utc": "2026-10-07T19:35:31Z",
+  "total_deadline_seconds": 45,
+  "child_timeout_seconds": 42,
+  "inputs_before": {
+    "/workspace/agenteam/internal/central/model/http_project.go": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb",
+    "/workspace/scratch/project-model-owner-read-http-author/offline-driver.py": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  }
+}

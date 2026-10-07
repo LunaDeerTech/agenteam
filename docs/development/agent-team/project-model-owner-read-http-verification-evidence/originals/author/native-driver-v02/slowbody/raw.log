@@ -1,0 +1,11 @@
+=== RUN   TestProjectModelHTTPNativeSlowBodyAndCallback
+=== RUN   TestProjectModelHTTPNativeSlowBodyAndCallback/GET/1m0s
+=== RUN   TestProjectModelHTTPNativeSlowBodyAndCallback/HEAD/1m0s
+=== RUN   TestProjectModelHTTPNativeSlowBodyAndCallback/GET/120ms
+=== RUN   TestProjectModelHTTPNativeSlowBodyAndCallback/noncooperative_service_actual_tail
+--- PASS: TestProjectModelHTTPNativeSlowBodyAndCallback (4.34s)
+    --- PASS: TestProjectModelHTTPNativeSlowBodyAndCallback/GET/1m0s (2.01s)
+    --- PASS: TestProjectModelHTTPNativeSlowBodyAndCallback/HEAD/1m0s (2.01s)
+    --- PASS: TestProjectModelHTTPNativeSlowBodyAndCallback/GET/120ms (0.12s)
+    --- PASS: TestProjectModelHTTPNativeSlowBodyAndCallback/noncooperative_service_actual_tail (0.20s)
+PASS

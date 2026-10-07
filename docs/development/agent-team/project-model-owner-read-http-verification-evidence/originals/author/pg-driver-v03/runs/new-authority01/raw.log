@@ -1,0 +1,101 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.110.30.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=fba03fbd8ad0f8a72c0609804fdc6a4d
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=5cfb3969836b4e6fda33c0d014ca97d9
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.175s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/model-providers
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/model-providers/01a11800-d508-78d6-ac1e-82b2d9728c1a
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/models
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/models/01a11800-d538-752e-b81c-5b61ae31f0f1
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/available-chat-models
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/formal-Logout-blocks-on-current-read
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/Project-SH-blocks-writer
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/cancelled-callback-tail
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/lifecycle/archiving
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/lifecycle/archived
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/lifecycle/deleting
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/pending
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/real-COMMIT-ACK-drop
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/real-COMMIT-ACK-drop/GET
+    project_configuration_http_terminal_test.go:311: actual COMMIT idle ACK dropped after callback; later GET is a new read, not original confirmation
+=== RUN   TestModelProjectConfigurationHTTPAuthorityAndTerminal/real-COMMIT-ACK-drop/HEAD
+    project_configuration_http_terminal_test.go:311: actual COMMIT idle ACK dropped after callback; later GET is a new read, not original confirmation
+--- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal (5.07s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/model-providers (0.01s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/model-providers/01a11800-d508-78d6-ac1e-82b2d9728c1a (0.01s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/models (0.01s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/models/01a11800-d538-752e-b81c-5b61ae31f0f1 (0.01s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/same-tx/available-chat-models (0.01s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/formal-Logout-blocks-on-current-read (0.43s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/Project-SH-blocks-writer (0.02s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/cancelled-callback-tail (0.04s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/lifecycle/archiving (0.11s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/lifecycle/archived (0.09s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/lifecycle/deleting (0.10s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/pending (0.03s)
+    --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/real-COMMIT-ACK-drop (0.14s)
+        --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/real-COMMIT-ACK-drop/GET (0.07s)
+        --- PASS: TestModelProjectConfigurationHTTPAuthorityAndTerminal/real-COMMIT-ACK-drop/HEAD (0.06s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	6.100s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+D03 fixture cleanup checked for nonce e2d7559cbbd574f441004d35adb94488
+D04 outbound fixture cleanup checked for nonce 5cfb3969836b4e6fda33c0d014ca97d9
+D05 object fixture exact resource cleanup checked nonce=fba03fbd8ad0f8a72c0609804fdc6a4d

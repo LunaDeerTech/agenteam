@@ -1,0 +1,95 @@
+{
+  "status": "READY_CONDITION_UNMET_NO_RESOURCES_STARTED",
+  "proposal": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/proposal07.json",
+    "sha256": "e7ddae70ea08b3687bb97971050b70c614e5a4dfedf29c0d7e098b60935ed35a"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "applied_static": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-candidate06-static/result.json",
+    "sha256": "a5e544048e877722f449cdfa8357ea46401030a1ed144cfbef44b220c9cccbd0"
+  },
+  "private_static_repair": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/preparation.json",
+    "sha256": "142949e4984cf9ba10f5ba86f5fb471735bbb9ff2b1041d45a4802bca146763e"
+  },
+  "private_actual_graph_delta": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/private-delta06.json",
+    "sha256": "ab71c5396a72df2a872ec1a6d81a66bd9b275f57b7c40db671bf5d0b492b72a7"
+  },
+  "native_static_inputs": 3175,
+  "native_binary_reused": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-candidate03.test",
+    "sha256": "3acd51c0884550488a04bc65a961badb4604373daf477c58c07c0ac6e4776e57"
+  },
+  "pg_binary_recompiled": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-candidate06.test",
+    "sha256": "7fee48cff832279078aefb34de2596261c368fed9be59c390b92c8316f77225e"
+  },
+  "offline": {
+    "format-pg-candidate06": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/format-pg-candidate06/result.json",
+        "sha256": "ae9aa68f991ff40dc5e3804294f96dec5f8183496c0ee06095bb3289b31f1b5c"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/format-pg-candidate06/command.json",
+        "sha256": "c28bf0738bf537d21acb44ced70315cbf2c26286842125f913e544c6ce7d5fa6"
+      },
+      "elapsed_seconds": 0.5134649659994466
+    },
+    "compile-pg-candidate06": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate06/result.json",
+        "sha256": "54827d4ccad84cd9f36b9437f42669787daa6bc6273a8a0bd74bfa8aa0716806"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate06/command.json",
+        "sha256": "8449744cba99b9306d64148f1b4b2f1594040e23b7d7f997c9a2b3d3626e5baf"
+      },
+      "elapsed_seconds": 6.850327180000022
+    },
+    "list-pg-candidate06": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate06/result.json",
+        "sha256": "cc3f819d5607f02cd4a32e68155f4e3a623d4cc665af95804a444f2c560262f6"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate06/command.json",
+        "sha256": "e68ff46ed42c8d56956be29c79304910c551ff5866d688623b245e6cf5a86002"
+      },
+      "elapsed_seconds": 1.617137006000121
+    },
+    "pg-inputcheck06": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-inputcheck06/result.json",
+        "sha256": "6c83da52e688e79da30be4e7c8c1d927b37f29fcf34f4b690268957f9234177f"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-inputcheck06/command.json",
+        "sha256": "7a185198e35e8b53dd82cda1d2d151cd0ac71edb8f07e2cbfb6faf6759a16561"
+      },
+      "elapsed_seconds": 1.1119600579986582
+    }
+  },
+  "pg_input_gate": {
+    "docker_path_and_hash_match": true,
+    "files_count": 3241,
+    "actual_digest": "ff65bc8040bea7ea22b0d24e29cec22fd0a7312051818cab5b7e3f57f823c8e3",
+    "expected_digest": "ff65bc8040bea7ea22b0d24e29cec22fd0a7312051818cab5b7e3f57f823c8e3",
+    "missing": [],
+    "mismatches": [],
+    "package_set_changes": [],
+    "candidate_sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b",
+    "closure_sha256": "5d388a96460463a26897372f2cf3e2f570338ef8782ce517a87dc68213a32a01",
+    "minio_matches": true,
+    "accepted": true,
+    "resources_started": false
+  },
+  "pg_driver_only_overlay_path_changed": true,
+  "condition": "Wait for author corrected root and old groups actual completion/cleanup and explicit root relay; no independent native/PG execution started.",
+  "honest_disclosure": "Author root first red exposed same stale found expectation in independent unexecuted private Root; independent flaw discovered statically and corrected with protected state/result/project assertions. Old private source/freezes retained; native/A unchanged; not a private runtime failure."
+}

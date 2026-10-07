@@ -1,0 +1,84 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.33.236.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=27b16090cec849376e79854bd8045bea
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=7dd96edea61326e350002dcde1e15ace
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.213s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/model
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/models
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/available
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/GET
+    project_configuration_http_terminal_test.go:277: HTTP=500 want=503 code=INTERNAL_ERROR commit=not_committed
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/HEAD
+    project_configuration_http_terminal_test.go:277: HTTP=500 want=503 code= commit=
+--- FAIL: TestModelProjectConfigurationHTTPBoundedRepresentation (12.71s)
+    --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/model (2.72s)
+    --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/models (2.63s)
+    --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/available (2.48s)
+    --- FAIL: TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown (0.12s)
+        --- FAIL: TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/GET (0.06s)
+        --- FAIL: TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/HEAD (0.06s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/model	12.738s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce aca1a6eea836e03d17e5ecb443b47845
+D04 outbound fixture cleanup checked for nonce 7dd96edea61326e350002dcde1e15ace
+D05 object fixture exact resource cleanup checked nonce=27b16090cec849376e79854bd8045bea

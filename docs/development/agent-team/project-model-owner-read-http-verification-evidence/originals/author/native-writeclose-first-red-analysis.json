@@ -1,0 +1,9 @@
+{
+  "failure": "native-driver-v02/writeclose",
+  "command_sha256": "1d67bbf888355258c5daa84413f41c25a0192bef9f261185d5b909ae3b95bd00",
+  "raw_sha256": "f600977fae881629d4dfeaddc58803b810f8988f93e1ee672670b72ebed6a777",
+  "actual": "direct wait1/adoptedwait0;9 listeners;all owned PID/TCP incl TIME_WAIT twice empty;inputs unchanged",
+  "phase_limit": "first-red instrumentation had handler-entry only, no Write/Flush entry count; strace excluded write syscall. No net.Error.Timeout was observed. Encoding-period parent expiry is plausible but not established.",
+  "test_only_correction": "add actual Write/Flush entry+exit/bytes; keep100000 legal efforts and product natural2s by parent1m only blocked_get_write; other120ms modes and40s total unchanged; no production change",
+  "no_resource_rerun": true
+}

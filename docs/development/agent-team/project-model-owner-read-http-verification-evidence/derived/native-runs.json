@@ -1,0 +1,831 @@
+{
+  "derived_not_original": true,
+  "description": "Selected original metadata parsed as JSON, with repeated maps removed. Complete original SHA/bytes and omitted fields bound per item.",
+  "items": [
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/keepalive/command.json",
+        "sha256": "cfeb6d57654c14866b915c70c582d855e525061443ce6f8247a4d3257d52577a",
+        "bytes": 1354931,
+        "mode": "derived_excerpt",
+        "archive": "derived/native-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "keepalive",
+        "driver_sha256": "f1c65293499b1be0d46ad83353670cf87ac153d869256f7fee2183e8df8b3f88",
+        "driver_pid": 759243,
+        "driver_stat": {
+          "pid": 759243,
+          "starttime": "2913311",
+          "ppid": 850,
+          "pgrp": 759243,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/keepalive/trace.raw",
+          "/workspace/scratch/project-model-owner-read-http-author/model-race03.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^TestProjectModelHTTPNativeKeepAliveDeadline$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/keepalive/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791403181.9514563,
+        "direct_pid": {
+          "pid": 759246,
+          "starttime": "2913378",
+          "ppid": 759243,
+          "pgrp": 759246,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 1.2387105810012145,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 759246,
+            "starttime": "2913378",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791403183.1902025
+          },
+          {
+            "role": "adopted",
+            "pid": 759250,
+            "starttime": "2913378",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791403183.1941948
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 759246,
+            "starttime": "2913378",
+            "ppid": 759243,
+            "pgrp": 759246,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791403181.951993
+          },
+          {
+            "pid": 759250,
+            "starttime": "2913378",
+            "ppid": 759243,
+            "pgrp": 759246,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791403181.9604886
+          }
+        ],
+        "execution_finished": 1791403183.19828,
+        "inputs_unchanged": true,
+        "finished": 1791403244.625207,
+        "listener_ports": [
+          38787
+        ],
+        "all_ports": [
+          38787,
+          40126
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "f68b37c3133789e1a97ad00087bda3884be3f49b259c1f3ba07d32d4071b98cc",
+        "raw_sha256": "6712e5e02c4ea9a8d8e8032a4962fcbb8cab688dfffcbd9daa3863a22262ea5e",
+        "test_results": {
+          "top_passes": [
+            "TestProjectModelHTTPNativeKeepAliveDeadline"
+          ],
+          "sub_passes": [],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 1,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "2288cbcd069319eb72cb1c952e8c3b3c7647a37ca6dfca7feae800e91fc67408"
+        },
+        "after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "2288cbcd069319eb72cb1c952e8c3b3c7647a37ca6dfca7feae800e91fc67408"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/slowbody/command.json",
+        "sha256": "38afadf898cf6589ad6c3dd9b39bd690d2dfbf4643c5a3d21b5d7e2eef9474b6",
+        "bytes": 1355320,
+        "mode": "derived_excerpt",
+        "archive": "derived/native-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "slowbody",
+        "driver_sha256": "f1c65293499b1be0d46ad83353670cf87ac153d869256f7fee2183e8df8b3f88",
+        "driver_pid": 760526,
+        "driver_stat": {
+          "pid": 760526,
+          "starttime": "2925167",
+          "ppid": 850,
+          "pgrp": 760526,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/slowbody/trace.raw",
+          "/workspace/scratch/project-model-owner-read-http-author/model-race03.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^TestProjectModelHTTPNativeSlowBodyAndCallback$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/slowbody/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791403300.5756648,
+        "direct_pid": {
+          "pid": 760552,
+          "starttime": "2925240",
+          "ppid": 760526,
+          "pgrp": 760552,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 5.372715093999432,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 760552,
+            "starttime": "2925240",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791403305.9484231
+          },
+          {
+            "role": "adopted",
+            "pid": 760556,
+            "starttime": "2925240",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791403305.9536476
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 760552,
+            "starttime": "2925240",
+            "ppid": 760526,
+            "pgrp": 760552,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791403300.576083
+          },
+          {
+            "pid": 760556,
+            "starttime": "2925240",
+            "ppid": 760526,
+            "pgrp": 760552,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791403300.587648
+          }
+        ],
+        "execution_finished": 1791403305.9581316,
+        "inputs_unchanged": true,
+        "finished": 1791403367.3504717,
+        "listener_ports": [
+          35285,
+          42913,
+          43983,
+          43993
+        ],
+        "all_ports": [
+          34158,
+          35285,
+          39680,
+          42913,
+          43983,
+          43993,
+          57492,
+          58988
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "5cab33cffe03c71957aa5cc229cc79774225aca41a94c34d8a623d94c04ea728",
+        "raw_sha256": "3cf7f3b45990ea370f6e06e50549862bcd723ed75ea0befbfd6f9b0e991a20fa",
+        "test_results": {
+          "top_passes": [
+            "TestProjectModelHTTPNativeSlowBodyAndCallback"
+          ],
+          "sub_passes": [
+            "TestProjectModelHTTPNativeSlowBodyAndCallback/GET/1m0s",
+            "TestProjectModelHTTPNativeSlowBodyAndCallback/HEAD/1m0s",
+            "TestProjectModelHTTPNativeSlowBodyAndCallback/GET/120ms",
+            "TestProjectModelHTTPNativeSlowBodyAndCallback/noncooperative_service_actual_tail"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 4,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "2288cbcd069319eb72cb1c952e8c3b3c7647a37ca6dfca7feae800e91fc67408"
+        },
+        "after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "2288cbcd069319eb72cb1c952e8c3b3c7647a37ca6dfca7feae800e91fc67408"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/writeclose/command.json",
+        "sha256": "1d67bbf888355258c5daa84413f41c25a0192bef9f261185d5b909ae3b95bd00",
+        "bytes": 1355720,
+        "mode": "derived_excerpt",
+        "archive": "derived/native-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "writeclose",
+        "driver_sha256": "f1c65293499b1be0d46ad83353670cf87ac153d869256f7fee2183e8df8b3f88",
+        "driver_pid": 761726,
+        "driver_stat": {
+          "pid": 761726,
+          "starttime": "2935876",
+          "ppid": 850,
+          "pgrp": 761726,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/writeclose/trace.raw",
+          "/workspace/scratch/project-model-owner-read-http-author/model-race03.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^TestProjectModelHTTPNativeWriteFlushCloseAndAbort$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/writeclose/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791403407.6238961,
+        "direct_pid": {
+          "pid": 761729,
+          "starttime": "2935945",
+          "ppid": 761726,
+          "pgrp": 761729,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 0.6618233710032655,
+        "exit": 1,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 761729,
+            "starttime": "2935945",
+            "returncode": 1,
+            "actual_wait": true,
+            "time": 1791403408.2857628
+          },
+          {
+            "role": "adopted",
+            "pid": 761733,
+            "starttime": "2935945",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791403408.2895927
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 761729,
+            "starttime": "2935945",
+            "ppid": 761726,
+            "pgrp": 761729,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791403407.6244462
+          },
+          {
+            "pid": 761733,
+            "starttime": "2935945",
+            "ppid": 761726,
+            "pgrp": 761729,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791403407.6347826
+          }
+        ],
+        "execution_finished": 1791403408.2936013,
+        "inputs_unchanged": true,
+        "finished": 1791403469.6790287,
+        "listener_ports": [
+          36513,
+          37463,
+          37537,
+          38471,
+          42575,
+          43787,
+          43847,
+          46333,
+          46733
+        ],
+        "all_ports": [
+          36513,
+          37463,
+          37537,
+          38032,
+          38471,
+          42000,
+          42575,
+          43787,
+          43847,
+          46333,
+          46733,
+          48452,
+          50176,
+          50436,
+          53088,
+          54156,
+          57772,
+          57914
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "eca23b1a28128329ad27ca4efad7b10319b9936e1e38d90fd5c1224fd97db1e2",
+        "raw_sha256": "f600977fae881629d4dfeaddc58803b810f8988f93e1ee672670b72ebed6a777",
+        "test_results": {
+          "top_passes": [],
+          "sub_passes": [
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": false,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 9,
+        "pass": false
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "2288cbcd069319eb72cb1c952e8c3b3c7647a37ca6dfca7feae800e91fc67408"
+        },
+        "after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "2288cbcd069319eb72cb1c952e8c3b3c7647a37ca6dfca7feae800e91fc67408"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/writeclose/command.json",
+        "sha256": "def17dfc998b9e290baa526712227de6f5f70dc4569b7d5fb3592caac9d4044b",
+        "bytes": 1356477,
+        "mode": "derived_excerpt",
+        "archive": "derived/native-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "writeclose",
+        "driver_sha256": "9feb13c73c9e139fc5ed9003ef8396626c20c85e5446cd5de9d0ea0ebbeb50e8",
+        "driver_pid": 766581,
+        "driver_stat": {
+          "pid": 766581,
+          "starttime": "2978569",
+          "ppid": 850,
+          "pgrp": 766581,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/writeclose/trace.raw",
+          "/workspace/scratch/project-model-owner-read-http-author/model-race04.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^TestProjectModelHTTPNativeWriteFlushCloseAndAbort$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/writeclose/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791403834.5474932,
+        "direct_pid": {
+          "pid": 766585,
+          "starttime": "2978637",
+          "ppid": 766581,
+          "pgrp": 766585,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 5.0858990870001435,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 766585,
+            "starttime": "2978637",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791403839.633425
+          },
+          {
+            "role": "adopted",
+            "pid": 766589,
+            "starttime": "2978637",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791403839.6378443
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 766585,
+            "starttime": "2978637",
+            "ppid": 766581,
+            "pgrp": 766585,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791403834.5479429
+          },
+          {
+            "pid": 766589,
+            "starttime": "2978637",
+            "ppid": 766581,
+            "pgrp": 766585,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791403834.5560205
+          }
+        ],
+        "execution_finished": 1791403839.6416202,
+        "inputs_unchanged": true,
+        "finished": 1791403900.0762038,
+        "listener_ports": [
+          36313,
+          37357,
+          37683,
+          38311,
+          40265,
+          44417,
+          44551,
+          45195,
+          45549
+        ],
+        "all_ports": [
+          36313,
+          37357,
+          37446,
+          37683,
+          38311,
+          38770,
+          40265,
+          41892,
+          44417,
+          44551,
+          44660,
+          45195,
+          45549,
+          46784,
+          47162,
+          52188,
+          57544,
+          59142
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "8708e00476f8642327e563449cd21f9746fb09901af029b264653f3f2da398dd",
+        "raw_sha256": "b9eb7b6871f411a20fd655e58c97d0cc3d3979c9660b3bc27cae507dca519629",
+        "test_results": {
+          "top_passes": [
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort"
+          ],
+          "sub_passes": [
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush",
+            "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_get_write"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 9,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "5bbf6742b2d6be5c22937867ce31110c7181b2f55f519785d50ee7438a4d0838"
+        },
+        "after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "5bbf6742b2d6be5c22937867ce31110c7181b2f55f519785d50ee7438a4d0838"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/command.json",
+        "sha256": "9a78d7c6b7a1444aa8e05870432ad927818fc2b72609ec33b32e372a38ffc0f6",
+        "bytes": 931172,
+        "mode": "derived_excerpt",
+        "archive": "derived/native-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "mode": "independent-native01",
+        "driver_sha256": "972ef2d396bfbdf5f8dd84216c7c2e13e1afea1099749d0d4fd269600992d851",
+        "driver_pid": 848667,
+        "driver_stat": {
+          "pid": 848667,
+          "starttime": "3186554",
+          "ppid": 850,
+          "pgrp": 848667,
+          "state": "R",
+          "name": "python"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/trace.raw",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-candidate03.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^TestIndependentProjectModelHTTPNative$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "TMPDIR": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791405914.3894083,
+        "direct_pid": {
+          "pid": 848670,
+          "starttime": "3186621",
+          "ppid": 848667,
+          "pgrp": 848670,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 5.198437713999738,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 848670,
+            "starttime": "3186621",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791405919.58789
+          },
+          {
+            "role": "adopted",
+            "pid": 848674,
+            "starttime": "3186622",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791405919.592233
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 848670,
+            "starttime": "3186621",
+            "ppid": 848667,
+            "pgrp": 848670,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791405914.390681
+          },
+          {
+            "pid": 848674,
+            "starttime": "3186622",
+            "ppid": 848667,
+            "pgrp": 848670,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791405914.3998055
+          }
+        ],
+        "execution_finished": 1791405919.5967042,
+        "inputs_unchanged": true,
+        "finished": 1791405980.9396048,
+        "listener_ports": [
+          40923,
+          46311
+        ],
+        "all_ports": [
+          35982,
+          40923,
+          46311,
+          60216
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "3baaf0877d2b075cc52bb5ae908a4b0e98681bd0778117fc3a9b17fe311041fc",
+        "raw_sha256": "b69daf8a867290f94cee9a8570ce4f32c2dbb1d498e95ff050d48df838f685a6",
+        "test_results": {
+          "top_passes": [
+            "TestIndependentProjectModelHTTPNative"
+          ],
+          "sub_passes": [
+            "TestIndependentProjectModelHTTPNative/natural_two_seconds_owns_Close_tail",
+            "TestIndependentProjectModelHTTPNative/HEAD_flush_and_keepalive_after_natural_deadline"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 2,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "e1e47729eacd65e7986cc64dbbe590eebafeb43e51a04c2f986d41de2db76330"
+        },
+        "after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 3,
+          "canonical_json_sha256": "e1e47729eacd65e7986cc64dbbe590eebafeb43e51a04c2f986d41de2db76330"
+        }
+      }
+    }
+  ]
+}

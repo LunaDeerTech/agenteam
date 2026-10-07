@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 31358.890235783,
+      "top": "TestModelProjectConfigurationHTTPDefaultRoot"
+    },
+    {
+      "event": "result",
+      "monotonic": 31364.36032543,
+      "observed_seconds": 5.470089646998531,
+      "reported_seconds": 5.47,
+      "state": "FAIL",
+      "top": "TestModelProjectConfigurationHTTPDefaultRoot"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationHTTPDefaultRoot"
+  ],
+  "failures": []
+}

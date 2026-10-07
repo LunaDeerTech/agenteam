@@ -1,0 +1,133 @@
+package model
+
+import (
+	"bufio"
+	"context"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+)
+
+type independentProjectCloseTail struct {
+	io.ReadCloser
+	entered, release chan struct{}
+	once             sync.Once
+	closes           atomic.Int32
+}
+
+func (b *independentProjectCloseTail) Close() error {
+	b.closes.Add(1)
+	b.once.Do(func() { close(b.entered) })
+	<-b.release
+	return b.ReadCloser.Close()
+}
+
+func TestIndependentProjectModelHTTPNative(t *testing.T) {
+	if os.Getenv("AGENTEAM_PROJECT_MODEL_NATIVE") != "1" {
+		t.Skip("explicit owned native window required")
+	}
+	t.Run("natural_two_seconds_owns_Close_tail", func(t *testing.T) {
+		h, _, _ := projectHTTPTestHandler(t)
+		entered, release, observed := make(chan struct{}), make(chan struct{}), make(chan context.Context, 1)
+		var once sync.Once
+		unblock := func() { once.Do(func() { close(release) }) }
+		var body *independentProjectCloseTail
+		address, results, _ := summaryNativeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// No parent deadline; only the production handler's natural two seconds.
+			body = &independentProjectCloseTail{ReadCloser: r.Body, entered: entered, release: release}
+			r.Body = body
+			h.boundary.(*projectHTTPTestBoundary).auth = func(r *http.Request) (id.Actor, error) {
+				observed <- r.Context()
+				return h.boundary.(*projectHTTPTestBoundary).actor, nil
+			}
+			h.ServeHTTP(w, r)
+		}), false)
+		t.Cleanup(unblock) // Registered before any client launch or Fatal path.
+		conn := summaryNativeDial(t, address, false)
+		started := time.Now()
+		if _, err := io.WriteString(conn, "HEAD "+projectHTTPTestBase+"/models HTTP/1.1\r\nHost: "+address+"\r\n\r\n"); err != nil {
+			t.Fatal(err)
+		}
+		select {
+		case <-entered:
+		case <-time.After(time.Second):
+			t.Fatal("Close seam did not enter")
+		}
+		var requestContext context.Context
+		select {
+		case requestContext = <-observed:
+		case <-time.After(time.Second):
+			t.Fatal("budget context absent")
+		}
+		select {
+		case <-requestContext.Done():
+		case <-time.After(3 * time.Second):
+			t.Fatal("natural deadline absent")
+		}
+		if elapsed := time.Since(started); elapsed < 1800*time.Millisecond || elapsed > 3*time.Second {
+			t.Fatal("not natural two second budget", elapsed)
+		}
+		select {
+		case <-results:
+			t.Fatal("deadline substituted for blocked Close terminal")
+		default:
+		}
+		unblock()
+		if !summaryNativeTerminal(t, results, time.Second).aborted {
+			t.Fatal("late Close published")
+		}
+		raw, err := io.ReadAll(conn)
+		if err != nil || len(raw) != 0 || body.closes.Load() != 1 {
+			t.Fatal("native zero-prefix/Close terminal", err, len(raw))
+		}
+	})
+	t.Run("HEAD_flush_and_keepalive_after_natural_deadline", func(t *testing.T) {
+		h, _, _ := projectHTTPTestHandler(t)
+		var eof, closes atomic.Int32
+		address, results, connections := summaryNativeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r.Body = summaryNativeBody{r.Body, &eof, &closes, false}
+			h.ServeHTTP(w, r)
+		}), false)
+		conn := summaryNativeDial(t, address, false)
+		reader := bufio.NewReader(conn)
+		var length int64
+		for i, method := range []string{"GET", "HEAD"} {
+			if i == 1 {
+				timer := time.NewTimer(2150 * time.Millisecond)
+				<-timer.C
+			}
+			if _, err := io.WriteString(conn, method+" "+projectHTTPTestBase+"/models HTTP/1.1\r\nHost: "+address+"\r\n\r\n"); err != nil {
+				t.Fatal(err)
+			}
+			response, err := http.ReadResponse(reader, &http.Request{Method: method})
+			if err != nil {
+				t.Fatal(err)
+			}
+			raw, readErr := io.ReadAll(response.Body)
+			closeErr := response.Body.Close()
+			if readErr != nil || closeErr != nil || response.StatusCode != 200 {
+				t.Fatal("native response terminal", readErr, closeErr)
+			}
+			if i == 0 {
+				length = int64(len(raw))
+				if !strings.Contains(string(raw), `"items":[]`) {
+					t.Fatal("GET wire")
+				}
+			} else if len(raw) != 0 || response.ContentLength != length {
+				t.Fatal("HEAD full framing")
+			}
+			if summaryNativeTerminal(t, results, time.Second).aborted {
+				t.Fatal("successful response aborted")
+			}
+		}
+		if connections.Load() != 1 || eof.Load() != 2 || closes.Load() != 2 {
+			t.Fatal("keepalive/EOF/Close ownership")
+		}
+	})
+}

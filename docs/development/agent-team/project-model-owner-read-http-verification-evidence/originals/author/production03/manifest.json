@@ -1,0 +1,19 @@
+{
+  "status": "STATIC_CANDIDATE_ONLY_NO_COMPILE",
+  "base_manifest": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/production01/manifest.json",
+    "sha256": "6925716025ad18161d6811c6196785956abdee94d7f11e7aedb48b3717f81d40"
+  },
+  "delta": {
+    "internal/central/model/http_project.go": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/production03/src",
+  "patch_sha256": "cf9e94eefd989c02e62942d2b061f90b455771bb0fc3469bc0b29b4cad809003",
+  "reason": "contain deadline setter panic and keep business writer on original middleware chain; accepted dependencies unchanged",
+  "superseded_partial_fix_manifest": "/workspace/scratch/project-model-owner-read-http-author/production02/manifest.json",
+  "format_actual": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/format03/result.json",
+    "sha256": "692f4e061a438c4c138afc112f02963cacec11cbe4748713a796e97bed195187"
+  },
+  "stopped_writing_production_five": true
+}

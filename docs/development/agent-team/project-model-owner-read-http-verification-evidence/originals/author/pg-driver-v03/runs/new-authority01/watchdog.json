@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 30018.072662251,
+      "top": "TestModelProjectConfigurationHTTPAuthorityAndTerminal"
+    },
+    {
+      "event": "result",
+      "monotonic": 30023.132370535,
+      "observed_seconds": 5.059708283999498,
+      "reported_seconds": 5.07,
+      "state": "PASS",
+      "top": "TestModelProjectConfigurationHTTPAuthorityAndTerminal"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationHTTPAuthorityAndTerminal"
+  ],
+  "failures": []
+}

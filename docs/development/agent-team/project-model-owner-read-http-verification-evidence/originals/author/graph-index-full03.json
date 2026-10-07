@@ -1,0 +1,23 @@
+{
+  "base_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json",
+    "sha256": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a"
+  },
+  "effective_files_delta": {
+    "/workspace/agenteam/internal/central/model/http_project_native_test.go": "9b8034329af2f6af7daede6a95b4c0580631b39353b081265fbbf0e58dcd046d"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json",
+    "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-input11.json",
+    "sha256": "8872069b472b783a933864fa50599b5cb798465a44f88cb298547a1673ce8434"
+  },
+  "unchanged_imports_and_package_file_sets": true,
+  "integration_compile_reuse": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/integration02.test",
+    "sha256": "7bc50d703796c7dc12db6b727b729c6ffc7fb8131472594c4e58d241e568499a"
+  },
+  "reason": "Only model package native test wrapper observation and test parent context changed; actual source membership/imports unchanged. Integration tests, production, schema, dynamic cmds unchanged; original graphs retained without reexecution."
+}

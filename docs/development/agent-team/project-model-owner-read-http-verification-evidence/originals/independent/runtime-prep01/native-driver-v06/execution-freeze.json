@@ -1,0 +1,51 @@
+{
+  "root_authorized_native": true,
+  "permitted_modes": [
+    "independent-native01"
+  ],
+  "offline_input": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/candidate06-list-input.json",
+    "sha256": "d7fcb68bbc8744eff5b80f94fc2c1a6dd7fbf12f73cef5952d53f2397f9a828b"
+  },
+  "files": {
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/driver.py": "972ef2d396bfbdf5f8dd84216c7c2e13e1afea1099749d0d4fd269600992d851",
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/trace_parser.py": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a",
+    "/usr/bin/strace": "69f88291a4e47f258b8e32b089c919a247509f063ef3d6afe5389939051102b3"
+  },
+  "source_suffixes": [
+    ".go",
+    ".s",
+    ".S",
+    ".c",
+    ".h",
+    ".cc",
+    ".cpp",
+    ".cxx",
+    ".m",
+    ".mm",
+    ".f",
+    ".F",
+    ".for",
+    ".f90",
+    ".swig",
+    ".swigcxx",
+    ".syso"
+  ],
+  "candidate_sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b",
+  "source_stopped": true,
+  "proposed_mode": "independent-native01",
+  "conditional_authorization": "Root conditional authorization retained, NOT released: wait for root explicit relay after author three native groups (including repaired writeclose) and five PG rounds finish actual wait+cleanup; then native PASS+allTCP/PID doubleempty before A PASS+7resource doubleclear before B. Any failure cleanup then stop.",
+  "prior_proposal": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v01/proposal-freeze.json",
+    "sha256": "a1d7361b3b28dd904045fbcd8326739f6a681a457946ce1ad79542762184fdd8"
+  },
+  "effective_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json",
+    "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+  },
+  "prior_execution_freeze": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v05/execution-freeze.json",
+    "sha256": "3727dcdc7f42eb0c8767c5d22547b425e7724589b9710bcc413b8d3f0b495901"
+  },
+  "native_binary_reuse": "candidate06 changes only author tests/model Root assertion; private Root overlay correction likewise not selected by native model package; native model package binary native-candidate03.test and actual selected sources unchanged; no native compile/list rerun."
+}

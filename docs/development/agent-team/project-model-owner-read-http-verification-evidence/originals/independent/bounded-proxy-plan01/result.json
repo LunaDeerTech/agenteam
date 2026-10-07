@@ -1,0 +1,36 @@
+{
+  "status": "NEEDS_REVISION_NARROW_EVIDENCE_ASSERTION",
+  "freeze": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan01/freeze.json",
+    "sha256": "acd16e23f608e91363a0232d3f0894bafb91edc17ce579ecd25f7b7f658e389c"
+  },
+  "proposal": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan01/proposed.go",
+    "sha256": "0487f1389539e1218423d0255fac0c19c57bfc6a7d5ae16298c18e905c5ddac0"
+  },
+  "patch": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan01/proposed.patch",
+    "sha256": "1d60cc3fa383eca4fd60cbc12c24551a8f8021621131e6cfe763b69fc2f13948"
+  },
+  "passed": [
+    "Only card #12 private helper and oversize dispatch; ordinary Unknown keeps original constructor",
+    "Big-endian length includes4B; backend-only D >1MiB <=16MiB; startup/frontend/other frames remain1MiB",
+    "Fixed32KiB buffer, exact header+size-4 payload forwarding; short/error/zero writes fail; complete event only after all bytes",
+    "No row payload/SQL/password logging; safe numeric type/length and existing command tags/SQLSTATE/backend ID",
+    "Real C(COMMIT) immediately followed by exact Z(I) precedes actual socket close; unchanged original Unknown state/cause/attempt/header/no-success assertions",
+    "Current controlled fixture cleanup: openStore ForceClose is LIFO before proxy cleanup; listener closes, live conns close, accepted/dialed late conns encounter closed client then deferclose; both relay directions and WaitGroup joined before trace logging"
+  ],
+  "finding": {
+    "id": "E1",
+    "location": "oversize block in projectConfigurationHTTPUnknown before later read",
+    "problem": "Global snapshot existence permits forwarded-large-D and ready/drop observations on different connections; it does not explicitly prove same target stream ordering.",
+    "minimal_fix": "Identify unique commit-idle-ack-dropped connection prefix; require same connection ordered forwarded-large-D -> send-COMMIT -> tag-COMMIT -> ready-I-before-drop -> commit-idle-ack-dropped before later GET. Keep original callback hit and original CommitResult Unknown/cause/attempt checks.",
+    "scope": "Assertion-only #12; no production/shared-helper/budget/expected-status changes."
+  },
+  "limits": [
+    "No Go compile/test/native/PG/resource execution",
+    "Static join reasoning inherits actual owned local PostgreSQL fixture; not a general guarantee for arbitrary unreachable upstream net.Dial",
+    "Original bounded raw lacks frame rejection observation and stays failed",
+    "New real run must record actual big D and C+Z/drop same connection plus terminal cleanup"
+  ]
+}

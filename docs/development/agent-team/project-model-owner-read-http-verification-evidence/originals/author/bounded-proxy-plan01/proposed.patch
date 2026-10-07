@@ -1,0 +1,272 @@
+--- candidate04/tests/model/project_configuration_http_terminal_test.go
++++ proposed/tests/model/project_configuration_http_terminal_test.go
+@@ -5,9 +5,13 @@
+ import (
+ 	"bytes"
+ 	"context"
++	"encoding/binary"
+ 	"encoding/json"
++	"fmt"
++	"io"
+ 	"net"
+ 	"net/url"
++	"strconv"
+ 	"strings"
+ 	"sync"
+ 	"sync/atomic"
+@@ -228,7 +232,13 @@
+ func projectConfigurationHTTPUnknown(t *testing.T, v *projectUsageHTTPFixture, path string, laterStatus int) {
+ 	for _, method := range []string{"GET", "HEAD"} {
+ 		t.Run(method, func(t *testing.T) {
+-			proxy := newProjectModelPGTrace(t, net.JoinHostPort("127.0.0.1", v.db.Fixture.Port))
++			upstream := net.JoinHostPort("127.0.0.1", v.db.Fixture.Port)
++			var proxy *projectModelPGTrace
++			if laterStatus == 503 {
++				proxy = newProjectConfigurationHTTPPGTrace(t, upstream)
++			} else {
++				proxy = newProjectModelPGTrace(t, upstream)
++			}
+ 			u, e := url.Parse(v.db.Fixture.URL(v.db.Name))
+ 			if e != nil {
+ 				t.Fatal(e)
+@@ -303,6 +313,23 @@
+ 			if !strings.Contains(strings.Join(proxy.snapshot(), " "), "commit-idle-ack-dropped") {
+ 				t.Fatal("no real backend COMMIT/idle ACK drop")
+ 			}
++			if laterStatus == 503 {
++				var forwarded bool
++				for _, event := range proxy.snapshot() {
++					_, length, ok := strings.Cut(event, ":forwarded-large-D:")
++					if !ok {
++						continue
++					}
++					n, err := strconv.ParseUint(length, 10, 32)
++					if err != nil || n <= 1<<20 || n > 16<<20 {
++						t.Fatal("large DataRow observation outside private fixture bound")
++					}
++					forwarded = true
++				}
++				if !forwarded || !strings.Contains(strings.Join(proxy.snapshot(), " "), ":ready-I-before-drop") {
++					t.Fatal("large DataRow/actual COMMIT+idle evidence missing")
++				}
++			}
+ 			tracked.hooks(nil, nil)
+ 			later := v.request(t, v.ownerBrowser, "GET", path).want(t, laterStatus)
+ 			if laterStatus == 503 {
+@@ -312,3 +339,216 @@
+ 		})
+ 	}
+ }
++
++// Private copy of the accepted projectModelPGTrace constructor/serve, reused
++// only for this card's oversized read. Original ownership and COMMIT+idle ACK
++// drop stay intact; complete writes and server DataRow streaming are explicit.
++func newProjectConfigurationHTTPPGTrace(t *testing.T, upstream string) *projectModelPGTrace {
++	t.Helper()
++	listener, err := net.Listen("tcp", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal(err)
++	}
++	p := &projectModelPGTrace{listener: listener, upstream: upstream, connections: map[net.Conn]bool{}, ackDropped: make(chan struct{})}
++	p.wg.Add(1)
++	go func() {
++		defer p.wg.Done()
++		for {
++			client, err := listener.Accept()
++			if err != nil {
++				return
++			}
++			p.mu.Lock()
++			p.next++
++			n := p.next
++			p.connections[client] = true
++			p.mu.Unlock()
++			p.wg.Add(1)
++			go p.serveProjectConfigurationHTTP(client, n)
++		}
++	}()
++	t.Cleanup(func() {
++		_ = listener.Close()
++		p.mu.Lock()
++		for conn := range p.connections {
++			_ = conn.Close()
++		}
++		p.mu.Unlock()
++		p.wg.Wait()
++		t.Logf("safe PG frame events after actual join: %v", p.snapshot())
++	})
++	return p
++}
++
++func (p *projectModelPGTrace) serveProjectConfigurationHTTP(client net.Conn, n int) {
++	defer p.wg.Done()
++	defer func() { _ = client.Close(); p.mu.Lock(); delete(p.connections, client); p.mu.Unlock() }()
++	server, err := net.Dial("tcp", p.upstream)
++	if err != nil {
++		return
++	}
++	p.mu.Lock()
++	p.connections[server] = true
++	p.mu.Unlock()
++	defer func() { _ = server.Close(); p.mu.Lock(); delete(p.connections, server); p.mu.Unlock() }()
++	var header [4]byte
++	if _, err = io.ReadFull(client, header[:]); err != nil {
++		return
++	}
++	size := binary.BigEndian.Uint32(header[:])
++	if size < 8 || size > 1<<20 {
++		return
++	}
++	startup := make([]byte, int(size))
++	copy(startup, header[:])
++	if _, err = io.ReadFull(client, startup[4:]); err != nil {
++		return
++	}
++	if binary.BigEndian.Uint32(startup[4:8]) == 80877102 {
++		p.record(n, "cancel")
++	}
++	if err = projectConfigurationHTTPPGWrite(server, startup); err != nil {
++		return
++	}
++	done := make(chan struct{}, 2)
++	var dropACK atomic.Bool
++	go func() {
++		defer func() { done <- struct{}{} }()
++		for {
++			frame, err := readModelPGFrame(client)
++			if err != nil {
++				return
++			}
++			if frame[0] == 'Q' {
++				q := strings.Trim(string(frame[5:]), "\x00; \t\r\n")
++				if strings.EqualFold(q, "COMMIT") || strings.EqualFold(q, "ROLLBACK") {
++					p.record(n, "send-"+strings.ToUpper(q))
++				}
++				if strings.EqualFold(q, "COMMIT") && p.dropCommitACK.CompareAndSwap(true, false) {
++					dropACK.Store(true)
++				}
++			}
++			if err = projectConfigurationHTTPPGWrite(server, frame); err != nil {
++				return
++			}
++		}
++	}()
++	go func() {
++		defer func() { done <- struct{}{} }()
++		completion := false
++		for {
++			frame, err := p.readProjectConfigurationHTTPPGFrame(server, client, n)
++			if err != nil {
++				p.record(n, "backend-closed")
++				return
++			}
++			if frame == nil {
++				continue // only a completely forwarded large DataRow
++			}
++			switch frame[0] {
++			case 'C':
++				if string(frame[5:]) == "COMMIT\x00" || string(frame[5:]) == "ROLLBACK\x00" {
++					p.record(n, "tag-"+strings.TrimRight(string(frame[5:]), "\x00"))
++					completion = true
++				}
++				if dropACK.Load() && string(frame[5:]) == "COMMIT\x00" {
++					ready, err := readModelPGFrame(server)
++					if err != nil || ready[0] != 'Z' || len(ready) != 6 || ready[5] != 'I' {
++						p.record(n, "commit-idle-unconfirmed")
++						return
++					}
++					// The committed case drops only a proven COMMIT + idle ACK.
++					// A later driver CancelRequest cannot race this transaction's
++					// commit. Pending/rollback use the unchanged held-writer proxy.
++					p.record(n, "ready-I-before-drop")
++					p.record(n, "commit-idle-ack-dropped")
++					_ = client.Close()
++					close(p.ackDropped)
++					return
++				}
++			case 'E':
++				for fields := frame[5:]; len(fields) > 1; {
++					i := bytes.IndexByte(fields[1:], 0)
++					if i < 0 {
++						break
++					}
++					if fields[0] == 'C' {
++						p.record(n, "sqlstate-"+string(fields[1:1+i]))
++					}
++					fields = fields[i+2:]
++				}
++			case 'Z':
++				if completion {
++					p.record(n, "ready-"+string(frame[5:]))
++					completion = false
++				}
++			case 'K':
++				if len(frame) >= 9 {
++					p.record(n, fmt.Sprintf("backend-%d", binary.BigEndian.Uint32(frame[5:9])))
++				}
++			}
++			if err = projectConfigurationHTTPPGWrite(client, frame); err != nil {
++				return
++			}
++		}
++	}()
++	<-done
++	_ = client.Close()
++	_ = server.Close()
++	<-done
++}
++
++// The shared trace's 1MiB frame reader is deliberately unchanged. This private
++// server-side reader forwards only a large DataRow, bounded to 16MiB, through a
++// fixed 32KiB buffer. No row payload is retained or included in trace evidence.
++func (p *projectModelPGTrace) readProjectConfigurationHTTPPGFrame(server, client net.Conn, connection int) ([]byte, error) {
++	var header [5]byte
++	if _, err := io.ReadFull(server, header[:]); err != nil {
++		return nil, err
++	}
++	size := binary.BigEndian.Uint32(header[1:])
++	if size < 4 || size > 16<<20 || size > 1<<20 && header[0] != 'D' {
++		p.record(connection, fmt.Sprintf("rejected-frame-type-%d-length-%d", header[0], size))
++		return nil, fmt.Errorf("invalid bounded fixture frame")
++	}
++	if size <= 1<<20 {
++		frame := make([]byte, int(size)+1)
++		copy(frame, header[:])
++		_, err := io.ReadFull(server, frame[5:])
++		return frame, err
++	}
++	if err := projectConfigurationHTTPPGWrite(client, header[:]); err != nil {
++		return nil, err
++	}
++	var buffer [32 << 10]byte
++	remaining := int(size) - 4
++	for remaining > 0 {
++		n := min(remaining, len(buffer))
++		if _, err := io.ReadFull(server, buffer[:n]); err != nil {
++			return nil, err
++		}
++		if err := projectConfigurationHTTPPGWrite(client, buffer[:n]); err != nil {
++			return nil, err
++		}
++		remaining -= n
++	}
++	p.record(connection, fmt.Sprintf("forwarded-large-D:%d", size))
++	return nil, nil
++}
++
++func projectConfigurationHTTPPGWrite(writer io.Writer, value []byte) error {
++	for len(value) > 0 {
++		n, err := writer.Write(value)
++		if n < 0 || n > len(value) {
++			return io.ErrShortWrite
++		}
++		value = value[n:]
++		if err != nil {
++			return err
++		}
++		if n == 0 {
++			return io.ErrShortWrite
++		}
++	}
++	return nil
++}

@@ -1,0 +1,17 @@
+{
+  "base": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "44e8691202a6887636264b4298056168ec00710663cd25d1df1b615202acda59"
+  },
+  "delta": {
+    "tests/model/project_configuration_http_terminal_test.go": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/candidate05/src",
+  "patch_sha256": "896dc29298ec440ccbaf465d0d1765cc789204e77e6a6572342e4db93511d1b0",
+  "reason": "Only #12 accepted private oversized DataRow trace with fixed bounds/fullwrite/actualjoin/same-connection COMMIT+idle ACKdrop evidence; public code and shared old helper untouched",
+  "approved_plan": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan02/freeze.json",
+    "sha256": "be12991cf94e7d6c602a359cd04db1c652cb33fb34cf51198108e26fb5bce35f"
+  },
+  "source_stopped_writing": true
+}

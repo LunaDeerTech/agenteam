@@ -1,0 +1,46 @@
+{
+  "status": "SCRATCH_PROPOSAL_ONLY_NOT_APPLIED_NO_RUNTIME",
+  "target": {
+    "path": "/workspace/agenteam/tests/model/project_configuration_http_terminal_test.go",
+    "sha256": "915ccccde2707819e22359a90e8b7ce298ebac3399527d44a0d47b1a106a63d8"
+  },
+  "accepted_source": {
+    "path": "/workspace/agenteam/tests/model/project_configuration_unknown_test.go",
+    "sha256": "6b18ae4b6651a10926381d8198a74315cebd08768b4794f2f65d5efffc3bbcf2",
+    "functions": [
+      "newProjectModelPGTrace",
+      "(*projectModelPGTrace).serve"
+    ],
+    "shared_unchanged": [
+      "type projectModelPGTrace",
+      "record",
+      "snapshot",
+      "readModelPGFrame"
+    ]
+  },
+  "large_frame": {
+    "direction": "backend only",
+    "type": "D",
+    "upper_bytes_including_length_field": 16777216,
+    "lower_exclusive_bytes": 1048576,
+    "buffer_bytes": 32768,
+    "other_frames_limit": 1048576,
+    "startup_limit": 1048576,
+    "no_payload_logging": true
+  },
+  "preserved": [
+    "real PostgreSQL C(COMMIT) and immediately validated Z(I) then actual client ACKdrop",
+    "existing drop arm only after callback/held locks",
+    "both relay directions join and listener/allconnection closure+WaitGroup actual join",
+    "ordinary original Unknown uses untouched old constructor",
+    "same 2s publication/120s top/6m package/262144x32B source data"
+  ],
+  "new_safe_evidence": [
+    "forwarded-large-D exact actual length only after complete forwarding",
+    "ready-I-before-drop after actual Z(I) validated",
+    "existing tag-COMMIT and commit-idle-ack-dropped",
+    "trace events logged after cleanup actualjoin even on test FAIL"
+  ],
+  "failure_limit": "prior raw lacks individual frame-length observation; incompatible1MiB reader is static cause inference, not backfilled observed frame rejection",
+  "test_plan": "after independent STATIC/root grant apply #12 only, freeze05, affected race integration compile/vet/exactlist plus minimal graph hash; real bounded rerun only by renewed resource authorization"
+}

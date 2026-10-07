@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 29929.406306198,
+      "top": "TestModelProjectConfigurationHTTPProjection"
+    },
+    {
+      "event": "result",
+      "monotonic": 29937.045302438,
+      "observed_seconds": 7.63899623999896,
+      "reported_seconds": 7.64,
+      "state": "PASS",
+      "top": "TestModelProjectConfigurationHTTPProjection"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationHTTPProjection"
+  ],
+  "failures": []
+}

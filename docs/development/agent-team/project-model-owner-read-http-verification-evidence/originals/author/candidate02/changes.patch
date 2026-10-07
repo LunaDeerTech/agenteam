@@ -1,0 +1,76 @@
+--- candidate01/tests/model/project_configuration_http_test.go
++++ candidate02/tests/model/project_configuration_http_test.go
+@@ -178,20 +178,32 @@
+ 	}
+ 	v.sql(t, `UPDATE agenteam_model.models SET capabilities=$2::jsonb WHERE id=$1`, m.ID.String(), raw)
+ 	before := v.modelCounts(t)
+-	for _, method := range []string{"GET", "HEAD"} {
+-		r := v.request(t, v.ownerBrowser, method, path).want(t, 503)
+-		if method == "GET" {
+-			r.problem(t, 503, f.DependencyUnavailable)
+-			if !bytes.Contains(r.body, []byte(`"commit_state":"not_started"`)) {
+-				t.Fatal("cap reinterpreted completed read")
+-			}
+-			projectConfigurationHTTPExport(t, "oversize-model", method, path, r)
+-		} else if len(r.body) != 0 {
+-			t.Fatal("oversize HEAD entity")
+-		}
+-		if bytes.Contains(r.body, []byte("r00000000")) || bytes.Contains(r.body, []byte(`"input"`)) {
+-			t.Fatal("oversize success prefix")
+-		}
+-	}
++	for _, target := range []struct{ name, path string }{
++		{"model", path},
++		{"models", projectConfigurationHTTPPath(v.project.ID, "models")},
++		{"available", projectConfigurationHTTPPath(v.project.ID, "available-chat-models")},
++	} {
++		t.Run(target.name, func(t *testing.T) {
++			for _, method := range []string{"GET", "HEAD"} {
++				r := v.request(t, v.ownerBrowser, method, target.path).want(t, 503)
++				if method == "GET" {
++					r.problem(t, 503, f.DependencyUnavailable)
++					if !bytes.Contains(r.body, []byte(`"commit_state":"not_started"`)) {
++						t.Fatal("cap reinterpreted completed read")
++					}
++					projectConfigurationHTTPExport(t, "oversize-"+target.name, method, target.path, r)
++				} else if len(r.body) != 0 {
++					t.Fatal("oversize HEAD entity")
++				}
++				if bytes.Contains(r.body, []byte("r00000000")) || bytes.Contains(r.body, []byte(`"input"`)) || bytes.Contains(r.body, []byte(`"items"`)) {
++					t.Fatal("oversize success prefix")
++				}
++			}
++		})
++	}
++	// The exact same persisted large candidate must not replace an actual Read
++	// Unknown with the later representation cap. Natural 2s still applies; a
++	// pre-HTTP library timeout/abort is a failed cap probe, never a cap PASS.
++	t.Run("oversize-original-Unknown", func(t *testing.T) { projectConfigurationHTTPUnknown(t, v, path, 503) })
+ 	v.unchanged(t, before)
+ }
+--- candidate01/tests/model/project_configuration_http_terminal_test.go
++++ candidate02/tests/model/project_configuration_http_terminal_test.go
+@@ -223,9 +223,9 @@
+ 		}
+ 		v.request(t, v.ownerBrowser, "GET", projectConfigurationHTTPPath(target, "models")).problem(t, 409, f.ProjectNotActive)
+ 	})
+-	t.Run("real-COMMIT-ACK-drop", func(t *testing.T) { projectConfigurationHTTPUnknown(t, v, paths[3]) })
++	t.Run("real-COMMIT-ACK-drop", func(t *testing.T) { projectConfigurationHTTPUnknown(t, v, paths[3], 200) })
+ }
+-func projectConfigurationHTTPUnknown(t *testing.T, v *projectUsageHTTPFixture, path string) {
++func projectConfigurationHTTPUnknown(t *testing.T, v *projectUsageHTTPFixture, path string, laterStatus int) {
+ 	for _, method := range []string{"GET", "HEAD"} {
+ 		t.Run(method, func(t *testing.T) {
+ 			proxy := newProjectModelPGTrace(t, net.JoinHostPort("127.0.0.1", v.db.Fixture.Port))
+@@ -304,7 +304,10 @@
+ 				t.Fatal("no real backend COMMIT/idle ACK drop")
+ 			}
+ 			tracked.hooks(nil, nil)
+-			v.request(t, v.ownerBrowser, "GET", path).want(t, 200)
++			later := v.request(t, v.ownerBrowser, "GET", path).want(t, laterStatus)
++			if laterStatus == 503 {
++				later.problem(t, 503, f.DependencyUnavailable)
++			}
+ 			t.Log("actual COMMIT idle ACK dropped after callback; later GET is a new read, not original confirmation")
+ 		})
+ 	}

@@ -1,0 +1,35 @@
+{
+  "status": "PARTIAL_CAP_BODY_SCHEMA_PASS_WITH_WHOLE_AUTHOR_ROUND_FAILED",
+  "author_run_result_sha256": "3a20920ba75ca7e5018de9c5f0a0c10743b2cd1f5aff546de56250091630dce8",
+  "bodies": {
+    "model": {
+      "body_sha256": "e30e94c5e59f224c69a96103ded5536f898e3879d1d52b9a2ae07686831e7a9b",
+      "source_sha256": "65e87227cfc304d6f931c0b7781751570fa4f87b4cfe7e89396f440e3eb1c002",
+      "bytes": 283,
+      "schema": "common Problem"
+    },
+    "models": {
+      "body_sha256": "ff13fd7f4b7df9061e471839f39909797f3c9137249d235181fdb164d10aca83",
+      "source_sha256": "61f8e1d6d6043412dc6b68007358e10f456371390b659977468cd582cfbc4715",
+      "bytes": 283,
+      "schema": "common Problem"
+    },
+    "available": {
+      "body_sha256": "64ba2ad81239fdd2f67489ab3861d33564bdd0c12c2d902b3fea652cf841b7b3",
+      "source_sha256": "b5e85338f6a66a874d76c405cd413c9e0d06070cdc554677d05a6aaa247fb272",
+      "bytes": 283,
+      "schema": "common Problem"
+    }
+  },
+  "whole_top": "FAIL original-Unknown GET/HEAD 500 not_committed, not a successful Unknown injection",
+  "wait_and_seven_resource_cleanup_verified": true,
+  "new_nonowned_nonwaited_PID1": {
+    "containerd-shim": 4
+  },
+  "limits": [
+    "Only three original GET Problem bytes validated offline; paired HEAD emptiness is the author subcase assertion, not another execution",
+    "The run is FAIL; no full bounded or product acceptance",
+    "Actual DB with controlled handler writer, not native transport",
+    "No real frame-limit observation existed in old raw; static helper capacity conflict is recorded separately"
+  ]
+}

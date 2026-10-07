@@ -1,0 +1,313 @@
+{
+  "status": "PASS_COMPLETE_BOUNDED_13_TECHNICAL_PATHS_README_PENDING",
+  "prepared_utc": "2026-10-07T20:57:05.569594+00:00",
+  "independence": "Verifier did not implement any product source; private probes only. Same private Root assertion defect openly retained as STATIC finding.",
+  "baseline_product": "61bed1fcf47c362f420f6bb45158b227af581acf",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "effective_13": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/effective-candidate06.json",
+    "sha256": "4de418fb72147ad1c19f88ef1a7d490d2374cc88c299fcbe93c91eafa20f7c12"
+  },
+  "current_13_and_snapshots_match": true,
+  "scope_paths": [
+    "internal/central/model/http_project.go",
+    "internal/central/model/http_project_wire.go",
+    "internal/central/model/http_project_test.go",
+    "internal/central/model/http_project_wire_test.go",
+    "internal/central/model/http_project_native_test.go",
+    "api/openapi/project-models.json",
+    "internal/central/app/project_models.go",
+    "internal/central/app/project_models_test.go",
+    "internal/central/app/account.go",
+    "tests/model/project_configuration_http_fixture_test.go",
+    "tests/model/project_configuration_http_test.go",
+    "tests/model/project_configuration_http_terminal_test.go",
+    "tests/model/project_configuration_http_root_test.go"
+  ],
+  "production_unchanged_since": "production03",
+  "static_review_chain": [
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-static02/result.json",
+      "sha256": "351eacc6e83da7c93f36527f59517017ab5b84764de8eb18851cd0ebf8964c28"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-production03/result.json",
+      "sha256": "ff006c9e188551bda952e4af7b5c24ba5b51f1952f2339401cac6c549adcdb55"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-candidate02-static/result.json",
+      "sha256": "7dfc9ee43c8d1a06445eb20f3f35e0fd8d7514497ace645f6f8f074ebcefc591"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-candidate03-static/result.json",
+      "sha256": "3c6eed0e899124036cd1ebb13fcf3b77dd4b1c6382081eb23d4a925eccab2e7a"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-candidate04-static/result.json",
+      "sha256": "786c980ebe57dd1ff476d7d6c56bbe1c72607e377e81cf683abbf542bbad8c85"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-bounded-proxy-plan02/result.json",
+      "sha256": "121de07f74caf85af77fa9302ec1bc9fa28bae53d95d85f39184fc3ede5fbe91"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-candidate05-static/result.json",
+      "sha256": "a1bce93cc25ec1e6dc5559623e50cb3aa59623ab848ebdf3437112b8e85ca098"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-root-lookup-plan01/result.json",
+      "sha256": "efd9944b229471d397b67a884a1667233b5b957331e739993e32c55e9b7ae474"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-candidate06-static/result.json",
+      "sha256": "a5e544048e877722f449cdfa8357ea46401030a1ed144cfbef44b220c9cccbd0"
+    }
+  ],
+  "author_final": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/author-final06.json",
+    "sha256": "6f9b4dae3267e6fbe0cd1d30a67e0b4eada6ef8b8cc3366428a9d39636003e11"
+  },
+  "author_final_md": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/author-final06.md",
+    "sha256": "0bf47e3986b567e86bbc5fceba06db27eca45afa42ae5d8823f31902d77b8073"
+  },
+  "author_pass_body_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/safe-body-pass-index06.json",
+    "sha256": "9fd5815d6123cff7ab504ebef108044b9e3ae48fdac22726403520ccf5c5405e"
+  },
+  "independent_controlled": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-probes01/result.json",
+    "sha256": "e94aa906699bf0845a3001dd8baeaaca3db33e1b78c4c8eebe7b54d94da6c9bc"
+  },
+  "independent_controlled_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-probes01/review.md",
+    "sha256": "41a42cf089d4b5b1f91ec6361b3ccfea1b4327f8015acd8c0e3c98b61d4b63c2"
+  },
+  "runtime_proposal": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/proposal07.json",
+    "sha256": "e7ddae70ea08b3687bb97971050b70c614e5a4dfedf29c0d7e098b60935ed35a"
+  },
+  "runtime_rebind": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/candidate06-rebind-result.json",
+    "sha256": "fe3f278bec58ad6f9392e16c2b5eb50e5fb8346d70d3b5f4577fa957662a46e1"
+  },
+  "independent_native": {
+    "command": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/command.json",
+      "sha256": "9a78d7c6b7a1444aa8e05870432ad927818fc2b72609ec33b32e372a38ffc0f6"
+    },
+    "raw": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/raw.log",
+      "sha256": "b69daf8a867290f94cee9a8570ce4f32c2dbb1d498e95ff050d48df838f685a6"
+    },
+    "trace": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/trace.raw",
+      "sha256": "3baaf0877d2b075cc52bb5ae908a4b0e98681bd0778117fc3a9b17fe311041fc"
+    },
+    "zero_tail": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/cleanup-double-zero.json",
+      "sha256": "cec81e5c9946c617be8806a6c3702f92c8867f1e87341906cc18e2dfff144ad2"
+    },
+    "input_before": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/input-before.json",
+      "sha256": "b640ae2773a48bdf38ebf39818858e29f42d100ce3f4599e102e04c6992b378d"
+    },
+    "input_after": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01/input-after.json",
+      "sha256": "b640ae2773a48bdf38ebf39818858e29f42d100ce3f4599e102e04c6992b378d"
+    },
+    "status": "PASS",
+    "test_top": 1,
+    "subcases": 2,
+    "execution_seconds": 5.198437713999738,
+    "listener_count": 2,
+    "actual_waits": [
+      {
+        "role": "direct",
+        "pid": 848670,
+        "starttime": "3186621",
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791405919.58789
+      },
+      {
+        "role": "adopted",
+        "pid": 848674,
+        "starttime": "3186622",
+        "wait_status": 0,
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791405919.592233
+      }
+    ]
+  },
+  "independent_pg": [
+    {
+      "run": "independent-a01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-a01/result.json",
+        "sha256": "8e85fe9e04fafecb95a202d3e9a9fc5a058cee17afd0cd885d92356709572fc8"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-a01/command.json",
+        "sha256": "3472120763bc559e634bde73912d3982dab2165d90143f9791ee94a3efb34b18"
+      },
+      "raw": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-a01/raw.log",
+        "sha256": "d52f3b1cdef13d2a1964fd6b15b234ab3641e0ed4bfd907dd2a8b78e94f944ba"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-a01/cleanup.json",
+        "sha256": "9c73a4e27dd512829f0eaf248200d220ae7ea31428d62ce20608dda47b46a0f1"
+      },
+      "owned_tail": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-a01/owned-tail-retirement.json",
+        "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-a01/watchdog.json",
+        "sha256": "fa1879eb6e8b0755f8e8591e865651469c7974dadcb1f13a1be4d09e83434dab"
+      },
+      "whole_chain_seconds": 54.54,
+      "owned_processes": 82,
+      "adopted_waits": 0,
+      "resources": 7,
+      "new_nonowned_shim_zombies": 4,
+      "status": "PASS"
+    },
+    {
+      "run": "independent-b01",
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-b01/result.json",
+        "sha256": "c3055b891197b13a000f3285513bae97c2009f55eac5f6e39f84b329335344ed"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-b01/command.json",
+        "sha256": "026d91f2cfb738b9a4797096e2538ffbf0044fc53b0d34401aa8415df8bf0c87"
+      },
+      "raw": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-b01/raw.log",
+        "sha256": "06fb790ffc0011cf2fedc53faac3cba6ccd63ba076506694d533d9b00286159e"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-b01/cleanup.json",
+        "sha256": "fdd6f98992d195704fe8de238c160b519ae4173c1741c04e636ab94646b07526"
+      },
+      "owned_tail": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-b01/owned-tail-retirement.json",
+        "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-b01/watchdog.json",
+        "sha256": "ed8a1907a3668c614c95b469f2fb7b32442e8beca0a39d614c081475e71208a6"
+      },
+      "whole_chain_seconds": 53.996,
+      "owned_processes": 80,
+      "adopted_waits": 0,
+      "resources": 7,
+      "new_nonowned_shim_zombies": 4,
+      "status": "PASS"
+    }
+  ],
+  "original_body_schema_results": [
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/projection-result.json",
+      "sha256": "589edde38770ec31fd74830ee23a702a1e87ffcf1a28e63978a90add99211eed"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/authority-result.json",
+      "sha256": "cedb9318942bf5545c6d9f84ba8b4bd99df75aa119045bf5070b084f18151d32"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-pass-result.json",
+      "sha256": "70af5dc8fa24788bf5d053722784fc0fad294016c5b516bbafc4c1c3f2f3415f"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/root-pass-result.json",
+      "sha256": "d4554fe5e01566b3a4e297d123bb8bd757c4577e459bd496ed10bf5348896493"
+    },
+    {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/independent-five-result.json",
+      "sha256": "7d461220bac598f9a9000b18d0fc25896e3e6ea85265a6b3c5803cfab4ad9a4c"
+    }
+  ],
+  "last_schema_command": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/independent-five-schema01/command.json",
+    "sha256": "7cf4dd0fa649ef8d7a18eb8b4cb6882e74717d88c01898d856d98b4fd32d7863"
+  },
+  "last_schema_terminal": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/independent-five-schema01/result.json",
+    "sha256": "47d28f27aef92b51da2993dd3b2d516c21186e35dd0390408ff56a39e51b7a8d"
+  },
+  "versioned_findings": [
+    {
+      "kind": "STATIC_SPEC",
+      "issue": "No cursor TTL existed; prior expiry wording corrected; kid removal/signature/current binding semantics retained.",
+      "source": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-static01/review.md",
+        "sha256": "aeb1666372492fb84504c128b3223f2f890d8f4226c9935b198f7c8f9e5ea541"
+      }
+    },
+    {
+      "kind": "STATIC_PRODUCTION",
+      "issue": "Setter panic tail and hidden middleware writer state fixed within new handler; production03 retains shared old implementations.",
+      "source": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-production01/review.md",
+        "sha256": "2a17f27f6fbaffd3841cf834e23b5049a8fa10dd03146c343ecb7d76ada48681"
+      }
+    },
+    {
+      "kind": "AUTHOR_VERSIONED_FAILURES",
+      "issue": "Typed-ID compile failure, cleanup ownership STATIC repair, native observer/parent first red, two bounded PG reds and root found first red preserved with exact inputs.",
+      "source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/author-final06.json",
+        "sha256": "6f9b4dae3267e6fbe0cd1d30a67e0b4eada6ef8b8cc3366428a9d39636003e11"
+      }
+    },
+    {
+      "kind": "INDEPENDENT_PRIVATE_COMPILE",
+      "issue": "Original IsZero private compile failure and pre-execution URL/Reasoning fixture corrections preserved, unaffected production.",
+      "source": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-probes01/result.json",
+        "sha256": "e94aa906699bf0845a3001dd8baeaaca3db33e1b78c4c8eebe7b54d94da6c9bc"
+      }
+    },
+    {
+      "kind": "STATIC_EVIDENCE_ASSERTION",
+      "issue": "Private proxy stage proof strengthened to same unique connection D/send/tag/ready/drop before later independent read.",
+      "source": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-bounded-proxy-plan01/result.json",
+        "sha256": "7c7c469f70b48dfe3261f6ad48dd6e84b69d6e52aeb4b4f954eb1b44127843c1"
+      }
+    },
+    {
+      "kind": "INDEPENDENT_PRIVATE_STATIC_NOT_RUNTIME",
+      "issue": "Independent unexecuted private Root also used obsolete found. Discovered statically during author failure review; preserved old probe/freezes, corrected only Root maps/state/command/original PATCH projection, rebuilt/listed before successful B.",
+      "source": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/preparation.json",
+        "sha256": "142949e4984cf9ba10f5ba86f5fb471735bbb9ff2b1041d45a4802bca146763e"
+      },
+      "closure": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/candidate06-rebind-result.json",
+        "sha256": "fe3f278bec58ad6f9392e16c2b5eb50e5fb8346d70d3b5f4577fa957662a46e1"
+      }
+    }
+  ],
+  "technical_blockers": [],
+  "remaining": "README14 frozen static review only, then root product integration decision",
+  "limits": [
+    "PASS covers13 technical paths only. Backend README #14 is pending separate frozen static review; no Git mutation or publish by this verifier.",
+    "The8MiB guarantee belongs to complete new HTTP representation admission before HTTP DTO clone/Validate/Marshal; it does not bound preexisting DB/library allocations or total RSS. Controlled representative TotalAlloc168B is not a universal allocation limit.",
+    "ReadUnknown preserves original cause/attempt and never becomes a candidate response or current-read confirmation. Cursor has no TTL; current keyring verification and per-page current authority/filtering remain.",
+    "A and author projection/authority/bounded use actual PostgreSQL with controlled handler writer. Independent B and author root use native default app.Run HTTP; native socket phase proof remains separate.",
+    "Independent native Close-tail barrier is an explicit controlled body-close seam over real TCP; not a claim of arbitrary kernel Close blocking.",
+    "Existing app shutdown/object/forced-inner-join restrictions remain. Private proxy cleanup proof applies to current openStore ForceClose-first fixture, not arbitrary unreachable upstream dialing.",
+    "All10 PG actual rounds preserve original failures and owned waits/7resource cleanup;40 new daemon/PID1 shim zombies and2 concurrent nonowned git zombies were outside ownership and not waited. No whole-machine-zero claim and no restart-current total substituted for historical live baselines.",
+    "No new credentials/config mutation API, Agent reference replacement, Resolver/production Resolution or Invocations/D24, full D09/E01 or prior stopped tasks are accepted. ready remains503.",
+    "Restart recovery only checked persisted completed evidence/current13 hashes. Last schema had completed actual0/directwait/doubleclear before restart, so no runtime/schema rerun and no old baseline reuse."
+  ],
+  "active_commands_or_owned_resources": "None; all runtime windows completed before restart, current process scan found none; no fresh runtime started."
+}

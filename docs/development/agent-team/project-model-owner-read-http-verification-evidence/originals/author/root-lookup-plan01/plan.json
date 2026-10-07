@@ -1,0 +1,28 @@
+{
+  "status": "SCRATCH_TEST_ONLY_PROPOSAL_NO_APPLY_NO_RERUN",
+  "target": "/workspace/agenteam/tests/model/project_configuration_http_root_test.go",
+  "source_sha256": "669cd37b6b2f42eb10f235f355704e29384da4a047fa8018b482bc07e3fc87f1",
+  "contract_sources": [
+    "internal/central/project/http/update_wire.go:103",
+    "internal/central/project/contract/commands.go:184",
+    "internal/central/project/contract/commands.go:18",
+    "tests/model/project_owner_update_http_root_test.go:75",
+    "api/openapi/project-owner.json:2069"
+  ],
+  "actual_enum": "pc.LookupCommitted = committed",
+  "command_enum": "pc.UpdateCommand = update",
+  "failure": "author #13 incorrectly used found boolean, absent from accepted Update wire; original root FAIL retained and later assertions not run",
+  "assertions": [
+    "typed state committed",
+    "typed result.command update",
+    "original result.project raw bytes equal prior successful PATCH body without remarshal",
+    "historical Project ID matches target and version2"
+  ],
+  "preserved": [
+    "production/account root binding",
+    "original shared Update handlers/helpers",
+    "remaining root drain/restart/readyz assertions and budgets",
+    "original failed source/raw and five partial safe-body origins"
+  ],
+  "validation": "after independent STATIC/root authorize #13 only apply/freeze06, affected integration race compile/vet/exact root list and one hash closure delta; actual root retry then old only after root explicit resource grant"
+}

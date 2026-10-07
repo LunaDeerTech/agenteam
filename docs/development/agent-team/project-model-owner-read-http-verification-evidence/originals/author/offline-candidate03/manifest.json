@@ -1,0 +1,13 @@
+{
+  "base": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate02/manifest.json",
+    "sha256": "fcb8bff00bbe65d8b68e4e4a2889267087d882e3f70d1dc35c3473ec444adb16"
+  },
+  "delta": {
+    "internal/central/model/http_project_test.go": "201ce042584df39b07171277a9e57a8bf8f470f492cc07245a43597dcfb2ef0f",
+    "internal/central/model/http_project_native_test.go": "0bb43fc6394934f2e5c61832639a7aa67b7ca6eadda72d2f1835a952bad47385"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate03/src",
+  "patch_sha256": "2c6e9395f09bbe5186e061fa3bb502973fa86f88e4ca1c2e09ca9229a12ba732",
+  "reason": "STATIC test ownership fix: cleanup idempotently releases blocked seams and waits actual handler; native entry bounded, retained accepted listener actual connection/Serve join; no production change/no dynamic failure"
+}

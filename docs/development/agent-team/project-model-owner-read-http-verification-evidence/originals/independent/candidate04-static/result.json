@@ -1,0 +1,28 @@
+{
+  "status": "PASS_STATIC_TWO_LINE_APPLIED_DELTA",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "44e8691202a6887636264b4298056168ec00710663cd25d1df1b615202acda59"
+  },
+  "patch": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate04/changes.patch",
+    "sha256": "726094c9ed7a9731714fd20ae9dcf486290c248dd5cefdaa9577ba438a35de38"
+  },
+  "graph_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full04.json",
+    "sha256": "33b6b11d1fba3827a74c2335bb7595b86d37e8d11759717de6d3d907b8ec6cd0"
+  },
+  "actual_delta_equals_proposed_hunk": true,
+  "only_two_replacements": true,
+  "workspace_matches_snapshot": true,
+  "minimal_array_bytes": 9175041,
+  "limits": [
+    "No production/import/file-set/budget/GETHEAD/Unknown assertion changes",
+    "Original first red remains failed; no separation of library vs HTTP preflight timing can be inferred",
+    "No real runtime result claimed; private affected PG compile/list follows; native binary reusable"
+  ],
+  "prior_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-bounded-first-red01/result.json",
+    "sha256": "64c457d5c2301c1cbd5756dc41131b3001ab5a3252c973f9aeaf1b173d8b521c"
+  }
+}

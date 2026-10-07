@@ -1,0 +1,184 @@
+package model
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
+	"runtime"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+// Deliberately implements both deadline setters but no Flush/FlushError/Unwrap.
+type independentProjectNoFlush struct {
+	r       *httptest.ResponseRecorder
+	setters int
+}
+
+func (w *independentProjectNoFlush) Header() http.Header              { return w.r.Header() }
+func (w *independentProjectNoFlush) WriteHeader(n int)                { w.r.WriteHeader(n) }
+func (w *independentProjectNoFlush) Write(p []byte) (int, error)      { return w.r.Write(p) }
+func (w *independentProjectNoFlush) SetReadDeadline(time.Time) error  { w.setters++; return nil }
+func (w *independentProjectNoFlush) SetWriteDeadline(time.Time) error { w.setters++; return nil }
+
+func TestIndependentProjectModelHTTPControlled(t *testing.T) {
+	p, pv, mv, av := projectHTTPValues(t)
+	// Fixture construction and validation are outside the measured HTTP admission.
+	const n = 1 << 18
+	efforts := make([]string, n)
+	for i := range efforts {
+		efforts[i] = fmt.Sprintf("rrrrrrrrrrrrrrrrrrrrrrrr%08x", i)
+	}
+	mv.Input.Capabilities.ReasoningEfforts = efforts
+	if err := mv.Validate(); err != nil {
+		t.Fatal("legal large capabilities fixture", err)
+	}
+	t.Run("prevalidate_incremental_allocation", func(t *testing.T) {
+		runtime.GC()
+		var before, after runtime.MemStats
+		runtime.ReadMemStats(&before)
+		body, err := projectHTTPEncodeModel(context.Background(), p, mv.ID, mv)
+		runtime.ReadMemStats(&after)
+		if body != nil {
+			t.Fatal("oversize success prefix")
+		}
+		requireCode(t, err, f.DependencyUnavailable)
+		delta := after.TotalAlloc - before.TotalAlloc
+		// A Clone of the []string alone requires 4MiB; Validate builds a larger map.
+		if delta > 1<<20 {
+			t.Fatalf("admission allocated %d bytes before refusal", delta)
+		}
+		t.Logf("legal_efforts=%d minimum_JSON=%d HTTP_incremental_alloc=%d", n, 2+n*35-1, delta)
+	})
+	for _, method := range []string{"GET", "HEAD"} {
+		t.Run("cap_"+method, func(t *testing.T) {
+			h, _, s := projectHTTPTestHandler(t)
+			s.model = mv
+			w := summaryWriter()
+			r := projectHTTPRequest(method, "/models/"+mv.ID.String())
+			if summaryAborts(func() { h.ServeHTTP(w, r) }) {
+				t.Fatal("ordinary budget refusal aborted")
+			}
+			if w.Code != 503 || s.calls.Load() != 1 || bytes.Contains(w.Body.Bytes(), []byte(`"capabilities"`)) {
+				t.Fatal("cap status/projection/call", w.Code, w.Body.String())
+			}
+			if method == "HEAD" && w.Body.Len() != 0 {
+				t.Fatal("HEAD emitted bytes")
+			}
+			if w.Header().Get("Content-Length") == "" || w.flushes != 1 {
+				t.Fatal("terminal headers/flush")
+			}
+			w.cleared(t)
+		})
+		t.Run("typed_read_unknown_"+method, func(t *testing.T) {
+			cause, err := readCause("model.project.get_model")
+			if err != nil {
+				t.Fatal(err)
+			}
+			original := &UnknownCommandError{cause: cause, attempt: mustID[f.TransactionAttempt](t)}
+			h, b, s := projectHTTPTestHandler(t)
+			s.model = mv
+			s.call = func(context.Context, id.Actor, id.ProjectID, ProjectQuery, projectHTTPKind, string) error {
+				return original
+			}
+			observed := false
+			b.problem = func(w http.ResponseWriter, r *http.Request, err error) {
+				if err != original || !reflect.DeepEqual(original.Cause().Details(), cause.Details()) || original.AttemptID().IsZero() {
+					t.Error("read Unknown identity lost")
+				}
+				observed = true
+				(&account.HTTPBoundary{}).WriteProblem(w, r, err)
+			}
+			w := summaryWriter()
+			r := projectHTTPRequest(method, "/models/"+mv.ID.String())
+			if summaryAborts(func() { h.ServeHTTP(w, r) }) {
+				t.Fatal("Unknown projection aborted")
+			}
+			if !observed || w.Code != 503 || s.calls.Load() != 1 {
+				t.Fatal("Unknown replaced by budget refusal")
+			}
+			if method == "GET" && !bytes.Contains(w.Body.Bytes(), []byte("COMMIT_UNKNOWN")) {
+				t.Fatal("Unknown body", w.Body.String())
+			}
+			if method == "HEAD" && w.Body.Len() != 0 {
+				t.Fatal("Unknown HEAD body")
+			}
+			w.cleared(t)
+		})
+	}
+	t.Run("missing_only_flush_preflight", func(t *testing.T) {
+		h, b, s := projectHTTPTestHandler(t)
+		w := &independentProjectNoFlush{r: httptest.NewRecorder()}
+		body := &summaryHTTPBody{Reader: strings.NewReader("")}
+		r := projectHTTPRequest("HEAD", "/models")
+		r.Body = body
+		if !summaryAborts(func() { h.ServeHTTP(w, r) }) {
+			t.Fatal("missing flush not aborted")
+		}
+		if b.checks.Load() != 0 || b.auths.Load() != 0 || s.calls.Load() != 0 || body.closes.Load() != 1 || w.r.Body.Len() != 0 {
+			t.Fatal("preflight ran downstream or leaked body")
+		}
+	})
+	t.Run("escape_and_raw_upper_bound", func(t *testing.T) {
+		var ascii strings.Builder
+		for i := 0; i < 128; i++ {
+			ascii.WriteByte(byte(i))
+		}
+		ascii.WriteString("中文\u2028\u2029𝄞")
+		for _, value := range []string{ascii.String(), strings.Repeat("<>&\\\"\n", 97), ""} {
+			encoded, err := json.Marshal(value)
+			if err != nil {
+				t.Fatal(err)
+			}
+			b := projectHTTPBound{ctx: context.Background()}
+			if !b.text(value, 1<<20) || b.used != len(encoded) {
+				t.Fatal("JSON escape accounting", b.used, len(encoded))
+			}
+			raw := json.RawMessage(append(append([]byte("{\n\t\"x\": "), encoded...), []byte("\n}")...))
+			marshaled, err := json.Marshal(raw)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r := projectHTTPBound{ctx: context.Background()}
+			if !r.raw(raw) || r.used < len(marshaled) {
+				t.Fatal("raw conservative bound")
+			}
+			exact := projectHTTPBound{ctx: context.Background(), used: (8 << 20) - len(raw)*6}
+			if !exact.raw(raw) || exact.used != 8<<20 {
+				t.Fatal("raw exact bound")
+			}
+			over := projectHTTPBound{ctx: context.Background(), used: (8 << 20) - len(raw)*6 + 1}
+			if over.raw(raw) || over.used != (8<<20)-len(raw)*6+1 {
+				t.Fatal("raw multiplication admission")
+			}
+		}
+	})
+	t.Run("schema_safe_and_complete_samples", func(t *testing.T) {
+		// These are production encoder outputs, not synthetic schema DTO maps.
+		_, _, small, _ := projectHTTPValues(t)
+		provider, err := projectHTTPEncodeProvider(context.Background(), p, pv.ID, pv)
+		if err != nil {
+			t.Fatal(err)
+		}
+		model, err := projectHTTPEncodeModel(context.Background(), p, small.ID, small)
+		if err != nil {
+			t.Fatal(err)
+		}
+		available, err := projectHTTPEncodeAvailable(context.Background(), p, ProjectQuery{Limit: 50}, AvailableChatModelPage{Items: []AvailableChatModel{av}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for name, body := range map[string][]byte{"Provider": provider, "Model": model, "AvailableChatModelPage": available} {
+			fmt.Printf("INDEPENDENT_SCHEMA %s %x\n", name, body)
+		}
+	})
+}

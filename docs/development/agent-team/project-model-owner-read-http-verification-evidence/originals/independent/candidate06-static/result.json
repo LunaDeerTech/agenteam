@@ -1,0 +1,28 @@
+{
+  "status": "PASS_STATIC_APPLIED_ROOT_ASSERTION_ONLY",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "source": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/src/tests/model/project_configuration_http_root_test.go",
+    "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f"
+  },
+  "plan_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-root-lookup-plan01/result.json",
+    "sha256": "efd9944b229471d397b67a884a1667233b5b957331e739993e32c55e9b7ae474"
+  },
+  "graph_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json",
+    "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+  },
+  "private_static_fix": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/preparation.json",
+    "sha256": "142949e4984cf9ba10f5ba86f5fb471735bbb9ff2b1041d45a4802bca146763e"
+  },
+  "limits": [
+    "Private Root STATIC discovered same wrong old found assertion, no private dynamic failure yet; original source/freezes preserved",
+    "No production/natural budgets/native/A changes",
+    "Affected joint PG formatting/compile/list follows; real resources await root release"
+  ]
+}

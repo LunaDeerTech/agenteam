@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-07：D09 Model Owner只读完整接受，凭据HTTP实施启动
+
+[D09 Model Owner只读HTTP](project-model-owner-read-http-verification.md)完整14路径（含README末件）已接受，产品 `a0b012ce` 已推送且root核远端一致。原失败与版本组合保留，native共5实际轮、PG共10轮各7项资源actual wait/双清；40个daemon/PID1 shim和同期2个git仍非owned、未wait，不称全机清零。
+
+[Project Model credentials规格](project-model-credentials-http-spec-verification.md) `9a2a9a1a`／归档 `b498c0bc` 已接受。以 `a0b012ce` 为基线，root已正式交接 `account.go`、`project_usage.go`、`security.go` 三根；next_frontier已ACK并开始#1–22技术实施，首冻#1–4 Secret Project lookup。必要offline已授、暂无结果，真实native/PG及README23未授；usage_verification已ACK，仅独立scratch准备，凭据产品未接受。
+
+Summary/Owner-read/Update/Usage既有接受与系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则保持。production Resolution/Invocations与D24未绑定，ready503、D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变；以下保留历史原字节。
+
 ## 2026-10-07：D09 Model Owner只读native通过、PG启动与凭据规格接受
 
 [Owner Update HTTP](project-owner-update-http-verification.md)完整19路径接受保持，产品 `61bed1fc`、归档 `c839f965` 已推送且root核远端一致。[D09 Model Owner只读HTTP](../work-items/d09-project-model-owner-read-http.md)当前13技术源未提交、产品未验收；production03/candidate02限定STATIC、作者版本组合offline及独立controlled离线检查通过。

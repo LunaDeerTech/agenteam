@@ -8,6 +8,12 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：[D09 Model Owner只读HTTP](agent-team/project-model-owner-read-http-verification.md)完整14路径（含README末件）已接受，产品 `a0b012ce` 已推送且root核远端一致。原失败与版本组合保留，native共5实际轮、PG共10轮各7项资源actual wait/双清；40个daemon/PID1 shim和同期2个git仍非owned、未wait，不称全机清零。
+
+[Project Model credentials规格](agent-team/project-model-credentials-http-spec-verification.md) `9a2a9a1a`／归档 `b498c0bc` 已接受。以 `a0b012ce` 为基线，root已正式交接 `account.go`、`project_usage.go`、`security.go` 三根；next_frontier已ACK并开始#1–22技术实施，首冻#1–4 Secret Project lookup。必要offline已授、暂无结果，真实native/PG及README23未授；usage_verification已ACK，仅独立scratch准备，凭据产品未接受。
+
+Summary/Owner-read/Update/Usage既有接受与系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则保持。production Resolution/Invocations与D24未绑定，ready503、D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变；以下保留历史原字节。
+
 2026-10-07 当前增量（阶段冻结）：[Owner Update HTTP](agent-team/project-owner-update-http-verification.md)完整19路径接受保持，产品 `61bed1fc`、归档 `c839f965` 已推送且root核远端一致。[D09 Model Owner只读HTTP](work-items/d09-project-model-owner-read-http.md)当前13技术源未提交、产品未验收；production03/candidate02限定STATIC、作者版本组合offline及独立controlled离线检查通过。
 
 作者native keepalive/slowbody通过，writeclose原首红保留；candidate03仅修订native阶段观测和测试父期限，race compile及独立定点STATIC通过。native-v03 writeclose随后完整通过1top/9sub/9listener，实际观察GET Write与HEAD Flush socket timeout；direct/adopted actual wait均0，owned PID/全TCP含TIME_WAIT双空、输入一致。作者PG new-projection01已实际启动，五轮尚无整体结论，独立runtime尚未接力，README14未授。[Project Owner Model credentials规格](work-items/d09-project-model-credentials-http.md)已含正式归位末件完整限定STATIC接受，规格提交 `9a2a9a1a` 已推送且root核远端一致；仍仅规格接受，实施须等待当前Model Owner read完整产品接受及共享根正式移交。

@@ -1,0 +1,275 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
+)
+
+type independentModelBeforeRead struct {
+	*postgres.Store
+	before func(context.Context, f.TransactionCause) error
+}
+
+func (s *independentModelBeforeRead) WithinTx(ctx context.Context, c f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	return s.Store.WithinTx(ctx, c, func(ctx context.Context, tx f.Tx) error {
+		// Barrier before the formal authority's first statement inside this actual Tx.
+		if s.before != nil {
+			if err := s.before(ctx, c); err != nil {
+				return err
+			}
+		}
+		return fn(ctx, tx)
+	})
+}
+func independentModelCore(t *testing.T, v *projectUsageHTTPFixture, store sharedStore) *model.Service {
+	t.Helper()
+	ak, _, _ := testKeys(t)
+	sessions, err := account.NewAuthority(store, ak)
+	if err != nil {
+		t.Fatal(err)
+	}
+	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: sessions, Routes: sessions})
+	if err != nil {
+		t.Fatal(err)
+	}
+	authority, err := model.NewAuthority(store, model.Authorizations{Sessions: sessions, System: sessions, Projects: projects})
+	if err != nil {
+		t.Fatal(err)
+	}
+	core, err := model.New(store, authority, v.deps)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return core
+}
+func independentModelEvidence(t *testing.T) {
+	t.Helper()
+	dir := os.Getenv("AGENTEAM_PROJECT_MODEL_BODY_DIR")
+	if !filepath.IsAbs(dir) || os.Getenv("AGENTEAM_PROJECT_MODEL_RUN") == "" || len(os.Getenv("AGENTEAM_PROJECT_MODEL_INPUT_SHA256")) != 64 {
+		t.Fatal("fixed per-top evidence/run/input required")
+	}
+}
+func TestIndependentProjectModelHTTPPGAuthority(t *testing.T) {
+	projectConfigurationHTTPTop(t)
+	independentModelEvidence(t)
+	v := newProjectConfigurationHTTP(t)
+	base := projectConfigurationHTTPPath(v.project.ID, "")
+	t.Run("current_Session_after_boundary_inside_actual_Tx", func(t *testing.T) {
+		browser := v.login(t, v.ownerBrowser.email)
+		entered, release := make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		unblock := func() { once.Do(func() { close(release) }) }
+		var hits atomic.Int32
+		store := &independentModelBeforeRead{Store: v.raw}
+		store.before = func(ctx context.Context, c f.TransactionCause) error {
+			if projectConfigurationHTTPCause(c) {
+				hits.Add(1)
+				close(entered)
+				select {
+				case <-release:
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
+			return nil
+		}
+		old := v.handler
+		installProjectConfigurationHTTP(t, v, independentModelCore(t, v, store))
+		defer func() { v.handler = old }()
+		ctx, cancel := context.WithCancel(testContext(t))
+		flight := v.flight(ctx, browser, base+"models")
+		defer func() { unblock(); cancel(); <-flight.done }()
+		select {
+		case <-entered:
+		case <-time.After(time.Second):
+			t.Fatal("Model read Tx did not enter after RequireHuman")
+		}
+		if err := v.core.Logout(testContext(t), account.LogoutRequest{Actor: browser.actor, Key: f.IdempotencyKey(newID[struct{}](t).String())}); err != nil {
+			t.Fatal("formal logout", err)
+		}
+		if flight.writer.writeCount() != 0 {
+			t.Fatal("read published before current Tx gate")
+		}
+		unblock()
+		<-flight.done
+		if flight.aborted || hits.Load() != 1 {
+			t.Fatal("barrier/current gate terminal")
+		}
+		flight.result().problem(t, 401, f.SessionRevoked)
+		// Fresh formal Session for the same stable User succeeds through original root.
+		v.handler = old
+		fresh := v.login(t, browser.email)
+		v.request(t, fresh, "GET", base+"models").want(t, 200)
+	})
+	t.Run("directory_continuation_rechecks_enabled_not_snapshot", func(t *testing.T) {
+		oldModel := v.projectModel(t, v.projectProvider(t, nil))
+		remain := v.projectModel(t, v.projectProvider(t, nil))
+		systemProvider := v.provider(t, mc.OpenAIChat, nil)
+		systemModel := v.model(t, systemProvider, mc.ChatModel)
+		v.sql(t, `UPDATE agenteam_model.providers SET base_url='https://independent-directory-private.example/v1',provider_options='{"canary":"independent-directory-private-options"}' WHERE id=$1`, systemProvider.ID.String())
+		first, cursor := projectConfigurationHTTPPage(t, v.request(t, v.ownerBrowser, "GET", base+"available-chat-models?limit=1"))
+		if len(first) != 1 || cursor == "" || projectConfigurationHTTPID(t, first[0]) != systemModel.ID.String() {
+			t.Fatal("expected newest System row")
+		}
+		input := oldModel.Input.Clone()
+		input.Enabled = false
+		if _, err := v.service.UpdateModel(testContext(t), mc.UpdateModelRequest{CommandMeta: v.projectMeta(t, newID[struct{}](t).String()), ID: oldModel.ID, ExpectedVersion: oldModel.Version, Input: input}); err != nil {
+			t.Fatal(err)
+		}
+		later := v.projectModel(t, v.projectProvider(t, nil))
+		fresh := v.login(t, v.ownerBrowser.email)
+		target := base + "available-chat-models?limit=2&cursor=" + url.QueryEscape(cursor)
+		response := v.request(t, fresh, "GET", target).want(t, 200)
+		rows, next := projectConfigurationHTTPPage(t, response)
+		if len(rows) != 1 || next != "" || projectConfigurationHTTPID(t, rows[0]) != remain.ID.String() {
+			t.Fatal("continuation ignored current enabled predicate/watermark")
+		}
+		if len(rows[0]) != 7 || bytes.Contains(response.body, []byte(later.ID.String())) || bytes.Contains(response.body, []byte("independent-directory-private")) {
+			t.Fatal("directory leak/watermark")
+		}
+		projectConfigurationHTTPSchema(t, "AvailableChatModelPage", response.body)
+		projectConfigurationHTTPExport(t, "independent-catalog-continuation", "GET", target, response)
+		v.request(t, fresh, "GET", base+"models?cursor="+url.QueryEscape(cursor)).problem(t, 400, f.CursorInvalid)
+		v.request(t, v.otherBrowser, "GET", target).problem(t, 404, f.NotFound)
+	})
+	t.Run("actual_read_Unknown_no_automatic_second_read", func(t *testing.T) {
+		provider := v.projectProvider(t, nil)
+		target := projectConfigurationHTTPPath(v.project.ID, "model-providers/"+provider.ID.String())
+		proxy := newProjectModelPGTrace(t, net.JoinHostPort("127.0.0.1", v.db.Fixture.Port))
+		u, err := url.Parse(v.db.Fixture.URL(v.db.Name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		u.Host = proxy.listener.Addr().String()
+		raw := openStore(t, v.db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable"}))
+		tracked := &projectUsageHTTPStore{Store: raw}
+		core := independentModelCore(t, v, tracked)
+		var callbacks, terminals atomic.Int32
+		observed := make(chan f.CommitResult, 2)
+		tracked.hooks(func(ctx context.Context, tx f.Tx, c f.TransactionCause) error {
+			if projectConfigurationHTTPCause(c) {
+				callbacks.Add(1)
+				proxy.dropCommitACK.Store(true)
+			}
+			return nil
+		}, func(c f.TransactionCause, r f.CommitResult) f.CommitResult {
+			if projectConfigurationHTTPCause(c) {
+				terminals.Add(1)
+				observed <- r
+			}
+			return r
+		})
+		old := v.handler
+		installProjectConfigurationHTTP(t, v, core)
+		defer func() { v.handler = old; tracked.hooks(nil, nil) }()
+		response := v.request(t, v.ownerBrowser, "GET", target)
+		response.problem(t, 503, f.CommitUnknown)
+		waitSignal(t, proxy.ackDropped)
+		var result f.CommitResult
+		select {
+		case result = <-observed:
+		case <-time.After(time.Second):
+			t.Fatal("actual transaction result absent")
+		}
+		if callbacks.Load() != 1 || terminals.Load() != 1 || result.State() != f.Unknown || result.AttemptID().Validate() != nil || !projectConfigurationHTTPCause(result.Cause()) {
+			t.Fatal("Unknown requery/cause/attempt")
+		}
+		var problem httpapi.Problem
+		if json.Unmarshal(response.body, &problem) != nil || problem.CommitState != f.Unknown || problem.RequestID.String() != response.headers.Get("X-Request-ID") {
+			t.Fatal("same response request binding")
+		}
+		if bytes.Contains(response.body, []byte(`"input"`)) || bytes.Contains(response.body, []byte(result.AttemptID().String())) {
+			t.Fatal("Unknown private/success data")
+		}
+		projectConfigurationHTTPExport(t, "independent-read-unknown", "GET", target, response)
+		if !strings.Contains(strings.Join(proxy.snapshot(), " "), "commit-idle-ack-dropped") {
+			t.Fatal("real COMMIT ACK fault absent")
+		}
+	})
+}
+func TestIndependentProjectModelHTTPPGRoot(t *testing.T) {
+	projectConfigurationHTTPTop(t)
+	independentModelEvidence(t)
+	v := newProjectConfigurationHTTP(t)
+	provider := v.projectProvider(t, nil)
+	m := v.projectModel(t, provider)
+	root := startProjectUsageRoot(t, v)
+	base := projectConfigurationHTTPPath(v.project.ID, "")
+	for _, tc := range []struct{ suffix, schema, name string }{{"model-providers/" + provider.ID.String(), "Provider", "independent-root-provider"}, {"models/" + m.ID.String(), "Model", "independent-root-model"}, {"available-chat-models", "AvailableChatModelPage", "independent-root-directory"}} {
+		target := base + tc.suffix
+		response := root.request(t, v.ownerBrowser, "GET", target, nil).want(t, 200)
+		head := root.request(t, v.ownerBrowser, "HEAD", target, nil).want(t, 200)
+		if len(head.body) != 0 || head.headers.Get("Content-Length") != response.headers.Get("Content-Length") {
+			t.Fatal("HEAD same full representation")
+		}
+		projectConfigurationHTTPSchema(t, tc.schema, response.body)
+		projectConfigurationHTTPExport(t, tc.name, "GET", target, response)
+		root.request(t, v.adminBrowser, "GET", target, nil).problem(t, 404, f.NotFound)
+	}
+	// PATCH changes an observable old route; a new Model GET must not capture it.
+	path := projectOwnerReadPath(v.project.ID)
+	description := "independent-model-read-root-update"
+	key := "independent-root-update-key"
+	receipt := projectUpdateRootRequest(t, root, v.ownerBrowser, "PATCH", path, key, projectUpdateBody(t, 1, nil, &description)).want(t, 200)
+	if receipt.object(t)["version"] != "2" {
+		t.Fatal("Update mutation missing")
+	}
+	lookup := projectUpdateRootRequest(t, root, v.ownerBrowser, "POST", projectUpdateLookupPath(v.project.ID), key, projectUpdateLookupBody).want(t, 200)
+	observed := lookup.object(t)
+	if observed["state"] != "committed" {
+		t.Fatal("Update lookup did not observe committed state")
+	}
+	result, ok := observed["result"].(map[string]any)
+	if !ok || result["command"] != "update" {
+		t.Fatal("Update lookup result missing or wrong command")
+	}
+	historical, ok := result["project"].(map[string]any)
+	if !ok || historical["id"] != v.project.ID.String() || historical["version"] != "2" || historical["description"] != description {
+		t.Fatal("Update lookup original Project identity/version/description mismatch")
+	}
+	historyJSON, historyErr := json.Marshal(historical)
+	receiptJSON, receiptErr := json.Marshal(receipt.object(t))
+	if historyErr != nil || receiptErr != nil || !bytes.Equal(historyJSON, receiptJSON) {
+		t.Fatal("Update lookup project differs from original PATCH projection")
+	}
+	root.request(t, v.ownerBrowser, "GET", base+"models", nil).want(t, 200)
+	root.request(t, v.ownerBrowser, "GET", projectUsagePath(v.project.ID), nil).want(t, 200)
+	root.request(t, v.ownerBrowser, "GET", path, nil).want(t, 200)
+	ready := root.request(t, v.ownerBrowser, "GET", "/readyz", nil)
+	if ready.status != http.StatusServiceUnavailable {
+		t.Fatal("readiness boundary changed")
+	}
+	if root.connections.Load() != 1 {
+		t.Fatal("new/old routes did not share retired keepalive")
+	}
+	root.stop(t)
+	if !strings.Contains(root.logs.String(), `"outcome":"drained"`) {
+		t.Fatal("actual default root drain absent")
+	}
+	for _, private := range []string{v.ownerBrowser.cookie, v.ownerBrowser.csrf, key, description} {
+		if strings.Contains(root.logs.String(), private) {
+			t.Fatal("root log private material")
+		}
+	}
+}

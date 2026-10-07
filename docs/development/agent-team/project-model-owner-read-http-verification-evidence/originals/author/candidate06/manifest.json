@@ -1,0 +1,17 @@
+{
+  "base": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json",
+    "sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72"
+  },
+  "delta": {
+    "tests/model/project_configuration_http_root_test.go": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/candidate06/src",
+  "patch_sha256": "b89bf6829562847147b10b9a5cea2d698f1534323e278d3c8a2a81d7f39a24c8",
+  "reason": "Only #13 test corrects accepted Update state/result contract, committed/update+same original raw Project receipt+ID/version; original failed found assertion retained",
+  "approved_plan": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/root-lookup-plan01/freeze.json",
+    "sha256": "edaf3ab07b5bacb56d7bbbb31b7ff2d4c7decec27217c6eabe18bd4425c2e4cd"
+  },
+  "source_stopped_writing": true
+}

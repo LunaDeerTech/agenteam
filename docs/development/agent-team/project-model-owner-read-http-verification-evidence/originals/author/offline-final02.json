@@ -1,0 +1,347 @@
+{
+  "status": "OFFLINE_LIMITED_PASS_NO_NATIVE_OR_PG",
+  "candidate_sha256": "fb973581aa45319ecccc100dab9b454c5e9f97b14cf601db51599e8b4b9d15d4",
+  "production03_unchanged": true,
+  "actual_graph_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json",
+    "sha256": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a"
+  },
+  "runs": {
+    "build-central01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/build-central01/result.json",
+      "sha256": "698d95a8042509e92003b0d0b4a9ec78868ad0392f29458b755ac75ba168a9b8",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 2.3068134899986035
+    },
+    "build-runner01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/build-runner01/result.json",
+      "sha256": "2f6c3e25b24ad1fb6e32b640f4e1f7a59cdc1e0255bbc74eac172962166b4d15",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.8765901600017969
+    },
+    "compile-app-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-app-race01/result.json",
+      "sha256": "ac31a31432e5f2adec332dbb399706e8987a83429db0b30918821704d9524b66",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 6.288577423998504
+    },
+    "compile-app01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-app01/result.json",
+      "sha256": "580404cdef6983e189a7319b1db5f66a52fc19c13b9d4e6eb7958b4d2a462f39",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 4.715334451997478
+    },
+    "compile-integration01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration01/result.json",
+      "sha256": "415c56d47987902983e40b0789db76e0c705f9a2ac6fa34ac2d669cbbf337d1e",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 8.426207831998909
+    },
+    "compile-integration02": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration02/result.json",
+      "sha256": "a550ca9a7a7f7111f636819383c1dffcefdb64d41cbdc7d4ee6dad2cbf2e4707",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 6.717477368998516
+    },
+    "compile-model-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-model-race01/result.json",
+      "sha256": "1175f0436c385a59cdf94774ce36c9cb71870f6dbc7921c50c49bdf6dfd39adb",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 4.9568556119993445
+    },
+    "compile-model-race03": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-model-race03/result.json",
+      "sha256": "a480d90621d43e1035616fd18b6cbc18dc08a9edfa77a616b35321fe828d4129",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 5.365054293000867
+    },
+    "compile-model01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-model01/result.json",
+      "sha256": "afe08f8802a7d03501d0f354d572b75797a5283663387ae539d45a06e46f8c96",
+      "actual_exit": 1,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.7439105640005437
+    },
+    "compile-model02": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-model02/result.json",
+      "sha256": "86cfad15fdb353306af94efff1858385ba1747fb5cd6811526ab9a7b9673a995",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 3.845792400999926
+    },
+    "compile-model03": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/compile-model03/result.json",
+      "sha256": "fcf8aa8d1428f101e4c43390463b70028e8244cc68630bea389e36b25a3a950f",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 3.817344013001275
+    },
+    "format01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/format01/result.json",
+      "sha256": "96ebaeb84159d1b7184501857c821df92b21422fc512ffa059fdde28a486e457",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.10797260800245567
+    },
+    "format02": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/format02/result.json",
+      "sha256": "7181beeda7c31d06e43b0420e3b87b0daeb3ffd6cdbc58582a46c60147355130",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.10481381399949896
+    },
+    "format03": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/format03/result.json",
+      "sha256": "692f4e061a438c4c138afc112f02963cacec11cbe4748713a796e97bed195187",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.1288042240012146
+    },
+    "format04": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/format04/result.json",
+      "sha256": "eeea50bbeebf574153a34882a5de318b4112c655fc9347ef6ce1adfd1550460e",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.09995649000120466
+    },
+    "format05": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/format05/result.json",
+      "sha256": "93059456d58670acea1a10b4e3c42990d1f5590a3c1251d261dfbdc1cebcc340",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.10061257499910425
+    },
+    "format06": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/format06/result.json",
+      "sha256": "0a9725371accc9aa2b3610e3e34fd0bb4cb2e5ee735f23e7c3239edb16d82f5a",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.09465905400065822
+    },
+    "format07": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/format07/result.json",
+      "sha256": "cafeab912cf9dac8b3c30f009ab84e337047353435d7789a48f1ea16d63ab508",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.09822848900148529
+    },
+    "graph-dynamic01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/graph-dynamic01/result.json",
+      "sha256": "eeda4adf2923bbe7be0942738f289100cf3ca240710c4c1b57a4db07748894ef",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.8297291820017563
+    },
+    "graph-fixture01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/graph-fixture01/result.json",
+      "sha256": "3094d152bf21a351f0b2c64a6be7a0903659026e05e4e0ac6da1ec13d0fee7ad",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 1.0747203610008
+    },
+    "graph-normal01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/graph-normal01/result.json",
+      "sha256": "4b8037e25edcfe5421e210806e41103b263d4d7cc685e88df9f455d7a297a2cb",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.7508958680009528
+    },
+    "graph-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/graph-race01/result.json",
+      "sha256": "a6da7f545e2b7e6436d9cf197756193e1e2a82728cde2f20c431020306da70f7",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.7264421269974264
+    },
+    "list-integration02": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/list-integration02/result.json",
+      "sha256": "321761f82944f9afe5e915f69297722a036b28b45ef43ef6dedec3abb01d2651",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 1.6876121630011767
+    },
+    "list-model01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/list-model01/result.json",
+      "sha256": "a785b275cce9e28bb6d58b7634c38dc360d5f87c847b82e009124f824dddd507",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 0.4980444749999151
+    },
+    "list-native03": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/list-native03/result.json",
+      "sha256": "70941ad3ad79fb5238c65d73f6bc4ccb0a96c3f5d9f3a32eae70f3631c4bce90",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 1.6773312500008615
+    },
+    "pure-app-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-app-race01/result.json",
+      "sha256": "1378aa2b6b25b955102ecf6a25470e99369bd673a1a7e5793b91049e5e2243bf",
+      "actual_exit": 0,
+      "top_pass": 6,
+      "sub_pass": 94,
+      "seconds": 1.7236164419991837
+    },
+    "pure-app-remaining-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-app-remaining-race01/result.json",
+      "sha256": "7ee1fc02f02d0bfbd9db083e81cfe83375095149b1ee2f44cfd5d7cd155b6050",
+      "actual_exit": 0,
+      "top_pass": 10,
+      "sub_pass": 45,
+      "seconds": 1.8489016729981813
+    },
+    "pure-app-remaining01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-app-remaining01/result.json",
+      "sha256": "74b3879f28052a37b9cea0bdfe421a9fdde3a69fc01c3a1398221f64b76e9f2e",
+      "actual_exit": 0,
+      "top_pass": 10,
+      "sub_pass": 45,
+      "seconds": 0.7774400970010902
+    },
+    "pure-app01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-app01/result.json",
+      "sha256": "1cd4b8c20a962422c275d38943436eded94224c310399245c083daeac5ca770d",
+      "actual_exit": 0,
+      "top_pass": 6,
+      "sub_pass": 94,
+      "seconds": 0.6038394780007366
+    },
+    "pure-model-old-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-model-old-race01/result.json",
+      "sha256": "4da2c5cf985fc6453b19d1662a5ee071d3f66df51211dc0378260aee23f5a155",
+      "actual_exit": 0,
+      "top_pass": 18,
+      "sub_pass": 80,
+      "seconds": 1.7800177360004454
+    },
+    "pure-model-old01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-model-old01/result.json",
+      "sha256": "9bf444a71268c36886ead316094ae5c7f5c92c662d85b37182ec73bad89c3933",
+      "actual_exit": 0,
+      "top_pass": 18,
+      "sub_pass": 80,
+      "seconds": 0.765068529999553
+    },
+    "pure-model-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-model-race01/result.json",
+      "sha256": "e29d73bfe2d7e047af34b88c33ab381ed17633c5d40e363d72b1cc04ad49e475",
+      "actual_exit": 0,
+      "top_pass": 11,
+      "sub_pass": 70,
+      "seconds": 4.152696547997039
+    },
+    "pure-model-remaining-race01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-model-remaining-race01/result.json",
+      "sha256": "7e31fd3a2a6fda5ea635b07343dbada718a4f5076868d42a8644a0d18458bf12",
+      "actual_exit": 0,
+      "top_pass": 38,
+      "sub_pass": 120,
+      "seconds": 1.8734401910005545
+    },
+    "pure-model-remaining01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-model-remaining01/result.json",
+      "sha256": "3f351cb8b55e3b41b146cc9fd74c7f557dc7db5dd8310ba6369406f89c86b295",
+      "actual_exit": 0,
+      "top_pass": 38,
+      "sub_pass": 120,
+      "seconds": 0.877233162002085
+    },
+    "pure-model01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-model01/result.json",
+      "sha256": "fd9399345836a66cbd3fbbe647790bc42186d92f8a17998878c657c8ea9ae040",
+      "actual_exit": 0,
+      "top_pass": 11,
+      "sub_pass": 70,
+      "seconds": 1.253648460999102
+    },
+    "pure-tail-race03": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-tail-race03/result.json",
+      "sha256": "f1436e3e0944cd10aa1e6ead7841611ae26f305a01181ef66d432e1ee0d5ea2f",
+      "actual_exit": 0,
+      "top_pass": 2,
+      "sub_pass": 20,
+      "seconds": 1.7240485529982834
+    },
+    "pure-tail03": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/pure-tail03/result.json",
+      "sha256": "578e798ad49deaa547c8ba06859aa962da9930365e6ba08d7978e46ce1f54a22",
+      "actual_exit": 0,
+      "top_pass": 2,
+      "sub_pass": 20,
+      "seconds": 0.7319147739981418
+    },
+    "vet-integration02": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration02/result.json",
+      "sha256": "f67f8b7b9c24928b2c3febd733605ed61db919558bce2ff9f3dcd712757f1bea",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 1.7601233250024961
+    },
+    "vet-pure01": {
+      "result_path": "/workspace/scratch/project-model-owner-read-http-author/vet-pure01/result.json",
+      "sha256": "0b12547321534298fdcfb88ac8e855c2dcb1e074de3476efd9411b05ef17dd8d",
+      "actual_exit": 0,
+      "top_pass": 0,
+      "sub_pass": 0,
+      "seconds": 5.089123371999449
+    }
+  },
+  "original_red": "compile-model01 invalid string UUID fixtures, retained and corrected test-only; STATICproduction01 R1/R2 and test ownership R3 retained separately",
+  "exact_native_names": [
+    "TestProjectModelHTTPNativeKeepAliveDeadline",
+    "TestProjectModelHTTPNativeSlowBodyAndCallback",
+    "TestProjectModelHTTPNativeWriteFlushCloseAndAbort"
+  ],
+  "exact_integration_names": [
+    "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority",
+    "TestModelProjectConfigurationHTTPDefaultRoot",
+    "TestModelProjectConfigurationHTTPAuthorityAndTerminal",
+    "TestModelProjectConfigurationHTTPProjection",
+    "TestModelProjectConfigurationHTTPBoundedRepresentation",
+    "TestModelProjectOwnerReadHTTPRootBinding",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelProjectOwnerUpdateHTTPStrictAndReplay",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelProjectUsageHTTPProjectionAndPath",
+    "TestModelSystemHTTPCurrentAdministrator",
+    "TestModelSystemHTTPBoundaryAndStrictWire",
+    "TestModelSystemHTTPPaginationAndSafeProjection"
+  ],
+  "native_binary_sha256": "078dc0ce206c881e568fd3196398ad6d19b05082b29056345e1f931b46460a9a",
+  "integration_binary_sha256": "7bc50d703796c7dc12db6b727b729c6ffc7fb8131472594c4e58d241e568499a"
+}

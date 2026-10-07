@@ -1,0 +1,19 @@
+{
+  "base_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full03.json",
+    "sha256": "9d63a98271f86a108320575cbadb404fc8c96373580d231cf9ac4d2910f82b28"
+  },
+  "effective_files_delta": {
+    "/workspace/agenteam/tests/model/project_configuration_http_test.go": "5c2957a82e67eaa2969971fc7026f94157bf43bb1f5fad08bd84097387b183f4"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "44e8691202a6887636264b4298056168ec00710663cd25d1df1b615202acda59"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-input14.json",
+    "sha256": "d31a66a55a890a7233204e182c780c9b43a80a65e69cfd31cac46c1d69481139"
+  },
+  "unchanged_imports_and_package_file_sets": true,
+  "reason": "Only existing integration test counterexample count/format two-line change; actual graph membership/imports unchanged; model/native/production/schema/dynamiccmds unaffected. Recompile and vet affected integration only."
+}

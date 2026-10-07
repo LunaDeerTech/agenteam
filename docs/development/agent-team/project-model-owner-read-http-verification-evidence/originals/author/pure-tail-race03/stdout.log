@@ -1,0 +1,45 @@
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/start_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/start_write
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/cancel_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/cancel_write
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_write
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/reset_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/reset_write
+--- PASS: TestProjectModelHTTPPureDeadlineSetterPanics (0.02s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/start_read (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/start_write (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/cancel_read (0.01s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/cancel_write (0.01s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_read (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_write (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/reset_read (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/reset_write (0.00s)
+=== RUN   TestProjectModelHTTPPureActualTail
+=== RUN   TestProjectModelHTTPPureActualTail/body
+=== RUN   TestProjectModelHTTPPureActualTail/service
+=== RUN   TestProjectModelHTTPPureActualTail/close
+=== RUN   TestProjectModelHTTPPureActualTail/write
+=== RUN   TestProjectModelHTTPPureActualTail/flush
+=== RUN   TestProjectModelHTTPPureActualTail/close_error
+=== RUN   TestProjectModelHTTPPureActualTail/close_panic
+=== RUN   TestProjectModelHTTPPureActualTail/write_short
+=== RUN   TestProjectModelHTTPPureActualTail/write_error
+=== RUN   TestProjectModelHTTPPureActualTail/write_panic
+=== RUN   TestProjectModelHTTPPureActualTail/flush_error
+=== RUN   TestProjectModelHTTPPureActualTail/flush_panic
+--- PASS: TestProjectModelHTTPPureActualTail (0.05s)
+    --- PASS: TestProjectModelHTTPPureActualTail/body (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/service (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/close (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/flush (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/close_error (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/close_panic (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write_short (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write_error (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write_panic (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/flush_error (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/flush_panic (0.00s)
+PASS

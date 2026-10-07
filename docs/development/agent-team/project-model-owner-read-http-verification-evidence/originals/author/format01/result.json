@@ -1,0 +1,34 @@
+{
+  "command_exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 0.10797260800245567,
+  "direct_child_pid": 738215,
+  "direct_child_joined": true,
+  "subreaper": true,
+  "adopted_reaped": [],
+  "processes_seen": [
+    {
+      "pid": 738215,
+      "ppid": 738212,
+      "pgid": 738215,
+      "state": "Z",
+      "starttime": "2740224"
+    }
+  ],
+  "actions": [],
+  "remaining_descendants": [],
+  "inputs_after": {
+    "/workspace/agenteam/internal/central/model/http_project.go": "d429d0c157f1fab9f2ade3bc351edefe0da252e05d2426dd8b2ff2701a477d7d",
+    "/workspace/agenteam/internal/central/model/http_project_wire.go": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad",
+    "/workspace/agenteam/internal/central/app/project_models.go": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+    "/workspace/agenteam/internal/central/app/account.go": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+    "/workspace/scratch/project-model-owner-read-http-author/offline-driver.py": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "inputs_match": true,
+  "owned_clear_observations": 2,
+  "exit_code": 0,
+  "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

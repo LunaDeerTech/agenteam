@@ -1,0 +1,17 @@
+{
+  "base": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate02/manifest.json",
+    "sha256": "fb973581aa45319ecccc100dab9b454c5e9f97b14cf601db51599e8b4b9d15d4"
+  },
+  "delta": {
+    "internal/central/model/http_project_native_test.go": "9b8034329af2f6af7daede6a95b4c0580631b39353b081265fbbf0e58dcd046d"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/candidate03/src",
+  "patch_sha256": "c2e0f0ef8b077c6ab0183397bb5f0e13c29354ff210bc3063475c6f72737deb1",
+  "reason": "test-only native real Write/Flush phase observation; preserve failed version02 and use unchanged product natural2s for same100k legal projection rather than extra120ms parent",
+  "first_red_analysis": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-writeclose-first-red-analysis.json",
+    "sha256": "6a499b46ff22306de841a9354712673a8dde7394c4f61393e3609a656a344142"
+  },
+  "source_stopped_writing": true
+}

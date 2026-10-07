@@ -1,0 +1,32 @@
+--- candidate05/tests/model/project_configuration_http_root_test.go
++++ proposed/tests/model/project_configuration_http_root_test.go
+@@ -10,6 +10,7 @@
+ 
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
++	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+ )
+ 
+ func TestModelProjectConfigurationHTTPDefaultRoot(t *testing.T) {
+@@ -65,8 +66,19 @@
+ 		t.Fatal("accepted Update no longer bound")
+ 	}
+ 	lookup := projectUpdateRootRequest(t, root, v.ownerBrowser, "POST", projectUpdateLookupPath(v.project.ID), "root-model-compat-key", projectUpdateLookupBody).want(t, 200)
+-	if lookup.object(t)["found"] != true {
+-		t.Fatal("Update lookup lost original command")
++	var observed struct {
++		State  pc.LookupState `json:"state"`
++		Result struct {
++			Command pc.CommandName  `json:"command"`
++			Project json.RawMessage `json:"project"`
++		} `json:"result"`
++	}
++	if json.Unmarshal(lookup.body, &observed) != nil || observed.State != pc.LookupCommitted || observed.Result.Command != pc.UpdateCommand || !bytes.Equal(observed.Result.Project, patch.body) {
++		t.Fatal("Update lookup lost exact committed command/project receipt")
++	}
++	var historical map[string]any
++	if json.Unmarshal(observed.Result.Project, &historical) != nil || historical["id"] != v.project.ID.String() || historical["version"] != "2" {
++		t.Fatal("Update lookup changed original Project identity/version")
+ 	}
+ 	root.request(t, v.ownerBrowser, "POST", base+"models", nil).problem(t, 405, f.MethodNotAllowed)
+ 	ready := root.request(t, v.ownerBrowser, "GET", "/readyz", nil)

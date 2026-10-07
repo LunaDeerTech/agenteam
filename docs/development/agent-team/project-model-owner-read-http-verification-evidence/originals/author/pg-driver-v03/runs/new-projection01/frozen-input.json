@@ -1,0 +1,27 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-projection",
+    "new-authority",
+    "new-bounded",
+    "new-root",
+    "old"
+  ],
+  "driver_sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3",
+  "candidate_sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91",
+  "closure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/closure.json",
+    "sha256": "3d46529849c56a652a3e431f33ced41f8143c3d1fce151720d742e7245d60f0a"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/driver.py": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3",
+    "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/groups.json": "7535768121755a072336b0480f7d630960d0aa6879659150dba144bfdd554160",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": true,
+  "authorization": "root explicit conditional authorization of candidate03 PG-v03: ONLY after native-v03 writeclose PASS+actualwait+double PID/allTCP empty+same input. Then new-projection->new-authority->new-bounded->new-root->old serial, each fresh>=5GiB/live baseline, two exact LOCAL PG digests inspect missing stops NO pull, seven-resource double cleanup+actualwait+same input before next; newtop120s inclcleanup/package6m; any FAIL cleanup stop no automatic retry.",
+  "prerequisite_native": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/execution-freeze.json",
+    "sha256": "76fb087504df2ae9e0dc9068b2e78cfe877fb321d3d847bd2f267df1e2346839"
+  }
+}

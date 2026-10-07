@@ -1,0 +1,62 @@
+--- plan01/proposed.go
++++ plan02/proposed.go
+@@ -314,20 +314,47 @@
+ 				t.Fatal("no real backend COMMIT/idle ACK drop")
+ 			}
+ 			if laterStatus == 503 {
+-				var forwarded bool
+-				for _, event := range proxy.snapshot() {
+-					_, length, ok := strings.Cut(event, ":forwarded-large-D:")
+-					if !ok {
++				// Bind the complete large-row transfer and terminal frames to the
++				// same unique dropped connection before the later independent GET.
++				events := proxy.snapshot()
++				connection, dropIndex := "", -1
++				for i, event := range events {
++					n, kind, ok := strings.Cut(event, ":")
++					if !ok || kind != "commit-idle-ack-dropped" {
+ 						continue
+ 					}
+-					n, err := strconv.ParseUint(length, 10, 32)
+-					if err != nil || n <= 1<<20 || n > 16<<20 {
+-						t.Fatal("large DataRow observation outside private fixture bound")
+-					}
+-					forwarded = true
+-				}
+-				if !forwarded || !strings.Contains(strings.Join(proxy.snapshot(), " "), ":ready-I-before-drop") {
+-					t.Fatal("large DataRow/actual COMMIT+idle evidence missing")
++					id, err := strconv.ParseUint(n, 10, 32)
++					if err != nil || id == 0 || dropIndex >= 0 {
++						t.Fatal("actual ACK drop connection is not unique")
++					}
++					connection, dropIndex = n, i
++				}
++				if dropIndex < 0 {
++					t.Fatal("actual ACK drop connection missing")
++				}
++				stage := 0
++				sequence := []string{"send-COMMIT", "tag-COMMIT", "ready-I-before-drop", "commit-idle-ack-dropped"}
++				for _, event := range events[:dropIndex+1] {
++					n, kind, ok := strings.Cut(event, ":")
++					if !ok || n != connection {
++						continue
++					}
++					if stage == 0 {
++						length, ok := strings.CutPrefix(kind, "forwarded-large-D:")
++						if !ok {
++							continue
++						}
++						size, err := strconv.ParseUint(length, 10, 32)
++						if err != nil || size <= 1<<20 || size > 16<<20 {
++							t.Fatal("large DataRow observation outside private fixture bound")
++						}
++						stage++
++					} else if stage <= len(sequence) && kind == sequence[stage-1] {
++						stage++
++					}
++				}
++				if stage != len(sequence)+1 {
++					t.Fatal("same-connection large DataRow/COMMIT/idle/ACKdrop sequence missing")
+ 				}
+ 			}
+ 			tracked.hooks(nil, nil)

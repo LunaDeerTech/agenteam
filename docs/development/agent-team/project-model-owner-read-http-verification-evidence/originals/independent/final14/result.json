@@ -1,0 +1,89 @@
+{
+  "status": "PASS_COMPLETE_BOUNDED_14_PATHS",
+  "prepared_utc": "2026-10-07T21:00:55.733922+00:00",
+  "scope_count": 14,
+  "scope_paths": [
+    "internal/central/model/http_project.go",
+    "internal/central/model/http_project_wire.go",
+    "internal/central/model/http_project_test.go",
+    "internal/central/model/http_project_wire_test.go",
+    "internal/central/model/http_project_native_test.go",
+    "api/openapi/project-models.json",
+    "internal/central/app/project_models.go",
+    "internal/central/app/project_models_test.go",
+    "internal/central/app/account.go",
+    "tests/model/project_configuration_http_fixture_test.go",
+    "tests/model/project_configuration_http_test.go",
+    "tests/model/project_configuration_http_terminal_test.go",
+    "tests/model/project_configuration_http_root_test.go",
+    "docs/development/backend/README.md"
+  ],
+  "final_delivery": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/final14.json",
+    "sha256": "f8f035e51f8ae870ddf010d2b9a5cc114101fdeea6e91cdc14eb3e71347a2bd8"
+  },
+  "readme": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "sha256": "7d0e0c0793b65d4360e2fa65b4b897fc592d0c3d1a78d06306928454da42c39e"
+  },
+  "readme_before": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/before.md",
+    "sha256": "5b58b10c910fe1d0b38c5602abb7fb84b07ae338489d6d0acc5f23f26d990c8e"
+  },
+  "readme_after": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/after.md",
+    "sha256": "7d0e0c0793b65d4360e2fa65b4b897fc592d0c3d1a78d06306928454da42c39e"
+  },
+  "readme_patch": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/changes.patch",
+    "sha256": "260618240fc0097a23125ef865c52548fdd2df0ed6dbd54cdffb72420a29a65c"
+  },
+  "technical_13_result": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-final06/technical-result.json",
+    "sha256": "8fac1028de3a44256d5633362a8db05a6beba854687ea1fa7d297a0270bb301d"
+  },
+  "technical_13_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-final06/technical-review.md",
+    "sha256": "e78e9ce51821460659c44ebd1441f169a5554d18f942b623f8432976ab58eadb"
+  },
+  "current14_matches_frozen_snapshots": true,
+  "technical13_unchanged_since_complete_pass": true,
+  "readme_delta_checks": {
+    "exact_intro_phrase_and_one_new_section_only": true,
+    "five_get_head_routes_match_fixed_OpenAPI": true,
+    "relative_links": [
+      {
+        "target": "../../../api/openapi/project-models.json",
+        "resolved": "/workspace/agenteam/api/openapi/project-models.json",
+        "sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755"
+      },
+      {
+        "target": "../work-items/d09-project-model-owner-read-http.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+        "sha256": "28fb448189e3845c6be2a169f42cd1445d731a2383f29c78d592c59cb1debdce"
+      }
+    ],
+    "exact_selectors": {
+      "TestProjectModelHTTPNativeSlowBodyAndCallback": "internal/central/model/http_project_native_test.go",
+      "TestModelProjectConfigurationHTTPBoundedRepresentation": "tests/model/project_configuration_http_test.go"
+    },
+    "schema_env_matches_fixed_fixture": "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON",
+    "go_and_fixture_command_connections": "existing exported AGENTEAM_GO, native gate, fixed Python dependencies and scripts/test-objects.sh confirmed read-only; examples not executed in this step",
+    "two_second_actual_io_and_cancel_join_boundary": true,
+    "eight_MiB_HTTP_only_no_prior_DB_RSS_claim": true,
+    "original_Unknown_priority_context_expiry_abort": true,
+    "current_owner_no_admin_bypass_and_cursor_no_TTL": true,
+    "original_root_shutdown_and_unbound_boundaries": true,
+    "format_fences_newline_no_trailing_space": true
+  },
+  "runtime": "Reused completed native/A/B and all source-bound versioned evidence; no Go/test/resource invocation for README.",
+  "retained_limits": [
+    "All original author/private failures and STATIC findings remain in technical result, including independent unexecuted found correction.",
+    "10 PG rounds added40 nonowned/unwaited daemon shim zombies plus2 concurrent nonowned git zombies; no whole-machine zero claim or new baseline reuse after restart.",
+    "README examples do not replace actual outer watchdog/wait/cleanup evidence.",
+    "No full D09/E01, credentials/config mutation, Resolver/production Resolution/Invocations/D24 or previously stopped task acceptance."
+  ],
+  "remaining_technical_or_readme_blockers": [],
+  "git": "Verifier performed no product/Git mutation; integration/commit/push remains root responsibility.",
+  "all_stop": "No active writes/commands/owned resources; report frozen."
+}

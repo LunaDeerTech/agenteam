@@ -1,0 +1,36 @@
+{
+  "status": "PASS_LIMITED_STATIC_PROXY_PLAN02",
+  "freeze": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan02/freeze.json",
+    "sha256": "be12991cf94e7d6c602a359cd04db1c652cb33fb34cf51198108e26fb5bce35f"
+  },
+  "assertion_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan02/assertion-delta.patch",
+    "sha256": "c055bdb4dd60a016b9efef94738622626638254dd20ef94821f0ae2969cd9967"
+  },
+  "full_patch": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan02/proposed.patch",
+    "sha256": "3af017a56baa0848dce6638ea3d99c2b901892ba4366eed6ad2ec104a5c123e3"
+  },
+  "source": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan02/proposed.go",
+    "sha256": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc"
+  },
+  "prior_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-bounded-proxy-plan01/result.json",
+    "sha256": "7c7c469f70b48dfe3261f6ad48dd6e84b69d6e52aeb4b4f954eb1b44127843c1"
+  },
+  "E1_closed": true,
+  "exact_byte_check": "Prefix and suffix outside one oversize stage assertion block identical; constructor/serve/streaming/write/cleanup/ordinary path and original Unknown cause/attempt unchanged.",
+  "sequence_review": [
+    "Exactly one actual drop is located before later GET; connection prefix parses positive uint32",
+    "Forwarded large D length must be >1MiB and <=16MiB on that exact connection",
+    "Ordered state progression through send-COMMIT,tag-COMMIT,ready-I-before-drop,commit-idle-ack-dropped, restricted to events ending at unique drop",
+    "Stage must end5; absent/wrong-connection/incorrect-order/incomplete sequence fails; guarded indexing remains in bounds"
+  ],
+  "limits": [
+    "No Go compile/test or resources executed",
+    "Only scratch proposal accepted; implementation still candidate04",
+    "Original failed bounded rounds remain failed; new real largeD+sameconnection COMMIT/Z/drop and actualjoin evidence remains required"
+  ]
+}

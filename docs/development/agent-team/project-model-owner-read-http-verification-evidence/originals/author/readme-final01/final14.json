@@ -1,0 +1,114 @@
+{
+  "status": "README_LAST_PIECE_FROZEN_PENDING_INDEPENDENT_STATIC",
+  "authorization": "root formally relayed and adopted complete13 technicalPASS; README14 only authorized, no Go/resources/Git",
+  "technical13": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/effective-candidate06.json",
+    "sha256": "4de418fb72147ad1c19f88ef1a7d490d2374cc88c299fcbe93c91eafa20f7c12"
+  },
+  "technical_independent_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-final06/technical-review.md",
+    "sha256": "e78e9ce51821460659c44ebd1441f169a5554d18f942b623f8432976ab58eadb"
+  },
+  "technical_independent_result": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-final06/technical-result.json",
+    "sha256": "8fac1028de3a44256d5633362a8db05a6beba854687ea1fa7d297a0270bb301d"
+  },
+  "author_final": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/author-final06.json",
+    "sha256": "6f9b4dae3267e6fbe0cd1d30a67e0b4eada6ef8b8cc3366428a9d39636003e11"
+  },
+  "readme_before": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/before.md",
+    "sha256": "5b58b10c910fe1d0b38c5602abb7fb84b07ae338489d6d0acc5f23f26d990c8e"
+  },
+  "readme_patch": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/changes.patch",
+    "sha256": "260618240fc0097a23125ef865c52548fdd2df0ed6dbd54cdffb72420a29a65c"
+  },
+  "files": {
+    "internal/central/model/http_project.go": {
+      "path": "/workspace/agenteam/internal/central/model/http_project.go",
+      "sha256": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/internal/central/model/http_project.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "internal/central/model/http_project_wire.go": {
+      "path": "/workspace/agenteam/internal/central/model/http_project_wire.go",
+      "sha256": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/internal/central/model/http_project_wire.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "internal/central/model/http_project_test.go": {
+      "path": "/workspace/agenteam/internal/central/model/http_project_test.go",
+      "sha256": "201ce042584df39b07171277a9e57a8bf8f470f492cc07245a43597dcfb2ef0f",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/internal/central/model/http_project_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "internal/central/model/http_project_wire_test.go": {
+      "path": "/workspace/agenteam/internal/central/model/http_project_wire_test.go",
+      "sha256": "6b0de60bfd3bd066682fac72a62a4e04b6b0657c7bd83d21227216c9db450a65",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/internal/central/model/http_project_wire_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "internal/central/model/http_project_native_test.go": {
+      "path": "/workspace/agenteam/internal/central/model/http_project_native_test.go",
+      "sha256": "9b8034329af2f6af7daede6a95b4c0580631b39353b081265fbbf0e58dcd046d",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate03/src/internal/central/model/http_project_native_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json"
+    },
+    "api/openapi/project-models.json": {
+      "path": "/workspace/agenteam/api/openapi/project-models.json",
+      "sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/api/openapi/project-models.json",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "internal/central/app/project_models.go": {
+      "path": "/workspace/agenteam/internal/central/app/project_models.go",
+      "sha256": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/internal/central/app/project_models.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "internal/central/app/project_models_test.go": {
+      "path": "/workspace/agenteam/internal/central/app/project_models_test.go",
+      "sha256": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/internal/central/app/project_models_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "internal/central/app/account.go": {
+      "path": "/workspace/agenteam/internal/central/app/account.go",
+      "sha256": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/internal/central/app/account.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "tests/model/project_configuration_http_fixture_test.go": {
+      "path": "/workspace/agenteam/tests/model/project_configuration_http_fixture_test.go",
+      "sha256": "3a61ac0505bb2b14635e1f99b8e1c4951da334734fbc4584d0ac56af8ac2db0a",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src/tests/model/project_configuration_http_fixture_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json"
+    },
+    "tests/model/project_configuration_http_test.go": {
+      "path": "/workspace/agenteam/tests/model/project_configuration_http_test.go",
+      "sha256": "5c2957a82e67eaa2969971fc7026f94157bf43bb1f5fad08bd84097387b183f4",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate04/src/tests/model/project_configuration_http_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json"
+    },
+    "tests/model/project_configuration_http_terminal_test.go": {
+      "path": "/workspace/agenteam/tests/model/project_configuration_http_terminal_test.go",
+      "sha256": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate05/src/tests/model/project_configuration_http_terminal_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json"
+    },
+    "tests/model/project_configuration_http_root_test.go": {
+      "path": "/workspace/agenteam/tests/model/project_configuration_http_root_test.go",
+      "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/src/tests/model/project_configuration_http_root_test.go",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json"
+    },
+    "docs/development/backend/README.md": {
+      "path": "/workspace/agenteam/docs/development/backend/README.md",
+      "sha256": "7d0e0c0793b65d4360e2fa65b4b897fc592d0c3d1a78d06306928454da42c39e",
+      "snapshot_path": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/after.md",
+      "origin_manifest": "/workspace/scratch/project-model-owner-read-http-author/readme-final01/change.json"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "status": "BOUNDED_13_TECHNICAL_STATIC_PASS_RUNTIME_PENDING",
+  "candidate_manifest": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate02/manifest.json",
+    "sha256": "fb973581aa45319ecccc100dab9b454c5e9f97b14cf601db51599e8b4b9d15d4"
+  },
+  "base_manifest": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json",
+    "sha256": "5e75483e7eb2ddd763f95eb7dcffbb8ed9a0364f10f3187ccda96a4969469c18"
+  },
+  "files": {
+    "internal/central/model/http_project.go": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb",
+    "internal/central/model/http_project_wire.go": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad",
+    "internal/central/model/http_project_test.go": "201ce042584df39b07171277a9e57a8bf8f470f492cc07245a43597dcfb2ef0f",
+    "internal/central/model/http_project_wire_test.go": "6b0de60bfd3bd066682fac72a62a4e04b6b0657c7bd83d21227216c9db450a65",
+    "internal/central/model/http_project_native_test.go": "0bb43fc6394934f2e5c61832639a7aa67b7ca6eadda72d2f1835a952bad47385",
+    "api/openapi/project-models.json": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+    "internal/central/app/project_models.go": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+    "internal/central/app/project_models_test.go": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46",
+    "internal/central/app/account.go": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+    "tests/model/project_configuration_http_fixture_test.go": "3a61ac0505bb2b14635e1f99b8e1c4951da334734fbc4584d0ac56af8ac2db0a",
+    "tests/model/project_configuration_http_test.go": "7ee9e542ce749bbcf49ddfc631dfe02c8202b088274cefc50a9d88bc049a536b",
+    "tests/model/project_configuration_http_terminal_test.go": "915ccccde2707819e22359a90e8b7ce298ebac3399527d44a0d47b1a106a63d8",
+    "tests/model/project_configuration_http_root_test.go": "669cd37b6b2f42eb10f235f355704e29384da4a047fa8018b482bc07e3fc87f1"
+  },
+  "accepted_helpers": {
+    "tests/model/project_configuration_fixture_test.go": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+    "tests/model/project_usage_http_fixture_test.go": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+    "tests/model/project_usage_http_terminal_test.go": "ebb16698947ecf0a72d9a7e91561bdd75e334b43d6fd274a81804aa530f02c40",
+    "tests/model/project_usage_http_root_test.go": "1d63defd90cbf1637b290adf1eba9b3e2c9c449453d63d17b1204e6ae3f67f8c"
+  },
+  "production_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-production03/review.md",
+    "sha256": "ab0f50b99b2a53109bbc495e22f7eee47661b5f8defe20447defac14362515cd"
+  },
+  "offline_result": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-probes01/result.json",
+    "sha256": "e94aa906699bf0845a3001dd8baeaaca3db33e1b78c4c8eebe7b54d94da6c9bc"
+  },
+  "review_sha256": "7dccd8dc14d32597e7dc655bf4534504d56eebc763bf4182b312edd13de995f6",
+  "pending": [
+    "native/PG runtime",
+    "independent resource probes",
+    "actual root and real response schema evidence",
+    "runtime driver closure",
+    "README final"
+  ]
+}

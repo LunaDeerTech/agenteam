@@ -1,0 +1,32 @@
+{
+  "status": "FULL_13_SOURCE_CANDIDATE_UNACCEPTED",
+  "accepted_product": "61bed1fcf47c362f420f6bb45158b227af581acf",
+  "files": {
+    "internal/central/model/http_project.go": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb",
+    "internal/central/model/http_project_wire.go": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad",
+    "internal/central/model/http_project_test.go": "201ce042584df39b07171277a9e57a8bf8f470f492cc07245a43597dcfb2ef0f",
+    "internal/central/model/http_project_wire_test.go": "6b0de60bfd3bd066682fac72a62a4e04b6b0657c7bd83d21227216c9db450a65",
+    "internal/central/model/http_project_native_test.go": "0bb43fc6394934f2e5c61832639a7aa67b7ca6eadda72d2f1835a952bad47385",
+    "api/openapi/project-models.json": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+    "internal/central/app/project_models.go": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+    "internal/central/app/project_models_test.go": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46",
+    "internal/central/app/account.go": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+    "tests/model/project_configuration_http_fixture_test.go": "3a61ac0505bb2b14635e1f99b8e1c4951da334734fbc4584d0ac56af8ac2db0a",
+    "tests/model/project_configuration_http_test.go": "8ef209dfe81ebd4e11d44854e4e6bc8011c8eb3a449e1e5437142180805d4f8c",
+    "tests/model/project_configuration_http_terminal_test.go": "b4f7114c32e05a32840fe0c79ce73418833645f76634add1f5938581f6927c7e",
+    "tests/model/project_configuration_http_root_test.go": "669cd37b6b2f42eb10f235f355704e29384da4a047fa8018b482bc07e3fc87f1"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/candidate01/src",
+  "patch_sha256": "aec7179f3e44ee06966030f3473c0dccdf73eb82a4f745371bea64046eb3d494",
+  "production03": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/production03/manifest.json",
+    "sha256": "0496a8eb5f840369ebf6e86f10dcded37e39d6f9c61bdd34ee426f1c51e16583"
+  },
+  "offline_partial_inheritance": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate03/manifest.json",
+    "sha256": "e385bf8dc5b7354cc4612181a3db98ff58c1580a764eb208b4200fa75089ecee"
+  },
+  "new_since_partial": "four integration files only; production and pure/native/app unchanged",
+  "source_stopped_writing": true,
+  "native_PG_readme": "NOT_AUTHORIZED_NOT_RUN"
+}

@@ -1,0 +1,1644 @@
+{
+  "status": "AUTHOR_LIMITED_PASS_FINAL13_FROZEN_INDEPENDENT_PRODUCT_ACCEPTANCE_PENDING",
+  "scope": "Accepted D09 Project Model Owner read HTTP #1-13 only; README14 untouched/not authorized; no Git operations",
+  "final_candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "effective_13_sources": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/effective-candidate06.json",
+    "sha256": "4de418fb72147ad1c19f88ef1a7d490d2374cc88c299fcbe93c91eafa20f7c12"
+  },
+  "actual_graph_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json",
+    "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+  },
+  "go_version": "/workspace/toolchains/go1.27.1/bin/go; offline local readonly fixed modcache",
+  "offline_combination": {
+    "original_full_result": {
+      "path": "/workspace/scratch/project-model-owner-read-http-author/offline-final02.json",
+      "sha256": "6980d1e5463f8bb738cf7a35588ce966faff186002480623de3cad28d4dcbfde"
+    },
+    "model_pure_each_ordinary_and_race": {
+      "unique_top": 67,
+      "unique_sub": 270,
+      "native_excluded": true
+    },
+    "app_selected_pure_each_ordinary_and_race": {
+      "unique_top": 16,
+      "unique_sub": 139,
+      "root_init_resource_bodies_excluded": true
+    },
+    "schema": {
+      "positive": 6,
+      "negative": 33
+    },
+    "delta_checks": [
+      {
+        "run": "compile-model-race04",
+        "exit": 0,
+        "seconds": 5.587818445997982,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-model-race04/command.json",
+            "sha256": "86f042b984f8ddfe44d9d01fc0fe1943faa67ad4f68d2cb609620b8ceb87b4b6"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-model-race04/result.json",
+            "sha256": "61e24c0a60718ea6fce02621f3689aad1cce91b45c76174eaaac3766331010c9"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-model-race04/stdout.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-model-race04/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "list-native04",
+        "exit": 0,
+        "seconds": 1.754093389998161,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-native04/command.json",
+            "sha256": "ac9b7c0bb31f8614726ce537dfe3b070225df6e1a8954e038967f0390b242bb0"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-native04/result.json",
+            "sha256": "a903ecdd6f01a3e62a789a08b7d5220220353779daced2868f758836398508e0"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-native04/stdout.log",
+            "sha256": "e3fbd9585a0c1d92258e10c9196f448c640d896461e5e10acbc592502c5e9bae"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-native04/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "compile-integration04",
+        "exit": 0,
+        "seconds": 7.129219367998303,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration04/command.json",
+            "sha256": "5f345ba1f72b099abe45df9dcb072f680e9b69268f4e366da057337ceb0a2afc"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration04/result.json",
+            "sha256": "32866acd9033e61af4359602e1395f474b32d72a3da706080e3eafc0f902cd0a"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration04/stdout.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration04/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "vet-integration04",
+        "exit": 0,
+        "seconds": 1.2650057749997359,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration04/command.json",
+            "sha256": "f254ac7b5e74d5f2e2c265c170ec7970b56a33b8198c127c95941607bc51982a"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration04/result.json",
+            "sha256": "a0710653e29dceca1e64b2de0d45872014506407838f971513101467e6ba94df"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration04/stdout.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration04/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "list-bounded04",
+        "exit": 0,
+        "seconds": 1.7641805239982205,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded04/command.json",
+            "sha256": "04c10d084ffde13bdd5ec01d6a9223487a184d45c95ae2835385184e30277b21"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded04/result.json",
+            "sha256": "abaaeb3564f0b0477583255c026bb4183491b8e097bb8763f3e4a13797f2eae9"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded04/stdout.log",
+            "sha256": "d5adbd9ec2765c66a88779c5c760ccfd854ad1229558b33f09ec408fc4b841a6"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded04/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "compile-integration05",
+        "exit": 0,
+        "seconds": 7.19047377699826,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration05/command.json",
+            "sha256": "89541df9dabf24419ecfbd1fbcd85228ef7809e8f5e61130ef990276ab5bc872"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration05/result.json",
+            "sha256": "685eb25129f55aaee325b5dd9a79b5dfe5662ba922b910302a9c182d5a4ae2b9"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration05/stdout.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration05/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "vet-integration05",
+        "exit": 0,
+        "seconds": 1.3683739730004163,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration05/command.json",
+            "sha256": "9c93a9c002e63287fdefeafffcceb8ed4e7c907b7e9032d8c4543612f913c17d"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration05/result.json",
+            "sha256": "79aacb20a5d2c8bb4a4356cc1e2665ee751ae4dfaaff05d1b8b7e616cd36654d"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration05/stdout.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration05/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "list-bounded05",
+        "exit": 0,
+        "seconds": 1.8345767030004936,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded05/command.json",
+            "sha256": "4cb6bc26becf23bf22d02946dab1fd17d01c50c4a3885795cd977ff691fe870a"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded05/result.json",
+            "sha256": "0aee3657348ad2c2902ed8f4ea0417581b5e43d985773e9e222bf72c595c34a0"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded05/stdout.log",
+            "sha256": "d5adbd9ec2765c66a88779c5c760ccfd854ad1229558b33f09ec408fc4b841a6"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-bounded05/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "compile-integration06",
+        "exit": 0,
+        "seconds": 7.586160094997467,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration06/command.json",
+            "sha256": "9d4df744eb125473d883fb8e5b601402a84bede6b0b441e5eea6a8a1ec83da13"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration06/result.json",
+            "sha256": "cec8d36fdc2727d564a2ed9c95651d09b6e7bdc90173cea46451d9dcc6cd4f09"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration06/stdout.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/compile-integration06/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "vet-integration06",
+        "exit": 0,
+        "seconds": 1.5893690470002184,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration06/command.json",
+            "sha256": "ba24b1ce23245bb68d42bd6c33bca5c28b24c59400a65746af387ab9ac8d763a"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration06/result.json",
+            "sha256": "4612d7aaca445bfc68530b0a0438bb795155df7917c9ed8f9dba17dcafb0cb05"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration06/stdout.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/vet-integration06/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "run": "list-root-old06",
+        "exit": 0,
+        "seconds": 1.957182684000145,
+        "actual_wait_completed": true,
+        "double_owned_empty": true,
+        "inputs_match": true,
+        "artifacts": {
+          "command.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-root-old06/command.json",
+            "sha256": "3252f591f930c56da66cda2d2abb7ae2707d962604cee4dc61a6dbc511d5f823"
+          },
+          "result.json": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-root-old06/result.json",
+            "sha256": "57e02bada3d553f0f5b00c533920bbc4ce7b7292bb134a641ca93e9c7f0292c9"
+          },
+          "stdout.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-root-old06/stdout.log",
+            "sha256": "0e3251141924d801b026021cbbbe315028b7e973fd61bda4c8d9051aa43d7c44"
+          },
+          "stderr.log": {
+            "path": "/workspace/scratch/project-model-owner-read-http-author/list-root-old06/stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      }
+    ],
+    "reuse_reason": "After production03, changes are only targeted test fixes. Later native/privatePG/root test-only deltas recompiled/vetted/listed where affected; unchanged pure/model/app/schema/cmd results retained without misleading rerun claims."
+  },
+  "native_combination": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-final03.json",
+    "sha256": "48fe2bf20a36ae1836c8a5281a1ffcf17ff923de267f769ba4b0309558901128"
+  },
+  "pg_eight_rounds": [
+    {
+      "version": "v03",
+      "run": "new-projection01",
+      "status": "PASS",
+      "exit": 0,
+      "seconds": 64.534,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPProjection"
+        ]
+      ],
+      "sub_pass_count": 3,
+      "owned_processes": 92,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 208,
+      "daemon_shim_pid1_zombies_after": 212,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 768126,
+          "ppid": 1,
+          "starttime": "2988234",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 768577,
+          "ppid": 1,
+          "starttime": "2988505",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 768858,
+          "ppid": 1,
+          "starttime": "2988708",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 769461,
+          "ppid": 1,
+          "starttime": "2988916",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "git",
+          "pid": 768108,
+          "ppid": 1,
+          "starttime": "2988126",
+          "state": "Z"
+        }
+      ],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/frozen-input.json",
+          "sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/command.json",
+          "sha256": "38fa18566f114a8530272c5c65840f0471a3cfc5cfadcddd38a94c74394455f7"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/raw.log",
+          "sha256": "6b2ccd4978755b2a7d81f698fc92c328f0a1c5a63c7e6ec7e648a68cc9061ff8"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/input-before.json",
+          "sha256": "744b9dc66a9e5bfd2cdb18e061bb7d13a873cb6b6cc9c0d1b70d157ce5ee8dcd"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/input-after.json",
+          "sha256": "744b9dc66a9e5bfd2cdb18e061bb7d13a873cb6b6cc9c0d1b70d157ce5ee8dcd"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/disk-before-spawn.json",
+          "sha256": "958e31d4c6bc12a0a8c80df669b6b2b963b1be1dd102136f6962ef4322bda0fa"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/process-baseline.json",
+          "sha256": "f0469d40fe7a1f6a5e233119fc190e255547461723b9f748951e980e79b622f1"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/observed-resources.json",
+          "sha256": "3237d804de725accd873cc5a652f8bfb21fb96303f30a488c1e9ceb92ce91967"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/observed-processes.json",
+          "sha256": "0cca7d4aff2a8045eed1be67cbbbf72d2bb0733fc9131ec9c36214413388dbfc"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/cleanup.json",
+          "sha256": "6e9022509c4e064feae7e19ef1daae4f688b5c43ffa0c8c576628a4f0402ad4e"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/watchdog.json",
+          "sha256": "4534479f70c68e2fce1a567d8cf7b1e5a6edbf5136a2f9980d914565a995f1ab"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/result.json",
+          "sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence",
+      "safe_body_count": 6
+    },
+    {
+      "version": "v03",
+      "run": "new-authority01",
+      "status": "PASS",
+      "exit": 0,
+      "seconds": 53.637,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPAuthorityAndTerminal"
+        ]
+      ],
+      "sub_pass_count": 15,
+      "owned_processes": 83,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 212,
+      "daemon_shim_pid1_zombies_after": 216,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 776733,
+          "ppid": 1,
+          "starttime": "2998161",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 777247,
+          "ppid": 1,
+          "starttime": "2998537",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 777550,
+          "ppid": 1,
+          "starttime": "2998720",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 778096,
+          "ppid": 1,
+          "starttime": "2998894",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "git",
+          "pid": 781144,
+          "ppid": 1,
+          "starttime": "3001360",
+          "state": "Z"
+        }
+      ],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/frozen-input.json",
+          "sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/command.json",
+          "sha256": "2dab26b5f47fe96a0704f885c45dcfb5728be55a4ecf8fd7c137df3ed7affb46"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/raw.log",
+          "sha256": "6cd8c233ee50a5a4d4d1210de3898d073ec0d90628b0540d042584ec7b4dd9ff"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/input-before.json",
+          "sha256": "744b9dc66a9e5bfd2cdb18e061bb7d13a873cb6b6cc9c0d1b70d157ce5ee8dcd"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/input-after.json",
+          "sha256": "744b9dc66a9e5bfd2cdb18e061bb7d13a873cb6b6cc9c0d1b70d157ce5ee8dcd"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/disk-before-spawn.json",
+          "sha256": "d5f8d971533a74dc96425055f99d812446dc27ac7aa20f8d5d1bf5667548543c"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/process-baseline.json",
+          "sha256": "07dd81b741a9846dd17246ffcb8638e92bc3f9f2604bf170eda8ca9592840cef"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/observed-resources.json",
+          "sha256": "2bffd31bb685321079a083cd2d1639b955ab9db812046c83309e718e835f4880"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/observed-processes.json",
+          "sha256": "e47162313c4c9b154ace273ae750afb8cbfb1b0d68634bf7d274a1cd8f73c988"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/cleanup.json",
+          "sha256": "302e62aff762547678aa4411be1b150b0a199031419fbc44b81c980f323b226a"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/watchdog.json",
+          "sha256": "c7891a18dc6faf0d04dc9e68ce574bdd45d67542d75528846d57190fe45cf62d"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/result.json",
+          "sha256": "28101be721bb516d6e90596be3627ad6f71c1407e06dd912a0b0a0cf7378315f"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/safe-http-evidence",
+      "safe_body_count": 1
+    },
+    {
+      "version": "v03",
+      "run": "new-bounded01",
+      "status": "FAIL_RETAINED",
+      "exit": 1,
+      "seconds": 59.289,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectConfigurationHTTPBoundedRepresentation"
+        ]
+      ],
+      "sub_pass_count": 0,
+      "owned_processes": 81,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 216,
+      "daemon_shim_pid1_zombies_after": 220,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 784102,
+          "ppid": 1,
+          "starttime": "3005492",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 784658,
+          "ppid": 1,
+          "starttime": "3005943",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 785020,
+          "ppid": 1,
+          "starttime": "3006213",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 785625,
+          "ppid": 1,
+          "starttime": "3006396",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/frozen-input.json",
+          "sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/command.json",
+          "sha256": "dd2330277e4e4e48d6f36d9ca47c7135cebf445b7f815ec60aeeb25f1e8b638c"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/raw.log",
+          "sha256": "1335119324a9cfcb08ee6780fbdea246c2e26974eb3349b5dbbabda2830b3fde"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/input-before.json",
+          "sha256": "744b9dc66a9e5bfd2cdb18e061bb7d13a873cb6b6cc9c0d1b70d157ce5ee8dcd"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/input-after.json",
+          "sha256": "744b9dc66a9e5bfd2cdb18e061bb7d13a873cb6b6cc9c0d1b70d157ce5ee8dcd"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/disk-before-spawn.json",
+          "sha256": "f7e16cafd3b6e4592461fe8d95fb0a738edb2b36d3516e5a6e24ded95e37c749"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/process-baseline.json",
+          "sha256": "1644b4638d75bd9c5b9e750cdb7fd51fdc39cd0d46da883454c90df6e1e349e0"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/observed-resources.json",
+          "sha256": "afe20a5a0dffc4e46d525d79fb4f9575008ff73a1e0de1ce6a2dad6fc959c94b"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/observed-processes.json",
+          "sha256": "b75c8857d0af7a585c8f27d1341e031c37a3e734b0fe4fd89f23cdc541c7227b"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/cleanup.json",
+          "sha256": "9731813be53b60e238e1ced6d342773f0b960977796d2ca22d7d5c76e4ffffd1"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/watchdog.json",
+          "sha256": "82cbf5f963b7e7dbbb6da4718bfd8aa12d9c4142af708e661e7dfda600241247"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/result.json",
+          "sha256": "3864f13f3b23771929d9dc45d0e4967255f1d7b9405bf537eda9e0627fff7e0a"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/safe-http-evidence",
+      "safe_body_count": 0
+    },
+    {
+      "version": "v04",
+      "run": "new-bounded-rerun01",
+      "status": "FAIL_RETAINED",
+      "exit": 1,
+      "seconds": 59.973,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectConfigurationHTTPBoundedRepresentation"
+        ]
+      ],
+      "sub_pass_count": 3,
+      "owned_processes": 82,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 220,
+      "daemon_shim_pid1_zombies_after": 224,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 794902,
+          "ppid": 1,
+          "starttime": "3040743",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 795357,
+          "ppid": 1,
+          "starttime": "3041108",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 795719,
+          "ppid": 1,
+          "starttime": "3041296",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 796215,
+          "ppid": 1,
+          "starttime": "3041474",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/frozen-input.json",
+          "sha256": "976291077f787788281c88ac831ec3e0f9a9e909611a269935d32356de51a9ed"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/command.json",
+          "sha256": "3f241b0d093cf51f70e92d1afab1bdc0e36f57be1e7fb870816bc90994cd4835"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/raw.log",
+          "sha256": "29ef7f5108c24b910293cb0e552a36c522969fe7cc12655c0aefc0e6393a415e"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/input-before.json",
+          "sha256": "092a00579aa37fde7f6734ef429542e319fbfe20b3d8520729548ca5d869cbd5"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/input-after.json",
+          "sha256": "092a00579aa37fde7f6734ef429542e319fbfe20b3d8520729548ca5d869cbd5"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/disk-before-spawn.json",
+          "sha256": "e2f998e249c111e7f1869775c76d619ec7014439dd6fb420b5f6b6595897f3a9"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/process-baseline.json",
+          "sha256": "785f43ae17ba2419fa8797fe16764d69139b81d371bbe5d1138dcd70a1c7dd8c"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/observed-resources.json",
+          "sha256": "d23fde61fc1d76c94fa2e76dfe58895f74006b926154e5ded3079162d0afbf96"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/observed-processes.json",
+          "sha256": "79c51e5ea6d0d3d2dfa44a2ebbda3e8d3ef5ccfa2340d2b84af2f2e76c3807eb"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/cleanup.json",
+          "sha256": "1ee64d2b84ce1d99a742b76b4c8bae2f7ed1638321bd9463dd578fa564272cf4"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/watchdog.json",
+          "sha256": "a0a98ed3469fcff83e7482559fe3c2e039fb0fd556f6296146a4652bc808fbe0"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/result.json",
+          "sha256": "3a20920ba75ca7e5018de9c5f0a0c10743b2cd1f5aff546de56250091630dce8"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/safe-http-evidence",
+      "safe_body_count": 3
+    },
+    {
+      "version": "v05",
+      "run": "new-bounded-rerun02",
+      "status": "PASS",
+      "exit": 0,
+      "seconds": 66.299,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPBoundedRepresentation"
+        ]
+      ],
+      "sub_pass_count": 6,
+      "owned_processes": 81,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 224,
+      "daemon_shim_pid1_zombies_after": 228,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 810568,
+          "ppid": 1,
+          "starttime": "3121718",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 810993,
+          "ppid": 1,
+          "starttime": "3121989",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 811283,
+          "ppid": 1,
+          "starttime": "3122186",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 811884,
+          "ppid": 1,
+          "starttime": "3122391",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/frozen-input.json",
+          "sha256": "7e6512b4734e10cbf35c857e4f891f97244f19ba8af27f1be2e0f95e020f4084"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/command.json",
+          "sha256": "8831bd924c5cc09fd26dc2756636da036b7d8821a9cb2fa37dbdb9bbb43c143a"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/raw.log",
+          "sha256": "52a7fe35e69992427e0cb4f205a0d59d338bf91ef4888bcca87e9f962bf67b07"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/input-before.json",
+          "sha256": "886d0775934d2d40eacadd0901956abf641882ed9c09dfd8716995bc7649bdbe"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/input-after.json",
+          "sha256": "886d0775934d2d40eacadd0901956abf641882ed9c09dfd8716995bc7649bdbe"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/disk-before-spawn.json",
+          "sha256": "f697044f47c13956b3b8a8384dbb465d467028604c84822a6a2d1967cd691b4d"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/process-baseline.json",
+          "sha256": "42c77964dc3c9645743448bc0a7d4430740380eef65528bd37240afee6accd74"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/observed-resources.json",
+          "sha256": "2386c11889eb94666a26307c9408468fd50cc9407f64761c27268cd2f0a0db86"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/observed-processes.json",
+          "sha256": "34300379ee07f8a393bd9e50799023b1a403b251b53643db9923af5a1922bce0"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/cleanup.json",
+          "sha256": "e2de7dcd1e7ed3dbfeb619ec9af5ecad93f5a1434c6266bd58065929b133108a"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/watchdog.json",
+          "sha256": "543c0f7bb62af9dc6aa2404157077c8afe72d1d1212a51c84152c691351b0c9e"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/result.json",
+          "sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence",
+      "safe_body_count": 4
+    },
+    {
+      "version": "v05",
+      "run": "new-root01",
+      "status": "FAIL_RETAINED",
+      "exit": 1,
+      "seconds": 53.707,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectConfigurationHTTPDefaultRoot"
+        ]
+      ],
+      "sub_pass_count": 0,
+      "owned_processes": 83,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 228,
+      "daemon_shim_pid1_zombies_after": 232,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 819469,
+          "ppid": 1,
+          "starttime": "3132189",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 820010,
+          "ppid": 1,
+          "starttime": "3132597",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 820291,
+          "ppid": 1,
+          "starttime": "3132784",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 820891,
+          "ppid": 1,
+          "starttime": "3132960",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/frozen-input.json",
+          "sha256": "7e6512b4734e10cbf35c857e4f891f97244f19ba8af27f1be2e0f95e020f4084"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/command.json",
+          "sha256": "b0ac85ac41166babee26f4c91776a773a17c27bf86223b7e12e3829dbad99340"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/raw.log",
+          "sha256": "e3bc3565a09b58b670e806038fad41e37750fdbed6296f10e3e3cb63707cb46d"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/input-before.json",
+          "sha256": "886d0775934d2d40eacadd0901956abf641882ed9c09dfd8716995bc7649bdbe"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/input-after.json",
+          "sha256": "886d0775934d2d40eacadd0901956abf641882ed9c09dfd8716995bc7649bdbe"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/disk-before-spawn.json",
+          "sha256": "3e94bc7081a85e0589d8fb6c196af30fd168aed23ff52747ca694ef84a23ba09"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/process-baseline.json",
+          "sha256": "7d40f2a63c8c8623ca19b63bb17c7d30b9c8adfeae711257ba1e3504226f87dc"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/observed-resources.json",
+          "sha256": "9e73078ac9c8093e46bb8d8c728ccbb441c6b739c06cdd35def44504856e1711"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/observed-processes.json",
+          "sha256": "4f9bb5361b99230e148eefb45c63bf738ce0cad7297c7eb467dd3fd224b63d71"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/cleanup.json",
+          "sha256": "16954bdd73c4770bca8fde913bb6feed1d9f93ed0e7f92f057886e3529c71c32"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/watchdog.json",
+          "sha256": "ae5a6af7110e09c2b873e622ea6721008d20f798bc16dc888797b2bc45850a1e"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/result.json",
+          "sha256": "e4173ab78a0e74baaf08ad850515e38b8ad1885889d604fc240557fe2dfcefaa"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/safe-http-evidence",
+      "safe_body_count": 5
+    },
+    {
+      "version": "v06",
+      "run": "new-root-rerun01",
+      "status": "PASS",
+      "exit": 0,
+      "seconds": 54.751,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPDefaultRoot"
+        ]
+      ],
+      "sub_pass_count": 0,
+      "owned_processes": 85,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 232,
+      "daemon_shim_pid1_zombies_after": 236,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 829669,
+          "ppid": 1,
+          "starttime": "3164589",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 830110,
+          "ppid": 1,
+          "starttime": "3164924",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 830472,
+          "ppid": 1,
+          "starttime": "3165102",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 830966,
+          "ppid": 1,
+          "starttime": "3165281",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/frozen-input.json",
+          "sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/command.json",
+          "sha256": "b9d1c7a2f383786d23c82e737eb675dc33bac91f2a47ef5e24c192f2d7eafe51"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/raw.log",
+          "sha256": "9f93597b877b552c3fd66fd48e1a960de145c20b47420a541397e44c1d0eb998"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/input-before.json",
+          "sha256": "be63b9f00e3850c342dc1f7d9c1c852e7693e199a5aec0c554e4e703d1277122"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/input-after.json",
+          "sha256": "be63b9f00e3850c342dc1f7d9c1c852e7693e199a5aec0c554e4e703d1277122"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/disk-before-spawn.json",
+          "sha256": "73db4c6fe4b9f6cc6fee6714e38f374ec66716ec4e98de0dd8ca3dd8c15df76c"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/process-baseline.json",
+          "sha256": "844aa5f87d192ba25936981e987d7797baf2a409e4c0d078b3e9ac9fe2d42143"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/observed-resources.json",
+          "sha256": "2d202dff1388f2c98fbb9abfa691b3f7d882fcbe3add95eecb561235af9084f5"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/observed-processes.json",
+          "sha256": "81f7b07b94c8655245f6c89d0b427683e97e0ef5561a61713af95b8dac7bfbd2"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/cleanup.json",
+          "sha256": "6ac81bfc3e540fc861b4fd55743ac2b5421c9a7cb0189dc70a7abb4da93b2303"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/watchdog.json",
+          "sha256": "4fe294ec2a07c0280168304ab86cd5b0686228cb07dcc1dcb6ef5a6ac533e7ef"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/result.json",
+          "sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence",
+      "safe_body_count": 5
+    },
+    {
+      "version": "v06",
+      "run": "old01",
+      "status": "PASS",
+      "exit": 0,
+      "seconds": 91.533,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion"
+        ],
+        [
+          "PASS",
+          "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPPaginationAndSafeProjection"
+        ]
+      ],
+      "sub_pass_count": 23,
+      "owned_processes": 86,
+      "resources": 7,
+      "actual_wait_completed": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "daemon_shim_pid1_zombies_before": 236,
+      "daemon_shim_pid1_zombies_after": 240,
+      "new_daemon_shims_not_owned_or_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 837333,
+          "ppid": 1,
+          "starttime": "3172989",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 837868,
+          "ppid": 1,
+          "starttime": "3173488",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 838347,
+          "ppid": 1,
+          "starttime": "3173894",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 838973,
+          "ppid": 1,
+          "starttime": "3174090",
+          "state": "Z"
+        }
+      ],
+      "other_new_pid1_not_owned_or_joined": [],
+      "artifacts": {
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/frozen-input.json",
+          "sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f"
+        },
+        "driver.py.txt": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/driver.py.txt",
+          "sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/command.json",
+          "sha256": "19f315a38320f0c8d67cb3e112bcf314a0b308b140922ce11060b00678876974"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/raw.log",
+          "sha256": "27076fd75ac557616d2603d2fd925fbe508e9ccf26e2bad98242e400e1e5f1bc"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/input-before.json",
+          "sha256": "be63b9f00e3850c342dc1f7d9c1c852e7693e199a5aec0c554e4e703d1277122"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/input-after.json",
+          "sha256": "be63b9f00e3850c342dc1f7d9c1c852e7693e199a5aec0c554e4e703d1277122"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/disk-before-spawn.json",
+          "sha256": "1d0211c3c59faf474ca61600e6dd9d30042dd67b769725a1ac82269d89a66fe7"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/process-baseline.json",
+          "sha256": "d5fed86134ecc8b9b963af12ea5e78585b4b79617a6c1172cec9ce3cd824d44c"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/observed-resources.json",
+          "sha256": "ed4a39786f6493be00de72f9b8c2a53eca08ad0a05cf8e174ae7f4f5f5f7adee"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/observed-processes.json",
+          "sha256": "0ebb0ba343b4cd319661c5a5ea414671838ec5720c435f02566af4453829bb13"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/cleanup.json",
+          "sha256": "4b53758be2a06a8bbb481ffd5bdb15b3169ab8b9f08df75a2e8c756d75f405e6"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/watchdog.json",
+          "sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/result.json",
+          "sha256": "756b1c6be7101c4ffc5dab410cd5a21272e268bb8c3fbb0a59fb969f794398c2"
+        }
+      },
+      "safe_evidence_directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01/safe-http-evidence",
+      "safe_body_count": 0
+    }
+  ],
+  "pg_final_selected_combination": [
+    "v03/new-projection01",
+    "v03/new-authority01",
+    "v05/new-bounded-rerun02",
+    "v06/new-root-rerun01",
+    "v06/old01"
+  ],
+  "safe_pass_original_body_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/safe-body-pass-index06.json",
+    "sha256": "9fd5815d6123cff7ab504ebef108044b9e3ae48fdac22726403520ccf5c5405e"
+  },
+  "original_failures_and_static_revisions": [
+    {
+      "kind": "STATIC_SPEC_B1",
+      "issue": "No cursor TTL/expiry exists; corrected accepted specification before implementation, not runtime failure",
+      "original": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-static01/review.md",
+        "sha256": "aeb1666372492fb84504c128b3223f2f890d8f4226c9935b198f7c8f9e5ea541"
+      },
+      "closure": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-static02/review.md",
+        "sha256": "098542a154d645c43566ff22d1368d757fe79a2e4faa261dec585a2d23a69c60"
+      }
+    },
+    {
+      "kind": "STATIC_PRODUCTION_R1_R2",
+      "issue": "Private deadline setter panic could skip actual tail; business writer adapter hid middleware state. Private handler repaired, shared Summary/Update unchanged. Not runtime first red.",
+      "original": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-production01/review.md",
+        "sha256": "2a17f27f6fbaffd3841cf834e23b5049a8fa10dd03146c343ecb7d76ada48681"
+      },
+      "closure": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-production03/review.md",
+        "sha256": "ab0f50b99b2a53109bbc495e22f7eee47661b5f8defe20447defac14362515cd"
+      }
+    },
+    {
+      "kind": "OFFLINE_COMPILE",
+      "issue": "Two tests supplied string invalid to typed IDs; test-only zero typed IDs fix",
+      "original": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/compile-model01/result.json",
+        "sha256": "afe08f8802a7d03501d0f354d572b75797a5283663387ae539d45a06e46f8c96"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/compile-model01/stderr.log",
+        "sha256": "b0e586b533549ae61b0671b6e70e2ee24a31d27cc50b53e731a2dfb89b1a9a0b"
+      },
+      "failed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate01/manifest.json",
+        "sha256": "f48a6f152006502ce24d6fb1e9ca51e61f8625fe2cfe52a1daba5727ba60913b"
+      },
+      "fixed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate02/manifest.json",
+        "sha256": "fcb8bff00bbe65d8b68e4e4a2889267087d882e3f70d1dc35c3473ec444adb16"
+      }
+    },
+    {
+      "kind": "STATIC_TEST_OWNERSHIP_R3",
+      "issue": "Parent relayed missing release/actualjoin cleanup on failure. Fixed test-only owners; bounded entry. Not claimed runtime FAIL.",
+      "failed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate02/manifest.json",
+        "sha256": "fcb8bff00bbe65d8b68e4e4a2889267087d882e3f70d1dc35c3473ec444adb16"
+      },
+      "fixed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate03/manifest.json",
+        "sha256": "e385bf8dc5b7354cc4612181a3db98ff58c1580a764eb208b4200fa75089ecee"
+      },
+      "ordinary_regression": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pure-tail03/result.json",
+        "sha256": "578e798ad49deaa547c8ba06859aa962da9930365e6ba08d7978e46ce1f54a22"
+      },
+      "race_regression": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pure-tail-race03/result.json",
+        "sha256": "f1436e3e0944cd10aa1e6ead7841611ae26f305a01181ef66d432e1ee0d5ea2f"
+      }
+    },
+    {
+      "kind": "NATIVE_WRITECLOSE",
+      "issue": "Artificial120ms parent plus old observer lacked actual Write phase evidence. New observer/natural unchanged2s proves true entered/exited partial timeout; old failure not retroactively located entirely in encoding",
+      "original": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/writeclose/command.json",
+        "sha256": "1d67bbf888355258c5daa84413f41c25a0192bef9f261185d5b909ae3b95bd00"
+      },
+      "analysis": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/native-writeclose-first-red-analysis.json",
+        "sha256": "6a499b46ff22306de841a9354712673a8dde7394c4f61393e3609a656a344142"
+      },
+      "fixed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json",
+        "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+      },
+      "rerun": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/writeclose/command.json",
+        "sha256": "def17dfc998b9e290baa526712227de6f5f70dc4569b7d5fb3592caac9d4044b"
+      }
+    },
+    {
+      "kind": "PG_BOUNDED_CONTEXT",
+      "issue": "execute returned with expired2s; raw does not time library/preflight separately. 1M9B ->262144x32B legal unique efforts, array alone9175041B>8MiB; no budget or contract change",
+      "original": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01/result.json",
+        "sha256": "3864f13f3b23771929d9dc45d0e4967255f1d7b9405bf537eda9e0627fff7e0a"
+      },
+      "plan": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-first-red-plan01/plan.json",
+        "sha256": "1345a032940a52fe90554bc174a889eb4bd821f786777a78ccfedbaa532b5e56"
+      },
+      "fixed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json",
+        "sha256": "44e8691202a6887636264b4298056168ec00710663cd25d1df1b615202acda59"
+      }
+    },
+    {
+      "kind": "PG_BOUNDED_UNKNOWN_PROXY",
+      "issue": "Three cap GETHEAD cases passed but real Unknown got500/not_committed; original shared proxy frame reader1MiB incompatible with large DataRow. Prior raw had no perframe proof. Private #12 bounded stream proxy added, real later9437584B observed. Shared helper/production unchanged",
+      "original": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/result.json",
+        "sha256": "3a20920ba75ca7e5018de9c5f0a0c10743b2cd1f5aff546de56250091630dce8"
+      },
+      "private_plan01": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan01/freeze.json",
+        "sha256": "acd16e23f608e91363a0232d3f0894bafb91edc17ce579ecd25f7b7f658e389c"
+      },
+      "static_E1_original": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-bounded-proxy-plan01/review.md",
+        "sha256": "79e9c4cf5673c85be8a07333b7eb817fde2454551423e407582e0e09d1808995"
+      },
+      "private_plan02": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan02/freeze.json",
+        "sha256": "be12991cf94e7d6c602a359cd04db1c652cb33fb34cf51198108e26fb5bce35f"
+      },
+      "static_E1_closure": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-bounded-proxy-plan02/review.md",
+        "sha256": "c29d0bc2f73ee57ff1984fc92ff109018ad02e07fc38175b8679b64edf1c78ab"
+      },
+      "fixed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json",
+        "sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72"
+      },
+      "rerun": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/result.json",
+        "sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03"
+      }
+    },
+    {
+      "kind": "PG_ROOT_LOOKUP",
+      "issue": "Test used nonexistent found instead of accepted committed/result. Corrected formal enums, exact PATCH raw project receipt+ID/version; remaining root assertions first ran successfully on later rerun",
+      "original": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/result.json",
+        "sha256": "e4173ab78a0e74baaf08ad850515e38b8ad1885889d604fc240557fe2dfcefaa"
+      },
+      "plan": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/root-lookup-plan01/freeze.json",
+        "sha256": "edaf3ab07b5bacb56d7bbbb31b7ff2d4c7decec27217c6eabe18bd4425c2e4cd"
+      },
+      "fixed_source": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+        "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+      },
+      "rerun": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/result.json",
+        "sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba"
+      }
+    }
+  ],
+  "resource_window_returned": true,
+  "daemon_limit": {
+    "actual_first_round_baseline": 208,
+    "actual_after_final_round": 240,
+    "new_per_round": 4,
+    "rounds": 8,
+    "new_total": 32,
+    "all_unowned_not_waited": true,
+    "additional_nonowned_pid1_git_count": 2,
+    "no_global_zero_claim": true,
+    "old217_250_baselines_not_used": true
+  },
+  "limits": [
+    "Current author selected scope only; independent real resource validation belongs to separate reviewer and root acceptance.",
+    "8MiB is new complete HTTP representation limit before DTO clone/Validate/Marshal; does not bound earlier accepted DB/library allocations or full RSS.",
+    "Native real socket proof separated from controlled PG writer; cancellation never treated as actual join.",
+    "Original app shutdown/object/forced-inner-join limits retained; private proxy cleanup relies on current openStore ForceClose call chain, not arbitrary unbounded upstream dialing guarantee.",
+    "Unknown and representation503 preserve distinct original outcomes; no response-success truncation and no cursor TTL.",
+    "No credentials/config mutation API, Agent reference replacement/Resolver/ResolutionInvocations/D24 or three-stops acceptance.",
+    "Old Update safe-export env absent; its successful regressions do not produce new body evidence."
+  ]
+}

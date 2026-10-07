@@ -1,0 +1,17 @@
+{
+  "base": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json",
+    "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+  },
+  "delta": {
+    "tests/model/project_configuration_http_test.go": "5c2957a82e67eaa2969971fc7026f94157bf43bb1f5fad08bd84097387b183f4"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/candidate04/src",
+  "patch_sha256": "726094c9ed7a9731714fd20ae9dcf486290c248dd5cefdaa9577ba438a35de38",
+  "reason": "test-only legal bounded representation counterexample lower element count,32-byte safe unique tokens; same >8MiB, same actual DB,2s,3 routes GETHEAD and original Unknown priority",
+  "failure_plan": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-first-red-plan01/plan.json",
+    "sha256": "1345a032940a52fe90554bc174a889eb4bd821f786777a78ccfedbaa532b5e56"
+  },
+  "source_stopped_writing": true
+}

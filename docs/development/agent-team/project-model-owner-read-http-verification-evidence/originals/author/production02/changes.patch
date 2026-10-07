@@ -1,0 +1,31 @@
+--- production01/internal/central/model/http_project.go
++++ production02/internal/central/model/http_project.go
+@@ -154,13 +154,26 @@
+ 	}
+ 	return false
+ }
+-func (w *projectHTTPIOWriter) SetReadDeadline(at time.Time) error {
++
++// Deadline setters also run inside the cancellation callback and finish. A
++// broken writer must not panic out of that goroutine or skip Close/actual join.
++func (w *projectHTTPIOWriter) SetReadDeadline(at time.Time) (err error) {
++	defer func() {
++		if recover() != nil {
++			err = http.ErrAbortHandler
++		}
++	}()
+ 	if w.read == nil {
+ 		return http.ErrNotSupported
+ 	}
+ 	return w.read(at)
+ }
+-func (w *projectHTTPIOWriter) SetWriteDeadline(at time.Time) error {
++func (w *projectHTTPIOWriter) SetWriteDeadline(at time.Time) (err error) {
++	defer func() {
++		if recover() != nil {
++			err = http.ErrAbortHandler
++		}
++	}()
+ 	if w.write == nil {
+ 		return http.ErrNotSupported
+ 	}

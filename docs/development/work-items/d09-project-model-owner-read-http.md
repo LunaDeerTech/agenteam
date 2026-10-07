@@ -1,6 +1,6 @@
 # D09 Project 配置与安全可用目录 Owner 只读 HTTP
 
-修订：rev2，2026-10-07，**完整限定独立 STATIC PASS，root 已采纳；未授权实施/Go 资源，仍待 Update 完整产品接受及共享根交接**。本轮唯一仓库写入为本规格；下列实施白名单不是产品、Go 检查或资源授权。固定产品输入为 root 已接受的 `901eb54605d293d4308caadd278c2c3a7ae1b824`；D08 Update 仅消费已接受规格 `03d1c107`，其活动实现尚未接受，完整产品接受与共享根交接门槛保持。固定来源索引 `/workspace/scratch/project-model-owner-read-http-spec/inputs02.json` SHA-256 `0b3ba4165bb0ef2f951a4883281221626d2a9c4bf3d6c02f831ab9e74e6af311` 原样保留；原 scratch draft01 与 cursor 问题记录不改。root 已采纳下文 8 MiB 完整表示限制及输出无法提供时的原 503 语义。本修订仅归位标题、状态与正式文档链接，并纠正 cursor 无时间到期语义；其余技术内容保持 draft01。
+修订：rev2，2026-10-07，**完整14路径（13技术＋README末件）限定独立 PASS，root 已采纳**。产品 `a0b012ce7acc6dd885407fe70bd7ee5b4448071b` 已提交推送且 root 核远端一致，见[完整验证归档](../agent-team/project-model-owner-read-http-verification.md)。作者与独立的版本组合、所有原失败、实际 wait/清理及非owned daemon限制按归档保留；本结果不代表完整D09/E01或凭据配置写入完成。下列§1至末尾保留rev2技术与历史规格时点原字节，不把其中待实施措辞改写为新的执行结果。
 
 ## 1. 完整结果与真实前置
 

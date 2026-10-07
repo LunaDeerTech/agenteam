@@ -1,0 +1,27 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v02/closure.json",
+    "sha256": "d67c084a0d45ee7f17162987b3004492ef6a9ee02958086420ef93dc5e557e97"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json",
+    "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+  },
+  "actual_union": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full03.json",
+    "sha256": "9d63a98271f86a108320575cbadb404fc8c96373580d231cf9ac4d2910f82b28"
+  },
+  "files": {
+    "/workspace/agenteam/internal/central/model/http_project_native_test.go": {
+      "sha256": "9b8034329af2f6af7daede6a95b4c0580631b39353b081265fbbf0e58dcd046d"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json": {
+      "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full03.json": {
+      "sha256": "9d63a98271f86a108320575cbadb404fc8c96373580d231cf9ac4d2910f82b28"
+    }
+  },
+  "package_file_sets": {},
+  "limit": "Only native #5 hash delta; actual integration and dynamic graph membership/imports unchanged; integration02 compile/list reused exactly. No resources run; old conditional candidate02 authorization is not applied to candidate03."
+}

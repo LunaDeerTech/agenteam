@@ -1,0 +1,85 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.141.244.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=9695f463987f853a4e60898bcda67952
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=5c66b1f4bf9e461380eb5999aa5907b2
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.258s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/model
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/models
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/available
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/GET
+    project_configuration_http_terminal_test.go:365: actual COMMIT idle ACK dropped after callback; later GET is a new read, not original confirmation
+    project_configuration_http_terminal_test.go:405: safe PG frame events after actual join: [1:backend-128 1:forwarded-large-D:9437584 1:send-COMMIT 1:tag-COMMIT 1:ready-I-before-drop 1:commit-idle-ack-dropped 2:cancel 2:backend-closed 3:backend-130 3:forwarded-large-D:9437584 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:backend-closed]
+=== RUN   TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/HEAD
+    project_configuration_http_terminal_test.go:365: actual COMMIT idle ACK dropped after callback; later GET is a new read, not original confirmation
+    project_configuration_http_terminal_test.go:405: safe PG frame events after actual join: [1:backend-131 1:forwarded-large-D:9437584 1:send-COMMIT 1:tag-COMMIT 1:ready-I-before-drop 1:commit-idle-ack-dropped 2:cancel 2:backend-closed 3:backend-133 3:forwarded-large-D:9437584 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:backend-closed]
+--- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation (19.61s)
+    --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/model (2.97s)
+    --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/models (3.15s)
+    --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/available (2.77s)
+    --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown (5.02s)
+        --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/GET (2.49s)
+        --- PASS: TestModelProjectConfigurationHTTPBoundedRepresentation/oversize-original-Unknown/HEAD (2.53s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	20.642s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce 87292a423e2fdc480db2e4230e60ffb3
+D04 outbound fixture cleanup checked for nonce 5c66b1f4bf9e461380eb5999aa5907b2
+D05 object fixture exact resource cleanup checked nonce=9695f463987f853a4e60898bcda67952

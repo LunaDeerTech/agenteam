@@ -1,0 +1,92 @@
+{
+  "status": "AUTHOR_BOUNDED_PASS_ORIGINAL_BODY_AND_SAME_CONNECTION_EVIDENCE_CHECKED",
+  "author_result_sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03",
+  "raw_sha256": "52a7fe35e69992427e0cb4f205a0d59d338bf91ef4888bcca87e9f962bf67b07",
+  "frozen_input_sha256": "7e6512b4734e10cbf35c857e4f891f97244f19ba8af27f1be2e0f95e020f4084",
+  "bodies": {
+    "oversize-model": {
+      "body_sha256": "16d687891c56cf316d76bbc8401e3d2c4dc97bc43c1899afd25307fd943fb5ab",
+      "source_sha256": "bf0d67342a698e94b94d811705b85e3962de943f198870c5b32f6e0709824ae8",
+      "bytes": 283,
+      "schema": "common Problem",
+      "old_failure_body_comparison": {
+        "same_raw_bytes": false,
+        "changed_top_level_keys": [
+          "request_id"
+        ]
+      }
+    },
+    "oversize-models": {
+      "body_sha256": "6c448c786bb6dae7541c2256692699bd8d9ac86774c50c54e75847eef6a36d95",
+      "source_sha256": "e4c27e14a4e724bfeeec9ee776b7ed6498728d67ac67ebe44aa5a5bcab399d98",
+      "bytes": 283,
+      "schema": "common Problem",
+      "old_failure_body_comparison": {
+        "same_raw_bytes": false,
+        "changed_top_level_keys": [
+          "request_id"
+        ]
+      }
+    },
+    "oversize-available": {
+      "body_sha256": "c441277f0a200873a146523b3cbdd4acbc6a3e0057afcb8aee7a5d4971488212",
+      "source_sha256": "6d8f9625fb401dc1b21bbd04dd823a52071bb595ec79467beae9ef4d6fd98b20",
+      "bytes": 283,
+      "schema": "common Problem",
+      "old_failure_body_comparison": {
+        "same_raw_bytes": false,
+        "changed_top_level_keys": [
+          "request_id"
+        ]
+      }
+    },
+    "read-unknown": {
+      "body_sha256": "3beb743038ec7c7884d5b6113bfb9cf56a8a7b47f1fe10ca4b22f45a425ebf2d",
+      "source_sha256": "1fd377080adc6b4247d9c21ff582fee0f292490d1a3f15b10b79bc76539b13b8",
+      "bytes": 315,
+      "schema": "common Problem",
+      "old_failure_body_comparison": null
+    }
+  },
+  "actual_safe_traces": [
+    {
+      "method": "GET",
+      "drop_connection": "1",
+      "actual_large_D_bytes": 9437584,
+      "ordered_events": [
+        "forwarded-large-D:9437584",
+        "send-COMMIT",
+        "tag-COMMIT",
+        "ready-I-before-drop",
+        "commit-idle-ack-dropped"
+      ],
+      "later_new_read_connection": "3",
+      "logged_after_actual_join": true
+    },
+    {
+      "method": "HEAD",
+      "drop_connection": "1",
+      "actual_large_D_bytes": 9437584,
+      "ordered_events": [
+        "forwarded-large-D:9437584",
+        "send-COMMIT",
+        "tag-COMMIT",
+        "ready-I-before-drop",
+        "commit-idle-ack-dropped"
+      ],
+      "later_new_read_connection": "3",
+      "logged_after_actual_join": true
+    }
+  ],
+  "wait_and_seven_resource_cleanup_verified": true,
+  "new_nonowned_nonwaited_PID1": {
+    "containerd-shim": 4
+  },
+  "limits": [
+    "Independent offline consumption of completed author run; no new native/PG execution",
+    "Actual PostgreSQL with controlled handler writer, not native transport",
+    "Paired HEAD emptiness and original cause/attempt checks are unchanged author assertions bound by fixed candidate05 and passing raw",
+    "Both earlier failed bounded rounds stay failed with original input/raw preserved",
+    "Other active author root/old rounds excluded"
+  ]
+}

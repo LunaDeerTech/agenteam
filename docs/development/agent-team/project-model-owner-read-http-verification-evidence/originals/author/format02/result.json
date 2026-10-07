@@ -1,0 +1,31 @@
+{
+  "command_exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 0.10481381399949896,
+  "direct_child_pid": 741009,
+  "direct_child_joined": true,
+  "subreaper": true,
+  "adopted_reaped": [],
+  "processes_seen": [
+    {
+      "pid": 741009,
+      "ppid": 741005,
+      "pgid": 741009,
+      "state": "Z",
+      "starttime": "2765937"
+    }
+  ],
+  "actions": [],
+  "remaining_descendants": [],
+  "inputs_after": {
+    "/workspace/agenteam/internal/central/model/http_project.go": "24045e8ab8a1ca357ea54d8d65532085b45bb1c059a25231a29a395e9abba24f",
+    "/workspace/scratch/project-model-owner-read-http-author/offline-driver.py": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "inputs_match": true,
+  "owned_clear_observations": 2,
+  "exit_code": 0,
+  "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

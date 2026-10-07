@@ -1,0 +1,54 @@
+{
+  "native": {
+    "template": {
+      "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v01/driver.py",
+      "sha256": "4aceae3f33dfeeeadddabd8100b069bbd76509141180b268bcf0ea7ed034bb0a"
+    },
+    "driver": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v01/driver.py",
+      "sha256": "c92e6c843c6e55fa0a7d8fc0ebc8e41845891d6e25e2248d7bdb13d5c4258b94"
+    },
+    "changed_functions": [],
+    "unchanged_functions": [
+      "sha",
+      "save",
+      "stat",
+      "procscan",
+      "closure",
+      "observe",
+      "send_owned",
+      "cleanup_scan"
+    ]
+  },
+  "pg": {
+    "template": {
+      "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/driver.py",
+      "sha256": "295f9c70706afa87c641115a565b49eae9e46570342795826a6944c177e9f493"
+    },
+    "driver": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v01/driver.py",
+      "sha256": "bb356e2e5086a95c1a14581f6b1f102ee3c60d43b8958780ee0fe1a6219d3a68"
+    },
+    "changed_functions": [
+      "source_input",
+      "runtime_environment",
+      "main"
+    ],
+    "unchanged_functions": [
+      "sha",
+      "load_bound",
+      "digest",
+      "processes",
+      "observe_processes",
+      "reap_adopted",
+      "retire_owned",
+      "TopWatchdog",
+      "watch_output",
+      "utc",
+      "write",
+      "command",
+      "resources",
+      "resource_topology"
+    ]
+  }
+}

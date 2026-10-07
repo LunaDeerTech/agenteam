@@ -1,0 +1,20 @@
+{
+  "base_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full05.json",
+    "sha256": "fa88063a04690744b823d7669ad162188ae39b4a7a2ea66d0001eacc42513734"
+  },
+  "effective_files_delta": {
+    "/workspace/agenteam/tests/model/project_configuration_http_root_test.go": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-input22.json",
+    "sha256": "c34cb7906b8a4cea42b0d37e4b5d9f0a41a5bccf904a16fa893abf061e071ffc"
+  },
+  "package_file_sets_unchanged": true,
+  "package_import_dependencies_unchanged": true,
+  "note": "Only #13 root contract assertion; project/contract already imported by existing tests/model, package graph unchanged. Recompile/vet exact root+old list only; native/projection/authority/bounded PASS unchanged and retained."
+}

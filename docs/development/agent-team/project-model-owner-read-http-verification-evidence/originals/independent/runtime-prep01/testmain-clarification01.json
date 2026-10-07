@@ -1,0 +1,28 @@
+[
+  {
+    "path": "/workspace/.cache/go-build/36/36742358b2f7dd170fa4ea6b19b579f088f56d4d840a801c9975645c2bb6503b-d",
+    "sha256": "36742358b2f7dd170fa4ea6b19b579f088f56d4d840a801c9975645c2bb6503b",
+    "custom_TestMain_call": false,
+    "ordinary_m_Run": true,
+    "init_excerpt": [
+      "func init() {\n\n\ttestdeps.ModulePath = \"github.com/LunaDeerTech/agenteam\"\n\ttestdeps.ImportPath = \"github.com/LunaDeerTech/agenteam/internal/central/model\"\n}"
+    ]
+  },
+  {
+    "path": "/workspace/.cache/go-build/c1/c199fceaf9f21fe7d2e331b9cd4f181a734a4732e349efc3c33274df11ba1394-d",
+    "sha256": "c199fceaf9f21fe7d2e331b9cd4f181a734a4732e349efc3c33274df11ba1394",
+    "custom_TestMain_call": false,
+    "ordinary_m_Run": true,
+    "init_excerpt": [
+      "func init() {\n\n\ttestdeps.ModulePath = \"github.com/LunaDeerTech/agenteam\"\n\ttestdeps.ImportPath = \"github.com/LunaDeerTech/agenteam/tests/model\"\n}"
+    ]
+  },
+  {
+    "selected_package": "/workspace/agenteam/internal/central/model",
+    "custom_TestMain_or_init": []
+  },
+  {
+    "selected_package": "/workspace/agenteam/tests/model",
+    "custom_TestMain_or_init": []
+  }
+]

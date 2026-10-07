@@ -1,0 +1,25 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-bounded",
+    "new-root",
+    "old"
+  ],
+  "driver_sha256": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3",
+  "candidate_sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72",
+  "closure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/closure.json",
+    "sha256": "a662403ae3c79f252d7b444887fa8cd2560675e875446ccce6bbb137004a5759"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/driver.py": "3fd2bcbe98567c57358cc79759cc7118e203f7ec55a68d0c9f5ff7b94c1f34d3",
+    "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/groups.json": "7535768121755a072336b0480f7d630960d0aa6879659150dba144bfdd554160",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": true,
+  "authorization": "root explicit authorization candidate05 #12 matches independently STATIC accepted plan02; ONE new-bounded rerun then only PASS+actualwait+7resource/PID doubleempty+same input permits new-root->old serial. Fresh>=5GiB/live baseline each, fixed exact two local PG digests/MinIO;120s top inclCleanup/6m packages/fullfixture; preserve both original bounded failures; any new FAIL cleanup then stop, no automatic repair/rerun; independent real window not concurrent.",
+  "prerequisite_native": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/execution-freeze.json",
+    "sha256": "76fb087504df2ae9e0dc9068b2e78cfe877fb321d3d847bd2f267df1e2346839"
+  }
+}

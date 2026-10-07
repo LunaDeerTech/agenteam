@@ -1,0 +1,30 @@
+{
+  "status": "BOUNDED_FIVE_SOURCE_STATIC_PASS",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/production03/manifest.json",
+    "sha256": "0496a8eb5f840369ebf6e86f10dcded37e39d6f9c61bdd34ee426f1c51e16583"
+  },
+  "inherited_manifest": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/production01/manifest.json",
+    "sha256": "6925716025ad18161d6811c6196785956abdee94d7f11e7aedb48b3717f81d40"
+  },
+  "effective_files": {
+    "internal/central/model/http_project.go": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb",
+    "internal/central/model/http_project_wire.go": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad",
+    "internal/central/app/project_models.go": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+    "internal/central/app/account.go": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+    "api/openapi/project-models.json": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755"
+  },
+  "delta_exact": true,
+  "closed_findings": [
+    "R1 deadline setter panic terminal ownership",
+    "R2 business response middleware state chain"
+  ],
+  "blocking_findings": [],
+  "review_sha256": "ab0f50b99b2a53109bbc495e22f7eee47661b5f8defe20447defac14362515cd",
+  "preserved_original_review_sha256": "2a17f27f6fbaffd3841cf834e23b5049a8fa10dd03146c343ecb7d76ada48681",
+  "compile_or_dynamic_pass": false,
+  "other_eight_tests_reviewed": false,
+  "no_Git_Go_tests_resources": true,
+  "writes_stopped": true
+}

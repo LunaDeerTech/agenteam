@@ -1,0 +1,48 @@
+{
+  "status": "PASS_STATIC_TEST_EXPECTATION_FIX",
+  "plan_freeze": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/root-lookup-plan01/freeze.json",
+    "sha256": "edaf3ab07b5bacb56d7bbbb31b7ff2d4c7decec27217c6eabe18bd4425c2e4cd"
+  },
+  "patch": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/root-lookup-plan01/proposed.patch",
+    "sha256": "2658a0e93b752e1cfa948ac9ecf09bacaf8505b2cc5fc2e454a50cb0540efe6b"
+  },
+  "source": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/root-lookup-plan01/proposed.go",
+    "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f"
+  },
+  "author_first_red": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01/result.json",
+    "sha256": "e4173ab78a0e74baaf08ad850515e38b8ad1885889d604fc240557fe2dfcefaa"
+  },
+  "formal_contract": [
+    {
+      "path": "/workspace/agenteam/internal/central/project/http/update_wire.go",
+      "sha256": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/contract/commands.go",
+      "sha256": "30af1efac3ed5230ac06b1795e086fcf21840246243e293bcd46bbea335886fa"
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/project-owner.json",
+      "sha256": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3"
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_owner_update_http_root_test.go",
+      "sha256": "352cfa5d35c39109fd0759cc8879ebe65e53df2a686e564b5c5fa9fd388b0103"
+    }
+  ],
+  "finding": "found is absent from accepted Update wire; old assertion conflated another command lookup shape. New LookupCommitted/UpdateCommand and original PATCH raw project+ID/version checks implement actual contract.",
+  "scope": "Only #13 test expectation and existing contract import; production and all subsequent root assertions unchanged.",
+  "unverified_after_failure": [
+    "new methods405",
+    "ready503 assertion",
+    "one connection assertion",
+    "explicit root stop/drain assertion",
+    "restart singleton/project persistence",
+    "root sensitive log scan"
+  ],
+  "independent_probe_disclosure": "Same obsolete found assertion discovered statically in my unexecuted private PG Root; not a dynamic failure. Old source/freeze preserved; only private Root will be fixed and affected PG recompiled with candidate06. Native/A unchanged."
+}

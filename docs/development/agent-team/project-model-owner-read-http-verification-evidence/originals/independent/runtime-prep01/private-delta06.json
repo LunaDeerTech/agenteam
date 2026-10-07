@@ -1,0 +1,26 @@
+{
+  "base_actual_private_graph": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/graph-delta01.json",
+    "sha256": "5a82973b2667bc5eabec47d4cfa1b4ad05bb7a284c2f2ce6713cd409e1347dc8"
+  },
+  "base_author_graph": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json",
+    "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+  },
+  "overlay_effective_delta": {
+    "/workspace/agenteam/tests/model/independent_project_model_http_test.go": {
+      "previous": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg_test.go",
+        "sha256": "b4ee8fcd9a8594ce18fb31cb427d3d1784551837a40646c360796103e47b4d13"
+      },
+      "current": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/pg_test.go",
+        "sha256": "55ac66f329d06b999098ee97dbe1f86e90b6e42741cdc8559961e30a21c2767f"
+      }
+    }
+  },
+  "imports_and_package_file_sets_unchanged": true,
+  "only_private_root_lookup_changed": true,
+  "native_and_private_A_byte_equal": true,
+  "prior_found_assertion_static_defect_no_runtime": "Preserved prior source and freezes; do not describe as dynamic failure or omit shared author/verifier mistake."
+}

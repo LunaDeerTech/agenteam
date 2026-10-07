@@ -1,0 +1,12 @@
+{
+  "base": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate01/manifest.json",
+    "sha256": "f48a6f152006502ce24d6fb1e9ca51e61f8625fe2cfe52a1daba5727ba60913b"
+  },
+  "delta": {
+    "internal/central/model/http_project_wire_test.go": "6b0de60bfd3bd066682fac72a62a4e04b6b0657c7bd83d21227216c9db450a65"
+  },
+  "reason": "compile-model01 first red: typed UUID invalid-value fixtures require zero typed IDs, not strings; production unchanged",
+  "first_failure": "/workspace/scratch/project-model-owner-read-http-author/compile-model01/result.json",
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/offline-candidate02/src"
+}

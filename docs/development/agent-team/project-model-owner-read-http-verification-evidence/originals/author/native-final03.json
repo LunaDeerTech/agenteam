@@ -1,0 +1,140 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json",
+    "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+  },
+  "production_unchanged_since": "production03",
+  "pass_groups": [
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/keepalive/command.json",
+      "sha256": "cfeb6d57654c14866b915c70c582d855e525061443ce6f8247a4d3257d52577a",
+      "exit": 0,
+      "execution_elapsed_seconds": 1.2387105810012145,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelHTTPNativeKeepAliveDeadline"
+        ],
+        "sub_passes": [],
+        "test_bodies": true
+      },
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 759246,
+          "starttime": "2913378",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403183.1902025
+        },
+        {
+          "role": "adopted",
+          "pid": 759250,
+          "starttime": "2913378",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403183.1941948
+        }
+      ],
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "pass": true
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/slowbody/command.json",
+      "sha256": "38afadf898cf6589ad6c3dd9b39bd690d2dfbf4643c5a3d21b5d7e2eef9474b6",
+      "exit": 0,
+      "execution_elapsed_seconds": 5.372715093999432,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelHTTPNativeSlowBodyAndCallback"
+        ],
+        "sub_passes": [
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/GET/1m0s",
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/HEAD/1m0s",
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/GET/120ms",
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/noncooperative_service_actual_tail"
+        ],
+        "test_bodies": true
+      },
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 760552,
+          "starttime": "2925240",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403305.9484231
+        },
+        {
+          "role": "adopted",
+          "pid": 760556,
+          "starttime": "2925240",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403305.9536476
+        }
+      ],
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "pass": true
+    },
+    {
+      "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/writeclose/command.json",
+      "sha256": "def17dfc998b9e290baa526712227de6f5f70dc4569b7d5fb3592caac9d4044b",
+      "exit": 0,
+      "execution_elapsed_seconds": 5.0858990870001435,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort"
+        ],
+        "sub_passes": [
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_get_write"
+        ],
+        "test_bodies": true
+      },
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 766585,
+          "starttime": "2978637",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403839.633425
+        },
+        {
+          "role": "adopted",
+          "pid": 766589,
+          "starttime": "2978637",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403839.6378443
+        }
+      ],
+      "inputs_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "pass": true
+    }
+  ],
+  "unique_selected_top": 3,
+  "unique_selected_sub": 13,
+  "original_failure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/writeclose/command.json",
+    "sha256": "1d67bbf888355258c5daa84413f41c25a0192bef9f261185d5b909ae3b95bd00"
+  },
+  "failure_analysis": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-writeclose-first-red-analysis.json",
+    "sha256": "6a499b46ff22306de841a9354712673a8dde7394c4f61393e3609a656a344142"
+  },
+  "limit": "Native only; no PG/product acceptance; keepalive/slowbody use unchanged version02 bodies, writeclose uses new actual phase observation in version03. Original phase evidence insufficient to locate timeout; successful new evidence does not rewrite failed history."
+}

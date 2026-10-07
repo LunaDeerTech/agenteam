@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "/workspace/agenteam/internal/central/model/http_project_test.go",
+    "/workspace/agenteam/internal/central/model/http_project_native_test.go"
+  ],
+  "cwd": "/workspace/agenteam",
+  "environment_overrides": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "subreaper": true,
+  "driver_pid": 747912,
+  "driver_sha256": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+  "frozen_manifest_sha256": "084b0aadd321d8b56507b3ed173e668b0d0e1970b8696ba82cc8f5af65864d56",
+  "started_utc": "2026-10-07T19:44:03Z",
+  "total_deadline_seconds": 45,
+  "child_timeout_seconds": 42,
+  "inputs_before": {
+    "/workspace/agenteam/internal/central/model/http_project_test.go": "8d212c5d1553a5cfae4797de0f85e454e15fcc5e5e23fb3ccd95687aa7461c19",
+    "/workspace/agenteam/internal/central/model/http_project_native_test.go": "ad26684b4ab63bc63a50d5ad972eccb003ae586ea0492652d0cf65f0f5b443f2",
+    "/workspace/scratch/project-model-owner-read-http-author/offline-driver.py": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  }
+}

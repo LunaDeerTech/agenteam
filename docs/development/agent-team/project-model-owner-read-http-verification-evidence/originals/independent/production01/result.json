@@ -1,0 +1,16 @@
+{
+  "status": "NEEDS_REVISION",
+  "scope": "5 production/schema files only",
+  "manifest": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/production01/manifest.json",
+    "sha256": "6925716025ad18161d6811c6196785956abdee94d7f11e7aedb48b3717f81d40"
+  },
+  "findings": [
+    "R1 deadline panic can skip close/join or escape cancellation goroutine",
+    "R2 IO adapter in business writer chain hides public response state"
+  ],
+  "review_sha256": "2a17f27f6fbaffd3841cf834e23b5049a8fa10dd03146c343ecb7d76ada48681",
+  "unreviewed": "8 active tests",
+  "no_runtime_execution": true,
+  "stopped_writing": true
+}

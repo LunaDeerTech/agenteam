@@ -1,0 +1,22 @@
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_get_write
+    http_project_native_test.go:231: socket backpressure not actual bounded I/O
+--- FAIL: TestProjectModelHTTPNativeWriteFlushCloseAndAbort (0.62s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush (0.46s)
+    --- FAIL: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_get_write (0.14s)
+FAIL

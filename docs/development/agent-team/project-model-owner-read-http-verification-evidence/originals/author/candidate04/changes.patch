@@ -1,0 +1,14 @@
+--- candidate03/tests/model/project_configuration_http_test.go
++++ candidate04/tests/model/project_configuration_http_test.go
+@@ -165,9 +165,9 @@
+ 	// claim that the preexisting DB/library allocations fit the HTTP DTO budget.
+ 	caps := m.Input.Capabilities.Clone()
+ 	caps.Reasoning = true
+-	caps.ReasoningEfforts = make([]string, 1<<20)
++	caps.ReasoningEfforts = make([]string, 1<<18)
+ 	for i := range caps.ReasoningEfforts {
+-		caps.ReasoningEfforts[i] = fmt.Sprintf("r%08x", i)
++		caps.ReasoningEfforts[i] = fmt.Sprintf("r%031x", i)
+ 	}
+ 	if e := caps.Validate(); e != nil {
+ 		t.Fatal("large legal counterexample", e)

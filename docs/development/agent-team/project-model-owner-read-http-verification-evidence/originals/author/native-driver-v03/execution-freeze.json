@@ -1,0 +1,49 @@
+{
+  "root_authorized_native": true,
+  "permitted_modes": [
+    "writeclose"
+  ],
+  "offline_input": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-input11.json",
+    "sha256": "8872069b472b783a933864fa50599b5cb798465a44f88cb298547a1673ce8434"
+  },
+  "files": {
+    "/workspace/scratch/project-model-owner-read-http-author/model-race04.test": "6dee14328f3678b1af74cd6a83119f41f13e1229e259b686a54a255c3a7c489b",
+    "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91",
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full03.json": "9d63a98271f86a108320575cbadb404fc8c96373580d231cf9ac4d2910f82b28",
+    "/usr/bin/strace": "69f88291a4e47f258b8e32b089c919a247509f063ef3d6afe5389939051102b3",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/driver.py": "9feb13c73c9e139fc5ed9003ef8396626c20c85e5446cd5de9d0ea0ebbeb50e8",
+    "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/trace_parser.py": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a"
+  },
+  "source_suffixes": [
+    ".go",
+    ".s",
+    ".S",
+    ".c",
+    ".h",
+    ".cc",
+    ".cpp",
+    ".cxx",
+    ".m",
+    ".mm",
+    ".f",
+    ".F",
+    ".for",
+    ".f90",
+    ".swig",
+    ".swigcxx",
+    ".syso"
+  ],
+  "candidate_sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91",
+  "source_stopped": true,
+  "authorization": "root explicit authorization: candidate03 dabbf4a6 / driver9feb13c7 / binary6dee1432; ONLY writeclose one real rerun, fresh>=2GiB,40s test/45s command,15s own cleanup/75s TCP retirement, actual direct/adopted waits+double PID/allTCP empty, same inputs; preserve first red; any FAIL complete cleanup and stop no auto retry; PG only if this PASS+cleanup+same input.",
+  "prior_proposal": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v01/proposal.json",
+    "sha256": "049ff89a5fcd702dd7aaffb18ca1ae8490d85b47b5232a4065bb821bc4118ac8"
+  },
+  "prior_failure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/writeclose/command.json",
+    "sha256": "1d67bbf888355258c5daa84413f41c25a0192bef9f261185d5b909ae3b95bd00"
+  }
+}

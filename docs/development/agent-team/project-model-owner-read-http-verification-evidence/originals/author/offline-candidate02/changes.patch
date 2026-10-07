@@ -1,0 +1,20 @@
+--- candidate01/internal/central/model/http_project_wire_test.go
++++ candidate02/internal/central/model/http_project_wire_test.go
+@@ -135,7 +135,7 @@
+ 	ctx := context.Background()
+ 	other, _ := id.InProject(mustID[id.Project](t))
+ 	wrongRef, _ := sc.NewCredentialRef(mustID[sc.Credential](t), id.SystemScope())
+-	for _, mutate := range []func(*mc.ProviderView){func(v *mc.ProviderView) { v.Scope = other }, func(v *mc.ProviderView) { v.ID = "invalid" }, func(v *mc.ProviderView) { v.Input.CredentialRef = &wrongRef }, func(v *mc.ProviderView) { v.Input.Protocol = mc.OpenAIEmbeddings }, func(v *mc.ProviderView) { v.UpdatedAt, _ = f.NewInstant(v.CreatedAt.Time().Add(-time.Second)) }, func(v *mc.ProviderView) { v.Input.Options = []byte(`{"x":1,"x":2}`) }} {
++	for _, mutate := range []func(*mc.ProviderView){func(v *mc.ProviderView) { v.Scope = other }, func(v *mc.ProviderView) { v.ID = mc.ProviderID{} }, func(v *mc.ProviderView) { v.Input.CredentialRef = &wrongRef }, func(v *mc.ProviderView) { v.Input.Protocol = mc.OpenAIEmbeddings }, func(v *mc.ProviderView) { v.UpdatedAt, _ = f.NewInstant(v.CreatedAt.Time().Add(-time.Second)) }, func(v *mc.ProviderView) { v.Input.Options = []byte(`{"x":1,"x":2}`) }} {
+ 		bad := pv.Clone()
+ 		mutate(&bad)
+ 		b, e := projectHTTPEncodeProvider(ctx, p, pv.ID, bad)
+@@ -143,7 +143,7 @@
+ 			t.Fatal("invalid provider published")
+ 		}
+ 	}
+-	for _, mutate := range []func(*mc.ModelView){func(v *mc.ModelView) { v.Scope = other }, func(v *mc.ModelView) { v.Input.Type = mc.EmbeddingModel }, func(v *mc.ModelView) { v.Input.Capabilities.ParallelToolCalls = true }, func(v *mc.ModelView) { v.Input.Capabilities.ReasoningEfforts = []string{"high"} }, func(v *mc.ModelView) { v.Input.Capabilities.InputModalities = []string{"text", "text"} }, func(v *mc.ModelView) { v.Input.Capabilities.OutputModalities = []string{"future"} }, func(v *mc.ModelView) { v.Input.Capabilities.MaxOutput = new(mc.TokenCount) }, func(v *mc.ModelView) { v.ProviderID = "invalid" }} {
++	for _, mutate := range []func(*mc.ModelView){func(v *mc.ModelView) { v.Scope = other }, func(v *mc.ModelView) { v.Input.Type = mc.EmbeddingModel }, func(v *mc.ModelView) { v.Input.Capabilities.ParallelToolCalls = true }, func(v *mc.ModelView) { v.Input.Capabilities.ReasoningEfforts = []string{"high"} }, func(v *mc.ModelView) { v.Input.Capabilities.InputModalities = []string{"text", "text"} }, func(v *mc.ModelView) { v.Input.Capabilities.OutputModalities = []string{"future"} }, func(v *mc.ModelView) { v.Input.Capabilities.MaxOutput = new(mc.TokenCount) }, func(v *mc.ModelView) { v.ProviderID = mc.ProviderID{} }} {
+ 		bad := mv.Clone()
+ 		mutate(&bad)
+ 		b, e := projectHTTPEncodeModel(ctx, p, mv.ID, bad)

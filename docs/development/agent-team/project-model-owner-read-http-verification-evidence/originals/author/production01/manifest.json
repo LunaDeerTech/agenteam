@@ -1,0 +1,26 @@
+{
+  "status": "PRODUCTION_SCHEMA_STATIC_CANDIDATE_NO_GO_COMPILE_OR_PRODUCT_PASS",
+  "accepted_product": "61bed1fcf47c362f420f6bb45158b227af581acf",
+  "card_sha256": "28fb448189e3845c6be2a169f42cd1445d731a2383f29c78d592c59cb1debdce",
+  "scope": "#1,#2,#6,#7,#9 only; remaining tests being implemented",
+  "files": {
+    "internal/central/model/http_project.go": "d429d0c157f1fab9f2ade3bc351edefe0da252e05d2426dd8b2ff2701a477d7d",
+    "internal/central/model/http_project_wire.go": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad",
+    "internal/central/app/project_models.go": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+    "internal/central/app/account.go": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+    "api/openapi/project-models.json": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/production01/src",
+  "patch_sha256": "7d4921d2ce40ad467dac901d2e681a7828058225e5c515e751972507d7d500ea",
+  "handover": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/handover.json",
+    "sha256": "9a4f598b1ba2ad6cd75b5bcde8aa668ee47531482f647b5f428a377ed3796fe9"
+  },
+  "format_actual": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/format01/result.json",
+    "sha256": "96ebaeb84159d1b7184501857c821df92b21422fc512ffa059fdde28a486e457"
+  },
+  "source_stopped_writing": true,
+  "tests_not_yet_complete": true,
+  "native_PG_not_authorized": true
+}

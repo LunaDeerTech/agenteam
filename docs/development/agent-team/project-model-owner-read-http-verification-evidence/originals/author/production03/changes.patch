@@ -1,0 +1,43 @@
+--- production01/internal/central/model/http_project.go
++++ production03/internal/central/model/http_project.go
+@@ -154,13 +154,26 @@
+ 	}
+ 	return false
+ }
+-func (w *projectHTTPIOWriter) SetReadDeadline(at time.Time) error {
++
++// Deadline setters also run inside the cancellation callback and finish. A
++// broken writer must not panic out of that goroutine or skip Close/actual join.
++func (w *projectHTTPIOWriter) SetReadDeadline(at time.Time) (err error) {
++	defer func() {
++		if recover() != nil {
++			err = http.ErrAbortHandler
++		}
++	}()
+ 	if w.read == nil {
+ 		return http.ErrNotSupported
+ 	}
+ 	return w.read(at)
+ }
+-func (w *projectHTTPIOWriter) SetWriteDeadline(at time.Time) error {
++func (w *projectHTTPIOWriter) SetWriteDeadline(at time.Time) (err error) {
++	defer func() {
++		if recover() != nil {
++			err = http.ErrAbortHandler
++		}
++	}()
+ 	if w.write == nil {
+ 		return http.ErrNotSupported
+ 	}
+@@ -183,7 +196,10 @@
+ 	request.Pattern = projectHTTPPattern(kind)
+ 	r := request.WithContext(ctx)
+ 	io := &projectHTTPIOWriter{ResponseWriter: w}
+-	w = meetingSummaryAbortWriter{ResponseWriter: io}
++	// Only the controller uses the capability adapter. Keep the business writer
++	// on the original middleware chain so Problem retains RequestID, code and
++	// committed-response ownership through the existing Unwrap contract.
++	w = meetingSummaryAbortWriter{ResponseWriter: w}
+ 	budget := meetingSummaryRequestIO{controller: http.NewResponseController(io), ctx: ctx, body: r.Body}
+ 	normal := false
+ 	defer func() {

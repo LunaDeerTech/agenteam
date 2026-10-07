@@ -1,0 +1,20 @@
+{
+  "status": "AUTHOR_AUTHORITY_UNKNOWN_ORIGINAL_BYTES_SCHEMA_PASS",
+  "source_run": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01",
+  "author_result_sha256": "28101be721bb516d6e90596be3627ad6f71c1407e06dd912a0b0a0cf7378315f",
+  "body_sha256": "b4391562b015e23e330f6f4a47809e753134255dfb07887614929d0b72b814a5",
+  "source_sha256": "907a7c7632bc6b9ca14b9477332174ea5b0a573eae466b66e484cc28530fda6b",
+  "actual_header_matches_body_RequestID": true,
+  "common_schema_sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+  "original_get_and_HEAD_ACKdrop_passes_in_raw": true,
+  "new_nonowned_nonwaited_PID1": {
+    "containerd-shim": 4,
+    "git": 1
+  },
+  "limits": [
+    "real DB COMMIT ACK drop with controlled HTTP writer, not native client transport",
+    "HEAD zero body and underlying cause/attempt are author assertions bound by raw and candidate03, not independently replayed here",
+    "shared Problem lookup retry hint is unchanged; no new read lookup or automatic second read is claimed",
+    "no resource execution or active bounded round consumed"
+  ]
+}

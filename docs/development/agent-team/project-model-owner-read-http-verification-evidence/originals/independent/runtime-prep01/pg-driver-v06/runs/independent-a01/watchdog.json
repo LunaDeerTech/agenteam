@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 32004.098753199,
+      "top": "TestIndependentProjectModelHTTPPGAuthority"
+    },
+    {
+      "event": "result",
+      "monotonic": 32009.404927529,
+      "observed_seconds": 5.30617433000225,
+      "reported_seconds": 5.31,
+      "state": "PASS",
+      "top": "TestIndependentProjectModelHTTPPGAuthority"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectModelHTTPPGAuthority"
+  ],
+  "failures": []
+}

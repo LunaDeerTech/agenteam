@@ -1,0 +1,23 @@
+{
+  "status": "BOUNDED_CANDIDATE03_NATIVE_TEST_STATIC_PASS_RUNTIME_PENDING",
+  "manifest": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json",
+    "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+  },
+  "delta": {
+    "internal/central/model/http_project_native_test.go": "9b8034329af2f6af7daede6a95b4c0580631b39353b081265fbbf0e58dcd046d"
+  },
+  "review_sha256": "7aea549a16627d3029c026e43077a101856322d4c10d92aa636ca97800f19ef5",
+  "first_red": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-writeclose-first-red-analysis.json",
+    "sha256": "6a499b46ff22306de841a9354712673a8dde7394c4f61393e3609a656a344142"
+  },
+  "actual_original_failure": {
+    "exit": 1,
+    "listeners": 9,
+    "all_owned_PID_TCP_double_clear": true,
+    "inputs_unchanged": true
+  },
+  "production_unchanged": true,
+  "resource_execution": false
+}

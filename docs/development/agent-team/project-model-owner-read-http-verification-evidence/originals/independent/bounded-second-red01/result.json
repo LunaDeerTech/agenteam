@@ -1,0 +1,44 @@
+{
+  "status": "AUTHOR_WHOLE_ROUND_FAIL_STATIC_TEST_PROXY_CAPACITY_CONFLICT",
+  "author_result": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/result.json",
+    "sha256": "3a20920ba75ca7e5018de9c5f0a0c10743b2cd1f5aff546de56250091630dce8"
+  },
+  "raw": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01/raw.log",
+    "sha256": "29ef7f5108c24b910293cb0e552a36c522969fe7cc12655c0aefc0e6393a415e"
+  },
+  "fixed_sources": [
+    {
+      "path": "/workspace/agenteam/tests/model/system_configuration_integration_test.go",
+      "sha256": "7d46b46766659386f7d643be76ab56526d9c5e911cc14fbc2fd3b81967afab32"
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_configuration_unknown_test.go",
+      "sha256": "6b18ae4b6651a10926381d8198a74315cebd08768b4794f2f65d5efffc3bbcf2"
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go",
+      "sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62"
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_configuration_http_terminal_test.go",
+      "sha256": "915ccccde2707819e22359a90e8b7ce298ebac3399527d44a0d47b1a106a63d8"
+    }
+  ],
+  "finding": "readModelPGFrame hard limit1MiB applies to server DataRow. Same persisted legal capabilities JSON exceeds9MiB. Old trace cannot forward the required row; after-hook cannot arm final COMMIT if read callback fails. This statically explains rapid not_committed500, without treating old raw as an observed frame-limit event.",
+  "dynamic_limits": [
+    "Original failed run has no observed frame type/length/limit rejection event",
+    "No inference of product Unknown failure or same earlier timeout",
+    "Three GETHEAD cap subcases passed; whole top and round remain FAIL"
+  ],
+  "required_next_evidence": "Private test-only proxy must boundedly forward the original large DataRow, preserve exact COMMIT+idle ACK-drop and actual joins; retain original Unknown state/cause/attempt and zero successful candidate. No change500 expectation or production/budget.",
+  "partial_body_schema": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-partial-result.json",
+    "sha256": "922d4824351fcb2b50bf245e2463be8b7df5a4c7bf53092eb629a73774c08edc"
+  },
+  "offline_schema": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-partial-schema01/result.json",
+    "sha256": "1988be768b73d4815209017780c403a308ba7304632a584998df494c6e264516"
+  }
+}

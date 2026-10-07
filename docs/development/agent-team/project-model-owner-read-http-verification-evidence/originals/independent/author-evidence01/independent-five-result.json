@@ -1,0 +1,66 @@
+{
+  "status": "PASS_INDEPENDENT_A_B_ORIGINAL_FIVE_BODY_SCHEMA",
+  "runs": {
+    "independent-a01": {
+      "result_sha256": "8e85fe9e04fafecb95a202d3e9a9fc5a058cee17afd0cd885d92356709572fc8",
+      "frozen_input_sha256": "eb6c89342e5a68e753883f260eeb8e710f9c349b70fdea5a41c87ac591cfc219",
+      "bodies": {
+        "independent-catalog-continuation": {
+          "body_sha256": "179d99cc0f00efd72c42641cbd64417f6543eeb0302e8590e52c178438fd0b1e",
+          "source_sha256": "f7d70c6f19b12533f1df7de764fa5877eecbf1dabf7628b5b508debe4c681ac0",
+          "bytes": 529,
+          "schema": "project-models.json#AvailableChatModelPage",
+          "actual_header_and_input_binding": true
+        },
+        "independent-read-unknown": {
+          "body_sha256": "bf07ebc03beeb5ff6602fa9d10e69e0750354c9322418392a297f7ff9ef37ba5",
+          "source_sha256": "2bad75ed834e6e47fb84d7ddeea6b384cd742287bc616c022b78cdcadb7ff669",
+          "bytes": 315,
+          "schema": "common.json#Problem",
+          "actual_header_and_input_binding": true
+        }
+      },
+      "new_nonowned_nonwaited_PID1": {
+        "containerd-shim": 4
+      }
+    },
+    "independent-b01": {
+      "result_sha256": "c3055b891197b13a000f3285513bae97c2009f55eac5f6e39f84b329335344ed",
+      "frozen_input_sha256": "eb6c89342e5a68e753883f260eeb8e710f9c349b70fdea5a41c87ac591cfc219",
+      "bodies": {
+        "independent-root-provider": {
+          "body_sha256": "393ef3a19b956fb8ab7f4065bbc530551c977dc294545e852038af334cc1303c",
+          "source_sha256": "5524b7bca793c865062831bec0a7c5566b9873dd9fcd36be4f8be0f4f8490069",
+          "bytes": 397,
+          "schema": "project-models.json#Provider",
+          "actual_header_and_input_binding": true
+        },
+        "independent-root-model": {
+          "body_sha256": "5906eab17abaa5026f952de607cadbd299c44b0dadb00efb8fe0416596d1c2b1",
+          "source_sha256": "aec0a42569ca847198890f9ad1c10307c1530b512c8928e5a8d2a69dfe3bef75",
+          "bytes": 685,
+          "schema": "project-models.json#Model",
+          "actual_header_and_input_binding": true
+        },
+        "independent-root-directory": {
+          "body_sha256": "2cb762c26b0fbbf6f0f6d06c3af70ede62e05c6d6ebb59c190592baf67f6e8c1",
+          "source_sha256": "c30092970095d122babeffe59d14c8e6d947c4d4c7999a5d9e678bd0a3224748",
+          "bytes": 529,
+          "schema": "project-models.json#AvailableChatModelPage",
+          "actual_header_and_input_binding": true
+        }
+      },
+      "new_nonowned_nonwaited_PID1": {
+        "containerd-shim": 4
+      }
+    }
+  },
+  "schema_sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+  "common_schema_sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+  "limits": [
+    "A uses actual PostgreSQL plus controlled HTTP writer; B uses native default app.Run HTTP transport",
+    "Offline validation preserves original bytes/status/headers, no new network requests",
+    "No current read is treated as confirmation of prior Unknown",
+    "Daemon/PID1 zombies outside ownership were not waited; no whole-machine zero claim"
+  ]
+}

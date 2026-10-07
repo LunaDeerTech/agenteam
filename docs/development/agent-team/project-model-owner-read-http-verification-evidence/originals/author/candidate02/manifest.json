@@ -1,0 +1,14 @@
+{
+  "base": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate01/manifest.json",
+    "sha256": "5e75483e7eb2ddd763f95eb7dcffbb8ed9a0364f10f3187ccda96a4969469c18"
+  },
+  "delta": {
+    "tests/model/project_configuration_http_test.go": "7ee9e542ce749bbcf49ddfc631dfe02c8202b088274cefc50a9d88bc049a536b",
+    "tests/model/project_configuration_http_terminal_test.go": "915ccccde2707819e22359a90e8b7ce298ebac3399527d44a0d47b1a106a63d8"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/candidate02/src",
+  "patch_sha256": "e09da2731b71852992b4173c579ddbf2f11b21c38e3083e6ca61798b0bd76207",
+  "reason": "same legal oversized persisted caps now probed through detail/list/catalog GET+HEAD plus actual original Read Unknown; no budget extension; production unchanged",
+  "source_stopped_writing": true
+}

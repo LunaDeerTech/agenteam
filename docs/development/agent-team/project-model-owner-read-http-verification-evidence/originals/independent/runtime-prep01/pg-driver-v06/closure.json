@@ -1,0 +1,313 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/closure.json",
+    "sha256": "899f117bb49142bcc5494723e8008d7a7279a7f84b763d2297638ea6482641de"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "actual_union": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json",
+    "sha256": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a"
+  },
+  "private_actual_graph": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/graph-delta01.json",
+    "sha256": "5a82973b2667bc5eabec47d4cfa1b4ad05bb7a284c2f2ce6713cd409e1347dc8"
+  },
+  "files": {
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native_test.go": {
+      "sha256": "5240abb5fd56644ce70541191c3f2f00e45fab248025f43cb585e2f472dbe5f1"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg_test.go": {
+      "sha256": "b4ee8fcd9a8594ce18fb31cb427d3d1784551837a40646c360796103e47b4d13"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/overlay.json": {
+      "sha256": "7235406411f0c6c3aa7dd84094d85ea9342a3898fbe28f2503f8f7770feb520d"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/offline-driver.py": {
+      "sha256": "f2de1d5ff3e5fe8621b24390645423def2bd505ca419e8e6ba4b3903afb27389"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/prepare.py": {
+      "sha256": "d656b2034d763a6c6113644d0e64bdb2b4a665f62e5a53060a662a0de4ab8af3"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json": {
+      "sha256": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate02/manifest.json": {
+      "sha256": "fb973581aa45319ecccc100dab9b454c5e9f97b14cf601db51599e8b4b9d15d4"
+    },
+    "/workspace/agenteam/go.mod": {
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    "/workspace/agenteam/go.sum": {
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    },
+    "/workspace/agenteam/api/openapi/project-models.json": {
+      "sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755"
+    },
+    "/workspace/agenteam/api/openapi/common.json": {
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    "/workspace/toolchains/go1.27.1/bin/gofmt": {
+      "sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native.test": {
+      "sha256": "b739601c6b6cca9588ccfc71fe8bed63e5c47caa15b0396421beb1dffe3a6297"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg.test": {
+      "sha256": "b41100a158a5bd3078cb844ccfceecd144dd4ef1ea8a9f2d34c801b9587d89da"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/graph-delta01.json": {
+      "sha256": "5a82973b2667bc5eabec47d4cfa1b4ad05bb7a284c2f2ce6713cd409e1347dc8"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/testmain-clarification01.json": {
+      "sha256": "4977397ccd5eac77915d735ade08c2eb13d66967f2812d6510ef7ba5584a3f51"
+    },
+    "/workspace/agenteam/internal/central/model/http_project_native_test.go": {
+      "sha256": "9b8034329af2f6af7daede6a95b4c0580631b39353b081265fbbf0e58dcd046d"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate03/manifest.json": {
+      "sha256": "dabbf4a609ac8dc1d817650cab4afa7515fbf9853d1c440f71ada9e8e5769c91"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full03.json": {
+      "sha256": "9d63a98271f86a108320575cbadb404fc8c96373580d231cf9ac4d2910f82b28"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_http_test.go": {
+      "sha256": "5c2957a82e67eaa2969971fc7026f94157bf43bb1f5fad08bd84097387b183f4"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json": {
+      "sha256": "44e8691202a6887636264b4298056168ec00710663cd25d1df1b615202acda59"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full04.json": {
+      "sha256": "33b6b11d1fba3827a74c2335bb7595b86d37e8d11759717de6d3d907b8ec6cd0"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_http_terminal_test.go": {
+      "sha256": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json": {
+      "sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full05.json": {
+      "sha256": "fa88063a04690744b823d7669ad162188ae39b4a7a2ea66d0001eacc42513734"
+    },
+    "/workspace/agenteam/tests/model/project_configuration_http_root_test.go": {
+      "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json": {
+      "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json": {
+      "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/pg_test.go": {
+      "sha256": "55ac66f329d06b999098ee97dbe1f86e90b6e42741cdc8559961e30a21c2767f"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/overlay.json": {
+      "sha256": "ff3df11c3c7afe9e38bebbd9f2306e580d32183f84028edb3dacb2422f9461f7"
+    },
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/private-delta06.json": {
+      "sha256": "ab71c5396a72df2a872ec1a6d81a66bd9b275f57b7c40db671bf5d0b492b72a7"
+    }
+  },
+  "package_file_sets": {
+    "/workspace/agenteam/internal/central/app": {
+      "names": [
+        "account.go",
+        "account_lifecycle_test.go",
+        "account_process_test.go",
+        "account_test.go",
+        "app.go",
+        "app_test.go",
+        "audit_http.go",
+        "audit_http_process_test.go",
+        "audit_http_test.go",
+        "database_process_test.go",
+        "database_test.go",
+        "diagnostics.go",
+        "health.go",
+        "health_sampling_test.go",
+        "model.go",
+        "model_process_test.go",
+        "model_test.go",
+        "object.go",
+        "object_test.go",
+        "outbound.go",
+        "outbound_policy_http.go",
+        "outbound_policy_http_process_test.go",
+        "outbound_policy_http_test.go",
+        "outbound_process_test.go",
+        "outbound_test.go",
+        "outbox.go",
+        "outbox_process_test.go",
+        "outbox_test.go",
+        "process_test.go",
+        "project_models.go",
+        "project_models_test.go",
+        "project_read.go",
+        "project_read_test.go",
+        "project_update.go",
+        "project_update_test.go",
+        "project_usage.go",
+        "project_usage_test.go",
+        "repair.go",
+        "resources.go",
+        "runtime_information.go",
+        "runtime_information_process_test.go",
+        "runtime_information_test.go",
+        "secret_process_test.go",
+        "secret_test.go",
+        "security.go",
+        "security_test.go"
+      ],
+      "embed_directory": false
+    },
+    "/workspace/agenteam/internal/central/model": {
+      "names": [
+        "audit_authority.go",
+        "audit_authority_test.go",
+        "authority.go",
+        "authority_test.go",
+        "commands.go",
+        "commands_test.go",
+        "configuration.go",
+        "configuration_policy.go",
+        "configuration_policy_test.go",
+        "configuration_test.go",
+        "events.go",
+        "events_test.go",
+        "http.go",
+        "http_configuration.go",
+        "http_credentials.go",
+        "http_dto.go",
+        "http_dto_test.go",
+        "http_management.go",
+        "http_management_test.go",
+        "http_meeting_summary.go",
+        "http_meeting_summary_native_test.go",
+        "http_meeting_summary_test.go",
+        "http_project.go",
+        "http_project_native_test.go",
+        "http_project_test.go",
+        "http_project_wire.go",
+        "http_project_wire_test.go",
+        "http_test.go",
+        "management_read.go",
+        "management_read_test.go",
+        "meeting_summary.go",
+        "meeting_summary_commands.go",
+        "meeting_summary_commands_test.go",
+        "meeting_summary_store.go",
+        "meeting_summary_test.go",
+        "project_authority_test.go",
+        "project_configuration_test.go",
+        "project_query.go",
+        "project_query_test.go",
+        "query.go",
+        "query_test.go",
+        "references.go",
+        "references_test.go",
+        "resolution_plan.go",
+        "resolution_plan_test.go",
+        "resolution_policy.go",
+        "resolution_policy_test.go",
+        "resolution_secret.go",
+        "resolution_secret_test.go",
+        "resolution_store.go",
+        "resolver.go",
+        "resolver_test.go",
+        "secret_authority.go",
+        "secret_authority_test.go",
+        "secret_router.go",
+        "secret_router_test.go",
+        "service.go",
+        "service_test.go",
+        "store.go",
+        "store_test.go"
+      ],
+      "embed_directory": false
+    },
+    "/workspace/agenteam/tests/model": {
+      "names": [
+        "current_resolution_atomicity_test.go",
+        "current_resolution_authorization_test.go",
+        "current_resolution_fixture_test.go",
+        "current_resolution_schema_test.go",
+        "current_resolution_selection_test.go",
+        "current_resolution_unknown_test.go",
+        "meeting_summary_fixture_test.go",
+        "meeting_summary_http_test.go",
+        "meeting_summary_replacement_test.go",
+        "meeting_summary_resolution_atomicity_test.go",
+        "meeting_summary_resolution_authorization_test.go",
+        "meeting_summary_resolution_fixture_test.go",
+        "meeting_summary_resolution_replay_test.go",
+        "meeting_summary_resolution_selection_test.go",
+        "meeting_summary_resolution_unknown_test.go",
+        "meeting_summary_schema_test.go",
+        "meeting_summary_selection_test.go",
+        "meeting_summary_settings_fixture_test.go",
+        "meeting_summary_settings_http_test.go",
+        "meeting_summary_settings_root_test.go",
+        "meeting_summary_unknown_test.go",
+        "meeting_summary_upgrade_test.go",
+        "openai_chat_structured_http_test.go",
+        "openai_chat_structured_stream_test.go",
+        "openai_chat_wire_fixture_test.go",
+        "openai_chat_wire_http_test.go",
+        "openai_chat_wire_stream_test.go",
+        "openai_embeddings_wire_budget_test.go",
+        "openai_embeddings_wire_fixture_test.go",
+        "openai_embeddings_wire_http_test.go",
+        "openai_embeddings_wire_terminal_test.go",
+        "project_available_models_test.go",
+        "project_configuration_fixture_test.go",
+        "project_configuration_http_fixture_test.go",
+        "project_configuration_http_root_test.go",
+        "project_configuration_http_terminal_test.go",
+        "project_configuration_http_test.go",
+        "project_configuration_integration_test.go",
+        "project_configuration_unknown_test.go",
+        "project_owner_read_http_fixture_test.go",
+        "project_owner_read_http_root_test.go",
+        "project_owner_read_http_terminal_test.go",
+        "project_owner_read_http_test.go",
+        "project_owner_update_http_fixture_test.go",
+        "project_owner_update_http_root_test.go",
+        "project_owner_update_http_test.go",
+        "project_owner_update_http_unknown_test.go",
+        "project_usage_http_fixture_test.go",
+        "project_usage_http_root_test.go",
+        "project_usage_http_terminal_test.go",
+        "project_usage_http_test.go",
+        "system_configuration_integration_test.go",
+        "system_http_configuration_test.go",
+        "system_http_credentials_test.go",
+        "system_http_fixture_test.go",
+        "system_management_boundaries_test.go",
+        "system_management_impact_test.go",
+        "system_management_metadata_test.go",
+        "usage_authorization_test.go",
+        "usage_fixture_test.go",
+        "usage_ledger_test.go",
+        "usage_query_test.go",
+        "usage_schema_test.go",
+        "usage_unknown_test.go"
+      ],
+      "embed_directory": false
+    }
+  },
+  "limitation": "resource baseline must be newly observed; full02 current candidate sources override only named inherited Update inputs",
+  "effective_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json",
+    "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+  },
+  "affected_private_pg_compile": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate06/result.json",
+    "sha256": "54827d4ccad84cd9f36b9437f42669787daa6bc6273a8a0bd74bfa8aa0716806"
+  },
+  "affected_private_pg_list": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate06/result.json",
+    "sha256": "cc3f819d5607f02cd4a32e68155f4e3a623d4cc665af95804a444f2c560262f6"
+  }
+}

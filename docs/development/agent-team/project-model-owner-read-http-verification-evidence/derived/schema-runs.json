@@ -1,0 +1,576 @@
+{
+  "derived_not_original": true,
+  "description": "Selected original metadata parsed as JSON, with repeated maps removed. Complete original SHA/bytes and omitted fields bound per item.",
+  "items": [
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/authority-schema01/command.json",
+        "sha256": "0ed8f0b1241914a45b7b41728537dc6dab749f2071474c0221be9b9c5862a448",
+        "bytes": 39158,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/authority-schema.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 791906,
+        "driver_sha256": "e0cf7374d605a0c3f557e0f5c65e6ac2d6cf0287271cfa0bb57f51f746194f19",
+        "frozen_manifest_sha256": "ac0a6fa58c8456f06341646c735b232cd1ea1bb4ca94626be237a76aaa286512",
+        "started_utc": "2026-10-07T20:17:01Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 209,
+          "canonical_json_sha256": "bfea5603549c532919a3953508a569b14d1f0e3313c2aa31667c338b7a3ec256"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/authority-schema01/result.json",
+        "sha256": "6375f04316328d9b3d3af7e4ef4034b1c47e67f3a0ec4a3893bbde44ef479e19",
+        "bytes": 38237,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.2836825439990207,
+        "direct_child_pid": 791911,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 791911,
+            "ppid": 791906,
+            "pgid": 791911,
+            "state": "Z",
+            "starttime": "3017328"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "69ceacb4b5b8dbbb1170bc251216bf5eade8af0e647336e76eb2fcefee82e145",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 209,
+          "canonical_json_sha256": "bfea5603549c532919a3953508a569b14d1f0e3313c2aa31667c338b7a3ec256"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-partial-schema01/command.json",
+        "sha256": "be98d4322e962276d119f5c2086d9448f6863fd7f648f3f740d2dd096446c362",
+        "bytes": 39701,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-partial-schema.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 803779,
+        "driver_sha256": "e0cf7374d605a0c3f557e0f5c65e6ac2d6cf0287271cfa0bb57f51f746194f19",
+        "frozen_manifest_sha256": "02efec48ec2f537dfe3f17cacf622f0e29b3a60a0400969fa959d50b8507dc50",
+        "started_utc": "2026-10-07T20:24:05Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 211,
+          "canonical_json_sha256": "9ba30d55197129770cdb636edee7599fa1869f6c3b241a59f40d0f45a8ecfedd"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-partial-schema01/result.json",
+        "sha256": "1988be768b73d4815209017780c403a308ba7304632a584998df494c6e264516",
+        "bytes": 38774,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.2355099929991411,
+        "direct_child_pid": 803782,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 803782,
+            "ppid": 803779,
+            "pgid": 803782,
+            "state": "Z",
+            "starttime": "3059726"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "589168cdeb1086e9d575bccdfb73676e5e954993b2be1bea67a460597c11d6c8",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 211,
+          "canonical_json_sha256": "9ba30d55197129770cdb636edee7599fa1869f6c3b241a59f40d0f45a8ecfedd"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-pass-schema01/command.json",
+        "sha256": "475acc099373e6139a08900ca98673928a4b01b520f80278e45fdbfbe7404b04",
+        "bytes": 43082,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-pass-schema.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 825403,
+        "driver_sha256": "e0cf7374d605a0c3f557e0f5c65e6ac2d6cf0287271cfa0bb57f51f746194f19",
+        "frozen_manifest_sha256": "f0c68f5c31a3b2f2da7fe4e6d37855898bb4a720ce9e5b9c885f70d6148e9554",
+        "started_utc": "2026-10-07T20:36:57Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 228,
+          "canonical_json_sha256": "c1b17be6dbde6e856e25151995e7081699f6a2354a0d18b4280a7ef2fe500f11"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/bounded-pass-schema01/result.json",
+        "sha256": "315252f0479b7b82c34d0de1220cff5719531dfa5139f61f3bdb5e52726f9c49",
+        "bytes": 42158,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.2543669209990185,
+        "direct_child_pid": 825407,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 825407,
+            "ppid": 825403,
+            "pgid": 825407,
+            "state": "Z",
+            "starttime": "3136912"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "79212c9c5b47e7553167dff6fdd9eaa0c6d50661fcd85bb41603cc43d1c43167",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 228,
+          "canonical_json_sha256": "c1b17be6dbde6e856e25151995e7081699f6a2354a0d18b4280a7ef2fe500f11"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/independent-five-schema01/command.json",
+        "sha256": "7cf4dd0fa649ef8d7a18eb8b4cb6882e74717d88c01898d856d98b4fd32d7863",
+        "bytes": 43657,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/independent-five-schema.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 864942,
+        "driver_sha256": "e0cf7374d605a0c3f557e0f5c65e6ac2d6cf0287271cfa0bb57f51f746194f19",
+        "frozen_manifest_sha256": "83581bee57b3374ee7a2e303977a7feae35d08a8563cb092424dff8a6d26bc97",
+        "started_utc": "2026-10-07T20:49:56Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 227,
+          "canonical_json_sha256": "481f7fb85c11229c7e8afda4cd4acf6d16683c4985517789576de68b15148c28"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/independent-five-schema01/result.json",
+        "sha256": "47d28f27aef92b51da2993dd3b2d516c21186e35dd0390408ff56a39e51b7a8d",
+        "bytes": 42728,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.253938305999327,
+        "direct_child_pid": 864945,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 864945,
+            "ppid": 864942,
+            "pgid": 864945,
+            "state": "Z",
+            "starttime": "3214845"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "9b2edcc3ff5affee1580cb0aef57f1ee7221117f7050a733b41bb29fd1c87738",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 227,
+          "canonical_json_sha256": "481f7fb85c11229c7e8afda4cd4acf6d16683c4985517789576de68b15148c28"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/projection-schema01/command.json",
+        "sha256": "7995d2e0fa1e6246be57236f3f29217471c770ed58b3f1c80abb2cc7c1ddd64d",
+        "bytes": 41201,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/projection-schema.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 783818,
+        "driver_sha256": "e0cf7374d605a0c3f557e0f5c65e6ac2d6cf0287271cfa0bb57f51f746194f19",
+        "frozen_manifest_sha256": "039de4467f51077825ec5041700b4edb0225a36cd235f24917026b3c8588a0a3",
+        "started_utc": "2026-10-07T20:14:58Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 219,
+          "canonical_json_sha256": "ecaf74505aba4b2f64bbf984c7d781a3af7c2b5b94dbe16044615e28d88b0956"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/projection-schema01/result.json",
+        "sha256": "41d7651a20c263e817713924d6620d7f946545eb7d9010f4046fa9a867751b5f",
+        "bytes": 40280,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.23352409099970828,
+        "direct_child_pid": 783824,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 783824,
+            "ppid": 783818,
+            "pgid": 783824,
+            "state": "Z",
+            "starttime": "3005083"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e2fb6d920b796112ae4b519d3d3d1ef25cac7caf2e1e557f8ace6b746ce53dff",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 219,
+          "canonical_json_sha256": "ecaf74505aba4b2f64bbf984c7d781a3af7c2b5b94dbe16044615e28d88b0956"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/root-pass-schema01/command.json",
+        "sha256": "08c6e74820df39fc5c3201155cb0919dbaa4cad38ae80e3e1d1871d6e52b7d85",
+        "bytes": 40834,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/root-pass-schema.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1",
+          "TMPDIR": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 841227,
+        "driver_sha256": "e0cf7374d605a0c3f557e0f5c65e6ac2d6cf0287271cfa0bb57f51f746194f19",
+        "frozen_manifest_sha256": "7d0b8a03d493476daec1fc9701d6e6f354145f8d46b7fae8970cd20ae9448924",
+        "started_utc": "2026-10-07T20:43:26Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 217,
+          "canonical_json_sha256": "07095803e8fb8803c9b299e8b0e597eb1523fa5347877297371d0d8ef4d57645"
+        }
+      }
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/summary-verification/project-model-owner-read-http-author-evidence01/root-pass-schema01/result.json",
+        "sha256": "e7cecaad896d44be544d74ce8bd6b0000b95b487700cb2cbae482163cc073b1a",
+        "bytes": 39914,
+        "mode": "derived_excerpt",
+        "archive": "derived/schema-runs.json",
+        "reason": "Full original fingerprint; repeated maps omitted with explicit field names. Retained fields are parsed derivatives, not original bytes."
+      },
+      "derived_not_original": true,
+      "retained_fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.24781251799868187,
+        "direct_child_pid": 841232,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 841232,
+            "ppid": 841227,
+            "pgid": 841232,
+            "state": "Z",
+            "starttime": "3175875"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "163442dbfff987f3ba74fb46255abd624d3d9f75933f24b68b394a1aaf91a46e",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "reason": "repeated input/source/package mapping omitted",
+          "json_value_items": 217,
+          "canonical_json_sha256": "07095803e8fb8803c9b299e8b0e597eb1523fa5347877297371d0d8ef4d57645"
+        }
+      }
+    }
+  ]
+}

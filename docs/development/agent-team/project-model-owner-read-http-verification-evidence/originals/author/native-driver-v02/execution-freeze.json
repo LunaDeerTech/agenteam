@@ -1,0 +1,47 @@
+{
+  "root_authorized_native": true,
+  "permitted_modes": [
+    "keepalive",
+    "slowbody",
+    "writeclose"
+  ],
+  "offline_input": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-input09.json",
+    "sha256": "482a46cda75d7aa47119d4cc837ffcd2f92027d46e33d413a02d93e4028853e8"
+  },
+  "files": {
+    "/workspace/scratch/project-model-owner-read-http-author/model-race03.test": "078dc0ce206c881e568fd3196398ad6d19b05082b29056345e1f931b46460a9a",
+    "/workspace/scratch/project-model-owner-read-http-author/candidate02/manifest.json": "fb973581aa45319ecccc100dab9b454c5e9f97b14cf601db51599e8b4b9d15d4",
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a",
+    "/usr/bin/strace": "69f88291a4e47f258b8e32b089c919a247509f063ef3d6afe5389939051102b3",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/driver.py": "f1c65293499b1be0d46ad83353670cf87ac153d869256f7fee2183e8df8b3f88",
+    "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/trace_parser.py": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a"
+  },
+  "source_suffixes": [
+    ".go",
+    ".s",
+    ".S",
+    ".c",
+    ".h",
+    ".cc",
+    ".cpp",
+    ".cxx",
+    ".m",
+    ".mm",
+    ".f",
+    ".F",
+    ".for",
+    ".f90",
+    ".swig",
+    ".swigcxx",
+    ".syso"
+  ],
+  "candidate_sha256": "fb973581aa45319ecccc100dab9b454c5e9f97b14cf601db51599e8b4b9d15d4",
+  "source_stopped": true,
+  "authorization": "root message authorized candidate02/binary078dc three groups serial after input gate; 40s test/45s execution/15s own cleanup/75s TCP TIME_WAIT; fresh >=2GiB; every previous PASS actualwait double own/all ports empty input same; stop any fail; no PG",
+  "prior_proposal": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v01/proposal.json",
+    "sha256": "049ff89a5fcd702dd7aaffb18ca1ae8490d85b47b5232a4065bb821bc4118ac8"
+  }
+}

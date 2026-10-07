@@ -1,0 +1,310 @@
+{
+  "scope": "Only four author successful PG runs; failed-run partial safe bytes retained separately, not promoted. Bodies original unmodified, actual X-Request-ID metadata kept. No global product acceptance claim.",
+  "bodies": [
+    {
+      "name": "new-projection01/available",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/available.json",
+        "sha256": "e148f562b04d474b03ef1a714f045a10a0d74f34a6bc3af02be8f29bff227ace"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/available-source.json",
+        "sha256": "12b2c7458d6e7711cd694aaf1e94fae5767f8b14e80af56f537eabd099e82ea8"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/result.json",
+        "sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+    },
+    {
+      "name": "new-projection01/empty-models",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/empty-models.json",
+        "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/empty-models-source.json",
+        "sha256": "e9ae0cfa1c3e3d5558061230b33faaddfaa18a0db5bef83bdc92d9f3baf16a64"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/result.json",
+        "sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+    },
+    {
+      "name": "new-projection01/model",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/model.json",
+        "sha256": "5220354f87aa18c6be0011ca6442dff85143326b7eac29a9dae7dadde42faa77"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/model-source.json",
+        "sha256": "4403d95ca05432d3b861294b2fb3da6c7db7e3d8c66023361c309cef1433d793"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/result.json",
+        "sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+    },
+    {
+      "name": "new-projection01/models",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/models.json",
+        "sha256": "a882f773f5e35d7332c8958af66e49bb9a429eec9bf2dfa5f6698f5a8ec39ebf"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/models-source.json",
+        "sha256": "82208ee9adbe86d536b1753024c6898330e0da68ee7002610b8adf559bbd708e"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/result.json",
+        "sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+    },
+    {
+      "name": "new-projection01/provider",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/provider.json",
+        "sha256": "3e29ee35217859c72fe2348b2e053d1a31eccaa1d6b3fc984fc8c0bf209cf203"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/provider-source.json",
+        "sha256": "e0422ca294db8fa63e9d988e9d2826982d58702926b1500441efc6aaf3403b92"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/result.json",
+        "sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+    },
+    {
+      "name": "new-projection01/providers",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/providers.json",
+        "sha256": "57dbf8845b0e8d5d8db232bc26deabaa38bf669d2a5ec97a93fa91635b875989"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/safe-http-evidence/providers-source.json",
+        "sha256": "dc8616fe7cbb5a89c51bc7a472204b43ad3bb9e47e8bc7895dfc7889b3d05136"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01/result.json",
+        "sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+    },
+    {
+      "name": "new-authority01/read-unknown",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/safe-http-evidence/read-unknown.json",
+        "sha256": "b4391562b015e23e330f6f4a47809e753134255dfb07887614929d0b72b814a5"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/safe-http-evidence/read-unknown-source.json",
+        "sha256": "907a7c7632bc6b9ca14b9477332174ea5b0a573eae466b66e484cc28530fda6b"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/result.json",
+        "sha256": "28101be721bb516d6e90596be3627ad6f71c1407e06dd912a0b0a0cf7378315f"
+      },
+      "status": 503,
+      "method": "GET",
+      "content_type": "application/problem+json",
+      "input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288"
+    },
+    {
+      "name": "new-bounded-rerun02/oversize-available",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/oversize-available.json",
+        "sha256": "c441277f0a200873a146523b3cbdd4acbc6a3e0057afcb8aee7a5d4971488212"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/oversize-available-source.json",
+        "sha256": "6d8f9625fb401dc1b21bbd04dd823a52071bb595ec79467beae9ef4d6fd98b20"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/result.json",
+        "sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03"
+      },
+      "status": 503,
+      "method": "GET",
+      "content_type": "application/problem+json",
+      "input_sha256": "7e6512b4734e10cbf35c857e4f891f97244f19ba8af27f1be2e0f95e020f4084"
+    },
+    {
+      "name": "new-bounded-rerun02/oversize-model",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/oversize-model.json",
+        "sha256": "16d687891c56cf316d76bbc8401e3d2c4dc97bc43c1899afd25307fd943fb5ab"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/oversize-model-source.json",
+        "sha256": "bf0d67342a698e94b94d811705b85e3962de943f198870c5b32f6e0709824ae8"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/result.json",
+        "sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03"
+      },
+      "status": 503,
+      "method": "GET",
+      "content_type": "application/problem+json",
+      "input_sha256": "7e6512b4734e10cbf35c857e4f891f97244f19ba8af27f1be2e0f95e020f4084"
+    },
+    {
+      "name": "new-bounded-rerun02/oversize-models",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/oversize-models.json",
+        "sha256": "6c448c786bb6dae7541c2256692699bd8d9ac86774c50c54e75847eef6a36d95"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/oversize-models-source.json",
+        "sha256": "e4c27e14a4e724bfeeec9ee776b7ed6498728d67ac67ebe44aa5a5bcab399d98"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/result.json",
+        "sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03"
+      },
+      "status": 503,
+      "method": "GET",
+      "content_type": "application/problem+json",
+      "input_sha256": "7e6512b4734e10cbf35c857e4f891f97244f19ba8af27f1be2e0f95e020f4084"
+    },
+    {
+      "name": "new-bounded-rerun02/read-unknown",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/read-unknown.json",
+        "sha256": "3beb743038ec7c7884d5b6113bfb9cf56a8a7b47f1fe10ca4b22f45a425ebf2d"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/safe-http-evidence/read-unknown-source.json",
+        "sha256": "1fd377080adc6b4247d9c21ff582fee0f292490d1a3f15b10b79bc76539b13b8"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02/result.json",
+        "sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03"
+      },
+      "status": 503,
+      "method": "GET",
+      "content_type": "application/problem+json",
+      "input_sha256": "7e6512b4734e10cbf35c857e4f891f97244f19ba8af27f1be2e0f95e020f4084"
+    },
+    {
+      "name": "new-root-rerun01/root-available",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-available.json",
+        "sha256": "ec5dee4a09eabc3c6bbb8c8889f7e87793c53d2fc6d06bccabd46859ad4e4b28"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-available-source.json",
+        "sha256": "e9d927ed6fc86577df13f11e6c7e6511721c47eb52cba1a25632a2c032810240"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/result.json",
+        "sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f"
+    },
+    {
+      "name": "new-root-rerun01/root-model",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-model.json",
+        "sha256": "ecc01150410914bb0340aa696083dd2b6740981b72b42bef2373d60921bc4c2e"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-model-source.json",
+        "sha256": "74f5ca9b617fe4d1b5c77713b208b98d9693d95895b07427e34e5da491cde1f8"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/result.json",
+        "sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f"
+    },
+    {
+      "name": "new-root-rerun01/root-models",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-models.json",
+        "sha256": "750534802275c6abd4aafbb32c0652f6479e6d4db49a02cdc2dca508505d4880"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-models-source.json",
+        "sha256": "c280bcc2e1857277a79acd68ec4de126d6d90aecde4fefbe975432e3d4b274a8"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/result.json",
+        "sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f"
+    },
+    {
+      "name": "new-root-rerun01/root-provider",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-provider.json",
+        "sha256": "a4cf0a278606f916d477d7097f17eb44c41cfa9b0cf9e42003e37f904dac10af"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-provider-source.json",
+        "sha256": "46317658f8a041a9d7daaa214027724a8ebe1f4f8b978b2f61ce802eed2280e9"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/result.json",
+        "sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f"
+    },
+    {
+      "name": "new-root-rerun01/root-providers",
+      "body": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-providers.json",
+        "sha256": "a43a591af79a70765cdfb069a3154019b6e15ab33fc043cc2ea7a0a0181b919b"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/safe-http-evidence/root-providers-source.json",
+        "sha256": "09fd864dc412bce83345f3b8b56166fef2445ce653da0eb298c274a8a02d4308"
+      },
+      "run_result": {
+        "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01/result.json",
+        "sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba"
+      },
+      "status": 200,
+      "method": "GET",
+      "content_type": "application/json",
+      "input_sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f"
+    }
+  ],
+  "count": 16
+}

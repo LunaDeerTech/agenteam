@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 32091.475815655,
+      "top": "TestIndependentProjectModelHTTPPGRoot"
+    },
+    {
+      "event": "result",
+      "monotonic": 32096.416466727,
+      "observed_seconds": 4.940651072000037,
+      "reported_seconds": 4.94,
+      "state": "PASS",
+      "top": "TestIndependentProjectModelHTTPPGRoot"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectModelHTTPPGRoot"
+  ],
+  "failures": []
+}

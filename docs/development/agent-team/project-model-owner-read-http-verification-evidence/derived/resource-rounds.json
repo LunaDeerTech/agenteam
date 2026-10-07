@@ -1,0 +1,933 @@
+{
+  "derived_not_original": true,
+  "provenance": "Exact rows parsed from saved terminal original commands/results/cleanup; does not replace originals",
+  "native_actual_rounds": [
+    {
+      "run": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/keepalive",
+      "exit": 0,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 759246,
+          "starttime": "2913378",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403183.1902025
+        },
+        {
+          "role": "adopted",
+          "pid": 759250,
+          "starttime": "2913378",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403183.1941948
+        }
+      ],
+      "listeners": [
+        38787
+      ],
+      "all_ports": [
+        38787,
+        40126
+      ],
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelHTTPNativeKeepAliveDeadline"
+        ],
+        "sub_passes": [],
+        "test_bodies": true
+      }
+    },
+    {
+      "run": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/slowbody",
+      "exit": 0,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 760552,
+          "starttime": "2925240",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403305.9484231
+        },
+        {
+          "role": "adopted",
+          "pid": 760556,
+          "starttime": "2925240",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403305.9536476
+        }
+      ],
+      "listeners": [
+        35285,
+        42913,
+        43983,
+        43993
+      ],
+      "all_ports": [
+        34158,
+        35285,
+        39680,
+        42913,
+        43983,
+        43993,
+        57492,
+        58988
+      ],
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelHTTPNativeSlowBodyAndCallback"
+        ],
+        "sub_passes": [
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/GET/1m0s",
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/HEAD/1m0s",
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/GET/120ms",
+          "TestProjectModelHTTPNativeSlowBodyAndCallback/noncooperative_service_actual_tail"
+        ],
+        "test_bodies": true
+      }
+    },
+    {
+      "run": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v02/writeclose",
+      "exit": 1,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 761729,
+          "starttime": "2935945",
+          "returncode": 1,
+          "actual_wait": true,
+          "time": 1791403408.2857628
+        },
+        {
+          "role": "adopted",
+          "pid": 761733,
+          "starttime": "2935945",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403408.2895927
+        }
+      ],
+      "listeners": [
+        36513,
+        37463,
+        37537,
+        38471,
+        42575,
+        43787,
+        43847,
+        46333,
+        46733
+      ],
+      "all_ports": [
+        36513,
+        37463,
+        37537,
+        38032,
+        38471,
+        42000,
+        42575,
+        43787,
+        43847,
+        46333,
+        46733,
+        48452,
+        50176,
+        50436,
+        53088,
+        54156,
+        57772,
+        57914
+      ],
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "test_results": {
+        "top_passes": [],
+        "sub_passes": [
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush"
+        ],
+        "test_bodies": true
+      }
+    },
+    {
+      "run": "/workspace/scratch/project-model-owner-read-http-author/native-driver-v03/writeclose",
+      "exit": 0,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 766585,
+          "starttime": "2978637",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403839.633425
+        },
+        {
+          "role": "adopted",
+          "pid": 766589,
+          "starttime": "2978637",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791403839.6378443
+        }
+      ],
+      "listeners": [
+        36313,
+        37357,
+        37683,
+        38311,
+        40265,
+        44417,
+        44551,
+        45195,
+        45549
+      ],
+      "all_ports": [
+        36313,
+        37357,
+        37446,
+        37683,
+        38311,
+        38770,
+        40265,
+        41892,
+        44417,
+        44551,
+        44660,
+        45195,
+        45549,
+        46784,
+        47162,
+        52188,
+        57544,
+        59142
+      ],
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "test_results": {
+        "top_passes": [
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort"
+        ],
+        "sub_passes": [
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush",
+          "TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_get_write"
+        ],
+        "test_bodies": true
+      }
+    },
+    {
+      "run": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/independent-native01",
+      "exit": 0,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 848670,
+          "starttime": "3186621",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791405919.58789
+        },
+        {
+          "role": "adopted",
+          "pid": 848674,
+          "starttime": "3186622",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791405919.592233
+        }
+      ],
+      "listeners": [
+        40923,
+        46311
+      ],
+      "all_ports": [
+        35982,
+        40923,
+        46311,
+        60216
+      ],
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "test_results": {
+        "top_passes": [
+          "TestIndependentProjectModelHTTPNative"
+        ],
+        "sub_passes": [
+          "TestIndependentProjectModelHTTPNative/natural_two_seconds_owns_Close_tail",
+          "TestIndependentProjectModelHTTPNative/HEAD_flush_and_keepalive_after_natural_deadline"
+        ],
+        "test_bodies": true
+      }
+    }
+  ],
+  "native_counts": "author4 actual rounds incl one FAIL + independent1; author3 logical PASS groups + independent1 PASS group; waits remain per run",
+  "pg_rounds": [
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01",
+      "result_sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be",
+      "exit": 0,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "647874ace8685c310c98259eace9c88563e786e1f32a232abb52b6a32cf90aec",
+        "64916b4c5d2261b942379620b12d658b8189d932895b5c60f6ed968effbb24cc",
+        "7a5bb0f5d3ba6e84f052a2363b688e2fc28b9e1eb8d46052b310ca890bc14336",
+        "9c21a9046ab53c88b338442a4da072f297140679bc1c517e95658cb671f59176",
+        "aea58ecad6c00ec00a85a46dceae62c89e35a724dd55643a5fca53578a0f631c",
+        "ebfcb559eeb82d292ac28a3e317ca57286f5ddab19f330965e147ee990609893",
+        "f2823e3d5a7bba10b833d5bfd1df82366fac67d742ef49146f2e90699a46668f"
+      ],
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPProjection"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "git",
+          "pid": 768108,
+          "ppid": 1,
+          "starttime": "2988126",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 768126,
+          "ppid": 1,
+          "starttime": "2988234",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 768577,
+          "ppid": 1,
+          "starttime": "2988505",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 768858,
+          "ppid": 1,
+          "starttime": "2988708",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 769461,
+          "ppid": 1,
+          "starttime": "2988916",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01",
+      "result_sha256": "28101be721bb516d6e90596be3627ad6f71c1407e06dd912a0b0a0cf7378315f",
+      "exit": 0,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "033d42e494c921c2dfbcbf70de83c4ff344c600b3b073bf43d2c52553d1f7971",
+        "1c438051f2437272369d84d19a6659b8eb93cb7c2a26e09e510b440d2617585b",
+        "77cccbe5aefc206572092ae12f6c629ca3ccc01dca5177ee275ea1e3e9948101",
+        "8e46c45b4e8c31346761e2da7fd5a91687be3b29f10cadabce476ebe59e5a640",
+        "cd11d58bd5c3891c76009e640daf78733b6344bfe3dc26858caeb16c7a28f7f4",
+        "d24a3dcc5c5b27a94a6d566bf9344baa56267f841f328e2b319f26166c5d65f6",
+        "edabdd7f2091eebb7effaff6c8731fd6a998a7c65780df1f5b06f992923f3e20"
+      ],
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPAuthorityAndTerminal"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 776733,
+          "ppid": 1,
+          "starttime": "2998161",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 777247,
+          "ppid": 1,
+          "starttime": "2998537",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 777550,
+          "ppid": 1,
+          "starttime": "2998720",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 778096,
+          "ppid": 1,
+          "starttime": "2998894",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "git",
+          "pid": 781144,
+          "ppid": 1,
+          "starttime": "3001360",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-bounded01",
+      "result_sha256": "3864f13f3b23771929d9dc45d0e4967255f1d7b9405bf537eda9e0627fff7e0a",
+      "exit": 1,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "121badc06d29908f673cf16650a382390b78633763542fc4ebf12adc46f8cae5",
+        "1eefcbb0b67838165ed59fc9d9d1cd15f70177f6585a8e6f22b8fd48f37268ee",
+        "66908c20b457aee2e3fea2a1cea378755504b13f05ac29a1d632f410372d99b0",
+        "8a80445016c1d3349f9cac1a847831ca3872f3b9f89a35f1bbd2e52fbec35cc7",
+        "9a8ab64af271edccc183a176564190220a9c166a0ae906c9a5f980b6b925cd5c",
+        "9c7a4a462a8ad2eb9f8f28d767df29606739524f74b4e882a49b8ee5569d3596",
+        "d18213d0ec0396d49fd8bdfbbf250c76e91fa102494e93e0000cb74d35d07d48"
+      ],
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectConfigurationHTTPBoundedRepresentation"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 784102,
+          "ppid": 1,
+          "starttime": "3005492",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 784658,
+          "ppid": 1,
+          "starttime": "3005943",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 785020,
+          "ppid": 1,
+          "starttime": "3006213",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 785625,
+          "ppid": 1,
+          "starttime": "3006396",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/runs/new-bounded-rerun01",
+      "result_sha256": "3a20920ba75ca7e5018de9c5f0a0c10743b2cd1f5aff546de56250091630dce8",
+      "exit": 1,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "9e0d5fe1262fe4e3d204a242287e5bcc2c5604a9561f81240b5beb91e4f47525",
+        "cd09a87a2216fcc236ef362c0fc58cc60ea3c3836a6c04b06a96258165a89e1d",
+        "d77aa287377cc12ef2bbd9e81101ab121be10e25ecee7f06a237158996dce7b0",
+        "d954f00ce172a00bc68367007160aab09d8fe13fbeba4728346234da7828bde6",
+        "dc010ac691d5beed62a0e6a1dc80da51625da0d86ecbf32078c1c4fe012be3a9",
+        "e7cc69aa257c08ca977b97ccd7ef88618f235a170590347e04ee286df8f0c161",
+        "fe59ce8da8ed955a647b20873e58a6e3e7594006300e9b810c8550d6ec55fb0e"
+      ],
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectConfigurationHTTPBoundedRepresentation"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 794902,
+          "ppid": 1,
+          "starttime": "3040743",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 795357,
+          "ppid": 1,
+          "starttime": "3041108",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 795719,
+          "ppid": 1,
+          "starttime": "3041296",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 796215,
+          "ppid": 1,
+          "starttime": "3041474",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-bounded-rerun02",
+      "result_sha256": "f52f67304214be6aa887ba44b05252a60f66da571d1d434dae8b38ca0013fc03",
+      "exit": 0,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "375cce6079e8a7128599eb5cfb2bc3790c6835b9616982f1e8b7fe5a323ac3e7",
+        "4196e9499835b4ec8dd5547d11dcfb0daecea1f990180898f06be7e795b53aae",
+        "78a3a6fd0d6f25ffd86ef67f2ea65a8a05173cee6696db3acec99506cf9a7b89",
+        "7c27ba8dafce6735837111db1120ea3bd1268bdcfd1a651f1a7eab608fa06bce",
+        "bcea6c311272324cd12513cc9247dd925820b29441dc96b0c95804e42e848127",
+        "ce21ed023cf5a7c91c9790efe4acf9bc153d1a01404fd0fce5faafb29b94feec",
+        "de27c3b3265eba5dffd74c49b0130cfca703e4ce86e61992664d961a49d6b900"
+      ],
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPBoundedRepresentation"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 810568,
+          "ppid": 1,
+          "starttime": "3121718",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 810993,
+          "ppid": 1,
+          "starttime": "3121989",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 811283,
+          "ppid": 1,
+          "starttime": "3122186",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 811884,
+          "ppid": 1,
+          "starttime": "3122391",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/runs/new-root01",
+      "result_sha256": "e4173ab78a0e74baaf08ad850515e38b8ad1885889d604fc240557fe2dfcefaa",
+      "exit": 1,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "4ed9bd0373267c0cbdc9086aa8df03c145ecfa3ec70f7a2e7aa6264b6dbeaf8e",
+        "58b3d25824d9e54c23fbdc564358a716a091462a27fafa364c4a9bc2968d0283",
+        "65c49ca0fc4979cbfda1a5b15cbab14b8ef66e6a9e0af1b123e6dac87cdc16bc",
+        "69d2b8f3cff975e5e8b77d968f3dc571e9cb72e6627cb86e8ecd639faf1f72c9",
+        "96433dd8f374fe42e7348f7404ad0b458575b081889e8e678bad456cf161b212",
+        "bcc244525a8bc8a2ee9d7ed399fa1160f8168ed4a850758b184d8fad72a296b6",
+        "dd9adcf6fb9320513c4bdd04e354c0891394d37c7be0555de99ecaa9fdb8c4c9"
+      ],
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectConfigurationHTTPDefaultRoot"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 819469,
+          "ppid": 1,
+          "starttime": "3132189",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 820010,
+          "ppid": 1,
+          "starttime": "3132597",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 820291,
+          "ppid": 1,
+          "starttime": "3132784",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 820891,
+          "ppid": 1,
+          "starttime": "3132960",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01",
+      "result_sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba",
+      "exit": 0,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "20dbed291038288d7ab3da4038eb68673b410f399ac4f24fe454d46fc5e88725",
+        "bc92a3eb88dfdc25be7bed714db56e0b2f3f575aa08edf439eace98105e4735f",
+        "c9295991600c7db70ce333cb42ce5e43cae31f6fd359e494a9272c8d330a20de",
+        "dc65e95cd92271405e9aa0383f97964b7c4557c4c25cda1f9b0e858be2b96641",
+        "e43b335399c60e57d59c0dbfc1f6e08e6d8479dbee86670d7395cec1f4c26952",
+        "e7a070cb22d9b73a83397750ff398c4d9713f098b37b0916761f31c8d12ca1c8",
+        "f2bdca86fbb2a71378d874f0700a45b725b937fe92dd1af2d12796fb52412d06"
+      ],
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationHTTPDefaultRoot"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 829669,
+          "ppid": 1,
+          "starttime": "3164589",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 830110,
+          "ppid": 1,
+          "starttime": "3164924",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 830472,
+          "ppid": 1,
+          "starttime": "3165102",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 830966,
+          "ppid": 1,
+          "starttime": "3165281",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/old01",
+      "result_sha256": "756b1c6be7101c4ffc5dab410cd5a21272e268bb8c3fbb0a59fb969f794398c2",
+      "exit": 0,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "0d0cc8fc76973980ac3acf0aa7b17fc7d618762100ffc960c9b612ee2000bf2f",
+        "532db87732cc6ac366af385f366f867ef77e7e66d9f7c1ab84133bf40de1946a",
+        "5bcab4c5bd47fd7cc6e8b4eabb1b5f5a9fc36ed0a1ac794f20afc40d25129164",
+        "959787ce226aefffb6f007d56f6ae57ac205cf9c6a59f63da21810a6caa43aae",
+        "a07c6ee9fc1a33feeca74503c143777a8e88c7bf33c8e96f27fb4dc9e74c9e83",
+        "aafbac91bb8e2ff24944c2f6f3af0a76ab99e26d9e9e387af21ddeeca753474c",
+        "ce40eab27dc0a546d4fc351b2dec887aca7361ce4fbf305841c29c057ef3ea38"
+      ],
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion"
+        ],
+        [
+          "PASS",
+          "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPProjectionAndPath"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPPaginationAndSafeProjection"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 837333,
+          "ppid": 1,
+          "starttime": "3172989",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 837868,
+          "ppid": 1,
+          "starttime": "3173488",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 838347,
+          "ppid": 1,
+          "starttime": "3173894",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 838973,
+          "ppid": 1,
+          "starttime": "3174090",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-a01",
+      "result_sha256": "8e85fe9e04fafecb95a202d3e9a9fc5a058cee17afd0cd885d92356709572fc8",
+      "exit": 0,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "16bbd6c106c9d3941bb55fd924d9b7fc2442acf02a4c4d19093989456eb58e36",
+        "1fc09d7a1e5a7e5d25aadb33cd47c3118288c6ee487d8533d2bad13cf8f179bf",
+        "4bc0e5ac285e571beb952ced119f977b07a6729b303f47451b16c7f1b86bc5dd",
+        "57b044bb9ac5af27d5578230415575bda36c7feb6f5d8a217f523a48b8da2a14",
+        "5b0578e972c83ac4a3b138dcc2545dd5b19cbd0e1b425c2a61f8a5dbbf93d620",
+        "806270d6339e10780214da3b38fbc6af253d991d59fe5506471c0709cf7c5ce6",
+        "83ba41581f1083f2e3a0c9bcabbfc8fd3a57c5f62c380c19e5f2e2a48bb518bd"
+      ],
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentProjectModelHTTPPGAuthority"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 850175,
+          "ppid": 1,
+          "starttime": "3196689",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 850691,
+          "ppid": 1,
+          "starttime": "3197058",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 850973,
+          "ppid": 1,
+          "starttime": "3197248",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 851572,
+          "ppid": 1,
+          "starttime": "3197430",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/runs/independent-b01",
+      "result_sha256": "c3055b891197b13a000f3285513bae97c2009f55eac5f6e39f84b329335344ed",
+      "exit": 0,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "double_cleanup": true,
+      "resource_ids_from_original_cleanup": [
+        "063f1327756d2184b3f81d49c63ff47ce74c4c1a7b8b71c59459d00efb8cc75b",
+        "12e2d61e24c1d3f8c389f5a005955ace0ed57ecff41c7f8f13a9d5dca64f095e",
+        "8c94551dfa35da8e1b46367dbf0b03e79c16b1f1b33dd4dde3e2d3dbd26566f3",
+        "9fce7194d40d653bc0f914cb4fc21d75b7080151e817add296321d4b4dfb52d2",
+        "c828cae62289614daf3a8b7954056979cd7dcc222ed6fd417111ef1300dd2b41",
+        "d2f8bf99b35edf77d6612b683acc1620c7fb38def79948c8befe34270db9b751",
+        "e3e7cef071ab7130d32865e499d430c84f49a375ab29b615735de9cada82a5f4"
+      ],
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentProjectModelHTTPPGRoot"
+        ]
+      ],
+      "nonowned_not_waited_zombies": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 857833,
+          "ppid": 1,
+          "starttime": "3205474",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 858350,
+          "ppid": 1,
+          "starttime": "3205871",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 858631,
+          "ppid": 1,
+          "starttime": "3206049",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 859227,
+          "ppid": 1,
+          "starttime": "3206249",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "resource_occurrences": 70,
+  "distinct_ids_from_original_cleanup": 70,
+  "distinct_shim_pid_starttime": 40,
+  "other_nonowned_git_pid_starttime": [
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 768108,
+      "ppid": 1,
+      "starttime": "2988126",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 781144,
+      "ppid": 1,
+      "starttime": "3001360",
+      "state": "Z"
+    }
+  ],
+  "daemon_limit": "Not owned or waited. Each original live baseline remains; no restart baseline substitution, no whole-machine zero claim."
+}

@@ -1,0 +1,70 @@
+{
+  "status": "PROJECTION_ORIGINAL_HANDLER_BYTES_SCHEMA_PASS",
+  "source_run": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-projection01",
+  "author_result_sha256": "91986512f29fe93dab627acee40ad51dfa383871660ea79b4c5158e94167b5be",
+  "frozen_input_sha256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288",
+  "schema_sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+  "common_schema_sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+  "bodies": {
+    "providers": {
+      "schema": "ProviderPage",
+      "body_sha256": "57dbf8845b0e8d5d8db232bc26deabaa38bf669d2a5ec97a93fa91635b875989",
+      "source_sha256": "dc8616fe7cbb5a89c51bc7a472204b43ad3bb9e47e8bc7895dfc7889b3d05136",
+      "bytes": 1657,
+      "request_id": "01a117ff-800a-7a34-8373-799e02fb2213",
+      "source_status_type_length": true
+    },
+    "provider": {
+      "schema": "Provider",
+      "body_sha256": "3e29ee35217859c72fe2348b2e053d1a31eccaa1d6b3fc984fc8c0bf209cf203",
+      "source_sha256": "e0422ca294db8fa63e9d988e9d2826982d58702926b1500441efc6aaf3403b92",
+      "bytes": 431,
+      "request_id": "01a117ff-8067-77b4-8734-2bf8b2463570",
+      "source_status_type_length": true
+    },
+    "models": {
+      "schema": "ModelPage",
+      "body_sha256": "a882f773f5e35d7332c8958af66e49bb9a429eec9bf2dfa5f6698f5a8ec39ebf",
+      "source_sha256": "82208ee9adbe86d536b1753024c6898330e0da68ee7002610b8adf559bbd708e",
+      "bytes": 3461,
+      "request_id": "01a117ff-80c5-7075-b859-44cf1a1ce661",
+      "source_status_type_length": true
+    },
+    "model": {
+      "schema": "Model",
+      "body_sha256": "5220354f87aa18c6be0011ca6442dff85143326b7eac29a9dae7dadde42faa77",
+      "source_sha256": "4403d95ca05432d3b861294b2fb3da6c7db7e3d8c66023361c309cef1433d793",
+      "bytes": 685,
+      "request_id": "01a117ff-812d-7444-ba34-551486887de1",
+      "source_status_type_length": true
+    },
+    "available": {
+      "schema": "AvailableChatModelPage",
+      "body_sha256": "e148f562b04d474b03ef1a714f045a10a0d74f34a6bc3af02be8f29bff227ace",
+      "source_sha256": "12b2c7458d6e7711cd694aaf1e94fae5767f8b14e80af56f537eabd099e82ea8",
+      "bytes": 1976,
+      "request_id": "01a117ff-8192-777c-a7b9-7f93a5e089c8",
+      "source_status_type_length": true
+    },
+    "empty-models": {
+      "schema": "ModelPage",
+      "body_sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "source_sha256": "e9ae0cfa1c3e3d5558061230b33faaddfaa18a0db5bef83bdc92d9f3baf16a64",
+      "bytes": 31,
+      "request_id": "01a117ff-7ca9-7ee2-ab2a-cf21dd4ea24d",
+      "source_status_type_length": true
+    }
+  },
+  "run_terminal_checked": true,
+  "owned_cleanup_checked": true,
+  "new_nonowned_nonwaited_PID1": {
+    "git": 1,
+    "containerd-shim": 4
+  },
+  "limits": [
+    "actual Account/Model/Project/PostgreSQL, controlled in-process HTTP writer for this author top; not native HTTP transport",
+    "offline Python consumes original body bytes and actual metadata, no new HTTP/DB request",
+    "no independent native/PG window started; other active author runs not read",
+    "no whole-machine zero claim"
+  ]
+}

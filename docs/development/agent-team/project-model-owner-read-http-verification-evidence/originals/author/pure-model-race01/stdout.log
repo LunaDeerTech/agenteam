@@ -1,0 +1,164 @@
+=== RUN   TestProjectModelHTTPPureConstruction
+--- PASS: TestProjectModelHTTPPureConstruction (0.00s)
+=== RUN   TestProjectModelHTTPPureStrictDispatch
+=== RUN   TestProjectModelHTTPPureStrictDispatch/providers
+=== RUN   TestProjectModelHTTPPureStrictDispatch/models_head
+=== RUN   TestProjectModelHTTPPureStrictDispatch/directory
+=== RUN   TestProjectModelHTTPPureStrictDispatch/bad_project
+=== RUN   TestProjectModelHTTPPureStrictDispatch/bad_provider
+=== RUN   TestProjectModelHTTPPureStrictDispatch/bad_model
+=== RUN   TestProjectModelHTTPPureStrictDispatch/unknown
+=== RUN   TestProjectModelHTTPPureStrictDispatch/method
+=== RUN   TestProjectModelHTTPPureStrictDispatch/duplicate_decoded
+=== RUN   TestProjectModelHTTPPureStrictDispatch/provider_filter
+=== RUN   TestProjectModelHTTPPureStrictDispatch/detail_query
+=== RUN   TestProjectModelHTTPPureStrictDispatch/length
+=== RUN   TestProjectModelHTTPPureStrictDispatch/unknown_length
+=== RUN   TestProjectModelHTTPPureStrictDispatch/chunked
+=== RUN   TestProjectModelHTTPPureStrictDispatch/hidden_body
+--- PASS: TestProjectModelHTTPPureStrictDispatch (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/providers (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/models_head (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/directory (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/bad_project (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/bad_provider (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/bad_model (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/unknown (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/method (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/duplicate_decoded (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/provider_filter (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/detail_query (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/length (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/unknown_length (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/chunked (0.00s)
+    --- PASS: TestProjectModelHTTPPureStrictDispatch/hidden_body (0.00s)
+=== RUN   TestProjectModelHTTPPureBoundaryAndOriginalError
+=== RUN   TestProjectModelHTTPPureBoundaryAndOriginalError/check
+=== RUN   TestProjectModelHTTPPureBoundaryAndOriginalError/auth
+=== RUN   TestProjectModelHTTPPureBoundaryAndOriginalError/service
+--- PASS: TestProjectModelHTTPPureBoundaryAndOriginalError (0.00s)
+    --- PASS: TestProjectModelHTTPPureBoundaryAndOriginalError/check (0.00s)
+    --- PASS: TestProjectModelHTTPPureBoundaryAndOriginalError/auth (0.00s)
+    --- PASS: TestProjectModelHTTPPureBoundaryAndOriginalError/service (0.00s)
+=== RUN   TestProjectModelHTTPPureMiddlewareProblemOwnership
+=== RUN   TestProjectModelHTTPPureMiddlewareProblemOwnership/problem
+=== RUN   TestProjectModelHTTPPureMiddlewareProblemOwnership/already_committed
+--- PASS: TestProjectModelHTTPPureMiddlewareProblemOwnership (0.00s)
+    --- PASS: TestProjectModelHTTPPureMiddlewareProblemOwnership/problem (0.00s)
+    --- PASS: TestProjectModelHTTPPureMiddlewareProblemOwnership/already_committed (0.00s)
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/start_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/start_write
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/cancel_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/cancel_write
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_write
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/reset_read
+=== RUN   TestProjectModelHTTPPureDeadlineSetterPanics/reset_write
+--- PASS: TestProjectModelHTTPPureDeadlineSetterPanics (0.02s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/start_read (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/start_write (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/cancel_read (0.01s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/cancel_write (0.01s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_read (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/finish_abort_write (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/reset_read (0.00s)
+    --- PASS: TestProjectModelHTTPPureDeadlineSetterPanics/reset_write (0.00s)
+=== RUN   TestProjectModelHTTPPureActualTail
+=== RUN   TestProjectModelHTTPPureActualTail/body
+=== RUN   TestProjectModelHTTPPureActualTail/service
+=== RUN   TestProjectModelHTTPPureActualTail/close
+=== RUN   TestProjectModelHTTPPureActualTail/write
+=== RUN   TestProjectModelHTTPPureActualTail/flush
+=== RUN   TestProjectModelHTTPPureActualTail/close_error
+=== RUN   TestProjectModelHTTPPureActualTail/close_panic
+=== RUN   TestProjectModelHTTPPureActualTail/write_short
+=== RUN   TestProjectModelHTTPPureActualTail/write_error
+=== RUN   TestProjectModelHTTPPureActualTail/write_panic
+=== RUN   TestProjectModelHTTPPureActualTail/flush_error
+=== RUN   TestProjectModelHTTPPureActualTail/flush_panic
+--- PASS: TestProjectModelHTTPPureActualTail (0.05s)
+    --- PASS: TestProjectModelHTTPPureActualTail/body (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/service (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/close (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/flush (0.01s)
+    --- PASS: TestProjectModelHTTPPureActualTail/close_error (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/close_panic (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write_short (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write_error (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/write_panic (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/flush_error (0.00s)
+    --- PASS: TestProjectModelHTTPPureActualTail/flush_panic (0.00s)
+=== RUN   TestProjectModelHTTPPureQuery
+=== RUN   TestProjectModelHTTPPureQuery/1/?
+=== RUN   TestProjectModelHTTPPureQuery/8/?limit=0
+=== RUN   TestProjectModelHTTPPureQuery/10/?limit=101
+=== RUN   TestProjectModelHTTPPureQuery/9/?limit=01
+=== RUN   TestProjectModelHTTPPureQuery/9/?limit=+1
+=== RUN   TestProjectModelHTTPPureQuery/11/?limit=%2b1
+=== RUN   TestProjectModelHTTPPureQuery/9/?limit=-1
+=== RUN   TestProjectModelHTTPPureQuery/10/?limit=1.0
+=== RUN   TestProjectModelHTTPPureQuery/10/?limit=１
+=== RUN   TestProjectModelHTTPPureQuery/18/?limit=1&%6cimit=2
+=== RUN   TestProjectModelHTTPPureQuery/8/?cursor=
+=== RUN   TestProjectModelHTTPPureQuery/18/?cursor=x&cursor=y
+=== RUN   TestProjectModelHTTPPureQuery/6/?limit
+=== RUN   TestProjectModelHTTPPureQuery/3/?=1
+=== RUN   TestProjectModelHTTPPureQuery/18/?limit=1&&cursor=x
+=== RUN   TestProjectModelHTTPPureQuery/17/?limit=1;cursor=x
+=== RUN   TestProjectModelHTTPPureQuery/9/?limit=1&
+=== RUN   TestProjectModelHTTPPureQuery/11/?cursor=%00
+=== RUN   TestProjectModelHTTPPureQuery/11/?cursor=%ff
+=== RUN   TestProjectModelHTTPPureQuery/11/?cursor=%zz
+=== RUN   TestProjectModelHTTPPureQuery/14/?provider_id=x
+=== RUN   TestProjectModelHTTPPureQuery/13/?scope=system
+=== RUN   TestProjectModelHTTPPureQuery/13/?enabled=true
+=== RUN   TestProjectModelHTTPPureQuery/8201/?cursor=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+=== RUN   TestProjectModelHTTPPureQuery/32777/?cursor=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+--- PASS: TestProjectModelHTTPPureQuery (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/1/? (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/8/?limit=0 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/10/?limit=101 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/9/?limit=01 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/9/?limit=+1 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/11/?limit=%2b1 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/9/?limit=-1 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/10/?limit=1.0 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/10/?limit=１ (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/18/?limit=1&%6cimit=2 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/8/?cursor= (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/18/?cursor=x&cursor=y (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/6/?limit (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/3/?=1 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/18/?limit=1&&cursor=x (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/17/?limit=1;cursor=x (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/9/?limit=1& (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/11/?cursor=%00 (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/11/?cursor=%ff (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/11/?cursor=%zz (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/14/?provider_id=x (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/13/?scope=system (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/13/?enabled=true (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/8201/?cursor=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (0.00s)
+    --- PASS: TestProjectModelHTTPPureQuery/32777/?cursor=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (0.00s)
+=== RUN   TestProjectModelHTTPPureWireProjection
+--- PASS: TestProjectModelHTTPPureWireProjection (0.00s)
+=== RUN   TestProjectModelHTTPPureRejectWholeInvalidResult
+--- PASS: TestProjectModelHTTPPureRejectWholeInvalidResult (0.01s)
+=== RUN   TestProjectModelHTTPPureRepresentationBudget
+=== RUN   TestProjectModelHTTPPureRepresentationBudget/checked_edges
+=== RUN   TestProjectModelHTTPPureRepresentationBudget/string_escape
+=== RUN   TestProjectModelHTTPPureRepresentationBudget/raw_HTML_upper
+=== RUN   TestProjectModelHTTPPureRepresentationBudget/legal_unbounded_efforts
+=== RUN   TestProjectModelHTTPPureRepresentationBudget/cancelled_before_clone
+--- PASS: TestProjectModelHTTPPureRepresentationBudget (2.34s)
+    --- PASS: TestProjectModelHTTPPureRepresentationBudget/checked_edges (0.00s)
+    --- PASS: TestProjectModelHTTPPureRepresentationBudget/string_escape (0.00s)
+    --- PASS: TestProjectModelHTTPPureRepresentationBudget/raw_HTML_upper (0.00s)
+    --- PASS: TestProjectModelHTTPPureRepresentationBudget/legal_unbounded_efforts (2.34s)
+    --- PASS: TestProjectModelHTTPPureRepresentationBudget/cancelled_before_clone (0.00s)
+=== RUN   TestProjectModelHTTPPureSchema
+    http_project_wire_test.go:301: SCHEMA_PASS positive=6 negative=33
+--- PASS: TestProjectModelHTTPPureSchema (0.10s)
+PASS

@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 30093.4127313,
+      "top": "TestModelProjectConfigurationHTTPBoundedRepresentation"
+    },
+    {
+      "event": "result",
+      "monotonic": 30103.167284456,
+      "observed_seconds": 9.754553156002657,
+      "reported_seconds": 9.76,
+      "state": "FAIL",
+      "top": "TestModelProjectConfigurationHTTPBoundedRepresentation"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationHTTPBoundedRepresentation"
+  ],
+  "failures": []
+}

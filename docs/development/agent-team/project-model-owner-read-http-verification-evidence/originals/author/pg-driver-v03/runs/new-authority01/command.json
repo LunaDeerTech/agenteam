@@ -1,0 +1,48 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelProjectConfigurationHTTPAuthorityAndTerminal)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T20:14:38.844931+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "AGENTEAM_PROJECT_MODEL_BODY_DIR": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/safe-http-evidence",
+    "AGENTEAM_PROJECT_MODEL_INPUT_SHA256": "a09690d15ae9a914c80c173a1f995cbd956057fc8505903c100ab2743fc75288",
+    "AGENTEAM_PROJECT_MODEL_RUN": "new-authority01",
+    "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/runs/new-authority01/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 776353,
+  "pid_stat": "776353 (sh) R 776274 776353 776353 0 -1 4194560 21 0 0 0 0 0 0 0 20 0 1 0 2997703 540672 0 18446744073709551615 94783196356608 94783196437601 140722731513856 0 0 0 0 0 0 0 0 0 17 1 0 0 0 0 0 94783196466736 94783196471872 94783328804864 140722731522586 140722731522676 140722731522676 140722731524076 0\n",
+  "seconds": 53.637,
+  "started_utc": "2026-10-07T20:13:45.207267+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

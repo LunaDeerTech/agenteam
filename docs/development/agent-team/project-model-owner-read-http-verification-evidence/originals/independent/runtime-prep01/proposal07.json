@@ -1,0 +1,291 @@
+{
+  "status": "FROZEN_CONDITIONALLY_AUTHORIZED_AWAITING_ROOT_RELEASE",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "full_graph": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json",
+    "sha256": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a"
+  },
+  "private_graph": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/graph-delta01.json",
+    "sha256": "5a82973b2667bc5eabec47d4cfa1b4ad05bb7a284c2f2ce6713cd409e1347dc8"
+  },
+  "TestMain_clarification": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/testmain-clarification01.json",
+    "sha256": "4977397ccd5eac77915d735ade08c2eb13d66967f2812d6510ef7ba5584a3f51"
+  },
+  "offline": {
+    "list-native01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-native01/result.json",
+        "sha256": "4474b3c1892cc422f641dbebbbd14b0e9a333210a73fe877a59a18a59f8f49d2"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-native01/command.json",
+        "sha256": "f7e13dcc3b3447d3d61042ada41ee409da36ad11ae05b0634e7649a0084d8dcf"
+      },
+      "elapsed_seconds": 1.4232006349993753
+    },
+    "format01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/format01/result.json",
+        "sha256": "c2cf420642114a18b91291af12b8be74eb2f2a7fe232abe828a09f1c8802e96f"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/format01/command.json",
+        "sha256": "9878a4ac2a9a3d972d9bb141e36040fa2254e781ef6c4eb4dde00d5f8ecd5c63"
+      },
+      "elapsed_seconds": 0.3305604769993806
+    },
+    "compile-pg01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg01/result.json",
+        "sha256": "cbcc7b87ca02e5057c739262601b938fc5099128ba443dc9232a7899d30a8bac"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg01/command.json",
+        "sha256": "cf718ad979eceefd73b86e411e8120abfb5cf4800adee733c2d82a8909df4cd9"
+      },
+      "elapsed_seconds": 6.695627416000207
+    },
+    "graph01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/graph01/result.json",
+        "sha256": "bb95342b0612834c7dda8441a4bb73323ded89501d0cbf6e2648b874c396d78c"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/graph01/command.json",
+        "sha256": "b0673a27e525162a774df10b88ec9d00eb23cbef62987785cc56db8698f2594d"
+      },
+      "elapsed_seconds": 0.6185870819972479
+    },
+    "compile-native01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-native01/result.json",
+        "sha256": "a4dd96d5dff09248330bab720f44d5c7ec6656125ba4957b91654d78c30e2fa2"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-native01/command.json",
+        "sha256": "e32ccb028a706faa36a889a66dcd07b41379e01e3f605b46f7c931f2dde1cecb"
+      },
+      "elapsed_seconds": 5.279993514002854
+    },
+    "list-pg01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg01/result.json",
+        "sha256": "cd8ca511afdfa00805cf3d8c1d64976455f0dabe58ae24a9b2f05c136ccd0508"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg01/command.json",
+        "sha256": "05ed9e77968a932cf6ec98c7ac05eaf0b2749ead7a3a3785029c0248b5300d5f"
+      },
+      "elapsed_seconds": 1.4424904180013982
+    },
+    "vet01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/vet01/result.json",
+        "sha256": "25dd6a21fe08619e8fbdfc277327544563f89c025a6be7097640d8492c147179"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/vet01/command.json",
+        "sha256": "48404bdcae58419d5934561c7093b4cb76de655c8c9f7dd0545933bf255f972b"
+      },
+      "elapsed_seconds": 1.2065802789984446
+    },
+    "compile-native-candidate03": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-native-candidate03/result.json",
+        "sha256": "168674d1506e31030a8a8b94c37158deea67df8c0129fba9508c5e67d79c0ab4"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-native-candidate03/command.json",
+        "sha256": "a42ada8653771475c8aad5e6490be98563bafac845adb50a3bfea0f989b1b91e"
+      },
+      "elapsed_seconds": 4.823079245001281
+    },
+    "list-native-candidate03": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-native-candidate03/result.json",
+        "sha256": "b4c3084e887cad6a11abc554f06b8f754cfe918c118dac3c38a39622d15b7d70"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-native-candidate03/command.json",
+        "sha256": "e9366de3c237db94dea4b8d4ff5bda854e1f8931d5d70bf645dedcd259969585"
+      },
+      "elapsed_seconds": 1.4620261079980992
+    },
+    "compile-pg-candidate04": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate04/result.json",
+        "sha256": "092c1cecaa7b466636c8ea2c72e7cbc5e4e61f512545b28e62e9d3f5d218ca8d"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate04/command.json",
+        "sha256": "415669157a18be5dde50bc65e1858d2624dcecbc17a26e86b3d49e146bac2726"
+      },
+      "elapsed_seconds": 6.828420448000543
+    },
+    "list-pg-candidate04": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate04/result.json",
+        "sha256": "0104f5276c6675eb7abeb06d0f09217b076b748bad6f5fb9fd3efc763ae16346"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate04/command.json",
+        "sha256": "6bfe15fb694b664ff2572110a4fec5f1e11140afc87278124e6bc828a6a53f8e"
+      },
+      "elapsed_seconds": 1.4760154989999137
+    },
+    "compile-pg-candidate05": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate05/result.json",
+        "sha256": "f82914fbc08f689a1aa0ea52ce6c933ac365e480f93f9e2dc798f516c3659794"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate05/command.json",
+        "sha256": "5f109ee77ec3ba8294307e486ed63803ab1930cd34637c4207692a505225767b"
+      },
+      "elapsed_seconds": 7.61314774299899
+    },
+    "list-pg-candidate05": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate05/result.json",
+        "sha256": "89aa43be25b9826909eba922ed722f69241a200072ab1fc2aa8301bafa71f86a"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate05/command.json",
+        "sha256": "8ce6fac3e94197ef4da6800442d6e5995eadff67b9ad2431c9167d263b5e9a71"
+      },
+      "elapsed_seconds": 1.5877960450015962
+    },
+    "format-pg-candidate06": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/format-pg-candidate06/result.json",
+        "sha256": "ae9aa68f991ff40dc5e3804294f96dec5f8183496c0ee06095bb3289b31f1b5c"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/format-pg-candidate06/command.json",
+        "sha256": "c28bf0738bf537d21acb44ced70315cbf2c26286842125f913e544c6ce7d5fa6"
+      },
+      "elapsed_seconds": 0.5134649659994466
+    },
+    "compile-pg-candidate06": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate06/result.json",
+        "sha256": "54827d4ccad84cd9f36b9437f42669787daa6bc6273a8a0bd74bfa8aa0716806"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/compile-pg-candidate06/command.json",
+        "sha256": "8449744cba99b9306d64148f1b4b2f1594040e23b7d7f997c9a2b3d3626e5baf"
+      },
+      "elapsed_seconds": 6.850327180000022
+    },
+    "list-pg-candidate06": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate06/result.json",
+        "sha256": "cc3f819d5607f02cd4a32e68155f4e3a623d4cc665af95804a444f2c560262f6"
+      },
+      "command": {
+        "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/list-pg-candidate06/command.json",
+        "sha256": "e68ff46ed42c8d56956be29c79304910c551ff5866d688623b245e6cf5a86002"
+      },
+      "elapsed_seconds": 1.617137006000121
+    }
+  },
+  "inheritance": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/driver-inheritance01.json",
+    "sha256": "84d412bc0e7104e73f5d341e9b05036269fbd7a06f747e94a2774bf3689f1a10"
+  },
+  "native": {
+    "driver": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/driver.py",
+      "sha256": "972ef2d396bfbdf5f8dd84216c7c2e13e1afea1099749d0d4fd269600992d851"
+    },
+    "freeze": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/execution-freeze.json",
+      "sha256": "9b7fd3c673e0ea9eb8b62b53047e921d581e7114bfab5b4972b835d481c77f20"
+    },
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native-driver-v06/driver.py",
+      "independent-native01",
+      "--execute-authorized"
+    ],
+    "requires": "Root conditional authorization received: do not execute until author all3native+5PG rounds have actual waits/cleanup/input consistency and root explicitly relays release. Then native independent-native01 PASS+all TCP/process doubleclear before PG A; PG A PASS+7resource doubleclear before B. Any failure cleanup then stop, no automatic retry."
+  },
+  "pg": {
+    "driver": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/driver.py",
+      "sha256": "e433b7a4ff79db6b64d8535c1add14f88dafffa1986c7e9ceb95f84578deca66"
+    },
+    "freeze": {
+      "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/frozen.json",
+      "sha256": "eb6c89342e5a68e753883f260eeb8e710f9c349b70fdea5a41c87ac591cfc219"
+    },
+    "commands": [
+      [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/driver.py",
+        "--name",
+        "independent-a01",
+        "--group",
+        "new-independent-a",
+        "--frozen",
+        "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/frozen.json",
+        "--execute-authorized"
+      ],
+      [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/driver.py",
+        "--name",
+        "independent-b01",
+        "--group",
+        "new-independent-b",
+        "--frozen",
+        "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg-driver-v06/frozen.json",
+        "--execute-authorized"
+      ]
+    ],
+    "requires": "separate root exclusive windows; one top per group; 120s includes cleanup/pkg6m/fresh5GiB/7resources/actual waits/doubleclear/daemon delta inherited; failure cleanup then stop"
+  },
+  "sources": {
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native_test.go": "5240abb5fd56644ce70541191c3f2f00e45fab248025f43cb585e2f472dbe5f1",
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg_test.go": "b4ee8fcd9a8594ce18fb31cb427d3d1784551837a40646c360796103e47b4d13",
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/overlay.json": "7235406411f0c6c3aa7dd84094d85ea9342a3898fbe28f2503f8f7770feb520d"
+  },
+  "limits": [
+    "no native/socket/PG/test bodies executed",
+    "new resource/PID/disk/daemon baseline mandatory after restart",
+    "same-body schema is runtime local refs; safe exports require nonempty run and exact frozen input digest",
+    "prior full STATIC and controlled results retained, not rerun"
+  ],
+  "revision": "v07 candidate06 author root expectation plus private Root STATIC correction; private A/native unchanged; PG runtime overlay path only, all other controls/budgets unchanged.",
+  "condition": "Root conditional authorization retained, NOT released: wait for root explicit relay after author three native groups (including repaired writeclose) and five PG rounds finish actual wait+cleanup; then native PASS+allTCP/PID doubleempty before A PASS+7resource doubleclear before B. Any failure cleanup then stop.",
+  "HOME_cleanup": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/home-cleanup02-result.json",
+    "sha256": "240c74cb85bd8b7ebb21453404e942a264d2684686c8f9c917100b4841c90bf4"
+  },
+  "effective_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json",
+    "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+  },
+  "delta_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-candidate06-static/result.json",
+    "sha256": "a5e544048e877722f449cdfa8357ea46401030a1ed144cfbef44b220c9cccbd0"
+  },
+  "private_graph_delta": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/private-delta06.json",
+    "sha256": "ab71c5396a72df2a872ec1a6d81a66bd9b275f57b7c40db671bf5d0b492b72a7"
+  },
+  "private_active_sources": {
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/native_test.go": "5240abb5fd56644ce70541191c3f2f00e45fab248025f43cb585e2f472dbe5f1",
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/pg_test.go": "55ac66f329d06b999098ee97dbe1f86e90b6e42741cdc8559961e30a21c2767f",
+    "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/overlay.json": "ff3df11c3c7afe9e38bebbd9f2306e580d32183f84028edb3dacb2422f9461f7"
+  },
+  "private_static_correction": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/preparation.json",
+    "sha256": "142949e4984cf9ba10f5ba86f5fb471735bbb9ff2b1041d45a4802bca146763e"
+  }
+}

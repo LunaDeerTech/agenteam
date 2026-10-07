@@ -1,0 +1,197 @@
+=== RUN   TestModelProjectCommandsAreExplicitlyUnboundWithoutIO
+--- PASS: TestModelProjectCommandsAreExplicitlyUnboundWithoutIO (0.00s)
+=== RUN   TestSystemHTTPDTORequiredNullAndExactScalars
+--- PASS: TestSystemHTTPDTORequiredNullAndExactScalars (0.00s)
+=== RUN   TestSystemHTTPListQueryCanonicalAndProjection
+--- PASS: TestSystemHTTPListQueryCanonicalAndProjection (0.00s)
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/observed
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/denied
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error
+--- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/observed (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/denied (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error (0.00s)
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/valid
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/wrong-ref
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/project
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/purpose
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/version
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/failure
+--- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/valid (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/wrong-ref (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/project (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/purpose (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/version (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/failure (0.00s)
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/query
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/empty-query
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/length
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/chunked
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/unknown-length
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/bad-id
+--- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/query (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/empty-query (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/length (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/chunked (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/unknown-length (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/bad-id (0.00s)
+=== RUN   TestSystemManagementHTTPBudgetOnlyNewReads
+--- PASS: TestSystemManagementHTTPBudgetOnlyNewReads (0.00s)
+=== RUN   TestMeetingSummaryHTTPStrictInput
+=== RUN   TestMeetingSummaryHTTPStrictInput/exact
+=== RUN   TestMeetingSummaryHTTPStrictInput/missing_id
+=== RUN   TestMeetingSummaryHTTPStrictInput/missing_version
+=== RUN   TestMeetingSummaryHTTPStrictInput/missing_model
+=== RUN   TestMeetingSummaryHTTPStrictInput/null_model
+=== RUN   TestMeetingSummaryHTTPStrictInput/empty_model
+=== RUN   TestMeetingSummaryHTTPStrictInput/numeric_version
+=== RUN   TestMeetingSummaryHTTPStrictInput/leading_zero
+=== RUN   TestMeetingSummaryHTTPStrictInput/max_no_successor
+=== RUN   TestMeetingSummaryHTTPStrictInput/overflow
+=== RUN   TestMeetingSummaryHTTPStrictInput/case_alias
+=== RUN   TestMeetingSummaryHTTPStrictInput/unknown
+=== RUN   TestMeetingSummaryHTTPStrictInput/duplicate
+=== RUN   TestMeetingSummaryHTTPStrictInput/trailing
+=== RUN   TestMeetingSummaryHTTPStrictInput/utf8
+=== RUN   TestMeetingSummaryHTTPStrictInput/too_large
+=== RUN   TestMeetingSummaryHTTPStrictInput/wrong_media
+=== RUN   TestMeetingSummaryHTTPStrictInput/encoding
+=== RUN   TestMeetingSummaryHTTPStrictInput/query
+=== RUN   TestMeetingSummaryHTTPStrictInput/force_query
+=== RUN   TestMeetingSummaryHTTPStrictInput/missing_key
+=== RUN   TestMeetingSummaryHTTPStrictInput/duplicate_key
+--- PASS: TestMeetingSummaryHTTPStrictInput (0.01s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/exact (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/missing_id (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/missing_version (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/missing_model (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/null_model (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/empty_model (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/numeric_version (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/leading_zero (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/max_no_successor (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/overflow (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/case_alias (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/unknown (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/duplicate (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/trailing (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/utf8 (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/too_large (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/wrong_media (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/encoding (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/query (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/force_query (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/missing_key (0.00s)
+    --- PASS: TestMeetingSummaryHTTPStrictInput/duplicate_key (0.00s)
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/null
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/configured
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/body
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/hidden_body
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/zero_progress
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/unknown
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/internal
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/GET/bad_fact
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/null
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/configured
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/body
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/hidden_body
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/zero_progress
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/unknown
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/internal
+=== RUN   TestMeetingSummaryHTTPReadsAndFaults/HEAD/bad_fact
+--- PASS: TestMeetingSummaryHTTPReadsAndFaults (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/null (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/configured (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/body (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/hidden_body (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/zero_progress (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/unknown (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/internal (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/GET/bad_fact (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/null (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/configured (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/body (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/hidden_body (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/zero_progress (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/unknown (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/internal (0.00s)
+    --- PASS: TestMeetingSummaryHTTPReadsAndFaults/HEAD/bad_fact (0.00s)
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/GET/1m0s
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/GET/100ms
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/HEAD/1m0s
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/HEAD/100ms
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/PUT/1m0s
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/PUT/100ms
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/auth
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/body
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/service
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/close
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/write
+=== RUN   TestMeetingSummaryHTTPBudgetAndActualTails/flush
+--- PASS: TestMeetingSummaryHTTPBudgetAndActualTails (0.13s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/GET/1m0s (0.00s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/GET/100ms (0.00s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/HEAD/1m0s (0.00s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/HEAD/100ms (0.00s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/PUT/1m0s (0.00s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/PUT/100ms (0.00s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/auth (0.02s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/body (0.02s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/service (0.02s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/close (0.02s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/write (0.02s)
+    --- PASS: TestMeetingSummaryHTTPBudgetAndActualTails/flush (0.02s)
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/unsupported
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/short
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/write_error
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/flush_error
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/panic
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/close_error
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/close_panic
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/reset_error
+=== RUN   TestMeetingSummaryHTTPFailuresAndCallbackJoin/started_callback_join
+--- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin (0.02s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/unsupported (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/short (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/write_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/flush_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/panic (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/close_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/close_panic (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/reset_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPFailuresAndCallbackJoin/started_callback_join (0.02s)
+=== RUN   TestSystemHTTPConstructionAndRoutesMatchOpenAPI
+--- PASS: TestSystemHTTPConstructionAndRoutesMatchOpenAPI (0.01s)
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent
+--- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent (0.00s)
+=== RUN   TestModelProjectCommandNamespacesPreserveOldSystemBytes
+--- PASS: TestModelProjectCommandNamespacesPreserveOldSystemBytes (0.00s)
+=== RUN   TestModelProjectReceiptAndUnknownUseReadAndExactScope
+--- PASS: TestModelProjectReceiptAndUnknownUseReadAndExactScope (0.00s)
+=== RUN   TestModelProjectViewsPolicyAndPrivateFactsCarryScope
+--- PASS: TestModelProjectViewsPolicyAndPrivateFactsCarryScope (0.00s)
+=== RUN   TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession
+--- PASS: TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession (0.00s)
+=== RUN   TestModelProjectAvailableDTOContainsOnlySelectionFields
+--- PASS: TestModelProjectAvailableDTOContainsOnlySelectionFields (0.00s)
+PASS

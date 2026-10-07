@@ -1,0 +1,24 @@
+{
+  "status": "PRIVATE_STATIC_REPAIR_PREPARED_NOT_COMPILED",
+  "old_probe": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/pg_test.go",
+    "sha256": "b4ee8fcd9a8594ce18fb31cb427d3d1784551837a40646c360796103e47b4d13"
+  },
+  "new_probe": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/pg_test.go",
+    "sha256": "55ac66f329d06b999098ee97dbe1f86e90b6e42741cdc8559961e30a21c2767f"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/overlay.json",
+    "sha256": "ff3df11c3c7afe9e38bebbd9f2306e580d32183f84028edb3dacb2422f9461f7"
+  },
+  "patch": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-runtime-prep01/root-contract-repair01/changes.patch",
+    "sha256": "66f54e0fb15db0541edab02a7d73222d26c259da3d5f5cbf584f9a6d1d1df147"
+  },
+  "author_plan_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-root-lookup-plan01/result.json",
+    "sha256": "efd9944b229471d397b67a884a1667233b5b957331e739993e32c55e9b7ae474"
+  },
+  "scope": "Only unexecuted private Root lookup assertions; private A/native bytes unchanged; preserve old freeze and first STATIC finding; await candidate06 joint input before affected compile/list"
+}

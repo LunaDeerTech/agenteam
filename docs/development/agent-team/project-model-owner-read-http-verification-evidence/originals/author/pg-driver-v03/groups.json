@@ -1,0 +1,26 @@
+{
+  "new-projection": [
+    "TestModelProjectConfigurationHTTPProjection"
+  ],
+  "new-authority": [
+    "TestModelProjectConfigurationHTTPAuthorityAndTerminal"
+  ],
+  "new-bounded": [
+    "TestModelProjectConfigurationHTTPBoundedRepresentation"
+  ],
+  "new-root": [
+    "TestModelProjectConfigurationHTTPDefaultRoot"
+  ],
+  "old": [
+    "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority",
+    "TestModelSystemHTTPBoundaryAndStrictWire",
+    "TestModelSystemHTTPCurrentAdministrator",
+    "TestModelSystemHTTPPaginationAndSafeProjection",
+    "TestModelProjectUsageHTTPProjectionAndPath",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelProjectOwnerUpdateHTTPStrictAndReplay",
+    "TestModelProjectOwnerReadHTTPRootBinding"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v04/closure.json",
+    "sha256": "a7773c510d10319e92454228302a4989011a82ee7c726d4e0864026a295f5923"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json",
+    "sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72"
+  },
+  "actual_union": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full05.json",
+    "sha256": "fa88063a04690744b823d7669ad162188ae39b4a7a2ea66d0001eacc42513734"
+  },
+  "files": {
+    "/workspace/agenteam/tests/model/project_configuration_http_terminal_test.go": {
+      "sha256": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json": {
+      "sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full05.json": {
+      "sha256": "fa88063a04690744b823d7669ad162188ae39b4a7a2ea66d0001eacc42513734"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/integration05.test": {
+      "sha256": "aace9f43842c6509ceac88a3ae063826b0c51b5807195d8d6f692a08d738064e"
+    }
+  },
+  "package_file_sets": {},
+  "limit": "Only #12 private oversized-row proxy delta; existing package import graph/files unchanged; affected integration race compiled/vetted/listed; prior native/offline/two PG PASS retained, original2 bounded failures retained."
+}

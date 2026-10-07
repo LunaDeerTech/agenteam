@@ -1,0 +1,20 @@
+{
+  "base_index": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full04.json",
+    "sha256": "33b6b11d1fba3827a74c2335bb7595b86d37e8d11759717de6d3d907b8ec6cd0"
+  },
+  "effective_files_delta": {
+    "/workspace/agenteam/tests/model/project_configuration_http_terminal_test.go": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json",
+    "sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/offline-input18.json",
+    "sha256": "2764d67edec12491df163da1cd2ecae4a45d47a00b9d0f648b9ff1d03dfa08ff"
+  },
+  "package_file_sets_unchanged": true,
+  "package_import_dependencies_unchanged": true,
+  "note": "Only #12 private test proxy; added encoding/binary,fmt,io,strconv file imports already used by existing tests/model package and retained actual graph. No new packages/files; production/native/dynamic cmds unchanged; integration race recompiled/vetted/listed."
+}

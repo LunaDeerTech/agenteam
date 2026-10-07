@@ -1,0 +1,28 @@
+{
+  "status": "PASS_APPLIED_PLAN02_EXACT_BYTES_SINGLE_PATH",
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate05/manifest.json",
+    "sha256": "fd56d60def39af459246a3405eeea1fc6e34df4e1baadfc88bce3774ceb0ba72"
+  },
+  "source": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate05/src/tests/model/project_configuration_http_terminal_test.go",
+    "sha256": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc"
+  },
+  "accepted_plan": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/bounded-proxy-plan02/proposed.go",
+    "sha256": "0e68e97253d37dc8b58cdd926abe8b059333a3f6bd257d23e15f3e2b33fe31bc"
+  },
+  "accepted_review": {
+    "path": "/workspace/scratch/summary-verification/project-model-owner-read-http-bounded-proxy-plan02/result.json",
+    "sha256": "121de07f74caf85af77fa9302ec1bc9fa28bae53d95d85f39184fc3ede5fbe91"
+  },
+  "graph_delta": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full05.json",
+    "sha256": "fa88063a04690744b823d7669ad162188ae39b4a7a2ea66d0001eacc42513734"
+  },
+  "limits": [
+    "No production,old shared helper,native or budget changes",
+    "No real resource execution; affected private PG compile/list next",
+    "Author/runtime evidence remains versioned; no replacement of original failures"
+  ]
+}

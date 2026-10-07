@@ -1,0 +1,139 @@
+from pathlib import Path
+import os,sys,json,hashlib,subprocess,time,signal,ctypes,re,shutil
+BASE=Path('/workspace/scratch/project-model-owner-read-http-author/native-driver-v03')
+REPO=Path('/workspace/agenteam/internal/central/model')
+from trace_parser import parse_trace
+FROZEN=json.loads((BASE/'execution-freeze.json').read_text())
+GROUPS={'list':('^TestProjectModelHTTPNative(KeepAliveDeadline|SlowBodyAndCallback|WriteFlushCloseAndAbort)$',0,0), 'keepalive':('^TestProjectModelHTTPNativeKeepAliveDeadline$',1,0), 'slowbody':('^TestProjectModelHTTPNativeSlowBodyAndCallback$',4,4), 'writeclose':('^TestProjectModelHTTPNativeWriteFlushCloseAndAbort$',9,9)}
+# Reuse the accepted offline input by reference; only this task's delta is stored.
+row=FROZEN['offline_input']
+assert hashlib.sha256(Path(row['path']).read_bytes()).hexdigest()==row['sha256']
+current=json.loads(Path(row['path']).read_text())
+base=current['base_input'];assert hashlib.sha256(Path(base['path']).read_bytes()).hexdigest()==base['sha256']
+inherited=json.loads(Path(base['path']).read_text())
+inherited['files'].update(current['files'])
+inherited['package_file_sets'].update(current.get('package_file_sets',{}))
+inherited['files'].update(FROZEN['files'])
+FROZEN['files']=inherited['files'];FROZEN['package_file_sets']=inherited['package_file_sets']
+assert FROZEN['root_authorized_native'], 'resource window not authorized'
+MODE=sys.argv[1]
+assert MODE in GROUPS
+assert MODE in FROZEN['permitted_modes']
+assert '--execute-authorized' in sys.argv[2:], 'explicit root-authorized execution flag required'
+SELECTOR,EXPECTED,SUBCASES=GROUPS[MODE]
+OUT=BASE/MODE;OUT.mkdir(exist_ok=False)
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def save(name,data): (OUT/name).write_text(json.dumps(data,indent=2)+'\n')
+def stat(pid):
+ try:
+  raw=Path(f'/proc/{pid}/stat').read_text();f=raw.rsplit(') ',1)[1].split()
+  return {'pid':int(pid),'starttime':f[19],'ppid':int(f[1]),'pgrp':int(f[2]),'state':f[0],'name':raw.split('(',1)[1].rsplit(')',1)[0]}
+ except (FileNotFoundError,ProcessLookupError,PermissionError):return None
+def procscan():return [s for p in Path('/proc').iterdir() if p.name.isdigit() and (s:=stat(p.name))]
+def closure():
+ actual={p:sha(p) for p in FROZEN['files']}
+ assert actual==FROZEN['files'], 'native fixed input changed'
+ sets={d:sorted(p.name for p in Path(d).iterdir() if p.is_file() and (p.suffix in FROZEN['source_suffixes'] or row['embed_directory'])) for d,row in FROZEN['package_file_sets'].items()}
+ assert sets=={d:row['names'] for d,row in FROZEN['package_file_sets'].items()}, 'native source directory set changed'
+ return {'files':actual,'sets':sets,'sha256':hashlib.sha256(json.dumps(actual,sort_keys=True).encode()).hexdigest()}
+libc=ctypes.CDLL(None,use_errno=True)
+if libc.prctl(36,1,0,0,0)!=0:raise OSError(ctypes.get_errno(),'subreaper failed')
+assert shutil.disk_usage(BASE).free>=2*1024**3 and shutil.disk_usage('/tmp').free>=2*1024**3
+before=closure();save('input-before.json',before)
+for n in ('tcp','tcp6','unix'):(OUT/f'baseline-{n}.raw').write_text(Path('/proc/net/'+n).read_text())
+initial=procscan();save('baseline-processes.json',initial)
+tmp=OUT/'tmp';tmp.mkdir()
+env={'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin','TMPDIR':str(tmp),'GOTOOLCHAIN':'local','GOENV':'off','GOPROXY':'off','GOSUMDB':'off','GOPATH':'/workspace/go','GOMODCACHE':'/workspace/go/pkg/mod','GOCACHE':'/workspace/.cache/go-build','GOWORK':'off','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -p=1','GOMAXPROCS':'2'}
+if MODE!='list':env['AGENTEAM_PROJECT_MODEL_NATIVE']='1'
+binary=['/workspace/scratch/project-model-owner-read-http-author/model-race04.test']
+if MODE=='list':binary+=['-test.list='+SELECTOR]
+else:binary+=['-test.count=1','-test.parallel=1','-test.timeout=40s','-test.run='+SELECTOR,'-test.v']
+command=['/usr/bin/strace','-D','-f','-ttt','-yy','-e','trace=%network,%process,close','-o',str(OUT/'trace.raw')]+binary
+record={'mode':MODE,'driver_sha256':sha(__file__),'driver_pid':os.getpid(),'driver_stat':stat(os.getpid()),'subreaper':True,'command':command,'env':env,'cwd':str(REPO),'budget_seconds':45,'cleanup_grace_seconds':15,'started':time.time(),'before':before}
+owned={};waits=[];signals=[]
+def observe(pgid):
+ allp=procscan();ids={os.getpid()}|{x['pid'] for x in owned.values()}
+ while True:
+  children={s['pid'] for s in allp if s['ppid'] in ids or s['pgrp']==pgid}
+  if children<=ids:break
+  ids|=children
+ for s in allp:
+  if s['pid']!=os.getpid() and s['pid'] in ids:
+   key=(s['pid'],s['starttime'])
+   if key not in owned:owned[key]=s|{'first_observed':time.time()}
+ return [s for s in allp if (s['pid'],s['starttime']) in owned]
+def send_owned(sig):
+ members=observe(p.pid)
+ if members:
+  try:os.killpg(p.pid,sig);signals.append({'signal':sig,'time':time.time(),'members':members})
+  except ProcessLookupError:pass
+with (OUT/'raw.log').open('wb') as log:
+ started=time.monotonic();p=subprocess.Popen(command,cwd=REPO,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+ first=stat(p.pid);assert first;owned[(p.pid,first['starttime'])]=first|{'first_observed':time.time()};record['direct_pid']=first;save('command.json',record)
+ while True:
+  observe(p.pid)
+  code=p.poll()
+  if code is not None:break
+  if time.monotonic()-started>=42:
+   record['execution_budget_expired']=True;send_owned(signal.SIGTERM)
+   try:code=p.wait(timeout=max(.01,43-(time.monotonic()-started)))
+   except subprocess.TimeoutExpired:send_owned(signal.SIGKILL);code=p.wait(timeout=max(.01,45-(time.monotonic()-started)))
+   break
+  time.sleep(.01)
+ # Popen.poll/wait has performed waitpid for the direct tracee process.
+ record['execution_elapsed_seconds']=time.monotonic()-started
+ waits.append({'role':'direct','pid':p.pid,'starttime':first['starttime'],'returncode':code,'actual_wait':True,'time':time.time()})
+ cleanup_start=time.monotonic()
+ while True:
+  observe(p.pid)
+  try:info=os.waitid(os.P_ALL,0,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+  except ChildProcessError:break
+  if info is not None:
+   s=stat(info.si_pid);assert s,info;owned.setdefault((s['pid'],s['starttime']),s|{'first_observed':time.time()})
+   got,status=os.waitpid(info.si_pid,0);waits.append({'role':'adopted','pid':got,'starttime':s['starttime'],'wait_status':status,'returncode':os.waitstatus_to_exitcode(status),'actual_wait':True,'time':time.time()});continue
+  elapsed=time.monotonic()-cleanup_start
+  if elapsed>=15:raise RuntimeError('owned child did not join within cleanup grace')
+  if elapsed>=6:send_owned(signal.SIGKILL)
+  elif elapsed>=3:send_owned(signal.SIGTERM)
+  time.sleep(.01)
+record.update(exit=code,actual_waits=waits,signals=signals,owned_processes=list(owned.values()),execution_finished=time.time())
+save('command.json',record)
+trace=(OUT/'trace.raw').read_text()
+parsed=parse_trace(trace,EXPECTED)
+save('reassembled-calls.json',parsed.pop('calls'))
+save('ports.json',parsed)
+ports=parsed['all_ports'];inodes=set(parsed['all_inodes'])
+listen_ports=sorted(r['port'] for r in parsed['listeners'])
+def cleanup_scan():
+ processes=observe(p.pid);matches=[]
+ for n in ('tcp','tcp6'):
+  raw=Path('/proc/net/'+n).read_text();(OUT/f'cleanup-{len(scans)+1:02d}-{n}.raw').write_text(raw)
+  for line in raw.splitlines()[1:]:
+   f=line.split();lp=int(f[1].rsplit(':',1)[1],16);rp=int(f[2].rsplit(':',1)[1],16)
+   if lp in ports or rp in ports or int(f[9]) in inodes:matches.append({'table':n,'local':f[1],'remote':f[2],'state':f[3],'inode':f[9],'raw':line})
+ return {'at':time.time(),'owned_processes':processes,'owned_port_rows':matches,'active_port_rows':[x for x in matches if x['state']!='06'],'time_wait_rows':[x for x in matches if x['state']=='06']}
+scans=[];deadline=time.monotonic()+75;zero=[]
+while True:
+ check=cleanup_scan();scans.append(check)
+ if not check['owned_processes'] and not check['owned_port_rows']:zero.append(check)
+ else:zero=[]
+ if len(zero)>=2 or time.monotonic()>=deadline:break
+ time.sleep(.2 if zero else 1)
+save('cleanup-observations.json',scans);save('cleanup-double-zero.json',zero)
+after=closure();save('input-after.json',after)
+record.update(after=after,inputs_unchanged=before==after,finished=time.time(),listener_ports=listen_ports,all_ports=ports,double_all_port_and_process_zero=len(zero)>=2,trace_sha256=sha(OUT/'trace.raw'),raw_sha256=sha(OUT/'raw.log'))
+raw=(OUT/'raw.log').read_text()
+if MODE=='list':
+ names=[line for line in raw.splitlines() if line.startswith('Test')]
+ tests_ok=names==['TestProjectModelHTTPNativeKeepAliveDeadline','TestProjectModelHTTPNativeSlowBodyAndCallback','TestProjectModelHTTPNativeWriteFlushCloseAndAbort']
+ counts={'listed':names,'test_bodies':False}
+else:
+ names=re.findall(r'^\s*--- PASS: (\S+)',raw,re.M)
+ tops=[name for name in names if '/' not in name]
+ subs=[name for name in names if '/' in name]
+ tests_ok=len(tops)==1 and len(subs)==SUBCASES and tops[0]==SELECTOR.removeprefix('^').removesuffix('$') and not re.search(r'--- (FAIL|SKIP):|WARNING: DATA RACE',raw) and re.search(r'^PASS$',raw,re.M) is not None
+ counts={'top_passes':tops,'sub_passes':subs,'test_bodies':True}
+record.update(test_results=counts,exact_test_results=tests_ok,expected_listeners_observed=len(listen_ports)==EXPECTED,expected_connection_pairs=EXPECTED)
+record['pass']=code==0 and all(w['returncode']==0 for w in waits) and not signals and before==after and len(zero)>=2 and len(listen_ports)==EXPECTED and tests_ok
+save('command.json',record)
+print(json.dumps({k:record[k] for k in ('mode','exit','execution_elapsed_seconds','actual_waits','listener_ports','test_results','inputs_unchanged','double_all_port_and_process_zero','pass')},indent=2));sys.exit(0 if record['pass'] else 1)

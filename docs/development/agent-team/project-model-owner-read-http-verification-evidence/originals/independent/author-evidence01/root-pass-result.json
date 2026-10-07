@@ -1,0 +1,61 @@
+{
+  "status": "AUTHOR_DEFAULT_ROOT_ORIGINAL_HTTP_BYTES_SCHEMA_PASS",
+  "source_run": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v06/runs/new-root-rerun01",
+  "author_result_sha256": "83bc38dc432c083f7eccafa544fc55de0b3c546f8bc0aa1b34723431806de9ba",
+  "frozen_input_sha256": "9469644f7a69adc86f444f34b635a16c988c0542a0a73e07a5adee78756a352f",
+  "schema_sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755",
+  "common_schema_sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+  "bodies": {
+    "root-providers": {
+      "schema": "ProviderPage",
+      "body_sha256": "a43a591af79a70765cdfb069a3154019b6e15ab33fc043cc2ea7a0a0181b919b",
+      "source_sha256": "09fd864dc412bce83345f3b8b56166fef2445ce653da0eb298c274a8a02d4308",
+      "bytes": 428,
+      "request_id": "01a1181a-3e1e-7053-8203-1ad1bc2d1880",
+      "source_status_type_length": true
+    },
+    "root-provider": {
+      "schema": "Provider",
+      "body_sha256": "a4cf0a278606f916d477d7097f17eb44c41cfa9b0cf9e42003e37f904dac10af",
+      "source_sha256": "46317658f8a041a9d7daaa214027724a8ebe1f4f8b978b2f61ce802eed2280e9",
+      "bytes": 397,
+      "request_id": "01a1181a-3e89-731a-b770-9b2020e6d90e",
+      "source_status_type_length": true
+    },
+    "root-models": {
+      "schema": "ModelPage",
+      "body_sha256": "750534802275c6abd4aafbb32c0652f6479e6d4db49a02cdc2dca508505d4880",
+      "source_sha256": "c280bcc2e1857277a79acd68ec4de126d6d90aecde4fefbe975432e3d4b274a8",
+      "bytes": 716,
+      "request_id": "01a1181a-3ee3-7db3-9566-d73bc0558351",
+      "source_status_type_length": true
+    },
+    "root-model": {
+      "schema": "Model",
+      "body_sha256": "ecc01150410914bb0340aa696083dd2b6740981b72b42bef2373d60921bc4c2e",
+      "source_sha256": "74f5ca9b617fe4d1b5c77713b208b98d9693d95895b07427e34e5da491cde1f8",
+      "bytes": 685,
+      "request_id": "01a1181a-3f4c-7b94-8ab3-bce0d9acfdfe",
+      "source_status_type_length": true
+    },
+    "root-available": {
+      "schema": "AvailableChatModelPage",
+      "body_sha256": "ec5dee4a09eabc3c6bbb8c8889f7e87793c53d2fc6d06bccabd46859ad4e4b28",
+      "source_sha256": "e9d927ed6fc86577df13f11e6c7e6511721c47eb52cba1a25632a2c032810240",
+      "bytes": 529,
+      "request_id": "01a1181a-3fb4-7f79-bad0-7efd33ca5389",
+      "source_status_type_length": true
+    }
+  },
+  "run_terminal_checked": true,
+  "owned_cleanup_checked": true,
+  "new_nonowned_nonwaited_PID1": {
+    "containerd-shim": 4
+  },
+  "limits": [
+    "actual default app.Run nil hooks and native HTTP client over PostgreSQL; author execution only, not independent PG execution",
+    "offline Python consumes original body bytes and actual metadata; top PASS and fixed source bind startup, prior Update, drain/restart assertions; no new HTTP/DB request",
+    "no independent native/PG window started; active author old group excluded; earlier root failure retained",
+    "no whole-machine zero claim"
+  ]
+}

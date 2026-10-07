@@ -1,0 +1,30 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v05/closure.json",
+    "sha256": "a662403ae3c79f252d7b444887fa8cd2560675e875446ccce6bbb137004a5759"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json",
+    "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+  },
+  "actual_union": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json",
+    "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+  },
+  "files": {
+    "/workspace/agenteam/tests/model/project_configuration_http_root_test.go": {
+      "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate06/manifest.json": {
+      "sha256": "f2dc9c81c478cf85f09695d955ebb7e8ec56050eff919bb931b0493d2d794e4b"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full06.json": {
+      "sha256": "8eb6e6c0979a5d9090fa5830b0b5a694a98def284b0a447c4ad46e4156ed38be"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/integration06.test": {
+      "sha256": "754b206ecb7fb2e1439992529b06aa1dd2aee080de3549f7ffeca6a2203a74b1"
+    }
+  },
+  "package_file_sets": {},
+  "limit": "Only #13 accepted Update lookup assertion test delta; graph/import dependencies unchanged; compile/vet/exact root+old list refreshed; native and first three successful PG groups reused without reexecution."
+}

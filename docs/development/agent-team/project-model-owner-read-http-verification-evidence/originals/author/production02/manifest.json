@@ -1,0 +1,18 @@
+{
+  "status": "STATIC_CANDIDATE_ONLY_NO_COMPILE",
+  "base_manifest": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/production01/manifest.json",
+    "sha256": "6925716025ad18161d6811c6196785956abdee94d7f11e7aedb48b3717f81d40"
+  },
+  "delta": {
+    "internal/central/model/http_project.go": "24045e8ab8a1ca357ea54d8d65532085b45bb1c059a25231a29a395e9abba24f"
+  },
+  "snapshot_root": "/workspace/scratch/project-model-owner-read-http-author/production02/src",
+  "patch_sha256": "79760c3d3068a9bc28203c74fe4e791961680d6ce31dd30ce6618570f0643771",
+  "reason": "private deadline adapters contain setter panic, so start/AfterFunc/finish cannot bypass Close or actual callback join; existing Summary/Update unchanged",
+  "format_actual": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/format02/result.json",
+    "sha256": "7181beeda7c31d06e43b0420e3b87b0daeb3ffd6cdbc58582a46c60147355130"
+  },
+  "stopped_writing_production_five": true
+}

@@ -1,0 +1,23 @@
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush
+    http_project_native_test.go:257: actual I/O write_entered=0 write_exited=0 requested_bytes=0 returned_bytes=0 flush_entered=1 flush_exited=1 net_timeout=true
+=== RUN   TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_get_write
+    http_project_native_test.go:257: actual I/O write_entered=1 write_exited=1 requested_bytes=1200546 returned_bytes=36674 flush_entered=0 flush_exited=0 net_timeout=true
+--- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort (4.05s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/short (0.01s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/write_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/flush_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/close_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/panic (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/reset_error (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/unsupported (0.00s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_head_flush (0.46s)
+    --- PASS: TestProjectModelHTTPNativeWriteFlushCloseAndAbort/blocked_get_write (3.57s)
+PASS

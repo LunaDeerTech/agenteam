@@ -1,0 +1,30 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/pg-driver-v03/closure.json",
+    "sha256": "3d46529849c56a652a3e431f33ced41f8143c3d1fce151720d742e7245d60f0a"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json",
+    "sha256": "44e8691202a6887636264b4298056168ec00710663cd25d1df1b615202acda59"
+  },
+  "actual_union": {
+    "path": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full04.json",
+    "sha256": "33b6b11d1fba3827a74c2335bb7595b86d37e8d11759717de6d3d907b8ec6cd0"
+  },
+  "files": {
+    "/workspace/agenteam/tests/model/project_configuration_http_test.go": {
+      "sha256": "5c2957a82e67eaa2969971fc7026f94157bf43bb1f5fad08bd84097387b183f4"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/candidate04/manifest.json": {
+      "sha256": "44e8691202a6887636264b4298056168ec00710663cd25d1df1b615202acda59"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/graph-index-full04.json": {
+      "sha256": "33b6b11d1fba3827a74c2335bb7595b86d37e8d11759717de6d3d907b8ec6cd0"
+    },
+    "/workspace/scratch/project-model-owner-read-http-author/integration04.test": {
+      "sha256": "3165d6596171ef1b409d80e0a57d44c251dc4de4a3de6fca79f2166b2ea0e56b"
+    }
+  },
+  "package_file_sets": {},
+  "limit": "Only #11 two-line legal counterexample delta; old actual graph source membership/imports unchanged; affected integration race recompiled/listed/vetted; native/model and first two PG bodies unchanged and not rerun."
+}

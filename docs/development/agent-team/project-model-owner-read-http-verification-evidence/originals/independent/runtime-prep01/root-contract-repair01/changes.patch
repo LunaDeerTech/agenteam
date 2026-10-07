@@ -1,0 +1,27 @@
+--- frozen-private/pg_test.go
++++ repair01/pg_test.go
+@@ -236,8 +236,22 @@
+ 		t.Fatal("Update mutation missing")
+ 	}
+ 	lookup := projectUpdateRootRequest(t, root, v.ownerBrowser, "POST", projectUpdateLookupPath(v.project.ID), key, projectUpdateLookupBody).want(t, 200)
+-	if lookup.object(t)["found"] != true {
+-		t.Fatal("Update lookup route missing")
++	observed := lookup.object(t)
++	if observed["state"] != "committed" {
++		t.Fatal("Update lookup did not observe committed state")
++	}
++	result, ok := observed["result"].(map[string]any)
++	if !ok || result["command"] != "update" {
++		t.Fatal("Update lookup result missing or wrong command")
++	}
++	historical, ok := result["project"].(map[string]any)
++	if !ok || historical["id"] != v.project.ID.String() || historical["version"] != "2" || historical["description"] != description {
++		t.Fatal("Update lookup original Project identity/version/description mismatch")
++	}
++	historyJSON, historyErr := json.Marshal(historical)
++	receiptJSON, receiptErr := json.Marshal(receipt.object(t))
++	if historyErr != nil || receiptErr != nil || !bytes.Equal(historyJSON, receiptJSON) {
++		t.Fatal("Update lookup project differs from original PATCH projection")
+ 	}
+ 	root.request(t, v.ownerBrowser, "GET", base+"models", nil).want(t, 200)
+ 	root.request(t, v.ownerBrowser, "GET", projectUsagePath(v.project.ID), nil).want(t, 200)

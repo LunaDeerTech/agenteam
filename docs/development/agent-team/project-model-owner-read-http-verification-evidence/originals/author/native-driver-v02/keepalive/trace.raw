@@ -1,0 +1,74 @@
+759246 1791403181.955055 execve("/workspace/scratch/project-model-owner-read-http-author/model-race03.test", ["/workspace/scratch/project-model"..., "-test.count=1", "-test.parallel=1", "-test.timeout=40s", "-test.run=^TestProjectModelHTTPN"..., "-test.v"], 0x7fff653afbd8 /* 14 vars */) = 0
+759246 1791403181.955873 close(3</etc/ld.so.cache>) = 0
+759246 1791403181.956272 close(3</usr/lib/x86_64-linux-gnu/libc.so.6>) = 0
+759246 1791403181.957022 close(3</proc/759246/maps>) = 0
+759246 1791403181.957214 close(3</sys/kernel/mm/transparent_hugepage/hpage_pmd_size>) = 0
+759246 1791403181.961477 close(3</proc/759246/environ>) = 0
+759246 1791403181.961718 close(3</proc/759246/cmdline>) = 0
+759246 1791403181.963954 close(3</proc/759246/cgroup>) = 0
+759246 1791403181.964114 close(3</proc/759246/mountinfo>) = 0
+759246 1791403181.967876 clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7fcf28fff990, parent_tid=0x7fcf28fff990, exit_signal=0, stack=0x7fcf287ff000, stack_size=0x7fff80, tls=0x7fcf28fff6c0} => {parent_tid=[759251]}, 88) = 759251
+759246 1791403181.968434 clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7fcf23fff990, parent_tid=0x7fcf23fff990, exit_signal=0, stack=0x7fcf237ff000, stack_size=0x7fff80, tls=0x7fcf23fff6c0} => {parent_tid=[759252]}, 88) = 759252
+759246 1791403181.968921 clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7fcf237fe990, parent_tid=0x7fcf237fe990, exit_signal=0, stack=0x7fcf22ffe000, stack_size=0x7fff80, tls=0x7fcf237fe6c0} => {parent_tid=[759253]}, 88) = 759253
+759246 1791403181.970114 clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7fcf22ffd990, parent_tid=0x7fcf22ffd990, exit_signal=0, stack=0x7fcf227fd000, stack_size=0x7fff80, tls=0x7fcf22ffd6c0} => {parent_tid=[759254]}, 88) = 759254
+759246 1791403181.974048 close(5</etc/machine-id>) = 0
+759246 1791403181.977421 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCP:[1994516]>
+759246 1791403181.977561 close(5<TCP:[1994516]>) = 0
+759246 1791403181.977617 socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCPv6:[1994517]>
+759246 1791403181.977668 setsockopt(5<TCPv6:[1994517]>, SOL_IPV6, IPV6_V6ONLY, [1], 4) = 0
+759246 1791403181.977720 bind(5<TCPv6:[1994517]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+759246 1791403181.977905 socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 6<TCPv6:[1994518]>
+759246 1791403181.977952 setsockopt(6<TCPv6:[1994518]>, SOL_IPV6, IPV6_V6ONLY, [0], 4) = 0
+759246 1791403181.977991 bind(6<TCPv6:[1994518]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+759246 1791403181.978076 close(6<TCPv6:[1994518]>) = 0
+759246 1791403181.978117 close(5<TCPv6:[1994517]>) = 0
+759246 1791403181.978171 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_MPTCP) = -1 EPROTONOSUPPORT (Protocol not supported)
+759246 1791403181.978230 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[1994520]>
+759246 1791403181.979028 close(6</proc/sys/net/core/somaxconn>) = 0
+759246 1791403181.979076 setsockopt(5<TCP:[1994520]>, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+759246 1791403181.979123 bind(5<TCP:[1994520]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+759246 1791403181.979224 listen(5<TCP:[1994520]>, 4096) = 0
+759246 1791403181.979441 getsockname(5<TCP:[1994520]>, {sa_family=AF_INET, sin_port=htons(38787), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+759246 1791403181.979659 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 6<TCP:[1994521]>
+759246 1791403181.979765 connect(6<TCP:[1994521]>, {sa_family=AF_INET, sin_port=htons(38787), sin_addr=inet_addr("127.0.0.1")}, 16 <unfinished ...>
+759253 1791403181.979805 accept4(5<TCP:[1994520]>, 0xc00006199c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+759246 1791403181.980117 <... connect resumed>) = -1 EINPROGRESS (Operation now in progress)
+759253 1791403181.980161 accept4(5<TCP:[1994520]>, {sa_family=AF_INET, sin_port=htons(40126), sin_addr=inet_addr("127.0.0.1")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[1995369]>
+759246 1791403181.980279 getsockopt(6<TCP:[1994521]>, SOL_SOCKET, SO_ERROR, [0], [4]) = 0
+759253 1791403181.980336 getsockname(7<TCP:[1995369]>,  <unfinished ...>
+759246 1791403181.980374 getpeername(6<TCP:[1994521]>,  <unfinished ...>
+759253 1791403181.980396 <... getsockname resumed>{sa_family=AF_INET, sin_port=htons(38787), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+759246 1791403181.980408 <... getpeername resumed>{sa_family=AF_INET, sin_port=htons(38787), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+759253 1791403181.980434 setsockopt(7<TCP:[1995369]>, SOL_TCP, TCP_NODELAY, [1], 4 <unfinished ...>
+759246 1791403181.980453 getsockname(6<TCP:[1994521]>,  <unfinished ...>
+759253 1791403181.980467 <... setsockopt resumed>) = 0
+759246 1791403181.980476 <... getsockname resumed>{sa_family=AF_INET, sin_port=htons(40126), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+759253 1791403181.980488 setsockopt(7<TCP:[1995369]>, SOL_SOCKET, SO_KEEPALIVE, [1], 4 <unfinished ...>
+759246 1791403181.980503 setsockopt(6<TCP:[1994521]>, SOL_TCP, TCP_NODELAY, [1], 4 <unfinished ...>
+759253 1791403181.980517 <... setsockopt resumed>) = 0
+759246 1791403181.980525 <... setsockopt resumed>) = 0
+759253 1791403181.980546 setsockopt(7<TCP:[1995369]>, SOL_TCP, TCP_KEEPIDLE, [15], 4 <unfinished ...>
+759246 1791403181.980561 setsockopt(6<TCP:[1994521]>, SOL_SOCKET, SO_KEEPALIVE, [1], 4 <unfinished ...>
+759253 1791403181.980576 <... setsockopt resumed>) = 0
+759246 1791403181.980585 <... setsockopt resumed>) = 0
+759253 1791403181.980608 setsockopt(7<TCP:[1995369]>, SOL_TCP, TCP_KEEPINTVL, [15], 4 <unfinished ...>
+759246 1791403181.980623 setsockopt(6<TCP:[1994521]>, SOL_TCP, TCP_KEEPIDLE, [15], 4 <unfinished ...>
+759253 1791403181.980638 <... setsockopt resumed>) = 0
+759246 1791403181.980647 <... setsockopt resumed>) = 0
+759253 1791403181.980667 setsockopt(7<TCP:[1995369]>, SOL_TCP, TCP_KEEPCNT, [9], 4 <unfinished ...>
+759246 1791403181.980682 setsockopt(6<TCP:[1994521]>, SOL_TCP, TCP_KEEPINTVL, [15], 4 <unfinished ...>
+759253 1791403181.980696 <... setsockopt resumed>) = 0
+759246 1791403181.980705 <... setsockopt resumed>) = 0
+759246 1791403181.980726 setsockopt(6<TCP:[1994521]>, SOL_TCP, TCP_KEEPCNT, [9], 4) = 0
+759253 1791403181.980775 accept4(5<TCP:[1994520]>, 0xc00006199c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+759246 1791403182.185000 close(6<TCP:[1994521]>) = 0
+759253 1791403182.185253 close(7<TCP:[1995369]> <unfinished ...>
+759246 1791403182.185280 close(5<TCP:[1994520]> <unfinished ...>
+759253 1791403182.185313 <... close resumed>) = 0
+759246 1791403182.185321 <... close resumed>) = 0
+759252 1791403183.186063 exit_group(0)  = ?
+759254 1791403183.186223 +++ exited with 0 +++
+759253 1791403183.186238 +++ exited with 0 +++
+759252 1791403183.186242 +++ exited with 0 +++
+759251 1791403183.186245 +++ exited with 0 +++
+759246 1791403183.187860 +++ exited with 0 +++

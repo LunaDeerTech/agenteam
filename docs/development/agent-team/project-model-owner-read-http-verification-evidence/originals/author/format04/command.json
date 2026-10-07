@@ -1,0 +1,47 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "/workspace/agenteam/internal/central/model/http_project_test.go",
+    "/workspace/agenteam/internal/central/model/http_project_wire_test.go",
+    "/workspace/agenteam/internal/central/model/http_project_native_test.go",
+    "/workspace/agenteam/internal/central/app/project_models_test.go"
+  ],
+  "cwd": "/workspace/agenteam",
+  "environment_overrides": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "TMPDIR": "/workspace/scratch/project-model-owner-read-http-author/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+    "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "subreaper": true,
+  "driver_pid": 743450,
+  "driver_sha256": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+  "frozen_manifest_sha256": "5b02aa0a7ec2955c4cd6ea398b124b093312ef62d8c1a75e544cd9e25498721c",
+  "started_utc": "2026-10-07T19:38:57Z",
+  "total_deadline_seconds": 45,
+  "child_timeout_seconds": 42,
+  "inputs_before": {
+    "/workspace/agenteam/internal/central/model/http_project_test.go": "9eff86dbb3a6c0a1f16615aee2393fd9639bc68109cca7ca84e0b9dab65d2cc2",
+    "/workspace/agenteam/internal/central/model/http_project_wire_test.go": "2691d1f1ef520b9256b3fbb573b256dc7bb51e2adce3eee6d01ce937a4868ecd",
+    "/workspace/agenteam/internal/central/model/http_project_native_test.go": "1f5ba0b15786de8377c4676929eec405ec6cbbcc58bb203d1c2446dfe1d8fe93",
+    "/workspace/agenteam/internal/central/app/project_models_test.go": "708243576668adf984031c418f9bd3b8433df1c1778e916ae47bd0f9e2faf7f5",
+    "/workspace/scratch/project-model-owner-read-http-author/offline-driver.py": "895214fcef6ef224a90b5e7336a5a3bbd4ee1098772add23ef1c3a0f47db6a77",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  }
+}
