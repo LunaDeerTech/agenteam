@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "docker",
+    "--config",
+    "/workspace/scratch/fixture-recovery/docker-config",
+    "--host",
+    "unix:///var/run/docker.sock",
+    "pull",
+    "pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc"
+  ],
+  "cwd": "/workspace/scratch/fixture-recovery",
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "LANG": "C.UTF-8",
+    "TMPDIR": "/workspace/scratch/fixture-recovery/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "https://proxy.golang.org",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/scratch/fixture-recovery/gocache",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "CGO_ENABLED": "0",
+    "GOTELEMETRY": "off",
+    "GOFLAGS": "",
+    "HTTP_PROXY": "<inherited-present>",
+    "HTTPS_PROXY": "<inherited-present>",
+    "NO_PROXY": "<inherited-present>",
+    "http_proxy": "<inherited-present>",
+    "https_proxy": "<inherited-present>",
+    "no_proxy": "<inherited-present>"
+  },
+  "started_ns": 1791374331818246608,
+  "pid": 5385,
+  "exit_code": 0,
+  "ended_ns": 1791374331999871146,
+  "elapsed_seconds": 0.181624538,
+  "raw_sha256": "8bb1161932b10b17eff358d1b15ddf27d75ae7392acf0b618b2c6b7fb44526d8"
+}

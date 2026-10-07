@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "version",
+    "-m",
+    "/workspace/scratch/fixture-recovery/bin/minio"
+  ],
+  "cwd": "/workspace/scratch/fixture-recovery",
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "LANG": "C.UTF-8",
+    "TMPDIR": "/workspace/scratch/fixture-recovery/tmp",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "https://proxy.golang.org",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/scratch/fixture-recovery/gocache",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "CGO_ENABLED": "0",
+    "GOTELEMETRY": "off",
+    "GOFLAGS": "",
+    "GOPATH": "/workspace/scratch/fixture-recovery/gopath",
+    "HTTP_PROXY": "<inherited-present>",
+    "HTTPS_PROXY": "<inherited-present>",
+    "NO_PROXY": "<inherited-present>",
+    "http_proxy": "<inherited-present>",
+    "https_proxy": "<inherited-present>",
+    "no_proxy": "<inherited-present>"
+  },
+  "started_ns": 1791374520542479040,
+  "pid": 16323,
+  "exit_code": 0,
+  "ended_ns": 1791374520545779735,
+  "elapsed_seconds": 0.003300695,
+  "raw_sha256": "e15609bfad02b2e2e537669981b0fd4a5ef2cbc5e7148e437d40a753f0143c53"
+}

@@ -1,5 +1,10 @@
 # 团队任务台账
 
+## 2026-10-07：固定测试依赖恢复
+
+- [恢复报告及原件](environment-test-dependencies-2026-10-07.md)记录 MinIO 精确 SHA/release/commit 与注入路径、两个固定 PG digest 镜像。16 条实际命令含四次原失败均保留；原 42 项 manifest 不改，仅归档 40 项小原件及 manifest 自身，binary/ZIP 只保留指纹，11 项仓库输入未变。
+- PG 17.8/16.12 是镜像配置，未启动容器、listener、数据库连接或产品测试；本次仅依赖恢复，不标记产品验收，不改变既有三停止或模块完成状态。旧恢复记录追加结果，以下历史原文保留。
+
 ## 2026-10-07：环境恢复至 main 6fa2ee72
 
 - [本次恢复交接](recovery-2026-10-07-environment.md)固定重新派工时点：初始 `work@bfdbd079` 干净，fetch 后全量保留远端，仅六 worker TOML 的 reasoning `max→ultra`；主线程已切至跟踪 `origin/main` 的 `main@6fa2ee72`，无未推送提交。旧私有 scratch 未恢复。

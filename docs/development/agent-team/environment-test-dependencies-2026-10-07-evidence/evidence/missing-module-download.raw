@@ -1,0 +1,24 @@
+{
+	"Path": "github.com/philhofer/fwd",
+	"Version": "v1.2.0",
+	"Error": "github.com/philhofer/fwd@v1.2.0: verifying go.mod: github.com/philhofer/fwd@v1.2.0/go.mod: initializing sumdb.Client: could not locate sumdb file: missing $GOPATH: HOME is not set",
+	"Info": "/workspace/go/pkg/mod/cache/download/github.com/philhofer/fwd/@v/v1.2.0.info",
+	"Origin": {
+		"VCS": "git",
+		"URL": "https://github.com/philhofer/fwd",
+		"Hash": "20a13a1f6b7cb47a126dcb75152e21e1383bbaba",
+		"Ref": "refs/tags/v1.2.0"
+	}
+}
+{
+	"Path": "github.com/tinylib/msgp",
+	"Version": "v1.4.0",
+	"Error": "github.com/tinylib/msgp@v1.4.0: verifying go.mod: github.com/tinylib/msgp@v1.4.0/go.mod: initializing sumdb.Client: could not locate sumdb file: missing $GOPATH: HOME is not set",
+	"Info": "/workspace/go/pkg/mod/cache/download/github.com/tinylib/msgp/@v/v1.4.0.info",
+	"Origin": {
+		"VCS": "git",
+		"URL": "https://github.com/tinylib/msgp",
+		"Hash": "ddb4e2e81a79c5ec6078164a2954dcde12cc7685",
+		"Ref": "refs/tags/v1.4.0"
+	}
+}

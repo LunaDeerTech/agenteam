@@ -1,0 +1,4 @@
+go: downloading github.com/philhofer/fwd v1.2.0
+go: downloading github.com/tinylib/msgp v1.4.0
+/workspace/go/pkg/mod/github.com/minio/madmin-go/v3@v3.0.109/estream/reader.go:36:2: open /workspace/go/pkg/mod/cache/download/github.com/tinylib/msgp/@v/v1.4.0.lock: read-only file system
+cmd/storage-rest-client.go:43:2: open /workspace/go/pkg/mod/cache/download/github.com/philhofer/fwd/@v/v1.2.0.lock: read-only file system

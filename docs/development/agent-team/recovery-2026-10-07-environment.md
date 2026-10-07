@@ -27,3 +27,7 @@
 Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三项原停止保持，不重试、不改写、不改派。D08–D28/E01 尚未完成，E01 未开始，ready503 不变；不宣称游戏或参考版已选定，也不宣称生产 Runtime Facts、Project 初始化/生命周期、Usage UI 或 Execution Summary 已交付。
 
 本次持久交接仅新增本页及台账页首摘要，不重建大型证据索引，不修改旧历史。文档交付由这两条路径的 Git 历史定位；本页不预先声称已提交或推送。
+
+## 测试依赖恢复结果
+
+[测试依赖恢复报告](environment-test-dependencies-2026-10-07.md)记录固定 MinIO 二进制及两个 PG digest 镜像已恢复。MinIO SHA、release/commit、`AGENTEAM_MINIO_BINARY=/workspace/scratch/fixture-recovery/bin/minio` 与 16 条实际命令（含四次原失败）均可追溯；PG 17.8/16.12 仅为 image inspect 配置，未运行数据库。原 42 项 manifest 保持，仅保存其中 40 项小原件及 manifest 自身，binary/ZIP 只保留指纹。11 项仓库输入未变；未启动容器、listener、DB 或产品测试，不构成 Usage HTTP 或其他产品验收，三停止边界不变。以上原恢复时点正文保持原文。

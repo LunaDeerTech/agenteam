@@ -1,0 +1,132 @@
+{
+  "baseline": "6fa2ee721a75ea34a1ccd6523b8b25d68328c5b9",
+  "binary": {
+    "path": "/workspace/scratch/fixture-recovery/bin/minio",
+    "sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+    "bytes": 109289632,
+    "injection": "AGENTEAM_MINIO_BINARY=/workspace/scratch/fixture-recovery/bin/minio"
+  },
+  "postgres": {
+    "pg17": {
+      "reference": "pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc",
+      "id": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+      "architecture": "amd64",
+      "os": "linux",
+      "version_config": [
+        "PG_VERSION=17.8-1.pgdg12+1"
+      ]
+    },
+    "pg16": {
+      "reference": "pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782",
+      "id": "sha256:4c0c0efbd40e8ff42363074292654a7831cac506fc01a1c89627f1b1040ba341",
+      "architecture": "amd64",
+      "os": "linux",
+      "version_config": [
+        "PG_VERSION=16.12-1.pgdg12+1"
+      ]
+    }
+  },
+  "final_input_hashes": {
+    "AGENTS.md": "95e8794e3fdd20ab9498520011b6df53c8d362ba07e1fa9362f5ea2d963d1930",
+    "docs/development/agent-team/README.md": "9d8bad3c85cf2a34fd0d9360bbc9eb27ea5c76082222a174984f78d599701c40",
+    ".agents/skills/agenteam-go-development/SKILL.md": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b",
+    "docs/development/backend/README.md": "42c7e527eaa2d2bd1a16f7cbd0afec894cb228206f6224e95a45629cff56ceb3",
+    "docs/development/work-items/d05-object-storage-research.md": "b4a0462d255910443cbed31abbaeee6d17c133b74a2d997357e37d938242f038",
+    "tests/testsupport/objectstore/fixture.go": "7363ada9d27a39eda336c4025ab67cb8812f8f0fbd4dd7a945b0bacc7e0fb95c",
+    "tests/testsupport/postgres/fixture.go": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+    "tests/testsupport/objectstore/cmd/fixture/main.go": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab",
+    "tests/testsupport/postgres/cmd/fixture/main.go": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "changed_input_paths": [],
+  "commands": {
+    "bwrap-go-version.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.005435222,
+      "raw_sha256": "f554cfdb85411c2bb1d503df3f53dfbad1f753eb8271938833166a5d26a7547c"
+    },
+    "minio-binary-sha.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.092677512,
+      "raw_sha256": "392b0a4dbcaef831caa55d3d51e3118a357d376be5f5ba5698b869e8574ba354"
+    },
+    "minio-build-01.meta.json": {
+      "exit_code": 1,
+      "elapsed_seconds": 1.077961262,
+      "raw_sha256": "beeaf9c54c1b14b9ec9caffba4de9dc9a001c2ac6d60dd8f4ceb80139f8da116"
+    },
+    "minio-build-02.meta.json": {
+      "exit_code": 1,
+      "elapsed_seconds": 0.002562192,
+      "raw_sha256": "81bc668085f171d9544030502b12fff83d0a06f2e8e92a1cf87852b066457e83"
+    },
+    "minio-build-03.meta.json": {
+      "exit_code": 1,
+      "elapsed_seconds": 0.157482345,
+      "raw_sha256": "099d1b0e40f03d5e9d5bb52ce78a5155faf119abca252292b86f484a85de1fd4"
+    },
+    "minio-build-04.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 77.59030146,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "minio-buildinfo.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.003300695,
+      "raw_sha256": "e15609bfad02b2e2e537669981b0fd4a5ef2cbc5e7148e437d40a753f0143c53"
+    },
+    "minio-source-verify.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.390975286,
+      "raw_sha256": "9808ac0b3018961edc246e7defbeabf8f55518316c7605a8341e573c1b5a28d0"
+    },
+    "minio-source-zip.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.957838841,
+      "raw_sha256": "355c20a7831b0b07ea64a7c13605820b9588b3a8802a44516944dc2558494e00"
+    },
+    "minio-version.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.222100259,
+      "raw_sha256": "669945bf6be602a981684e7d546eb3420980851cdf3219c4bedb0d6910e5dac0"
+    },
+    "missing-module-download-02.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.905764719,
+      "raw_sha256": "30f6f9bc8c8882d0de3576a00fd57eab90f54cff9be9484a19c2f054d2846053"
+    },
+    "missing-module-download.meta.json": {
+      "exit_code": 1,
+      "elapsed_seconds": 0.338560161,
+      "raw_sha256": "4289a0b9253ad2e224b5e3580a1c0824a79327c0d7b81285909b25ff91c29a53"
+    },
+    "pg16-inspect.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.015716169,
+      "raw_sha256": "2bfc7049de5d6e9c1fa8042aa95eb8b18f44d963bbd12cafdf2362ad04002ffc"
+    },
+    "pg16-pull.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 7.823059174,
+      "raw_sha256": "3b2ccc3c70a1760524936b0b3792edc501e1bec1f34826e3f15cece7756fce8a"
+    },
+    "pg17-inspect.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.017405395,
+      "raw_sha256": "80ff4abbd2955b2b1ad9c235d4458c378b14f8b486470875e47a27adc9415acf"
+    },
+    "pg17-pull.meta.json": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.181624538,
+      "raw_sha256": "8bb1161932b10b17eff358d1b15ddf27d75ae7392acf0b618b2c6b7fb44526d8"
+    }
+  },
+  "created_runtime_resources": [],
+  "limitations": [
+    "Only dependency recovery: no containers, services, listeners, database connections or product tests started.",
+    "PG_VERSION is inspected image configuration, not a running PostgreSQL observation.",
+    "Existing module cache was mounted read-only; the two missing fixed dependencies were downloaded only to task-owned missing-modcache.",
+    "Historical build/download infrastructure failures are preserved separately; no SHA or fixture helper contract was changed."
+  ]
+}
