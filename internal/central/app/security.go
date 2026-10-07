@@ -7,13 +7,14 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"time"
 )
 
 const SecurityStartupTimeout = 30 * time.Second
 
-func createSecurity(cfg config.Config, db database, authority *account.Authority, models *model.Authority) (*audit.Service, error) {
+func createSecurity(cfg config.Config, db database, authority *account.Authority, models *model.Authority, projects *project.Authority) (*audit.Service, error) {
 	store, ok := db.(audit.Store)
 	if !ok || authority == nil {
 		return nil, errors.New("AUDIT_STORE_UNAVAILABLE")
@@ -21,7 +22,10 @@ func createSecurity(cfg config.Config, db database, authority *account.Authority
 	if models == nil {
 		return nil, errors.New("MODEL_AUTHORITY_UNAVAILABLE")
 	}
-	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{Accounts: authority, Sessions: authority, System: authority, Models: models})
+	if projects == nil {
+		return nil, errors.New("PROJECT_AUTHORITY_UNAVAILABLE")
+	}
+	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{Accounts: authority, Sessions: authority, System: authority, Models: models, Projects: projects})
 }
 
 type maintenance interface {

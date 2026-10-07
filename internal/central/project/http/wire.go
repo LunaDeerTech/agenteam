@@ -1,4 +1,4 @@
-// Package projecthttp exposes current-Owner Project reads, not Project commands.
+// Package projecthttp exposes current-Owner reads and metadata update commands.
 package projecthttp
 
 import (

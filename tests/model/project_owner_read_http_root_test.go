@@ -60,5 +60,5 @@ func TestModelProjectOwnerReadHTTPRootBinding(t *testing.T) {
 			t.Fatal("root log exposed private request data")
 		}
 	}
-	t.Log("public default app.Run; exact new GET/HEAD plus original resolve/Usage/Account/System/S2 routes; no write binding or ready success; actual root shutdown joined")
+	t.Log("public default app.Run; exact new GET/HEAD plus original resolve/Usage/Account/System/S2 routes; no creation/lifecycle binding or ready success; actual root shutdown joined")
 }

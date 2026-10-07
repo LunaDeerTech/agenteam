@@ -1413,6 +1413,296 @@
         },
         "summary": "Read current Owner project detail",
         "description": "Two-second total budget before authentication through actual I/O completion; no request entity. Strict query rejects unknown/duplicate/empty/malformed parameters. Complete encoded success is at most 5 MiB. HEAD performs the same authorization, query, validation and encoding, with no response body."
+      },
+      "patch": {
+        "summary": "Update Owner project name/description",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:/-]{1,128}(?![\\s\\S])"
+            },
+            "description": "Exactly one original key. No automatic replacement or merging."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON with at most 65536 encoded bytes; current CSRF required.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Historical safe update result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "description": "30-second publication/I/O budget; original synchronous library confirmation may retire for up to three additional seconds, without late success/Problem."
+      }
+    },
+    "/api/v1/projects/{id}/commands/lookup": {
+      "post": {
+        "summary": "Observe only an Owner project update command",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:/-]{1,128}(?![\\s\\S])"
+            },
+            "description": "Exactly one original key. No automatic replacement or merging."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON with at most 1024 encoded bytes; current CSRF required.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLookupInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Historical safe update result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateLookupResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Original safe Problem; no late publication after deadline",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "description": "Two-second total lookup publication/I/O budget; current Owner/Session and CSRF. No other command namespace is exposed."
       }
     }
   },
@@ -1732,6 +2022,109 @@
             ]
           }
         }
+      },
+      "UpdateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "name": {
+            "$ref": "#/components/schemas/ProjectName"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "name"
+            ]
+          },
+          {
+            "required": [
+              "description"
+            ]
+          }
+        ],
+        "description": "Presence preserves original intent. Null is forbidden; empty description clears it. At most 65536 encoded bytes; description remains at most 8192 decoded UTF-8 bytes."
+      },
+      "UpdateLookupInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "update"
+          }
+        }
+      },
+      "UpdateLookupResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "result"
+            ],
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "result": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "command",
+                  "project"
+                ],
+                "properties": {
+                  "command": {
+                    "const": "update"
+                  },
+                  "project": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Project"
+                      },
+                      {
+                        "properties": {
+                          "lifecycle": {
+                            "const": "active"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state"
+            ],
+            "properties": {
+              "state": {
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              }
+            }
+          }
+        ],
+        "description": "Observes only this update key under current authorization; not_observed is not proof about another request body and never authorizes automatic replay."
       }
     }
   }

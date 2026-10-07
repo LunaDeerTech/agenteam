@@ -15,6 +15,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
 )
 
 func TestModelRootRouteOwnershipAndRequestPreservation(t *testing.T) {
@@ -91,7 +92,12 @@ func TestModelRootRequiredConstructionDependencies(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	auditor, err := createSecurity(cfg, store, accounts, models)
+	projectUsage, err := createProjectUsage(cfg, store, accounts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	projects := projectUsage.projects
+	auditor, err := createSecurity(cfg, store, accounts, models, projects)
 	if err != nil || auditor == nil {
 		t.Fatal("valid Audit construction", err)
 	}
@@ -104,14 +110,16 @@ func TestModelRootRequiredConstructionDependencies(t *testing.T) {
 		db       database
 		accounts *account.Authority
 		models   *model.Authority
+		projects *project.Authority
 	}{
-		{"missing-store", nil, accounts, models},
-		{"wrong-store", &unitDatabase{}, accounts, models},
-		{"missing-account", store, nil, models},
-		{"missing-model", store, accounts, nil},
+		{"missing-store", nil, accounts, models, projects},
+		{"wrong-store", &unitDatabase{}, accounts, models, projects},
+		{"missing-account", store, nil, models, projects},
+		{"missing-model", store, accounts, nil, projects},
+		{"missing-project", store, accounts, models, nil},
 	} {
 		t.Run("audit/"+tc.name, func(t *testing.T) {
-			if got, err := createSecurity(cfg, tc.db, tc.accounts, tc.models); err == nil || got != nil {
+			if got, err := createSecurity(cfg, tc.db, tc.accounts, tc.models, tc.projects); err == nil || got != nil {
 				t.Fatal("missing graph dependency produced Audit service")
 			}
 		})

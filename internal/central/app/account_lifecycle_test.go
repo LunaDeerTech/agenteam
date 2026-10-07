@@ -262,3 +262,68 @@ func TestB04AppAccountHealthHasIndependentFreshness(t *testing.T) {
 		t.Fatal("failed Account check remained available")
 	}
 }
+
+func TestProjectUpdateAssemblyPureOrderingAndPartial(t *testing.T) {
+	for _, force := range []bool{false, true} {
+		t.Run(map[bool]string{false: "Drain", true: "Force"}[force], func(t *testing.T) {
+			projects, mail, core, sink := &b04Work{}, &b04Work{}, &b04Work{}, &b04Work{}
+			sink.joined.Store(true)
+			assembly := &accountAssembly{projects: projects, mail: mail, core: core, sink: sink}
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			order := []string{}
+			for _, entry := range []struct {
+				name string
+				work *b04Work
+			}{{"project", projects}, {"mail", mail}, {"core", core}} {
+				fn := func(actual context.Context) error {
+					if actual != ctx || !projects.stopped.Load() || !mail.stopped.Load() || !core.stopped.Load() {
+						t.Fatal("budget/admission changed")
+					}
+					order = append(order, entry.name)
+					entry.work.joined.Store(true)
+					return nil
+				}
+				entry.work.drain = fn
+				entry.work.force = fn
+			}
+			var err error
+			if force {
+				err = assembly.Force(ctx)
+			} else {
+				err = assembly.Drain(ctx)
+			}
+			if err != nil || !assembly.Joined() || len(order) != 3 || order[0] != "project" || order[1] != "mail" || order[2] != "core" {
+				t.Fatal("provider retirement order", order, err)
+			}
+		})
+	}
+	t.Run("expired-force-and-late-install", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		mail, core := &b04Work{}, &b04Work{}
+		assembly := &accountAssembly{constructing: true, mail: mail, core: core}
+		_ = assembly.Force(ctx)
+		projects := &b04Work{force: func(got context.Context) error {
+			if got != ctx {
+				t.Fatal("renewed shutdown")
+			}
+			return got.Err()
+		}}
+		if assembly.install(context.Background(), func() { assembly.projects = projects }) {
+			t.Fatal("late installation accepted")
+		}
+		assembly.constructionDone()
+		if projects.forced.Load() != 1 || !projects.stopped.Load() || assembly.Joined() || mail.forced.Load() < 2 || core.forced.Load() < 2 {
+			t.Fatal("partial service escaped owner")
+		}
+	})
+	t.Run("project-and-partial-sink", func(t *testing.T) {
+		projects, sink := &b04Work{}, &b04Work{}
+		assembly := &accountAssembly{projects: projects, sink: sink}
+		work := assembly.works()
+		if len(work) != 2 || work[0] != projects || work[1] != sink {
+			t.Fatal("Project hid partial sink")
+		}
+	})
+}

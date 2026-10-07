@@ -20,6 +20,7 @@ import (
 	outboundhttp "github.com/LunaDeerTech/agenteam/internal/central/outbound/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
 	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
@@ -55,6 +56,7 @@ type accountAssembly struct {
 	stopped      bool
 	started      bool
 	forced       context.Context
+	projects     accountWork
 	sink         accountWork
 	core         accountWork
 	runtime      accountRuntime
@@ -131,6 +133,10 @@ func (a *accountAssembly) works() []accountWork {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	var work []accountWork
+	// Project calls must release their Account Activity dependency first.
+	if a.projects != nil {
+		work = append(work, a.projects)
+	}
 	// Mail finishes its durable completion through core after protocol I/O.
 	// Retiring core first would reject that last cleanup transaction.
 	if a.mail != nil {
@@ -240,6 +246,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	projectUsage, err := createProjectUsage(cfg, db, authority)
+	if err != nil {
+		return err
+	}
 	modelStore, ok := db.(model.Store)
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -267,7 +277,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	processes := accountProcessAuthority{process: process, guard: objects.guard}
-	auditor, err := createSecurity(cfg, db, authority, modelAuthority)
+	auditor, err := createSecurity(cfg, db, authority, modelAuthority, projectUsage.projects)
 	if err != nil {
 		return err
 	}
@@ -308,17 +318,28 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	projectEvents, err := pc.RegisterProjectEvents(catalog)
+	if err != nil {
+		return err
+	}
 	journalStore, ok := db.(outbox.Store)
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	journal, err := outbox.New(journalStore, catalog, outbox.Authorizations{
-		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority},
+		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects},
 		Processes: outboxProcessAuthority{process: objects.process, guard: objects.guard},
-		Sessions:  authority, System: authority, Audit: auditor, Cursors: cfg.CursorKeyring(),
+		Sessions:  authority, System: authority, Audit: auditor, Cursors: cfg.CursorKeyring(), Projects: projectUsage.projects,
 	})
 	if err != nil {
 		return err
+	}
+	projectCommands, err := createProjectUpdate(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.projects = &projectCommandWork{service: projectCommands} }) {
+		return context.Canceled
 	}
 	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
 	if err != nil {
@@ -334,10 +355,6 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	if !accounts.install(ctx, func() { accounts.core = core }) {
 		return context.Canceled
-	}
-	projectUsage, err := createProjectUsage(cfg, db, authority)
-	if err != nil {
-		return err
 	}
 	projectReads, err := createProjectRead(cfg, db, projectUsage.projects)
 	if err != nil {
@@ -423,8 +440,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	updateHandler, err := projectUpdateHandler(projectCommands, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
-		accounts.handler = projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler)
+		accounts.handler = projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler)
 	}) {
 		return context.Canceled
 	}
