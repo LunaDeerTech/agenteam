@@ -1,0 +1,69 @@
+--- draft-rev1.md
++++ draft-rev2.md
+@@ -1,6 +1,6 @@
+ # D09 Project Owner Provider/Model 配置写入 HTTP 与默认根组合
+ 
+-修订 rev1，2026-10-07。**scratch 完整工程规格待独立 STATIC；未正式归位，未授权产品、Go 或资源。** root 已采纳 [完整结果建议](../project-model-configuration-http-recommendation01/recommendation.md) 的方向和工程界。当前固定产品输入为 Model Owner read `a0b012ce`、其归档 `6bd11cda`；凭据仅接受[规格 rev2](../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md) `9a2a9a1a` / 归档 `b498c0bc`。凭据活动 #1–22 实施不是已验依赖，本稿不读取其活动内容。
++修订 rev2，2026-10-07。**scratch 完整工程规格待独立差量及最终 STATIC 采纳；未正式归位，未授权产品、Go 或资源。** root 已采纳 [完整结果建议](../project-model-configuration-http-recommendation01/recommendation.md) 的方向和工程界。当前固定产品输入为 Model Owner read `a0b012ce`、其归档 `6bd11cda`；凭据仅接受[规格 rev2](../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md) `9a2a9a1a` / 归档 `b498c0bc`。凭据活动 #1–22 实施不是已验依赖，本稿不读取其活动内容。
+ 
+ 本卡正式实施须等凭据完整产品（含 README）独立接受并经 root 采纳、固定实际提交和共享根依赖移交；随后针对该新基线重冻本卡唯一文件表/实际图。不得用当前 `a0b012ce` 根覆盖凭据后继增量。本稿只定义完整结果，不授任何技术路径。
+ 
+@@ -67,7 +67,7 @@
+ 
+ ## 4. 原配置命令、当前权限、并发和查证
+ 
+-只调用既有六正式方法一次，不在HTTP增prepare/retry/lookup/GET预检流程。Meta为正式Human Actor、path ProjectScope、原key；库namespace固定 `model.project`，owners精确 `[ProjectID, stable Human UserID]`，命令名/完整 semantic 沿库，Session/trace不进semantic。同User新有效Session可同义重放，跨user/Project不能串行；异义同key原KeyReused。Create的稳定ID由原首次计划生成，不由HTTP预造。
++只调用既有六正式方法一次，不在HTTP增prepare/retry/lookup/GET预检流程。Meta为正式Human Actor、path ProjectScope、原key；库namespace固定 `model.project`，owners精确 `[ProjectID, stable Human UserID]`，命令名/完整 semantic 沿库，Session/trace不进semantic。同User新有效Session可同义重放，跨user/Project不能串用 identity/receipt；异义同key原KeyReused。Create的稳定ID由原首次计划生成，不由HTTP预造。
+ 
+ [commands.go](../project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go) 原顺序逐层保持：当前Read/gate→原receipt与semantic→首次Mutate/version/dependencies；正式事务一次完整union Acquire后再次当前Read→receipt→首次Mutate→mapping重核和全部事实，不能补Acquire掩盖漏锁。HTTP只RequireHuman，无额外Owner Mutate预检。准备失败的同key并发receipt复查保持，不能把过时版本/依赖错误固定在已提交同义receipt之前。
+ 
+@@ -120,7 +120,7 @@
+ 
+ 默认根不新造Model/Secret/ProjectAuthority，服务已共享正式Store/Audit/Event/UsageRouter；构造不提前Initialize。原Secret→Model→MeetingSummary→Usage顺序、Account/Project Update Drain、HTTP shutdown/Force与DB最后关闭链保持。新同步Model调用由原HTTP server所有权收尾；正常shutdown实际等待调用/子进程/端口，耗尽forced-root返回与仍未终局backend/privateproxy分开记录并随后实际释放，不把旧Object inner-join限制宣称修复。
+ 
+-## 7. 候选唯一白名单（13技术＋1末件；本稿不授实施）
++## 7. 候选唯一白名单（14技术＋1末件；本稿不授实施）
+ 
+ | # | 路径 | 唯一允许差量 |
+ | --- | --- | --- |
+@@ -137,15 +137,16 @@
+ | 11 | 新 `tests/model/project_configuration_write_http_authority_test.go` | 当前授权/归档重放/原子fact/缺adapter/实际锁 |
+ | 12 | 新 `tests/model/project_configuration_write_http_terminal_test.go` | 物理Unknown、私有确认与公开lookup、终局/并发 |
+ | 13 | 新 `tests/model/project_configuration_write_http_root_test.go` | 默认root业务组合及独立关闭top |
+-| 14 | `docs/development/backend/README.md` | 完整13技术独审/root采纳后另授末件 |
+-
+-十个候选新技术文件在本稿静态冻结时核不存在；四个旧路径固定接受snapshot/hash见 [候选清单](candidate-paths-rev1.json) 和 [输入清单](inputs-rev1.json)，未来凭据README变化必须从其已验最新版本增量，不能还原这里旧README。所有model库/contract/Secret生产、旧System/read/Update handler、旧fixture/shared helper、三根、迁移/依赖/脚本、入口/台账不在写范围。必要旧测试计数/签名出现真实差量时先报root窄授，不用本表推定可改。
++| 14 | `tests/model/project_configuration_http_root_test.go` | 仅已开放POST models的一处旧断言：body改空JSON对象、期望400 InvalidArgument，其余原字节保持 |
++| 15 | `docs/development/backend/README.md` | 完整14技术独审/root采纳后另授末件 |
++
++十个候选新技术文件在本稿静态冻结时核不存在；五个旧路径固定接受snapshot/hash见 [候选清单](candidate-paths-rev2.json) 和 [输入清单](inputs-rev2.json)，未来凭据README变化必须从其已验最新版本增量，不能还原这里旧README。所有model库/contract/Secret生产、旧System/read/Update handler、旧fixture/shared helper（仅#14明列的唯一POST调用适配为例外）、三根、迁移/依赖/脚本、入口/台账不在写范围。必要旧测试计数/签名出现真实差量时先报root窄授，不用本表推定可改。
+ 
+ ## 8. 离线、pure、native与真实fixture验收
+ 
+ ### 8.1 固定图、离线执行与精确入口
+ 
+-先冻结13源、继承凭据最终实际graph+read有效图的最小文件hashdelta；包括普通/race Go输入、embed、test-only、20包TestMain、实际Central/Runner两cmd构建、outbound server CGO0及runtime schema/脚本/工具，不读活动输入为固定结论。固定Go1.27.1/绝对Python、GOTOOLCHAIN=local、GOPROXY/GOSUMDB=off、GOFLAGS=-mod=readonly及正确GOMODCACHE；不改版本或复制全cache/依赖树。漏输入先停、补最小freeze；每命令外围45s、subreaper实际direct/adoptedwait和owned双空、前后输入/fileset同。仅在root授权离线窗执行graph→受影响compile/vet→精确list→pure/race/schema→两cmd检查；编译/no-tests/SKIP不算行为通过，禁止普通全app误跑init/native/TestMain资源。
++先冻结14源、继承凭据最终实际graph+read有效图的最小文件hashdelta；包括普通/race Go输入、embed、test-only、20包TestMain、实际Central/Runner两cmd构建、outbound server CGO0及runtime schema/脚本/工具，不读活动输入为固定结论。固定Go1.27.1/绝对Python、GOTOOLCHAIN=local、GOPROXY/GOSUMDB=off、GOFLAGS=-mod=readonly及正确GOMODCACHE；不改版本或复制全cache/依赖树。漏输入先停、补最小freeze；每命令外围45s、subreaper实际direct/adoptedwait和owned双空、前后输入/fileset同。仅在root授权离线窗执行graph→受影响compile/vet→精确list→pure/race/schema→两cmd检查；编译/no-tests/SKIP不算行为通过，禁止普通全app误跑init/native/TestMain资源。
+ 
+ 新pure顶层固定：model包 `TestProjectModelConfigurationHTTPPureInputAndDispatch`、`TestProjectModelConfigurationHTTPPureResultBoundary`、`TestProjectModelConfigurationHTTPPureActualTail`（#3）、`TestProjectModelConfigurationHTTPPureWire`（#4）；app包 `TestProjectModelConfigurationHTTPComposition`（#8）。普通/race精确selector、40s test/45s执行；其中不可放30s自然native等待。核全部表格字段/方法/最大raw+cap+1、nullable和typed损坏投影业务0，服务带候选error优先，写后坏receipt的新Unknown无伪cause，lookup错union/command、MaxInt64仍可入库且原错误优先；正式middleware state.code/已提交防二写、setter/Close/Unwrap各panic点和真实Close/callback阻塞尾部。所有异步所有者创建即登记幂等release+实际join cleanup，进入同步有界，前置Fatal也可回收且不新加超预算长等。
+ 
+@@ -179,6 +180,8 @@
+ 
+ 必须有本卡实际默认根兼容（可分包/分轮，不能只引用library）：`TestModelProjectConfigurationHTTPDefaultRoot`、`TestModelProjectOwnerUpdateHTTPRootBinding`、`TestModelProjectUsageHTTPRootBinding`、`TestModelMeetingSummarySettingsRoot`、`TestModelSystemHTTPConfigurationCRUD`、`TestModelSystemHTTPAtomicEffects`，加凭据完整接受后的 `TestModelProjectCredentialHTTPDefaultRoot`、`TestModelProjectCredentialHTTPCRUDAndHistory`。后两目前是接受规格入口，产品验收前不得运行本卡。
+ 
++旧 `TestModelProjectConfigurationHTTPDefaultRoot` 必须保留并实际执行，按§7 #14只适配一处：原 `root.request(t, v.ownerBrowser, "POST", base+"models", nil).problem(t, 405, f.MethodNotAllowed)` 改为 `root.request(t, v.ownerBrowser, "POST", base+"models", map[string]any{}).problem(t, 400, f.InvalidArgument)`。固定helper只在body非nil时附Content-Type/正式CSRF/key；保nil会先403，不能只把405改400。空JSON对象使请求经过正式CSRF/key后在新写输入缺字段处失败，证明已进入严格写边界。共享helper、旧top及其五GETHEAD、Update历史、ready/init/drain/restart和日志断言全部保留，不删除/跳过或放宽。固定原件与将来实施的单行示例见 [B1准备](rev2-preparation/B1.json)，当前没有应用产品patch。
++
+ 原库必需语义按源/依赖无变可复用既有接受证据，若本卡触及其有效执行输入或新根组合未覆盖则跑精确受影响代表：`TestModelProjectCRUDScopeAndCanonicalReceipts`、`TestModelProjectSecretReferencesAndAtomicEffects`、`TestModelProjectSecretReleaseAndDeletionShareRealWriterLock`、`TestModelProjectReceiptReadGateAndLegacySystemPlan`、`TestModelProjectPreparedAuthorizationAndReferenceMapping`、`TestModelProjectUnboundReferencesAndDeleteBarrier`、`TestModelProjectPreparationFailureRechecksReadReceipt`、`TestModelProjectRealFinalCommitUnknownThreeStates`、`TestModelProjectRollbackUnknownCannotAdoptDifferentSemanticReceipt`、`TestModelProjectProducerFactsCannotBeReplayedOrRebound`、`TestModelProjectAuditPreparedFactsAndProjectEventStages`、`TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion`、`TestModelProjectQueryCursorsAndEveryPageCurrentAuthority`。
+ 
+ 凭据其余当前权限/被动查证/Unknown三个top（`TestModelProjectCredentialHTTPCurrentAuthorityAndFacts`、`TestModelProjectCredentialHTTPPassiveLookup`、`TestModelProjectCredentialHTTPUnknown`）在其完整接受后建立来源绑定；本卡不改Secret其实现，适用部分复用，不重述Secret与Model不同的重放/Unknown规则为相同。System旧wire/Session读可复用未改证据；新schema/组合方法有影响时跑精确相关pure/actualbody。所有复用与本次实际命令分别标清版本、top/sub和范围，不称一次全包/全旧组通过。
+@@ -191,8 +194,8 @@
+ 
+ schema解释器只取绝对 `AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON`，事先冻结已有jsonschema/referencing依赖；需要导出时取独立绝对 `AGENTEAM_PROJECT_MODEL_CONFIGURATION_BODY_DIR` 和非空 RUN_ID/INPUT_ID（同前缀），缺绑定拒绝导出，不默认写共享目录。未开启导出只是不产生本轮联验原件，不能称新schema/body通过。真实schema导出安全response**原bytes**及sidecar：实际method/path/target、status、Content-Type、Content-Length、实际X-Request-ID、run/candidate/schema hash；材料请求/actor/session/key不导出。不同top独立目录绑定输入，不把失败轮部分body称全PASS；Unknown body.request_id与实际header不能互相推造。同一真实body走Draft202012+FormatChecker/原common refs，坏receipt和union负例另列受控证据，native、PG、schema不互相冒充。
+ 
+-作者完整13停写后，由未参与实施的独立实例STATIC全审；A重组当前权限/archived六history、原子末端事实、物理Unknown/公开EX lookup，B默认根实际凭据→配置→read与关闭，加必要独立native/同body schema。复用不受影响旧图和语义证据，原失败/版本/实际wait/清理逐轮保持；任何资源FAIL先真实收尾停后继，root明确授修复和重跑，不能自动调大budget或削断言。
++作者完整14停写后，由未参与实施的独立实例STATIC全审；A重组当前权限/archived六history、原子末端事实、物理Unknown/公开EX lookup，B默认根实际凭据→配置→read与关闭，加必要独立native/同body schema。复用不受影响旧图和语义证据，原失败/版本/实际wait/清理逐轮保持；任何资源FAIL先真实收尾停后继，root明确授修复和重跑，不能自动调大budget或削断言。
+ 
+ native/PG/独立真实窗口由root另行显式授权，真实资源严格串行；离线准备不代表可启动资源，作者闭合actualwait/双清并交还后独立才能接力。
+ 
+-全13技术独立PASS经root采纳后才另授README14，明确只交付本卡完整结果，保所有未绑定/未完成边界。最终14重新逐hash匹配、末件独审、作者与验收者停写，无owned命令/资源，由root整合提交推送；作者不Git、不再委派。当前rev1只有scratch规格/自查，没有Go运行、产品、资源或独立STATIC通过声明。
++全14技术独立PASS经root采纳后才另授README15，明确只交付本卡完整结果，保所有未绑定/未完成边界。最终15重新逐hash匹配、末件独审、作者与验收者停写，无owned命令/资源，由root整合提交推送；作者不Git、不再委派。当前rev2仅合并rev1完整独审的唯一技术阻断B1及措辞D1，仍待独立差量和最终STATIC采纳；没有Go运行、产品或资源通过声明。

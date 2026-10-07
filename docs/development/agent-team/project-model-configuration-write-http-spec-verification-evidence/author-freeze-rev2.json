@@ -1,0 +1,29 @@
+{
+  "status": "REV2_COMPLETE_SCRATCH_SPEC_FROZEN_PENDING_INDEPENDENT_DELTA_AND_FINAL_STATIC",
+  "draft": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/draft-rev2.md",
+    "sha256": "dbfa7d63510e8d292b2a803c0e0b3e75492a9d6bae3a9758887aa2c276400eee"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/inputs-rev2.json",
+    "sha256": "f434851195da548ca3faa2462bfb119dd3a3909649fc8ad105042426ff24e8f5"
+  },
+  "candidate_paths": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/candidate-paths-rev2.json",
+    "sha256": "0507ae5599ab30c9f7300f3263905e7e33b784455d87f789eacda364ce293943"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/rev1-to-rev2.patch",
+    "sha256": "c8c6f3d964adbaf42829eb1a8ee09a1b2c62a0f523d91db6495d4cbcfb934f33"
+  },
+  "self_check": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/self-check-rev2.json",
+    "sha256": "51e0745b88098f45d8978d1c16139d1f0205ef02eab5bc2b4670cea3d981749e"
+  },
+  "prior_freeze": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/freeze-rev1.json",
+    "sha256": "c9585146ab24ceb53660c45ead6491dc15f547858316b32797a77e07a0176abf"
+  },
+  "authorization": "scratch B1+D1 revision only; no official work card/source/Go/resource/Git",
+  "stop_write": true
+}

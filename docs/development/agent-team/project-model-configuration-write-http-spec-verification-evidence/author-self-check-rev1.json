@@ -1,0 +1,93 @@
+{
+  "status": "AUTHOR_SPEC_SELFCHECK_ONLY_PENDING_INDEPENDENT_STATIC",
+  "draft": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/draft-rev1.md",
+    "sha256": "464b27f3f6244c60fab72f7b5613202e5453c7dfe6d5dff09895bb4f92a488cb"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/inputs-rev1.json",
+    "sha256": "26bfc251f8e7dd14ee4918816a330a76bd2de8b2da406e529b96519247ebac2c"
+  },
+  "candidate_paths": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/candidate-paths-rev1.json",
+    "sha256": "0eb11d8912eb49d5694cac7b17859830ebabb987927a47d151c5ebaffea2cc94"
+  },
+  "links": [
+    {
+      "target": "../project-model-configuration-http-recommendation01/recommendation.md",
+      "sha256": "6766d31d58812bb6208c98ee8ad6a588fa1ccbf5eb3a269df0db64753365296c"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/recovery-d09-project-configuration.md",
+      "sha256": "308605a3e70c44d267c6111f0beb12877e409bd72c9a360e2956c0e44493ef81"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go",
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1"
+    },
+    {
+      "target": "candidate-paths-rev1.json",
+      "sha256": "0eb11d8912eb49d5694cac7b17859830ebabb987927a47d151c5ebaffea2cc94"
+    },
+    {
+      "target": "inputs-rev1.json",
+      "sha256": "26bfc251f8e7dd14ee4918816a330a76bd2de8b2da406e529b96519247ebac2c"
+    }
+  ],
+  "candidate_count": 14,
+  "new_candidate_count": 10,
+  "old_candidate_count": 4,
+  "fixed_source_hashes_match": true,
+  "known_old_top_names_match_accepted_source": [
+    "TestModelProjectConfigurationHTTPDefaultRoot",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelMeetingSummarySettingsRoot",
+    "TestModelSystemHTTPConfigurationCRUD",
+    "TestModelSystemHTTPAtomicEffects",
+    "TestModelProjectCRUDScopeAndCanonicalReceipts",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectPreparationFailureRechecksReadReceipt",
+    "TestModelProjectRealFinalCommitUnknownThreeStates",
+    "TestModelProjectRollbackUnknownCannotAdoptDifferentSemanticReceipt",
+    "TestModelProjectProducerFactsCannotBeReplayedOrRebound",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority"
+  ],
+  "planned_credential_top_names_match_accepted_spec_only": [
+    "TestModelProjectCredentialHTTPDefaultRoot",
+    "TestModelProjectCredentialHTTPCRUDAndHistory",
+    "TestModelProjectCredentialHTTPCurrentAuthorityAndFacts",
+    "TestModelProjectCredentialHTTPPassiveLookup",
+    "TestModelProjectCredentialHTTPUnknown"
+  ],
+  "format": "UTF8 LF final newline and no trailing spaces",
+  "repository_writes": [],
+  "tests_resources_Go_Git_mutation_executed": false,
+  "stopped_writing_after_freeze": true
+}

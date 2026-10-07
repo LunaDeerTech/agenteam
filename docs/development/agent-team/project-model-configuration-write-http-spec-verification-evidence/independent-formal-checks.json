@@ -1,0 +1,74 @@
+{
+  "status": "FORMAL_PLACEMENT_STATIC_PASS",
+  "formal_sha256": "e37d98f588290b86f95621abcfc76a8b479ca3046150bdad0d9c03d87b3f49a2",
+  "freeze_sha256": "f67503d5a9788a8af9bfd1184b33bd7804e4935443a189b4cc22cfdb66fdcd66",
+  "actual_diff_matches_frozen_patch": true,
+  "authorized_replacements": 11,
+  "section10_only_provenance": true,
+  "inverse_bytes_equal_accepted_rev2": true,
+  "links": [
+    {
+      "target": "d09-project-model-credentials-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../agent-team/d09-project-configuration-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291"
+    },
+    {
+      "target": "../agent-team/project-model-owner-read-http-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d"
+    },
+    {
+      "target": "d09-project-model-credentials-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-system/model-configuration.md",
+      "resolved": "/workspace/agenteam/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    },
+    {
+      "target": "recovery-d09-project-configuration.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-project-configuration.md",
+      "sha256": "308605a3e70c44d267c6111f0beb12877e409bd72c9a360e2956c0e44493ef81"
+    },
+    {
+      "target": "../../../internal/central/model/commands.go",
+      "resolved": "/workspace/agenteam/internal/central/model/commands.go",
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1"
+    },
+    {
+      "target": "#10-固定输入与规格验收定位",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "sha256": "e37d98f588290b86f95621abcfc76a8b479ca3046150bdad0d9c03d87b3f49a2"
+    },
+    {
+      "target": "#10-固定输入与规格验收定位",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "sha256": "e37d98f588290b86f95621abcfc76a8b479ca3046150bdad0d9c03d87b3f49a2"
+    }
+  ],
+  "links_total": 9,
+  "fragment_links": 2,
+  "source_evidence_hashes_checked": 9,
+  "old_candidate_source_hashes_checked": 5,
+  "scope": {
+    "technical": 14,
+    "README": 1,
+    "total": 15,
+    "new": 10,
+    "existing": 5
+  },
+  "format": {
+    "LF_only": true,
+    "final_newline": true,
+    "trailing_space_lines": []
+  },
+  "active_credentials_read": false,
+  "product_Go_resources_Git_mutation": false
+}

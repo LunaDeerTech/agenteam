@@ -1,0 +1,35 @@
+{
+  "status": "REV2_DELTA_STATIC_PASS",
+  "frozen": {
+    "draft-rev2.md": "dbfa7d63510e8d292b2a803c0e0b3e75492a9d6bae3a9758887aa2c276400eee",
+    "inputs-rev2.json": "f434851195da548ca3faa2462bfb119dd3a3909649fc8ad105042426ff24e8f5",
+    "candidate-paths-rev2.json": "0507ae5599ab30c9f7300f3263905e7e33b784455d87f789eacda364ce293943",
+    "rev1-to-rev2.patch": "c8c6f3d964adbaf42829eb1a8ee09a1b2c62a0f523d91db6495d4cbcfb934f33",
+    "freeze-rev2.json": "be50d452d83960e91f0f07f72fdc0bb6c0afb2d6726760433282b40b2bf68c5a"
+  },
+  "rev1_preserved": true,
+  "actual_diff_equals_frozen_patch": true,
+  "reviewed_B1_D1_administrative_replacements_count": 11,
+  "one_B1_paragraph_added": true,
+  "byte_inverse_equals_rev1": true,
+  "original_paths_1_to_13_exactly_unchanged": true,
+  "new_path_14": "tests/model/project_configuration_http_root_test.go",
+  "README_renumber_only": 15,
+  "B1_proposed_test_delta_exactly_one_line": true,
+  "shared_helper_unchanged": true,
+  "counts": {
+    "total": 15,
+    "technical": 14,
+    "README": 1,
+    "new": 10,
+    "existing": 5
+  },
+  "unchanged_fixed_source_input_manifest_references": true,
+  "links": 11,
+  "format": {
+    "LF_only": true,
+    "final_newline": true,
+    "trailing_space_lines": []
+  },
+  "Go_tests_resources_Git_product_writes": false
+}

@@ -1,0 +1,109 @@
+{
+  "status": "AUTHOR_FORMAL_PLACEMENT_SELFCHECK_PENDING_INDEPENDENT_STATIC",
+  "repository_write_only": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+  "target_previously_absent": true,
+  "source": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/draft-rev2.md",
+    "sha256": "dbfa7d63510e8d292b2a803c0e0b3e75492a9d6bae3a9758887aa2c276400eee"
+  },
+  "formal": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+    "sha256": "e37d98f588290b86f95621abcfc76a8b479ca3046150bdad0d9c03d87b3f49a2"
+  },
+  "diff": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/formal-placement01/draft-rev2-to-formal.patch",
+    "sha256": "e4a2ff96e79bef80bac816a513a08529114cdf7e68fc96727d6f3be378f01d10"
+  },
+  "authorized_link_status_source_replacements": [
+    [
+      "修订 rev2，2026-10-07。**scratch 完整工程规格待独立差量及最终 STATIC 采纳；未正式归位，未授权产品、Go 或资源。** root 已采纳 [完整结果建议](../project-model-configuration-http-recommendation01/recommendation.md) 的方向和工程界。",
+      "修订 rev2，2026-10-07。**完整限定独立 STATIC PASS（rev1 全审＋rev2 差量），root 已采纳；正式归位待窄复核，未授权产品实施、Go 或资源。** 完整结果与工程界以本卡§1–9为准。"
+    ],
+    [
+      "本稿只定义完整结果，不授任何技术路径。",
+      "本卡只定义完整结果，不授任何技术路径。"
+    ],
+    [
+      "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "d09-project-model-credentials-http.md"
+    ],
+    [
+      "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "../agent-team/d09-project-configuration-verification.md"
+    ],
+    [
+      "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "../agent-team/project-model-owner-read-http-verification.md"
+    ],
+    [
+      "../project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "../../architecture/platform-infrastructure/model-system/model-configuration.md"
+    ],
+    [
+      "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/recovery-d09-project-configuration.md",
+      "recovery-d09-project-configuration.md"
+    ],
+    [
+      "../project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go",
+      "../../../internal/central/model/commands.go"
+    ],
+    [
+      "[候选清单](candidate-paths-rev2.json) 和 [输入清单](inputs-rev2.json)",
+      "本节15路径清单及[固定输入定位](#10-固定输入与规格验收定位)"
+    ],
+    [
+      "固定原件与将来实施的单行示例见 [B1准备](rev2-preparation/B1.json)，当前没有应用产品patch。",
+      "B1原件指纹见[固定输入定位](#10-固定输入与规格验收定位)，本段已完整列出将来实施的唯一单行差量；当前没有应用产品patch。"
+    ],
+    [
+      "当前rev2仅合并rev1完整独审的唯一技术阻断B1及措辞D1，仍待独立差量和最终STATIC采纳；没有Go运行、产品或资源通过声明。",
+      "rev2已关闭rev1完整独审的唯一技术阻断B1及措辞D1，完整限定STATIC已由root采纳，正式归位仍待窄复核；没有Go运行、产品或资源通过声明。"
+    ]
+  ],
+  "section10_added_only_source_and_scope_provenance": true,
+  "reverse_transform_equals_accepted_rev2": true,
+  "links": [
+    {
+      "target": "d09-project-model-credentials-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md"
+    },
+    {
+      "target": "../agent-team/d09-project-configuration-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d09-project-configuration-verification.md"
+    },
+    {
+      "target": "../agent-team/project-model-owner-read-http-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/project-model-owner-read-http-verification.md"
+    },
+    {
+      "target": "d09-project-model-credentials-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md"
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-system/model-configuration.md",
+      "resolved": "/workspace/agenteam/docs/architecture/platform-infrastructure/model-system/model-configuration.md"
+    },
+    {
+      "target": "recovery-d09-project-configuration.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-project-configuration.md"
+    },
+    {
+      "target": "../../../internal/central/model/commands.go",
+      "resolved": "/workspace/agenteam/internal/central/model/commands.go"
+    },
+    {
+      "target": "#10-固定输入与规格验收定位",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md"
+    },
+    {
+      "target": "#10-固定输入与规格验收定位",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md"
+    }
+  ],
+  "no_dangling_scratch_links": true,
+  "format": "UTF8 LF final newline no trailing whitespace",
+  "candidate_scope": "14 technical+README15;10new5old unchanged",
+  "product_or_runtime_executed": false,
+  "Git_operations": false,
+  "stop_write": true
+}

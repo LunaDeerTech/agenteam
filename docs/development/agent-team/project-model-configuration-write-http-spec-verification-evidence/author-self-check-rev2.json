@@ -1,0 +1,156 @@
+{
+  "status": "AUTHOR_REV2_DELTA_SELFCHECK_ONLY_PENDING_INDEPENDENT_STATIC",
+  "draft": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/draft-rev2.md",
+    "sha256": "dbfa7d63510e8d292b2a803c0e0b3e75492a9d6bae3a9758887aa2c276400eee"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/inputs-rev2.json",
+    "sha256": "f434851195da548ca3faa2462bfb119dd3a3909649fc8ad105042426ff24e8f5"
+  },
+  "candidate_paths": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/candidate-paths-rev2.json",
+    "sha256": "0507ae5599ab30c9f7300f3263905e7e33b784455d87f789eacda364ce293943"
+  },
+  "spec_delta": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/rev1-to-rev2.patch",
+    "sha256": "c8c6f3d964adbaf42829eb1a8ee09a1b2c62a0f523d91db6495d4cbcfb934f33"
+  },
+  "B1_preparation": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/rev2-preparation/B1.json",
+    "sha256": "ed6df231ea3213377e292a1ae003d323e5704058ca751a67ded65c30c4401955"
+  },
+  "rev1_unchanged_sha256": "464b27f3f6244c60fab72f7b5613202e5453c7dfe6d5dff09895bb4f92a488cb",
+  "rev1_freeze_unchanged_sha256": "c9585146ab24ceb53660c45ead6491dc15f547858316b32797a77e07a0176abf",
+  "approved_replacements": [
+    [
+      "修订 rev1，2026-10-07。**scratch 完整工程规格待独立 STATIC；未正式归位，未授权产品、Go 或资源。**",
+      "修订 rev2，2026-10-07。**scratch 完整工程规格待独立差量及最终 STATIC 采纳；未正式归位，未授权产品、Go 或资源。**"
+    ],
+    [
+      "跨user/Project不能串行",
+      "跨user/Project不能串用 identity/receipt"
+    ],
+    [
+      "## 7. 候选唯一白名单（13技术＋1末件；本稿不授实施）",
+      "## 7. 候选唯一白名单（14技术＋1末件；本稿不授实施）"
+    ],
+    [
+      "| 14 | `docs/development/backend/README.md` | 完整13技术独审/root采纳后另授末件 |",
+      "| 14 | `tests/model/project_configuration_http_root_test.go` | 仅已开放POST models的一处旧断言：body改空JSON对象、期望400 InvalidArgument，其余原字节保持 |\n| 15 | `docs/development/backend/README.md` | 完整14技术独审/root采纳后另授末件 |"
+    ],
+    [
+      "四个旧路径固定接受snapshot/hash见 [候选清单](candidate-paths-rev1.json) 和 [输入清单](inputs-rev1.json)",
+      "五个旧路径固定接受snapshot/hash见 [候选清单](candidate-paths-rev2.json) 和 [输入清单](inputs-rev2.json)"
+    ],
+    [
+      "旧System/read/Update handler、旧fixture/shared helper、三根",
+      "旧System/read/Update handler、旧fixture/shared helper（仅#14明列的唯一POST调用适配为例外）、三根"
+    ],
+    [
+      "先冻结13源",
+      "先冻结14源"
+    ],
+    [
+      "作者完整13停写后",
+      "作者完整14停写后"
+    ],
+    [
+      "全13技术独立PASS经root采纳后才另授README14",
+      "全14技术独立PASS经root采纳后才另授README15"
+    ],
+    [
+      "最终14重新逐hash匹配",
+      "最终15重新逐hash匹配"
+    ],
+    [
+      "当前rev1只有scratch规格/自查，没有Go运行、产品、资源或独立STATIC通过声明。",
+      "当前rev2仅合并rev1完整独审的唯一技术阻断B1及措辞D1，仍待独立差量和最终STATIC采纳；没有Go运行、产品或资源通过声明。"
+    ]
+  ],
+  "added_paragraph": "旧 `TestModelProjectConfigurationHTTPDefaultRoot` 必须保留并实际执行，按§7 #14只适配一处：原 `root.request(t, v.ownerBrowser, \"POST\", base+\"models\", nil).problem(t, 405, f.MethodNotAllowed)` 改为 `root.request(t, v.ownerBrowser, \"POST\", base+\"models\", map[string]any{}).problem(t, 400, f.InvalidArgument)`。固定helper只在body非nil时附Content-Type/正式CSRF/key；保nil会先403，不能只把405改400。空JSON对象使请求经过正式CSRF/key后在新写输入缺字段处失败，证明已进入严格写边界。共享helper、旧top及其五GETHEAD、Update历史、ready/init/drain/restart和日志断言全部保留，不删除/跳过或放宽。固定原件与将来实施的单行示例见 [B1准备](rev2-preparation/B1.json)，当前没有应用产品patch。\n\n",
+  "inverse_reconstruction_equals_rev1": true,
+  "candidate_count": 15,
+  "technical_count": 14,
+  "new_count": 10,
+  "old_count": 5,
+  "links": [
+    {
+      "target": "../project-model-configuration-http-recommendation01/recommendation.md",
+      "sha256": "6766d31d58812bb6208c98ee8ad6a588fa1ccbf5eb3a269df0db64753365296c"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/recovery-d09-project-configuration.md",
+      "sha256": "308605a3e70c44d267c6111f0beb12877e409bd72c9a360e2956c0e44493ef81"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go",
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1"
+    },
+    {
+      "target": "candidate-paths-rev2.json",
+      "sha256": "0507ae5599ab30c9f7300f3263905e7e33b784455d87f789eacda364ce293943"
+    },
+    {
+      "target": "inputs-rev2.json",
+      "sha256": "f434851195da548ca3faa2462bfb119dd3a3909649fc8ad105042426ff24e8f5"
+    },
+    {
+      "target": "rev2-preparation/B1.json",
+      "sha256": "ed6df231ea3213377e292a1ae003d323e5704058ca751a67ded65c30c4401955"
+    }
+  ],
+  "old_sources_hashes_match": true,
+  "new_paths_still_absent": true,
+  "known_old_tops_reuse": [
+    "TestModelProjectConfigurationHTTPDefaultRoot",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelMeetingSummarySettingsRoot",
+    "TestModelSystemHTTPConfigurationCRUD",
+    "TestModelSystemHTTPAtomicEffects",
+    "TestModelProjectCRUDScopeAndCanonicalReceipts",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectPreparationFailureRechecksReadReceipt",
+    "TestModelProjectRealFinalCommitUnknownThreeStates",
+    "TestModelProjectRollbackUnknownCannotAdoptDifferentSemanticReceipt",
+    "TestModelProjectProducerFactsCannotBeReplayedOrRebound",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority"
+  ],
+  "future_credential_tops_still_spec_only": [
+    "TestModelProjectCredentialHTTPDefaultRoot",
+    "TestModelProjectCredentialHTTPCRUDAndHistory",
+    "TestModelProjectCredentialHTTPCurrentAuthorityAndFacts",
+    "TestModelProjectCredentialHTTPPassiveLookup",
+    "TestModelProjectCredentialHTTPUnknown"
+  ],
+  "format": "UTF8 LF final newline no trailing whitespace",
+  "no_repository_product_Go_resource_Git_operation": true,
+  "stop_write": true
+}

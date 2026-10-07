@@ -1,0 +1,36 @@
+{
+  "status": "NEEDS_REVISION",
+  "scope": "full frozen scratch rev1 engineering specification STATIC",
+  "draft": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/draft-rev1.md",
+    "sha256": "464b27f3f6244c60fab72f7b5613202e5453c7dfe6d5dff09895bb4f92a488cb"
+  },
+  "technical_blockers": [
+    {
+      "id": "B1",
+      "area": "mandatory old default root POST405 expectation vs new POST and closed whitelist",
+      "source": "additional-fixed/tests/model/project_configuration_http_root_test.go:83",
+      "minimal_change": "add one existing root test path; empty-object POST with formal helper headers =>400 InvalidArgument; preserve rest;14 technical+README15"
+    }
+  ],
+  "editorial_findings": [
+    {
+      "id": "D1",
+      "area": "section4 cross-user/Project identity isolation wording",
+      "change": "不能串行 => 不能串用identity/receipt"
+    }
+  ],
+  "other_technical_blockers": [],
+  "input_check": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static01/input-check.json",
+    "sha256": "7499e1c6d7f5d7637d185c93c0319a73894ce5a61be7d9e9b04f7ca8014b5a60"
+  },
+  "review": {
+    "path": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static01/review.md",
+    "sha256": "17a65c5e499e8133f728f3528061fa3f2bf92426d0a1a2639a881117ecf4de67"
+  },
+  "runtime_or_product_acceptance": false,
+  "active_credentials_read": false,
+  "owned_active_commands_resources": [],
+  "stopped_writing": true
+}

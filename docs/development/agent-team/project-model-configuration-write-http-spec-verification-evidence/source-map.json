@@ -1,0 +1,471 @@
+{
+  "description": "Generated provenance/retention map, not original execution evidence",
+  "accepted_spec_commit": "f2ab9c4cc54ce140f586c8131a97b4289d27749e",
+  "remote_confirmation_source": "Root confirmed spec commit/push/remote; archive worker did not invoke Git",
+  "fixed_product": "a0b012ce7acc6dd885407fe70bd7ee5b4448071b",
+  "fixed_read_archive": "6bd11cda",
+  "credential_spec_only": [
+    "9a2a9a1a",
+    "b498c0bc"
+  ],
+  "credential_product": "Not accepted; implementation cannot begin before complete credential product including README, root acceptance and actual root/dependency handover",
+  "scope": {
+    "technical": 14,
+    "README_separately_authorized": 1,
+    "total": 15,
+    "new": 10,
+    "existing": 5
+  },
+  "originals": [
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-recommendation01/inputs.json",
+      "archive": "recommendation-inputs.json",
+      "sha256": "6c7895509cabe3c64f8cbfafd0e5f4558a43edf875124cc6e73106fcfaf2cc36",
+      "bytes": 15130,
+      "reason": "Original 32 accepted source pointers, historical Git read commands and two path-discovery failures; no command rerun"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/additional-inputs.json",
+      "archive": "author-additional-inputs.json",
+      "sha256": "3dd9ee350f97e6d3925fef9884ea4442279a9ff6781d3faac0b46bc435a6e629",
+      "bytes": 5194,
+      "reason": "Original13 additional fixed source fingerprints; source trees not copied"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/draft-rev1.md",
+      "archive": "author-draft-rev1.md",
+      "sha256": "464b27f3f6244c60fab72f7b5613202e5453c7dfe6d5dff09895bb4f92a488cb",
+      "bytes": 37302,
+      "reason": "Original full rev1 with B1 blocker and D1 wording"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/inputs-rev2.json",
+      "archive": "author-inputs-rev2.json",
+      "sha256": "f434851195da548ca3faa2462bfb119dd3a3909649fc8ad105042426ff24e8f5",
+      "bytes": 2284,
+      "reason": "Accepted revised provenance, prior hashes, fixed45-source and credential-spec-only boundary"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/candidate-paths-rev1.json",
+      "archive": "candidate-paths-rev1.json",
+      "sha256": "0eb11d8912eb49d5694cac7b17859830ebabb987927a47d151c5ebaffea2cc94",
+      "bytes": 5641,
+      "reason": "Original14-scope candidate before B1 old-root compatibility path"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/candidate-paths-rev2.json",
+      "archive": "candidate-paths-rev2.json",
+      "sha256": "0507ae5599ab30c9f7300f3263905e7e33b784455d87f789eacda364ce293943",
+      "bytes": 6902,
+      "reason": "Final15-scope candidate:14 technical plus separately authorized README"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/freeze-rev1.json",
+      "archive": "author-freeze-rev1.json",
+      "sha256": "c9585146ab24ceb53660c45ead6491dc15f547858316b32797a77e07a0176abf",
+      "bytes": 983,
+      "reason": "Original rev1 freeze"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/freeze-rev2.json",
+      "archive": "author-freeze-rev2.json",
+      "sha256": "be50d452d83960e91f0f07f72fdc0bb6c0afb2d6726760433282b40b2bf68c5a",
+      "bytes": 1376,
+      "reason": "Accepted rev2 freeze"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/self-check-rev1.json",
+      "archive": "author-self-check-rev1.json",
+      "sha256": "8dbb967acfd9307d44e0b187d741346a925ee1bf683900a4b3aeebe5dc138086",
+      "bytes": 4552,
+      "reason": "Historical author static checks, not independent acceptance"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/self-check-rev2.json",
+      "archive": "author-self-check-rev2.json",
+      "sha256": "51e0745b88098f45d8978d1c16139d1f0205ef02eab5bc2b4670cea3d981749e",
+      "bytes": 8316,
+      "reason": "Exact bounded revision and inverse-equality checks"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/rev1-to-rev2.patch",
+      "archive": "rev1-to-rev2.patch",
+      "sha256": "c8c6f3d964adbaf42829eb1a8ee09a1b2c62a0f523d91db6495d4cbcfb934f33",
+      "bytes": 14220,
+      "reason": "Original B1/D1/count-linked exact revision"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/rev2-preparation/B1.md",
+      "archive": "B1-preparation.md",
+      "sha256": "20771648a9e1b31c7042e03d19d7b45892ecb5ce0bfdcb3531ce27b743fe68e7",
+      "bytes": 1173,
+      "reason": "Original mismatch diagnosis"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/rev2-preparation/B1.json",
+      "archive": "B1-preparation.json",
+      "sha256": "ed6df231ea3213377e292a1ae003d323e5704058ca751a67ded65c30c4401955",
+      "bytes": 1147,
+      "reason": "Old-root source and one-line unapplied test-proposal binding"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/rev2-preparation/B1-proposed-product-test.patch",
+      "archive": "B1-proposed-product-test.patch",
+      "sha256": "0746138582ee910d65b15b89df42309261fba9c392105e158119c21553d6ac11",
+      "bytes": 814,
+      "reason": "Original single-line product-test proposal; not applied by this archive"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/formal-placement01/draft-rev2-to-formal.patch",
+      "archive": "draft-rev2-to-formal.patch",
+      "sha256": "e4a2ff96e79bef80bac816a513a08529114cdf7e68fc96727d6f3be378f01d10",
+      "bytes": 16661,
+      "reason": "Original link/status/formal section10 placement; no semantic extension"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/formal-placement01/freeze.json",
+      "archive": "author-formal-freeze.json",
+      "sha256": "f67503d5a9788a8af9bfd1184b33bd7804e4935443a189b4cc22cfdb66fdcd66",
+      "bytes": 1853,
+      "reason": "Formal accepted-card snapshot and technical provenance"
+    },
+    {
+      "source": "/workspace/scratch/project-model-configuration-http-spec/formal-placement01/self-check.json",
+      "archive": "author-formal-self-check.json",
+      "sha256": "12fd9253aa47771493d4e4f0c66dbf36912dc15555def8721632549b6b04c66d",
+      "bytes": 5771,
+      "reason": "Original formal inverse-transformation and link checks"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static01/review.md",
+      "archive": "independent-rev1-review.md",
+      "sha256": "17a65c5e499e8133f728f3528061fa3f2bf92426d0a1a2639a881117ecf4de67",
+      "bytes": 6493,
+      "reason": "Original rev1 independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static01/result.json",
+      "archive": "independent-rev1-result.json",
+      "sha256": "3e69ab21f8d314745ba9155e3a722a4cf50c7bb409031d73b8d53f6404219f8e",
+      "bytes": 1514,
+      "reason": "Original rev1 independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static01/input-check.json",
+      "archive": "independent-rev1-input-check.json",
+      "sha256": "7499e1c6d7f5d7637d185c93c0319a73894ce5a61be7d9e9b04f7ca8014b5a60",
+      "bytes": 19765,
+      "reason": "Original rev1 independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static02/review.md",
+      "archive": "independent-rev2-review.md",
+      "sha256": "6eedd78bc6d0298bde3db9f95e1052b7f0df63b5a9366ac524c5a574d3f7240c",
+      "bytes": 2307,
+      "reason": "Original rev2 independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static02/result.json",
+      "archive": "independent-rev2-result.json",
+      "sha256": "6d2417fb1ebe8471f6e58ce599add5c921b7215936e71e0a449f4be581218ad9",
+      "bytes": 1283,
+      "reason": "Original rev2 independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static02/checks.json",
+      "archive": "independent-rev2-checks.json",
+      "sha256": "0a91bc1d4b51e76cdae46531f11b036797d715c87ba43cd523c8ff6a39605838",
+      "bytes": 1294,
+      "reason": "Original rev2 independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-formal01/review.md",
+      "archive": "independent-formal-review.md",
+      "sha256": "93205fe023ae7bca129ed97f6c5e51870896896305a4c1ddd7b153fc8c97d3aa",
+      "bytes": 1899,
+      "reason": "Original formal independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-formal01/result.json",
+      "archive": "independent-formal-result.json",
+      "sha256": "fe083a06063d86995cc3912ce029e5b85e96062398bdec548cc62fc8a433b719",
+      "bytes": 1390,
+      "reason": "Original formal independent full/delta/formal STATIC record"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-formal01/checks.json",
+      "archive": "independent-formal-checks.json",
+      "sha256": "4113b3d614bb9561f25ee66d7df6134cf44fa6684cf430215ed10d93882cecb9",
+      "bytes": 3245,
+      "reason": "Original formal independent full/delta/formal STATIC record"
+    }
+  ],
+  "fingerprint_only": [
+    {
+      "path": "/workspace/scratch/project-model-configuration-http-spec/draft-rev2.md",
+      "sha256": "dbfa7d63510e8d292b2a803c0e0b3e75492a9d6bae3a9758887aa2c276400eee",
+      "bytes": 38441,
+      "reason": "Exact bytes reconstruct from saved rev1 and original revision patch; avoid second full draft"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-http-spec/inputs-rev1.json",
+      "sha256": "26bfc251f8e7dd14ee4918816a330a76bd2de8b2da406e529b96519247ebac2c",
+      "bytes": 1469,
+      "reason": "Original precursor hash bound by revised inputs; current45 source mappings retained in two original indexes"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-http-spec/formal-placement01/formal-card.md",
+      "sha256": "e37d98f588290b86f95621abcfc76a8b479ca3046150bdad0d9c03d87b3f49a2",
+      "bytes": 41171,
+      "reason": "Exact bytes reconstruct from rev1 plus both original patches, also fixed by accepted spec commit; avoids duplicate complete card"
+    },
+    {
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/recommendation.md",
+      "sha256": "6766d31d58812bb6208c98ee8ad6a588fa1ccbf5eb3a269df0db64753365296c",
+      "bytes": 20423,
+      "reason": "Recommendation pointer retained in original inputs; no second copy of earlier analysis"
+    }
+  ],
+  "fixed_source_maps": {
+    "recommendation-inputs.json": 32,
+    "author-additional-inputs.json": 13,
+    "unique_source_paths": 45,
+    "all_snapshot_hashes_checked": true,
+    "copied_source_trees": false
+  },
+  "reconstruction": {
+    "rev1_sha256": "464b27f3f6244c60fab72f7b5613202e5453c7dfe6d5dff09895bb4f92a488cb",
+    "rev2_sha256": "dbfa7d63510e8d292b2a803c0e0b3e75492a9d6bae3a9758887aa2c276400eee",
+    "formal_accepted_sha256": "e37d98f588290b86f95621abcfc76a8b479ca3046150bdad0d9c03d87b3f49a2",
+    "strict_patch_application_checked": true
+  },
+  "card_archive_locator_change": {
+    "path": "docs/development/work-items/d09-project-model-configuration-write-http.md",
+    "before_sha256": "e37d98f588290b86f95621abcfc76a8b479ca3046150bdad0d9c03d87b3f49a2",
+    "sha256": "cce364e54c513a04b7fd45298b98e1e22a2e5154340619c7d973f63f4dda5235",
+    "technical_sections_1_to_9_sha256": "f28aec658d8b76d615855829c3a89b68bd75848fb3dca3c33405c29da2cabd07",
+    "technical_bytes_unchanged": true,
+    "changes": [
+      "page-head pending formal check becomes accepted",
+      "section10 archive locator/accepted spec commit only"
+    ],
+    "scratch_patch_sha256": "94280cf73aa863914920b71a952ab64546585aafc2058f24b87d65ff55050e1a"
+  },
+  "whitespace_exceptions": [
+    {
+      "archive": "rev1-to-rev2.patch",
+      "issues": [
+        {
+          "line": 5,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 8,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 10,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 12,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 14,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 17,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 19,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 21,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 23,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 26,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 40,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 42,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 44,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 47,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 49,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 51,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 53,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 57,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 60,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 62,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 65,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 67,
+          "type": "trailing whitespace"
+        }
+      ],
+      "reason": "Original diff context bytes; retained without normalization or ignore rules"
+    },
+    {
+      "archive": "B1-proposed-product-test.patch",
+      "issues": [
+        {
+          "line": 4,
+          "type": "space before tab"
+        },
+        {
+          "line": 5,
+          "type": "space before tab"
+        },
+        {
+          "line": 6,
+          "type": "space before tab"
+        },
+        {
+          "line": 9,
+          "type": "space before tab"
+        },
+        {
+          "line": 10,
+          "type": "space before tab"
+        },
+        {
+          "line": 11,
+          "type": "space before tab"
+        }
+      ],
+      "reason": "Original diff context bytes; retained without normalization or ignore rules"
+    },
+    {
+      "archive": "draft-rev2-to-formal.patch",
+      "issues": [
+        {
+          "line": 5,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 12,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 14,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 16,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 26,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 29,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 31,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 33,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 35,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 38,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 44,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 47,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 49,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 51,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 53,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 56,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 58,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 60,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 62,
+          "type": "trailing whitespace"
+        }
+      ],
+      "reason": "Original diff context bytes; retained without normalization or ignore rules"
+    }
+  ],
+  "original_markdown_references": "Original bytes retain original source-location semantics; report/card archive links checked independently, no rewriting original evidence",
+  "historical_read_only_path_failures": "Original recommendation-inputs.json retains two exit128 path-discovery records: archive was not yet in a0b012ce, and wrong system-models.json path. Correct fixed sources followed; these are not product or STATIC runtime failures.",
+  "not_copied": [
+    "45 fixed source snapshots",
+    "product tree",
+    "large read dependency graph",
+    "cache/binary/private runtime"
+  ],
+  "archive_execution": "Read/hash/byte/JSON/strict patch reconstruction/UTF8/Markdown checks only; no original scripts, Git, Go, product tests, network or resources"
+}

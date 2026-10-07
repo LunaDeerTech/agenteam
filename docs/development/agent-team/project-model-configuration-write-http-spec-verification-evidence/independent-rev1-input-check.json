@@ -1,0 +1,302 @@
+{
+  "status": "STATIC_INPUT_CHECK_PASS_NOT_PRODUCT_EXECUTION",
+  "frozen": {
+    "draft-rev1.md": "464b27f3f6244c60fab72f7b5613202e5453c7dfe6d5dff09895bb4f92a488cb",
+    "inputs-rev1.json": "26bfc251f8e7dd14ee4918816a330a76bd2de8b2da406e529b96519247ebac2c",
+    "candidate-paths-rev1.json": "0eb11d8912eb49d5694cac7b17859830ebabb987927a47d151c5ebaffea2cc94",
+    "freeze-rev1.json": "c9585146ab24ceb53660c45ead6491dc15f547858316b32797a77e07a0176abf"
+  },
+  "fixed_source_count": 45,
+  "fixed_source_hash_mismatches": 0,
+  "link_count": 10,
+  "links": [
+    {
+      "target": "../project-model-configuration-http-recommendation01/recommendation.md",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/recommendation.md",
+      "sha256": "6766d31d58812bb6208c98ee8ad6a588fa1ccbf5eb3a269df0db64753365296c"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/docs/development/work-items/recovery-d09-project-configuration.md",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/work-items/recovery-d09-project-configuration.md",
+      "sha256": "308605a3e70c44d267c6111f0beb12877e409bd72c9a360e2956c0e44493ef81"
+    },
+    {
+      "target": "../project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go",
+      "path": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go",
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1"
+    },
+    {
+      "target": "candidate-paths-rev1.json",
+      "path": "/workspace/scratch/project-model-configuration-http-spec/candidate-paths-rev1.json",
+      "sha256": "0eb11d8912eb49d5694cac7b17859830ebabb987927a47d151c5ebaffea2cc94"
+    },
+    {
+      "target": "inputs-rev1.json",
+      "path": "/workspace/scratch/project-model-configuration-http-spec/inputs-rev1.json",
+      "sha256": "26bfc251f8e7dd14ee4918816a330a76bd2de8b2da406e529b96519247ebac2c"
+    }
+  ],
+  "candidate_paths": 14,
+  "technical_paths": 13,
+  "new_paths": 10,
+  "existing_paths": 4,
+  "old_actual_test_names": [
+    "TestModelProjectConfigurationHTTPDefaultRoot",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelMeetingSummarySettingsRoot",
+    "TestModelSystemHTTPConfigurationCRUD",
+    "TestModelSystemHTTPAtomicEffects",
+    "TestModelProjectCRUDScopeAndCanonicalReceipts",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectPreparationFailureRechecksReadReceipt",
+    "TestModelProjectRealFinalCommitUnknownThreeStates",
+    "TestModelProjectRollbackUnknownCannotAdoptDifferentSemanticReceipt",
+    "TestModelProjectProducerFactsCannotBeReplayedOrRebound",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority"
+  ],
+  "credential_spec_only_pending_test_names": [
+    "TestModelProjectCredentialHTTPDefaultRoot",
+    "TestModelProjectCredentialHTTPCRUDAndHistory",
+    "TestModelProjectCredentialHTTPCurrentAuthorityAndFacts",
+    "TestModelProjectCredentialHTTPPassiveLookup",
+    "TestModelProjectCredentialHTTPUnknown"
+  ],
+  "extra_fixed_public_error_sources": {
+    "internal/central/foundation/fault.go": {
+      "snapshot": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static01/fixed/internal/central/foundation/fault.go",
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "accepted_graph": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json",
+      "graph_sha256": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a"
+    },
+    "internal/central/httpapi/problem.go": {
+      "snapshot": "/workspace/scratch/summary-verification/project-model-configuration-http-spec-static01/fixed/internal/central/httpapi/problem.go",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "accepted_graph": "/workspace/scratch/project-model-owner-read-http-author/graph-index-full02.json",
+      "graph_sha256": "b23afbd546600f9bae5c9b81b3de0c64105bc3d1e6c55a65a4bdde707b5e694a"
+    }
+  },
+  "receipt_ASCII_structural_upper_bound_bytes": 155,
+  "lookup_ASCII_structural_upper_bound_bytes": 180,
+  "go_encoder_boundary_test": "NOT_RUN; required later by spec",
+  "format": {
+    "LF_only": true,
+    "final_newline": true,
+    "trailing_space_lines": []
+  },
+  "source_snapshots": {
+    "docs/development/work-items/recovery-d09-project-configuration.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/work-items/recovery-d09-project-configuration.md",
+      "sha256": "308605a3e70c44d267c6111f0beb12877e409bd72c9a360e2956c0e44493ef81"
+    },
+    "docs/development/agent-team/d09-project-configuration-verification.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291"
+    },
+    "docs/development/work-items/d09-project-model-credentials-http.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+    },
+    "docs/architecture/platform-infrastructure/model-system/model-configuration.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    },
+    "docs/architecture/platform-infrastructure/model-system/README.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/README.md",
+      "sha256": "ce51470f5d16b8b52307c72821f5e4e7bf145dd70cda21c34563ff3dfea1fae3"
+    },
+    "internal/central/model/contract/configuration.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/contract/configuration.go",
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c"
+    },
+    "internal/central/model/configuration.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/configuration.go",
+      "sha256": "45306abf851b5f963a1ce1f21f758989792f061f0eabf9107f3361fe4605f31d"
+    },
+    "internal/central/model/configuration_policy.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/configuration_policy.go",
+      "sha256": "0802ff9e5fbd14f485b91fb407fe86d1c46a2916469e1c8ac52e98ca21e5a912"
+    },
+    "internal/central/model/commands.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go",
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1"
+    },
+    "internal/central/model/http_configuration.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_configuration.go",
+      "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e"
+    },
+    "internal/central/model/http_credentials.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_credentials.go",
+      "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b"
+    },
+    "internal/central/model/http.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http.go",
+      "sha256": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a"
+    },
+    "internal/central/model/http_dto.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_dto.go",
+      "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35"
+    },
+    "internal/central/model/authority.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba"
+    },
+    "internal/central/model/service.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94"
+    },
+    "internal/central/app/project_models.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/project_models.go",
+      "sha256": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771"
+    },
+    "internal/central/app/account.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/account.go",
+      "sha256": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3"
+    },
+    "internal/central/app/security.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/security.go",
+      "sha256": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903"
+    },
+    "internal/central/model/query.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/query.go",
+      "sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd"
+    },
+    "internal/central/model/references.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/references.go",
+      "sha256": "4c0b7e19587bf7d38da9a21d7aa415d9974d5a3a4a845d38048968917c96357c"
+    },
+    "internal/central/model/contract/types.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/contract/types.go",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    },
+    "internal/central/httpapi/json.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/httpapi/json.go",
+      "sha256": "5d1f29283f303400573261df614fa0c0ced66a1575c184cf02ffd720a02a2d6a"
+    },
+    "internal/central/app/project_usage.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/project_usage.go",
+      "sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337"
+    },
+    "docs/architecture/README.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/architecture/README.md",
+      "sha256": "ebbdb68cf1facc0786eae34771d08b9d27c8876fcf89376d91c20f54d9492cf9"
+    },
+    "docs/development/development-plan.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/development-plan.md",
+      "sha256": "ce0a7abad5c407610deb6b6c92256a1132534799faf3ed3555daacb0e9979c7b"
+    },
+    "docs/development/agent-team/tasks.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/tasks.md",
+      "sha256": "faa39d3c66aa38f065a0d63f0509e6a213b3a2f4e544a7b61f76428c25a49856"
+    },
+    "docs/development/agent-team/project-model-credentials-http-spec-verification.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-credentials-http-spec-verification.md",
+      "sha256": "33ebdbff98aae15396dcb31da0832a5592edc84a85b576f0ce89ecc6a68d238c"
+    },
+    "docs/development/agent-team/project-model-owner-read-http-verification.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d"
+    },
+    "api/openapi/model-system.json": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/api/openapi/model-system.json",
+      "sha256": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e"
+    },
+    "internal/central/model/http_project.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_project.go",
+      "sha256": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb"
+    },
+    "internal/central/model/store.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/store.go",
+      "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da"
+    },
+    "internal/central/app/project_models_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/project_models_test.go",
+      "sha256": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46"
+    },
+    "internal/central/account/http_boundary.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/internal/central/account/http_boundary.go",
+      "sha256": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572"
+    },
+    "internal/central/foundation/scalar.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/internal/central/foundation/scalar.go",
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198"
+    },
+    "tests/model/project_configuration_integration_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/project_configuration_integration_test.go",
+      "sha256": "2f632e27ee339346983ad8872706bc96632be7c7d777f9c4b19693fa6a13c1b6"
+    },
+    "tests/model/project_configuration_unknown_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/project_configuration_unknown_test.go",
+      "sha256": "6b18ae4b6651a10926381d8198a74315cebd08768b4794f2f65d5efffc3bbcf2"
+    },
+    "tests/model/project_available_models_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/project_available_models_test.go",
+      "sha256": "52a726e1b59d77561e57e56bea1d733df69abba33fc8114095d1a63130d26e91"
+    },
+    "tests/model/system_http_configuration_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/system_http_configuration_test.go",
+      "sha256": "b8abc3d280b66115ccc8a1b676a4ce6c3e0ddfa32c04cf9783ae7b31eef3a168"
+    },
+    "tests/model/system_http_credentials_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/system_http_credentials_test.go",
+      "sha256": "aa6802bf3caedf6aa168c516e7d855370a6a95b6818163e100b45f894c2db1bb"
+    },
+    "tests/model/project_configuration_http_root_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/project_configuration_http_root_test.go",
+      "sha256": "3f2ee5b8e9a0f8d05c95976fa038240f43a822296289ef5d6a9dece4e759d12f"
+    },
+    "tests/model/project_owner_update_http_root_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/project_owner_update_http_root_test.go",
+      "sha256": "352cfa5d35c39109fd0759cc8879ebe65e53df2a686e564b5c5fa9fd388b0103"
+    },
+    "tests/model/meeting_summary_settings_root_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/meeting_summary_settings_root_test.go",
+      "sha256": "01941516beb59dfa3089b30f53bf18f992ada927869577724755f4f770eb6dd6"
+    },
+    "tests/model/project_usage_http_root_test.go": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/tests/model/project_usage_http_root_test.go",
+      "sha256": "1d63defd90cbf1637b290adf1eba9b3e2c9c449453d63d17b1204e6ae3f67f8c"
+    },
+    "api/openapi/project-models.json": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/api/openapi/project-models.json",
+      "sha256": "1520873bad7efdf59150736e002869fa105e0dedb70560f9ed13d08dd785c755"
+    },
+    "docs/development/backend/README.md": {
+      "snapshot": "/workspace/scratch/project-model-configuration-http-spec/additional-fixed/docs/development/backend/README.md",
+      "sha256": "7d0e0c0793b65d4360e2fa65b4b897fc592d0c3d1a78d06306928454da42c39e"
+    }
+  },
+  "active_credential_source_read": false,
+  "Go_tests_resources_Git_mutation": false
+}

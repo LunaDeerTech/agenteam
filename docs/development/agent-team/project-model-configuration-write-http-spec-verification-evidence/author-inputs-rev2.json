@@ -1,0 +1,50 @@
+{
+  "fixed_accepted_product": "a0b012ce",
+  "fixed_read_archive": "6bd11cda",
+  "credential_spec_only": [
+    "9a2a9a1a",
+    "b498c0bc"
+  ],
+  "credential_product": "NOT_ACCEPTED_INPUT; no active sources read",
+  "recommendation": {
+    "path": "/workspace/scratch/project-model-configuration-http-recommendation01/recommendation.md",
+    "sha256": "6766d31d58812bb6208c98ee8ad6a588fa1ccbf5eb3a269df0db64753365296c"
+  },
+  "recommendation_inputs": {
+    "path": "/workspace/scratch/project-model-configuration-http-recommendation01/inputs.json",
+    "sha256": "6c7895509cabe3c64f8cbfafd0e5f4558a43edf875124cc6e73106fcfaf2cc36"
+  },
+  "additional_inputs": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/additional-inputs.json",
+    "sha256": "3dd9ee350f97e6d3925fef9884ea4442279a9ff6781d3faac0b46bc435a6e629"
+  },
+  "candidate_paths": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/candidate-paths-rev2.json",
+    "sha256": "0507ae5599ab30c9f7300f3263905e7e33b784455d87f789eacda364ce293943"
+  },
+  "root_engineering_acceptance": "six mutation+lookup+root;1MiB input/1KiB receipt;30s writes/2s lookup;priority project_models-only composition; bad post-service receipt Unknown is a new private classification, not old helper behavior",
+  "source_count_before_dedup": 45,
+  "scope_not_run": [
+    "Go",
+    "resource",
+    "native",
+    "schema product test",
+    "Git mutation",
+    "active credential source read"
+  ],
+  "revision": "rev2 B1/D1 only",
+  "prior_inputs": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/inputs-rev1.json",
+    "sha256": "26bfc251f8e7dd14ee4918816a330a76bd2de8b2da406e529b96519247ebac2c"
+  },
+  "prior_draft": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/draft-rev1.md",
+    "sha256": "464b27f3f6244c60fab72f7b5613202e5453c7dfe6d5dff09895bb4f92a488cb"
+  },
+  "B1_preparation": {
+    "path": "/workspace/scratch/project-model-configuration-http-spec/rev2-preparation/B1.json",
+    "sha256": "ed6df231ea3213377e292a1ae003d323e5704058ca751a67ded65c30c4401955"
+  },
+  "source_content_changes": [],
+  "review_feedback": "root relayed complete rev1 independent STATIC: only technical blocker B1 and wording D1; rev2 pending independent delta/final adoption"
+}

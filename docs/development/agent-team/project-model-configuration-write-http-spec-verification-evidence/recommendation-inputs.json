@@ -1,0 +1,377 @@
+{
+  "scope": "read-only fixed accepted commit; no active credential inputs",
+  "inputs": {
+    "docs/development/work-items/recovery-d09-project-configuration.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/work-items/recovery-d09-project-configuration.md",
+      "sha256": "308605a3e70c44d267c6111f0beb12877e409bd72c9a360e2956c0e44493ef81",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/development/work-items/recovery-d09-project-configuration.md"
+      ],
+      "exit": 0
+    },
+    "docs/development/agent-team/d09-project-configuration-verification.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/development/agent-team/d09-project-configuration-verification.md"
+      ],
+      "exit": 0
+    },
+    "docs/development/work-items/d09-project-model-credentials-http.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/work-items/d09-project-model-credentials-http.md",
+      "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/development/work-items/d09-project-model-credentials-http.md"
+      ],
+      "exit": 0
+    },
+    "docs/architecture/platform-infrastructure/model-system/model-configuration.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/architecture/platform-infrastructure/model-system/model-configuration.md"
+      ],
+      "exit": 0
+    },
+    "docs/architecture/platform-infrastructure/model-system/README.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/architecture/platform-infrastructure/model-system/README.md",
+      "sha256": "ce51470f5d16b8b52307c72821f5e4e7bf145dd70cda21c34563ff3dfea1fae3",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/architecture/platform-infrastructure/model-system/README.md"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/contract/configuration.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/contract/configuration.go",
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/contract/configuration.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/configuration.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/configuration.go",
+      "sha256": "45306abf851b5f963a1ce1f21f758989792f061f0eabf9107f3361fe4605f31d",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/configuration.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/configuration_policy.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/configuration_policy.go",
+      "sha256": "0802ff9e5fbd14f485b91fb407fe86d1c46a2916469e1c8ac52e98ca21e5a912",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/configuration_policy.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/commands.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/commands.go",
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/commands.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/http_configuration.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_configuration.go",
+      "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/http_configuration.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/http_credentials.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_credentials.go",
+      "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/http_credentials.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/http.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http.go",
+      "sha256": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/http.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/http_dto.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_dto.go",
+      "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/http_dto.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/authority.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/authority.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/service.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/service.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/app/project_models.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/project_models.go",
+      "sha256": "9cc03c1c29c004e456e6e7151f55de40deb23378cb15f2ba47f7722d414ca771",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/app/project_models.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/app/account.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/account.go",
+      "sha256": "0e257943971379ee6655cb80a4d3317500357af3e5d5881ac652821dca28d7a3",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/app/account.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/app/security.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/security.go",
+      "sha256": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/app/security.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/query.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/query.go",
+      "sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/query.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/references.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/references.go",
+      "sha256": "4c0b7e19587bf7d38da9a21d7aa415d9974d5a3a4a845d38048968917c96357c",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/references.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/contract/types.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/contract/types.go",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/contract/types.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/httpapi/json.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/httpapi/json.go",
+      "sha256": "5d1f29283f303400573261df614fa0c0ced66a1575c184cf02ffd720a02a2d6a",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/httpapi/json.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/app/project_usage.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/project_usage.go",
+      "sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/app/project_usage.go"
+      ],
+      "exit": 0
+    },
+    "docs/architecture/README.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/architecture/README.md",
+      "sha256": "ebbdb68cf1facc0786eae34771d08b9d27c8876fcf89376d91c20f54d9492cf9",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/architecture/README.md"
+      ],
+      "exit": 0
+    },
+    "docs/development/development-plan.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/development-plan.md",
+      "sha256": "ce0a7abad5c407610deb6b6c92256a1132534799faf3ed3555daacb0e9979c7b",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/development/development-plan.md"
+      ],
+      "exit": 0
+    },
+    "docs/development/agent-team/tasks.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/tasks.md",
+      "sha256": "faa39d3c66aa38f065a0d63f0509e6a213b3a2f4e544a7b61f76428c25a49856",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/development/agent-team/tasks.md"
+      ],
+      "exit": 0
+    },
+    "docs/development/agent-team/project-model-credentials-http-spec-verification.md": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-credentials-http-spec-verification.md",
+      "sha256": "33ebdbff98aae15396dcb31da0832a5592edc84a85b576f0ce89ecc6a68d238c",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:docs/development/agent-team/project-model-credentials-http-spec-verification.md"
+      ],
+      "exit": 0
+    },
+    "docs/development/agent-team/project-model-owner-read-http-verification.md": {
+      "commit": "6bd11cda",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d",
+      "command": [
+        "git",
+        "show",
+        "6bd11cda:docs/development/agent-team/project-model-owner-read-http-verification.md"
+      ],
+      "exit": 0
+    },
+    "api/openapi/model-system.json": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/api/openapi/model-system.json",
+      "sha256": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:api/openapi/model-system.json"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/http_project.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/http_project.go",
+      "sha256": "49cc8b1a5c5ef47d903d71751a5e6540e33c10f0da0b98efbaa348f28eb36bbb",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/http_project.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/model/store.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/model/store.go",
+      "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/model/store.go"
+      ],
+      "exit": 0
+    },
+    "internal/central/app/project_models_test.go": {
+      "commit": "a0b012ce",
+      "snapshot": "/workspace/scratch/project-model-configuration-http-recommendation01/fixed/internal/central/app/project_models_test.go",
+      "sha256": "44eb1fbaac79118703e5bb4cc4ef2d29dde5c60b556c7a688d4226e1e7e85f46",
+      "command": [
+        "git",
+        "show",
+        "a0b012ce:internal/central/app/project_models_test.go"
+      ],
+      "exit": 0
+    }
+  },
+  "read_only_path_discovery_failures": [
+    {
+      "argv": [
+        "git",
+        "show",
+        "a0b012ce:docs/development/agent-team/project-model-owner-read-http-verification.md"
+      ],
+      "exit": 128,
+      "stderr": "path exists on disk, but not in a0b012ce; archive read from accepted6bd11cda instead"
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "a0b012ce:api/openapi/system-models.json"
+      ],
+      "exit": 128,
+      "stderr": "path does not exist; actual schema path model-system.json discovered, then read fixed a0b012ce"
+    }
+  ]
+}
