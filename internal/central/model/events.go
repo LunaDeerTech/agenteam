@@ -123,6 +123,11 @@ func (s *Service) prepareEvents(p *preparedCommand) error {
 			p.events = append(p.events, event)
 		}
 	}
+	if after := p.plan.AfterMeetingSummary; after != nil && p.plan.Kind == "model.delete" {
+		if e := add(after.ID, after.Version, []string{"selection"}); e != nil {
+			return e
+		}
+	}
 	for _, event := range p.events {
 		p.plan.Events = append(p.plan.Events, persistedEvent{Header: event.Header(), Payload: event.PayloadBytes()})
 	}

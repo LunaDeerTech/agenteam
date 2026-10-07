@@ -28,6 +28,7 @@ const labels: Record<string, string> = {
   'agent/approval_model': 'Agent 审批模型',
   'platform_selector/embedding': '平台 embedding 用途',
   'platform_selector/image': '平台 image 用途',
+  'platform_selector/meeting_summary': '系统会议 Summary 模型',
   'platform_selector/memory': '平台 memory 用途',
   'platform_selector/reranker': '平台 reranker 用途',
   'project_summary/meeting_summary': '项目会议摘要模型',

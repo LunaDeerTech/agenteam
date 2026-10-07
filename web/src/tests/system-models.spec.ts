@@ -732,6 +732,101 @@ describe('Model deletion previews and original command recovery', () => {
     await click('确认删除 Model', dialog())
     expect(JSON.parse(f.writes()[0]![1].body as string).replacement).toBe(good.id)
   })
+  it.each([false, true])(
+    'requires a Summary replacement without adding json_schema unless memory is also referenced (memory=%s)',
+    async (withMemory) => {
+      const f = await page()
+      f.sources.set(id(101), provider(101))
+      const plain = {
+        ...model(202, provider(101)),
+        input: { ...input(), name: 'Plain text replacement' },
+      }
+      const structured = {
+        ...model(203, provider(101)),
+        input: {
+          ...input(),
+          name: 'Structured replacement',
+          capabilities: {
+            ...input().capabilities,
+            structured_output_modes: ['text', 'json_schema'],
+          },
+        },
+      }
+      f.records.set(plain.id, plain)
+      f.records.set(structured.id, structured)
+      await selectProvider()
+      await selectModel()
+      f.setImpact(async () =>
+        json({
+          ...preview(),
+          reference_count: withMemory ? '2' : '1',
+          reference_groups: [
+            { owner_kind: 'platform_selector', role: 'meeting_summary', count: '1' },
+            ...(withMemory
+              ? [{ owner_kind: 'platform_selector', role: 'memory', count: '1' }]
+              : []),
+          ],
+          replacement_requirement: 'required',
+        }),
+      )
+      await click('删除 Model')
+      expect(dialog().textContent).toContain('系统会议 Summary 模型：1')
+      expect(dialog().textContent).not.toContain('项目会议摘要模型')
+      expect(dialog().textContent).not.toContain('清空相应用途引用')
+      expect(button('确认删除 Model', dialog()).disabled).toBe(true)
+      expect(f.writes()).toHaveLength(0)
+      const source = [...dialog().querySelectorAll('li')].find((row) =>
+        row.textContent?.includes('Provider 101'),
+      )!
+      await click('查看此 Provider 的 Models', source)
+      const choices = [...dialog().querySelectorAll('.choices li')]
+      const plainRow = choices.find((row) => row.textContent?.includes('Plain text replacement'))!
+      expect(button('选择此替代 Model', plainRow).disabled).toBe(withMemory)
+      if (withMemory) expect(plainRow.textContent).toContain('json_schema')
+      else expect(plainRow.textContent).not.toContain('json_schema')
+      const selected = withMemory ? structured : plain
+      await click(
+        '选择此替代 Model',
+        choices.find((row) => row.textContent?.includes(selected.input.name))!,
+      )
+      expect(button('确认删除 Model', dialog()).disabled).toBe(false)
+      await click('确认删除 Model', dialog())
+      expect(f.writes()).toHaveLength(1)
+      expect(f.writes()[0]![0]).toBe('/api/v1/system/models/' + id(200))
+      expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
+        expected_version: '1',
+        replacement: selected.id,
+      })
+    },
+  )
+  it('keeps legacy project Summary labels and unbound blocking separate from the system Summary', async () => {
+    const f = await page()
+    await selectProvider()
+    await selectModel()
+    f.setImpact(async () =>
+      json({
+        ...preview(),
+        reference_count: '2',
+        reference_groups: [
+          { owner_kind: 'platform_selector', role: 'meeting_summary', count: '1' },
+          { owner_kind: 'project_summary', role: 'meeting_summary', count: '1' },
+        ],
+        replacement_requirement: 'required',
+        delete_blocker: 'reference_adapter_unbound',
+      }),
+    )
+    await click('删除 Model')
+    expect(dialog().textContent).toContain('系统会议 Summary 模型：1')
+    expect(dialog().textContent).toContain('项目会议摘要模型：1')
+    expect(dialog().textContent).toContain('当前引用替换能力尚未绑定')
+    expect(dialog().querySelectorAll('.replacement-picker')).toHaveLength(0)
+    expect(
+      [...dialog().querySelectorAll('button')].some((button) =>
+        button.textContent?.includes('确认删除 Model'),
+      ),
+    ).toBe(false)
+    expect(f.writes()).toHaveLength(0)
+  })
   it('replays the original DELETE after an actual current GET404 and failed Impact without using those reads as permission', async () => {
     const f = await page()
     await selectProvider()

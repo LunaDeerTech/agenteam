@@ -9,6 +9,10 @@ import (
 
 func TestModelReplacementPreservesRequiredTypeAndMemoryCapability(t *testing.T) {
 	chat := mc.ModelInput{Name: "chat", ProviderModelID: "chat", Type: mc.ChatModel, Enabled: true}
+	if e := selectionCompatible("meeting_summary", chat, ""); e != nil {
+		t.Fatal("plain text summary rejected", e)
+	}
+	requireCode(t, selectionCompatible("meeting_summary", chat, "high"), f.InvalidArgument)
 	requireCode(t, selectionCompatible("memory", chat, ""), f.CapabilityUnsupported)
 	chat.Capabilities.StructuredOutputModes = []string{"json_schema"}
 	if e := selectionCompatible("memory", chat, ""); e != nil {

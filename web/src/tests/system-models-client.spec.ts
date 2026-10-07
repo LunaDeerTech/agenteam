@@ -437,6 +437,24 @@ describe('Exact registered Model deletion impact', () => {
       { owner_kind: 'project_summary', role: 'meeting_summary', count: '1' },
     ],
   })
+  const summary = () => ({
+    ...emptyImpact(),
+    reference_count: '1',
+    reference_groups: [{ owner_kind: 'platform_selector', role: 'meeting_summary', count: '1' }],
+    replacement_requirement: 'required',
+  })
+  const eight = () => {
+    const value = all()
+    return {
+      ...value,
+      reference_groups: [
+        { ...value.reference_groups[0]!, count: '9993' },
+        ...value.reference_groups.slice(1, 4),
+        ...summary().reference_groups,
+        ...value.reference_groups.slice(4),
+      ],
+    }
+  }
   it('accepts zero, exact 10000 and every closed group with the correct requirement/blocker', async () => {
     expect(await parseImpact(emptyImpact())).toEqual(emptyImpact())
     expect(await parseImpact(all())).toEqual(all())
@@ -455,6 +473,40 @@ describe('Exact registered Model deletion impact', () => {
       expect(result).toEqual(value)
       expect(Object.isFrozen(result.reference_groups[0])).toBe(true)
     }
+  })
+  it('accepts the eighth group in exact order and a required, bound system Meeting Summary alone', async () => {
+    for (const value of [summary(), eight()]) {
+      const result = await parseImpact(value)
+      expect(result).toEqual(value)
+      expect(JSON.stringify(result)).toBe(JSON.stringify(value))
+      expect(Object.isFrozen(result.reference_groups)).toBe(true)
+      expect(result.reference_groups.every(Object.isFrozen)).toBe(true)
+    }
+    expect(eight().reference_groups.map((group) => group.role)).toEqual([
+      'agent_model',
+      'approval_model',
+      'embedding',
+      'image',
+      'meeting_summary',
+      'memory',
+      'reranker',
+      'meeting_summary',
+    ])
+  })
+  it.each([
+    ['replacement_requirement', 'none'],
+    ['replacement_requirement', 'optional'],
+    ['delete_blocker', 'reference_adapter_unbound'],
+    ['reference_count', '2'],
+    ['reference_groups.0.owner_kind', 'agent'],
+    ['reference_groups.0.role', 'summary'],
+    ['reference_groups.0.count', '0'],
+    ['reference_groups.0.count', '01'],
+    ['reference_groups.0.reasoning_effort', 'high'],
+  ])('rejects invalid system Summary Impact %s=%s', async (field, value) => {
+    await expect(parseImpact(changed(summary(), field as string, value))).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
   })
   it.each(Object.keys(emptyImpact()))('rejects missing required Impact %s', async (field) => {
     await expect(parseImpact(changed(emptyImpact(), field, undefined, true))).rejects.toMatchObject(
@@ -496,7 +548,7 @@ describe('Exact registered Model deletion impact', () => {
       kind: 'invalid-response',
     })
   })
-  it('rejects order changes, duplicate groups and eight groups rather than publishing a partial candidate', async () => {
+  it('rejects order changes, duplicate groups and a ninth group rather than publishing a partial candidate', async () => {
     const value = all()
     for (const groups of [
       [...value.reference_groups].reverse(),
@@ -506,6 +558,26 @@ describe('Exact registered Model deletion impact', () => {
       await expect(parseImpact({ ...value, reference_groups: groups })).rejects.toMatchObject({
         kind: 'invalid-response',
       })
+    const full = eight()
+    for (const groups of [
+      [
+        ...full.reference_groups.slice(0, 4),
+        full.reference_groups[5]!,
+        full.reference_groups[4]!,
+        ...full.reference_groups.slice(6),
+      ],
+      [...full.reference_groups, summary().reference_groups[0]!],
+    ])
+      await expect(parseImpact({ ...full, reference_groups: groups })).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+    await expect(
+      parseImpact({
+        ...summary(),
+        reference_count: '2',
+        reference_groups: [...summary().reference_groups, ...summary().reference_groups],
+      }),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
   })
 })
 

@@ -150,6 +150,13 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			}
 		}
 	case "model.selection.update":
+		if r.MeetingSummary != nil {
+			version, e = s.prepareMeetingSummary(ctx, p, r)
+			if e != nil {
+				return nil, e
+			}
+			break
+		}
 		old, e := loadSelection(ctx, x)
 		if e != nil {
 			return nil, e
@@ -228,6 +235,15 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			p.locks = append(p.locks, recordLock(f.ReferenceRecordLock, "model:platform:"+ref.Owner+":"+ref.Role))
 		}
 	}
+	if plan.BeforeMeetingSummary != nil {
+		p.locks = append(p.locks, systemLock("model-meeting-summary-selection", f.Exclusive))
+		for _, ref := range append(meetingSummaryReferences(plan.BeforeMeetingSummary), meetingSummaryReferences(plan.AfterMeetingSummary)...) {
+			p.locks = append(p.locks, recordLock(f.ReferenceRecordLock, "model:platform:"+ref.Owner+":"+ref.Role))
+		}
+	}
+	if e = validateMeetingSummaryPlan(plan); e != nil {
+		return nil, e
+	}
 	if e = s.prepareEvents(p); e != nil {
 		return nil, e
 	}
@@ -245,6 +261,18 @@ func normalizedModel(v mc.ModelInput) mc.ModelInput {
 
 func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p *preparedCommand) error {
 	v := &p.plan
+	if e := validateMeetingSummaryPlan(v); e != nil {
+		return e
+	}
+	if v.BeforeMeetingSummary != nil {
+		current, e := loadMeetingSummaryState(ctx, x)
+		if e != nil {
+			return e
+		}
+		if !sameValue(current, v.BeforeMeetingSummary) {
+			return fault(f.ResourceBusy)
+		}
+	}
 	if v.BeforeProvider != nil {
 		current, e := loadProviderScope(ctx, x, v.BeforeProvider.ID, configurationScope(v.BeforeProvider.Project))
 		if e != nil {
@@ -361,6 +389,11 @@ func (s *Service) applyConfiguration(ctx context.Context, x postgres.SQLExecutor
 			if _, e = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,model_id,owner_version) VALUES('platform_selector',$1,$2,$3,$4)`, ref.Owner, ref.Role, ref.Model, int64(ref.Version)); e != nil {
 				return unavailable(e)
 			}
+		}
+	}
+	if v.AfterMeetingSummary != nil {
+		if e := applyMeetingSummary(ctx, x, v.AfterMeetingSummary); e != nil {
+			return e
 		}
 	}
 	if v.Kind == "model.delete" {

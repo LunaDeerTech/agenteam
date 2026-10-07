@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"slices"
+	"strings"
 	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -47,6 +49,7 @@ var managementReferenceKinds = [...]struct {
 	{"agent", "approval_model", true, true},
 	{"platform_selector", "embedding", true, false},
 	{"platform_selector", "image", false, false},
+	{"platform_selector", "meeting_summary", true, false},
 	{"platform_selector", "memory", true, false},
 	{"platform_selector", "reranker", false, false},
 	{"project_summary", "meeting_summary", true, true},
@@ -86,6 +89,7 @@ func (s *Service) GetModelDeletionImpact(ctx context.Context, actor id.Actor, mo
 		userLock(actor.Details().UserID),
 		aggregateLock(f.ModelConfigAggregate, model.String(), f.Shared),
 		systemLock("model-platform-selection", f.Shared),
+		systemLock("model-meeting-summary-selection", f.Shared),
 		// Ordinary reference writers hold Shared. Exclusive freezes their union
 		// with the canonical selector; it does not grant a business mutation.
 		systemLock("model-references", f.Exclusive),
@@ -150,17 +154,28 @@ func managementSelectionConsistent(ctx context.Context, x postgres.SQLExecutor) 
 		return err
 	}
 	// Query all platform owners, not just the singleton ID: an extra owner is
-	// corruption too. Five is the sentinel beyond the four canonical roles.
+	// corruption too. Six is the sentinel beyond both canonical owners.
+	summary, err := loadMeetingSummary(ctx, x)
+	if err != nil {
+		return err
+	}
+	expected := append(selectionReferences(selection), meetingSummaryReferences(summary)...)
+	slices.SortFunc(expected, func(a, b referenceRecord) int {
+		if n := strings.Compare(a.Owner, b.Owner); n != 0 {
+			return n
+		}
+		return strings.Compare(a.Role, b.Role)
+	})
 	var raw []byte
-	err = x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('Kind',owner_kind,'Owner',owner_id::text,'Role',role,'Project',coalesce(project_id::text,''),'Model',model_id::text,'Version',owner_version::text,'Effort',reasoning_effort) ORDER BY owner_id,role),'[]'::jsonb) FROM (SELECT owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort FROM agenteam_model.references WHERE owner_kind='platform_selector' ORDER BY owner_id,role LIMIT 5) platform`).Scan(&raw)
+	err = x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('Kind',owner_kind,'Owner',owner_id::text,'Role',role,'Project',coalesce(project_id::text,''),'Model',model_id::text,'Version',owner_version::text,'Effort',reasoning_effort) ORDER BY owner_id,role),'[]'::jsonb) FROM (SELECT owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort FROM agenteam_model.references WHERE owner_kind='platform_selector' ORDER BY owner_id,role LIMIT 6) platform`).Scan(&raw)
 	if err != nil {
 		return managementReadError(err)
 	}
 	var actual []referenceRecord
-	if err = json.Unmarshal(raw, &actual); err != nil || actual == nil || len(actual) > 4 {
+	if err = json.Unmarshal(raw, &actual); err != nil || actual == nil || len(actual) > 5 {
 		return unavailable(err)
 	}
-	if !sameValue(actual, selectionReferences(selection)) {
+	if !sameValue(actual, expected) {
 		return unavailable(nil)
 	}
 	return nil
@@ -169,17 +184,18 @@ func managementSelectionConsistent(ctx context.Context, x postgres.SQLExecutor) 
 func managementReferenceImpact(ctx context.Context, x postgres.SQLExecutor, model mc.ModelID, version f.Version) (ModelDeletionImpact, error) {
 	var counts [len(managementReferenceKinds)]f.Progress
 	var total f.Progress
-	// The materialized input is bounded before any aggregate. The eighth
-	// count includes unknown combinations so they cannot silently disappear.
+	// The materialized input is bounded before any aggregate. The overall
+	// total includes unknown combinations so they cannot silently disappear.
 	err := x.QueryRow(ctx, `WITH bounded AS MATERIALIZED (SELECT owner_kind,role FROM agenteam_model.references WHERE model_id=$1 LIMIT 10001)
 SELECT count(*),
 count(*) FILTER (WHERE owner_kind='agent' AND role='agent_model'),
 count(*) FILTER (WHERE owner_kind='agent' AND role='approval_model'),
 count(*) FILTER (WHERE owner_kind='platform_selector' AND role='embedding'),
 count(*) FILTER (WHERE owner_kind='platform_selector' AND role='image'),
+count(*) FILTER (WHERE owner_kind='platform_selector' AND role='meeting_summary'),
 count(*) FILTER (WHERE owner_kind='platform_selector' AND role='memory'),
 count(*) FILTER (WHERE owner_kind='platform_selector' AND role='reranker'),
-count(*) FILTER (WHERE owner_kind='project_summary' AND role='meeting_summary') FROM bounded`, model.String()).Scan(&total, &counts[0], &counts[1], &counts[2], &counts[3], &counts[4], &counts[5], &counts[6])
+count(*) FILTER (WHERE owner_kind='project_summary' AND role='meeting_summary') FROM bounded`, model.String()).Scan(&total, &counts[0], &counts[1], &counts[2], &counts[3], &counts[4], &counts[5], &counts[6], &counts[7])
 	if err != nil {
 		return ModelDeletionImpact{}, managementReadError(err)
 	}

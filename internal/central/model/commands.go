@@ -28,6 +28,7 @@ type commandRequest struct {
 	ProviderInput            *mc.ProviderInput
 	ModelInput               *mc.ModelInput
 	Selection                *mc.PlatformSelection
+	MeetingSummary           *mc.ModelID
 	Replacement              string
 }
 type persistedEvent struct {
@@ -41,6 +42,8 @@ type mutationPlan struct {
 	BeforeProvider, AfterProvider             *providerRecord
 	BeforeModel, AfterModel                   *modelRecord
 	BeforeSelection, AfterSelection           *selectionRecord
+	BeforeMeetingSummary                      *meetingSummaryRecord `json:",omitempty"`
+	AfterMeetingSummary                       *meetingSummaryRecord `json:",omitempty"`
 	Providers                                 []providerRecord
 	Models                                    []modelRecord
 	References                                []referenceRecord
@@ -88,6 +91,9 @@ func commandIdentity(meta mc.CommandMeta, kind string) (f.CommandIdentity, error
 	return f.NewCommandIdentity("model.system", []string{meta.Actor.Details().UserID}, kind, meta.Key)
 }
 func commandSemantic(r commandRequest) (f.Digest, error) {
+	if r.MeetingSummary != nil {
+		return meetingSummarySemantic(r)
+	}
 	var provider *providerInput
 	if r.ProviderInput != nil {
 		v := providerFromInput(*r.ProviderInput)
@@ -163,9 +169,18 @@ func loadCommandScope(ctx context.Context, x postgres.SQLExecutor, identity f.Co
 	if json.Unmarshal(plan, &r.Plan) != nil || r.Plan.Project != scope.Details().ProjectID {
 		return nil, unavailable(nil)
 	}
+	if e := decodeMeetingSummaryPlan(plan, &r.Plan); e != nil {
+		return nil, e
+	}
+	if r.Plan.BeforeMeetingSummary != nil && (r.Resource != r.Plan.Resource || r.Kind != r.Plan.Kind || r.ID != r.Plan.CommandID || r.Identity != r.Plan.Identity || r.User != r.Plan.User || r.Semantic != r.Plan.Semantic) {
+		return nil, unavailable(nil)
+	}
 	if r.Phase == "committed" {
 		var v mc.CommandReceipt
 		if json.Unmarshal(receipt, &v) != nil || v.Validate() != nil {
+			return nil, unavailable(nil)
+		}
+		if r.Plan.BeforeMeetingSummary != nil && (v != r.Plan.Receipt || v.Kind != r.Kind || v.ResourceID != r.Resource) {
 			return nil, unavailable(nil)
 		}
 		r.Receipt = &v

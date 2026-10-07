@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -23,8 +24,9 @@ type managementStore struct {
 	model                                  mc.ModelID
 	actor                                  id.Actor
 	selection                              selectionRecord
+	summary                                *meetingSummaryRecord
 	platform                               []referenceRecord
-	counts                                 [7]f.Progress
+	counts                                 [8]f.Progress
 	total                                  f.Progress
 	version                                f.Version
 	result                                 f.CommitState
@@ -70,7 +72,7 @@ func (s *managementStore) AcquireAll(_ context.Context, tx f.Tx, locks []f.LockR
 		s.t.Fatal("foreign Tx")
 	}
 	s.locks = append([]f.LockRequest(nil), locks...)
-	want := []f.LockRequest{userLock(s.actor.Details().UserID), aggregateLock(f.ModelConfigAggregate, s.model.String(), f.Shared), systemLock("model-platform-selection", f.Shared), systemLock("model-references", f.Exclusive)}
+	want := []f.LockRequest{userLock(s.actor.Details().UserID), aggregateLock(f.ModelConfigAggregate, s.model.String(), f.Shared), systemLock("model-platform-selection", f.Shared), systemLock("model-meeting-summary-selection", f.Shared), systemLock("model-references", f.Exclusive)}
 	if len(locks) != len(want) {
 		s.t.Fatal("incomplete lock union")
 	}
@@ -120,6 +122,19 @@ func (s *managementStore) QueryRow(_ context.Context, q string, args ...any) pos
 				s.t.Fatal("wrong model scope")
 			}
 			*dst[0].(*f.Version) = s.version
+		case strings.Contains(q, "FROM agenteam_model.meeting_summary_selection"):
+			*dst[0].(*[]byte) = []byte(`[]`)
+			if s.summary != nil {
+				raw, e := json.Marshal([]struct {
+					meetingSummaryRecord
+					Singleton bool
+					Platform  string
+				}{{*s.summary, true, s.selection.ID}})
+				if e != nil {
+					return e
+				}
+				*dst[0].(*[]byte) = raw
+			}
 		case strings.Contains(q, "FROM agenteam_model.platform_selection"):
 			r := s.selection
 			*dst[0].(*string) = r.ID
@@ -131,7 +146,7 @@ func (s *managementStore) QueryRow(_ context.Context, q string, args ...any) pos
 					*dst[i+3].(**string) = &v
 				}
 			}
-		case strings.Contains(q, "LIMIT 5"):
+		case strings.Contains(q, "LIMIT 6"):
 			if strings.Contains(q, "owner_id=$") || len(args) != 0 {
 				s.t.Fatal("platform query failed to cover extra owners")
 			}
@@ -184,20 +199,22 @@ func managementFixture(t *testing.T) (*Service, *managementStore, id.Actor, mc.M
 func TestModelManagementImpactClosedGroupsAndBoundedSQL(t *testing.T) {
 	for _, tc := range []struct {
 		name        string
-		counts      [7]f.Progress
+		counts      [8]f.Progress
 		total       f.Progress
 		requirement ModelReplacementRequirement
 		blocked     bool
 		code        f.Code
 	}{
-		{"empty", [7]f.Progress{}, 0, "none", false, ""},
-		{"optional", [7]f.Progress{3: 1, 5: 1}, 2, "optional", false, ""},
-		{"all-seven", [7]f.Progress{1, 1, 1, 1, 1, 1, 1}, 7, "required", true, ""},
-		{"cap", [7]f.Progress{10000}, 10000, "required", true, ""},
-		{"sentinel", [7]f.Progress{10001}, 10001, "", false, f.ResourceBusy},
-		{"unknown-kind-role", [7]f.Progress{}, 1, "", false, f.DependencyUnavailable},
-		{"negative", [7]f.Progress{-1}, 0, "", false, f.DependencyUnavailable},
-		{"wrong-total", [7]f.Progress{2}, 1, "", false, f.DependencyUnavailable},
+		{"empty", [8]f.Progress{}, 0, "none", false, ""},
+		{"optional", [8]f.Progress{3: 1, 6: 1}, 2, "optional", false, ""},
+		{"all-seven", [8]f.Progress{1, 1, 1, 1, 0, 1, 1, 1}, 7, "required", true, ""},
+		{"summary-only", [8]f.Progress{4: 1}, 1, "required", false, ""},
+		{"all-eight", [8]f.Progress{1, 1, 1, 1, 1, 1, 1, 1}, 8, "required", true, ""},
+		{"cap", [8]f.Progress{10000}, 10000, "required", true, ""},
+		{"sentinel", [8]f.Progress{10001}, 10001, "", false, f.ResourceBusy},
+		{"unknown-kind-role", [8]f.Progress{}, 1, "", false, f.DependencyUnavailable},
+		{"negative", [8]f.Progress{-1}, 0, "", false, f.DependencyUnavailable},
+		{"wrong-total", [8]f.Progress{2}, 1, "", false, f.DependencyUnavailable},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			s, store, actor, key := managementFixture(t)
@@ -213,7 +230,7 @@ func TestModelManagementImpactClosedGroupsAndBoundedSQL(t *testing.T) {
 			if err != nil || out.ReferenceCount != tc.total || out.ReplacementRequirement != tc.requirement || (out.DeleteBlocker != nil) != tc.blocked || out.ReferenceGroups == nil {
 				t.Fatal("wrong aggregation", err)
 			}
-			if store.txs != 1 || store.acquires != 1 || store.queries != 4 {
+			if store.txs != 1 || store.acquires != 1 || store.queries != 5 {
 				t.Fatal("read retried or used extra SQL")
 			}
 			raw, err := json.Marshal(out)
@@ -284,6 +301,43 @@ func TestModelManagementCanonicalSelectionRejectsDrift(t *testing.T) {
 	}
 }
 
+func TestModelManagementBothOwnersFiveEdgesAndSentinel(t *testing.T) {
+	for _, summaryFirst := range []bool{false, true} {
+		for _, extra := range []bool{false, true} {
+			s, store, actor, key := managementFixture(t)
+			oldID, newID := "018f0000-0000-7000-8000-000000000001", "018f0000-0000-7000-8000-000000000002"
+			if summaryFirst {
+				oldID, newID = newID, oldID
+			}
+			store.selection = selectionRecord{ID: oldID, Version: 3, Configured: true, Embedding: mustID[mc.Model](t).String(), Memory: key.String(), Image: mustID[mc.Model](t).String(), Reranker: mustID[mc.Model](t).String()}
+			at, _ := f.NewInstant(time.Now())
+			store.summary = &meetingSummaryRecord{ID: newID, Version: 7, Model: key.String(), UpdatedAt: at}
+			store.platform = append(selectionReferences(&store.selection), meetingSummaryReferences(store.summary)...)
+			if extra {
+				store.platform = append(store.platform, referenceRecord{Kind: "platform_selector", Owner: "018f0000-0000-7000-8000-000000000003", Role: "meeting_summary", Model: key.String(), Version: 1})
+			}
+			sort.Slice(store.platform, func(i, j int) bool {
+				if store.platform[i].Owner != store.platform[j].Owner {
+					return store.platform[i].Owner < store.platform[j].Owner
+				}
+				return store.platform[i].Role < store.platform[j].Role
+			})
+			store.total, store.counts = 2, [8]f.Progress{4: 1, 5: 1}
+			out, e := s.GetModelDeletionImpact(context.Background(), actor, key)
+			if extra {
+				requireCode(t, e, f.DependencyUnavailable)
+				if !reflect.DeepEqual(out, ModelDeletionImpact{}) {
+					t.Fatal("sixth edge published candidate")
+				}
+				continue
+			}
+			if e != nil || out.ReferenceCount != 2 || len(out.ReferenceGroups) != 2 || out.ReferenceGroups[0].Role != "meeting_summary" || out.ReferenceGroups[1].Role != "memory" || out.ReplacementRequirement != "required" {
+				t.Fatal("five-edge two-owner union rejected", summaryFirst, e)
+			}
+		}
+	}
+}
+
 func TestModelManagementAuthorityAndResults(t *testing.T) {
 	for _, branch := range []string{"nil-context", "bad-model", "zero-service", "typed-nil", "wrong-store", "actor", "session", "grant", "acquire", "held", "executor", "missing", "unknown", "not-committed", "committed-cancel"} {
 		t.Run(branch, func(t *testing.T) {
@@ -346,7 +400,7 @@ func TestModelManagementAuthorityAndResults(t *testing.T) {
 				t.Fatal("failure returned candidate")
 			}
 			if branch == "unknown" || branch == "not-committed" || branch == "committed-cancel" {
-				if store.queries != 4 || store.txs != 1 {
+				if store.queries != 5 || store.txs != 1 {
 					t.Fatal("did not execute complete read once")
 				}
 			} else if branch != "missing" && store.queries != 0 {

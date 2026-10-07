@@ -38,6 +38,7 @@ const referenceKinds = [
   ['agent', 'approval_model', 'required'],
   ['platform_selector', 'embedding', 'required'],
   ['platform_selector', 'image', 'optional'],
+  ['platform_selector', 'meeting_summary', 'required'],
   ['platform_selector', 'memory', 'required'],
   ['platform_selector', 'reranker', 'optional'],
   ['project_summary', 'meeting_summary', 'required'],
@@ -251,7 +252,7 @@ function impact(value: unknown, target: string): ModelDeletionImpact {
   ])
   requireValue(id(v.model_id) === target)
   const count = integer(v.reference_count, 0n, 10000n)
-  requireValue(Array.isArray(v.reference_groups) && v.reference_groups.length <= 7)
+  requireValue(Array.isArray(v.reference_groups) && v.reference_groups.length <= 8)
   let previous = '',
     total = 0n,
     required = false,

@@ -93,3 +93,46 @@ func TestModelEventPlansBindFullActorAndExactRegisteredPayload(t *testing.T) {
 		t.Fatal("other issuer accepted")
 	}
 }
+
+func TestModelMeetingSummaryConfigurationEvents(t *testing.T) {
+	store := &noIOStore{}
+	service, e := New(store, pureAuthority(t, store), testDependencies(t))
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, deleting := range []bool{false, true} {
+		plan := summaryPlanFixture(t)
+		if deleting {
+			plan.Kind = "model.delete"
+			plan.Resource = mustID[mc.Model](t).String()
+			plan.Receipt = mc.CommandReceipt{Kind: "model.delete", ResourceID: plan.Resource, Version: 2}
+			plan.Changed = []string{"deleted", "replacement"}
+			before := &selectionRecord{ID: mustID[struct{}](t).String(), Version: 2, Configured: true, Embedding: mustID[mc.Model](t).String(), Memory: plan.Resource}
+			after := *before
+			after.Version++
+			after.Memory = plan.AfterMeetingSummary.Model
+			plan.BeforeSelection = before
+			plan.AfterSelection = &after
+		}
+		prepared := &preparedCommand{plan: plan}
+		if e = service.prepareEvents(prepared); e != nil {
+			t.Fatal(e)
+		}
+		want := 1
+		if deleting {
+			want = 3
+		}
+		if len(prepared.plan.Events) != want || len(prepared.events) != want {
+			t.Fatal("configuration events omitted an owner")
+		}
+		for _, event := range prepared.plan.Events {
+			if event.Header.EventType != ConfigurationChangedEvent || !validPersistedEvent(event) {
+				t.Fatal("Summary invented an embedding change or invalid event")
+			}
+		}
+		last := prepared.plan.Events[want-1]
+		if last.Header.AggregateID.String() != plan.AfterMeetingSummary.ID || *last.Header.AggregateVersion != plan.AfterMeetingSummary.Version {
+			t.Fatal("Summary event uses another owner's identity/version")
+		}
+	}
+}

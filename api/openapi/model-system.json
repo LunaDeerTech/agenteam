@@ -3086,6 +3086,7 @@
                 "enum": [
                   "embedding",
                   "image",
+                  "meeting_summary",
                   "memory",
                   "reranker"
                 ]
@@ -3129,7 +3130,7 @@
           },
           "reference_groups": {
             "type": "array",
-            "maxItems": 7,
+            "maxItems": 8,
             "items": {
               "$ref": "#/components/schemas/ModelReferenceCount"
             },
@@ -3150,7 +3151,7 @@
             "description": "Null only means absence of this known adapter blocker; it does not mean deletion is allowed."
           }
         },
-        "description": "Zero references implies none and null blocker. Any agent, project_summary, platform embedding or memory requires replacement. Otherwise nonempty platform image/reranker is optional. Any agent/project_summary group sets reference_adapter_unbound."
+        "description": "Zero references implies none and null blocker. Any agent, project_summary, platform embedding, meeting_summary or memory requires replacement. Otherwise nonempty platform image/reranker is optional. Any agent/project_summary group sets reference_adapter_unbound."
       }
     }
   }

@@ -88,6 +88,15 @@ func (a *Authority) validatePreparedFact(ctx context.Context, tx f.Tx, p *prepar
 			return fault(f.Forbidden)
 		}
 	}
+	if p.plan.AfterMeetingSummary != nil {
+		actual, e := loadMeetingSummaryState(ctx, x)
+		if e != nil {
+			return e
+		}
+		if !sameValue(actual, p.plan.AfterMeetingSummary) {
+			return fault(f.Forbidden)
+		}
+	}
 	for _, event := range r.Plan.Events {
 		if !validPersistedEvent(event) {
 			return fault(f.Forbidden)
