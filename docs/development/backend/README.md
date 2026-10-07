@@ -2,7 +2,7 @@
 
 根 module 为 `github.com/LunaDeerTech/agenteam`，固定 Go 1.27.1。Central 已装配固定 pgx/Goose 数据库库，见[数据库说明](database.md)。Audit 的同事务追加、授权查询/生命周期清理端口与独立签名 cursor 已实现，见[Audit 说明](audit.md)。Secret 的 envelope、引用/lease、加密 receipt 和可恢复主密钥维护见 [Secret 说明](secret.md)。动态策略、受控 HTTP 与 SMTP 拨号端口见[出站说明](outbound.md)。D05 对象库提供受限流式存储、授权 reference/lease、Artifact/下载和 typed Runner transfer，接口与阶段见[对象实施规格](../work-items/d05-object-storage-design.md)。Central 与 Runner 分别装配；Runner 不导入 Central。中立 `internal/platform` 只处理进程日志和关闭协调，不提供授权、业务幂等、数据库事务或 Runner 设备协议。
 
-Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断、正式账户 HTTP、System Model 配置 HTTP、Project Owner 元数据读取与更新，以及 Project Owner Usage 只读 HTTP。默认根已绑定 System Provider/Model CRUD、平台 selector、Model credential 独立写入及 Model 配置和 credential 两类原命令查证，使用真实 Account Session/admin、同一 Secret/Audit/Outbox；接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)，装配边界见[根装配规格](../work-items/recovery-d09-system-model-root.md)。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 仍为 `account.mail-enqueue`，没有 Model consumer。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)；已证实的 [Object runtime join 缺陷](../agent-team/object-runtime-join-regression.md)尚未修复，本次 System Model 根装配不解除该限制。Artifact/通用下载 HTTP、Project 创建与生命周期、Runner/Operation、Model Resolver/Invocation Facts 写入和实际 Provider/MCP 调用仍未绑定。系统管理员统一选择 Meeting Summary 模型的 S1 持久化库、S2 设置 HTTP 与默认根初始化、S3 解析库已实现，默认根 Resolution 与实际 Meeting 消费仍未绑定，详见下文；完整 D09 未完成。Runner 是未连接进程，整体 `ready=false`、`/readyz` 仍为 503。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
+Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断、正式账户 HTTP、System Model 配置 HTTP、Project Owner 元数据读取与更新、Model 配置与安全 chat 目录读取，以及 Project Owner Usage 只读 HTTP。默认根已绑定 System Provider/Model CRUD、平台 selector、Model credential 独立写入及 Model 配置和 credential 两类原命令查证，使用真实 Account Session/admin、同一 Secret/Audit/Outbox；接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)，装配边界见[根装配规格](../work-items/recovery-d09-system-model-root.md)。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 仍为 `account.mail-enqueue`，没有 Model consumer。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)；已证实的 [Object runtime join 缺陷](../agent-team/object-runtime-join-regression.md)尚未修复，本次 System Model 根装配不解除该限制。Artifact/通用下载 HTTP、Project 创建与生命周期、Runner/Operation、Model Resolver/Invocation Facts 写入和实际 Provider/MCP 调用仍未绑定。系统管理员统一选择 Meeting Summary 模型的 S1 持久化库、S2 设置 HTTP 与默认根初始化、S3 解析库已实现，默认根 Resolution 与实际 Meeting 消费仍未绑定，详见下文；完整 D09 未完成。Runner 是未连接进程，整体 `ready=false`、`/readyz` 仍为 503。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
 
 System Model 管理读口已实现并通过[独立验收](../agent-team/system-model-management-reads-verification.md)：GET/HEAD `/api/v1/system/model-credentials/{id}` 只返回当前安全 metadata（credential ID、purpose、version）；GET/HEAD `/api/v1/system/models/{id}/deletion-impact` 返回有界精确引用统计、替换要求和已知 adapter 阻断。两类读取各自拥有完整锁 union 的读取事务，在同一 Tx 内重验当前 Session/admin 后读取；最长 3 秒预算包含 HTTP 认证、锁等待和 SQL，并继承更早的调用方取消。仅确认 Committed 且 context 仍有效才返回结果，失败、Unknown 或取消不返回候选数据，也不自动重读。预览不授予删除权限，后续 DeleteModel 仍重验当前引用与替换事实；外域引用 adapter 仍未绑定。精确接口与边界见[管理读口规格](../work-items/recovery-d09-system-model-management-reads.md)。
 
@@ -149,6 +149,37 @@ System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 
 PATCH 发布/I/O 预算为30秒、lookup为2秒，从认证前覆盖同一次服务调用、完整投影和实际 Write/Flush、同步 Body.Close 及 callback join；业务前无副作用地检查可达 I/O 能力。原 Project 库 Unknown 后的 `WithoutCancel` 至多3秒确认尾部保留，handler 同步拥有并实际等待；它不延长 HTTP 发布时间，也不保证整个 handler 在30秒内返回。过发布期限 abort，不补迟到200或 Problem。正常关停与预算耗尽分别记录，强制 root 返回不能冒充全部内部调用已 join。
 
 固定 candidate06 的作者离线版本组合、三个真实 native 顶层、四个新 PG 顶层与九个旧回归，以及独立 A01/B02 均通过。A01 补验真实缺 User/Project/Outbox 锁、旧计划、已提交 Logout 和原子回滚；B02 验默认根、历史 receipt 与当前 GET 分离及实际 drain，真实 PATCH 8545 B、lookup 8607 B 原 body 均通过 Draft 2020-12 与 FormatChecker 标准解析。原编译失败、I/O 能力预检缺陷及循环 writer 测试首红、独立 B01 私有 SQL 探针首红与 B02 修正均保留；这是版本组合验收。物理 ACK 丢失、原 writer 确认尾部和在途 root 正常/耗尽关停由固定作者测试另行举证；forced root 返回后的私有 proxy/backend 等待不倒填 root 内部 join。新身份使用正式账户链，持久 Skills 与特殊 canonical 仅为测试前置。各轮 owned 实际等待、资源双清，daemon 未 wait 差量单列，不称全机零。创建、生命周期、UI、生产 Resolution/Invocations 与 D24 仍未绑定，三停止、ready503 和完整 D08–D28/E01 未完成边界保持。
+
+## Project Model 配置与安全目录 Owner 只读 HTTP
+
+默认根已提供以下五个 GET/HEAD 资源，精确字段见 [Project Model OpenAPI](../../../api/openapi/project-models.json) 与[实施规格](../work-items/d09-project-model-owner-read-http.md)。Model 的 `Authorizations.Projects` 绑定 Owner read、Update 与 Usage 共用的真实 Project Authority，沿原 Account Store、Session Authority 和 cursor keyring；每次读取在同一事务与完整锁计划内重验当前 Human Session、Owner 和项目 Read 门禁，管理员没有跨 Owner 豁免。
+
+| GET / HEAD 路径 | 读取职责 |
+| --- | --- |
+| `/api/v1/projects/{project_id}/model-providers` | 本 Project Provider 配置分页，包含禁用项 |
+| `/api/v1/projects/{project_id}/model-providers/{provider_id}` | 本 Project Provider 配置详情 |
+| `/api/v1/projects/{project_id}/models` | 本 Project Model 配置分页，包含禁用项 |
+| `/api/v1/projects/{project_id}/models/{model_id}` | 本 Project Model 配置详情 |
+| `/api/v1/projects/{project_id}/available-chat-models` | enabled 本 Project 与 System chat 模型的七字段安全目录 |
+
+Project 详情不返回 System 或其他 Project 的完整配置；安全目录不暴露 Provider 配置、Secret 引用或凭据材料。版本保持无损十进制字符串，nullable 与缺席字段严格区分。三个列表严格校验 query，游标绑定原查询且逐页重验当前权限；沿既有 keyring 签名规则，无新增 TTL。GET/HEAD 拒绝实体，HEAD 完成同样的完整查询、验证与编码，成功 Content-Length 与 GET 表示一致，成功和错误都不返回实体。
+
+一次 2 秒发布/I/O 预算从认证前开始并继承更早 parent deadline，覆盖读取、完整投影、实际 Write/Flush、Body.Close 和取消 callback；业务前检查可达读写 deadline 与 Flush 能力，不提前写头或 Flush。取消与超时不等于实际 join，所有尾部结束后才 reset/返回；过期 abort，不补迟到 200或 Problem。只有原读取实际 Committed 且 context 仍有效才发布；原服务 Unknown/其它 Fault 优先保留，零成功候选，不自动重读。
+
+完整成功表示上限为 8 MiB。在新增 DTO 复制、Validate 与 Marshal 前，先做有界、不会溢出的长度与 JSON 转义预估；无法证明整页或详情可在界内表示时，返回 503 `DEPENDENCY_UNAVAILABLE` / `not_started`，不裁剪数组、字段或行，不输出部分 200。这里的 `not_started` 指 HTTP 表示未开始发布，不表示前序数据库未读取或回滚；8 MiB 也不约束已接受库/DB 的前序分配或整个进程 RSS。服务原 Unknown 不被超限替换，已过 2 秒则沿原 abort 终局。
+
+技术候选的受控纯测、真实 native、作者四新与十旧 PG 顶层及独立 native/A/B 已通过；实际原 body 另经 Draft 2020-12 与 FormatChecker 验证，原编译、测试代理与断言首红和版本组合保留。native 与受控 writer 证据分开，实际 wait、owned 资源/进程/端口双清不等于全机零残留，daemon 未 wait 差量单列。下例分别选择一个 native 和真实 fixture 顶层；其余精确分组见实施规格。使用上文固定 Go/MinIO，schema 解释器须已有固定 `jsonschema` 与 `referencing`；验收仍逐顶层保留 native 外围 45 秒/测试 40 秒、fixture 新 top 120 秒含 Cleanup/包 6 分钟及实际等待、双清。
+
+```sh
+AGENTEAM_PROJECT_MODEL_NATIVE=1 GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly \
+  "$AGENTEAM_GO" test -race -count=1 -timeout=40s \
+  -run '^TestProjectModelHTTPNativeSlowBodyAndCallback$' ./internal/central/model
+AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON=/path/to/fixed/python3 \
+  AGENTEAM_MINIO_BINARY=/task-owned/cache/minio \
+  sh scripts/test-objects.sh -run '^TestModelProjectConfigurationHTTPBoundedRepresentation$'
+```
+
+本阶段没有新初始化或 worker，保留原 Secret → Model → Summary → Usage 顺序、Update Drain、Account/System/Summary/Usage 路由及关闭链。Project 配置/凭据 mutation HTTP、Agent 引用替换与 Model UI 未实现；生产 Resolution/Invocations、实际 Provider 调用与 D24 Meeting 消费仍未绑定，不完成整个 D09。原 Object runtime join、OpenAI tools 独立验收和 SPA 并发发布三项停止边界及 `ready=false` / `/readyz` 503 保持。
 
 ## Project Owner Usage 只读 HTTP
 

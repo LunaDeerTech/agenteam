@@ -254,7 +254,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	modelAuthority, err := model.NewAuthority(modelStore, model.Authorizations{Sessions: authority, System: authority})
+	modelAuthority, err := model.NewAuthority(modelStore, model.Authorizations{Sessions: authority, System: authority, Projects: projectUsage.projects})
 	if err != nil {
 		return err
 	}
@@ -444,8 +444,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	projectModelHandler, err := projectModelsHandler(models, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
-		accounts.handler = projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler)
+		accounts.handler = projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler)
 	}) {
 		return context.Canceled
 	}
