@@ -8,6 +8,10 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：[Project Owner只读HTTP](agent-team/project-owner-read-http-verification.md)完整17路径（含后端README末件）已接受；产品 `901eb546`、归档 `a10586e9` 均已推送且root核远端一致。所有task-owned命令/资源已停止；九个PG轮的原失败、actualwait/七资源双清及新增36个daemon/PID1 shim非owned未wait限制沿档保留。
+
+下一项Project Owner Update HTTP工程规格由 `next_frontier` 实际ACK并开始起草，`usage_verification` 已ACK仅只读独立准备，固定基线 `901eb546`；尚未冻结/完整STATIC，未授权业务实施或资源。Summary S1/S2/S3及Usage接受保持；系统统一会议initial/update含首轮标题、Project不override/复制初值和compaction/Execution Summary规则不变。production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
+
 2026-10-07 当前增量：[Summary S2](agent-team/system-meeting-summary-settings-verification.md)含双README的完整32路径范围/31实际改动已接受，产品 `4e615c7d`、归档及S2/S3卡页首 `e1a5eb92` 均已推送且root核远端一致。S1/S3/Usage接受保持；S2所有task-owned资源实际wait/清理闭合、原资产已恢复，原失败及新增64个daemon/PID1 shim非owned未wait限制见归档，不称全机清零。
 
 [D08 Project Owner只读HTTP规格](agent-team/project-owner-read-http-spec-verification.md) `ac33ea15` /归档 `d5a21f63` 已接受。`next_frontier` 已实际ACK并开始#1–16实施，先Reader#1–3，沿产品基线 `4e615c7d` 正式交接 `internal/central/app/account.go`；必要离线依赖图/pure/race/vet/schema/build已授，但尚无实际执行结果、native/PG资源未授。`usage_verification` 已ACK，仅独立计划准备，D08产品未接受。系统统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则不改；production Resolution/Invocations、D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。

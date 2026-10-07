@@ -2,6 +2,12 @@
 
 agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期项目状态、任务、会议、Agent 执行与人类审核。
 
+## 当前增量（2026-10-07）
+
+[Project Owner只读HTTP](docs/development/agent-team/project-owner-read-http-verification.md)完整17路径（含后端README末件）已接受，产品 `901eb546`、归档 `a10586e9` 已推送并确认远端一致；本切片提供默认root下的Owner列表/详情GET/HEAD。所有task-owned命令/资源已停止；九个PG轮的原失败、实际wait/七资源双清及新增36个daemon/PID1 shim非owned未wait限制见归档，不称全机清零。
+
+下一Project Owner Update HTTP工程规格由 `next_frontier` 实际ACK并起草，`usage_verification` 已ACK仅只读独立准备，基线 `901eb546`；尚未冻结/完整STATIC，未授权业务实施或资源。[Summary S1/S2/S3既有接受](docs/development/agent-team/system-meeting-summary-settings-verification.md)及Usage保持；系统管理员统一配置会议initial/update（含首轮标题）模型，Project不override或复制初值，compaction/Execution Summary规则不改。production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join、OpenAI tools独立验证、SPA concurrent-publication三停止不变。以下既有文字保留其历史时点。
+
 ## 技术基线
 
 - 前端：Vue 3 + 自定义组件。
