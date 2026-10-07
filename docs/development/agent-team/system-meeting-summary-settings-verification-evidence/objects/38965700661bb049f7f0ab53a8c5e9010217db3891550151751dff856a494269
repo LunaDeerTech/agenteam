@@ -1,0 +1,43 @@
+{
+  "type01": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--skipLibCheck",
+    "--typeRoots",
+    "/workspace/agenteam/web/node_modules/@types",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/browser/independent.spec.ts"
+  ],
+  "syntax01": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--check",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/browser/independent.config.cjs"
+  ],
+  "compile01": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-mod=readonly",
+    "-buildvcs=false",
+    "-p=1",
+    "-overlay=/workspace/scratch/summary-verification/S2-probes/repair-b02/overlay.json",
+    "-o",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/bin/account-independent.test",
+    "./tests/account"
+  ],
+  "list01": [
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/bin/account-independent.test",
+    "-test.list=^TestIndependentMeetingSummarySettingsB$"
+  ]
+}

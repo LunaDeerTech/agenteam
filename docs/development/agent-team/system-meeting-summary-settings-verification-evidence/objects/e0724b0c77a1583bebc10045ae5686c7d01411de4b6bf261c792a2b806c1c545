@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vue-tsc/bin/vue-tsc.js",
+    "--noEmit"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/meeting-summary-settings-frontend-author/f06-type/tmp",
+    "SUMMARY_FRONTEND_OUTPUT": "/workspace/scratch/meeting-summary-settings-frontend-author/f06-type",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "frozen": "/workspace/scratch/meeting-summary-settings-frontend-author/frozen04.json",
+  "frozen_sha256": "462a036ac85ad4da02efa1b79b7b4ab4bb74318e8dd79d8a01248f4db497ee03",
+  "started": 1791384404.292872,
+  "pid": 248167,
+  "pid_starttime": "1035612",
+  "exit": 2,
+  "finished": 1791384414.190343,
+  "process_elapsed": 9.439677383999879,
+  "subreaper_readback": 1,
+  "adopted_waits": [],
+  "forced_descendants": false,
+  "failure": null,
+  "first_tail": [],
+  "second_tail": [],
+  "inputs_unchanged": true,
+  "expected_format_only": false
+}

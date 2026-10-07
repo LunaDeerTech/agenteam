@@ -1,0 +1,51 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestIndependentMeetingSummarySettingsB)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T16:06:23.625258+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/s2web-v",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MEETING_SUMMARY_WEB_DIST": "/workspace/scratch/meeting-summary-settings-frontend-author/f20-build/dist",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/summary-verification/S2-probes/repair-b02/overlay.json",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/runtime/home",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/runtime",
+    "XDG_CACHE_HOME": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/runtime/home/.cache",
+    "XDG_CONFIG_HOME": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/runtime/home/.config",
+    "XDG_DATA_HOME": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/runtime/home/.local/share"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 476403,
+  "pid_stat": "476403 (sh) R 476325 476403 476403 0 -1 4194560 7 0 0 0 0 0 0 0 20 0 1 0 1507249 540672 0 18446744073709551615 94806950420480 94806950501473 140729353152656 0 0 0 0 0 0 0 0 0 17 0 0 0 0 0 0 94806950530608 94806950535744 94807469674496 140729353160977 140729353161052 140729353161052 140729353162732 0\n",
+  "seconds": 62.964,
+  "started_utc": "2026-10-07T16:05:20.660249+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

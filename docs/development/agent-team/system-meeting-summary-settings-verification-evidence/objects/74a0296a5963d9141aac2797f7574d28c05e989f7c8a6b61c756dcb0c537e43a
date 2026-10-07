@@ -1,0 +1,357 @@
+{
+  "input": "candidate02 at actual command before/after; later candidate03 test delta excluded from this result",
+  "base_union_sha256": "85777fff399197b37c8e0cccdd86d38e793406f3b709e709a3555c94da755f82",
+  "actual_graph_sha256": "777a0529c24efc4f9f824033cd12f72096e5a6cd20664b0dc9a8dea166e4e2dc",
+  "package_count": 402,
+  "observed_file_count": 2594,
+  "new_sources": {
+    "/workspace/agenteam/tests/model/zz_independent_summary_settings_test.go": {
+      "actual": "/workspace/scratch/summary-verification/S2-probes/model_probe_test.go",
+      "sha256": "cc28a49d890f36059d042e2ad202295d31c4ee386ca485a2d93c553f0b5e2be0"
+    },
+    "/workspace/agenteam/tests/account/zz_independent_summary_settings_test.go": {
+      "actual": "/workspace/scratch/summary-verification/S2-probes/account_probe_test.go",
+      "sha256": "d09896a1ab669091d76a1f38cc63ae61f329591402e7f28b4e7f792b05759859"
+    }
+  },
+  "changed_base_sources": {},
+  "generated_testmain_cache": {
+    "/workspace/.cache/go-build/2e/2e58dbaa319bf8ebca6897ba06d83b539468f3d3fc69355688abb1b3abbb4354-d": {
+      "sha256": "2e58dbaa319bf8ebca6897ba06d83b539468f3d3fc69355688abb1b3abbb4354",
+      "source": "immutable generated Go cache"
+    },
+    "/workspace/.cache/go-build/07/07f60312d1c5b8189e139d0f12f6d78fcb9c70ddaa63ac59c0860768d4452e6c-d": {
+      "sha256": "07f60312d1c5b8189e139d0f12f6d78fcb9c70ddaa63ac59c0860768d4452e6c",
+      "source": "immutable generated Go cache"
+    }
+  },
+  "test_package_sets": {
+    "github.com/LunaDeerTech/agenteam/tests/model": {},
+    "github.com/LunaDeerTech/agenteam/tests/account": {},
+    "github.com/LunaDeerTech/agenteam/tests/model_test [github.com/LunaDeerTech/agenteam/tests/model.test]": {
+      "GoFiles": [
+        "current_resolution_atomicity_test.go",
+        "current_resolution_authorization_test.go",
+        "current_resolution_fixture_test.go",
+        "current_resolution_schema_test.go",
+        "current_resolution_selection_test.go",
+        "current_resolution_unknown_test.go",
+        "meeting_summary_fixture_test.go",
+        "meeting_summary_http_test.go",
+        "meeting_summary_replacement_test.go",
+        "meeting_summary_resolution_atomicity_test.go",
+        "meeting_summary_resolution_authorization_test.go",
+        "meeting_summary_resolution_fixture_test.go",
+        "meeting_summary_resolution_replay_test.go",
+        "meeting_summary_resolution_selection_test.go",
+        "meeting_summary_resolution_unknown_test.go",
+        "meeting_summary_schema_test.go",
+        "meeting_summary_selection_test.go",
+        "meeting_summary_settings_fixture_test.go",
+        "meeting_summary_settings_http_test.go",
+        "meeting_summary_settings_root_test.go",
+        "meeting_summary_unknown_test.go",
+        "meeting_summary_upgrade_test.go",
+        "openai_chat_structured_http_test.go",
+        "openai_chat_structured_stream_test.go",
+        "openai_chat_wire_fixture_test.go",
+        "openai_chat_wire_http_test.go",
+        "openai_chat_wire_stream_test.go",
+        "openai_embeddings_wire_budget_test.go",
+        "openai_embeddings_wire_fixture_test.go",
+        "openai_embeddings_wire_http_test.go",
+        "openai_embeddings_wire_terminal_test.go",
+        "project_available_models_test.go",
+        "project_configuration_fixture_test.go",
+        "project_configuration_integration_test.go",
+        "project_configuration_unknown_test.go",
+        "project_usage_http_fixture_test.go",
+        "project_usage_http_root_test.go",
+        "project_usage_http_terminal_test.go",
+        "project_usage_http_test.go",
+        "system_configuration_integration_test.go",
+        "system_http_configuration_test.go",
+        "system_http_credentials_test.go",
+        "system_http_fixture_test.go",
+        "system_management_boundaries_test.go",
+        "system_management_impact_test.go",
+        "system_management_metadata_test.go",
+        "usage_authorization_test.go",
+        "usage_fixture_test.go",
+        "usage_ledger_test.go",
+        "usage_query_test.go",
+        "usage_schema_test.go",
+        "usage_unknown_test.go",
+        "zz_independent_summary_settings_test.go"
+      ]
+    },
+    "github.com/LunaDeerTech/agenteam/tests/model.test": {
+      "GoFiles": [
+        "/workspace/.cache/go-build/2e/2e58dbaa319bf8ebca6897ba06d83b539468f3d3fc69355688abb1b3abbb4354-d"
+      ]
+    },
+    "github.com/LunaDeerTech/agenteam/tests/account_test [github.com/LunaDeerTech/agenteam/tests/account.test]": {
+      "GoFiles": [
+        "account_entry_web_fixture_test.go",
+        "account_entry_web_test.go",
+        "audit_http_test.go",
+        "audit_http_transaction_test.go",
+        "authentication_web_fixture_test.go",
+        "authentication_web_test.go",
+        "authority_test.go",
+        "avatar_cleanup_test.go",
+        "avatar_fixture_test.go",
+        "avatar_migration_test.go",
+        "avatar_recovery_test.go",
+        "avatar_runtime_test.go",
+        "avatar_test.go",
+        "b02_competition_test.go",
+        "b02_final_boundaries_test.go",
+        "b02_fixture_test.go",
+        "b02_recovery_test.go",
+        "b02_unknown_test.go",
+        "captcha_web_test.go",
+        "challenge_boundaries_test.go",
+        "challenge_geometry_test.go",
+        "challenge_solver_test.go",
+        "challenge_test.go",
+        "commit_proxy_test.go",
+        "common_test.go",
+        "crash_test.go",
+        "delivery_handler_test.go",
+        "delivery_plan_test.go",
+        "email_canonical_roundtrip_test.go",
+        "final_boundaries_test.go",
+        "http_admin_test.go",
+        "http_avatar_test.go",
+        "http_email_canonical_roundtrip_test.go",
+        "http_fixture_test.go",
+        "http_invitation_delivery_test.go",
+        "http_mail_job_management_test.go",
+        "http_session_test.go",
+        "http_test.go",
+        "http_user_directory_test.go",
+        "invitation_delivery_query_test.go",
+        "invitation_test.go",
+        "link_cleanup_lease_test.go",
+        "link_material_test.go",
+        "login_test.go",
+        "logout_sequence_test.go",
+        "mail_audit_test.go",
+        "mail_delivery_test.go",
+        "mail_fairness_test.go",
+        "mail_job_management_query_test.go",
+        "mail_origin_test.go",
+        "mail_recovery_test.go",
+        "mail_release_test.go",
+        "mail_retry_boundaries_test.go",
+        "mail_retry_capacity_test.go",
+        "mail_retry_plan_test.go",
+        "mail_unknown_test.go",
+        "migration_test.go",
+        "outbound_policy_http_test.go",
+        "outbound_policy_http_transaction_test.go",
+        "password_mutations_test.go",
+        "permissions_test.go",
+        "personal_settings_web_fixture_test.go",
+        "personal_settings_web_test.go",
+        "privacy_test.go",
+        "profile_test.go",
+        "recovery_test.go",
+        "reset_test.go",
+        "response_unknown_recovery_test.go",
+        "runtime_information_http_test.go",
+        "session_test.go",
+        "system_account_security_web_fixture_test.go",
+        "system_account_security_web_test.go",
+        "system_audit_web_fixture_test.go",
+        "system_audit_web_test.go",
+        "system_invitations_web_fixture_test.go",
+        "system_invitations_web_test.go",
+        "system_meeting_summary_web_fixture_test.go",
+        "system_meeting_summary_web_test.go",
+        "system_model_selection_web_fixture_test.go",
+        "system_model_selection_web_test.go",
+        "system_models_web_fixture_test.go",
+        "system_models_web_test.go",
+        "system_outbound_policy_web_fixture_test.go",
+        "system_outbound_policy_web_test.go",
+        "system_providers_web_fixture_test.go",
+        "system_providers_web_test.go",
+        "system_runtime_information_web_fixture_test.go",
+        "system_runtime_information_web_test.go",
+        "system_smtp_delivery_web_fixture_test.go",
+        "system_smtp_delivery_web_test.go",
+        "system_smtp_settings_web_fixture_test.go",
+        "system_smtp_settings_web_test.go",
+        "system_user_directory_web_fixture_test.go",
+        "system_user_directory_web_test.go",
+        "unknown_state_test.go",
+        "unknown_test.go",
+        "zz_independent_summary_settings_test.go"
+      ]
+    },
+    "github.com/LunaDeerTech/agenteam/tests/account.test": {
+      "GoFiles": [
+        "/workspace/.cache/go-build/07/07f60312d1c5b8189e139d0f12f6d78fcb9c70ddaa63ac59c0860768d4452e6c-d"
+      ]
+    }
+  },
+  "commands": {
+    "format01": {
+      "result_sha256": "30eaec7f569debe87a4b58f0e6ed34c0bedd71ae901708778d9e119bf8acb053",
+      "command_sha256": "a044f26b87e14d9afe778ee1270ed50403329c5e1654840781eae8e9b990889e",
+      "elapsed_seconds": 0.6427974750004068,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 0.603857871999935,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 0.6410847440001817,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": [
+        "/workspace/scratch/summary-verification/S2-probes/account_probe_test.go",
+        "/workspace/scratch/summary-verification/S2-probes/model_probe_test.go"
+      ]
+    },
+    "graph01": {
+      "result_sha256": "d774e530f79af6333e0092e7adb81779806f153c7871cefbb0608d252da4fffb",
+      "command_sha256": "dd15c76fa3dcd83829000573ec9c6091f095ebf18698b1b55fc7e21a68968894",
+      "elapsed_seconds": 0.9447289849995286,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 0.9050944310001796,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 0.940735971000322,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": []
+    },
+    "compile-a01": {
+      "result_sha256": "2a2f29c2e9a55177c48909426b887d0b4ae82eafb722d252f5bfa43373e91d49",
+      "command_sha256": "868a2cabb835dfc285792fa2898c815dd3711c13f854b53d228d429359972886",
+      "elapsed_seconds": 6.336146783998629,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 6.298515217999011,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 6.33356038599959,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": []
+    },
+    "compile-b01": {
+      "result_sha256": "49944907615aea1b82db05247880b4f867f52fbfee95c929d77e4d95e31ab96d",
+      "command_sha256": "12c0b9c25f103174cfc01cce3437ca40f912e2f10ba581eb20d31a606cdaa299",
+      "elapsed_seconds": 9.23231997899893,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 9.18923216300027,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 9.22835082599886,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": []
+    },
+    "list-a01": {
+      "result_sha256": "ad52b1a0a51fb13f6557a35dacb568568acbd41065a9056141d65c7a5088f3d8",
+      "command_sha256": "1bc30aa270793ef2635471f3e51fe721ae935691f6323e1f38237f5781084837",
+      "elapsed_seconds": 1.689220774000205,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 1.6511335100003635,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 1.6865905649992783,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": []
+    },
+    "list-b01": {
+      "result_sha256": "c8600d338ca7c26aec36cb2726effca97db95062a4baff8d2ce38e120a2a7df2",
+      "command_sha256": "c55055a5090f987f4d8f0bc91bfa16eeac7d1f32acdcc42476ef852fa946f9b0",
+      "elapsed_seconds": 1.6635404389999167,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 1.6247609769998235,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 1.6614055809986894,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": []
+    },
+    "type-browser01": {
+      "result_sha256": "9757aea617355938bc446bad87b2b8024a4656bc0057275b344303f75f618bd2",
+      "command_sha256": "0f562a68326745718e006c415057b25254156f721351d922b3f9842611c2d5a8",
+      "elapsed_seconds": 2.0599180400004116,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 2.0227426609999384,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 2.0579274400006398,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": []
+    },
+    "syntax-config01": {
+      "result_sha256": "0ee3a06d9967973a3a5d23de5cd0255bc2ac08342553199b11808f139c9d3845",
+      "command_sha256": "b346372a42e8e312dd3bc0681032ab503b4a29918bf21ac0561faba9962b4b7c",
+      "elapsed_seconds": 0.6799062909994973,
+      "exit": 0,
+      "owned_tails": [
+        {
+          "elapsed_seconds": 0.6431453109998984,
+          "descendants": []
+        },
+        {
+          "elapsed_seconds": 0.6778900919998705,
+          "descendants": []
+        }
+      ],
+      "actual_wait": true,
+      "changed_inputs": []
+    }
+  },
+  "collector_notes": [
+    "First read-only collector incorrectly included dependencies TestGoFiles/XTestGoFiles and failed an oversized-source-set assertion; corrected to effective GoFiles of actual test variants without rerunning Go.",
+    "A second collector read a later authorized candidate03 current test hash; final collector instead uses immutable command before/after fingerprints, matched to candidate02. No compilation/source/runtime failure was hidden; graph and original command/result bytes unchanged."
+  ],
+  "binaries": {
+    "model-independent.test": "af194cda5f2b2c50f2194233b54d80ac521eb594d1576cc6aa80eeee00140288",
+    "account-independent.test": "b8b7c35c8bb26028b2907476111cb27266e2ff9d63eab30747f010858cfccb7a"
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "time": 1791387937.0564,
+  "supersedes_failure": "asset-preflight01.json",
+  "prior_red_preserved": true,
+  "historical_zombie_count": 108,
+  "identified_live_infrastructure": [
+    {
+      "pid": 214,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "586",
+      "name": "dockerd",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 265,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "599",
+      "name": "containerd",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 606,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "645",
+      "name": "containerd-shim",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 613,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "645",
+      "name": "containerd-shim",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 654,
+      "state": "S",
+      "ppid": 606,
+      "starttime": "649",
+      "name": "postgres",
+      "uid_line": "Uid:\t999\t999\t999\t999"
+    },
+    {
+      "pid": 655,
+      "state": "S",
+      "ppid": 613,
+      "starttime": "649",
+      "name": "minio",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 711,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "655",
+      "name": "docker-proxy",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 715,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "656",
+      "name": "docker-proxy",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 742,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "657",
+      "name": "docker-proxy",
+      "uid_line": "Uid:\t0\t0\t0\t0"
+    },
+    {
+      "pid": 807,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "682",
+      "name": "postgres",
+      "uid_line": "Uid:\t999\t999\t999\t999"
+    },
+    {
+      "pid": 808,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "682",
+      "name": "postgres",
+      "uid_line": "Uid:\t999\t999\t999\t999"
+    },
+    {
+      "pid": 868,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795",
+      "name": "postgres",
+      "uid_line": "Uid:\t999\t999\t999\t999"
+    },
+    {
+      "pid": 869,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795",
+      "name": "postgres",
+      "uid_line": "Uid:\t999\t999\t999\t999"
+    },
+    {
+      "pid": 870,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795",
+      "name": "postgres",
+      "uid_line": "Uid:\t999\t999\t999\t999"
+    }
+  ],
+  "exact_existing_containers": [
+    {
+      "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+      "name": "/agenteam-dev-infra-minio-1",
+      "pid": 655,
+      "mounts": [
+        {
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "",
+          "Name": "5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260",
+          "Propagation": "",
+          "RW": true,
+          "Source": "/var/lib/docker/volumes/5053f56c2aed0d192afe6fc8ee87489ad3fd3ee0dc03ff1b14a75deff0773260/_data",
+          "Type": "volume"
+        },
+        {
+          "Destination": "/data",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/workspace/agenteam-onboarding/infra/data/minio",
+          "Type": "bind"
+        }
+      ]
+    },
+    {
+      "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "name": "/agenteam-dev-infra-postgres-1",
+      "pid": 654,
+      "mounts": [
+        {
+          "Destination": "/var/lib/postgresql/data",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/workspace/agenteam-onboarding/infra/data/postgres",
+          "Type": "bind"
+        }
+      ]
+    }
+  ],
+  "no_live_unknown_asset_owner": true,
+  "web_dist_handles_or_cwd": [],
+  "visible_listener_owners": [
+    {
+      "pid": 2,
+      "name": "caas-prefix-tra",
+      "cwd": "/workspace",
+      "listeners": [
+        {
+          "table": "tcp",
+          "local_address": "00000000:0410"
+        }
+      ]
+    }
+  ],
+  "original_stable_metadata_match": true,
+  "original_asset_script_rechecks_at_apply": true,
+  "free_bytes": 21201981440,
+  "docker_command": [
+    "/usr/local/bin/docker",
+    "container",
+    "inspect",
+    "--format",
+    "{{json .Id}}\t{{json .Name}}\t{{json .State.Pid}}\t{{json .Mounts}}",
+    "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+    "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c"
+  ],
+  "docker_exit": 0,
+  "docker_actual_wait": true,
+  "processes_signaled": false,
+  "external_credentials_read": false
+}

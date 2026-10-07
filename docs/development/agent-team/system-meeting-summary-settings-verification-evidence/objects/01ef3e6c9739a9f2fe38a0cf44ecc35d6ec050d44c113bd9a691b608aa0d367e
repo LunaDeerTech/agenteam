@@ -1,0 +1,618 @@
+{
+  "status": "author S2 backend bounded technical PASS; independent/client/browser/root product acceptance still separate",
+  "candidate": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03.json",
+    "sha256": "d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde"
+  },
+  "source_scope": "S2 original #1-13 plus#32, 14 paths; no README authorization or edits",
+  "first_real_failure_preserved": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/new-http01-failure.json",
+    "sha256": "4a10d907204ba6e0caa1581847e67093c7181a3ed9ce274bf4ee7cb754c86013"
+  },
+  "repair": "one test-only trailing-slash expectation corrected to existing Account boundary400; canonical unknown404 assertion added; production unchanged",
+  "runs": {
+    "new-http01-first-failure": {
+      "result": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v01/runs/new-http01/result.json",
+        "sha256": "d7d608869308c6c0f4c8ee3b08f68746e07e98e61eb9e6fa2c7d7b08b1543c0a"
+      },
+      "command": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v01/runs/new-http01/command.json",
+        "sha256": "37af889d654c0cea960f8fffdc573a7f1537c5d1ba5f03930ba2019beeb1f279"
+      },
+      "raw": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v01/runs/new-http01/raw.log",
+        "sha256": "7a63791327c8e10a37ae30483dc506dddb0b5ecfb9de7588e5bb9ad96f6c21ad"
+      },
+      "driver_exit": 1,
+      "actual_seconds": 56.458,
+      "top_results": [
+        [
+          "FAIL",
+          "TestModelMeetingSummarySettingsHTTP",
+          "2.66s"
+        ]
+      ],
+      "sub_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/clear",
+          "0.03s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/wrong_selector",
+          "0.04s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/stale",
+          "0.04s"
+        ]
+      ],
+      "actual_wait": true,
+      "resources": 7,
+      "owned_PID_starttime_count": 92,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "input_and_verification_same": true,
+      "watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "daemon_shim_Z": {
+        "before": 76,
+        "after": 80,
+        "new_not_owned_or_waited": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 329861,
+            "ppid": 1,
+            "starttime": "1264096",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 330418,
+            "ppid": 1,
+            "starttime": "1264558",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 330738,
+            "ppid": 1,
+            "starttime": "1264767",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 331342,
+            "ppid": 1,
+            "starttime": "1264954",
+            "state": "Z"
+          }
+        ]
+      }
+    },
+    "new-http-rerun": {
+      "result": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/result.json",
+        "sha256": "6dd4eea593fc0afa0311d4c29b27e53a419b0a10e4246f374cb066eeccc513bb"
+      },
+      "command": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/command.json",
+        "sha256": "bc199ba7c28296f952b4be8a3fef3483c8f57a065d1e9cefcf2ae4291426e040"
+      },
+      "raw": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/raw.log",
+        "sha256": "dbe55a0dab6534303ed9151ed4fef50c05905e7e078fbfad5a8919f45c9c5b83"
+      },
+      "driver_exit": 0,
+      "actual_seconds": 55.737,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP",
+          "4.47s"
+        ]
+      ],
+      "sub_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/clear",
+          "0.03s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/wrong_selector",
+          "0.03s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/stale",
+          "0.03s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/csrf",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/origin",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/raw_path",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP/current_session_rechecked_in_transaction",
+          "0.88s"
+        ]
+      ],
+      "actual_wait": true,
+      "resources": 7,
+      "owned_PID_starttime_count": 87,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "input_and_verification_same": true,
+      "watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "daemon_shim_Z": {
+        "before": 80,
+        "after": 84,
+        "new_not_owned_or_waited": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 339727,
+            "ppid": 1,
+            "starttime": "1289211",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 340212,
+            "ppid": 1,
+            "starttime": "1289669",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 340579,
+            "ppid": 1,
+            "starttime": "1289897",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 341204,
+            "ppid": 1,
+            "starttime": "1290116",
+            "state": "Z"
+          }
+        ]
+      }
+    },
+    "new-recovery01": {
+      "result": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/result.json",
+        "sha256": "b7d06359b73cf7059991a9f45fc6b29fbab072a3714483828a4eebdb93400298"
+      },
+      "command": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/command.json",
+        "sha256": "e34b52aacfea314c546576ef9c1f7891aa1f60894b1df25db8c17f7cf79c42a5"
+      },
+      "raw": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/raw.log",
+        "sha256": "b6ac8efd5afd39a9d75bbb99259269b83dd9ee9abd73f79ba86699220d2ea17a"
+      },
+      "driver_exit": 0,
+      "actual_seconds": 57.197,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRecovery",
+          "8.46s"
+        ]
+      ],
+      "sub_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRecovery/accepted_short_response_and_historical_replay",
+          "3.06s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRecovery/original_commit_ack_loss_via_http",
+          "2.15s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRecovery/pending_original_writer_then_lookup_and_replay",
+          "3.25s"
+        ]
+      ],
+      "actual_wait": true,
+      "resources": 7,
+      "owned_PID_starttime_count": 89,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "input_and_verification_same": true,
+      "watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "daemon_shim_Z": {
+        "before": 84,
+        "after": 88,
+        "new_not_owned_or_waited": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 347335,
+            "ppid": 1,
+            "starttime": "1297338",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 347789,
+            "ppid": 1,
+            "starttime": "1297668",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 348072,
+            "ppid": 1,
+            "starttime": "1297863",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 348665,
+            "ppid": 1,
+            "starttime": "1298043",
+            "state": "Z"
+          }
+        ]
+      }
+    },
+    "new-root01": {
+      "result": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-root01/result.json",
+        "sha256": "770daaf3c20c51dd71f9a5533b8f36089fa10552e3bb3aea15504441c25e2f59"
+      },
+      "command": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-root01/command.json",
+        "sha256": "f13deb146a47fac94487e2d906035b2b8d633ec4e4933ae05a0975ec0298b5df"
+      },
+      "raw": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-root01/raw.log",
+        "sha256": "f53197a958beb462d62b1e2576697d3959ceeba3c32a9d685b0152607330de65"
+      },
+      "driver_exit": 0,
+      "actual_seconds": 68.115,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRoot",
+          "15.41s"
+        ]
+      ],
+      "sub_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRoot/default_init_restart_and_old_routes",
+          "3.17s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRoot/missing_table",
+          "2.41s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRoot/corrupt_fact",
+          "2.50s"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRoot/held_summary_lock",
+          "7.33s"
+        ]
+      ],
+      "actual_wait": true,
+      "resources": 7,
+      "owned_PID_starttime_count": 91,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "input_and_verification_same": true,
+      "watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "daemon_shim_Z": {
+        "before": 88,
+        "after": 92,
+        "new_not_owned_or_waited": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 355325,
+            "ppid": 1,
+            "starttime": "1304786",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 355893,
+            "ppid": 1,
+            "starttime": "1305298",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 356288,
+            "ppid": 1,
+            "starttime": "1305604",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 356919,
+            "ppid": 1,
+            "starttime": "1305819",
+            "state": "Z"
+          }
+        ]
+      }
+    },
+    "old01": {
+      "result": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/old01/result.json",
+        "sha256": "d1d690dfdca3a5e77a6f7aec486c5aa011b2c3a8df8a185711e81cd445f8076a"
+      },
+      "command": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/old01/command.json",
+        "sha256": "57046380283a500b694d4d21469c76343589a89a7e63f1963da1c24617c21dec"
+      },
+      "raw": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/old01/raw.log",
+        "sha256": "75f1704c3be77a4d3c3983736bf50204522aa4957a9ba97e9a2cac743f8538f8"
+      },
+      "driver_exit": 0,
+      "actual_seconds": 67.342,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummaryExistingHTTP",
+          "2.65s"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding",
+          "5.54s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPSelectionAndReferenceDeletion",
+          "2.62s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator",
+          "3.47s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire",
+          "2.05s"
+        ]
+      ],
+      "sub_results": [
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator/role",
+          "0.35s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator/session",
+          "0.47s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/host",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/origin",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-origin",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/csrf",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-csrf",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-cookie",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-key",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/fetch",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/raw-path",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/unclean",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/query",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/nested-duplicate",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/unknown",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/null",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/trailing",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/utf8",
+          "0.01s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/media",
+          "0.00s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/encoding",
+          "0.01s"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire/large",
+          "0.04s"
+        ]
+      ],
+      "actual_wait": true,
+      "resources": 7,
+      "owned_PID_starttime_count": 84,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "double_cleanup": true,
+      "input_and_verification_same": true,
+      "watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "daemon_shim_Z": {
+        "before": 92,
+        "after": 96,
+        "new_not_owned_or_waited": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 364338,
+            "ppid": 1,
+            "starttime": "1312827",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 364813,
+            "ppid": 1,
+            "starttime": "1313275",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 365253,
+            "ppid": 1,
+            "starttime": "1313511",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 365844,
+            "ppid": 1,
+            "starttime": "1313690",
+            "state": "Z"
+          }
+        ]
+      }
+    }
+  },
+  "pass_totals": {
+    "top": 8,
+    "sub": 35,
+    "real_rounds_passed": 4,
+    "real_rounds_first_failure": 1,
+    "each_real_round_resources": 7,
+    "total_new_daemon_shim_Z_not_waited": 20,
+    "daemon_shim_Z_before": 76,
+    "daemon_shim_Z_final": 96
+  },
+  "safe_http_delivery": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/safe-http-delivery03.json",
+    "sha256": "f30df011f81cf973e3e527f26c35c56cf4492665e057f9e827a607b9f5bd3f7c"
+  },
+  "native": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/native-results.json",
+    "sha256": "38bc4c531427a20ed3a77679c0f8d8e61ee286a988fb6aaed06bf3d4fa8be3cd"
+  },
+  "offline_candidate03_checks": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/result.json",
+    "sha256": "3115f38459918f5c6ddbf44e6a0364cc0be8f6f24e825fd68c906ce842b084f3"
+  },
+  "prior_model_app_pass_reuse": "unchanged model/app sources/actual graph; compile/vet/pure and native original results remain bound to unchanged inputs; no duplicate reruns",
+  "S3_product": "root confirmed baa6ffac7bdf87dea6f052704e509d7b547e9886 committed/pushed with source bytes same as frozen S3candidate03; HEAD metadata not used as source drift",
+  "evidence_index": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/backend-evidence-index03.json",
+    "sha256": "bb8de46f06a49fc5a5cfd485371cc235ae9e216160837a5f694b1d432e3e8421"
+  },
+  "evidence_file_count": 126,
+  "resource_window_returned_to_root": true,
+  "no_active_owned_resources_at_final_double_cleanup": true,
+  "no_browser_or_asset_swap": true,
+  "stopped_writing_owned_source": true
+}

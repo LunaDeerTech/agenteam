@@ -1,0 +1,8 @@
+const { defineConfig } = require("/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test");
+const origin = process.env.AGENTEAM_AUTH_WEB_ORIGIN;
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE;
+const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM;
+if (!origin || !directory || !executablePath) throw new Error("OWNED_INDEPENDENT_SUMMARY_FIXTURE_REQUIRED");
+const parsed = new URL(origin);
+if(parsed.protocol !== "http:" || parsed.hostname !== "127.0.0.1" || !parsed.port || parsed.origin !== origin) throw new Error("EXACT_OWNED_ORIGIN_REQUIRED");
+module.exports = defineConfig({testDir:__dirname,testMatch:"independent.spec.ts",grep:/\[independent\]/,timeout:45000,workers:1,retries:0,reporter:"line",outputDir:`${directory}/independent-summary-results`,use:{baseURL:origin,browserName:"chromium",launchOptions:{executablePath,args:["--no-sandbox"]},screenshot:"off",video:"off",trace:"off"}});

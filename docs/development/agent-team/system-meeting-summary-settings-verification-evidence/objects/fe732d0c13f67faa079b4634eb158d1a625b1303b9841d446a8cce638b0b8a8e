@@ -1,0 +1,63 @@
+{
+  "commands": {
+    "model-pure-list01": [
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model.test",
+      "-test.list=^(TestMeetingSummaryHTTP(StrictInput|ReadsAndFaults|BudgetAndActualTails|FailuresAndCallbackJoin)|TestSystemHTTP(ConstructionAndRoutesMatchOpenAPI|DTORequiredNullAndExactScalars|ListQueryCanonicalAndProjection|CredentialMaterialAndBoundedReplay)|TestSystemManagementHTTP(ClosedMetadataAndHEAD|RejectsInputWithoutReadingBody|BudgetOnlyNewReads))$"
+    ],
+    "app-pure-list01": [
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app.test",
+      "-test.list=^(TestModelRoot(RouteOwnershipAndRequestPreservation|RequiredConstructionDependencies)|TestProjectUsageRootPure(ConstructionAndReadOnly|StartupContextAndFailure|RoutesPreserveOriginalChain))$"
+    ],
+    "integration-list01": [
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-integration.test",
+      "-test.list=^(TestModelMeetingSummarySettings(HTTP|Recovery|Root)|TestModelMeetingSummaryExistingHTTP|TestModelSystemHTTP(SelectionAndReferenceDeletion|CurrentAdministrator|BoundaryAndStrictWire)|TestModelProjectUsageHTTPRootBinding)$"
+    ],
+    "model-pure01": [
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model.test",
+      "-test.v",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=40s",
+      "-test.run=^(TestMeetingSummaryHTTP(StrictInput|ReadsAndFaults|BudgetAndActualTails|FailuresAndCallbackJoin)|TestSystemHTTP(ConstructionAndRoutesMatchOpenAPI|DTORequiredNullAndExactScalars|ListQueryCanonicalAndProjection|CredentialMaterialAndBoundedReplay)|TestSystemManagementHTTP(ClosedMetadataAndHEAD|RejectsInputWithoutReadingBody|BudgetOnlyNewReads))$"
+    ],
+    "model-pure-race01": [
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+      "-test.v",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=40s",
+      "-test.run=^(TestMeetingSummaryHTTP(StrictInput|ReadsAndFaults|BudgetAndActualTails|FailuresAndCallbackJoin)|TestSystemHTTP(ConstructionAndRoutesMatchOpenAPI|DTORequiredNullAndExactScalars|ListQueryCanonicalAndProjection|CredentialMaterialAndBoundedReplay)|TestSystemManagementHTTP(ClosedMetadataAndHEAD|RejectsInputWithoutReadingBody|BudgetOnlyNewReads))$"
+    ],
+    "app-pure01": [
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app.test",
+      "-test.v",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=40s",
+      "-test.run=^(TestModelRoot(RouteOwnershipAndRequestPreservation|RequiredConstructionDependencies)|TestProjectUsageRootPure(ConstructionAndReadOnly|StartupContextAndFailure|RoutesPreserveOriginalChain))$"
+    ],
+    "app-pure-race01": [
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app-race.test",
+      "-test.v",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=40s",
+      "-test.run=^(TestModelRoot(RouteOwnershipAndRequestPreservation|RequiredConstructionDependencies)|TestProjectUsageRootPure(ConstructionAndReadOnly|StartupContextAndFailure|RoutesPreserveOriginalChain))$"
+    ]
+  },
+  "cwds": {
+    "model-pure-list01": "/workspace/agenteam/internal/central/model",
+    "app-pure-list01": "/workspace/agenteam/internal/central/app",
+    "integration-list01": "/workspace/agenteam/tests/model",
+    "model-pure01": "/workspace/agenteam/internal/central/model",
+    "model-pure-race01": "/workspace/agenteam/internal/central/model",
+    "app-pure01": "/workspace/agenteam/internal/central/app",
+    "app-pure-race01": "/workspace/agenteam/internal/central/app"
+  },
+  "expected_lists": {
+    "model-pure-list01": 11,
+    "app-pure-list01": 5,
+    "integration-list01": 8
+  },
+  "scope": "root authorized 3 exact lists and4 bounded pure executions; no native/process/PG/resources"
+}

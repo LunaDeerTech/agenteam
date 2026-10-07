@@ -1,0 +1,16 @@
+--- candidate03/tests/model/meeting_summary_settings_fixture_test.go
++++ proposed-candidate04/tests/model/meeting_summary_settings_fixture_test.go
+@@ -110,6 +110,13 @@
+ 	}
+ 	sum := sha256.Sum256(r.body)
+ 	metadata := map[string]any{"method": method, "target": target, "status": r.status, "content_type": r.headers.Get("Content-Type"), "body_sha256": hex.EncodeToString(sum[:]), "source_test": t.Name(), "source_run": os.Getenv("AGENTEAM_MEETING_SUMMARY_SETTINGS_RUN")}
++	if name == "unknown" {
++		requestID := r.headers.Get("X-Request-ID")
++		if requestID == "" {
++			t.Fatal("actual Unknown response request ID header missing")
++		}
++		metadata["response_headers"] = map[string]string{"X-Request-ID": requestID}
++	}
+ 	if len(captured) == 1 {
+ 		// Only the three original public command fields are exported; CommandMeta
+ 		// (including the idempotency key and actor) never enters the evidence.

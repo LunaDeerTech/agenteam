@@ -1,0 +1,45 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelMeetingSummarySettingsRecovery)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T15:31:13.887602+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MEETING_SUMMARY_SETTINGS_EVIDENCE_DIR": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence",
+    "AGENTEAM_MEETING_SUMMARY_SETTINGS_RUN": "new-recovery01",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 346893,
+  "pid_stat": "346893 (sh) R 346816 346893 346893 0 -1 4194560 18 0 0 0 0 0 0 0 20 0 1 0 1296851 540672 0 18446744073709551615 94598349070336 94598349151329 140726159511600 0 0 0 0 0 0 0 0 0 17 4 0 0 0 0 0 94598349180464 94598349185600 94599069089792 140726159518650 140726159518726 140726159518726 140726159519724 0\n",
+  "seconds": 57.197,
+  "started_utc": "2026-10-07T15:30:16.689745+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

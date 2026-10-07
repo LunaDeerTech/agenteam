@@ -1,0 +1,52 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 14456.97073786,
+      "top": "TestAccountSystemModelSelectionWebLifecycle"
+    },
+    {
+      "event": "result",
+      "monotonic": 14467.953315238,
+      "observed_seconds": 10.982577378001224,
+      "reported_seconds": 10.97,
+      "state": "PASS",
+      "top": "TestAccountSystemModelSelectionWebLifecycle"
+    },
+    {
+      "event": "run",
+      "monotonic": 14467.953315238,
+      "top": "TestAccountSystemModelSelectionWebOutcomeRecovery"
+    },
+    {
+      "event": "result",
+      "monotonic": 14478.86238569,
+      "observed_seconds": 10.90907045199856,
+      "reported_seconds": 10.93,
+      "state": "PASS",
+      "top": "TestAccountSystemModelSelectionWebOutcomeRecovery"
+    },
+    {
+      "event": "run",
+      "monotonic": 14478.86238569,
+      "top": "TestAccountSystemModelSelectionWebAuthorityAndIdentity"
+    },
+    {
+      "event": "result",
+      "monotonic": 14495.450480005,
+      "observed_seconds": 16.58809431500049,
+      "reported_seconds": 16.58,
+      "state": "PASS",
+      "top": "TestAccountSystemModelSelectionWebAuthorityAndIdentity"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemModelSelectionWebAuthorityAndIdentity",
+    "TestAccountSystemModelSelectionWebLifecycle",
+    "TestAccountSystemModelSelectionWebOutcomeRecovery"
+  ],
+  "failures": []
+}

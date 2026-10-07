@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+"""Task-only asset exchange; execution requires root's separate asset window.
+
+The current preparation does not invoke this script. It never starts resources.
+"""
+import argparse
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import stat
+import time
+
+ROOT = Path(__file__).resolve().parent
+ASSETS = Path('/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep01/assets.json')
+ASSETS_SHA = '84b7faff8c77f0a6593cbd2dcec79dd57e9f9cede1f01d25a1746c74d36938b5'
+STATE = ROOT / 'asset-session.json'
+PARTICIPANTS = ROOT / 'asset-participants02.json'
+PARTICIPANTS_SHA = '29a652ccc5f814e1d29b828448b34da80a61d04a083dca158403925f4c732e83'
+
+
+def sha(p):
+    # These owned assets permit O_NOATIME; do not silently alter metadata on a
+    # permission failure. The source tree is never a credential directory.
+    fd = os.open(p, os.O_RDONLY | os.O_NOATIME)
+    with os.fdopen(fd, 'rb') as f:
+        h = hashlib.sha256()
+        for block in iter(lambda: f.read(1 << 20), b''):
+            h.update(block)
+        return h.hexdigest()
+
+
+def snapshot(root):
+    result = {}
+    def visit(p):
+        value = p.lstat()
+        row = {'mode': stat.S_IMODE(value.st_mode), 'uid': value.st_uid, 'gid': value.st_gid,
+               'atime_ns': value.st_atime_ns, 'mtime_ns': value.st_mtime_ns, 'ctime_ns': value.st_ctime_ns,
+               'inode': value.st_ino, 'device': value.st_dev, 'size': value.st_size,
+               'xattrs': {k: os.getxattr(p, k, follow_symlinks=False).hex() for k in os.listxattr(p, follow_symlinks=False)}}
+        if stat.S_ISLNK(value.st_mode):
+            row.update(kind='symlink', target=os.readlink(p))
+        elif stat.S_ISREG(value.st_mode):
+            row.update(kind='file', sha256=sha(p))
+        elif stat.S_ISDIR(value.st_mode):
+            row.update(kind='directory')
+        else:
+            raise RuntimeError('special file is outside asset scope: ' + str(p))
+        result[str(p.relative_to(root))] = row
+        if row['kind'] == 'directory':
+            for child in sorted(p.iterdir()):
+                visit(child)
+    visit(root)
+    return result
+
+
+def stable(rows):
+    # ctime necessarily changes on rename/utime; atime changes on directory
+    # observation and is restored to the original recorded value below.
+    # Directory st_size is a kernel storage detail that may change on rename;
+    # retain it in raw snapshots. Every regular file size remains strict.
+    return {path: {k: v for k, v in row.items() if k not in ('atime_ns', 'ctime_ns') and not (row['kind'] == 'directory' and k == 'size')}
+            for path, row in rows.items()}
+
+
+def files(rows):
+    return {path: row['sha256'] for path, row in rows.items() if row['kind'] == 'file'}
+
+
+def save(value):
+    temporary = STATE.with_suffix('.pending')
+    with temporary.open('x') as f:
+        json.dump(value, f, indent=2, sort_keys=True)
+        f.write('\n')
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(temporary, STATE)
+    fd = os.open(ROOT, os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def exchange(a, b):
+    if a.parent.stat().st_dev != b.parent.stat().st_dev:
+        raise RuntimeError('asset exchange must remain on one filesystem')
+    libc = ctypes.CDLL(None, use_errno=True)
+    call = libc.renameat2
+    call.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    call.restype = ctypes.c_int
+    if call(-100, os.fsencode(a), -100, os.fsencode(b), 2) != 0:
+        raise OSError(ctypes.get_errno(), 'atomic asset exchange failed')
+    for directory in {a.parent, b.parent}:
+        fd = os.open(directory, os.O_DIRECTORY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+
+def process_still_matches(row):
+    try:
+        parts = Path('/proc/' + str(row['pid']) + '/stat').read_text().rsplit(')', 1)[1].split()
+        return parts[19] == row['starttime']
+    except (FileNotFoundError, ProcessLookupError):
+        return False
+
+
+def require_completed_runs(paths):
+    if sha(PARTICIPANTS) != PARTICIPANTS_SHA:
+        raise RuntimeError('fixed asset participants changed')
+    allowed = json.loads(PARTICIPANTS.read_text())['results']
+    results = []
+    supplied = set()
+    for path in paths:
+        path = path.resolve()
+        row = allowed.get(str(path))
+        if row is None or str(path) in supplied:
+            raise RuntimeError('result is not one exact unique authorized browser run')
+        supplied.add(str(path))
+        verification = json.loads((path.parent / 'verification-input.json').read_text())
+        if verification['driver_sha256'] != row['driver_sha256']:
+            raise RuntimeError('browser result driver identity mismatch')
+        result = json.loads(path.read_text())
+        if not result['actual_wait_completed'] or not result['double_cleanup'] or not result['watchdog_thread_joined']:
+            raise RuntimeError('owned completion is not proven: ' + str(path))
+        observed = json.loads((path.parent / 'observed-processes.json').read_text())
+        if any(process_still_matches(value) for value in observed.values()):
+            raise RuntimeError('an owned browser/server process still exists')
+        results.append({'path': str(path), 'sha256': sha(path), 'owner': row['owner'], 'driver_sha256': row['driver_sha256']})
+    # Every actually started browser round in either fixed participant root
+    # must appear, including failed assertions after successful cleanup.
+    # No arbitrary root or unrelated result path can be supplied by a flag.
+    run_roots = {Path(path).parent.parent for path in allowed}
+    for run_root in sorted(run_roots):
+        for path in run_root.glob('*/command.json'):
+            command = json.loads(path.read_text())
+            result_path = str(path.parent / 'result.json')
+            if command.get('pid') and result_path not in supplied:
+                raise RuntimeError('started run lacks reviewed completion input: ' + str(path))
+    return results
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('action', choices=['inspect', 'verify-applied', 'apply', 'restore'])
+    parser.add_argument('--root-authorized-asset-window', action='store_true')
+    parser.add_argument('--completed-run', action='append', type=Path, default=[])
+    args = parser.parse_args()
+    if sha(ASSETS) != ASSETS_SHA:
+        raise RuntimeError('asset inventory changed')
+    if sha(PARTICIPANTS) != PARTICIPANTS_SHA:
+        raise RuntimeError('fixed asset participants changed')
+    assets = json.loads(ASSETS.read_text())
+    published = Path(assets['actual_dist'])
+    stage = Path(assets['candidate']['path'])
+    if args.action == 'inspect':
+        print(json.dumps({'published': snapshot(published), 'stage': snapshot(stage), 'mutation': False}, sort_keys=True))
+        return
+    if args.action == 'verify-applied':
+        state = json.loads(STATE.read_text())
+        if state['phase'] != 'applied':
+            raise RuntimeError('read-only verification requires the actual applied journal')
+        current_old, current_candidate = snapshot(stage), snapshot(published)
+        original_match = stable(current_old) == stable(state['old'])
+        candidate_match = stable(current_candidate) == stable(state['candidate'])
+        directory_sizes = []
+        for label, before, after in [('original', state['old'], current_old), ('candidate', state['candidate'], current_candidate)]:
+            for path, row in before.items():
+                if row['kind'] == 'directory' and path in after and row['size'] != after[path]['size']:
+                    directory_sizes.append({'tree': label, 'path': path, 'before': row['size'], 'after': after[path]['size']})
+        proof = {'action': 'verify-applied', 'mutation': False, 'script_sha256': sha(__file__), 'journal_sha256': sha(STATE),
+                 'original_stable_match': original_match, 'candidate_stable_match': candidate_match,
+                 'directory_size_changes': directory_sizes, 'current_original': current_old, 'current_candidate': current_candidate,
+                 'exception': 'directory st_size and namespace ctime recorded, not claimed invariant; file sizes and all stable identity/content fields remain strict'}
+        with (ROOT / 'asset-verify-applied-v03.json').open('x') as f:
+            json.dump(proof, f, indent=2, sort_keys=True)
+            f.write('\n')
+        if not original_match or not candidate_match:
+            raise RuntimeError('additional applied asset differences; stop and retain custody')
+        print(json.dumps({'action': 'verify-applied', 'original_stable_match': True, 'candidate_stable_match': True, 'directory_size_changes': directory_sizes, 'asset_mutation': False}))
+        return
+    if not args.root_authorized_asset_window:
+        raise RuntimeError('root must grant an explicit asset window before mutation')
+    if args.action == 'apply':
+        if STATE.exists():
+            raise RuntimeError('asset custody journal already exists; use its restoration path')
+        old, candidate = snapshot(published), snapshot(stage)
+        if stable(old) != stable(assets['existing']) or files(candidate) != assets['candidate']['files']:
+            raise RuntimeError('asset baseline mismatch before exchange')
+        state = {'phase': 'apply-intent', 'time': time.time(), 'assets_sha256': ASSETS_SHA,
+                 'old': old, 'candidate': candidate, 'script_sha256': sha(__file__), 'participants_sha256': PARTICIPANTS_SHA}
+        save(state)
+        exchange(published, stage)
+        state['phase'] = 'applied'
+        state['published_after'] = snapshot(published)
+        state['stage_after'] = snapshot(stage)
+        save(state)
+        if stable(state['published_after']) != stable(candidate) or stable(state['stage_after']) != stable(old):
+            raise RuntimeError('post-exchange metadata mismatch; preserve journal and custody')
+        print(json.dumps({'phase': 'applied', 'candidate_files': len(files(candidate)), 'original_preserved_at': str(stage)}))
+        return
+    state = json.loads(STATE.read_text())
+    results = require_completed_runs(args.completed_run)
+    if state['phase'] == 'restored':
+        raise RuntimeError('original assets were already restored; no second exchange')
+    current_old = snapshot(stage)
+    if stable(current_old) != stable(state['old']):
+        raise RuntimeError('original inode tree changed; stop before restoration exchange')
+    state['restore_before'] = snapshot(published)
+    state['candidate_drift_before_restore'] = stable(state['restore_before']) != stable(state['candidate'])
+    state['completed_runs'] = results
+    state['phase'] = 'restore-intent'
+    save(state)
+    exchange(published, stage)
+    # Preserve recorded original atime/mtime; directory reads can alter atime.
+    for path, row in reversed(list(assets['existing'].items())):
+        os.utime(published / path, ns=(row['atime_ns'], row['mtime_ns']), follow_symlinks=False)
+    after = snapshot(published)
+    state['restored_tree'] = after
+    state['phase'] = 'restored'
+    state['byte_identity_and_stable_metadata_match'] = stable(after) == stable(assets['existing'])
+    state['directory_size_changes'] = [{'path': p, 'before': assets['existing'][p]['size'], 'after': row['size']} for p, row in after.items() if row['kind'] == 'directory' and row['size'] != assets['existing'][p]['size']]
+    state['namespace_ctime_changes'] = [p for p, row in after.items() if row['ctime_ns'] != assets['existing'][p]['ctime_ns']]
+    state['no_whole_machine_cleanup_claim'] = True
+    save(state)
+    # Restore access times again after the verification traversal.
+    for path, row in reversed(list(assets['existing'].items())):
+        os.utime(published / path, ns=(row['atime_ns'], row['mtime_ns']), follow_symlinks=False)
+    if not state['byte_identity_and_stable_metadata_match']:
+        raise RuntimeError('restoration mismatch retained in journal')
+    print(json.dumps({'phase': 'restored', 'original_files': len(files(after)), 'stable_metadata_match': True, 'ctime_preservation_claimed': False}))
+
+
+if __name__ == '__main__':
+    main()

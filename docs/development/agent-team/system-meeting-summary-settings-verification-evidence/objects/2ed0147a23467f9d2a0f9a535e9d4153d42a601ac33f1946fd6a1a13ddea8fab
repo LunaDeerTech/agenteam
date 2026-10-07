@@ -1,0 +1,23 @@
+--- original-b01
++++ private-repair-b02
+@@ -1108,8 +1108,19 @@
+    catch (error) { reject(error); }
+   });
+  });
+- await Promise.all([handled, page.reload().catch(() => undefined)]);
++ // Await the actual reload command and native dismissal, not a new-document
++ // navigation that the browser has just cancelled.
++ const originalURL = page.url();
++ const originalTimeOrigin = await page.evaluate(() => performance.timeOrigin);
++ const reloadSession = await page.context().newCDPSession(page);
++ try {
++  await Promise.all([handled, reloadSession.send("Page.reload")]);
++ } finally {
++  await reloadSession.detach();
++ }
+  expect(nativeDialogs).toBe(1);
++ expect(page.url()).toBe(originalURL);
++ expect(await page.evaluate(() => performance.timeOrigin)).toBe(originalTimeOrigin);
+  await expect(page.getByRole("dialog")).toHaveCount(1);
+  await expect(section(page)).toContainText("草稿 Model：" + modelName(data.ids.summary_0!));
+  await expect(draftRow(page, "reranker")).toContainText("不配置");

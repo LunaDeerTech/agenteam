@@ -1,0 +1,68 @@
+"""Build only a static execution proposal; does not grant or use resources."""
+from pathlib import Path
+import ast
+import hashlib
+import importlib.util
+import json
+
+ROOT = Path(__file__).resolve().parent
+REPO = Path('/workspace/agenteam')
+
+
+def sha(p):
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+def bound(p):
+    return {'path': str(p), 'sha256': sha(p)}
+
+
+def main():
+    driver = ROOT / 'driver-draft02.py'
+    for path in [driver, ROOT / 'asset-exchange.py', ROOT / 'inventory.py']:
+        ast.parse(path.read_text())
+    backend = Path('/workspace/scratch/meeting-summary-settings-backend/joint-runtime-preparation02')
+    author = ROOT.parent
+    files = [
+        driver, ROOT / 'asset-exchange.py', ROOT / 'inventory.py', Path(__file__),
+        Path('/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12'),
+        Path('/workspace/toolchains/go1.27.1/bin/go'), Path('/usr/local/bin/docker'),
+        Path('/workspace/scratch/fixture-recovery/bin/minio'),
+        REPO / 'docs/development/work-items/d09-system-meeting-summary-settings.md',
+    ]
+    frozen = {
+        'status': 'EXECUTION PROPOSAL ONLY; resource and asset windows still require root authorization',
+        'card_rev3_sha256': '85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035',
+        'card_commit': 'fdfcffdb', 'driver_sha256': sha(driver),
+        'joint_union': bound(backend / 'actual-union02.json'),
+        'joint_delta': bound(backend / 'delta.json'),
+        'joint_graph_result': bound(backend / 'result.json'),
+        'runtime_inventory': bound(ROOT / 'runtime-input01.json'),
+        'frontend_delivery': bound(author / 'delivery-freeze01.json'),
+        'assets': bound(author / 'runtime-prep01/assets.json'),
+        'dist': str(author / 'f20-build/dist'),
+        'go_cache': '/workspace/.cache/go-build',
+        'browser_runtime': '/workspace/scratch/s2web-a',
+        'runtime_files': {str(p): sha(p) for p in files},
+        'asset_exchange': bound(ROOT / 'asset-exchange.py'),
+        'read_only_probe_limit': 'source_input only; never main, subprocess, Node, browser, Docker or asset exchange',
+    }
+    card = REPO / 'docs/development/work-items/d09-system-meeting-summary-settings.md'
+    if sha(card) != frozen['card_rev3_sha256']:
+        raise RuntimeError('accepted card revision changed')
+    spec = importlib.util.spec_from_file_location('summary_browser_driver_static', driver)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.FROZEN = frozen
+    observed = module.source_input(require_published=False)
+    with (ROOT / 'frozen01.json').open('x') as f:
+        json.dump(frozen, f, indent=2, sort_keys=True)
+        f.write('\n')
+    (ROOT / 'static-input-probe01.json').write_text(json.dumps(observed, indent=2, sort_keys=True) + '\n')
+    print(json.dumps({'frozen_sha256': sha(ROOT / 'frozen01.json'), 'probe': observed}))
+    if not observed['accepted']:
+        raise SystemExit(1)
+
+
+if __name__ == '__main__':
+    main()

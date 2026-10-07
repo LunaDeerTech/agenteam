@@ -1,0 +1,174 @@
+{
+  "status": "PASS independent restore read-only verification",
+  "author_proof": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-restoration-final01.json",
+    "sha256": "8566ce3e1353362a8c12549c359a1409fca461b76050e96890e7486315966e13"
+  },
+  "restored_journal": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-session.json",
+    "sha256": "834b969125d8764f1f60e4a3e6a95e6cd305ae88b7c839dcd5c1d9e31d3c5613"
+  },
+  "exact_participants": [
+    {
+      "driver_sha256": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+      "owner": "author",
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d01-new-lifecycle/result.json",
+      "sha256": "4fe85087a71b0de54d7fff534fca86dab9f41cad9244766b25e106f5cca1aba1"
+    },
+    {
+      "driver_sha256": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+      "owner": "author",
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/result.json",
+      "sha256": "c64459bb1ef593b293c20e71c28caa69cdea115ce2c9d2cd8c489a6903678a36"
+    },
+    {
+      "driver_sha256": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+      "owner": "author",
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d03-new-authority/result.json",
+      "sha256": "7841c1358cbd9d8448317c84a253b6b32ba8946787909aef176ba40b8df69ff6"
+    },
+    {
+      "driver_sha256": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+      "owner": "author",
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/result.json",
+      "sha256": "821c2c2682f1387cd49315480a58550523e6753e4c761f0ba2dc6e95048f36c7"
+    },
+    {
+      "driver_sha256": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+      "owner": "author",
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d05-old-core/result.json",
+      "sha256": "d9d99b922317a24a81c5cf9343829bb8e4e93170840e600d8fe8daa5cd2d74a7"
+    },
+    {
+      "driver_sha256": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+      "owner": "author",
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d06-old-pages/result.json",
+      "sha256": "487d4569490d9c6cf808317ca156bf311a58afc55c9dcb2666f08ba7662f49ec"
+    },
+    {
+      "driver_sha256": "6f31ef3684b1adb4b3cb21926fecc2e34138a585d2c4add75c73acc0e409de6c",
+      "owner": "independent-B",
+      "path": "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/result.json",
+      "sha256": "9ad70f36e3136aa0233d9b44e58521a00343b29a489fc4a8c1285ff03033e46a"
+    },
+    {
+      "driver_sha256": "875892dea77a35400ad51bb7b8cf42510481ab9168ef62ffdce65061ab2ada0a",
+      "owner": "independent-B02",
+      "path": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/result.json",
+      "sha256": "67987c7a3dac9026c89fe1b6d7d066c4fe6cdbf1890393f258e95f82fffd440e"
+    }
+  ],
+  "all_actual_owned_PID_starttime_absent": true,
+  "direct_current_original_metadata_O_NOATIME_hashes": {
+    ".": {
+      "kind": "directory",
+      "mode": 448,
+      "uid": 1000,
+      "gid": 1000,
+      "atime_ns": 1790982177929142569,
+      "mtime_ns": 1790982177929142569,
+      "ctime_ns": 1791389229881065922,
+      "inode": 9223372036856682746,
+      "device": 27,
+      "size": 4096,
+      "xattrs": {}
+    },
+    "assets": {
+      "kind": "directory",
+      "mode": 448,
+      "uid": 1000,
+      "gid": 1000,
+      "atime_ns": 1790982177929142569,
+      "mtime_ns": 1790982177929142569,
+      "ctime_ns": 1791389229881065922,
+      "inode": 9223372036856682855,
+      "device": 27,
+      "size": 4096,
+      "xattrs": {}
+    },
+    "assets/index-CwdmPznV.css": {
+      "kind": "file",
+      "mode": 384,
+      "uid": 1000,
+      "gid": 1000,
+      "atime_ns": 1790982177929142569,
+      "mtime_ns": 1790982177929142569,
+      "ctime_ns": 1791389229881065922,
+      "inode": 9223372036856682863,
+      "device": 27,
+      "size": 19108,
+      "xattrs": {},
+      "sha256": "2a8672e39566c3cfb92da1bd75fdf90b0eae5d4589039e748eb5db5655d52be2"
+    },
+    "assets/index-D4j5Ua9w.js": {
+      "kind": "file",
+      "mode": 384,
+      "uid": 1000,
+      "gid": 1000,
+      "atime_ns": 1790982177924423884,
+      "mtime_ns": 1790982177924423884,
+      "ctime_ns": 1791389229881065922,
+      "inode": 9223372036856682866,
+      "device": 27,
+      "size": 89710,
+      "xattrs": {},
+      "sha256": "f424cfe0b896fd1e95c9a87dabab18d94d6f92fe442984c073cab941414141a1"
+    },
+    "index.html": {
+      "kind": "file",
+      "mode": 384,
+      "uid": 1000,
+      "gid": 1000,
+      "atime_ns": 1790982177929142569,
+      "mtime_ns": 1790982177929142569,
+      "ctime_ns": 1791389229881065922,
+      "inode": 9223372036856682860,
+      "device": 27,
+      "size": 647,
+      "xattrs": {},
+      "sha256": "981efc3c59fbb302f1f338efb64f160bcc3e7f354d2680c77b84ac6bc4824f84"
+    }
+  },
+  "exceptions": {
+    "directory_sizes": [
+      {
+        "path": ".",
+        "before": 67,
+        "after": 4096
+      },
+      {
+        "path": "assets",
+        "before": 86,
+        "after": 4096
+      }
+    ],
+    "namespace_ctime": [
+      {
+        "path": ".",
+        "before": 1790982177929142569,
+        "after": 1791389229881065922
+      },
+      {
+        "path": "assets",
+        "before": 1790982177929142569,
+        "after": 1791389229881065922
+      },
+      {
+        "path": "assets/index-CwdmPznV.css",
+        "before": 1790982177929142569,
+        "after": 1791389229881065922
+      },
+      {
+        "path": "assets/index-D4j5Ua9w.js",
+        "before": 1790982177924423884,
+        "after": 1791389229881065922
+      },
+      {
+        "path": "index.html",
+        "before": 1790982177929142569,
+        "after": 1791389229881065922
+      }
+    ]
+  },
+  "limits": "No reapply/restore/resource command by verifier. Used known original paths, no directory iteration; complete restored membership is bound by author journal and exact snapshot comparison."
+}

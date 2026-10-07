@@ -1,0 +1,94 @@
+{
+  "author_viewed": 9,
+  "root_viewed": 2,
+  "root_view_basis": "root message explicitly confirms dark390 and light1440 actual viewing",
+  "images": [
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-css-zoom2.png",
+      "sha256": "633583e015bbd9637c8bf1726bf69c556369c57a5a92f98d30ab9837952915b9",
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": false,
+      "finding": "CSS zoom=2 at current scroll position shows prior four-purpose area; no Summary-region native-zoom/full-page visual claim"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-dark-1280.png",
+      "sha256": "709fad69c213eb1ba7851a9e77a3ef06c76eba97cc93c3f1334ee21d56298a13",
+      "width": 1280,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": false,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-dark-1440.png",
+      "sha256": "0fd259ec0b346b61228be62856d755638019e0fc2296aa92d95f78d52a59635c",
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": false,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-dark-390.png",
+      "sha256": "77407013c1c670a851599bb62dc49da915765e5def0c151fa0749ad865837086",
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": true,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-dark-768.png",
+      "sha256": "5ff7079d76727537d82f21dc8edb02437819b958e1c22059960ac6be057f1674",
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": false,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-light-1280.png",
+      "sha256": "8c49df8509ae46665d3c916fefbbd301ed292e5f42c270773a2b35650824b33a",
+      "width": 1280,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": false,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-light-1440.png",
+      "sha256": "b06ededa0da7bcb71b6c5a388b82933096465cc7443ecf351eaa0c47e35a5223",
+      "width": 1440,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": true,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-light-390.png",
+      "sha256": "4313ece389154bd886f0930fbc7cfd275570e95d183dc058398edc531e8c78c6",
+      "width": 390,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": false,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/images/summary-light-768.png",
+      "sha256": "64d7bff2c9d77efb00d863b604c5e7baf9b0fa768407529d25744d69a61dc13d",
+      "width": 768,
+      "height": 900,
+      "author_actually_viewed": true,
+      "root_actually_viewed": false,
+      "finding": "Visible Summary title/actions and long native ID/provider text remain within viewport with wrapping; no visible horizontal clipping; 900px viewport only"
+    }
+  ],
+  "limits": [
+    "These are partial viewport captures, not full-page images.",
+    "CSS zoom=2 is not native browser zoom; this capture shows the preceding four-purpose area after zoom changed scroll composition.",
+    "Screenshots alone do not prove keyboard or overflow behavior; the actual read-layout test separately asserted those checks.",
+    "No native BFCache acceptance is claimed."
+  ]
+}

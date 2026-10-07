@@ -1,0 +1,86 @@
+{
+  "asset_exchange": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v02.py",
+    "sha256": "eab1bdf3fb31846a7a15e5f430f2eb1737bc185a518b49ccfe8ad94ad787ab95"
+  },
+  "asset_participants": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-participants01.json",
+    "sha256": "5948a77c4dd30e8d589f0408712916f0b68a9b29f2f4bc35f619809838264727"
+  },
+  "asset_v02_independent_static": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/asset-v02-static.md",
+    "sha256": "3a68ca7be84cd248924ab7e89f8b61a9bb0cc76f841dc37358d84f8640fa5af0"
+  },
+  "assets": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep01/assets.json",
+    "sha256": "84b7faff8c77f0a6593cbd2dcec79dd57e9f9cede1f01d25a1746c74d36938b5"
+  },
+  "browser_runtime": "/workspace/scratch/s2web-a",
+  "card_commit": "fdfcffdb",
+  "card_rev3_sha256": "85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+  "dist": "/workspace/scratch/meeting-summary-settings-frontend-author/f20-build/dist",
+  "driver_sha256": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+  "frontend_delivery": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/delivery-freeze01.json",
+    "sha256": "4f214463fd8fec150e27cfa12a791ce94e5cc2a1a5ea33045a0ff994a33dacfc"
+  },
+  "go_cache": "/workspace/.cache/go-build",
+  "inherited_candidate03": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inherited-delta01.json",
+    "sha256": "1b2052243093bc703f323bbde70c992da9c6e1cc5dd31bd26da68f7a95b08fd3"
+  },
+  "inherited_candidate04": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inherited-delta02.json",
+    "sha256": "9aaebcf95b2708005383f72131fd55f939168e8caae4cf74a185203afab86d45"
+  },
+  "joint_delta": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/joint-runtime-preparation02/delta.json",
+    "sha256": "7f0fe4d25917680d44356dfd0d0f3da17308e1341ead468cefaabedeb3506d7b"
+  },
+  "joint_graph_result": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/joint-runtime-preparation02/result.json",
+    "sha256": "7c9ef46d6ee9cc4fe0a25d695341d68d16cf3dc413e78c6cc16fbe386fda445d"
+  },
+  "joint_union": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/joint-runtime-preparation02/actual-union02.json",
+    "sha256": "85777fff399197b37c8e0cccdd86d38e793406f3b709e709a3555c94da755f82"
+  },
+  "predecessor_execution_freeze": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/frozen02.json",
+    "sha256": "79c98e0c18d078664b2746f506a51043e1636f5b37190d315ae3bdb1feae6fb0"
+  },
+  "read_only_probe_limit": "source_input only; never main, subprocess, Node, browser, Docker or asset exchange",
+  "runtime_files": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/usr/local/bin/docker": "27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b",
+    "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-settings.md": "85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+    "/workspace/agenteam/tests/model/meeting_summary_settings_fixture_test.go": "fa4c5d706fffc7144138840278452ff0e212f4fa56c6d51ca4759a466d004dcd",
+    "/workspace/agenteam/tests/model/meeting_summary_settings_http_test.go": "ae7fd516da52cd67618698267a5cfe23fcbd9730313f535b08eb7e77204f612e",
+    "/workspace/scratch/fixture-recovery/bin/minio": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/result.json": "3115f38459918f5c6ddbf44e6a0364cc0be8f6f24e825fd68c906ce842b084f3",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03.json": "d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03.patch": "62393e040b70910327ca77ededced7094cbee855d5b09e3d163019f765becc37",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.json": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.patch": "838f44f918e5ba8840094130b079c2455b834ad7910b7789ae03ff076fe33e2e",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/source-union03.json": "79bfc197d5db3ea484940dde9000ddc115daf200c17790c7412e1c7126845445",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v02.py": "eab1bdf3fb31846a7a15e5f430f2eb1737bc185a518b49ccfe8ad94ad787ab95",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange.py": "b06c6c443f805a03a3da76227bcbe3140067a418c1acce4cdfd7e9e00dc4e651",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-participants01.json": "5948a77c4dd30e8d589f0408712916f0b68a9b29f2f4bc35f619809838264727",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/driver-draft02.py": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/freeze.py": "5f0155912e991f8be69e23b63ee0e05c41fed00395384f76731cdeedd88c05ed",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inherited-delta01.json": "1b2052243093bc703f323bbde70c992da9c6e1cc5dd31bd26da68f7a95b08fd3",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inherited-delta02.json": "9aaebcf95b2708005383f72131fd55f939168e8caae4cf74a185203afab86d45",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inventory.py": "7291702dee2f2e551f8ca9ed20bb95f4a897617717ebae3026ed4e7f8a9b3249",
+    "/workspace/scratch/summary-verification/S2-probes/asset-v02-static.md": "3a68ca7be84cd248924ab7e89f8b61a9bb0cc76f841dc37358d84f8640fa5af0",
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624"
+  },
+  "runtime_inventory": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runtime-input01.json",
+    "sha256": "810e213f96a1602c18d26be4d5f859d09555acf19e3b3a174dff93cff62e6fac"
+  },
+  "source_union03": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/source-union03.json",
+    "sha256": "79bfc197d5db3ea484940dde9000ddc115daf200c17790c7412e1c7126845445"
+  },
+  "status": "FINAL EXECUTION PROPOSAL after accepted candidate04 single test evidence helper delta; no resource/asset authorization implied"
+}

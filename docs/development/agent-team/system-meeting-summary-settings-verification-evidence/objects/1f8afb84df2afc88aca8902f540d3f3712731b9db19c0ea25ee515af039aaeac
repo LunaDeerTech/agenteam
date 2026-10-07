@@ -1,0 +1,443 @@
+[
+  {
+    "tid": 308865,
+    "line": 1,
+    "completed_line": 1,
+    "time": 1791386197.40868,
+    "body": "execve(\"/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test\", [\"/workspace/scratch/meeting-summa\"..., \"-test.count=1\", \"-test.parallel=1\", \"-test.timeout=45s\", \"-test.run=^TestMeetingSummaryHTT\"..., \"-test.v\"], 0x7ffeedea6b88 /* 15 vars */) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 2,
+    "completed_line": 2,
+    "time": 1791386197.409619,
+    "body": "close(3</etc/ld.so.cache>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 3,
+    "completed_line": 3,
+    "time": 1791386197.410164,
+    "body": "close(3</usr/lib/x86_64-linux-gnu/libc.so.6>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 4,
+    "completed_line": 4,
+    "time": 1791386197.411679,
+    "body": "close(3</proc/308865/maps>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 5,
+    "completed_line": 5,
+    "time": 1791386197.411934,
+    "body": "close(3</sys/kernel/mm/transparent_hugepage/hpage_pmd_size>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 6,
+    "completed_line": 6,
+    "time": 1791386197.418596,
+    "body": "close(3</proc/308865/environ>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 7,
+    "completed_line": 7,
+    "time": 1791386197.418943,
+    "body": "close(3</proc/308865/cmdline>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 8,
+    "completed_line": 8,
+    "time": 1791386197.421856,
+    "body": "close(3</proc/308865/cgroup>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 9,
+    "completed_line": 9,
+    "time": 1791386197.422033,
+    "body": "close(3</proc/308865/mountinfo>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 10,
+    "completed_line": 10,
+    "time": 1791386197.428079,
+    "body": "clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7f4174bff990, parent_tid=0x7f4174bff990, exit_signal=0, stack=0x7f41743ff000, stack_size=0x7fff80, tls=0x7f4174bff6c0} => {parent_tid=[308870]}, 88) = 308870"
+  },
+  {
+    "tid": 308865,
+    "line": 11,
+    "completed_line": 11,
+    "time": 1791386197.428712,
+    "body": "clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7f416ffff990, parent_tid=0x7f416ffff990, exit_signal=0, stack=0x7f416f7ff000, stack_size=0x7fff80, tls=0x7f416ffff6c0} => {parent_tid=[308871]}, 88) = 308871"
+  },
+  {
+    "tid": 308870,
+    "line": 12,
+    "completed_line": 12,
+    "time": 1791386197.428851,
+    "body": "tgkill(308865, 308865, SIGURG) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 13,
+    "completed_line": 13,
+    "time": 1791386197.428932,
+    "body": "--- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=308865, si_uid=1000} ---"
+  },
+  {
+    "tid": 308865,
+    "line": 14,
+    "completed_line": 14,
+    "time": 1791386197.429425,
+    "body": "clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7f416f7fe990, parent_tid=0x7f416f7fe990, exit_signal=0, stack=0x7f416effe000, stack_size=0x7fff80, tls=0x7f416f7fe6c0} => {parent_tid=[308872]}, 88) = 308872"
+  },
+  {
+    "tid": 308865,
+    "line": 15,
+    "completed_line": 15,
+    "time": 1791386197.430598,
+    "body": "clone3({flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, child_tid=0x7f416effd990, parent_tid=0x7f416effd990, exit_signal=0, stack=0x7f416e7fd000, stack_size=0x7fff80, tls=0x7f416effd6c0} => {parent_tid=[308874]}, 88) = 308874"
+  },
+  {
+    "tid": 308865,
+    "line": 16,
+    "completed_line": 16,
+    "time": 1791386197.437188,
+    "body": "close(5</etc/machine-id>) = 0"
+  },
+  {
+    "tid": 308870,
+    "line": 17,
+    "completed_line": 17,
+    "time": 1791386197.440537,
+    "body": "tgkill(308865, 308865, SIGURG) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 18,
+    "completed_line": 18,
+    "time": 1791386197.440577,
+    "body": "--- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=308865, si_uid=1000} ---"
+  },
+  {
+    "tid": 308865,
+    "line": 19,
+    "completed_line": 19,
+    "time": 1791386197.442045,
+    "body": "socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCP:[809827]>"
+  },
+  {
+    "tid": 308865,
+    "line": 20,
+    "completed_line": 20,
+    "time": 1791386197.44227,
+    "body": "close(5<TCP:[809827]>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 21,
+    "completed_line": 21,
+    "time": 1791386197.442328,
+    "body": "socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCPv6:[809828]>"
+  },
+  {
+    "tid": 308865,
+    "line": 22,
+    "completed_line": 22,
+    "time": 1791386197.442433,
+    "body": "setsockopt(5<TCPv6:[809828]>, SOL_IPV6, IPV6_V6ONLY, [1], 4) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 23,
+    "completed_line": 23,
+    "time": 1791386197.442485,
+    "body": "bind(5<TCPv6:[809828]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, \"::1\", &sin6_addr), sin6_scope_id=0}, 28) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 24,
+    "completed_line": 24,
+    "time": 1791386197.442685,
+    "body": "socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 6<TCPv6:[809829]>"
+  },
+  {
+    "tid": 308865,
+    "line": 25,
+    "completed_line": 25,
+    "time": 1791386197.442793,
+    "body": "setsockopt(6<TCPv6:[809829]>, SOL_IPV6, IPV6_V6ONLY, [0], 4) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 26,
+    "completed_line": 26,
+    "time": 1791386197.44284,
+    "body": "bind(6<TCPv6:[809829]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, \"::ffff:127.0.0.1\", &sin6_addr), sin6_scope_id=0}, 28) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 27,
+    "completed_line": 27,
+    "time": 1791386197.442962,
+    "body": "close(6<TCPv6:[809829]>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 28,
+    "completed_line": 28,
+    "time": 1791386197.443016,
+    "body": "close(5<TCPv6:[809828]>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 29,
+    "completed_line": 29,
+    "time": 1791386197.443057,
+    "body": "socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_MPTCP) = -1 EPROTONOSUPPORT (Protocol not supported)"
+  },
+  {
+    "tid": 308865,
+    "line": 30,
+    "completed_line": 30,
+    "time": 1791386197.443119,
+    "body": "socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[809831]>"
+  },
+  {
+    "tid": 308865,
+    "line": 31,
+    "completed_line": 31,
+    "time": 1791386197.443477,
+    "body": "close(6</proc/sys/net/core/somaxconn>) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 32,
+    "completed_line": 32,
+    "time": 1791386197.443519,
+    "body": "setsockopt(5<TCP:[809831]>, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 33,
+    "completed_line": 33,
+    "time": 1791386197.443566,
+    "body": "bind(5<TCP:[809831]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr(\"127.0.0.1\")}, 16) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 34,
+    "completed_line": 34,
+    "time": 1791386197.443615,
+    "body": "listen(5<TCP:[809831]>, 4096) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 35,
+    "completed_line": 35,
+    "time": 1791386197.443684,
+    "body": "getsockname(5<TCP:[809831]>, {sa_family=AF_INET, sin_port=htons(43809), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16]) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 36,
+    "completed_line": 36,
+    "time": 1791386197.443851,
+    "body": "socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 6<TCP:[809832]>"
+  },
+  {
+    "tid": 308871,
+    "line": 38,
+    "completed_line": 38,
+    "time": 1791386197.444012,
+    "body": "accept4(5<TCP:[809831]>, 0xc00005f99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)"
+  },
+  {
+    "tid": 308865,
+    "line": 37,
+    "completed_line": 39,
+    "time": 1791386197.443979,
+    "body": "connect(6<TCP:[809832]>, {sa_family=AF_INET, sin_port=htons(43809), sin_addr=inet_addr(\"127.0.0.1\")}, 16 ) = -1 EINPROGRESS (Operation now in progress)"
+  },
+  {
+    "tid": 308871,
+    "line": 40,
+    "completed_line": 40,
+    "time": 1791386197.444422,
+    "body": "accept4(5<TCP:[809831]>, {sa_family=AF_INET, sin_port=htons(50886), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[814293]>"
+  },
+  {
+    "tid": 308871,
+    "line": 41,
+    "completed_line": 41,
+    "time": 1791386197.44449,
+    "body": "getsockname(7<TCP:[814293]>, {sa_family=AF_INET, sin_port=htons(43809), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16]) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 42,
+    "completed_line": 44,
+    "time": 1791386197.44476,
+    "body": "getsockopt(6<TCP:[809832]>, SOL_SOCKET, SO_ERROR,  [0], [4]) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 43,
+    "completed_line": 45,
+    "time": 1791386197.444801,
+    "body": "setsockopt(7<TCP:[814293]>, SOL_TCP, TCP_NODELAY, [1], 4 ) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 46,
+    "completed_line": 48,
+    "time": 1791386197.444837,
+    "body": "getpeername(6<TCP:[809832]>,  {sa_family=AF_INET, sin_port=htons(43809), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16]) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 47,
+    "completed_line": 49,
+    "time": 1791386197.44487,
+    "body": "setsockopt(7<TCP:[814293]>, SOL_SOCKET, SO_KEEPALIVE, [1], 4 ) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 50,
+    "completed_line": 52,
+    "time": 1791386197.445187,
+    "body": "getsockname(6<TCP:[809832]>,  {sa_family=AF_INET, sin_port=htons(50886), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16]) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 51,
+    "completed_line": 53,
+    "time": 1791386197.445236,
+    "body": "setsockopt(7<TCP:[814293]>, SOL_TCP, TCP_KEEPIDLE, [15], 4 ) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 54,
+    "completed_line": 56,
+    "time": 1791386197.445272,
+    "body": "setsockopt(6<TCP:[809832]>, SOL_TCP, TCP_NODELAY, [1], 4 ) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 55,
+    "completed_line": 57,
+    "time": 1791386197.445293,
+    "body": "setsockopt(7<TCP:[814293]>, SOL_TCP, TCP_KEEPINTVL, [15], 4 ) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 58,
+    "completed_line": 60,
+    "time": 1791386197.445321,
+    "body": "setsockopt(7<TCP:[814293]>, SOL_TCP, TCP_KEEPCNT, [9], 4 ) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 59,
+    "completed_line": 62,
+    "time": 1791386197.445332,
+    "body": "setsockopt(6<TCP:[809832]>, SOL_SOCKET, SO_KEEPALIVE, [1], 4 ) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 61,
+    "completed_line": 63,
+    "time": 1791386197.44541,
+    "body": "accept4(5<TCP:[809831]>,  0xc00005f99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)"
+  },
+  {
+    "tid": 308865,
+    "line": 64,
+    "completed_line": 64,
+    "time": 1791386197.44545,
+    "body": "setsockopt(6<TCP:[809832]>, SOL_TCP, TCP_KEEPIDLE, [15], 4) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 65,
+    "completed_line": 65,
+    "time": 1791386197.445511,
+    "body": "setsockopt(6<TCP:[809832]>, SOL_TCP, TCP_KEEPINTVL, [15], 4) = 0"
+  },
+  {
+    "tid": 308865,
+    "line": 66,
+    "completed_line": 66,
+    "time": 1791386197.445559,
+    "body": "setsockopt(6<TCP:[809832]>, SOL_TCP, TCP_KEEPCNT, [9], 4) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 67,
+    "completed_line": 67,
+    "time": 1791386197.649922,
+    "body": "close(6<TCP:[809832]>) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 68,
+    "completed_line": 68,
+    "time": 1791386197.650051,
+    "body": "close(5<TCP:[809831]>) = 0"
+  },
+  {
+    "tid": 308871,
+    "line": 69,
+    "completed_line": 69,
+    "time": 1791386197.650142,
+    "body": "close(7<TCP:[814293]>) = 0"
+  },
+  {
+    "tid": 308874,
+    "line": 71,
+    "completed_line": 71,
+    "time": 1791386198.65086,
+    "body": "+++ exited with 0 +++"
+  },
+  {
+    "tid": 308871,
+    "line": 72,
+    "completed_line": 72,
+    "time": 1791386198.650879,
+    "body": "+++ exited with 0 +++"
+  },
+  {
+    "tid": 308870,
+    "line": 73,
+    "completed_line": 73,
+    "time": 1791386198.650899,
+    "body": "+++ exited with 0 +++"
+  },
+  {
+    "tid": 308872,
+    "line": 70,
+    "completed_line": 74,
+    "time": 1791386198.650653,
+    "body": "exit_group(0 ) = ?"
+  },
+  {
+    "tid": 308872,
+    "line": 75,
+    "completed_line": 75,
+    "time": 1791386198.653635,
+    "body": "+++ exited with 0 +++"
+  },
+  {
+    "tid": 308865,
+    "line": 76,
+    "completed_line": 76,
+    "time": 1791386198.653649,
+    "body": "+++ exited with 0 +++"
+  }
+]

@@ -1,0 +1,3441 @@
+{
+  "kind": "DERIVED PREPARATION; not original bytes",
+  "records": {
+    "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/keepalive/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/keepalive/command.json",
+        "sha256": "e8d89e6944207adf7dee0f636f87e42a23eeca06a3bc8f54c1d056ff837b5158",
+        "bytes": 1106464
+      },
+      "fields": {
+        "mode": "keepalive",
+        "driver_sha256": "8c1ee4d9cc48ed1da6b2687d21e9fdcf2e3cf0d7c401efd9db0ae7818d1f82f1",
+        "driver_pid": 308840,
+        "driver_stat": {
+          "pid": 308840,
+          "starttime": "1214884",
+          "ppid": 850,
+          "pgrp": 308840,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/keepalive/trace.raw",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=45s",
+          "-test.run=^TestMeetingSummaryHTTPNativeKeepAlive$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/keepalive/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_MEETING_SUMMARY_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791386197.4046576,
+        "direct_pid": {
+          "pid": 308865,
+          "starttime": "1214923",
+          "ppid": 308840,
+          "pgrp": 308865,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 1.2615336449998722,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 308865,
+            "starttime": "1214923",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791386198.666227
+          },
+          {
+            "role": "adopted",
+            "pid": 308869,
+            "starttime": "1214923",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791386198.66833
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 308865,
+            "starttime": "1214923",
+            "ppid": 308840,
+            "pgrp": 308865,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791386197.405123
+          },
+          {
+            "pid": 308869,
+            "starttime": "1214923",
+            "ppid": 308840,
+            "pgrp": 308865,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791386197.412673
+          }
+        ],
+        "execution_finished": 1791386198.6702502,
+        "inputs_unchanged": true,
+        "finished": 1791386260.4558258,
+        "listener_ports": [
+          43809
+        ],
+        "all_ports": [
+          43809,
+          50886
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "a2aff466e977ef67fb521a3436941bbcd950ef5f4a58fa6e1f6d7cdf15959629",
+        "raw_sha256": "fb261ae243bc73a567b1036ffc805045e8fb5ef292646bc51c3abf2cde26244e",
+        "test_results": {
+          "top_passes": [
+            "TestMeetingSummaryHTTPNativeKeepAlive"
+          ],
+          "sub_passes": [],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 1,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "count": 3,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "after": {
+          "count": 3,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/slowbody/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/slowbody/command.json",
+        "sha256": "ac3204c53266c878ec1a0dbd57d6700b03528d4ec5da7111001a5109ab032aa4",
+        "bytes": 1106789
+      },
+      "fields": {
+        "mode": "slowbody",
+        "driver_sha256": "8c1ee4d9cc48ed1da6b2687d21e9fdcf2e3cf0d7c401efd9db0ae7818d1f82f1",
+        "driver_pid": 309935,
+        "driver_stat": {
+          "pid": 309935,
+          "starttime": "1222421",
+          "ppid": 850,
+          "pgrp": 309935,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/slowbody/trace.raw",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=45s",
+          "-test.run=^TestMeetingSummaryHTTPNativeSlowBody$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/slowbody/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_MEETING_SUMMARY_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791386272.6220694,
+        "direct_pid": {
+          "pid": 309939,
+          "starttime": "1222445",
+          "ppid": 309935,
+          "pgrp": 309939,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 34.336237597000945,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 309939,
+            "starttime": "1222445",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791386306.9584699
+          },
+          {
+            "role": "adopted",
+            "pid": 309943,
+            "starttime": "1222445",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791386306.9602714
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 309939,
+            "starttime": "1222445",
+            "ppid": 309935,
+            "pgrp": 309939,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791386272.622644
+          },
+          {
+            "pid": 309943,
+            "starttime": "1222445",
+            "ppid": 309935,
+            "pgrp": 309939,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791386272.6278262
+          }
+        ],
+        "execution_finished": 1791386306.9618719,
+        "inputs_unchanged": true,
+        "finished": 1791386368.7182093,
+        "listener_ports": [
+          33441,
+          36845,
+          38313,
+          45169
+        ],
+        "all_ports": [
+          33441,
+          36845,
+          38313,
+          38940,
+          39384,
+          45169,
+          54002,
+          60954
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "ebdf518f6f206c888ae9a49539d91aaeb6b6174657433b8ce0f92ca0af0ecf49",
+        "raw_sha256": "56a8872af0fa1264b2159f050e11f3cd9a78fd9b6e20f8f50eb494b12a31d54b",
+        "test_results": {
+          "top_passes": [
+            "TestMeetingSummaryHTTPNativeSlowBody"
+          ],
+          "sub_passes": [
+            "TestMeetingSummaryHTTPNativeSlowBody/GET/1m0s",
+            "TestMeetingSummaryHTTPNativeSlowBody/PUT/1m0s",
+            "TestMeetingSummaryHTTPNativeSlowBody/HEAD/120ms",
+            "TestMeetingSummaryHTTPNativeSlowBody/PUT/120ms"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 4,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "count": 3,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "after": {
+          "count": 3,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/writeclose/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/writeclose/command.json",
+        "sha256": "77a78497d3eee01d15cd3b762a1bb74147d6c3d38f843c1785be25b74322e049",
+        "bytes": 1107214
+      },
+      "fields": {
+        "mode": "writeclose",
+        "driver_sha256": "8c1ee4d9cc48ed1da6b2687d21e9fdcf2e3cf0d7c401efd9db0ae7818d1f82f1",
+        "driver_pid": 311104,
+        "driver_stat": {
+          "pid": 311104,
+          "starttime": "1233065",
+          "ppid": 850,
+          "pgrp": 311104,
+          "state": "R",
+          "name": "python3"
+        },
+        "subreaper": true,
+        "command": [
+          "/usr/bin/strace",
+          "-D",
+          "-f",
+          "-ttt",
+          "-yy",
+          "-e",
+          "trace=%network,%process,close",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/writeclose/trace.raw",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=45s",
+          "-test.run=^TestMeetingSummaryHTTPNativeWriteAndClose$",
+          "-test.v"
+        ],
+        "env": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+          "HOME": "/home/agent",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/writeclose/tmp",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOPATH": "/workspace/go",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOWORK": "off",
+          "CGO_ENABLED": "1",
+          "GOFLAGS": "-mod=readonly",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_MEETING_SUMMARY_NATIVE": "1"
+        },
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "budget_seconds": 45,
+        "cleanup_grace_seconds": 15,
+        "started": 1791386379.0369582,
+        "direct_pid": {
+          "pid": 311108,
+          "starttime": "1233086",
+          "ppid": 311104,
+          "pgrp": 311108,
+          "state": "R",
+          "name": "strace"
+        },
+        "execution_elapsed_seconds": 1.5086749600013718,
+        "exit": 0,
+        "actual_waits": [
+          {
+            "role": "direct",
+            "pid": 311108,
+            "starttime": "1233086",
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791386380.5457575
+          },
+          {
+            "role": "adopted",
+            "pid": 311112,
+            "starttime": "1233086",
+            "wait_status": 0,
+            "returncode": 0,
+            "actual_wait": true,
+            "time": 1791386380.5475295
+          }
+        ],
+        "signals": [],
+        "owned_processes": [
+          {
+            "pid": 311108,
+            "starttime": "1233086",
+            "ppid": 311104,
+            "pgrp": 311108,
+            "state": "R",
+            "name": "strace",
+            "first_observed": 1791386379.0374029
+          },
+          {
+            "pid": 311112,
+            "starttime": "1233086",
+            "ppid": 311104,
+            "pgrp": 311108,
+            "state": "S",
+            "name": "strace",
+            "first_observed": 1791386379.0427616
+          }
+        ],
+        "execution_finished": 1791386380.5495985,
+        "inputs_unchanged": true,
+        "finished": 1791386440.3395932,
+        "listener_ports": [
+          32997,
+          39017,
+          40231,
+          41027,
+          41929,
+          42759,
+          43325,
+          44769
+        ],
+        "all_ports": [
+          32997,
+          33598,
+          39017,
+          40231,
+          41027,
+          41929,
+          42336,
+          42759,
+          43126,
+          43325,
+          44769,
+          48876,
+          51042,
+          52972,
+          54836,
+          55662
+        ],
+        "double_all_port_and_process_zero": true,
+        "trace_sha256": "4f1058653b61bbab313c8f9a19ada976028480fb1bf2fd5f0805a00c047cb075",
+        "raw_sha256": "8928d0127498ec8dfdbe9579feb34324684b3536e19e42246fcd42b828397eaf",
+        "test_results": {
+          "top_passes": [
+            "TestMeetingSummaryHTTPNativeWriteAndClose"
+          ],
+          "sub_passes": [
+            "TestMeetingSummaryHTTPNativeWriteAndClose/short",
+            "TestMeetingSummaryHTTPNativeWriteAndClose/write_error",
+            "TestMeetingSummaryHTTPNativeWriteAndClose/flush_error",
+            "TestMeetingSummaryHTTPNativeWriteAndClose/close_error",
+            "TestMeetingSummaryHTTPNativeWriteAndClose/panic",
+            "TestMeetingSummaryHTTPNativeWriteAndClose/reset_error",
+            "TestMeetingSummaryHTTPNativeWriteAndClose/unsupported",
+            "TestMeetingSummaryHTTPNativeWriteAndClose/blocked_head_flush"
+          ],
+          "test_bodies": true
+        },
+        "exact_test_results": true,
+        "expected_listeners_observed": true,
+        "expected_connection_pairs": 8,
+        "pass": true
+      },
+      "omitted_fields": {
+        "before": {
+          "count": 3,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "after": {
+          "count": 3,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/app-compile01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/app-compile01/command.json",
+        "sha256": "7896d3149101124f7c8f6d41b82b347687c8e8440e7c940ea7c875c021a388ea",
+        "bytes": 423459
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-c",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app.test",
+          "./internal/central/app"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 255178,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:55:36Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/app-compile01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/app-compile01/result.json",
+        "sha256": "713b1d5e9a71ce39bfa824cc735a75d0b8e1fde9de54c1f287c075f83c2e07cc",
+        "bytes": 659820
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.766827129000376,
+        "direct_child_pid": 255179,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 255179,
+            "ppid": 255178,
+            "pgid": 255179,
+            "state": "Z",
+            "starttime": "1088890"
+          },
+          {
+            "pid": 255202,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "Z",
+            "starttime": "1088904"
+          },
+          {
+            "pid": 255211,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "S",
+            "starttime": "1088908"
+          },
+          {
+            "pid": 255234,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088913"
+          },
+          {
+            "pid": 255243,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088917"
+          },
+          {
+            "pid": 255252,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "Z",
+            "starttime": "1088919"
+          },
+          {
+            "pid": 255260,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "S",
+            "starttime": "1088923"
+          },
+          {
+            "pid": 255264,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088928"
+          },
+          {
+            "pid": 255272,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088931"
+          },
+          {
+            "pid": 255280,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088934"
+          },
+          {
+            "pid": 255284,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "S",
+            "starttime": "1088937"
+          },
+          {
+            "pid": 255288,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088938"
+          },
+          {
+            "pid": 255292,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "S",
+            "starttime": "1088943"
+          },
+          {
+            "pid": 255296,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "S",
+            "starttime": "1088946"
+          },
+          {
+            "pid": 255300,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088950"
+          },
+          {
+            "pid": 255304,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088953"
+          },
+          {
+            "pid": 255308,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "S",
+            "starttime": "1088963"
+          },
+          {
+            "pid": 255312,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088967"
+          },
+          {
+            "pid": 255316,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1088971"
+          },
+          {
+            "pid": 255320,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1089038"
+          },
+          {
+            "pid": 255324,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1089038"
+          },
+          {
+            "pid": 255347,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1089146"
+          },
+          {
+            "pid": 255348,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "R",
+            "starttime": "1089146"
+          },
+          {
+            "pid": 255359,
+            "ppid": 255179,
+            "pgid": 255179,
+            "state": "S",
+            "starttime": "1089150"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 3.7305313279994152,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 3.7649464629994327,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/app-race-compile01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/app-race-compile01/command.json",
+        "sha256": "de59fb0dea7c23993c6160da0b0d1ef8d4bf788f883e8a1c22a64cf16be56280",
+        "bytes": 423477
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-race",
+          "-c",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app-race.test",
+          "./internal/central/app"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 255363,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:55:41Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/app-race-compile01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/app-race-compile01/result.json",
+        "sha256": "a749847e4074f3067aaf43de1f3c04e6b633f3068af27007992e9109b8fd26fb",
+        "bytes": 658040
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 5.777912778001337,
+        "direct_child_pid": 255364,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 255364,
+            "ppid": 255363,
+            "pgid": 255364,
+            "state": "Z",
+            "starttime": "1089315"
+          },
+          {
+            "pid": 255369,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "S",
+            "starttime": "1089321"
+          },
+          {
+            "pid": 255407,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "R",
+            "starttime": "1089332"
+          },
+          {
+            "pid": 255417,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "R",
+            "starttime": "1089338"
+          },
+          {
+            "pid": 255421,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "R",
+            "starttime": "1089343"
+          },
+          {
+            "pid": 255446,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "S",
+            "starttime": "1089548"
+          },
+          {
+            "pid": 255447,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "R",
+            "starttime": "1089548"
+          },
+          {
+            "pid": 255454,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "R",
+            "starttime": "1089731"
+          },
+          {
+            "pid": 255455,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "R",
+            "starttime": "1089731"
+          },
+          {
+            "pid": 255467,
+            "ppid": 255364,
+            "pgid": 255364,
+            "state": "R",
+            "starttime": "1089736"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 5.741425062000417,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 5.776513237000472,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/central-build01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/central-build01/command.json",
+        "sha256": "bb22c2934f82ca3319088095273583877e5862451c2de928db81d5548ca7cfd0",
+        "bytes": 423442
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/agenteam",
+          "./cmd/agenteam"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 257309,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:56:01Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/central-build01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/central-build01/result.json",
+        "sha256": "9eadf79a8b35d3a9353695a2f5faf15d644c756310aacc63b48bca80fba12591",
+        "bytes": 657279
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.4250247729996772,
+        "direct_child_pid": 257310,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 257310,
+            "ppid": 257309,
+            "pgid": 257310,
+            "state": "Z",
+            "starttime": "1091338"
+          },
+          {
+            "pid": 257315,
+            "ppid": 257310,
+            "pgid": 257310,
+            "state": "R",
+            "starttime": "1091343"
+          },
+          {
+            "pid": 257351,
+            "ppid": 257310,
+            "pgid": 257310,
+            "state": "R",
+            "starttime": "1091355"
+          },
+          {
+            "pid": 257359,
+            "ppid": 257310,
+            "pgid": 257310,
+            "state": "R",
+            "starttime": "1091362"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 1.387570531000165,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 1.422983985999963,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-compile01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-compile01/command.json",
+        "sha256": "44127c363c658a1c797d18277ec52996dbd5e90fc11ed2bbc0ba896a0c35ea12",
+        "bytes": 423502
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-race",
+          "-tags=integration",
+          "-c",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-integration.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 255492,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:55:47Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-compile01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-compile01/result.json",
+        "sha256": "0503617f5a8d2add7e43f2af91c7f4e236792d75300110545a410837a7c6bda0",
+        "bytes": 657659
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 7.037391211000795,
+        "direct_child_pid": 255493,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 255493,
+            "ppid": 255492,
+            "pgid": 255493,
+            "state": "Z",
+            "starttime": "1089946"
+          },
+          {
+            "pid": 255531,
+            "ppid": 255493,
+            "pgid": 255493,
+            "state": "S",
+            "starttime": "1089964"
+          },
+          {
+            "pid": 255540,
+            "ppid": 255493,
+            "pgid": 255493,
+            "state": "S",
+            "starttime": "1090056"
+          },
+          {
+            "pid": 255541,
+            "ppid": 255493,
+            "pgid": 255493,
+            "state": "R",
+            "starttime": "1090056"
+          },
+          {
+            "pid": 255590,
+            "ppid": 255493,
+            "pgid": 255493,
+            "state": "R",
+            "starttime": "1090475"
+          },
+          {
+            "pid": 255591,
+            "ppid": 255493,
+            "pgid": 255493,
+            "state": "R",
+            "starttime": "1090475"
+          },
+          {
+            "pid": 255602,
+            "ppid": 255493,
+            "pgid": 255493,
+            "state": "R",
+            "starttime": "1090480"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 6.996748957000818,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 7.035333389001607,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-vet01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-vet01/command.json",
+        "sha256": "c33cf0d79e30bcf0b5964916ff948066c7d0eead0aa148949999817129f2cc6a",
+        "bytes": 423434
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-tags=integration",
+          "./internal/central/model",
+          "./internal/central/app",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 255633,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:55:54Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-vet01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/integration-vet01/result.json",
+        "sha256": "54f065d70be645ac9494f5d57933786c32a4d66e4b0aa99ea0e21fbe4572a22d",
+        "bytes": 678360
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 5.932940543001678,
+        "direct_child_pid": 255634,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 5.897698546001266,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 5.931617748999997,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "processes_seen": {
+          "count": 170,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/model-compile01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/model-compile01/command.json",
+        "sha256": "563b49d2d69e0d1a72ef846ab06c8fe881bb0add639a84180df82c1749350b17",
+        "bytes": 423463
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-c",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model.test",
+          "./internal/central/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 254870,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:55:16Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/model-compile01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/model-compile01/result.json",
+        "sha256": "2690ff8b766d3ae372638d767db72f1113610a625804970cbe1c903fd9514d90",
+        "bytes": 657661
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.103018087000237,
+        "direct_child_pid": 254874,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 254874,
+            "ppid": 254870,
+            "pgid": 254874,
+            "state": "Z",
+            "starttime": "1086897"
+          },
+          {
+            "pid": 254897,
+            "ppid": 254874,
+            "pgid": 254874,
+            "state": "S",
+            "starttime": "1086912"
+          },
+          {
+            "pid": 254901,
+            "ppid": 254874,
+            "pgid": 254874,
+            "state": "S",
+            "starttime": "1086914"
+          },
+          {
+            "pid": 254905,
+            "ppid": 254874,
+            "pgid": 254874,
+            "state": "S",
+            "starttime": "1086919"
+          },
+          {
+            "pid": 254930,
+            "ppid": 254874,
+            "pgid": 254874,
+            "state": "R",
+            "starttime": "1087115"
+          },
+          {
+            "pid": 254931,
+            "ppid": 254874,
+            "pgid": 254874,
+            "state": "R",
+            "starttime": "1087115"
+          },
+          {
+            "pid": 254944,
+            "ppid": 254874,
+            "pgid": 254874,
+            "state": "R",
+            "starttime": "1087119"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 3.0674982740001724,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 3.1013836130005075,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/model-race-compile01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/model-race-compile01/command.json",
+        "sha256": "95e52ed7a553f32e0b60987f12759bd9ccddfebce32ac25fa160ed43615601aa",
+        "bytes": 423481
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-race",
+          "-c",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+          "./internal/central/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 255084,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:55:32Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/model-race-compile01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/model-race-compile01/result.json",
+        "sha256": "061b69ee0ff2345689c340717fb7fe3321d06a2250cfdc4e009ed726056846c4",
+        "bytes": 657786
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 4.242464877999737,
+        "direct_child_pid": 255085,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 255085,
+            "ppid": 255084,
+            "pgid": 255085,
+            "state": "Z",
+            "starttime": "1088416"
+          },
+          {
+            "pid": 255094,
+            "ppid": 255085,
+            "pgid": 255085,
+            "state": "Z",
+            "starttime": "1088423"
+          },
+          {
+            "pid": 255107,
+            "ppid": 255085,
+            "pgid": 255085,
+            "state": "Z",
+            "starttime": "1088430"
+          },
+          {
+            "pid": 255113,
+            "ppid": 255085,
+            "pgid": 255085,
+            "state": "S",
+            "starttime": "1088433"
+          },
+          {
+            "pid": 255117,
+            "ppid": 255085,
+            "pgid": 255085,
+            "state": "S",
+            "starttime": "1088437"
+          },
+          {
+            "pid": 255160,
+            "ppid": 255085,
+            "pgid": 255085,
+            "state": "R",
+            "starttime": "1088725"
+          },
+          {
+            "pid": 255161,
+            "ppid": 255085,
+            "pgid": 255085,
+            "state": "R",
+            "starttime": "1088725"
+          },
+          {
+            "pid": 255172,
+            "ppid": 255085,
+            "pgid": 255085,
+            "state": "S",
+            "starttime": "1088729"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 4.207623123000303,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 4.240962923000552,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/runner-build01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/runner-build01/command.json",
+        "sha256": "79748e1d9fc651f322ac3fc9cf0fd9ae8c5028ae8734c318a5a4da81b9750cc8",
+        "bytes": 423456
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/agenteam-runner",
+          "./cmd/agenteam-runner"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/compile01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 257383,
+        "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+        "started_utc": "2026-10-07T14:56:03Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/runner-build01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/compile01/runner-build01/result.json",
+        "sha256": "7f1b254cd0ab246d5c24f003e8da137a77ff382108722db207ec813533bb1346",
+        "bytes": 657155
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4962016320005205,
+        "direct_child_pid": 257384,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 257384,
+            "ppid": 257383,
+            "pgid": 257384,
+            "state": "Z",
+            "starttime": "1091531"
+          },
+          {
+            "pid": 257389,
+            "ppid": 257384,
+            "pgid": 257384,
+            "state": "R",
+            "starttime": "1091533"
+          },
+          {
+            "pid": 257423,
+            "ppid": 257384,
+            "pgid": 257384,
+            "state": "R",
+            "starttime": "1091541"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 0.46059697800046706,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 0.4947420910011715,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3018,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-list01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-list01/command.json",
+        "sha256": "388fe3aca5d58b71496006ddaf9ad02944778270e6bf70ffdaa433dd8fb2557e",
+        "bytes": 425004
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app.test",
+          "-test.list=^(TestModelRoot(RouteOwnershipAndRequestPreservation|RequiredConstructionDependencies)|TestProjectUsageRootPure(ConstructionAndReadOnly|StartupContextAndFailure|RoutesPreserveOriginalChain))$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/app",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pure01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 259069,
+        "driver_sha256": "3128f426252c3c1a25c95dac85a3735f06d71da66d0bc9ba16198e4106bd3bc5",
+        "started_utc": "2026-10-07T14:58:28Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-list01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-list01/result.json",
+        "sha256": "b442d476578df3a4bdfc1d57c90a372c68acbce997f9dbbfd57bc26cdfbc37a4",
+        "bytes": 658425
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4328281270009029,
+        "direct_child_pid": 259091,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 259091,
+            "ppid": 259069,
+            "pgid": 259091,
+            "state": "Z",
+            "starttime": "1106039"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 0.3980732660002104,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 0.4314750779994938,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "afe3eb719205a5fd3d6091ad97bd6234941cdfc83bfdb341c782cba758c7ab1c",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-race01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-race01/command.json",
+        "sha256": "e8ee3dde994ee7466637c074cf8f18a68833216f5599d41a4638abc5355cd0c3",
+        "bytes": 425093
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app-race.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^(TestModelRoot(RouteOwnershipAndRequestPreservation|RequiredConstructionDependencies)|TestProjectUsageRootPure(ConstructionAndReadOnly|StartupContextAndFailure|RoutesPreserveOriginalChain))$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/app",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pure01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 259213,
+        "driver_sha256": "3128f426252c3c1a25c95dac85a3735f06d71da66d0bc9ba16198e4106bd3bc5",
+        "started_utc": "2026-10-07T14:58:37Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-race01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure-race01/result.json",
+        "sha256": "cea3c9e25efcc4b3babb741d414af7181130b36c0133fe9577326fb710c9dfa7",
+        "bytes": 658425
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.5292857960012043,
+        "direct_child_pid": 259214,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 259214,
+            "ppid": 259213,
+            "pgid": 259214,
+            "state": "Z",
+            "starttime": "1106921"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 1.4945313270000042,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 1.5279720649996307,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "8af630ed3fd5290996f2f1adfa07abd383082e6d18b266422e1104942f2c8c31",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure01/command.json",
+        "sha256": "1401a4f9971069fa3e607cb5b83030d7761f334035c0ebb161f9fece96821fb9",
+        "bytes": 425088
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^(TestModelRoot(RouteOwnershipAndRequestPreservation|RequiredConstructionDependencies)|TestProjectUsageRootPure(ConstructionAndReadOnly|StartupContextAndFailure|RoutesPreserveOriginalChain))$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/app",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pure01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 259176,
+        "driver_sha256": "3128f426252c3c1a25c95dac85a3735f06d71da66d0bc9ba16198e4106bd3bc5",
+        "started_utc": "2026-10-07T14:58:35Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/app-pure01/result.json",
+        "sha256": "78b78e39470726ef8a3c72fa2ce5c9a1a93555083f0cc605471644f4e97fe8c2",
+        "bytes": 658425
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4374172219995671,
+        "direct_child_pid": 259205,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 259205,
+            "ppid": 259176,
+            "pgid": 259205,
+            "state": "Z",
+            "starttime": "1106794"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 0.40233386699947005,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 0.436108128998967,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "78fabe13029c7d15693542307818479e4e3a2623385391169e701aba3794da55",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/integration-list01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/integration-list01/command.json",
+        "sha256": "c4ff71fe0ce485ec592b630318d5a666bb96b8f3731d5585dcdf81ed552b84e8",
+        "bytes": 425040
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-integration.test",
+          "-test.list=^(TestModelMeetingSummarySettings(HTTP|Recovery|Root)|TestModelMeetingSummaryExistingHTTP|TestModelSystemHTTP(SelectionAndReferenceDeletion|CurrentAdministrator|BoundaryAndStrictWire)|TestModelProjectUsageHTTPRootBinding)$"
+        ],
+        "cwd": "/workspace/agenteam/tests/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pure01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 259096,
+        "driver_sha256": "3128f426252c3c1a25c95dac85a3735f06d71da66d0bc9ba16198e4106bd3bc5",
+        "started_utc": "2026-10-07T14:58:29Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/integration-list01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/integration-list01/result.json",
+        "sha256": "471786853ab74a31a0861912c1f89c90e192ca4c1e130eb647bbba4f0195849e",
+        "bytes": 658425
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.4389327150001918,
+        "direct_child_pid": 259116,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 259116,
+            "ppid": 259096,
+            "pgid": 259116,
+            "state": "Z",
+            "starttime": "1106172"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 1.4040657059995283,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 1.4374957790005283,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "8516358e79dd6a7e8f4104d9059aa19a42f1548a4445bb7e53112ddc004cb9a5",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-list01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-list01/command.json",
+        "sha256": "1543ca30f50c69a22f03e50fc463a12620fbfaa84810f002299eee678c0f669c",
+        "bytes": 425162
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model.test",
+          "-test.list=^(TestMeetingSummaryHTTP(StrictInput|ReadsAndFaults|BudgetAndActualTails|FailuresAndCallbackJoin)|TestSystemHTTP(ConstructionAndRoutesMatchOpenAPI|DTORequiredNullAndExactScalars|ListQueryCanonicalAndProjection|CredentialMaterialAndBoundedReplay)|TestSystemManagementHTTP(ClosedMetadataAndHEAD|RejectsInputWithoutReadingBody|BudgetOnlyNewReads))$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pure01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 259058,
+        "driver_sha256": "3128f426252c3c1a25c95dac85a3735f06d71da66d0bc9ba16198e4106bd3bc5",
+        "started_utc": "2026-10-07T14:58:26Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-list01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-list01/result.json",
+        "sha256": "36435d2041ec49bfbd965f0b1885343589c9ba923d737c16b3a220e1fb51a22c",
+        "bytes": 658425
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4385975490004057,
+        "direct_child_pid": 259064,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 259064,
+            "ppid": 259058,
+            "pgid": 259064,
+            "state": "Z",
+            "starttime": "1105909"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 0.40345901399996364,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 0.437198409001212,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "6304e1b468aae6b53d6e6d6bc923a38b10ef382ccc539f7742a6b323f614803f",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-race01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-race01/command.json",
+        "sha256": "0eead0607d64909cc98c323424095aba0293504debc7b54be390201b316c7613",
+        "bytes": 425251
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^(TestMeetingSummaryHTTP(StrictInput|ReadsAndFaults|BudgetAndActualTails|FailuresAndCallbackJoin)|TestSystemHTTP(ConstructionAndRoutesMatchOpenAPI|DTORequiredNullAndExactScalars|ListQueryCanonicalAndProjection|CredentialMaterialAndBoundedReplay)|TestSystemManagementHTTP(ClosedMetadataAndHEAD|RejectsInputWithoutReadingBody|BudgetOnlyNewReads))$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pure01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 259150,
+        "driver_sha256": "3128f426252c3c1a25c95dac85a3735f06d71da66d0bc9ba16198e4106bd3bc5",
+        "started_utc": "2026-10-07T14:58:33Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-race01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure-race01/result.json",
+        "sha256": "e357c3a625c5bb3fe06faa2ddac0070ebcdc9dfb0a4519e3e5a01a3cd3db8f77",
+        "bytes": 658424
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.601696150000862,
+        "direct_child_pid": 259151,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 259151,
+            "ppid": 259150,
+            "pgid": 259151,
+            "state": "Z",
+            "starttime": "1106547"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 1.5668382950007071,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 1.6003761100000702,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "f38989c3b1cc1e8cef3d0419e1522a1f57ef2786cf516a5d66121fbd663ea82e",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure01/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure01/command.json",
+        "sha256": "b656e2a36270ee5729343be40efec4f5e476b0f5634e093ef436a0187e7237bd",
+        "bytes": 425246
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.parallel=1",
+          "-test.timeout=40s",
+          "-test.run=^(TestMeetingSummaryHTTP(StrictInput|ReadsAndFaults|BudgetAndActualTails|FailuresAndCallbackJoin)|TestSystemHTTP(ConstructionAndRoutesMatchOpenAPI|DTORequiredNullAndExactScalars|ListQueryCanonicalAndProjection|CredentialMaterialAndBoundedReplay)|TestSystemManagementHTTP(ClosedMetadataAndHEAD|RejectsInputWithoutReadingBody|BudgetOnlyNewReads))$"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/pure01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 259123,
+        "driver_sha256": "3128f426252c3c1a25c95dac85a3735f06d71da66d0bc9ba16198e4106bd3bc5",
+        "started_utc": "2026-10-07T14:58:31Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure01/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/pure01/model-pure01/result.json",
+        "sha256": "be8777a5b1f5d53a1b4e04c6906bd370ae1af2075ec499b08349d9693306ecae",
+        "bytes": 658425
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5680693100002827,
+        "direct_child_pid": 259145,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 259145,
+            "ppid": 259123,
+            "pgid": 259145,
+            "state": "Z",
+            "starttime": "1106404"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 0.5328811069994117,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 0.5666425790004723,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "699ba0fea758226658815c066f73a70efe75ad699f1f5fef0d7bb950997feecd",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3028,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/integration-list03/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/integration-list03/command.json",
+        "sha256": "edaa6e39c29f3d785448bd241ac4a7b7e8b2ff47703baa88af888b0d21fb9757",
+        "bytes": 425660
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/bin/model-integration.test",
+          "-test.list=^(TestModelMeetingSummarySettings(HTTP|Recovery|Root)|TestModelMeetingSummaryExistingHTTP|TestModelSystemHTTP(SelectionAndReferenceDeletion|CurrentAdministrator|BoundaryAndStrictWire)|TestModelProjectUsageHTTPRootBinding)$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 338617,
+        "driver_sha256": "4f5d29461f8a6c1d4dfe829019877a8d503b11c739f7e959496c297642ea5abb",
+        "started_utc": "2026-10-07T15:27:55Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3032,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/integration-list03/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/integration-list03/result.json",
+        "sha256": "938c438ce2fe2ea27f1b567d330a72952f4d36233e4005c5593c852858406227",
+        "bytes": 659136
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.3006419720004487,
+        "direct_child_pid": 338618,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 338618,
+            "ppid": 338617,
+            "pgid": 338618,
+            "state": "Z",
+            "starttime": "1282795"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 1.2638865299995814,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 1.2988701009999204,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "8516358e79dd6a7e8f4104d9059aa19a42f1548a4445bb7e53112ddc004cb9a5",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3032,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/model-integration-compile03/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/model-integration-compile03/command.json",
+        "sha256": "5aa79024c1ae620a08e0ccc631c9de380d52cf4f093383a047535c01e53e83e1",
+        "bytes": 425382
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-tags=integration",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/bin/model-integration.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 338393,
+        "driver_sha256": "4f5d29461f8a6c1d4dfe829019877a8d503b11c739f7e959496c297642ea5abb",
+        "started_utc": "2026-10-07T15:27:39Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3031,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/model-integration-compile03/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/model-integration-compile03/result.json",
+        "sha256": "92a3c6124e76408bc679d8078b34ebf94208eb1a00433a9936c40e43ad996e14",
+        "bytes": 659468
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 5.902998376999676,
+        "direct_child_pid": 338394,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 338394,
+            "ppid": 338393,
+            "pgid": 338394,
+            "state": "Z",
+            "starttime": "1281165"
+          },
+          {
+            "pid": 338417,
+            "ppid": 338394,
+            "pgid": 338394,
+            "state": "Z",
+            "starttime": "1281183"
+          },
+          {
+            "pid": 338468,
+            "ppid": 338394,
+            "pgid": 338394,
+            "state": "S",
+            "starttime": "1281584"
+          },
+          {
+            "pid": 338469,
+            "ppid": 338394,
+            "pgid": 338394,
+            "state": "S",
+            "starttime": "1281584"
+          },
+          {
+            "pid": 338480,
+            "ppid": 338394,
+            "pgid": 338394,
+            "state": "R",
+            "starttime": "1281588"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 5.866724203999183,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 5.901212744998702,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3031,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/model-integration-compile04/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/model-integration-compile04/command.json",
+        "sha256": "dc8a61a1c127fc63423221eee83f754c208063cc992eea76953a5723e8f37afa",
+        "bytes": 426160
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-tags=integration",
+          "-o",
+          "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/bin/model-integration.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 382927,
+        "driver_sha256": "e672c79ae24d633e66355107cae9894cc7e3fbc526819df361f0f8a2bf088629",
+        "started_utc": "2026-10-07T15:38:49Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3036,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/model-integration-compile04/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/model-integration-compile04/result.json",
+        "sha256": "2114973bd426f451388d1610778abd4a7a30d918dff8ef54ed18ae4b5ee1d4a4",
+        "bytes": 660246
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 5.825627876998624,
+        "direct_child_pid": 382928,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 382928,
+            "ppid": 382927,
+            "pgid": 382928,
+            "state": "Z",
+            "starttime": "1348121"
+          },
+          {
+            "pid": 382951,
+            "ppid": 382928,
+            "pgid": 382928,
+            "state": "R",
+            "starttime": "1348138"
+          },
+          {
+            "pid": 383002,
+            "ppid": 382928,
+            "pgid": 382928,
+            "state": "S",
+            "starttime": "1348541"
+          },
+          {
+            "pid": 383003,
+            "ppid": 382928,
+            "pgid": 382928,
+            "state": "S",
+            "starttime": "1348541"
+          },
+          {
+            "pid": 383014,
+            "ppid": 382928,
+            "pgid": 382928,
+            "state": "Z",
+            "starttime": "1348546"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 5.787561015999017,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 5.823416002998783,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3036,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/recovery-list04/command.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/recovery-list04/command.json",
+        "sha256": "71c63609f205e82e802a62c414a7158dfd6628e65a689ed8436bb30a7ce17cc4",
+        "bytes": 426257
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/bin/model-integration.test",
+          "-test.list=^TestModelMeetingSummarySettingsRecovery$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 383137,
+        "driver_sha256": "e672c79ae24d633e66355107cae9894cc7e3fbc526819df361f0f8a2bf088629",
+        "started_utc": "2026-10-07T15:39:01Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": {
+        "inputs_before": {
+          "count": 3037,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/recovery-list04/result.json": {
+      "kind": "DERIVED field projection, not original bytes",
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/recovery-list04/result.json",
+        "sha256": "a44d6afa5eaa3807e54eb3e4abf1a1ffa632bebab81ffd12e237a91b9a6272ea",
+        "bytes": 659914
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.3650494260000414,
+        "direct_child_pid": 383138,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 383138,
+            "ppid": 383137,
+            "pgid": 383138,
+            "state": "Z",
+            "starttime": "1349315"
+          }
+        ],
+        "actions": [],
+        "cleanup_checks": [
+          {
+            "elapsed_seconds": 1.3267752009996912,
+            "owned_descendants": []
+          },
+          {
+            "elapsed_seconds": 1.3628854340004182,
+            "owned_descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "inputs_unchanged": true,
+        "exit_code": 0,
+        "stdout.log_sha256": "e58909935962d4f6ec7dd55464a2d6743a7eb06e7ea367684b8ac8eeae3dad50",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": {
+        "inputs_after": {
+          "count": 3037,
+          "reason": "repeated large input map; not part of derived excerpt"
+        },
+        "effective_membership_after": {
+          "count": 439,
+          "reason": "repeated large input map; not part of derived excerpt"
+        }
+      }
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/format01/command.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-a02/format01/command.json",
+        "sha256": "afa9cc2fed018cbeb7b01c7e98b9949398876250c93686b1e62e444df7da91dd",
+        "bytes": 414293
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-w",
+          "/workspace/scratch/summary-verification/S2-probes/repair-a02/model_probe_test.go"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/repair-a02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 388527,
+        "driver_sha256": "1905b4b508e22467999406f11860edfa9ee944bf8648edf3c07826d4e0a5dcc5",
+        "started_utc": "2026-10-07T15:40:19Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/format01/result.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-a02/format01/result.json",
+        "sha256": "cb2fc850d5eede67e717205cf1b3f6a8608a45f2296a14e57c345e5deab28b45",
+        "bytes": 414164
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5926769189991319,
+        "direct_child_pid": 388557,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 388557,
+            "ppid": 388527,
+            "pgid": 388557,
+            "state": "Z",
+            "starttime": "1357153"
+          }
+        ],
+        "actions": [],
+        "quiet_tails": [
+          {
+            "elapsed_seconds": 0.553837557999941,
+            "descendants": []
+          },
+          {
+            "elapsed_seconds": 0.5898591610002768,
+            "descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "changed_inputs": [],
+        "unexpected_input_changes": [],
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/compile01/command.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-a02/compile01/command.json",
+        "sha256": "48e134b7834e07bc8cf288c795475dd3175dbaa98b6b888b28a3e4e3c16fd252",
+        "bytes": 414524
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-tags=integration",
+          "-mod=readonly",
+          "-buildvcs=false",
+          "-p=1",
+          "-overlay=/workspace/scratch/summary-verification/S2-probes/repair-a02/overlay.json",
+          "-o",
+          "/workspace/scratch/summary-verification/S2-probes/repair-a02/bin/model-independent.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/repair-a02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 389086,
+        "driver_sha256": "1905b4b508e22467999406f11860edfa9ee944bf8648edf3c07826d4e0a5dcc5",
+        "started_utc": "2026-10-07T15:40:24Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/compile01/result.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-a02/compile01/result.json",
+        "sha256": "5db43915c03ca41ef05dfae5d28ac14d9c2c77ae74ecde3cba107b2f960e086e",
+        "bytes": 414670
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 7.417220236000503,
+        "direct_child_pid": 389170,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 389170,
+            "ppid": 389086,
+            "pgid": 389170,
+            "state": "Z",
+            "starttime": "1357686"
+          },
+          {
+            "pid": 389217,
+            "ppid": 389170,
+            "pgid": 389170,
+            "state": "S",
+            "starttime": "1357714"
+          },
+          {
+            "pid": 389648,
+            "ppid": 389170,
+            "pgid": 389170,
+            "state": "R",
+            "starttime": "1358183"
+          },
+          {
+            "pid": 389656,
+            "ppid": 389170,
+            "pgid": 389170,
+            "state": "R",
+            "starttime": "1358187"
+          },
+          {
+            "pid": 389810,
+            "ppid": 389170,
+            "pgid": 389170,
+            "state": "R",
+            "starttime": "1358330"
+          }
+        ],
+        "actions": [],
+        "quiet_tails": [
+          {
+            "elapsed_seconds": 7.377660598000148,
+            "descendants": []
+          },
+          {
+            "elapsed_seconds": 7.414533568000479,
+            "descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "changed_inputs": [],
+        "unexpected_input_changes": [],
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/list01/command.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-a02/list01/command.json",
+        "sha256": "5ca6acd1dda686b52a29c42ff57c162c399831c619e57b1490ea9447c90dd5a6",
+        "bytes": 414301
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/summary-verification/S2-probes/repair-a02/bin/model-independent.test",
+          "-test.list=^TestIndependentMeetingSummarySettingsA$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/repair-a02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 391482,
+        "driver_sha256": "1905b4b508e22467999406f11860edfa9ee944bf8648edf3c07826d4e0a5dcc5",
+        "started_utc": "2026-10-07T15:40:45Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/list01/result.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-a02/list01/result.json",
+        "sha256": "ce350c7faf54f3ce60a8a5b2d96829e77b97b8b5ecc0726823ce6a3dab3036a8",
+        "bytes": 414164
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.6217479649985762,
+        "direct_child_pid": 391485,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 391485,
+            "ppid": 391482,
+            "pgid": 391485,
+            "state": "Z",
+            "starttime": "1359800"
+          }
+        ],
+        "actions": [],
+        "quiet_tails": [
+          {
+            "elapsed_seconds": 1.5827128759992775,
+            "descendants": []
+          },
+          {
+            "elapsed_seconds": 1.618359022999357,
+            "descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "changed_inputs": [],
+        "unexpected_input_changes": [],
+        "stdout.log_sha256": "905feeeb8d7eff9c1ad48d525a5d02868252f073503576b0824ca1ea2d57f3c3",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/type01/command.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/type01/command.json",
+        "sha256": "2a6fc3f5a9440489e54973145ffdfc405ed332cacf63dff82497a7bd6772903a",
+        "bytes": 414982
+      },
+      "fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "/workspace/agenteam/web/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--strict",
+          "--target",
+          "ES2022",
+          "--module",
+          "ESNext",
+          "--moduleResolution",
+          "bundler",
+          "--lib",
+          "ES2022,DOM,DOM.Iterable",
+          "--skipLibCheck",
+          "--typeRoots",
+          "/workspace/agenteam/web/node_modules/@types",
+          "/workspace/scratch/summary-verification/S2-probes/repair-b02/browser/independent.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/repair-b02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 475039,
+        "driver_sha256": "b1b5738e6570735a1fa2492924e643eef1f688bc436cbd8ea0921b76d33bf5d6",
+        "started_utc": "2026-10-07T16:03:29Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/type01/result.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/type01/result.json",
+        "sha256": "edccec921558a7a2a1a21e4a735239db0401b1f79431c6430a6e0ac5b892fb3a",
+        "bytes": 414496
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.8010301449994586,
+        "direct_child_pid": 475064,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 475064,
+            "ppid": 475039,
+            "pgid": 475064,
+            "state": "Z",
+            "starttime": "1496230"
+          }
+        ],
+        "actions": [],
+        "quiet_tails": [
+          {
+            "elapsed_seconds": 1.7591756960009661,
+            "descendants": []
+          },
+          {
+            "elapsed_seconds": 1.7979417240003386,
+            "descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "changed_inputs": [],
+        "unexpected_input_changes": [],
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/syntax01/command.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/syntax01/command.json",
+        "sha256": "f688945ce6142c3f347e6792cc92c515f3e4fe730ba6aff6ff582b3b268908ef",
+        "bytes": 414668
+      },
+      "fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "--check",
+          "/workspace/scratch/summary-verification/S2-probes/repair-b02/browser/independent.config.cjs"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/repair-b02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 475138,
+        "driver_sha256": "b1b5738e6570735a1fa2492924e643eef1f688bc436cbd8ea0921b76d33bf5d6",
+        "started_utc": "2026-10-07T16:03:37Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/syntax01/result.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/syntax01/result.json",
+        "sha256": "7843b57b0da09c6bcf3945a298e83465363d75ff6a245f86aa442df283a3dfda",
+        "bytes": 414495
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.640567362001093,
+        "direct_child_pid": 475160,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 475160,
+            "ppid": 475138,
+            "pgid": 475160,
+            "state": "Z",
+            "starttime": "1497012"
+          }
+        ],
+        "actions": [],
+        "quiet_tails": [
+          {
+            "elapsed_seconds": 0.6009596189996955,
+            "descendants": []
+          },
+          {
+            "elapsed_seconds": 0.6379424210008438,
+            "descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "changed_inputs": [],
+        "unexpected_input_changes": [],
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/compile01/command.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/compile01/command.json",
+        "sha256": "18778b8fcbc2533f69955699c0c80a6a14bd30e92cb1be1f2d52223208a4b911",
+        "bytes": 414859
+      },
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-tags=integration",
+          "-mod=readonly",
+          "-buildvcs=false",
+          "-p=1",
+          "-overlay=/workspace/scratch/summary-verification/S2-probes/repair-b02/overlay.json",
+          "-o",
+          "/workspace/scratch/summary-verification/S2-probes/repair-b02/bin/account-independent.test",
+          "./tests/account"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/repair-b02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 475300,
+        "driver_sha256": "b1b5738e6570735a1fa2492924e643eef1f688bc436cbd8ea0921b76d33bf5d6",
+        "started_utc": "2026-10-07T16:03:45Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/compile01/result.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/compile01/result.json",
+        "sha256": "7bfcc1f7bb5fed326e56f5df23e00b40fb680cbffb7ef0ca804d13daecca3116",
+        "bytes": 415001
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 8.512484675999076,
+        "direct_child_pid": 475309,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 475309,
+            "ppid": 475300,
+            "pgid": 475309,
+            "state": "Z",
+            "starttime": "1497821"
+          },
+          {
+            "pid": 475352,
+            "ppid": 475309,
+            "pgid": 475309,
+            "state": "Z",
+            "starttime": "1497847"
+          },
+          {
+            "pid": 475397,
+            "ppid": 475309,
+            "pgid": 475309,
+            "state": "R",
+            "starttime": "1498429"
+          },
+          {
+            "pid": 475405,
+            "ppid": 475309,
+            "pgid": 475309,
+            "state": "S",
+            "starttime": "1498434"
+          },
+          {
+            "pid": 475435,
+            "ppid": 475309,
+            "pgid": 475309,
+            "state": "R",
+            "starttime": "1498569"
+          }
+        ],
+        "actions": [],
+        "quiet_tails": [
+          {
+            "elapsed_seconds": 8.473295157000393,
+            "descendants": []
+          },
+          {
+            "elapsed_seconds": 8.509527594000247,
+            "descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "changed_inputs": [],
+        "unexpected_input_changes": [],
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/list01/command.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/list01/command.json",
+        "sha256": "7253e29390e28d62c4d85022ab0eafdf275150cad5480ed5dc28fcdbb2cfcd62",
+        "bytes": 414634
+      },
+      "fields": {
+        "argv": [
+          "/workspace/scratch/summary-verification/S2-probes/repair-b02/bin/account-independent.test",
+          "-test.list=^TestIndependentMeetingSummarySettingsB$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/summary-verification/S2-probes/repair-b02/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 475640,
+        "driver_sha256": "b1b5738e6570735a1fa2492924e643eef1f688bc436cbd8ea0921b76d33bf5d6",
+        "started_utc": "2026-10-07T16:04:12Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted_fields": [
+        "inputs_before"
+      ]
+    },
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/list01/result.json": {
+      "kind": "DERIVED exact field projection; not original bytes",
+      "original": {
+        "source": "/workspace/scratch/summary-verification/S2-probes/repair-b02/list01/result.json",
+        "sha256": "4ae92e8febf111948035919de2c1faaef4e8d6d6397912e84473ac2cfd6d1efa",
+        "bytes": 414495
+      },
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.6482265419999749,
+        "direct_child_pid": 475643,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 475643,
+            "ppid": 475640,
+            "pgid": 475643,
+            "state": "Z",
+            "starttime": "1500519"
+          }
+        ],
+        "actions": [],
+        "quiet_tails": [
+          {
+            "elapsed_seconds": 1.6073249740002211,
+            "descendants": []
+          },
+          {
+            "elapsed_seconds": 1.644621871999334,
+            "descendants": []
+          }
+        ],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "changed_inputs": [],
+        "unexpected_input_changes": [],
+        "stdout.log_sha256": "715c41ded4ad520750f52944ae22ec64b9f165c8a6655642a337705f0b7f6cb3",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted_fields": [
+        "inputs_after"
+      ]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/tools.mjs",
+    "component"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/meeting-summary-settings-frontend-author/f12-component/tmp",
+    "SUMMARY_FRONTEND_OUTPUT": "/workspace/scratch/meeting-summary-settings-frontend-author/f12-component",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "frozen": "/workspace/scratch/meeting-summary-settings-frontend-author/frozen07.json",
+  "frozen_sha256": "108856594db6c63a4a10fab7ee5e5f3364dc75ede63cf18b3357546b37fee75c",
+  "started": 1791384855.3948314,
+  "pid": 254041,
+  "pid_starttime": "1080722",
+  "exit": 1,
+  "finished": 1791384861.8398106,
+  "process_elapsed": 5.90806210700066,
+  "subreaper_readback": 1,
+  "adopted_waits": [],
+  "forced_descendants": false,
+  "failure": null,
+  "first_tail": [],
+  "second_tail": [],
+  "inputs_unchanged": true,
+  "expected_format_only": false
+}

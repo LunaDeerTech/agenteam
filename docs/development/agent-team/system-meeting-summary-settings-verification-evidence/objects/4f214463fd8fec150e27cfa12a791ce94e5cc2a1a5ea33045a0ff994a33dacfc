@@ -1,0 +1,327 @@
+{
+  "baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "card_sha256": "d78311c3c3cdff53c3329c4ca60ee8106d514ee16b4956afd7a8296ea6a2a259",
+  "owned16": {
+    "web/src/api/client.ts": "998e1edd8c1ffe3a3133b821f5169ec4b48cba8fefa98478b9abfa17f0bb6d7e",
+    "web/src/api/system-model-selection.ts": "a9b74ef52937636206abb0ac4a7b05aa8b2f260c8f94fd4b607c8ffe83da1b17",
+    "web/src/api/system-meeting-summary.ts": "4ddefde1b19d7cbdf869ce7857a9551ea8979229a5d7d1fa91790fd13bc799ff",
+    "web/src/composables/useSession.ts": "f8409de32debb34d1f36d502372a746217c54d8d86299fbd6cc4a16a2e92b90d",
+    "web/src/composables/useSystemModelSelection.ts": "a001a6ad373e2868a702659770e6ec19bcc5d51b59278628b587880ea28df0e7",
+    "web/src/composables/useMeetingSummarySettings.ts": "9682df1cd9c6feaee65aacb0c69e18fee5b7c2c95c1e031a1ef6fbfb05a9ba5b",
+    "web/src/views/system/SystemModelSelectionView.vue": "37b3da2238022fbe1a9589ef64b70094bcd24abaa2d12510b9d9d3f6284407b1",
+    "web/src/views/system/SystemMeetingSummarySettings.vue": "85eb51649c8f3080e9cee34509ed9b0b5045e2c5a17b96326741a973848cbb1f",
+    "web/src/tests/system-model-selection-client.spec.ts": "f20b91f7f5b7f5225411c6aa874442c559bbcb4648bdc5a7eca990072c124302",
+    "web/src/tests/system-model-selection-state.spec.ts": "ab186f75c9876587fba884a25a2f4eca8b5ffa5b34e913bda6c13934adcb6770",
+    "web/src/tests/system-model-selection.spec.ts": "e657c562191030099fa1f3ff0c891732a0e6dcc5729982e67330e0be7f22a306",
+    "tests/account/system_meeting_summary_web_test.go": "dbd26eab2e29128fc014209d6ba4e5f3ffa36abb61f759f15f99efe4119b0376",
+    "tests/account/system_meeting_summary_web_fixture_test.go": "d88fe8e6e77dfd43785e885e19e024d455cba364cef33a452498db7fe711da35",
+    "tests/account-captcha-web/system-meeting-summary.config.js": "df49760216621b4534ba03f3cddef2d82b2747168080f9e8f6fd3120a42331e1",
+    "tests/account-captcha-web/e2e/system-meeting-summary.spec.ts": "92e727cbefe4bdf50ae7a3bf83fed43cc12ca04e655aee4151ce053496e6d5e2",
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts": "c0f01fc54974ea2ffe3cd8be2c3c57dbc4cd3b5265c5fe6cd9b75ac255a328fc"
+  },
+  "unchanged": [
+    "tests/account-captcha-web/e2e/system-model-selection.spec.ts"
+  ],
+  "web_frozen": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/frozen11.json",
+    "sha256": "f9176351b3fc80c7207707265c0cd6aabf45fd7ca49438f6de6fcfb8e44e5813"
+  },
+  "browser_static_frozen": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/browser-static/frozen05.json",
+    "sha256": "64351f01c13815b03cdf8e3ed8ca4895d13f792c6b467012c2c09c8477d33073"
+  },
+  "build_files": {
+    "assets/AppearanceSettings-DB6bvdW9.js": "f4fc6df9604f1c8bedc7059f7c773ac11c9055066875830675861095ddc1bd79",
+    "assets/ForgotPasswordView-BmxLAiNi.js": "cb7ae79702cd9a6eae5c669a0a1fb71f11dc4c659b2b7697fc174977709fd675",
+    "assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "assets/InvitationView-Bbq9tQ35.js": "d8502d98be0de24cae8074de3f680aa18d1aa7c5ef1fde35ff5d64cfe3e43a47",
+    "assets/PasswordSettings-B26XujPb.js": "080bc9094d6a4b317342284e39771a83bc24e6b0b4a22392e048fcc7d85bc77c",
+    "assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "assets/PersonalSettingsView-C3M8SXvU.js": "1f5ca23f82528b6b166c5979b29b41025b689aa7c2e2a9d76a39ec1072adc771",
+    "assets/ProfileSettings-BQ2iC_Cw.js": "e96090bb37ad8b872a73de1f66ea52e7a5df6b532d82d84d52b55dbc16e0701e",
+    "assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "assets/ResetPasswordView-DdjDhaYa.js": "14490b01346d3b5c4f0704b7bd5dcfc77d41829429668191182d4391492bfb0d",
+    "assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "assets/SettingsShell-Dl9YP23I.js": "39cb41ddfffa9f81a10b5d3fea5ba20a8233cb9b7c16aae11c3dd40637d98f4a",
+    "assets/SystemAccountSecurityView-DDeXsGVz.css": "8c0710c7f46cdaa82fd01031381969c02672f16825b06eea24840a2770b25e7e",
+    "assets/SystemAccountSecurityView-DqbMAqCH.js": "73e923d73c456987cdaa309d435a9b5e3e18db65689eea0b142f154ba6f3b82f",
+    "assets/SystemAuditView-CVK5-pDL.css": "2edefd2a2162a58c6951f4a77dba66ee4dcddffb2cf2a432cde21b60e8637310",
+    "assets/SystemAuditView-DMX-kf15.js": "655bad6841649d698ddc77285d104b69ff568817c27311058dd6c8673eae9a3b",
+    "assets/SystemInvitationsView-5I_qWQBT.js": "6c053e7cf6ae1981ccedfa2e5ee9977a9392aa6549343e88e1d366eeebbad6a7",
+    "assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+    "assets/SystemModelSelectionView-tLdNn_JF.css": "fe8b0d34513fd2c3cb560c8136f8d027af827f4076a24abcf12d88c3828bd6d2",
+    "assets/SystemModelSelectionView-tjVlteyv.js": "488d473562660acecee0869292f52abcf367c202a038cea08852be78af4489d9",
+    "assets/SystemModelsView-CFMSZ3Mj.js": "3d29332d7fc306867260e80472e1c229747c8bcce33a75307a7a5965064dfe2c",
+    "assets/SystemModelsView-CURjLUMH.css": "2625b012e0a6f78ac228d4532bc306d85b244c4b46550a369105806763c23668",
+    "assets/SystemOutboundPolicyView-BDoo7H-y.js": "69f3ae037c11dcd4d2332f9459f1d4d8f9c6a12982e10fb1a874ee2c575dd6e2",
+    "assets/SystemOutboundPolicyView-c2N-aXU9.css": "19d8278ceeaa3ceffd43362ac75240f8aa1514a2da4bc131270cfd6225f778b3",
+    "assets/SystemProvidersView-C-ntT5YP.js": "f3b2b193b1cc3e0e18440dcd6bd6cc7b26557e39b2c33cc03a7c4b0ba5818356",
+    "assets/SystemProvidersView-elJ_-cRG.css": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c",
+    "assets/SystemRuntimeInformationView-BiTrORNZ.css": "0b6f292ef8f3281c81c95a82fc0b75d834c0ddd680fe6541e570c29428fd1aac",
+    "assets/SystemRuntimeInformationView-CbBV41yY.js": "57dd40dd25d53aa79837064f9b126ee5411b260016efc7149ce5b943f52c1bb9",
+    "assets/SystemSMTPSettingsView-BgasJNri.js": "4e484c32888b036e568eba52b524ef6eb0e9d642c4c0570f50a95b27604a5700",
+    "assets/SystemSMTPSettingsView-D8y_A8gg.css": "c29e8ce53af05f7e736565081e3e4e6cf4bb61e3cdabd73d5e7911842dddc531",
+    "assets/SystemSettingsView-P_38v_wE.js": "a2b518aea03e7f4f8ba4e1431bf5bfca5d36f1d6baa4f0d04f4182e6bdf9d1ef",
+    "assets/SystemSettingsView-vfZJUtc6.css": "4fd92a9060e36a5702415a86a6b1098be5bdb9dd103829bcc6d3fba9112317ae",
+    "assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "assets/SystemUsersView-DcmNWLI0.js": "333c1ff7e1fb331085933a01313b58ef8aa38520ae3079342f57b8abce64b302",
+    "assets/UiButton-Jf5XvY48.js": "1bef4bbd6daf4009e26a77d345746f02a9027e36e1abf25d2aa48631a5666cc1",
+    "assets/UiCheckbox-DVJ0FSfl.js": "9b6cb0dd88785a50f44a06b775e79047cd1bf2ca8f24ed8a10798be78cbb6859",
+    "assets/UiSelect-BU_o0Jqe.js": "1e32ab3acb0d84bc60ee1a28c5699bea693b1f4652e2650d937ff49876ef7c96",
+    "assets/index-BcO4xeOJ.css": "5b5fbe63615b2238d8da9ac9df12964271f9477fa75d2135e3438a52aacdc8aa",
+    "assets/index-BrH-LsdX.js": "5c9441b6d50a72423484a3b95b26f6c13aa9febedf90db661033ca406e22017b",
+    "index.html": "28d983a5139828ec70442ffd6ba0e491f895dfa0b40f17563fa20736ef7c64da"
+  },
+  "checks": {
+    "f03-pure": {
+      "command_sha256": "55e01ac7d2fb95061d27cee8bb14fc6dfe41ae9be1e919bd370b489977d3beeb",
+      "raw_sha256": "2fd5406409e7db1acae4fec4ada7df6c1be12ef0ee416355de1bb38007fea585",
+      "exit": 1,
+      "seconds": 8.527961720999883,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f04-pure": {
+      "command_sha256": "ffb65b943920491f71c18178f56ffd13c71646adbedd537ff555cc5448525dc4",
+      "raw_sha256": "9df25ff4eddf89432c342470e3ef557cbc875efe6c3578c7c7fee95e998a7306",
+      "exit": 0,
+      "seconds": 8.126552523999635,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f05-owners": {
+      "command_sha256": "5984a662caa5814255b8e2b8189ca9e5b01c83b0496c87b00781bd1224fdbcdc",
+      "raw_sha256": "a6e9ecb09fd59e73959d910548ce1b18c0e18d58fd73e01102782ae08ba535b0",
+      "exit": 0,
+      "seconds": 4.195189721000133,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f06-type": {
+      "command_sha256": "e0724b0c77a1583bebc10045ae5686c7d01411de4b6bf261c792a2b806c1c545",
+      "raw_sha256": "e9e41acff3c646b39fe4b9bd022167d5364a5dee07fce840f40aa03303035dbd",
+      "exit": 2,
+      "seconds": 9.439677383999879,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f08-type": {
+      "command_sha256": "0de8094c06222398abefe29fd29abce8221b016c316d6c5931f16191eb362eb2",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 10.133084297000096,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f09-state": {
+      "command_sha256": "e2b2b740ee8e96f65a36c3ef01718be1c7a2e6dd0760fe878d446da2f9581ae2",
+      "raw_sha256": "eb9e21abccaf7fc4f2639174281fb41e980a5b02f0e297024a95d09589c9a193",
+      "exit": 0,
+      "seconds": 1.8332264370001212,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f12-component": {
+      "command_sha256": "50f6232e29913a71934f155e1aca97f9309adfeb9f425e6ad75a91ad12f2fd6f",
+      "raw_sha256": "aa93f25fd9a8f750053cf8454979fee61fdbcf09cbba37ba2d27346b3a5eaf17",
+      "exit": 1,
+      "seconds": 5.90806210700066,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f13-component": {
+      "command_sha256": "1a544922f0ecde298032593ddaf3f0873cfd2ccf245453ce5ff98ef8a50f400b",
+      "raw_sha256": "fbf74ac2d9fb3109b10ef0db421ecc613942dc31646233d51ab8b5e659bc5d1b",
+      "exit": 0,
+      "seconds": 5.650149301000056,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f14-component": {
+      "command_sha256": "214ff3468059a126fe5339faca95b8740ca396bb01a8f34603d02a426aef915e",
+      "raw_sha256": "6d314ee5c640ae8d794a44fbcc251eb52da1c919f5685137c59bfb4a7462b126",
+      "exit": 1,
+      "seconds": 6.366763547999653,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f15-component": {
+      "command_sha256": "459a3f0d9e9fdcb9e7dc39ca579f4884cbc0bb1fceabb67ca372b14fde0df7c2",
+      "raw_sha256": "9fae4a892aa767236a73f36d7c9c516d77653c885ab544f46902f5c28ff938ee",
+      "exit": 0,
+      "seconds": 5.810716091998984,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f17-state": {
+      "command_sha256": "5a87907c16f96ba5919612324cd026057453ebdd5f160aea622d6f5c3ecc7404",
+      "raw_sha256": "41645d59b5ed1631b2a81e378228858e4433b69ee989bfd26a07e0b0b047d77e",
+      "exit": 0,
+      "seconds": 1.6844981969989021,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f18-type": {
+      "command_sha256": "af9ebce6d6d40a9331413dc687deab18b926e7cc15b4a068506c6844cfdd7cc9",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 9.107565227999658,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f19-format": {
+      "command_sha256": "21e8dc68cfa7d6a29e20598407c523f966afe572ea4091c7ed1ec110077b8ed4",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "exit": 0,
+      "seconds": 1.6377125950002664,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "f20-build": {
+      "command_sha256": "2631b346d90afb4328c656d8f6c7b836a05962954933b4824c8bae2b624ef8d9",
+      "raw_sha256": "52348e1aeb34d1730fdb4880ba9373a9cdd14cda90dc2c76274fb0431b322a3f",
+      "exit": 0,
+      "seconds": 1.1319400419997692,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "browser-static/b03-type": {
+      "command_sha256": "6690f9800603a07275c1af9dfcd16b377b66594a0027aab380ad2feb38fefbf0",
+      "raw_sha256": "9c2eb831525f265a0e385227aa20dee3a1a167a9e2440416a04075c0d0e44cf7",
+      "exit": 2,
+      "seconds": 1.335236013001122,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "browser-static/b05-type": {
+      "command_sha256": "dbfefe2e8a242f16a29c67af7d4f3467a28bf9d5d6fc02f079255eb9a9b7c29e",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 1.2419394199987437,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "browser-static/b06-gofmt": {
+      "command_sha256": "a262062a3cccfb5ab637b6b232a8938c2eb8b1707b344b947b11ebe5e5c7de28",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 0.12278636200062465,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "browser-static/b07-format": {
+      "command_sha256": "a8df2716d845a52eaabd342a861310e11d45306e354af00fc9ed1780d9032121",
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "exit": 0,
+      "seconds": 0.6405305440002849,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    },
+    "browser-static/b08-config": {
+      "command_sha256": "deadd99ec1189cc595984cda735044f85f39d205233e91900f8b3c740ffc428f",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "seconds": 0.14418440100052976,
+      "inputs_unchanged": true,
+      "direct_waited": true,
+      "adopted_waits": [],
+      "tails": [
+        [],
+        []
+      ]
+    }
+  },
+  "scope": "offline author checks only; Go graph/compile, actual browser, backend/runtime not run"
+}

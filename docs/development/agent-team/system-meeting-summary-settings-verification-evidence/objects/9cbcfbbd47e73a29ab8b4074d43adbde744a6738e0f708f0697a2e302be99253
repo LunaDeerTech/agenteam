@@ -1,0 +1,43 @@
+import { it, expect } from '/workspace/agenteam/web/node_modules/vitest/dist/index.js'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { createSystemModelSelectionAPI } from '/workspace/agenteam/web/src/api/system-model-selection'
+import { AccountFailure } from '/workspace/agenteam/web/src/api/client'
+const base = '/workspace/scratch/summary-verification/S2-http-unknown02'
+const sha = (v: Uint8Array) => createHash('sha256').update(v).digest('hex')
+it('decodes real same-response Unknown bytes and actually exported request ID through the public client', async () => {
+  const raw = readFileSync(base + '/unknown.json')
+  const source = JSON.parse(readFileSync(base + '/unknown-source.json', 'utf8'))
+  expect(sha(raw)).toBe(source.body_sha256)
+  expect(source.status).toBe(503)
+  expect(source.content_type).toBe('application/problem+json')
+  expect(Object.keys(source.response_headers)).toEqual(['X-Request-ID'])
+  const actualRequestID = source.response_headers['X-Request-ID']
+  expect(actualRequestID).not.toBe('')
+  const controller = new AbortController()
+  let calls = 0
+  let response: Response | undefined
+  const api = createSystemModelSelectionAPI(async (path, init) => {
+    calls++
+    expect(path).toBe(source.target)
+    expect(init.method).toBe(source.method)
+    expect(init.signal).toBe(controller.signal)
+    expect(JSON.parse(init.body as string)).toEqual(source.captured_command)
+    response = new Response(raw, { status: source.status, headers: { 'Content-Type': source.content_type, ...source.response_headers } })
+    return response
+  })
+  let failure: unknown
+  try {
+    await api.updateMeetingSummary({ kind: 'model.selection.update', ...source.captured_command }, { csrfToken: 'a'.repeat(43), key: 'independent-offline-unknown', signal: controller.signal })
+  } catch (error) { failure = error }
+  expect(failure).toBeInstanceOf(AccountFailure)
+  expect(failure).toMatchObject({ kind: 'problem', problem: { code: 'COMMIT_UNKNOWN', status: 503, request_id: actualRequestID, commit_state: 'unknown', retry_hint: 'lookup' } })
+  expect((failure as AccountFailure).problem).toEqual(JSON.parse(raw.toString('utf8')))
+  expect(calls).toBe(1)
+  expect(response?.bodyUsed).toBe(true)
+  expect(response?.body?.locked).toBe(false)
+  expect(sha(readFileSync(base + '/unknown.json'))).toBe(source.body_sha256)
+  const output = process.env.SUMMARY_VERIFY_OUTPUT
+  expect(output?.startsWith(base + '/')).toBe(true)
+  writeFileSync(output + '/client-result.json', JSON.stringify({ body_sha256: source.body_sha256, source_run: source.source_run, actual_status: source.status, actual_content_type: source.content_type, actual_request_id: actualRequestID, same_response_bytes: true, header_not_derived_from_body: true, calls, body_used: response?.bodyUsed, body_unlocked: !response?.body?.locked, original_secret_key_not_exported_or_claimed: true }, null, 2) + '\n')
+})

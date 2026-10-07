@@ -1,0 +1,21 @@
+{
+  "stage": "offline01 frozen, resource execution pending",
+  "result_sha256": "74a0296a5963d9141aac2797f7574d28c05e989f7c8a6b61c756dcb0c537e43a",
+  "review_sha256": "84f7a7abee3acb1a330f9d4943d32d39da8f0b19d14b8754f1ddccabcd76267b",
+  "private_inputs": {
+    "model_probe_test.go": "cc28a49d890f36059d042e2ad202295d31c4ee386ca485a2d93c553f0b5e2be0",
+    "account_probe_test.go": "d09896a1ab669091d76a1f38cc63ae61f329591402e7f28b4e7f792b05759859",
+    "browser/independent.spec.ts": "3b4d22710d82e3aec3936b07005340fb0edb7b23ad27864976a79f09a99bb604",
+    "browser/independent.config.cjs": "33994268533dab42980d5df68c4e7ae13ddfcb1761848c9007475f6af8ef1a8c",
+    "offline.py": "f4535e082d6983e3f7749fc9c5cd9b12c7d8b944ddd0eaa4572a665fd1d55c63",
+    "overlay.json": "22455c0795d6559d5d210ccb79d6ebb4aeeee2b6f97a0f01e9942842d5a88313",
+    "commands-proposal.json": "6099316fed2d9121f552fac54783daec1c4a6cd1818c68cb84a793999e8e6f8d",
+    "preparation.md": "73882248f9b3b1ca485e34209d2d72b63d3e3fd26d18210d0bc1a5973ab14506"
+  },
+  "binaries": {
+    "model-independent.test": "af194cda5f2b2c50f2194233b54d80ac521eb594d1576cc6aa80eeee00140288",
+    "account-independent.test": "b8b7c35c8bb26028b2907476111cb27266e2ff9d63eab30747f010858cfccb7a"
+  },
+  "all_stop": true,
+  "resources_run": false
+}

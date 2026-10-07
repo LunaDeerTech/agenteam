@@ -1,0 +1,19 @@
+{
+  "origins": {
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/unknown.json": "7837729118c2d444ae6b4672d86dd291f5d5034c4fd8e3181cb31c9aa4a2fafe",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/unknown-source.json": "482db2b3f5c4a4f0b185d2e17e76e459a0aa04393863decf560e15263a32da20",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/result.json": "c9e5709efe97ae701403fd223334a5a360f891e256944ca99d0ee78b128caab0",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/verification-input.json": "4c3ea31ac914d25df7a3d700c1adff1071e082493201a3b1eb0b6141e33ce9cc",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/frozen.json": "19720dc289007a622dc5da0c1198876a9cc98d337dcf6ae2a3aeecdc9d2b206b",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/closure.json": "160aa178e52c386fff2aecfc6028de4dbe762f4580b24021abc8f8a2eee24338",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.json": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f",
+    "/workspace/scratch/meeting-summary-settings-backend/safe-http-supplement04.json": "185b8b361e5187ba07c029aac47442a736914ee9de4fbdc1d27eb3c5f45e6296",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/frozen11.json": "f9176351b3fc80c7207707265c0cd6aabf45fd7ca49438f6de6fcfb8e44e5813",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/delivery-freeze01.json": "4f214463fd8fec150e27cfa12a791ce94e5cc2a1a5ea33045a0ff994a33dacfc",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/model-system.json": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+  },
+  "source_run": "recovery-header01",
+  "headers": "actual same-response export, never inferred from body",
+  "prior_evidence": "S2-http-bodies01 retains old successful 7 client + 8 schema separately"
+}

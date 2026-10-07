@@ -1,0 +1,9 @@
+# S2 same-body client/schema bounded PASS
+
+Eight payload kinds now pass the public composed Selection/Model clients on the exact successfully produced bytes: null/current configuration, historical receipt, lookup true/false, deletion impact, replay, and server Unknown. The seven successful response bodies come from candidate03 new-http-rerun/new-recovery01; Unknown uses candidate04 recovery-header01's own original body and actually captured X-Request-ID. No response header was invented or joined to a different round's body.
+
+The first stage passed seven client cases (actual0/1.516s) and eight standard Draft202012/FormatChecker local-registry schema bodies (actual0/.682s). The incremental same-response Unknown passed one public client case (actual0/1.678s) and one schema (actual0/.636s). The original candidate03 Unknown schema proof remains separately versioned; this is nine schema executions over eight payload kinds. All four bounded commands actually waited, closed Vitest where used, had two empty owned process tails, retained original bytes and matched frozen frontend11 dependencies. Node and schema network guards prohibited sockets. Every actual transformed product module matches frontend11.
+
+Receipt parsers received the captured original public id/version/model. Original secret CSRF/idempotency values were intentionally absent, so local write controls are synthetic and do not claim proof of those secrets. Lookup true belongs to a different historical scenario from Unknown/false/replay. The real HTTP calls and terminal resource evidence belong to the author producer rounds; this offline result does not claim browser or HEAD execution. S2 overall acceptance still requires remaining independent/browser work.
+
+Exact commands, versions, source hashes, raw bytes, headers, producer terminal links and all actual results are bound in S2-http-final01.json. This same-body task is complete and its files are stopped.

@@ -1,0 +1,50 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 232 modules transformed.
+rendering chunks...
+computing gzip size...
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/index.html                                          0.72 kB │ gzip:  0.40 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/PersonalSettingsView-BLWru9en.css            0.06 kB │ gzip:  0.08 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemSettingsView-vfZJUtc6.css              0.08 kB │ gzip:  0.10 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/ProfileSettings-Bofqo8m5.css                 0.43 kB │ gzip:  0.25 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/ForgotPasswordView-DJSF_FFM.css              0.68 kB │ gzip:  0.35 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/ResetPasswordView-DSiu2awb.css               0.68 kB │ gzip:  0.35 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/InvitationView-B4wTz1D4.css                  0.76 kB │ gzip:  0.37 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemAccountSecurityView-DDeXsGVz.css       0.93 kB │ gzip:  0.35 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemRuntimeInformationView-BiTrORNZ.css    1.09 kB │ gzip:  0.40 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SettingsShell-D9S1S_aF.css                   1.21 kB │ gzip:  0.53 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemUsersView-B41TxT1D.css                 1.44 kB │ gzip:  0.56 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemInvitationsView-QSKOYHWH.css           1.74 kB │ gzip:  0.62 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemOutboundPolicyView-c2N-aXU9.css        1.98 kB │ gzip:  0.66 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemProvidersView-elJ_-cRG.css             2.23 kB │ gzip:  0.62 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css          2.56 kB │ gzip:  0.76 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemAuditView-CVK5-pDL.css                 2.57 kB │ gzip:  0.83 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemModelsView-CURjLUMH.css                3.33 kB │ gzip:  0.82 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemModelSelectionView-tLdNn_JF.css        3.58 kB │ gzip:  0.87 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/index-BcO4xeOJ.css                          29.58 kB │ gzip:  6.62 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/UiCheckbox-DVJ0FSfl.js                       0.69 kB │ gzip:  0.43 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/PersonalSettingsView-C3M8SXvU.js             1.41 kB │ gzip:  0.94 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemSettingsView-P_38v_wE.js               1.91 kB │ gzip:  1.11 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/ForgotPasswordView-BmxLAiNi.js               2.95 kB │ gzip:  1.52 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SettingsShell-Dl9YP23I.js                    3.46 kB │ gzip:  1.74 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/PasswordSettings-B26XujPb.js                 3.57 kB │ gzip:  1.65 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/AppearanceSettings-DB6bvdW9.js               3.62 kB │ gzip:  1.64 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/ResetPasswordView-DdjDhaYa.js                3.67 kB │ gzip:  1.61 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/InvitationView-Bbq9tQ35.js                   4.69 kB │ gzip:  1.87 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemUsersView-DcmNWLI0.js                  5.62 kB │ gzip:  2.52 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemRuntimeInformationView-CbBV41yY.js     6.74 kB │ gzip:  2.85 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/ProfileSettings-BQ2iC_Cw.js                  6.88 kB │ gzip:  2.65 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemAccountSecurityView-DqbMAqCH.js        6.92 kB │ gzip:  3.12 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemOutboundPolicyView-BDoo7H-y.js        10.52 kB │ gzip:  4.31 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemInvitationsView-5I_qWQBT.js           12.90 kB │ gzip:  4.31 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemProvidersView-C-ntT5YP.js             15.56 kB │ gzip:  5.10 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemAuditView-DMX-kf15.js                 19.94 kB │ gzip:  7.05 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/UiSelect-BU_o0Jqe.js                        21.60 kB │ gzip:  8.78 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemSMTPSettingsView-BgasJNri.js          24.40 kB │ gzip:  7.89 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemModelSelectionView-tjVlteyv.js        25.55 kB │ gzip:  6.85 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/SystemModelsView-CFMSZ3Mj.js                27.02 kB │ gzip:  7.24 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/UiButton-Jf5XvY48.js                       201.00 kB │ gzip: 60.61 kB
+../../scratch/meeting-summary-settings-frontend-author/f20-build/dist/assets/index-BrH-LsdX.js                          231.95 kB │ gzip: 67.56 kB
+
+✓ built in 718ms

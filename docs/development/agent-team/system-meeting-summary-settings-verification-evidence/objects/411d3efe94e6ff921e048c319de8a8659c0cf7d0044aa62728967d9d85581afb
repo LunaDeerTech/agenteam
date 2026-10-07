@@ -1,0 +1,97 @@
+{
+  "status": "PASS bounded real HTTP raw bytes through public client and standard schema; browser/product acceptance separate",
+  "runs": [
+    {
+      "input": "S2-http-bodies01",
+      "run": "client01",
+      "exit": 0,
+      "seconds": 1.5162730400006694,
+      "actualwait": true,
+      "double_tail_empty": true,
+      "input_unchanged": true
+    },
+    {
+      "input": "S2-http-bodies01",
+      "run": "schema01",
+      "exit": 0,
+      "seconds": 0.6820782080012577,
+      "actualwait": true,
+      "double_tail_empty": true,
+      "input_unchanged": true
+    },
+    {
+      "input": "S2-http-unknown02",
+      "run": "client01",
+      "exit": 0,
+      "seconds": 1.6781194820014207,
+      "actualwait": true,
+      "double_tail_empty": true,
+      "input_unchanged": true
+    },
+    {
+      "input": "S2-http-unknown02",
+      "run": "schema01",
+      "exit": 0,
+      "seconds": 0.636454114001026,
+      "actualwait": true,
+      "double_tail_empty": true,
+      "input_unchanged": true
+    }
+  ],
+  "client_payload_kinds": [
+    "null",
+    "receipt",
+    "configured",
+    "lookup",
+    "deletion-impact",
+    "lookup-false",
+    "replay",
+    "unknown"
+  ],
+  "schema_executions": 9,
+  "client_executions": 8,
+  "unknown": "old successful candidate03 body schema retained; fresh candidate04 recovery-header01 same-response actual header/body client+schema closes missing-header evidence; no cross-run header/body mixing",
+  "transformed_product_modules": {
+    "/workspace/agenteam/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "/workspace/agenteam/web/src/api/client.ts": "998e1edd8c1ffe3a3133b821f5169ec4b48cba8fefa98478b9abfa17f0bb6d7e",
+    "/workspace/agenteam/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "/workspace/agenteam/web/src/api/system-meeting-summary.ts": "4ddefde1b19d7cbdf869ce7857a9551ea8979229a5d7d1fa91790fd13bc799ff",
+    "/workspace/agenteam/web/src/api/system-model-selection.ts": "a9b74ef52937636206abb0ac4a7b05aa8b2f260c8f94fd4b607c8ffe83da1b17",
+    "/workspace/agenteam/web/src/api/system-models.ts": "ffa1b0d4a917eee4b3faddffd30f96d650bfceffa24191b5e3833b54ea62cf29",
+    "/workspace/agenteam/web/src/api/system-providers.ts": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+  },
+  "evidence": {
+    "/workspace/scratch/summary-verification/S2-http-bodies01/client01/result.json": "bb1faf597964fc799e07632c6f8cd4b9323526bd840116f4a0465e501e38133c",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/client01/command.json": "4b89650e75e6ca2f7d8e146f441fec3384c30e6663a4e0622dc48564e067e612",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/client01/stdout.log": "56c8aaea1437be67c3b302af04ebd48c6a99814759da1ee453d5d88a8a464e39",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/client01/stderr.log": "b67efb0a9f75c512e847cd56f52339c9dd10ba6c6f307c7cdc114637c5cd719e",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/client01/client-result.json": "31d2b7e5eb36efd92f388cc93e3ed2a89af04e9a86b993228dc15db851e6a5eb",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/client01/transformed-inputs.json": "4ca6365d1ba65d95a1fc5bffd25222ed76261fd0d8814ad3ede9aea02a9aa0ad",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/schema01/result.json": "7e7f68b8709e2adfec6032a3819f3f319f9dd1a22f0d46f54dac3041a28cd51f",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/schema01/command.json": "568fd5d889d04e3e0e3802204b519f2242be086652e55fcd7b8b071275a7a90b",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/schema01/stdout.log": "800f9944bd1a28d4075ff7638506270c844ad5e152cfebbeef8b6b976dd6274d",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/schema01/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/schema01/schema-result.json": "df1f384497338d951bb2b0f4c97847a8609132a294039a574b3861ea860d71e7",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/freeze.json": "4ef642351c7415ce51a75fe64ff121e9b9d572d9c87861221bfb8218b7594bbe",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/provenance.json": "6b69a840e0c452bbd08731b5c279aedc98fcf0e74d223e3f8fea9e2f212b9a94",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/client01/result.json": "e8953c64935c33b9b91d9f631f7ad5c5c4209be3277b25c7ae11503c28aeae7a",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/client01/command.json": "4fcbaf6805598b97b3372b950a3d9ae5ad358c41ffbbeeede87c85e1c567a5fd",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/client01/stdout.log": "65d7f50170db534f9ab70585f9568bc29add67a521849517f4b07fdce91080c5",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/client01/stderr.log": "b67efb0a9f75c512e847cd56f52339c9dd10ba6c6f307c7cdc114637c5cd719e",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/client01/client-result.json": "3a76b471697225cbfbe927abd6bd9c7290c4a234ac194e01dd79c69d85ae575b",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/client01/transformed-inputs.json": "3d5f01a9162098706f49e0b7e63d5eedaddd2417878844c692f60e6f48f4f0b3",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/schema01/result.json": "7429c0561c6c3625fb0ba18c45fac99c18c3fc6bf35265f942d073066b4f9509",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/schema01/command.json": "d02031e184155e8d4f1b78620e05015ae22afc8a8f5beb24bd4185cb0fadf505",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/schema01/stdout.log": "9a8fd9c6c2ad85d94cd5016ba92891e21e0d65daec8b9ca1c9dd415cd5551e73",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/schema01/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/schema01/schema-result.json": "373c46763ff09e3763bd406d9fc3859b0aaf669217c952939fd2b34f48823715",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/freeze.json": "70b9acb1cd294719facac22338352fad83ec4d5348feb31d4c5291a7f31d572b",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/provenance.json": "99d93c810e7fb0280cb62726a8ff09ab6266123289bbeeafb133249a54a17c2b"
+  },
+  "limitations": [
+    "No HTTP network requests from this offline validation; real producer requests were author successful fixture rounds.",
+    "Original secret idempotency key/CSRF is intentionally not exported; local write controls are synthetic and only public captured id/version/model are bound.",
+    "No independent execution of HEAD or browser is claimed here.",
+    "lookup true is separate historical scenario from original Unknown/lookupfalse/replay group."
+  ]
+}

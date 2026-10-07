@@ -1,0 +1,46 @@
+{
+  "status": "PASS offline only, no browser body or resources",
+  "runs": {
+    "type01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/S2-probes/repair-b02/type01/result.json",
+        "sha256": "edccec921558a7a2a1a21e4a735239db0401b1f79431c6430a6e0ac5b892fb3a"
+      },
+      "seconds": 1.8010301449994586,
+      "actual_exit": 0,
+      "actualwait_doubletail": true
+    },
+    "syntax01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/S2-probes/repair-b02/syntax01/result.json",
+        "sha256": "7843b57b0da09c6bcf3945a298e83465363d75ff6a245f86aa442df283a3dfda"
+      },
+      "seconds": 0.640567362001093,
+      "actual_exit": 0,
+      "actualwait_doubletail": true
+    },
+    "compile01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/S2-probes/repair-b02/compile01/result.json",
+        "sha256": "7bfcc1f7bb5fed326e56f5df23e00b40fb680cbffb7ef0ca804d13daecca3116"
+      },
+      "seconds": 8.512484675999076,
+      "actual_exit": 0,
+      "actualwait_doubletail": true
+    },
+    "list01": {
+      "result": {
+        "path": "/workspace/scratch/summary-verification/S2-probes/repair-b02/list01/result.json",
+        "sha256": "4ae92e8febf111948035919de2c1faaef4e8d6d6397912e84473ac2cfd6d1efa"
+      },
+      "seconds": 1.6482265419999749,
+      "actual_exit": 0,
+      "actualwait_doubletail": true
+    }
+  },
+  "private_delta": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/repair-b02/delta.json",
+    "sha256": "4cc82c9bd7293a342c040d7d163c888a56a5c13a36e5c7fd2b09ef125d4cb718"
+  },
+  "no_timeout_increase": true
+}

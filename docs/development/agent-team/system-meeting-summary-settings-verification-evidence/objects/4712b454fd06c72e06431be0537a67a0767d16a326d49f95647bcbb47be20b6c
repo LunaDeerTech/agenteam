@@ -1,0 +1,34 @@
+{
+  "status": "B01 failed; all actual processes/resources cleaned; no automatic rerun",
+  "failure": "45s PW budget expired, private spec1113 post-beforeunload dialog assertion received closed context; top49.84s; driver actual1",
+  "source_control_flow": "handled resolves only after await native dialog.dismiss, then nativeDialogs==1 passed before line1113; earlier core assertions were reached but not elevated to whole-case PASS",
+  "explanation": "locked page.reload waits both CDP reload dispatch and a new-document navigation; dismissal invokes frameAbortedNavigation but that returns without event when pendingDocument is absent. Original catch swallowed reload rejection after overall timeout. No runtime pendingDocument trace exists, so the exact underlying browser race is not uniquely established.",
+  "private_B02_proposal": "await explicit Chromium CDP Page.reload dispatch and native dismissal, finally await detach; verify URL and performance.timeOrigin unchanged, retain draft/PUT/lookup/owner/navigation assertions and 45s; original source preserved",
+  "terminal": {
+    "owned_resources": 7,
+    "observed_owned": 100,
+    "actual_wait_completed": true,
+    "adopted_actual_waits": 5,
+    "double_cleanup": true,
+    "forced_tail_actions": 0,
+    "source_unchanged": true,
+    "verification_inputs_unchanged": true,
+    "new_daemon_zombies_not_owned_or_waited": 4
+  },
+  "resource_custody": "author asset state applied under explicit root hold; verifier did not swap/restore; B02 needs separate grant",
+  "evidence": {
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/raw.log": "3de02411065a2da8d0f43d5f86b135130d97b3b98422021fbfa5ca01f0c5ad96",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/result.json": "9ad70f36e3136aa0233d9b44e58521a00343b29a489fc4a8c1285ff03033e46a",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/command.json": "4532ef2d0dfb97f51f59a191cadbed76a150f87ebc2d913e9f11a8d525e54788",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/watchdog.json": "fa1560e5ca076127123414ec0a44633ff4ac04d8c612f90f645870a5749a5bfe",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/cleanup.json": "f9c2e3d5f4b61af4ff1726b8a37581194a0de21003e715e85147e1d342ecbe11",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/adopted-waits.json": "6732938a43aedbf7c82031d3f60c1e24de3abaa6c1be806c093d94682ac4e6f3",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/home-cleanup.json": "39fec6467b2d7c66aac24e8d0f8dda9718ebd83b3500250cdd3bb1d27127f71d",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/input-before.json": "1faf2fcabe55ce36f7ab4bb1f5fb49da5547df5b89f8eccc582a5cfe0789ec2e",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/input-after.json": "1faf2fcabe55ce36f7ab4bb1f5fb49da5547df5b89f8eccc582a5cfe0789ec2e",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/playwright-core/lib/server/page.js": "f954b7dff26e27dac1b0ddbe55e29e8e051b7635661af15f3a03dfef7e338f8d",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/playwright-core/lib/server/frames.js": "d87bb39dc8ff2c7efd7b925bab405e70f925fdc6e666880ef8dee41a31502e47",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/playwright-core/lib/server/chromium/crPage.js": "79a25e4eac0d0fa97dcc6eae4edce83436bcdb4bb1322731f65610adaa8e150f",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/playwright-core/lib/server/dialog.js": "ab5418c584a1ab1931b553b0bf340c48be5b3cff3fdf5e226cbddac88ce35bfa"
+  }
+}

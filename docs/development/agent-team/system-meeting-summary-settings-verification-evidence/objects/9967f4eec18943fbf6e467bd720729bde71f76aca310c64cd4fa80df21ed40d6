@@ -1,0 +1,81 @@
+{
+  "commands": {
+    "model-compile01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-c",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model.test",
+      "./internal/central/model"
+    ],
+    "model-race-compile01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-race",
+      "-c",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+      "./internal/central/model"
+    ],
+    "app-compile01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-c",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app.test",
+      "./internal/central/app"
+    ],
+    "app-race-compile01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-race",
+      "-c",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app-race.test",
+      "./internal/central/app"
+    ],
+    "integration-compile01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-race",
+      "-tags=integration",
+      "-c",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-integration.test",
+      "./tests/model"
+    ],
+    "integration-vet01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-tags=integration",
+      "./internal/central/model",
+      "./internal/central/app",
+      "./tests/model"
+    ],
+    "central-build01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/agenteam",
+      "./cmd/agenteam"
+    ],
+    "runner-build01": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-overlay=/workspace/scratch/meeting-summary-settings-backend/joint-preparation01/overlay.json",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/agenteam-runner",
+      "./cmd/agenteam-runner"
+    ]
+  },
+  "scope": "root authorized 8 compile/vet/build only; no test bodies/resources",
+  "per_command_total_seconds": 45,
+  "per_child_seconds": 42
+}

@@ -1,0 +1,18 @@
+{
+  "commands": {
+    "model-integration-compile04": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-c",
+      "-race",
+      "-tags=integration",
+      "-o",
+      "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/bin/model-integration.test",
+      "./tests/model"
+    ],
+    "recovery-list04": [
+      "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/bin/model-integration.test",
+      "-test.list=^TestModelMeetingSummarySettingsRecovery$"
+    ]
+  }
+}

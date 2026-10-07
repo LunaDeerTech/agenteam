@@ -1,0 +1,234 @@
+{
+  "status": "PASS complete bounded S2 technical scope; final two READMEs separate pending review; root acceptance/commit separate",
+  "technical_paths": 30,
+  "changed_technical_paths": 29,
+  "new": 13,
+  "modified": 16,
+  "unchanged_old_browser_spec": 1,
+  "scope": {
+    "path": "/workspace/scratch/summary-verification/S2-final-technical/technical-scope.json",
+    "sha256": "becd3e17eb396f86ff52674a338b1b8f9f8c118835a7e16465e84231b11ce271"
+  },
+  "source_versions": {
+    "backend": "candidate04; production byte-identical to candidate01",
+    "frontend": "delivery01/web11/browserstatic05/f20 dist42; actual browser author execution frozen04; assetv04 only custody extension",
+    "spec": "accepted rev3 card85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+    "shared_graph": "joint actual Go import/embed/TestMain/dynamic scripts includes frozen S3 and both S2 sides; minimum candidate03/04 test deltas bound, no false file-disjoint isolation"
+  },
+  "independent": "A01 first subcase PASS reused + A02 exact second PASS; B02 complete case PASS after private B01 wait-chain failure; actual public client8/schema9 versioned bodies PASS",
+  "author_reuse": "backend native3top12sub + 8unique PG/root/old tops35sub + additional Recovery1top3sub; frontend221+owner57 version combination, type/format/build, 4new+6old browser tops. Not final entire-suite rerun.",
+  "bound_author_terminal_results": [
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v01/runs/new-http01/result.json",
+      "sha256": "d7d608869308c6c0f4c8ee3b08f68746e07e98e61eb9e6fa2c7d7b08b1543c0a",
+      "driver_exit": 1,
+      "tops": [
+        [
+          "FAIL",
+          "TestModelMeetingSummarySettingsHTTP"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/result.json",
+      "sha256": "6dd4eea593fc0afa0311d4c29b27e53a419b0a10e4246f374cb066eeccc513bb",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsHTTP"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/result.json",
+      "sha256": "b7d06359b73cf7059991a9f45fc6b29fbab072a3714483828a4eebdb93400298",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRecovery"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-root01/result.json",
+      "sha256": "770daaf3c20c51dd71f9a5533b8f36089fa10552e3bb3aea15504441c25e2f59",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRoot"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/old01/result.json",
+      "sha256": "d1d690dfdca3a5e77a6f7aec486c5aa011b2c3a8df8a185711e81cd445f8076a",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummaryExistingHTTP"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPSelectionAndReferenceDeletion"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPCurrentAdministrator"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPBoundaryAndStrictWire"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/result.json",
+      "sha256": "c9e5709efe97ae701403fd223334a5a360f891e256944ca99d0ee78b128caab0",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRecovery"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d01-new-lifecycle/result.json",
+      "sha256": "4fe85087a71b0de54d7fff534fca86dab9f41cad9244766b25e106f5cca1aba1",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountSystemMeetingSummaryWebLifecycle"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/result.json",
+      "sha256": "c64459bb1ef593b293c20e71c28caa69cdea115ce2c9d2cd8c489a6903678a36",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountSystemMeetingSummaryWebRecovery"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d03-new-authority/result.json",
+      "sha256": "7841c1358cbd9d8448317c84a253b6b32ba8946787909aef176ba40b8df69ff6",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountSystemMeetingSummaryWebAuthorityNavigation"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/result.json",
+      "sha256": "821c2c2682f1387cd49315480a58550523e6753e4c761f0ba2dc6e95048f36c7",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountSystemMeetingSummaryWebReadLayouts"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d05-old-core/result.json",
+      "sha256": "d9d99b922317a24a81c5cf9343829bb8e4e93170840e600d8fe8daa5cd2d74a7",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebLifecycle"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebOutcomeRecovery"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebAuthorityAndIdentity"
+        ]
+      ]
+    },
+    {
+      "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d06-old-pages/result.json",
+      "sha256": "487d4569490d9c6cf808317ca156bf311a58afc55c9dcb2666f08ba7662f49ec",
+      "driver_exit": 0,
+      "tops": [
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebReadAndPagination"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebConcurrencyAndReferences"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+        ]
+      ]
+    }
+  ],
+  "asset": "restored once under author custody after all8 actual browser participants, including B01 failure; independently checked original3file identities/content/size/metadata with O_NOATIME and all observed owned PID identities absent. Directory st_size and ctime exceptions recorded.",
+  "failures_preserved": [
+    "author f03 cancel-read, f06 readonly test, f12 focus, f14 actual lookup0, b03 DOM type and f00 Python prerequisites",
+    "author initial trailing-slash HTTP expectation404 corrected to unchanged Account400 plus canonical404 assertion",
+    "actual Unknown header omitted from old export; fresh same-response actual header/body supplement, no inferred header",
+    "independent A01 readyz business-header helper misuse, private-only repair",
+    "asset preflight classification and post-rename directory st_size check failure; applied journal preserved, no repeat apply",
+    "independent B01 reload/new-document wait after native cancellation timeout; private-only CDP dispatch/dismiss/detach repair with URL/timeOrigin proof, unchanged45s"
+  ],
+  "limits": [
+    "No production Resolution/Invocations/D24 generation, no ready200, no compaction/Execution Summary/Purpose change.",
+    "Backend auxiliary identities SQL-seeded then formally logged in; Session Logout proofs are not administrator-role-management E2E. Browser role403 is owned SQL fault preparation restored.",
+    "Native controlled auth/service lifecycle, formal PG transaction evidence, actual root/socket/browser evidence are distinct. Response-prefix loss is not server Unknown.",
+    "Original key/CSRF remains private; offline transport controls synthetic, public commandid/version/model bound.",
+    "Author actually viewed9 partial viewport images, root2; this verifier did not claim independent screenshot visual review, native zoom or BFCache proof.",
+    "Each of16 seven-resource fixture rounds added4 daemon/PID1 shim zombies (64), not task-owned/waited. Independent4 rounds account for16; no whole-machine-zero claim."
+  ],
+  "evidence": {
+    "/workspace/scratch/summary-verification/S2-final-technical/technical-scope.json": "becd3e17eb396f86ff52674a338b1b8f9f8c118835a7e16465e84231b11ce271",
+    "/workspace/scratch/summary-verification/S2-final-technical/asset-restoration-review.json": "6607b2158851c1939b49778be7c7c27f5832a02de4d734cb1a19166b8f172119",
+    "/workspace/scratch/summary-verification/S2-backend-static-candidate01/review.md": "58641905123769045e8a076660d686a4bcd20b81ee26eb8a88e7ab42a3c02cd0",
+    "/workspace/scratch/summary-verification/S2-backend-static-candidate02/review.md": "d379d79e4304fd6eef18362a725ad8925be8a6e9358793965466947c0aa4bc44",
+    "/workspace/scratch/summary-verification/S2-backend-static-candidate03/review.md": "c4476240aa8a7b0719346eb55628b04050d52269f1b9338d10dfe631ff5a004e",
+    "/workspace/scratch/summary-verification/S2-frontend-static-delivery01/review.md": "046a29e0590a848d925933bb0c4b48fccaee8200b83296fdbfa9b8c80541e458",
+    "/workspace/scratch/summary-verification/S2-probes/A-final01.md": "cfbd672b1c9629a1a7919b4924da2fb00cc80922190618d775ddd03402b40784",
+    "/workspace/scratch/summary-verification/S2-probes/A-final01.json": "a538ae8648aa0b83e393f39e4b9b3145d88fb950dd794abdea5425765019bcbe",
+    "/workspace/scratch/summary-verification/S2-probes/B-final01.md": "fc342e5c6eacbe219aee8fefc37ec1e99dbfbf56e707a91bb11d11ae6c0f5554",
+    "/workspace/scratch/summary-verification/S2-probes/B-final01.json": "5eb8b8bf82fecff9fe31f78c27b1cd6221699d5ee84ebb22c1383935be37e188",
+    "/workspace/scratch/summary-verification/S2-http-final01.md": "39afe422631a11ca8cc07d2af2cb04992b71280f2d0b49854f88ac7ad8bea15c",
+    "/workspace/scratch/summary-verification/S2-http-final01.json": "411d3efe94e6ff921e048c319de8a8659c0cf7d0044aa62728967d9d85581afb",
+    "/workspace/scratch/summary-verification/S2-probes/asset-v03-static.json": "fe19d4089eb704d41ef854fe4bccd9068e80b0bdd0572ae190098fcedda25a70",
+    "/workspace/scratch/summary-verification/S2-probes/asset-v04-static.json": "acc98b152ef012b97b24a08186327ceca87b80c95617e89518d64f3fff4cf645",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.json": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.patch": "838f44f918e5ba8840094130b079c2455b834ad7910b7789ae03ff076fe33e2e",
+    "/workspace/scratch/meeting-summary-settings-backend/author-final03.json": "01ef3e6c9739a9f2fe38a0cf44ecc35d6ec050d44c113bd9a691b608aa0d367e",
+    "/workspace/scratch/meeting-summary-settings-backend/author-final04.json": "ed7495110f3808df8b9cc0274bde19e00235ddf41bb3c75aedb43b2c4b166ab1",
+    "/workspace/scratch/meeting-summary-settings-backend/author-final04.md": "840882b95cae8b73008e5b73d1a922d1439f19b00a836c43a858041594ad7e8b",
+    "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/native-results.json": "38bc4c531427a20ed3a77679c0f8d8e61ee286a988fb6aaed06bf3d4fa8be3cd",
+    "/workspace/scratch/meeting-summary-settings-backend/pure01/pure-results.json": "f3272558fe2c3ff70da2ff9feb8048d3a6d909f0c06fbf2d855f7bba45a430a1",
+    "/workspace/scratch/meeting-summary-settings-backend/compile01/compile-results.json": "ef7089e7a39a992c16cf33ebdeff2d276a8bf1076215acb251b7d37dfc1231d4",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/delivery-freeze01.json": "4f214463fd8fec150e27cfa12a791ce94e5cc2a1a5ea33045a0ff994a33dacfc",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/frozen11.json": "f9176351b3fc80c7207707265c0cd6aabf45fd7ca49438f6de6fcfb8e44e5813",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/browser-author-results01.json": "b6db1e22cba26433b27ccc259af333bfad4a811f18801be36c466dd9802a57fd",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/browser-author-review01.md": "4884f218222f1c2a9d62b5681d801d56d1350b859a6218b74ec64997650c7fb3",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-restoration-final01.json": "8566ce3e1353362a8c12549c359a1409fca461b76050e96890e7486315966e13"
+  },
+  "stopped_writing_technical_sources": true,
+  "resources_active": false
+}

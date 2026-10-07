@@ -1,0 +1,15 @@
+--- original-a01
++++ private-repair-a02
+@@ -107,7 +107,11 @@
+ 		if now["version"] != "3" || now["model"] != next.String() {
+ 			t.Fatal("historical replay replaced the current observation")
+ 		}
+-		root.request(t, v.adminBrowser, "GET", "/readyz", nil).want(t, 503)
++		ready := root.request(t, v.adminBrowser, "GET", "/readyz", nil)
++		var readiness map[string]any
++		if ready.status != 503 || json.Unmarshal(ready.body, &readiness) != nil || (readiness["code"] != string(f.DependencyUnbound) && readiness["code"] != string(f.DependencyUnavailable)) || readiness["commit_state"] != "not_started" {
++			t.Fatal("default root readiness Problem changed")
++		}
+ 		root.stop(t)
+ 		t.Log("default root native PUT: application read one actual byte then closed; accepted server fact, formal Logout/new Login, read-only historical lookup and original PUT at later current version; old selector key conflict effect-free. This is client response loss, not server Unknown.")
+ 	})

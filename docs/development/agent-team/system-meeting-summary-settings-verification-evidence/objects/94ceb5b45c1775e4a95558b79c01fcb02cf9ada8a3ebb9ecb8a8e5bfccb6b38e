@@ -1,0 +1,51 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestAccountSystemMeetingSummaryWebRecovery)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T15:51:21.053410+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/s2web-a",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MEETING_SUMMARY_WEB_DIST": "/workspace/scratch/meeting-summary-settings-frontend-author/f20-build/dist",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/runtime/home",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/runtime",
+    "XDG_CACHE_HOME": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/runtime/home/.cache",
+    "XDG_CONFIG_HOME": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/runtime/home/.config",
+    "XDG_DATA_HOME": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/runtime/home/.local/share"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 411443,
+  "pid_stat": "411443 (sh) R 411365 411443 411443 0 -1 4194560 21 0 0 0 0 0 0 0 20 0 1 0 1416787 540672 0 18446744073709551615 94354278117376 94354278198369 140730736954896 0 0 0 0 0 0 0 0 0 17 2 0 0 0 0 0 94354278227504 94354278232640 94354582024192 140730736957681 140730736957760 140730736957760 140730736959468 0\n",
+  "seconds": 65.008,
+  "started_utc": "2026-10-07T15:50:16.044675+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

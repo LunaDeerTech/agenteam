@@ -1,5 +1,7 @@
 # D09：系统会议 Summary 设置 HTTP、同页表单与根初始化
 
+当前接受状态（2026-10-07）：S2 完整有界独审（含两个 README 末件）PASS，root 已采纳；32 路径范围中的 31 个实际改动已提交推送 `4e615c7da2875418e1fbd925a49f134f14feae6d`，远端一致。独立 HTTP/默认 root、native 与真实 browser、原 body client/schema 的版本组合、首红及修订、16 个 fixture 轮各7资源实际 wait/双清、64 个 daemon shim 非 owned 未 wait、8 个 browser 参与者结束后的资产恢复与截图边界见[S2 验收归档](../agent-team/system-meeting-summary-settings-verification.md)。D24 真实生成及 production Resolution/Invocations 仍未绑定，ready503、完整 D08–D28/E01 未完成和三停止保持；以下规格与旧状态保留其历史时点。
+
 修订：rev3，2026-10-07，**rev2 已经完整 STATIC 接受；本次仅增补 #32 的范围修订已通过独立差量 STATIC，root 已采纳 rev3，不因此授予新增实施、测试或资源权限。** 唯一规格写入为本页。S1 产品已由 root 接受、提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并确认远端一致；技术候选共 35 路径，实际改动 28 技术路径，加独立通过的后端 README 末件共 29 改动路径，见[S1 验收归档](../agent-team/system-meeting-summary-selection-verification.md)。文档接续已推送至 `72f48d2724f55b0dfed559b6f7120429f78c0c01`；本页不冒称执行过 S1 或 S2 测试。
 
 rev3 仅补入既有 `internal/central/model/http_test.go` 为 #32，由后端作者 `fixture_recovery` 在 root 实际授权后处理：固定 c210d249 的 `TestSystemHTTPConstructionAndRoutesMatchOpenAPI` route 总数断言为 26，按本卡既定 GET/HEAD/PUT 改为 29，其余强断言原字节保持。此项来自实施静态核对，是既定三方法契约的旧测兼容，不是产品扩展或实际测试失败；#1–31 原编号及用途不变。以下 rev2 范围说明保留其历史时点。

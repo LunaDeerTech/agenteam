@@ -1,0 +1,20 @@
+--- runtime-a01
++++ runtime-a02
+@@ -80,7 +80,7 @@
+             'HOME': '/home/agent', 'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+-            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/summary-verification/S2-probes/overlay.json',
++            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/summary-verification/S2-probes/repair-a02/overlay.json',
+             'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO}
+ 
+ 
+@@ -357,7 +357,7 @@
+     env['AGENTEAM_MEETING_SUMMARY_SETTINGS_EVIDENCE_DIR'] = str(evidence)
+     env['AGENTEAM_MEETING_SUMMARY_SETTINGS_RUN'] = args.name
+     expected = set(GROUPS[args.group])
+-    selector = '^(' + '|'.join(GROUPS[args.group]) + ')$'
++    selector = '^(' + '|'.join(GROUPS[args.group]) + ')$/^default_root_client_prefix_loss_then_historical_cross_slot$'
+     argv = ['sh', 'scripts/test-objects.sh', '-run', selector]
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(), 'env': env,
+               'package_budget': 'original fixed fixture -timeout=6m', 'top_watchdog_streaming': 'GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1',

@@ -1,0 +1,158 @@
+{
+  "asset_exchange": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v04.py",
+    "sha256": "b633b350626ac048f89fbd9a3ecf4b92ba044c524a1ac6510b1e5c724a065ac9"
+  },
+  "assets": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep01/assets.json",
+    "sha256": "84b7faff8c77f0a6593cbd2dcec79dd57e9f9cede1f01d25a1746c74d36938b5"
+  },
+  "browser_runtime": "/workspace/scratch/s2web-v",
+  "card_commit": "fdfcffdb",
+  "card_rev3_sha256": "85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+  "dist": "/workspace/scratch/meeting-summary-settings-frontend-author/f20-build/dist",
+  "driver_sha256": "875892dea77a35400ad51bb7b8cf42510481ab9168ef62ffdce65061ab2ada0a",
+  "frontend_delivery": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/delivery-freeze01.json",
+    "sha256": "4f214463fd8fec150e27cfa12a791ce94e5cc2a1a5ea33045a0ff994a33dacfc"
+  },
+  "go_cache": "/workspace/.cache/go-build",
+  "joint_delta": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/joint-runtime-preparation02/delta.json",
+    "sha256": "7f0fe4d25917680d44356dfd0d0f3da17308e1341ead468cefaabedeb3506d7b"
+  },
+  "joint_graph_result": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/joint-runtime-preparation02/result.json",
+    "sha256": "7c9ef46d6ee9cc4fe0a25d695341d68d16cf3dc413e78c6cc16fbe386fda445d"
+  },
+  "joint_union": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/joint-runtime-preparation02/actual-union02.json",
+    "sha256": "85777fff399197b37c8e0cccdd86d38e793406f3b709e709a3555c94da755f82"
+  },
+  "read_only_probe_limit": "source_input only; never main, subprocess, Node, browser, Docker or asset exchange",
+  "runtime_files": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/usr/local/bin/docker": "27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b",
+    "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-settings.md": "85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+    "/workspace/scratch/fixture-recovery/bin/minio": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange.py": "b06c6c443f805a03a3da76227bcbe3140067a418c1acce4cdfd7e9e00dc4e651",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/driver-draft02.py": "8e6a9f805ae5943bd19a02d89a0c23a34100358892546dd89ba66ae35ccff3e3",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/freeze.py": "5f0155912e991f8be69e23b63ee0e05c41fed00395384f76731cdeedd88c05ed",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inventory.py": "7291702dee2f2e551f8ca9ed20bb95f4a897617717ebae3026ed4e7f8a9b3249",
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/workspace/scratch/summary-verification/S2-probes/model_probe_test.go": "cc28a49d890f36059d042e2ad202295d31c4ee386ca485a2d93c553f0b5e2be0",
+    "/workspace/scratch/summary-verification/S2-probes/account_probe_test.go": "d09896a1ab669091d76a1f38cc63ae61f329591402e7f28b4e7f792b05759859",
+    "/workspace/scratch/summary-verification/S2-probes/overlay.json": "22455c0795d6559d5d210ccb79d6ebb4aeeee2b6f97a0f01e9942842d5a88313",
+    "/workspace/scratch/summary-verification/S2-probes/browser/independent.spec.ts": "3b4d22710d82e3aec3936b07005340fb0edb7b23ad27864976a79f09a99bb604",
+    "/workspace/scratch/summary-verification/S2-probes/browser/independent.config.cjs": "33994268533dab42980d5df68c4e7ae13ddfcb1761848c9007475f6af8ef1a8c",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/driver.py": "6f31ef3684b1adb4b3cb21926fecc2e34138a585d2c4add75c73acc0e409de6c",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/asset-exchange.py": "b06c6c443f805a03a3da76227bcbe3140067a418c1acce4cdfd7e9e00dc4e651",
+    "/workspace/agenteam/tests/model/meeting_summary_settings_fixture_test.go": "fa4c5d706fffc7144138840278452ff0e212f4fa56c6d51ca4759a466d004dcd",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.json": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.patch": "838f44f918e5ba8840094130b079c2455b834ad7910b7789ae03ff076fe33e2e",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v02.py": "eab1bdf3fb31846a7a15e5f430f2eb1737bc185a518b49ccfe8ad94ad787ab95",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-participants01.json": "5948a77c4dd30e8d589f0408712916f0b68a9b29f2f4bc35f619809838264727",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inherited-delta02.json": "9aaebcf95b2708005383f72131fd55f939168e8caae4cf74a185203afab86d45",
+    "/workspace/scratch/summary-verification/S2-http-final01.json": "411d3efe94e6ff921e048c319de8a8659c0cf7d0044aa62728967d9d85581afb",
+    "/workspace/scratch/summary-verification/S2-http-final01.md": "39afe422631a11ca8cc07d2af2cb04992b71280f2d0b49854f88ac7ad8bea15c",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/configured.json": "d64ff2556575cb6a57ccd64822a839e68a3e35c00f944343a9624d0d1db9fa88",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/receipt.json": "1cfbe14c6322443586c0aa426382681995403dc1e43a46b8eec0d3cf1d070252",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/replay-source.json": "3ed880c94204d3c63b8c1bee0d713acf9f194e8affaeff8b85f4529012e35e70",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/lookup.json": "142b35916bab2edea87f87a63e7dc2b864f1628197cb2d260adf9c06c93e8cfb",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/deletion-impact.json": "372add9e027ef8a3a10cb445dd820f1184044cde7b75a07484250857e64f1df2",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/unknown.json": "961493126833167ab3b2f1ecf7d530cc53685f6acb654f7516fc8200c03a5ad8",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/replay.json": "c94d1e00298741f2747dfac3e282ad8ef21fb6ed3a7779287368046630c859e3",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/model-system.json": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/deletion-impact-source.json": "46a14dcd0137e3f9d4f41e91cd54092796bf55f92771eebde1c02e9af5e4e995",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/freeze.json": "4ef642351c7415ce51a75fe64ff121e9b9d572d9c87861221bfb8218b7594bbe",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/configured-source.json": "89fcc8655e8dda1b9739c98b763eaf9e086b346c95b044e80c32100f349f3b27",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/unknown-source.json": "659efa6bf99d3099e5e02ba0fa1ef2e2d1fa13d9d61e5c911269c0af4595a4f2",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/lookup-false-source.json": "967392db07f6ae2390a1ec6a973ffd995aaa838075e6f94ea6fb1d3f40f41afd",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/null.json": "b928185037e1894ab66b8d0ec05375a6aa6eab0bf3b98f911d9745a9b15bbd26",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/provenance.json": "6b69a840e0c452bbd08731b5c279aedc98fcf0e74d223e3f8fea9e2f212b9a94",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/lookup-false.json": "3998c1796653397077a9d89f2413eda9cc774701a9fd955f0622f4b549bb6d28",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/lookup-source.json": "b006f27aab81171ddcfaa71309954f810bd5a7ac167f8d15e085c1b1977fb6a6",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/receipt-source.json": "92b2fac4d7f088c2413ca73b23974dd24feccd2ba8bd2e913421d1d16142e781",
+    "/workspace/scratch/summary-verification/S2-http-bodies01/null-source.json": "14de20e5be318fe0e2cc78095b334350110139b00a96323e8d1fe98cec2ff3a7",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/unknown.json": "7837729118c2d444ae6b4672d86dd291f5d5034c4fd8e3181cb31c9aa4a2fafe",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/model-system.json": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/freeze.json": "70b9acb1cd294719facac22338352fad83ec4d5348feb31d4c5291a7f31d572b",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/unknown-source.json": "482db2b3f5c4a4f0b185d2e17e76e459a0aa04393863decf560e15263a32da20",
+    "/workspace/scratch/summary-verification/S2-http-unknown02/provenance.json": "99d93c810e7fb0280cb62726a8ff09ab6266123289bbeeafb133249a54a17c2b",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v03.py": "7fb129652f88102c03d1754aebeae9cbde15b5e6bf73bd4980955c4357c6e988",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v03.diff": "bfd67bb8ed5c6656826c402c83d1b02f701099e0cd4c9ba29ae5ff67dadc23c0",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-session-applied-v02.json": "770961029c5939a14eb5771d2c3f881e76414ec3f385ef4264db92d5bb1906f4",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-apply01-failure.json": "740c994066be8dbc598417ec9011f7880ed615f68802fdab89cb9937444f89dc",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-apply01-tool-result.json": "44e6b73fc7ab4a43f25d653e9c6be50a3d5a5449ea85f2d422b1ee62a09ada26",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-verify-applied-v03.json": "5b33835aa1aaef8d1dbcc897ebb877483064beb923e1f4f8cd089b9527c93253",
+    "/workspace/scratch/summary-verification/S2-probes/asset-v03-static.md": "cf9f1b38a5f71ee0b74e101f04f4c3286f2b41e71deba14417c4a9666a29bbc6",
+    "/workspace/scratch/summary-verification/S2-probes/asset-v03-static.json": "fe19d4089eb704d41ef854fe4bccd9068e80b0bdd0572ae190098fcedda25a70",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b02/driver.py": "875892dea77a35400ad51bb7b8cf42510481ab9168ef62ffdce65061ab2ada0a",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/account_probe_test.go": "96817926009865a731a8a4603884143fc641a48154600b204d13d921fbc5124f",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/overlay.json": "d316d5b54046dd6608dd51b6c41bde007c5f59a6b819935bcd7db293a86ccfd7",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/browser/independent.spec.ts": "89a4121dc308dd191a5d076a4c73729a384b00d9fc891c6fb09d465cf5a1ac45",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/browser/independent.config.cjs": "33994268533dab42980d5df68c4e7ae13ddfcb1761848c9007475f6af8ef1a8c",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/delta.json": "4cc82c9bd7293a342c040d7d163c888a56a5c13a36e5c7fd2b09ef125d4cb718",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v04.py": "b633b350626ac048f89fbd9a3ecf4b92ba044c524a1ac6510b1e5c724a065ac9",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-participants02.json": "29a652ccc5f814e1d29b828448b34da80a61d04a083dca158403925f4c732e83",
+    "/workspace/scratch/summary-verification/S2-probes/asset-v04-static.json": "acc98b152ef012b97b24a08186327ceca87b80c95617e89518d64f3fff4cf645",
+    "/workspace/scratch/summary-verification/S2-probes/asset-v04-static.md": "7a94bafff8362137d952cac6b40aca72dafd7aa3d2a40575591e9ef2f12bdba3",
+    "/workspace/scratch/summary-verification/S2-probes/repair-b02/offline-result.json": "ca585fa83d6cfca2e1f4cb2bd6d8ec7110d8df9dbd7b22a48b84e1e509c8764c",
+    "/workspace/scratch/summary-verification/S2-probes/independent-b01-failure.json": "4712b454fd06c72e06431be0537a67a0767d16a326d49f95647bcbb47be20b6c"
+  },
+  "runtime_inventory": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runtime-input01.json",
+    "sha256": "810e213f96a1602c18d26be4d5f859d09555acf19e3b3a174dff93cff62e6fac"
+  },
+  "status": "PROPOSAL ONLY; no runtime or asset authorization",
+  "parent_frozen": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/frozen01.json",
+    "sha256": "13443fbff67ea307f355ade30382f06c0dc4a61d924fcd51ed15d938090360ac"
+  },
+  "independent_offline": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/offline-freeze01.json",
+    "sha256": "e002ce19ff73830aee2a339a5b9882f31e321ec47cb86576b79c11c15bd1d6b2"
+  },
+  "candidate03_delta": {
+    "candidate": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03.json",
+      "sha256": "d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde"
+    },
+    "path": "/workspace/agenteam/tests/model/meeting_summary_settings_http_test.go",
+    "relative_path": "tests/model/meeting_summary_settings_http_test.go",
+    "before_sha256": "2ddaa76c37f672f4a8b49f1641b38d4053f21d0bbaac11dfa829e61d89fd7601",
+    "after_sha256": "ae7fd516da52cd67618698267a5cfe23fcbd9730313f535b08eb7e77204f612e"
+  },
+  "asset_participants": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-participants02.json",
+    "sha256": "29a652ccc5f814e1d29b828448b34da80a61d04a083dca158403925f4c732e83"
+  },
+  "candidate04_delta": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/inherited-delta02.json",
+    "sha256": "9aaebcf95b2708005383f72131fd55f939168e8caae4cf74a185203afab86d45"
+  },
+  "parent_independent_frozen": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/runtime-b02/frozen01.json",
+    "sha256": "3cdad40cbf4572a6f163961229b2bea55617209c8867a81abed79d852754df3b"
+  },
+  "resource_authorization": "PROPOSAL: prepared exact independent-b02 only, shared author asset custody retained; root must grant separate resource window; no asset script by verifier",
+  "same_body_evidence": {
+    "path": "/workspace/scratch/summary-verification/S2-http-final01.json",
+    "sha256": "411d3efe94e6ff921e048c319de8a8659c0cf7d0044aa62728967d9d85581afb"
+  },
+  "asset_v03_review": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/asset-v03-static.json",
+    "sha256": "fe19d4089eb704d41ef854fe4bccd9068e80b0bdd0572ae190098fcedda25a70"
+  },
+  "asset_custody": "Author v02 apply already actually exchanged; v03 read-only verify-applied and directory-size exception accepted; no repeat apply. Author alone restores after all actual participants. Independent B runs only on root resource authorization.",
+  "asset_v04_review": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/asset-v04-static.json",
+    "sha256": "acc98b152ef012b97b24a08186327ceca87b80c95617e89518d64f3fff4cf645"
+  },
+  "affected_offline": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/repair-b02/offline-result.json",
+    "sha256": "ca585fa83d6cfca2e1f4cb2bd6d8ec7110d8df9dbd7b22a48b84e1e509c8764c"
+  }
+}

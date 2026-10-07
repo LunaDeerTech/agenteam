@@ -1,0 +1,13 @@
+--- asset-exchange-v03.py
++++ asset-exchange-v04.py
+@@ -16,8 +16,8 @@
+ ASSETS = Path('/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep01/assets.json')
+ ASSETS_SHA = '84b7faff8c77f0a6593cbd2dcec79dd57e9f9cede1f01d25a1746c74d36938b5'
+ STATE = ROOT / 'asset-session.json'
+-PARTICIPANTS = ROOT / 'asset-participants01.json'
+-PARTICIPANTS_SHA = '5948a77c4dd30e8d589f0408712916f0b68a9b29f2f4bc35f619809838264727'
++PARTICIPANTS = ROOT / 'asset-participants02.json'
++PARTICIPANTS_SHA = '29a652ccc5f814e1d29b828448b34da80a61d04a083dca158403925f4c732e83'
+ 
+ 
+ def sha(p):

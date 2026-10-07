@@ -1,0 +1,162 @@
+{
+  "driver_sha256": "284a34a2357f8e1c9aa20999ebb9c1cb82691c080fd6af23803c7cf56ad1c8ec",
+  "closure": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/closure.json",
+    "sha256": "ff7b9ed033ffa7de86cbfd22b7e952d34f0f55c88bb101f56d2686a2beac1f45"
+  },
+  "driver_runtime_files": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/_bootstrap.py": "d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/_bootstrap_external.py": "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipimport.py": "a96f1d7a7b6aaf421a3cf382b94b1422f4f0ad452fdd0bb61d635b560d7a4e91",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/codecs.py": "7b7839e53a77961153240aecfe11edc8054d05b1dedd83894450dae21ec05785",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/aliases.py": "6fdcc49ba23a0203ae6cf28e608f8e6297d7c4d77d52e651db3cb49b9564c6d2",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/__init__.py": "78c4744d407690f321565488710b5aaf6486b5afa8d185637aa1e7633ab59cd8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/utf_8.py": "ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/abc.py": "e558702a95cdce3febd289da021715d2b92bc43995b8a1bc58dfa1c3d8010287",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/io.py": "7cec3cb8ac004058dd0a5af246e6d950fb59c7ddd0058fda48bcb3fcb98d8822",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/stat.py": "052af0327eae6941b69b05c088b3e748f79995635f80ac4cc7125eb333eb4c77",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_collections_abc.py": "d4945c8410c4bab351741b04bca3de066f7c27ed7e38df89e206a96617102ffb",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/genericpath.py": "2b0b35d2206778af4081cf81dd9b513876e72c35a55bec941402e1fa62b1f1aa",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/posixpath.py": "03825681086638649a43480954f7f6a16b4da3bd41ece956864ae96e4f795cd9",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/os.py": "54c43a1fc69c979c70d8f7d097174cee163bfe59937723ee353043dd4a0211e1",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_sitebuiltins.py": "b9388bc1d6d12ed6be12da420ab1feca40f99c0e33ec315d92b1e01cb69b25bc",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/utf_8_sig.py": "1ef3da8d8aa08149e7f274dc64dbfce2155da812e5258ca8e8f832428d3b5c2d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/_distutils_hack/__init__.py": "ced72e54431ecf2d8d7dbd8a1e27724f1b171af3ca1503c304bf11c59a7fe861",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site.py": "b39ab288cc7a6d0cb3bb2655179221411340b22418e4efdee4c20175537a5fa2",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/types.py": "345474ef027a1273f353da9bdc1f7c18f65335e72e681bcc0376774cc51f2405",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/operator.py": "b2af20f67667203c1730e686cc5d0427becc94db4c97f1d3efe3ed2158473f6a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/keyword.py": "18c2be738c04ad20ad375f6a71db34b3823c7f40b0340f5294d0e89f3c9b093b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/reprlib.py": "e177bc70da83a7fbcde6fd261dc15da34e8a20873b1cccd4f9a1f8f27cca3779",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/collections/__init__.py": "7fdb04dd248ab37909f46d2085bfee56b32d7e91e49ad3a2fad99c453295659b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/functools.py": "de4a1d37c795e2a065124b5c49357893433bc6bb111b41277ccc9930ef08d4c9",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/enum.py": "f35e542d8c4c1d2b5e910138d726fa48774925f3c4dc5462793ebcb66aa55501",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_constants.py": "fa4fdb200f238f9e7817b63892b0d69833d8165134801e775e10cc113348a375",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_parser.py": "a51a85b37cf3f44ba7ff25754da5f31306e4ccfa6eb3c017f9d37bdf4e770840",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_casefix.py": "1b12d9136f23db6c3f6f26053fefc15ca964b886838c7b9c1fabf8d2efc1e5c8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_compiler.py": "c75620761098a70ed75b9accef63ef2881d8abb6d4e5cbfd10074bd165eefe4d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copyreg.py": "c8eda41f05c6bf95a4da4726a530409d2485ae060b8d019b3a8034389a15d3e9",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/__init__.py": "8ff3c37c63b917fcf8dc8d50993a502292a3dc159e41de4f4018c72a53d1c07b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/fnmatch.py": "6683da36e47af523f3f41e18ad244d837783e19e98911cc0b7415dea81494ebc",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ntpath.py": "6c0d55ee892f98ef87b1ed3c50c9dfc7e267a98d2db47e08d3dc67529af56725",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/warnings.py": "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/urllib/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ipaddress.py": "ba8d3389ff084fcb232b48204ec04f2b3ea4bd0eadf7b18c814947d185de2c64",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/urllib/parse.py": "e6af7f475262f1de335bb2e41e26adb94d6103977cf5fe1ddc430dc6a3b1623f",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py": "10ba48ae8063cfe7589436041d0d4628c05f427c7709cf8e75e486f8930cc32c",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py": "d540b5ac137fcb3e26a8d5f2939649e34373c6685f98a30a9f682cf231be5854",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/_abc.py": "80aab7931dc999dee581c8b8b56fcd973fe156335a96ceeaf6acfc03cebf10e8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/util.py": "671f2995653f673f6d5056a1089debef473bc28ae7114f7a8db71475733d6876",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/scanner.py": "572958017eae8842eeddd0e3d18d3c56cc0a197348224915e1d87ce937841764",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py": "382cd02af6f7efede5a6d4abbcda1015e5c7a75794b0016022878f9cf32a24f6",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py": "52bfb1b66029cc70fa3bd7fe11df9f2e03922d413407a341b387a22c987f24f8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py": "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/hashlib.py": "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c423c613ab",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/gettext.py": "a5c249a522b6b8e3aa6f1b12a8bcc09508b99ad612b58d2fc973db27ea3b7cc3",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/argparse.py": "7cc582dcb3b76e2c957f78a3f74e9809d6c311d6aab7bcaa2c9954d0cbff5f30",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/struct.py": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ctypes/_endian.py": "c5d692bdce10dfee242752620061bab684633bc72445a3def484961ef1bdbf3a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ctypes/__init__.py": "e048845f8f5c14a5fc873526a27da4a19d4eed25ab2f2a01fa6e0b79faca78d0",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/datetime.py": "ef20dc6b3554cd585dddffdc573f1f9a7a54c522f2a3fb4576c44edbb1e14238",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_compression.py": "3ad5d60627477a60939ee44fc1bb3a05dbe8fb52f0f75039b8f5d8f1a278b981",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/bz2.py": "76ab3252924e71e859d7d90e8d3db13b6554975cfcac0fdadced4de7f8779330",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lzma.py": "58fb9d2fdc8a8af7b25e218f17ea3b51bdfa53bdf40f440ab33c605974ca5c2e",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/shutil.py": "53496e06742fe008fee2bccc8caeac77473e69923bec05358bd43eea467db1f8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/signal.py": "0363c964c90ac0b3e515de5749205e6e6454051a1211058375d84d91eab6071a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/locale.py": "3988c5419552d5b9f0bef3695102376f79357f0f440e9cd1f32c501f966e6ef3",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_weakrefset.py": "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py": "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py": "8b7a477f978a8532852fd81e241c78182516bc4975d672d580a5848a76e11eb6",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/collections/abc.py": "9cb4208f99128a0489b6c8e6c61637617dd7d4250c59e065491957eda084dd10",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/selectors.py": "1eeb102373e18c96311203f30c516e785bd8642275aa0bd66e43a284c9692385",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py": "85d29b2bf0249f5436838298c9a60ee93508b1102e9ac43b001f8a7e7ae8f375",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/driver.py": "616b8c343dd2a698531ec4dbb8441c776bf3d5d8fbf5f91265a0450d6de60367",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/bin/model-integration.test": "e538701be0a953bd2f207b2f1fc1fd4696e0869f0ebc066273a726a4c7812542",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-a01/driver.py": "22fac5b617db55867166a62d72b1da4b83b75a7a02abf28d33b247d41a056fa0",
+    "/workspace/scratch/summary-verification/S2-probes/model_probe_test.go": "cc28a49d890f36059d042e2ad202295d31c4ee386ca485a2d93c553f0b5e2be0",
+    "/workspace/scratch/summary-verification/S2-probes/account_probe_test.go": "d09896a1ab669091d76a1f38cc63ae61f329591402e7f28b4e7f792b05759859",
+    "/workspace/scratch/summary-verification/S2-probes/overlay.json": "22455c0795d6559d5d210ccb79d6ebb4aeeee2b6f97a0f01e9942842d5a88313",
+    "/workspace/scratch/summary-verification/S2-probes/browser/independent.spec.ts": "3b4d22710d82e3aec3936b07005340fb0edb7b23ad27864976a79f09a99bb604",
+    "/workspace/scratch/summary-verification/S2-probes/browser/independent.config.cjs": "33994268533dab42980d5df68c4e7ae13ddfcb1761848c9007475f6af8ef1a8c",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-a02/driver.py": "284a34a2357f8e1c9aa20999ebb9c1cb82691c080fd6af23803c7cf56ad1c8ec",
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/model_probe_test.go": "8485626ca60400b34d6cfe551794a30ef7ac86f18b339a8e3b56672041617a6d",
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/overlay.json": "7c7442eea2ecd3f5e56acddf873113590cec3ddc3870d017c450ac071c38bfbb",
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/delta.json": "d0014f6fe324added79227b49d94426c76ab778bd231058449a3d57a5f7a5c70",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.json": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f",
+    "/workspace/scratch/meeting-summary-settings-backend/candidate04.patch": "838f44f918e5ba8840094130b079c2455b834ad7910b7789ae03ff076fe33e2e",
+    "/workspace/agenteam/tests/model/meeting_summary_settings_fixture_test.go": "fa4c5d706fffc7144138840278452ff0e212f4fa56c6d51ca4759a466d004dcd"
+  },
+  "groups": {
+    "new-independent-a": [
+      "TestIndependentMeetingSummarySettingsA"
+    ]
+  },
+  "root_authorized_groups": [
+    "new-independent-a"
+  ],
+  "resource_authorization": "PROPOSAL: exact second subcase only; root must grant resource window",
+  "template": {
+    "path": "/workspace/scratch/meeting-summary-s1-author/driver-v01/driver.py",
+    "sha256": "ea83fddac638cd92ae87c171722b25042645eed00f49bde7bebc942a4732f993"
+  },
+  "watchdog_proof_reuse": {
+    "path": "/workspace/scratch/usage-http-author/C/c27-driver-v02-watchdog/raw.log",
+    "sha256": "369ae90d60d4015861cabab86fa3c35e219a38983efe67a001bc2cc9691d1361"
+  },
+  "tail_proof_reuse": {
+    "path": "/workspace/scratch/usage-http-author/C/c28-driver-v02-tail/raw.log",
+    "sha256": "645a32d763331046327ff934b463b8e256518c4ccea7cf25349f634316151df5"
+  },
+  "unchanged_AST_functions": [
+    "sha",
+    "load_bound",
+    "digest",
+    "processes",
+    "observe_processes",
+    "reap_adopted",
+    "retire_owned",
+    "TopWatchdog",
+    "watch_output",
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "resource_topology"
+  ],
+  "compiled_readiness_binary": {
+    "scope": "independent overlay compile01 candidate02; candidate03 test-only delta enters runtime Go recompilation",
+    "proof": {
+      "path": "/workspace/scratch/summary-verification/S2-probes/offline-result01.json",
+      "sha256": "74a0296a5963d9141aac2797f7574d28c05e989f7c8a6b61c756dcb0c537e43a"
+    }
+  },
+  "prior_failure": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/new-http01-failure.json",
+    "sha256": "4a10d907204ba6e0caa1581847e67093c7181a3ed9ce274bf4ee7cb754c86013"
+  },
+  "affected_checks": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/result.json",
+    "sha256": "3115f38459918f5c6ddbf44e6a0364cc0be8f6f24e825fd68c906ce842b084f3"
+  },
+  "parent_frozen": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/frozen.json",
+    "sha256": "b78f9489a3a1109338aeab6a044a9f32126c29bfd20d060c91892d6aad03521d"
+  },
+  "independent_offline": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/offline-freeze01.json",
+    "sha256": "e002ce19ff73830aee2a339a5b9882f31e321ec47cb86576b79c11c15bd1d6b2"
+  },
+  "private_repair": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/repair-a02/delta.json",
+    "sha256": "d0014f6fe324added79227b49d94426c76ab778bd231058449a3d57a5f7a5c70"
+  },
+  "prior_independent_failure": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/independent-a01-failure.md",
+    "sha256": "7bb198740c04a9f39b3e5ef8f7ee66fb00b32887f8ca93864519f483002bfd6f"
+  },
+  "parent_independent_frozen": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/runtime-a01/frozen.json",
+    "sha256": "062da1127fb90e5c5641dd214344b429419ffc39307fc12f7980f0665b4adb64"
+  },
+  "exact_selector": "^(TestIndependentMeetingSummarySettingsA)$/^default_root_client_prefix_loss_then_historical_cross_slot$"
+}

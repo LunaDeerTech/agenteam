@@ -1,0 +1,16 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ ../../scratch/summary-verification/S2-http-bodies01/independent.spec.ts > public client consumes real original null response bytes 12ms
+ ✓ ../../scratch/summary-verification/S2-http-bodies01/independent.spec.ts > public client consumes real original receipt response bytes 2ms
+ ✓ ../../scratch/summary-verification/S2-http-bodies01/independent.spec.ts > public client consumes real original configured response bytes 1ms
+ ✓ ../../scratch/summary-verification/S2-http-bodies01/independent.spec.ts > public client consumes real original lookup response bytes 1ms
+ ✓ ../../scratch/summary-verification/S2-http-bodies01/independent.spec.ts > public client consumes real original deletion-impact response bytes 1ms
+ ✓ ../../scratch/summary-verification/S2-http-bodies01/independent.spec.ts > public client consumes real original lookup-false response bytes 1ms
+ ✓ ../../scratch/summary-verification/S2-http-bodies01/independent.spec.ts > public client consumes real original replay response bytes 1ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  15:38:56
+   Duration  566ms (transform 91ms, setup 0ms, import 112ms, tests 20ms, environment 335ms)
+

@@ -1,0 +1,20 @@
+--- author-pg-v02
++++ independent-a01
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+-GROUPS = {'new-http': ['TestModelMeetingSummarySettingsHTTP'], 'new-recovery': ['TestModelMeetingSummarySettingsRecovery'], 'new-root': ['TestModelMeetingSummarySettingsRoot'], 'old': ['TestModelMeetingSummaryExistingHTTP', 'TestModelSystemHTTPSelectionAndReferenceDeletion', 'TestModelSystemHTTPCurrentAdministrator', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelProjectUsageHTTPRootBinding']}
++GROUPS = {'new-independent-a': ['TestIndependentMeetingSummarySettingsA']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -80,7 +80,7 @@
+             'HOME': '/home/agent', 'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+-            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v',
++            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/summary-verification/S2-probes/overlay.json',
+             'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO}
+ 
+ 

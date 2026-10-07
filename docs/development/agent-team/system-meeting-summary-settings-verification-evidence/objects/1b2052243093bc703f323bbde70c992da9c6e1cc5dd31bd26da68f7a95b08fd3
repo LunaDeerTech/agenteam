@@ -1,0 +1,51 @@
+{
+  "status": "minimal inherited test-body input amendment only; no resource or repeat tests/graph",
+  "base_execution_freeze": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/frozen01.json",
+    "sha256": "13443fbff67ea307f355ade30382f06c0dc4a61d924fcd51ed15d938090360ac"
+  },
+  "source_union03": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/source-union03.json",
+    "sha256": "79bfc197d5db3ea484940dde9000ddc115daf200c17790c7412e1c7126845445"
+  },
+  "candidate03_delta": {
+    "candidate": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03.json",
+      "sha256": "d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde"
+    },
+    "patch": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03.patch",
+      "sha256": "62393e040b70910327ca77ededced7094cbee855d5b09e3d163019f765becc37"
+    },
+    "changed": {
+      "/workspace/agenteam/tests/model/meeting_summary_settings_http_test.go": {
+        "before": "2ddaa76c37f672f4a8b49f1641b38d4053f21d0bbaac11dfa829e61d89fd7601",
+        "after": "ae7fd516da52cd67618698267a5cfe23fcbd9730313f535b08eb7e77204f612e"
+      }
+    },
+    "verification": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/result.json",
+      "sha256": "3115f38459918f5c6ddbf44e6a0364cc0be8f6f24e825fd68c906ce842b084f3"
+    }
+  },
+  "changes": {
+    "/workspace/agenteam/tests/model/meeting_summary_settings_http_test.go": {
+      "before": {
+        "actual": "/workspace/agenteam/tests/model/meeting_summary_settings_http_test.go",
+        "sha256": "2ddaa76c37f672f4a8b49f1641b38d4053f21d0bbaac11dfa829e61d89fd7601"
+      },
+      "after": {
+        "actual": "/workspace/agenteam/tests/model/meeting_summary_settings_http_test.go",
+        "sha256": "ae7fd516da52cd67618698267a5cfe23fcbd9730313f535b08eb7e77204f612e"
+      }
+    }
+  },
+  "source_sets_equal": true,
+  "generated_provenance_equal": true,
+  "driver_bytes_unchanged": true,
+  "closure_strategy": "retain actual union02 and original delta; runtime_files carries sole accepted test hash override plus bound source-union03/candidate provenance; runtime execution still checks current bytes",
+  "offline_evidence_reused": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/offline-results01.json",
+    "sha256": "5cdd77b7ac821876065ffd7bbb61a4ce0e24b76b9b0cae557ad3ff43efd5db6e"
+  }
+}

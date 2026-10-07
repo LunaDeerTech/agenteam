@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/usr/local/bin/python",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/run.py",
+    "f01-format-write",
+    "format-write",
+    "frozen02.json"
+  ],
+  "shell_exit": 127,
+  "driver_spawned": false,
+  "source_mutation": false,
+  "resolved_python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12"
+}

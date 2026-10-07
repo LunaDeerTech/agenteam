@@ -1,0 +1,163 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ src/tests/system-account-security-state.spec.ts > Account security current observation, draft and historical result > starts from the successful GET, keeps raw strings and performs no unchanged or invalid save 28ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security current observation, draft and historical result > keeps conflict draft and version until explicit adoption, with no rebase from a current GET 6ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security current observation, draft and historical result > preserves a higher current observation and original draft until a historical PUT confirms independently 4ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security current observation, draft and historical result > never reuses a confirmed historical result as a new baseline when the one post-save GET fails 3ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security current observation, draft and historical result > retains same-identity drafts and pending confirmation across checking, but invalidates a new Session 3ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security current observation, draft and historical result > abandonment waits for the actual tail and requires a new explicit successful GET before editing 3ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security current observation, draft and historical result > never creates defaults from failed/null observations and treats maximum version as read-only 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > requires a real singleton observation and captures validated immutable inputs before key allocation 4ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > pins the singleton across same-identity reads and abandonment and rejects a foreign successful write 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > checks Session plus current GET without lookup, then replays identical bytes/key/CSRF after a higher observation 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > classifies VERSION_CONFLICT/409/not_started without turning a later rejection into proof of no commit 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > classifies INVALID_ARGUMENT/400/not_committed without turning a later rejection into proof of no commit 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > classifies UNAVAILABLE/503/not_started without turning a later rejection into proof of no commit 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > classifies RESOURCE_BUSY/409/not_started without turning a later rejection into proof of no commit 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > classifies COMMIT_UNKNOWN/503/unknown without turning a later rejection into proof of no commit 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > classifies VERSION_CONFLICT/409/committed without turning a later rejection into proof of no commit 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > classifies IDEMPOTENCY_KEY_REUSED/409/not_started without turning a later rejection into proof of no commit 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > preserves the original through failed Session/current reads and enables replay only after current Session 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > holds the native read EOF and cancel tail across the 30-second visible deadline 4ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > holds the native write EOF and cancel tail across the 30-second visible deadline 6ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > retains an abort-ignoring fetch owner after visible abandonment and leaves the old identity unable to publish 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > isolates personal abandonment in both directions without freeing actual ownership 2ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > isolates users abandonment in both directions without freeing actual ownership 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > isolates invitations abandonment in both directions without freeing actual ownership 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > isolates providers abandonment in both directions without freeing actual ownership 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > isolates models abandonment in both directions without freeing actual ownership 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > isolates selection abandonment in both directions without freeing actual ownership 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > handles current CSRF_FAILED without changing the public role 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > handles current SESSION_REVOKED without changing the public role 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > handles current FORBIDDEN without changing the public role 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > handles a parsed late 401 after actual finalizer without stale authority pollution 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > handles a parsed late 403 after actual finalizer without stale authority pollution 1ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > never hands an original to the same user in a new Session, a new CSRF or an ordinary role 4ms
+ ✓ src/tests/system-account-security-state.spec.ts > Account security on the seventh independent Cookie domain > does not clear a synchronous confirmed consumer’s new intent 2ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > retains Cookie ownership until response body cancellation joins: content-type 27ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > retains Cookie ownership until response body cancellation joins: oversize 3ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > bounds challenge user waiting while the real reader ignores abort: create 4ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > bounds challenge user waiting while the real reader ignores abort: verify 3ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > dismiss cannot alter the complete original request after a pass-bearing login is pending 3ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > dismiss cannot alter the complete original request after a pass-bearing login is unknown 1ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > the real client treats malformed commit_state as unconfirmed and retains the complete login request 3ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > distinguishes actual anonymous from unavailable, then confirms Session CSRF after login 3ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > retains the exact key and password after Unknown and does not bootstrap after a negative current observation 1ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > adds a real verify pass to the same login intent and invalidates it on changed input 1ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > does not expose identity or send another Cookie request before the real login tail returns 1ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > bounds UI waiting at 30s while an abort-ignoring fetch still owns the Cookie lane 1ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > a late challenge/verify/finally cannot overwrite a newer question or release its busy state 1ms
+ ✓ src/tests/session.spec.ts > Account Session ownership > logout stays unconfirmed until the real 204 and preserves the original key on explicit replay 1ms
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > keeps users as default, renders ten leaves in four groups and preserves the tenth exact return
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > keeps users as default, renders ten leaves in four groups and preserves the tenth exact return
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > keeps users as default, renders ten leaves in four groups and preserves the tenth exact return
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > returns through the actual login form and does not seed defaults after an unavailable singleton
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > returns through the actual login form and does not seed defaults after an unavailable singleton
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > keeps users as default, renders ten leaves in four groups and preserves the tenth exact return 220ms
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > mounts no configuration form or admin GET/PUT for a regular user direct link 15ms
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > keeps string validation visible and requires a real discard decision for cancel and overwrite
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > returns through the actual login form and does not seed defaults after an unavailable singleton 48ms
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending route
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending route
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending route
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending route
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > keeps string validation visible and requires a real discard decision for cancel and overwrite 208ms
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending logout
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending logout
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending logout
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending route 124ms
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > retains all conflict fields until an actual adopt button, never using GET to rebase the next PUT silently
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > shows strict historical confirmation plus failed current read, then allows only GET until a fresh baseline
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > restores the one inline discard Dialog after pageshow checking/503 for pending logout 106ms
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > retains all conflict fields until an actual adopt button, never using GET to rebase the next PUT silently 60ms
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > settles a pending route false on a same-user new Session and never carries the draft or old DOM continuation
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > settles a pending route false on a same-user new Session and never carries the draft or old DOM continuation
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > shows strict historical confirmation plus failed current read, then allows only GET until a fresh baseline 50ms
+ ✓ src/tests/system-account-security.spec.ts > Account security inline form in the actual App and router > settles a pending route false on a same-user new Session and never carries the draft or old DOM continuation 48ms
+
+ Test Files  3 passed (3)
+      Tests  57 passed (57)
+   Start at  14:46:22
+   Duration  3.66s (transform 893ms, setup 0ms, import 1.19s, tests 1.04s, environment 1.10s)
+

@@ -1,0 +1,37 @@
+{
+  "provenance": "captured from the completed exec_command tool invocation; not a repeat execution",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v04.py",
+    "restore",
+    "--root-authorized-asset-window",
+    "--completed-run",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d01-new-lifecycle/result.json",
+    "--completed-run",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d02-new-recovery/result.json",
+    "--completed-run",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d03-new-authority/result.json",
+    "--completed-run",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d04-new-read/result.json",
+    "--completed-run",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d05-old-core/result.json",
+    "--completed-run",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/runs/d06-old-pages/result.json",
+    "--completed-run",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/result.json",
+    "--completed-run",
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/result.json"
+  ],
+  "actual_command_exit": 0,
+  "actual_command_completed": true,
+  "stdout": {
+    "phase": "restored",
+    "original_files": 3,
+    "stable_metadata_match": true,
+    "ctime_preservation_claimed": false
+  },
+  "final_postcheck": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-restoration-final01.json",
+    "sha256": "8566ce3e1353362a8c12549c359a1409fca461b76050e96890e7486315966e13"
+  }
+}

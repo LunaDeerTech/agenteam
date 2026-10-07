@@ -1,0 +1,38 @@
+{
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-l",
+    "/workspace/agenteam/tests/account/system_meeting_summary_web_test.go",
+    "/workspace/agenteam/tests/account/system_meeting_summary_web_fixture_test.go"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "env": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "HOME": "/home/agent",
+    "TMPDIR": "/workspace/scratch/meeting-summary-settings-frontend-author/browser-static/b06-gofmt/tmp",
+    "SUMMARY_FRONTEND_OUTPUT": "/workspace/scratch/meeting-summary-settings-frontend-author/browser-static/b06-gofmt",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "npm_config_offline": "true"
+  },
+  "subreaper": true,
+  "budget_seconds": 45,
+  "frozen": "/workspace/scratch/meeting-summary-settings-frontend-author/browser-static/frozen05.json",
+  "frozen_sha256": "64351f01c13815b03cdf8e3ed8ca4895d13f792c6b467012c2c09c8477d33073",
+  "started": 1791385221.988484,
+  "pid": 268852,
+  "pid_starttime": "1117381",
+  "exit": 0,
+  "finished": 1791385222.3920321,
+  "process_elapsed": 0.12278636200062465,
+  "subreaper_readback": 1,
+  "adopted_waits": [],
+  "forced_descendants": false,
+  "failure": null,
+  "first_tail": [],
+  "second_tail": [],
+  "inputs_unchanged": true,
+  "expected_format_only": false
+}

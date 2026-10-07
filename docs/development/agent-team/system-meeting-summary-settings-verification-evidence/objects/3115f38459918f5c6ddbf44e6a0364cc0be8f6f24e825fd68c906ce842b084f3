@@ -1,0 +1,40 @@
+{
+  "status": "candidate03 affected integration compile/exact list PASS only; no testbody/real rerun",
+  "runs": {
+    "model-integration-compile03": {
+      "exit": 0,
+      "seconds": 5.902998376999676,
+      "result_sha256": "92a3c6124e76408bc679d8078b34ebf94208eb1a00433a9936c40e43ad996e14",
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "adopted": 0,
+      "forced": 0,
+      "inputs_same": true
+    },
+    "integration-list03": {
+      "exit": 0,
+      "seconds": 1.3006419720004487,
+      "result_sha256": "938c438ce2fe2ea27f1b567d330a72952f4d36233e4005c5593c852858406227",
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "adopted": 0,
+      "forced": 0,
+      "inputs_same": true
+    }
+  },
+  "exact_listed": [
+    "TestModelMeetingSummaryExistingHTTP",
+    "TestModelMeetingSummarySettingsHTTP",
+    "TestModelMeetingSummarySettingsRecovery",
+    "TestModelMeetingSummarySettingsRoot",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelSystemHTTPBoundaryAndStrictWire",
+    "TestModelSystemHTTPCurrentAdministrator",
+    "TestModelSystemHTTPSelectionAndReferenceDeletion"
+  ],
+  "binary": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03-checks/bin/model-integration.test",
+    "sha256": "e538701be0a953bd2f207b2f1fc1fd4696e0869f0ebc066273a726a4c7812542"
+  },
+  "candidate03_sha256": "d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde"
+}

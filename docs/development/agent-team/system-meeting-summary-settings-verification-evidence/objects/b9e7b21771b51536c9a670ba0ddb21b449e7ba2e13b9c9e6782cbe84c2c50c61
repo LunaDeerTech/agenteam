@@ -1,0 +1,27 @@
+{
+  "status": "scratch proposal only; repository/candidate03 untouched; no Go or resources",
+  "scope_if_authorized": "#13 helper only, actual Unknown response X-Request-ID whitelisted export; original bytes and all body fields unchanged",
+  "existing_successful_run": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01",
+  "actual_header_artifacts_found": [],
+  "request_id_mentions_only_in_body": [
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/unknown.json"
+  ],
+  "reason": "systemHTTPResponse.headers only captured in memory; existing sidecar writes Content-Type only. Controlled httptest has no wire trace, raw log has only safe body fingerprints. Completed process memory is unavailable. Body request_id cannot prove response header.",
+  "search_input_hashes": {
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/raw.log": "b6ac8efd5afd39a9d75bbb99259269b83dd9ee9abd73f79ba86699220d2ea17a",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/deletion-impact-source.json": "46a14dcd0137e3f9d4f41e91cd54092796bf55f92771eebde1c02e9af5e4e995",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/deletion-impact.json": "372add9e027ef8a3a10cb445dd820f1184044cde7b75a07484250857e64f1df2",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup-false-source.json": "967392db07f6ae2390a1ec6a973ffd995aaa838075e6f94ea6fb1d3f40f41afd",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup-false.json": "3998c1796653397077a9d89f2413eda9cc774701a9fd955f0622f4b549bb6d28",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup-source.json": "b006f27aab81171ddcfaa71309954f810bd5a7ac167f8d15e085c1b1977fb6a6",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup.json": "142b35916bab2edea87f87a63e7dc2b864f1628197cb2d260adf9c06c93e8cfb",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/replay-source.json": "3ed880c94204d3c63b8c1bee0d713acf9f194e8affaeff8b85f4529012e35e70",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/replay.json": "c94d1e00298741f2747dfac3e282ad8ef21fb6ed3a7779287368046630c859e3",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/unknown-source.json": "659efa6bf99d3099e5e02ba0fa1ef2e2d1fa13d9d61e5c911269c0af4595a4f2",
+    "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/unknown.json": "961493126833167ab3b2f1ecf7d530cc53685f6acb654f7516fc8200c03a5ad8"
+  },
+  "proposed_patch_sha256": "838f44f918e5ba8840094130b079c2455b834ad7910b7789ae03ff076fe33e2e",
+  "unchanged_current_helper_sha256": "c88be65ecd06627de58b4ee5135ef2937e5c1d27616fe3f08b46d1f0489c0f2f",
+  "minimal_future_execution": "If implemented: freeze candidate04, affected integration race compile/list, only TestModelMeetingSummarySettingsRecovery full top rerun with same seven-resource driver and actual cleanup. Preserve successful old Recovery/8body; publish newly captured Unknown bytes/header together, never attach fresh header to old body. No HTTP/root/old/native/model/app rerun needed for exporter-only delta.",
+  "alternative": "A later independent real Unknown request may save its own actual header and same response bytes; after root authorization, that distinct input can pass public client/schema without changing author candidate03 or rerunning author resource top. Independent currently running A must remain fixed."
+}

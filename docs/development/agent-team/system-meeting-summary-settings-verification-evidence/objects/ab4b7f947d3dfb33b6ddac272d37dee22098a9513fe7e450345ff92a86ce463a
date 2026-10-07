@@ -1,0 +1,26 @@
+{
+  "accepted_bad_wrapper": {
+    "path": "/workspace/scratch/usage-http-verification/native01/run.py",
+    "sha256": "f8edfd51dec7a9244bf4ba5e0283b5163350a117c4cdd3ff83ecf36276b91f3e",
+    "limit": "old direct port regex was invalid; never reuse original empty port proof"
+  },
+  "accepted_recovery": {
+    "path": "/workspace/scratch/usage-http-verification/native01/recover.py",
+    "sha256": "298b60a46cb556cebeee0d93d331c0bfb981c7a4a873f97d0d89e6e16ab2c267"
+  },
+  "reused_owner_functions_ast_identical": [
+    "sha",
+    "save",
+    "stat",
+    "procscan",
+    "observe",
+    "send_owned"
+  ],
+  "parser_old_trace_check": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/native-preparation01/parser-old-trace-check.json",
+    "sha256": "624131854a534c14cf295b3c2e3e1d1eaa3e5bcb43b20e6799191190afc5557a"
+  },
+  "driver_sha256": "8c1ee4d9cc48ed1da6b2687d21e9fdcf2e3cf0d7c401efd9db0ae7818d1f82f1",
+  "parser_sha256": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a",
+  "new_native_execution": false
+}

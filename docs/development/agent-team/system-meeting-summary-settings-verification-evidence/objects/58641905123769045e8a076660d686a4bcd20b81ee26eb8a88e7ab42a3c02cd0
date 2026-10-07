@@ -1,0 +1,25 @@
+# S2 后端 candidate01：限定产品 STATIC PASS
+
+结论：14 源冻结候选未发现需返修的静态阻断，可进入 root 协调的共同输入冻结及离线编译阶段。此结论不包含编译、纯测、native、PG/root、browser、实际预算或资源清理 PASS；S2 完整结果仍未接受。
+
+输入为作者 candidate01.json SHA `b0433171632b7f500f5e9552ff3b6994106999a8666ec6dadaea0eb31761dbeb`、patch SHA `fe18ef7e5db1c8331d362e54ba21d5b6306fcdde55b075d22824d8c24fcd54d1` 及全部14快照。已逐一核 hash，并从固定 c210d249 独立重建补丁，逐字匹配；必要22项固定来源与检查见 inputs-check.json。正式规格 fdfcffdb 的卡 SHA85283d…c035 与已独审 rev3 技术体相同。未读活动 frontend，也未以活动包重新 hash 否定固定输入。
+
+## 完整静态结果
+
+| 范围 | 判断与依据 |
+| --- | --- |
+| 路由与安全边界 | http.go 仅增加独立 GET/PUT（既有 GET→HEAD），精确新 route 派发专用 handler 后立即 return；旧 dispatcher、lookup、构造与 CheckRequest 保持。3s/30s context/native deadline 在 RequireSystem 前，父期限取早；真实 Account actor、SystemScope、原 key 进入原服务，服务同 Tx 当前授权不被 HTTP 检查替代。405/Allow、规范 path/RawPath 与旧外层边界沿原链。 |
+| Wire 与投影 | GET/HEAD 拒绝 query/body/framing，原 DTO Validate+Clone，三个 required 字段和显式 null；坏结果/Unknown 不发布 candidate。PUT 原严格 DecodeJSON 限16KiB，拒 null/缺项/别名/重复/尾随/非UTF8/media/版本溢出，无额外 scope/actor 材料。只调用一次 Update，receipt 不被新 GET 覆盖；原 foundation 分类及 commit_state 由原 projector 保留。schema 新 GET/HEAD/PUT 和两个 DTO 对应，移除它们后旧 JSON 结构完全恢复。 |
+| I/O 实际终局 | 专用 handler 持有 Close、成功/Problem 写入及 HEAD headers Flush。短写/写错误转 ErrAbortHandler；Flush/执行 panic 进入失败收尾，取消 callback 只推进 native deadline。正常完整 Flush 后才 stop 或等待 callbackDone，再清 deadline，最后外层 cancel；失败先推进 deadline 限制 drain 并同步 Close。ResponseController 经既有 Unwrap/FlushError 到真实 writer，不依赖普通 Write 返回代表 flush。unsupported writer 在鉴权前 abort，旧 Recover 不会追加响应。 |
+| 默认 root | account.go 只有原 helper 增 Summary initializer；同实际 Model 实例、同原启动 ctx，Secret→旧 Model→Summary→Usage，各前置失败/取消不执行后继，无新预算/后台工作/默认 Model/迁移。Usage 业务构造与 Invocations:nil 保持；根路由原链、ready503 未改。 |
+| 旧兼容与范围 | #32 严格仅26→29。旧 S1 HTTP 测试只将不存在新口的断言换为新当前 projection/空 PUT400，其他旧断言不删弱；app route 测试只新增子路径/近似路径代表。31原用途及新增#32范围内，README不动，S1服务/contract/迁移、共享fixture、S3 Resolver没有写入。 |
+| 测试可行性 | 新4 pure 顶层覆盖严格wire、错误/HEAD、父预算、auth/body/service/Close/Write/Flush受控尾部、失败与 callback join；新3 native 顶层有显式运行门禁、真实loopback/keepalive、自然3s/30s及更早parent、真实HEAD Flush背压，监听/连接/Serve收尾具备明确实际等待。3真实integration顶层覆盖PG事实、当前授权、历史恢复和默认app.Run；真实COMMIT ACK丢失/原pending writer复用已接受代理，实际release/join，不捏造CommitResult。root使用nil hooks、无注入handler/额外Summary初始化，含重启和坏事实/缺表/锁启动失败。静态未发现不可闭合的入口或共享helper调用；实际compile/list仍待共同图冻结。 |
+
+## 后继验收的精确边界
+
+- `current_session_rechecked_in_transaction` 是正式 Logout 后当前 Session 撤权，不是管理员角色修改 E2E。主账号 Bootstrap/Login 正式；辅助 addBrowser 为已明示 SQL seed+正式 Login。后继 CurrentAdministrator 旧回归/独立 A 按实际证据区分角色与 Session，不把二者等同。
+- native 测试使用受控服务/权限端口，证明 socket/生命周期；真实 PG HTTP 使用有 deadline 能力的 recorder，证明业务/协议；default app.Run 另证明真实根与 keepalive。大 header HEAD 背压是测试载荷，不是产品 DTO 上界。三个层次的证据不能互冒。
+- safe evidence 导出真实原 body 与实际 status/Content-Type/target/source test/run，目录私有且不包含 cookie/key。公共严格 client 与 schema 的同 body 联验尚未执行；browser 两槽/单 owner/导航及旧四项组合尚未审查或运行。
+- 共同执行图必须纳入已冻结 S3 candidate02、shared tests/model、app/cmd、TestMain动态构建/embed，以及后继frontend browser Go文件。此轮静态使用 c210必要来源+14快照即可判断局部语义，不能据此绕过执行依赖共同冻结。独立A/B与适用旧回归、实际top预算/完整Cleanup、owned waits/双清和daemon差量仍按计划待root授权。
+
+本轮只有冻结文本/固定Git读取、hash、补丁及JSON结构核对，写入本目录。没有Go list/compile/test、schema运行器、native/browser/容器/端口等资源；无业务/卡/Git修改。原报告不覆盖，未记不存在的首红；本报告冻结后停写。

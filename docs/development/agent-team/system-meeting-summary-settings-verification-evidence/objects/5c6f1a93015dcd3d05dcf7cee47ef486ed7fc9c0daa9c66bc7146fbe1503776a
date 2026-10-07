@@ -1,0 +1,52 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 14583.36897755,
+      "top": "TestAccountSystemModelSelectionWebReadAndPagination"
+    },
+    {
+      "event": "result",
+      "monotonic": 14601.156993772,
+      "observed_seconds": 17.788016221998987,
+      "reported_seconds": 17.8,
+      "state": "PASS",
+      "top": "TestAccountSystemModelSelectionWebReadAndPagination"
+    },
+    {
+      "event": "run",
+      "monotonic": 14601.156993772,
+      "top": "TestAccountSystemModelSelectionWebConcurrencyAndReferences"
+    },
+    {
+      "event": "result",
+      "monotonic": 14623.014323968,
+      "observed_seconds": 21.857330196000476,
+      "reported_seconds": 21.84,
+      "state": "PASS",
+      "top": "TestAccountSystemModelSelectionWebConcurrencyAndReferences"
+    },
+    {
+      "event": "run",
+      "monotonic": 14623.014323968,
+      "top": "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+    },
+    {
+      "event": "result",
+      "monotonic": 14638.285389813,
+      "observed_seconds": 15.271065844999612,
+      "reported_seconds": 15.27,
+      "state": "PASS",
+      "top": "TestAccountSystemModelSelectionWebNavigationAndLayouts"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemModelSelectionWebConcurrencyAndReferences",
+    "TestAccountSystemModelSelectionWebNavigationAndLayouts",
+    "TestAccountSystemModelSelectionWebReadAndPagination"
+  ],
+  "failures": []
+}

@@ -1,0 +1,32 @@
+from pathlib import Path
+import hashlib,json,os,sys,socket,importlib.metadata
+B=Path('/workspace/scratch/summary-verification/S2-http-unknown02')
+def forbid(*args,**kwargs):raise RuntimeError('offline schema network forbidden')
+socket.socket=forbid;socket.create_connection=forbid
+from jsonschema import Draft202012Validator,FormatChecker
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+base='file:///workspace/agenteam/api/openapi/'
+def retrieve(uri):raise RuntimeError('unfrozen schema retrieval forbidden: '+uri)
+registry=Registry(retrieve=retrieve)
+for name in ['model-system.json','common.json']:
+ document=json.loads((B/name).read_bytes());registry=registry.with_resource(base+name,Resource.from_contents(document,default_specification=DRAFT202012))
+model=json.loads((B/'model-system.json').read_bytes());records=[]
+for name in ['unknown']:
+ source=json.loads((B/(name+'-source.json')).read_bytes());raw=(B/(name+'.json')).read_bytes();assert hashlib.sha256(raw).hexdigest()==source['body_sha256']
+ target=source['target'] if name!='deletion-impact' else '/api/v1/system/models/{id}/deletion-impact'
+ operation=model['paths'][target][source['method'].lower()]
+ response=operation['responses'].get(str(source['status']),operation['responses']['default'])
+ ref=response['content'][source['content_type']]['schema']['$ref']
+ uri=base+'model-system.json'+ref if ref.startswith('#') else base+ref.removeprefix('./')
+ validator=Draft202012Validator({'$ref':uri},registry=registry,format_checker=FormatChecker())
+ errors=list(validator.iter_errors(json.loads(raw)));assert not errors,[str(e) for e in errors]
+ records.append({'name':name,'body_sha256':source['body_sha256'],'source_run':source['source_run'],'schema_ref':uri,'same_bytes':True,'errors':[]})
+runtime={}
+for module in list(sys.modules.values()):
+ filename=getattr(module,'__file__',None)
+ if filename and Path(filename).is_file() and any(s in filename for s in ['/jsonschema/','/referencing/','/jsonschema_specifications/','/rpds/','/attrs/','/attr/']):runtime[filename]=sha(filename)
+out=Path(os.environ['SUMMARY_VERIFY_OUTPUT']);assert out.parent==B
+result={'records':records,'validator':'Draft202012Validator + FormatChecker + closed local Registry','versions':{n:importlib.metadata.version(n) for n in ['jsonschema','referencing','jsonschema-specifications','rpds-py','attrs']},'runtime_module_files':runtime}
+(out/'schema-result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'schema_bodies_passed':len(records),'network':False}))

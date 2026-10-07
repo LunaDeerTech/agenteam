@@ -1,0 +1,20 @@
+{
+  "status": "PASS narrow assetv04 STATIC",
+  "script": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v04.py",
+    "sha256": "b633b350626ac048f89fbd9a3ecf4b92ba044c524a1ac6510b1e5c724a065ac9"
+  },
+  "participants": {
+    "path": "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-participants02.json",
+    "sha256": "29a652ccc5f814e1d29b828448b34da80a61d04a083dca158403925f4c732e83"
+  },
+  "all_function_AST_equal_v03": true,
+  "only_addition": [
+    "/workspace/scratch/summary-verification/S2-probes/runtime-b02/runs/independent-b02/result.json"
+  ],
+  "all_old_seven_rows_unchanged": true,
+  "B01_failure_still_mandatory_after_actual_pid": true,
+  "root_count": 3,
+  "custody": "original applied journal retained; no second apply/restore; author-only final restore requires all actually started eight results and observed PID identity absence",
+  "asset_or_resource_execution_by_verifier": false
+}

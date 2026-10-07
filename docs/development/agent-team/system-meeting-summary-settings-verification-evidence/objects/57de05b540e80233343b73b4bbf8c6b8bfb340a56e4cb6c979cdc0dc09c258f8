@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 13692.473795202,
+      "top": "TestIndependentMeetingSummarySettingsA"
+    },
+    {
+      "event": "result",
+      "monotonic": 13696.146401103,
+      "observed_seconds": 3.67260590099977,
+      "reported_seconds": 3.68,
+      "state": "PASS",
+      "top": "TestIndependentMeetingSummarySettingsA"
+    }
+  ],
+  "expected": [
+    "TestIndependentMeetingSummarySettingsA"
+  ],
+  "failures": []
+}

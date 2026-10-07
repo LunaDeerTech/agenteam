@@ -1,0 +1,51 @@
+import { mkdir } from 'node:fs/promises'
+
+const root = '/workspace/agenteam/web'
+const output = process.env.SUMMARY_FRONTEND_OUTPUT
+if (!output?.startsWith('/workspace/scratch/meeting-summary-settings-frontend-author/')) {
+  throw new Error('task-owned output required')
+}
+const mode = process.argv[2]
+await mkdir(output, { recursive: true })
+const common = {
+  root,
+  configFile: root + '/vite.config.ts',
+  configLoader: 'runner',
+  envFile: false,
+  cacheDir: output + '/vite-cache',
+}
+if (mode === 'pure' || mode === 'owners' || mode === 'state' || mode === 'component') {
+  const { startVitest } = await import(root + '/node_modules/vitest/dist/node.js')
+  const context = await startVitest('test', mode === 'component' ? ['src/tests/system-model-selection.spec.ts'] : mode === 'state' ? ['src/tests/system-model-selection-state.spec.ts'] : mode === 'owners' ? ['src/tests/session.spec.ts', 'src/tests/system-account-security-state.spec.ts', 'src/tests/system-account-security.spec.ts'] : [
+    'src/tests/system-model-selection-client.spec.ts',
+    'src/tests/system-model-selection.spec.ts',
+    'src/tests/system-model-selection-state.spec.ts',
+  ], {
+    run: true,
+    watch: false,
+    api: false,
+    cache: false,
+    pool: 'forks',
+    maxWorkers: 1,
+    fileParallelism: false,
+    reporters: ['verbose'],
+    configLoader: 'runner',
+  }, {
+    ...common,
+    server: { watch: null, hmr: false, ws: false, middlewareMode: true },
+  })
+  try {
+    if (!context) throw new Error('Vitest did not start')
+  } finally {
+    await context?.close()
+  }
+} else if (mode === 'build') {
+  const { build } = await import(root + '/node_modules/vite/dist/node/index.js')
+  await build({
+    ...common,
+    mode: 'production',
+    build: { outDir: output + '/dist', emptyOutDir: false },
+  })
+} else {
+  throw new Error('unknown offline check')
+}

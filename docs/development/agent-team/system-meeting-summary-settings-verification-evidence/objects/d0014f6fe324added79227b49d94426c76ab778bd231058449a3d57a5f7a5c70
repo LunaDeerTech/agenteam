@@ -1,0 +1,18 @@
+{
+  "candidate03": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03.json",
+    "sha256": "d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde"
+  },
+  "candidate04": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04.json",
+    "sha256": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f"
+  },
+  "only_product_delta": {
+    "tests/model/meeting_summary_settings_fixture_test.go": {
+      "before": "c88be65ecd06627de58b4ee5135ef2937e5c1d27616fe3f08b46d1f0489c0f2f",
+      "after": "fa4c5d706fffc7144138840278452ff0e212f4fa56c6d51ca4759a466d004dcd"
+    }
+  },
+  "private_delta": "/workspace/scratch/summary-verification/S2-probes/repair-a02/probe.diff",
+  "resource_execution": false
+}

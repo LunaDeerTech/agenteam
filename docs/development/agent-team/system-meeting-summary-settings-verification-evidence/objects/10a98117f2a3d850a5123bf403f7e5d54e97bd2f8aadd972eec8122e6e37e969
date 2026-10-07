@@ -1,0 +1,9 @@
+{
+  "authorization": "root S2 rev3 independent STATIC PASS; path32 count26 to29 only; spec commit pending",
+  "path": "internal/central/model/http_test.go",
+  "before_sha256": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98",
+  "after_sha256": "3f4736e845ba70c08572c09acfba124611fedb4c713df20ad7e86afc4724315a",
+  "exact_change": "if count != 26 -> if count != 29",
+  "all_other_bytes_unchanged": true,
+  "executed_tests": false
+}

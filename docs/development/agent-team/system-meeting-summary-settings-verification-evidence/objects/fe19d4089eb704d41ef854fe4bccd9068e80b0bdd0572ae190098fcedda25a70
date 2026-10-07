@@ -1,0 +1,53 @@
+{
+  "status": "PASS narrow STATIC; root-authorized d01 condition can proceed after successful verify-applied",
+  "files": {
+    "asset-exchange-v03.py": "7fb129652f88102c03d1754aebeae9cbde15b5e6bf73bd4980955c4357c6e988",
+    "asset-exchange-v03.diff": "bfd67bb8ed5c6656826c402c83d1b02f701099e0cd4c9ba29ae5ff67dadc23c0",
+    "asset-session-applied-v02.json": "770961029c5939a14eb5771d2c3f881e76414ec3f385ef4264db92d5bb1906f4",
+    "asset-verify-applied-v03.json": "5b33835aa1aaef8d1dbcc897ebb877483064beb923e1f4f8cd089b9527c93253",
+    "frozen04.json": "6c57b4ccb4a5f3779f95dddf1b27454ec5d69d73022bb42622323b98e76c7f57"
+  },
+  "changed_AST_functions": [
+    "stable",
+    "main"
+  ],
+  "raw_differences": {
+    "original": {
+      ".": {
+        "atime_ns": {
+          "before": 1790982177929142569,
+          "after": 1791387941328803218
+        },
+        "ctime_ns": {
+          "before": 1790982177929142569,
+          "after": 1791387941324803152
+        },
+        "size": {
+          "before": 67,
+          "after": 4096
+        }
+      }
+    },
+    "candidate": {
+      ".": {
+        "atime_ns": {
+          "before": 1791385516193421640,
+          "after": 1791387941328806878
+        },
+        "ctime_ns": {
+          "before": 1791385516193370994,
+          "after": 1791387941324803152
+        }
+      }
+    }
+  },
+  "only_additional_comparison_exception": "directory kind size; raw retained. All regular-file sizes, hashes and identity fields remain strict. Existing atime restoration and namespace ctime limit unchanged.",
+  "custody": "v02 actual atomic apply already complete, immutable journal preserved; v03 verify-applied compares current swapped trees to that journal without exchange/save/asset mutation. Only new scratch proof file is written. No repeat apply.",
+  "restore": "unchanged exact participant/driver identity/actualwait/doublecleanup/watchdog/observed PID+starttime absence; both started run roots checked. Atomic restoration and stable metadata checks remain, raw directory size deltas now explicitly saved.",
+  "resources_or_asset_commands_by_verifier": false,
+  "prior_failure_preserved": {
+    "asset-apply01-failure.json": "740c994066be8dbc598417ec9011f7880ed615f68802fdab89cb9937444f89dc",
+    "asset-apply01-tool-result.json": "44e6b73fc7ab4a43f25d653e9c6be50a3d5a5449ea85f2d422b1ee62a09ada26",
+    "asset-session-applied-v02.json": "770961029c5939a14eb5771d2c3f881e76414ec3f385ef4264db92d5bb1906f4"
+  }
+}

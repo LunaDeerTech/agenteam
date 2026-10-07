@@ -1,0 +1,48 @@
+{
+  "classification": "author test expectation error; unchanged Account canonical-path check precedes mux",
+  "failure": {
+    "raw_path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v01/runs/new-http01/raw.log",
+    "raw_sha256": "7a63791327c8e10a37ae30483dc506dddb0b5ecfb9de7588e5bb9ad96f6c21ad",
+    "line": 62,
+    "source_line": 125,
+    "expected": "404 NOT_FOUND on noncanonical trailing slash",
+    "actual": "400 INVALID_ARGUMENT commit=not_started"
+  },
+  "result": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v01/runs/new-http01/result.json",
+    "sha256": "d7d608869308c6c0f4c8ee3b08f68746e07e98e61eb9e6fa2c7d7b08b1543c0a",
+    "actual_wait": true,
+    "seven_resources": 7,
+    "double_cleanup": true,
+    "owned_processes": 92,
+    "forced": 0,
+    "adopted_waits": 0,
+    "inputs_same": true
+  },
+  "unchanged_production_inputs": {
+    "internal/central/account/http_boundary.go": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+    "internal/central/model/http.go": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a"
+  },
+  "partial_safe_bodies": {
+    "root": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v01/runs/new-http01/safe-http-evidence",
+    "files": {
+      "configured-source.json": "6f2acde2fa430bf2a1c11b0b4792f9578aa1b0d6021f1d6c236db1385d49c83e",
+      "configured.json": "4fa65b5e85c2558f0847bc99bb20bbacb5ca8fb6b9cb426e8e4932b636c944d5",
+      "null-source.json": "d3b3af4009aa62be13551ca3b127eaf39a86665007b1c9b2beab8555e5ec5adb",
+      "null.json": "ef4c8ae2728a71667880b6ad90b2404756562f6a5e48e555c29f789e59fbbed7",
+      "receipt-source.json": "2d4cbba0c4773051c4c2bba2b9143b65d4ac208aa2a3468356b1d6902b76b354",
+      "receipt.json": "52568ba69ad117c06d378c66c516780d8b8a231ce755b3113911e5d9896794da"
+    },
+    "whole_round_pass": false,
+    "status": "actual bytes from failed first round preserved; do not claim full HTTP acceptance"
+  },
+  "candidate03": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate03.json",
+    "sha256": "d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde"
+  },
+  "daemon_shim_Z": {
+    "before": 76,
+    "after": 80,
+    "new_not_owned_or_waited": 4
+  }
+}

@@ -1,0 +1,827 @@
+{
+  "time": 1791387869.953106,
+  "prior": "asset-preflight01.json",
+  "zombie_or_gone_only": false,
+  "rows": [
+    {
+      "pid": 214,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "586"
+    },
+    {
+      "pid": 265,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "599"
+    },
+    {
+      "pid": 606,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "645"
+    },
+    {
+      "pid": 613,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "645"
+    },
+    {
+      "pid": 654,
+      "state": "S",
+      "ppid": 606,
+      "starttime": "649"
+    },
+    {
+      "pid": 655,
+      "state": "S",
+      "ppid": 613,
+      "starttime": "649"
+    },
+    {
+      "pid": 711,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "655"
+    },
+    {
+      "pid": 715,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "656"
+    },
+    {
+      "pid": 742,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "657"
+    },
+    {
+      "pid": 807,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "682"
+    },
+    {
+      "pid": 808,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "682"
+    },
+    {
+      "pid": 868,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795"
+    },
+    {
+      "pid": 869,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795"
+    },
+    {
+      "pid": 870,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795"
+    },
+    {
+      "pid": 80262,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "437604"
+    },
+    {
+      "pid": 80626,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "437880"
+    },
+    {
+      "pid": 80994,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "438130"
+    },
+    {
+      "pid": 81726,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "438408"
+    },
+    {
+      "pid": 91283,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "465508"
+    },
+    {
+      "pid": 91808,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "465932"
+    },
+    {
+      "pid": 92179,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "466208"
+    },
+    {
+      "pid": 92776,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "466386"
+    },
+    {
+      "pid": 101362,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "483318"
+    },
+    {
+      "pid": 101906,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "483732"
+    },
+    {
+      "pid": 102632,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "483926"
+    },
+    {
+      "pid": 103231,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "484186"
+    },
+    {
+      "pid": 109798,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "490739"
+    },
+    {
+      "pid": 110350,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "491188"
+    },
+    {
+      "pid": 110609,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "491379"
+    },
+    {
+      "pid": 111230,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "491576"
+    },
+    {
+      "pid": 118359,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "499866"
+    },
+    {
+      "pid": 118713,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "500093"
+    },
+    {
+      "pid": 118993,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "500281"
+    },
+    {
+      "pid": 119624,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "500495"
+    },
+    {
+      "pid": 125634,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "510024"
+    },
+    {
+      "pid": 126098,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "510444"
+    },
+    {
+      "pid": 126464,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "510632"
+    },
+    {
+      "pid": 126961,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "510810"
+    },
+    {
+      "pid": 164015,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "731276"
+    },
+    {
+      "pid": 164855,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "732075"
+    },
+    {
+      "pid": 165140,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "732275"
+    },
+    {
+      "pid": 165733,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "732523"
+    },
+    {
+      "pid": 176282,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "743999"
+    },
+    {
+      "pid": 176814,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "744435"
+    },
+    {
+      "pid": 177138,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "744645"
+    },
+    {
+      "pid": 177677,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "744815"
+    },
+    {
+      "pid": 184825,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "752445"
+    },
+    {
+      "pid": 185354,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "752864"
+    },
+    {
+      "pid": 185632,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "753052"
+    },
+    {
+      "pid": 186256,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "753241"
+    },
+    {
+      "pid": 192574,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "761413"
+    },
+    {
+      "pid": 193067,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "761840"
+    },
+    {
+      "pid": 193426,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "762040"
+    },
+    {
+      "pid": 193943,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "762238"
+    },
+    {
+      "pid": 203810,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "774064"
+    },
+    {
+      "pid": 204243,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "774423"
+    },
+    {
+      "pid": 204608,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "774613"
+    },
+    {
+      "pid": 205108,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "774804"
+    },
+    {
+      "pid": 211033,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "781303"
+    },
+    {
+      "pid": 211590,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "781751"
+    },
+    {
+      "pid": 211962,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "782018"
+    },
+    {
+      "pid": 212561,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "782270"
+    },
+    {
+      "pid": 259940,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1109509"
+    },
+    {
+      "pid": 260567,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1110151"
+    },
+    {
+      "pid": 260934,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1110412"
+    },
+    {
+      "pid": 261840,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1110839"
+    },
+    {
+      "pid": 273826,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1158062"
+    },
+    {
+      "pid": 274186,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1158301"
+    },
+    {
+      "pid": 274553,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1158513"
+    },
+    {
+      "pid": 275044,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1158701"
+    },
+    {
+      "pid": 281857,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1167578"
+    },
+    {
+      "pid": 282310,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1167929"
+    },
+    {
+      "pid": 282675,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1168133"
+    },
+    {
+      "pid": 283174,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1168320"
+    },
+    {
+      "pid": 290156,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1176126"
+    },
+    {
+      "pid": 290688,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1176628"
+    },
+    {
+      "pid": 291167,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1177010"
+    },
+    {
+      "pid": 291771,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1177206"
+    },
+    {
+      "pid": 297756,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1183581"
+    },
+    {
+      "pid": 298290,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1184006"
+    },
+    {
+      "pid": 298573,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1184216"
+    },
+    {
+      "pid": 299175,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1184401"
+    },
+    {
+      "pid": 314170,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1243920"
+    },
+    {
+      "pid": 314543,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1244184"
+    },
+    {
+      "pid": 314920,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1244397"
+    },
+    {
+      "pid": 315502,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1244589"
+    },
+    {
+      "pid": 321651,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1251666"
+    },
+    {
+      "pid": 322191,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1252104"
+    },
+    {
+      "pid": 322563,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1252357"
+    },
+    {
+      "pid": 323134,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1252555"
+    },
+    {
+      "pid": 329861,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1264096"
+    },
+    {
+      "pid": 330418,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1264558"
+    },
+    {
+      "pid": 330738,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1264767"
+    },
+    {
+      "pid": 331342,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1264954"
+    },
+    {
+      "pid": 339727,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1289211"
+    },
+    {
+      "pid": 340212,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1289669"
+    },
+    {
+      "pid": 340579,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1289897"
+    },
+    {
+      "pid": 341204,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1290116"
+    },
+    {
+      "pid": 347335,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1297338"
+    },
+    {
+      "pid": 347789,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1297668"
+    },
+    {
+      "pid": 348072,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1297863"
+    },
+    {
+      "pid": 348665,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1298043"
+    },
+    {
+      "pid": 355325,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1304786"
+    },
+    {
+      "pid": 355893,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1305298"
+    },
+    {
+      "pid": 356288,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1305604"
+    },
+    {
+      "pid": 356919,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1305819"
+    },
+    {
+      "pid": 364338,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1312827"
+    },
+    {
+      "pid": 364813,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1313275"
+    },
+    {
+      "pid": 365253,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1313511"
+    },
+    {
+      "pid": 365844,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1313690"
+    },
+    {
+      "pid": 373996,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1330162"
+    },
+    {
+      "pid": 374587,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1330583"
+    },
+    {
+      "pid": 374953,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1330810"
+    },
+    {
+      "pid": 375580,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1331049"
+    },
+    {
+      "pid": 384100,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1353850"
+    },
+    {
+      "pid": 384589,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1354301"
+    },
+    {
+      "pid": 384912,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1354494"
+    },
+    {
+      "pid": 385535,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1354698"
+    },
+    {
+      "pid": 392576,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1365454"
+    },
+    {
+      "pid": 393028,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1365850"
+    },
+    {
+      "pid": 393380,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1366032"
+    },
+    {
+      "pid": 393902,
+      "state": "Z",
+      "ppid": 1,
+      "starttime": "1366207"
+    }
+  ],
+  "live_uninspectable": [
+    {
+      "pid": 214,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "586"
+    },
+    {
+      "pid": 265,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "599"
+    },
+    {
+      "pid": 606,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "645"
+    },
+    {
+      "pid": 613,
+      "state": "S",
+      "ppid": 1,
+      "starttime": "645"
+    },
+    {
+      "pid": 654,
+      "state": "S",
+      "ppid": 606,
+      "starttime": "649"
+    },
+    {
+      "pid": 655,
+      "state": "S",
+      "ppid": 613,
+      "starttime": "649"
+    },
+    {
+      "pid": 711,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "655"
+    },
+    {
+      "pid": 715,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "656"
+    },
+    {
+      "pid": 742,
+      "state": "S",
+      "ppid": 214,
+      "starttime": "657"
+    },
+    {
+      "pid": 807,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "682"
+    },
+    {
+      "pid": 808,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "682"
+    },
+    {
+      "pid": 868,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795"
+    },
+    {
+      "pid": 869,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795"
+    },
+    {
+      "pid": 870,
+      "state": "S",
+      "ppid": 654,
+      "starttime": "795"
+    }
+  ],
+  "no_signals_or_wait_claim": true,
+  "correction": "A zombie has already closed descriptors and cannot serve web/dist; retain baseline identity, do not operate on PID1 or claim wait."
+}

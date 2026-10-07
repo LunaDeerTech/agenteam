@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/asset-exchange-v02.py",
+    "apply",
+    "--root-authorized-asset-window"
+  ],
+  "tool_exit_code": 1,
+  "tool_actual_completion": true,
+  "observed_error": "RuntimeError: post-exchange metadata mismatch; preserve journal and custody",
+  "fixture_spawned": false,
+  "asset_journal": "asset-session-applied-v02.json",
+  "actual_differences": "asset-apply01-failure.json"
+}

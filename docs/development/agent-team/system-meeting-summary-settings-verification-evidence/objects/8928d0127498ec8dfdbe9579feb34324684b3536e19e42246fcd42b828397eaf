@@ -1,0 +1,19 @@
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/short
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/write_error
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/flush_error
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/close_error
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/panic
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/reset_error
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/unsupported
+=== RUN   TestMeetingSummaryHTTPNativeWriteAndClose/blocked_head_flush
+--- PASS: TestMeetingSummaryHTTPNativeWriteAndClose (0.47s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/short (0.00s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/write_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/flush_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/close_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/panic (0.00s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/reset_error (0.00s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/unsupported (0.00s)
+    --- PASS: TestMeetingSummaryHTTPNativeWriteAndClose/blocked_head_flush (0.45s)
+PASS

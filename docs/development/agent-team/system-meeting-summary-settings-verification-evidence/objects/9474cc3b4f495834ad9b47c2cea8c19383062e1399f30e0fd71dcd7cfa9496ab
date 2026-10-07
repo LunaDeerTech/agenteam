@@ -1,0 +1,56 @@
+import { it, expect, afterAll } from '/workspace/agenteam/web/node_modules/vitest/dist/index.js'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { createSystemModelSelectionAPI } from '/workspace/agenteam/web/src/api/system-model-selection'
+import { createSystemModelAPI } from '/workspace/agenteam/web/src/api/system-models'
+const base = '/workspace/scratch/summary-verification/S2-http-bodies01'
+const sha = (v: Uint8Array) => createHash('sha256').update(v).digest('hex')
+const names = ['null', 'receipt', 'configured', 'lookup', 'deletion-impact', 'lookup-false', 'replay']
+const records: unknown[] = []
+for (const name of names) {
+  it('public client consumes real original ' + name + ' response bytes', async () => {
+    const raw = readFileSync(base + '/' + name + '.json')
+    const source = JSON.parse(readFileSync(base + '/' + name + '-source.json', 'utf8'))
+    expect(sha(raw)).toBe(source.body_sha256)
+    expect(source.status).toBe(200)
+    expect(source.content_type).toBe('application/json')
+    const controller = new AbortController()
+    let calls = 0
+    let response: Response | undefined
+    const fetcher = async (path: string, init: RequestInit) => {
+      calls++
+      expect(path).toBe(source.target)
+      expect(init.method).toBe(source.method)
+      expect(init.signal).toBe(controller.signal)
+      if (source.method === 'GET') expect(init.body).toBeUndefined()
+      else expect(JSON.parse(init.body as string)).toEqual(source.method === 'POST' ? { command: 'model.selection.update' } : source.captured_command)
+      response = new Response(raw, { status: source.status, headers: { 'Content-Type': source.content_type } })
+      return response
+    }
+    const api = createSystemModelSelectionAPI(fetcher)
+    // Local synthetic transport options, not assertions about secret original key/CSRF.
+    const write = { csrfToken: 'a'.repeat(43), key: 'independent-offline-original-body', signal: controller.signal }
+    const command = { kind: 'model.selection.update' as const, ...source.captured_command }
+    let result: unknown
+    if (name === 'deletion-impact') result = await createSystemModelAPI(fetcher).getDeletionImpact(source.target.split('/')[5], controller.signal)
+    else if (source.method === 'GET') result = await api.getMeetingSummary(controller.signal)
+    else if (source.method === 'POST') result = await api.lookupMeetingSummaryCommand(command, write)
+    else result = await api.updateMeetingSummary(command, write)
+    expect(calls).toBe(1)
+    expect(response?.bodyUsed).toBe(true)
+    expect(response?.body?.locked).toBe(false)
+    expect(result).toEqual(JSON.parse(raw.toString('utf8')))
+    expect(Object.isFrozen(result)).toBe(true)
+    expect(sha(readFileSync(base + '/' + name + '.json'))).toBe(source.body_sha256)
+    records.push({ name, source_run: source.source_run, body_sha256: source.body_sha256, actual_status: source.status, actual_content_type: source.content_type, calls, body_used: response?.bodyUsed, body_unlocked: !response?.body?.locked, same_bytes: true })
+  })
+}
+afterAll(() => {
+  const load = (name: string) => JSON.parse(readFileSync(base + '/' + name + '-source.json', 'utf8')).captured_command
+  expect(load('unknown')).toEqual(load('lookup-false'))
+  expect(load('unknown')).toEqual(load('replay'))
+  expect(load('lookup')).not.toEqual(load('unknown'))
+  const output = process.env.SUMMARY_VERIFY_OUTPUT
+  expect(output?.startsWith(base + '/')).toBe(true)
+  writeFileSync(output + '/client-result.json', JSON.stringify({ records, unknown_client: 'pending actual response X-Request-ID export', original_secret_key_not_exported_or_claimed: true }, null, 2) + '\n')
+})

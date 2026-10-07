@@ -1,0 +1,54 @@
+diff --git a/docs/development/frontend/README.md b/docs/development/frontend/README.md
+index 5096e070..b17aba7a 100644
+--- a/docs/development/frontend/README.md
++++ b/docs/development/frontend/README.md
+@@ -37,8 +37,8 @@ npm run preview --prefix web
+ | --- | --- |
+ | `web/src/components/ui/` | 可复用控件和内容组件；公开导出及接口类型在 `index.ts` 和 `types.ts` |
+ | `web/src/components/layout/` | AppShell、SystemNav 与 SettingsShell；系统导航、路由内容区和设置侧栏 |
+-| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API、账号安全 GET/PUT、SMTP 配置三项 API、测试/投递任务四项 API、出站规则 GET/PUT、系统审计两个 GET 及运行信息 GET；运行时 DTO、头像字节与安全 Problem 解析 |
+-| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录/系统审计/运行信息状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途/账号安全/SMTP 配置与投递/出站规则草稿，以及主题、按钮反馈、浮层与键盘工具 |
++| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API 及会议 Summary GET/PUT、账号安全 GET/PUT、SMTP 配置三项 API、测试/投递任务四项 API、出站规则 GET/PUT、系统审计两个 GET 及运行信息 GET；运行时 DTO、头像字节与安全 Problem 解析 |
++| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录/系统审计/运行信息状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途及会议 Summary/账号安全/SMTP 配置与投递/出站规则草稿，以及主题、按钮反馈、浮层与键盘工具 |
+ | `web/src/styles/` | 唯一共享 token、基础规则与公共组件样式 |
+ | `web/src/router/` | 路由和导航元数据 |
+ | `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战、邀请/找回/重置页面与受保护空首页 |
+@@ -232,7 +232,7 @@ sh scripts/test-security.sh -run '^TestAccount(SystemModelsWeb(Lifecycle|Deletio
+ 
+ [平台用途工作项 rev2](../work-items/d27-system-model-selection-ui.md)的最终业务候选 `input02` 已获独立验收。`/system/model-selection` 是“模型与提供商 → 平台模型用途”第五个系统叶子，也是第九个精确登录返回目标；`/system` 仍进入用户目录。普通用户没有入口，直链不挂载本页、不发管理请求。
+ 
+-页面读取单一平台配置的版本与四项 Model 引用。正式初始状态为 `configured:null`、`version:"1"`，显示尚未配置，不猜默认 Model。管理员在一个业务 Dialog 中显式分页选择 Provider，再选择其 Model；每页 25 项，只读取当前浏览的用途，不自动扫全库，不提供任意 UUID 输入或本页创建配置入口。
++既有四项区域读取单一平台配置的版本与四项 Model 引用。正式初始状态为 `configured:null`、`version:"1"`，显示尚未配置，不猜默认 Model。管理员在一个业务 Dialog 中显式分页选择 Provider，再选择其 Model；每页 25 项，只读取当前浏览的用途，不自动扫全库，不提供任意 UUID 输入或本页创建配置入口。
+ 
+ | 用途 | 新保存的候选条件 |
+ | --- | --- |
+@@ -243,7 +243,7 @@ sh scripts/test-security.sh -run '^TestAccount(SystemModelsWeb(Lifecycle|Deletio
+ 
+ 保存以一次完整 PUT 提交配置 ID、捕获的 `expected_version` 与四项 ID/null；取消及无变化不发 PUT。当前引用补读失败、404 或已知不可选时保留原绑定，须重读或明确更换后才能开始新保存。后端在事务中重核权限、版本与全部候选，拒绝时无部分用途成功。冲突保留草稿，须显式读取最新配置并核对，不静默换版本覆盖。
+ 
+-七项受限 API 中的 `getSavedModel` 在单次操作内先读取 Model，再读取其 Provider，按真实协议完整解析后一次返回不可变组合，不发布半成品。每轮当前引用最多 4 次 Model GET 加 4 次 Provider GET，分次读取不是原子快照。每个组合共用一次 owner、signal 和 30 秒预算，实际 fetch/body/read/cancel 全部结束后才释放唯一 Cookie owner；平台用途状态域与其余业务隔离。
++七项受限 API 中的 `getSavedModel` 在单次操作内先读取 Model，再读取其 Provider，按真实协议完整解析后一次返回不可变组合，不发布半成品。四项区域每轮当前引用最多 4 次 Model GET 加 4 次 Provider GET，分次读取不是原子快照。每个组合共用一次 owner、signal 和 30 秒预算，实际 fetch/body/read/cancel 全部结束后才释放唯一 Cookie owner；平台用途状态域与其余业务隔离。
+ 
+ 结果未确认时保留原 key、完整 body、版本与身份。lookup、当前 GET 或 Session 恢复只提供观察，须明确重试原 PUT 并取得严格回执才确认；当前版本推进或旧 Model 删除不阻止合法历史重放。严格确认后 GET 失败仅重试读取，放弃不回滚已接受的配置。未保存或未确认操作受离页/注销确认保护，同 Session checking/失败恢复保留草稿与待决确认；真实身份或权限失效清除旧状态。
+ 
+@@ -282,6 +282,20 @@ sh scripts/test-security.sh -run '^TestAccountSystemModelsWeb(DeletionAndReplace
+ 
+ 保存只确认平台模型用途配置持久化；Memory 能力是声明，Embedding 事件持久化也不证明已被消费。页面不调用外部模型、不触发索引重建、不验证 Runtime、检索切换或模型可调用性；生产 SPA 托管、真实 Vite 代理浏览器、原生缩放、ready503 与完整 D09/D27 的边界保持。
+ 
++### 会议 Summary 设置（S2）
++
++[S2 工作项 rev3](../work-items/d09-system-meeting-summary-settings.md)的技术结果已获独立验收。同一 `/system/model-selection` 页新增内联会议 Summary 区域，保留原四项 Dialog、菜单和路由。系统管理员统一选择所有 Project 的 Meeting initial/update 模型，包含首轮标题；Project 没有覆盖项或创建时复制的默认值。独立 GET/PUT `/api/v1/system/model-selection/meeting-summary` 使用自己的配置 ID、版本和草稿，初始为 `model:null`、`version:"1"`，不猜默认 Model。新保存只接受 Model 与 Provider 均启用的 System `chat` Model，不要求 `json_schema`，也不提供清空操作；原 Memory 候选条件不变。
++
++`auth.system.selection.meetingSummary` 与原四项方法共用 selection 域及唯一 Cookie owner，内部保留两个独立的不可变 intent。各自捕获 key、body、版本、身份与 CSRF；局部放弃只清本槽，不撤销已经提交的后端事实。lookup、当前 GET 和 Session 恢复只作观察，仍须显式重试原 PUT 并取得严格回执才确认；已确认后的补读失败只重读。可见超时、取消或页面卸载均不提前释放实际 fetch/body/cancel 尾部的 owner。
++
++应用内离页和注销只作一次聚合确认，同时保护两份草稿与未确认操作；同身份 checking/恢复保留状态，调度避免自动初始读取抢占原请求查证。真实身份或当前权限失效使旧状态整体失效。`beforeunload` 仅使用浏览器原生保护，不把事件或假定的用户选择当成清槽回调；真实文档离开后的 App 销毁照常处理。
++
++本轮纯测试按未变输入复用及受影响重跑组合为 client 98、state 96、component 27，共 221 项，另复用共享 owner/security 57 项；格式、类型、生产构建及相关 integration-tag race 编译、vet 通过，不声称最终全套重新运行。六个作者真实轮次通过四个新顶层与六个旧平台用途顶层，独立 B02 通过双 intent、恢复、导航及原生离页保护检查。B01 的私有 `page.reload` 等待在取消原生离页后触及 45 秒预算，原失败保留；B02 仅修私有等待方式，产品未改。每轮沿用浏览器 45 秒、顶层 2 分钟（含 Cleanup）、包 6 分钟预算，实际等待自有进程退出并双查七项精确资源；daemon 所属 PID1 zombie 单列，不声称任务已 wait 或全机清零。
++
++作者实际查看九张图，root 另查看其中 390px 深色、1440px 浅色两张。八张主题图覆盖 390/768/1280/1440px、均为 900px 高的局部视口；CSS `zoom=2` 一张显示前面的四项区域，不能作为 Summary 区域、原生缩放或全页审阅证明。真实浏览器共用的 42 文件测试构建已在全部八个已启动轮次（含 B01 失败）实际结束后撤下，原 `web/dist` 三文件字节、身份及约定元数据恢复；目录 size 与 ctime 的实际差量保留。作者轮次、截图及恢复原件位于工作区 `/workspace/scratch/meeting-summary-settings-frontend-author/runtime-prep02/` 下的 `browser-author-review01.md`、`screenshot-review01.json`、`asset-restoration-final01.json`；首次 preflight/apply 与测试失败均保留。
++
++保存仅确认共享配置持久化，不触发模型调用或 D24 Meeting 生成。S3 当前解析库与生产消费者绑定是不同交付；生产 Resolution/Invocations 仍未绑定，ready503、既有 compaction snapshot 与 Execution Summary 边界不变。
++
+ ## 账号安全配置
+ 
+ [账号安全工作项 rev2](../work-items/d27-system-account-security-ui.md)已获独立验收。`/system/account-security` 是“平台配置 → 账号安全”叶子，也是第十个精确登录返回目标；系统菜单现共三组、八叶子，`/system` 仍进入用户目录。普通用户没有入口，直链不挂载本页、不发管理请求。

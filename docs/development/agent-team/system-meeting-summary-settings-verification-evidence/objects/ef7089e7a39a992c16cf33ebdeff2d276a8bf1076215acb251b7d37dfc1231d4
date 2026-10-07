@@ -1,0 +1,154 @@
+{
+  "status": "8 authorized compile/vet/build commands first-run PASS; no test bodies or resources",
+  "candidate_sha256": "b0433171632b7f500f5e9552ff3b6994106999a8666ec6dadaea0eb31761dbeb",
+  "source_repairs": [],
+  "driver_sha256": "320684cd98da488c4d93286c298299ab5a0b24eca2c3b68fc24e530de55f6e4a",
+  "execution_freeze_sha256": "0725f127b3aebd334ade87af409109670c29730de4ec48152e3d43d2b3079edc",
+  "commands_sha256": "9967f4eec18943fbf6e467bd720729bde71f76aca310c64cd4fa80df21ed40d6",
+  "runs": {
+    "model-compile01": {
+      "exit": 0,
+      "elapsed_seconds": 3.103018087000237,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "563b49d2d69e0d1a72ef846ab06c8fe881bb0add639a84180df82c1749350b17",
+      "result_sha256": "2690ff8b766d3ae372638d767db72f1113610a625804970cbe1c903fd9514d90",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model.test",
+        "bytes": 18623126,
+        "sha256": "68d46c78446258ae23b853b4437003ed75fbd3cb9effb18fe4f1d32cbecd3536"
+      }
+    },
+    "model-race-compile01": {
+      "exit": 0,
+      "elapsed_seconds": 4.242464877999737,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "95e52ed7a553f32e0b60987f12759bd9ccddfebce32ac25fa160ed43615601aa",
+      "result_sha256": "061b69ee0ff2345689c340717fb7fe3321d06a2250cfdc4e009ed726056846c4",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+        "bytes": 24205928,
+        "sha256": "61accceb92dcb1ee96459c5b868f1f185356426e7b8d05fe48eb5894ff8e4ab1"
+      }
+    },
+    "app-compile01": {
+      "exit": 0,
+      "elapsed_seconds": 3.766827129000376,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "7896d3149101124f7c8f6d41b82b347687c8e8440e7c940ea7c875c021a388ea",
+      "result_sha256": "713b1d5e9a71ce39bfa824cc735a75d0b8e1fde9de54c1f287c075f83c2e07cc",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app.test",
+        "bytes": 34306842,
+        "sha256": "4503951339217a6415154f7d31fb31133185c68458c64de4ebff1641419abc2d"
+      }
+    },
+    "app-race-compile01": {
+      "exit": 0,
+      "elapsed_seconds": 5.777912778001337,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "de59fb0dea7c23993c6160da0b0d1ef8d4bf788f883e8a1c22a64cf16be56280",
+      "result_sha256": "a749847e4074f3067aaf43de1f3c04e6b633f3068af27007992e9109b8fd26fb",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/app-race.test",
+        "bytes": 45269784,
+        "sha256": "bfe8254f014e41661fdbb9e9e3a53ecc85b2b98900d3b9da07d701857b8f455e"
+      }
+    },
+    "integration-compile01": {
+      "exit": 0,
+      "elapsed_seconds": 7.037391211000795,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "44127c363c658a1c797d18277ec52996dbd5e90fc11ed2bbc0ba896a0c35ea12",
+      "result_sha256": "0503617f5a8d2add7e43f2af91c7f4e236792d75300110545a410837a7c6bda0",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-integration.test",
+        "bytes": 49847287,
+        "sha256": "26ede5cd115abd9eb10f60940b81e1b044bc03365a9a7af051f9cf97185a8352"
+      }
+    },
+    "integration-vet01": {
+      "exit": 0,
+      "elapsed_seconds": 5.932940543001678,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "c33cf0d79e30bcf0b5964916ff948066c7d0eead0aa148949999817129f2cc6a",
+      "result_sha256": "54f065d70be645ac9494f5d57933786c32a4d66e4b0aa99ea0e21fbe4572a22d",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "central-build01": {
+      "exit": 0,
+      "elapsed_seconds": 1.4250247729996772,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "bb22c2934f82ca3319088095273583877e5862451c2de928db81d5548ca7cfd0",
+      "result_sha256": "9eadf79a8b35d3a9353695a2f5faf15d644c756310aacc63b48bca80fba12591",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/agenteam",
+        "bytes": 32381445,
+        "sha256": "a2dd3c9c656a55340a20639e84cf5d2550966f95fb7159625cc9db5cdf9972bc"
+      }
+    },
+    "runner-build01": {
+      "exit": 0,
+      "elapsed_seconds": 0.4962016320005205,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_and_effective_sets_unchanged": true,
+      "adopted_waits": 0,
+      "forced_actions": 0,
+      "command_sha256": "79748e1d9fc651f322ac3fc9cf0fd9ae8c5028ae8734c318a5a4da81b9750cc8",
+      "result_sha256": "7f1b254cd0ab246d5c24f003e8da137a77ff382108722db207ec813533bb1346",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binary": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/agenteam-runner",
+        "bytes": 4631991,
+        "sha256": "44a77b0ae7e98169346d05c4aa766b22e5e59eeea47b95b02fbb2f8a85927ebc"
+      }
+    }
+  },
+  "limits": [
+    "only two browser Go sources hidden",
+    "not native/PG/root/UI acceptance",
+    "S3 CGO0 outbound server graph reuse awaiting fixed input comparison"
+  ]
+}

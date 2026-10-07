@@ -1,0 +1,172 @@
+{
+  "status": "author candidate04 Recovery actual-header evidence supplement PASS; no independent client PASS inferred",
+  "candidate04": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04.json",
+    "sha256": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f"
+  },
+  "actual_round": {
+    "result": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/result.json",
+      "sha256": "c9e5709efe97ae701403fd223334a5a360f891e256944ca99d0ee78b128caab0"
+    },
+    "command": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/command.json",
+      "sha256": "b1f35ba2e1fd99a668383a686ae764af0a03ade07ec6a8b2e2ae177a95c8a898"
+    },
+    "raw": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/raw.log",
+      "sha256": "640ebbd60bb2ddafa11ece97e7ea585d50f05ecd0c49bf5f9c02dc9df973b1f2"
+    },
+    "actual_seconds": 59.809,
+    "top_passes": [
+      [
+        "TestModelMeetingSummarySettingsRecovery",
+        "9.42s"
+      ]
+    ],
+    "sub_passes": [
+      [
+        "TestModelMeetingSummarySettingsRecovery/accepted_short_response_and_historical_replay",
+        "3.72s"
+      ],
+      [
+        "TestModelMeetingSummarySettingsRecovery/original_commit_ack_loss_via_http",
+        "2.56s"
+      ],
+      [
+        "TestModelMeetingSummarySettingsRecovery/pending_original_writer_then_lookup_and_replay",
+        "3.15s"
+      ]
+    ],
+    "actual_wait": true,
+    "resources": 7,
+    "owned_pid_starttime": 86,
+    "adopted_waits": 0,
+    "forced_tail_actions": 0,
+    "double_cleanup": true,
+    "source_and_verification_same": true
+  },
+  "responses": [
+    {
+      "name": "lookup",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/lookup.json",
+        "sha256": "83c7621112dfdb6edecd5bff2114d492023bf107cf6467281ec68d6706cce42b"
+      },
+      "sidecar": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/lookup-source.json",
+        "sha256": "351fb502d86f47adef1e211ac3a6dbb11e3af05bcfa4c27ccfde04cb2f5ad3a3"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "has_actual_request_id_header": false
+    },
+    {
+      "name": "deletion-impact",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/deletion-impact.json",
+        "sha256": "4e699524a3f7ec47a5c0734f2e19facb137b5fc4e90c21d24e7af01463512d25"
+      },
+      "sidecar": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/deletion-impact-source.json",
+        "sha256": "6609b2cc5723a1705bb9d902c9e59f88d49bdda21e6cbc6e29be362498acea40"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "has_actual_request_id_header": false
+    },
+    {
+      "name": "unknown",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/unknown.json",
+        "sha256": "7837729118c2d444ae6b4672d86dd291f5d5034c4fd8e3181cb31c9aa4a2fafe"
+      },
+      "sidecar": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/unknown-source.json",
+        "sha256": "482db2b3f5c4a4f0b185d2e17e76e459a0aa04393863decf560e15263a32da20"
+      },
+      "actual_status": 503,
+      "actual_content_type": "application/problem+json",
+      "has_actual_request_id_header": true
+    },
+    {
+      "name": "lookup-false",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/lookup-false.json",
+        "sha256": "3998c1796653397077a9d89f2413eda9cc774701a9fd955f0622f4b549bb6d28"
+      },
+      "sidecar": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/lookup-false-source.json",
+        "sha256": "6f3e1cd9458983a17f04bd243cbe2b66ef0c7d3de0ef4a63cab3d2bd15a92923"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "has_actual_request_id_header": false
+    },
+    {
+      "name": "replay",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/replay.json",
+        "sha256": "9f6da7d2fcaed36eb341bfe47781e1f3cb373200f6bd6d9bba44d16237a2b245"
+      },
+      "sidecar": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/runs/recovery-header01/safe-http-evidence/replay-source.json",
+        "sha256": "2f702cb1916e9f439ea1291b645f6fb3300d9ea1521aaaf79523ca7459cb4ab8"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "has_actual_request_id_header": false
+    }
+  ],
+  "actual_header_body_request_id_equal": true,
+  "unknown_false_replay_same_safe_captured_command": true,
+  "original_body_preserved": true,
+  "headers_exported": [
+    "X-Request-ID"
+  ],
+  "no_old_body_fresh_header_mix": true,
+  "daemon_shim_Z": {
+    "before": 100,
+    "after": 104,
+    "new_not_owned_or_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 384100,
+        "ppid": 1,
+        "starttime": "1353850",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 384589,
+        "ppid": 1,
+        "starttime": "1354301",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 384912,
+        "ppid": 1,
+        "starttime": "1354494",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 385535,
+        "ppid": 1,
+        "starttime": "1354698",
+        "state": "Z"
+      }
+    ]
+  },
+  "earlier_four_pass_rounds_and_native_reused": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/author-final03.json",
+    "sha256": "01ef3e6c9739a9f2fe38a0cf44ecc35d6ec050d44c113bd9a691b608aa0d367e"
+  },
+  "window_returned": true,
+  "scope": "Only new Unknown body/header needs public client/schema supplement. Other new same-round bodies are available with exact command binding; earlier seven client/eight schema results retain their actual old input labels."
+}

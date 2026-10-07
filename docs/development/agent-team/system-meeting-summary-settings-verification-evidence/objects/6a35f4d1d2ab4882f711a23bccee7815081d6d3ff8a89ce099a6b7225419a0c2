@@ -1,0 +1,23 @@
+{
+  "status": "PASS backend README last-file bounded STATIC",
+  "path": "/workspace/agenteam/docs/development/backend/README.md",
+  "sha256": "5f4b84268aba55e5cdc999c7dec5908e3e44c72c9bdf5b4f9726487ab264ba70",
+  "before": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/readme-final/before.md",
+    "sha256": "36670ae9683a7ac3c6e2bc068d0fc5b231dc3a96e65f5fa11f7878c327d3a8f2"
+  },
+  "patch": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/readme-final/changes.patch",
+    "sha256": "1de2e4c1ec51d91b179e6a31390bb0f1cfe4397120a27ef24f99b1cfaa608a50"
+  },
+  "checks": [
+    "exact frozen diff only",
+    "S2 actual routes/current authorization/wire/no-clear/current-vs-historical/Unknown lookup/replay accurate",
+    "3s30s/native complete tail and HEAD projection accurate",
+    "same ctx Secret\u2192Model\u2192Summary\u2192Usage startup accurate",
+    "old S1 unbound statements updated; original S3 two paragraphs byte-identical",
+    "Resolution/Invocations/D24/ready503/stopped work unchanged",
+    "all local link paths resolve"
+  ],
+  "product_or_resource_run": false
+}

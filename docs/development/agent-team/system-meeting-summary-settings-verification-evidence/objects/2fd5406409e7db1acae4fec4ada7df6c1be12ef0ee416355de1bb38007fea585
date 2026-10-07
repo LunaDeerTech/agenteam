@@ -1,0 +1,640 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > captures the full immutable original before key allocation and exposes no key/CSRF/body 29ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'fetch' owned after the visible 30s cutoff until its actual tail joins 7ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'read' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'reader-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'body-cancel' owned after the visible 30s cutoff until its actual tail joins 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'fetch' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'read' owned after the visible 30s cutoff until its actual tail joins 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'reader-cancel' owned after the visible 30s cutoff until its actual tail joins 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'body-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'fetch' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'read' owned after the visible 30s cutoff until its actual tail joins 7ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'reader-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'body-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > uses one signal and one 30s owner across two sequential native body reads, with no half-publication 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > abandons native GET 1 without publishing or advancing until cancel is joined 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > abandons native GET 2 without publishing or advancing until cancel is joined 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > does not dispatch Provider GET after cancellation at the first actual finalizer 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps a failed Provider response body owned until its native cancel joins 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > separates saved-reference cancellation from the active candidate page 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps a real overflow cancel tail owned and returns no candidate 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > other domain abandonment does not cancel Selection read 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > other domain abandonment does not cancel Selection write 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > other domain abandonment does not cancel Selection lookup 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel personal or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel users or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel invitations or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel provider or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel model or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel restore or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > preserves both Provider Credential→Provider stages during Selection cleanup 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > treats found lookup only as history and explicitly replays the exact original PUT 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > treats missing lookup only as history and explicitly replays the exact original PUT 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > treats failed lookup only as history and explicitly replays the exact original PUT 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps VERSION_CONFLICT distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps CAPABILITY_UNSUPPORTED distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps NOT_FOUND distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps COMMIT_UNKNOWN distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps INTERNAL_ERROR distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not erase prior uncertainty with a known refusal or permit reused-key recovery 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates current identity on Selection write CSRF_FAILED 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates current identity on Selection lookup CSRF_FAILED 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears every system private state on current FORBIDDEN and restores access only after Session revalidation 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates exact identity on current Selection read 401 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates exact identity on current Selection write 401 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates exact identity on current Selection lookup 401 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not apply a late old-generation FORBIDDEN to a restored identity 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not apply a late old-generation SESSION_REVOKED to a restored identity 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not apply a late old-generation CSRF_FAILED to a restored identity 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late read/SESSION_REVOKED only under the original identity/generation rule 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late write/CSRF_FAILED only under the original identity/generation rule 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late lookup/CSRF_FAILED only under the original identity/generation rule 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late read/FORBIDDEN only under the original identity/generation rule 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears an uncertain intent when the restored role changes 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears an uncertain intent when the restored session changes 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears an uncertain intent when the restored csrf changes 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not dispatch or resurrect progress after a synchronous submitting consumer abandons 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not erase a successor started synchronously from confirmation 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > does not publish retired native observations after identity invalidation 17ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > does not publish retired native observations after route invalidation 7ms
+ × src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending model read and unsent saved references without crossing native cancel 10ms
+   → expected [ [ '/api/v1/session', …(1) ], …(16) ] to have a length of 16 but got 17
+ × src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending provider read and unsent saved references without crossing native cancel 7ms
+   → expected [ [ '/api/v1/session', …(1) ], …(17) ] to have a length of 17 but got 18
+ × src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending singleton without inventing references and recovers only on explicit refresh 5ms
+   → expected [ [ '/api/v1/session', …(1) ], …(13) ] to have a length of 13 but got 14
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > preserves completed errors and optional empty slots while retiring only unfinished references 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > lets a continued valid batch finish and preserves all ready observations on a later discard 16ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > isolates a late old-generation success from an explicit same-ID new observation 8ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > isolates a late old-generation error from an explicit same-ID new observation 7ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > keeps null/v1 unconfigured, selects only the active purpose, and saves a complete group once 21ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > bounds the saved reference round to distinct Model IDs, duplicate=false 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > bounds the saved reference round to distinct Model IDs, duplicate=true 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > preserves a saved ID after exact Provider GET failure with no half-details or new PUT until explicit re-read 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains a now-ineligible current binding after model-disabled 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains a now-ineligible current binding after provider-disabled 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains a now-ineligible current binding after memory-capability 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > updates selected draft evidence from an exact disabled Provider, preserving IDs and version until an explicit valid reread 9ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > uses a completed same-ID Model page observation of model-disabled to block a new command 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > uses a completed same-ID Model page observation of memory-capability to block a new command 5ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > invalidates only exact Provider evidence on failed detail, not on page absence or an unrelated Provider 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > applies only observed Provider rows and requires a fresh Model parse after protocol changes 8ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > allows declared Memory capabilities without imposing narrower Runtime restrictions and rejects wrong-purpose candidates 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > uses explicit cursor steps, hides failed rows, and restarts only on an explicit invalid-cursor action 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > partitions Model cursors by selected Provider and purpose without prefetching other purposes 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > cancels a stale Provider read on purpose switch and starts the one pending page only after actual join 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > defers the initial read once behind another owner and does not resume after detach=false 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > defers the initial read once behind another owner and does not resume after detach=true 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains conflict draft IDs until explicit latest-version review, then requires new evidence for changed references 9ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > preserves strict save confirmation after GET failure and only re-reads on refresh 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > allows both uncertain intents, isolates local abandon and preserves original replay inputs 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > summary abandon cannot cancel the active platform read and reverse abandon cannot cancel Summary 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > holds Summary owner through visible timeout and actual cancel tail, blocking every sibling dispatch 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration same preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration session preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration csrf preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration role preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > Summary missing lookup enables only an explicit replay with the same intent 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > Summary failed lookup enables only an explicit replay with the same intent 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > accepts plain chat independently of memory capabilities and refuses disabled/nonchat targets 0ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored reference read to a recoverable error without releasing its native tail
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored reference read to a recoverable error without releasing its native tail
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored current read to a recoverable error without releasing its native tail
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ × src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored reference read to a recoverable error without releasing its native tail 551ms
+   → expected [ [ '/api/v1/session', …(1) ], …(18) ] to have a length of 18 but got 19
+stderr | src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored current read to a recoverable error without releasing its native tail
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > keeps the users default and ten leaves with the exact Selection return target
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > keeps the users default and ten leaves with the exact Selection return target
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > keeps the users default and ten leaves with the exact Selection return target
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ × src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored current read to a recoverable error without releasing its native tail 451ms
+   → expected [ [ '/api/v1/session', …(1) ], …(14) ] to have a length of 14 but got 15
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > returns to the exact selection leaf after real login form and Session confirmation
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > returns to the exact selection leaf after real login form and Session confirmation
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > keeps the users default and ten leaves with the exact Selection return target 281ms
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > renders no administrator leaf or request for a regular user direct link 13ms
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > selects required and optional purposes, writes all six fields once, and opens an immediate clean form
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > returns to the exact selection leaf after real login form and Session confirmation 80ms
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > only enables compatible choices and preserves the unchanged required binding
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > selects required and optional purposes, writes all six fields once, and opens an immediate clean form 286ms
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > shows a saved ID but no half Model name when its exact Provider read fails
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > treats lookup as history, replays the exact original after current Model404, and keeps confirmation through failed GET
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > only enables compatible choices and preserves the unchanged required binding 99ms
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > shows a saved ID but no half Model name when its exact Provider read fails 87ms
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > treats lookup as history, replays the exact original after current Model404, and keeps confirmation through failed GET
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > keeps rejected draft IDs and requires a visible latest-configuration review before a new versioned write
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > treats lookup as history, replays the exact original after current Model404, and keeps confirmation through failed GET 212ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending close through checking failure and same-identity recovery with no new PUT
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending close through checking failure and same-identity recovery with no new PUT
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection actual App/router/controller interactions > keeps rejected draft IDs and requires a visible latest-configuration review before a new versioned write 243ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending route through checking failure and same-identity recovery with no new PUT
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending close through checking failure and same-identity recovery with no new PUT 191ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending route through checking failure and same-identity recovery with no new PUT
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending logout through checking failure and same-identity recovery with no new PUT
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending logout through checking failure and same-identity recovery with no new PUT
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending route through checking failure and same-identity recovery with no new PUT 200ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending route after an explicit restored discard
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending route after an explicit restored discard
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > preserves pending logout through checking failure and same-identity recovery with no new PUT 179ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending route after an explicit restored discard
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending route after an explicit restored discard
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending logout after an explicit restored discard
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending logout after an explicit restored discard
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending route after an explicit restored discard 226ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending logout after an explicit restored discard
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > finishes old pending navigation false on session without transferring an answer
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > finishes old pending navigation false on session without transferring an answer
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > continues only the original pending logout after an explicit restored discard 163ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > finishes old pending navigation false on role without transferring an answer
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > finishes old pending navigation false on session without transferring an answer 100ms
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > finishes old pending navigation false on dispose without transferring an answer
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > restores confirmation with no business Dialog and keeps the original uncertain command unconfirmed
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > restores confirmation with no business Dialog and keeps the original uncertain command unconfirmed
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > finishes old pending navigation false on role without transferring an answer 98ms
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > finishes old pending navigation false on dispose without transferring an answer 55ms
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > configures plain chat while four purposes are null, uses a separate PUT and provides no clear action
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > keeps the other initial observation available after an ordinary section failure
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Selection cohost confirmation through actual App listeners > restores confirmation with no business Dialog and keeps the original uncertain command unconfirmed 108ms
+ ✓ src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > configures plain chat while four purposes are null, uses a separate PUT and provides no clear action 65ms
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > opens one aggregate confirmation, cancels without discarding either draft, then discards both on a later confirmed leave
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > keeps the other initial observation available after an ordinary section failure 96ms
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > opens one aggregate confirmation, cancels without discarding either draft, then discards both on a later confirmed leave
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > opens one aggregate confirmation, cancels without discarding either draft, then discards both on a later confirmed leave
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > opens one aggregate confirmation, cancels without discarding either draft, then discards both on a later confirmed leave
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > opens one aggregate confirmation, cancels without discarding either draft, then discards both on a later confirmed leave
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > native beforeunload protects both drafts without opening or answering an application confirmation
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > opens one aggregate confirmation, cancels without discarding either draft, then discards both on a later confirmed leave 212ms
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > local Summary cancel keeps the platform uncertain intent and pending original command
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > does not retire a newly started intent when an older navigation confirmation is accepted
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > native beforeunload protects both drafts without opening or answering an application confirmation 103ms
+ ✓ src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > local Summary cancel keeps the platform uncertain intent and pending original command 79ms
+stderr | src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > keeps a confirmed Summary receipt after the follow-up GET fails and offers only explicit reread
+[Vue Router warn]: No match found for location with path "/system/audit"
+[Vue Router warn]: No match found for location with path "/system/account-security"
+[Vue Router warn]: No match found for location with path "/system/smtp"
+[Vue Router warn]: No match found for location with path "/system/outbound-policy"
+[Vue Router warn]: No match found for location with path "/system/runtime-information"
+
+ ✓ src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > does not retire a newly started intent when an older navigation confirmation is accepted 97ms
+ ✓ src/tests/system-model-selection.spec.ts > Meeting Summary inline section and aggregate page ownership > keeps a confirmed Summary receipt after the follow-up GET fails and offers only explicit reread 76ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > uses exactly seven operations with a private two-GET read and unchanged query/header rules 21ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > preserves the stable unconfigured singleton and all explicit optional nulls 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a missing required Selection field id 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a missing required Selection field version 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a missing required Selection field configured 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a missing required Selection field configured.embedding 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a missing required Selection field configured.memory 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a missing required Selection field configured.reranker 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a missing required Selection field configured.image 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection id=ABC00000-0000-7000-8000-000000000001 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection id=01900000-0000-4000-8000-000000000001 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection version=1 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection version=0 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection version=01 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection version=9223372036854775808 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection configured= 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection configured.embedding=null 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection configured.memory=null 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection configured.reranker=false 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection configured.image= 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection configured.extra=01900000-0000-7000-8000-00000000000c 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects invalid Selection extra=null 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > captures six immutable PUT fields and rejects invalid input before any dispatch 3ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt kind=model.update 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt resource_id=01900000-0000-7000-8000-000000000002 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt version=9007199254740993 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt version=9007199254740995 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt version=2 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt version=02 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt version=9223372036854775808 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt affected_references=1 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt affected_references=0 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt affected_references=00 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects mismatched Execute and lookup receipt extra=true 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a noncanonical lookup observation 0 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a noncanonical lookup observation 1 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a noncanonical lookup observation 2 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a noncanonical lookup observation 3 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > rejects a noncanonical lookup observation 4 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Selection closed API and original command > returns found=false only with explicit null and leaves the original command unchanged 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > validates complete openai-chat-completions/chat DTOs using the returned Provider 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > validates complete openai-embeddings/embedding DTOs using the returned Provider 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > validates complete jina-rerank/reranker DTOs using the returned Provider 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > validates complete openai-images-generations/image_generation DTOs using the returned Provider 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > does not issue the second GET after invalid first-stage id 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > does not issue the second GET after invalid first-stage provider_id 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > does not issue the second GET after invalid first-stage provider_id 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > does not issue the second GET after invalid first-stage extra 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > requires first-stage top-level input before a Provider GET 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > requires first-stage top-level version before a Provider GET 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > requires first-stage top-level created_at before a Provider GET 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > requires first-stage top-level updated_at before a Provider GET 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full provider validation fails at id 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full provider validation fails at input.protocol 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full provider validation fails at created_at 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full model validation fails at input.capabilities.structured_output_modes 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full model validation fails at input.capabilities.parallel_tool_calls 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full model validation fails at input.parameters 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full model validation fails at input.name 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full model validation fails at version 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > publishes no pair after full model validation fails at updated_at 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > returns no half-result after a second-stage transport failure 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > joins the actual native body/cancel tail after cancellation in GET 1 5ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > joins the actual native body/cancel tail after cancellation in GET 2 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > private saved Model composition > does not continue across the between-GET boundary when the first actual finalizer is cancelled 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > selection fixed transport boundaries > rejects extra GET/options, unsafe mutations and over-budget UTF-8 requests before dispatch 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > selection fixed transport boundaries > keeps getModelSelection success at 600000 bytes and joins a streamed overflow cancel 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > selection fixed transport boundaries > keeps updateModelSelection success at 600000 bytes and joins a streamed overflow cancel 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > selection fixed transport boundaries > keeps lookupModelSelectionCommand success at 600000 bytes and joins a streamed overflow cancel 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > selection fixed transport boundaries > allows exactly 600000 success bytes without broadening Provider or Problem budgets 4ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > uses its own GET/PUT and the original lookup command, with exact decimal receipt correlation 2ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 0 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 1 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 2 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 3 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 4 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 5 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 6 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 7 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 8 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 9 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects a noncanonical or nonclosed current observation 10 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > allows explicit null and the exact signed-int64 terminal current version 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects invalid write input before dispatch 0 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects invalid write input before dispatch 1 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects invalid write input before dispatch 2 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects invalid write input before dispatch 3 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects invalid write input before dispatch 4 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects unrelated or malformed receipts for direct and historical results 0 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects unrelated or malformed receipts for direct and historical results 1 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects unrelated or malformed receipts for direct and historical results 2 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects unrelated or malformed receipts for direct and historical results 3 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects unrelated or malformed receipts for direct and historical results 4 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects unrelated or malformed receipts for direct and historical results 5 1ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects an inconsistent lookup observation 0 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects an inconsistent lookup observation 1 2ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects an inconsistent lookup observation 2 0ms
+ ✓ src/tests/system-model-selection-client.spec.ts > Meeting Summary exact singleton client within Selection API > rejects an inconsistent lookup observation 3 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending model read and unsent saved references without crossing native cancel
+AssertionError: expected [ [ '/api/v1/session', …(1) ], …(16) ] to have a length of 16 but got 17
+
+- Expected
++ Received
+
+- 16
++ 17
+
+ ❯ src/tests/system-model-selection-state.spec.ts:1391:36
+    1389|         expect(f.auth.state.busy).toBe(false)
+    1390|         await flushPromises()
+    1391|         expect(f.fetch.mock.calls).toHaveLength(count)
+       |                                    ^
+    1392|         expect(f.writes()).toHaveLength(0)
+    1393|         f.setReferences(f.readReference)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending provider read and unsent saved references without crossing native cancel
+AssertionError: expected [ [ '/api/v1/session', …(1) ], …(17) ] to have a length of 17 but got 18
+
+- Expected
++ Received
+
+- 17
++ 18
+
+ ❯ src/tests/system-model-selection-state.spec.ts:1391:36
+    1389|         expect(f.auth.state.busy).toBe(false)
+    1390|         await flushPromises()
+    1391|         expect(f.fetch.mock.calls).toHaveLength(count)
+       |                                    ^
+    1392|         expect(f.writes()).toHaveLength(0)
+    1393|         f.setReferences(f.readReference)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending singleton without inventing references and recovers only on explicit refresh
+AssertionError: expected [ [ '/api/v1/session', …(1) ], …(13) ] to have a length of 13 but got 14
+
+- Expected
++ Received
+
+- 13
++ 14
+
+ ❯ src/tests/system-model-selection-state.spec.ts:1440:34
+    1438|       expect(f.auth.state.busy).toBe(false)
+    1439|       expect(pending.response.body!.locked).toBe(false)
+    1440|       expect(f.fetch.mock.calls).toHaveLength(count)
+       |                                  ^
+    1441|       f.setPerform(async () => json(saved))
+    1442|       await f.page.refresh()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored reference read to a recoverable error without releasing its native tail
+AssertionError: expected [ [ '/api/v1/session', …(1) ], …(18) ] to have a length of 18 but got 19
+
+- Expected
++ Received
+
+- 18
++ 19
+
+ ❯ src/tests/system-model-selection.spec.ts:460:36
+    458|         expect(f.auth.state.busy).toBe(false)
+    459|         await flushPromises()
+    460|         expect(f.fetch.mock.calls).toHaveLength(before)
+       |                                    ^
+    461|         expect(document.activeElement).not.toBe(document.body)
+    462|         expect(document.activeElement?.isConnected).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/tests/system-model-selection.spec.ts > Selection cancelled read recovery through public App controls > retires the restored current read to a recoverable error without releasing its native tail
+AssertionError: expected [ [ '/api/v1/session', …(1) ], …(14) ] to have a length of 14 but got 15
+
+- Expected
++ Received
+
+- 14
++ 15
+
+ ❯ src/tests/system-model-selection.spec.ts:460:36
+    458|         expect(f.auth.state.busy).toBe(false)
+    459|         await flushPromises()
+    460|         expect(f.fetch.mock.calls).toHaveLength(before)
+       |                                    ^
+    461|         expect(document.activeElement).not.toBe(document.body)
+    462|         expect(document.activeElement?.isConnected).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  5 failed | 215 passed (220)
+   Start at  14:45:08
+   Duration  7.99s (transform 1.39s, setup 0ms, import 1.75s, tests 4.78s, environment 1.11s)
+

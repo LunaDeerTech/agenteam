@@ -1,0 +1,20 @@
+{
+  "compile": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-mod=readonly",
+    "-buildvcs=false",
+    "-p=1",
+    "-overlay=/workspace/scratch/summary-verification/S2-probes/repair-a02/overlay.json",
+    "-o",
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/bin/model-independent.test",
+    "./tests/model"
+  ],
+  "list": [
+    "/workspace/scratch/summary-verification/S2-probes/repair-a02/bin/model-independent.test",
+    "-test.list=^TestIndependentMeetingSummarySettingsA$"
+  ]
+}

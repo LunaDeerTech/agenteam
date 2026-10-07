@@ -1,0 +1,20 @@
+# Final S2 backend author candidate04
+
+The 14 authorized backend paths are stopped and match candidate04 (`220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f`). Production implementation and OpenAPI bytes are unchanged since candidate01. No frontend, README, migration, shared fixture script or dependency lockfile was edited by this backend worker.
+
+The final bounded author result combines:
+
+- Unchanged model/app compile, vet and pure/race checks, with exact package cwd and fixed schema input.
+- Three native race groups: 3 top / 12 sub PASS; natural GET 3.01s and PUT 30.03s; actual handler/Serve/connection closure, direct and adopted tracer waits, two all-state owned TCP port/process empty checks. TIME_WAIT observation was cleanup only.
+- Four formal PostgreSQL/root rounds: 8 unique top / 35 sub PASS, each actual wait and seven-resource double cleanup, original top120s/package6m budgets, unchanged inputs.
+- Candidate04's one additional Recovery round: 1 top / 3 sub PASS in 59.809s, seven resources / 86 owned PID-starttime identities, actual wait and double cleanup, no forced actions or adopted waits. This supplies the actual Unknown response header/body pair; no other passing group was rerun.
+
+The first real HTTP round's failure remains preserved. Its trailing-slash assertion expected404, while the unchanged Account CheckRequest correctly returned400 before mux routing. Candidate03 changed only that test expectation and added a canonical unknown-route404 assertion, then passed independent static review, affected compile/list and the real HTTP rerun. The failed round's original three partial safe bodies are not substituted for the successful rerun.
+
+Candidate03's successful safe-body export did not save the actual X-Request-ID required by the public client's Problem consistency check. No header was inferred from body.request_id. Candidate04 changes only the test exporter: for Unknown, read the actual response header, require nonempty and save just that safe header. The patch passed independent static review and affected compile/exact Recovery list before the one new real Recovery round. The new original body and its actual header were delivered together to the independent client/schema verifier. Other earlier same-input client/schema results retain their original labels; the new same-round lookup-false/replay evidence is also available with the original command binding.
+
+`author-final04.json` binds the final candidate, source union/closure, exact binary/driver, prior complete results and supplemental evidence. `backend-evidence-index04.json` links the prior original-artifact index and new small evidence. No source tree, cache or binary was copied into a documentation archive. Root/Account/Unknown transaction proofs and controlled-writer versus native-socket boundaries remain explicit in `author-final03.md` and the raw rounds.
+
+All six author real rounds, including the first failure and header supplement, added four daemon-owned PID1 shim zombies each: 24 author additions were not owned or waited. The first author baseline was76, the first five rounds ended96, the independent A round added4, and the supplemental author round observed100→104. These are separate daemon facts, not an owned-cleanup failure or whole-machine-zero claim.
+
+The exclusive resource window was returned after the supplemental round's complete actual termination and double cleanup. All 14 sources are stopped. Independent A/B, browser, public client/schema, final README and root product acceptance remain separately owned results; this author report does not predeclare them accepted.

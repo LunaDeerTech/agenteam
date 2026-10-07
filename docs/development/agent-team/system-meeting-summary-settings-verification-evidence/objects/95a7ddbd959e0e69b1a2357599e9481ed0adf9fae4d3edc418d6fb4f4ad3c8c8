@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 13009.703102742,
+      "top": "TestModelMeetingSummarySettingsRecovery"
+    },
+    {
+      "event": "result",
+      "monotonic": 13018.17924363,
+      "observed_seconds": 8.476140888000373,
+      "reported_seconds": 8.46,
+      "state": "PASS",
+      "top": "TestModelMeetingSummarySettingsRecovery"
+    }
+  ],
+  "expected": [
+    "TestModelMeetingSummarySettingsRecovery"
+  ],
+  "failures": []
+}

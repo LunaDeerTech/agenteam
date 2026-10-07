@@ -1,0 +1,53 @@
+from pathlib import Path
+import hashlib, json, os, sys
+
+BASE = Path('/workspace/scratch/meeting-summary-settings-frontend-author')
+ROOT = Path('/workspace/agenteam')
+WEB = ROOT / 'web'
+NODE = '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node'
+OWNED = ['web/src/api/client.ts', 'web/src/api/system-model-selection.ts', 'web/src/api/system-meeting-summary.ts', 'web/src/composables/useSession.ts', 'web/src/composables/useSystemModelSelection.ts', 'web/src/composables/useMeetingSummarySettings.ts', 'web/src/views/system/SystemModelSelectionView.vue', 'web/src/views/system/SystemMeetingSummarySettings.vue', 'web/src/tests/system-model-selection-client.spec.ts', 'web/src/tests/system-model-selection-state.spec.ts', 'web/src/tests/system-model-selection.spec.ts']
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def tree(path):
+    rows = []
+    for base, dirs, files in os.walk(path):
+        dirs[:] = sorted(d for d in dirs if d != 'node_modules')
+        for name in sorted(files):
+            full = Path(base) / name
+            rel = str(full.relative_to(path))
+            rows.append([rel, 'symlink:' + os.readlink(full) if full.is_symlink() else sha(full)])
+    return {'files': len(rows), 'sha256': hashlib.sha256(json.dumps(rows, separators=(',', ':')).encode()).hexdigest()}
+
+def snapshot():
+    files = sorted(str(p.relative_to(ROOT)) for p in (WEB/'src').rglob('*') if p.is_file())
+    files += ['web/package.json', 'web/package-lock.json', 'web/tsconfig.json',
+              'web/vite.config.ts', 'web/index.html', 'web/.prettierrc.json', 'web/.prettierignore',
+              'web/node_modules/.package-lock.json']
+    packages, absent_optional = {}, []
+    for name, record in json.loads((WEB/'package-lock.json').read_text())['packages'].items():
+        if not name: continue
+        path = WEB/name
+        if not path.exists():
+            if not record.get('optional'): raise RuntimeError('missing locked package: ' + name)
+            absent_optional.append(name)
+            continue
+        metadata = json.loads((path/'package.json').read_text())
+        if metadata['version'] != record['version']: raise RuntimeError('version mismatch: ' + name)
+        packages[name] = {**tree(path), 'version': metadata['version'], 'integrity': record.get('integrity')}
+    return {
+        'source_and_config': {name: sha(ROOT/name) for name in files},
+        'packages': packages,
+        'absent_optional': absent_optional,
+        'tools': {NODE: sha(NODE), str(Path(sys.executable).resolve()): sha(Path(sys.executable).resolve())},
+        'driver': {name: sha(BASE/name) for name in ['input.py', 'run.py', 'tools.mjs']},
+        'owned_web_eleven': {name: sha(ROOT/name) for name in OWNED},
+    }
+
+if __name__ == '__main__':
+    output = BASE/sys.argv[1]
+    if output.exists(): raise RuntimeError('refuse overwrite')
+    value = snapshot()
+    output.write_text(json.dumps(value, indent=2) + '\n')
+    print(json.dumps({'path': str(output), 'sha256': sha(output), 'source_and_config': len(value['source_and_config']), 'packages': len(value['packages'])}))

@@ -1,0 +1,86 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.63.122.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=fc64eafd1c40eb092fe21a9c6618efb1
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=bf2bbc61837d4d5de219c8e290c0ffe0
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.291s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+=== RUN   TestModelMeetingSummarySettingsHTTP
+    meeting_summary_settings_http_test.go:39: safe body null sha256=b928185037e1894ab66b8d0ec05375a6aa6eab0bf3b98f911d9745a9b15bbd26
+    meeting_summary_settings_http_test.go:49: safe body receipt sha256=1cfbe14c6322443586c0aa426382681995403dc1e43a46b8eec0d3cf1d070252
+    meeting_summary_settings_http_test.go:54: safe body configured sha256=d64ff2556575cb6a57ccd64822a839e68a3e35c00f944343a9624d0d1db9fa88
+=== RUN   TestModelMeetingSummarySettingsHTTP/clear
+=== RUN   TestModelMeetingSummarySettingsHTTP/wrong_selector
+=== RUN   TestModelMeetingSummarySettingsHTTP/stale
+=== RUN   TestModelMeetingSummarySettingsHTTP/csrf
+=== RUN   TestModelMeetingSummarySettingsHTTP/origin
+=== RUN   TestModelMeetingSummarySettingsHTTP/raw_path
+=== RUN   TestModelMeetingSummarySettingsHTTP/current_session_rechecked_in_transaction
+--- PASS: TestModelMeetingSummarySettingsHTTP (4.47s)
+    --- PASS: TestModelMeetingSummarySettingsHTTP/clear (0.03s)
+    --- PASS: TestModelMeetingSummarySettingsHTTP/wrong_selector (0.03s)
+    --- PASS: TestModelMeetingSummarySettingsHTTP/stale (0.03s)
+    --- PASS: TestModelMeetingSummarySettingsHTTP/csrf (0.00s)
+    --- PASS: TestModelMeetingSummarySettingsHTTP/origin (0.00s)
+    --- PASS: TestModelMeetingSummarySettingsHTTP/raw_path (0.00s)
+    --- PASS: TestModelMeetingSummarySettingsHTTP/current_session_rechecked_in_transaction (0.88s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	5.502s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce de02dc9359bf06197b23271e7ad275c3
+D04 outbound fixture cleanup checked for nonce bf2bbc61837d4d5de219c8e290c0ffe0
+D05 object fixture exact resource cleanup checked nonce=fc64eafd1c40eb092fe21a9c6618efb1

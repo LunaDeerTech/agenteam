@@ -1,0 +1,157 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"net/http"
+	"sync/atomic"
+	"testing"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+// Private independent probe: controlled HTTP + real PG authorization is kept
+// distinct from the second subcase's actual default-root native socket traffic.
+func TestIndependentMeetingSummarySettingsA(t *testing.T) {
+	meetingSummarySettingsBudget(t)
+	t.Run("HEAD_post_auth_formal_session_revocation", func(t *testing.T) {
+		v := newMeetingSummaryFixture(t, true)
+		meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "HEAD", meetingSummarySettingsPath, "", nil).want(t, 200)
+		var reached atomic.Int32
+		var barrierFacts map[string][32]byte
+		v.tracked.setHooks(func(_ context.Context, cause f.TransactionCause) error {
+			if cause.Details().Owner != "model.meeting-summary-query" {
+				return nil
+			}
+			if reached.Add(1) != 1 {
+				t.Fatal("independent HEAD reached more than one target transaction")
+			}
+			// This callback is reached only after the HTTP RequireSystem gate and
+			// immediately before the selected model query transaction starts.
+			if err := v.account.Logout(testContext(t), account.LogoutRequest{Actor: v.adminBrowser.actor, Key: f.IdempotencyKey(newID[struct{}](t).String())}); err != nil {
+				return err
+			}
+			barrierFacts = v.summaryFacts(t) // includes legitimate Logout audit.
+			return nil
+		}, nil)
+		t.Cleanup(func() { v.tracked.setHooks(nil, nil) })
+		denied := meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "HEAD", meetingSummarySettingsPath, "", nil)
+		v.tracked.setHooks(nil, nil)
+		if reached.Load() != 1 || barrierFacts == nil || denied.status != 401 || len(denied.body) != 0 {
+			t.Fatal("HEAD did not deny at its current transaction authorization barrier")
+		}
+		httpSameFacts(t, barrierFacts, v.summaryFacts(t))
+		renewed := v.login(t, v.adminBrowser.email)
+		if renewed.actor.Details().SessionID == v.adminBrowser.actor.Details().SessionID {
+			t.Fatal("formal Login reused revoked Session")
+		}
+		meetingSummarySettingsRequest(t, v.systemHTTPFixture, renewed, "HEAD", meetingSummarySettingsPath, "", nil).want(t, 200)
+		t.Log("HEAD target model query barrier reached once after initial HTTP auth; formal Logout completed before current Tx check; no body/no model side effect; new formal Session restored HEAD")
+	})
+	t.Run("default_root_client_prefix_loss_then_historical_cross_slot", func(t *testing.T) {
+		v := newMeetingSummaryFixture(t, false)
+		target, next := v.chat(t, true), v.chat(t, true)
+		embedding := v.model(t, v.provider(t, "openai-embeddings"), "embedding")
+		root := startMeetingSummarySettingsRoot(t, v.systemHTTPFixture, false)
+		initial := root.request(t, v.adminBrowser, "GET", meetingSummarySettingsPath, nil).want(t, 200).object(t)
+		old := root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", nil).want(t, 200)
+		if initial["version"] != "1" || initial["model"] != nil || initial["id"] == old.object(t)["id"] {
+			t.Fatal("default root did not independently initialize null Summary")
+		}
+		key := newID[struct{}](t).String()
+		body := summaryJSON(t, map[string]any{"id": initial["id"], "expected_version": "1", "model": target.String()})
+		partial := independentSettingsNative(t, root, v.adminBrowser, "PUT", meetingSummarySettingsPath, key, body, true)
+		if partial.status != 200 || len(partial.body) != 1 || partial.body[0] != '{' {
+			t.Fatal("client did not observe only a real accepted response prefix")
+		}
+		current := root.request(t, v.adminBrowser, "GET", meetingSummarySettingsPath, nil).want(t, 200).object(t)
+		if current["model"] != target.String() || current["version"] != "2" {
+			t.Fatal("client prefix loss did not have a real accepted command")
+		}
+		previous := v.adminBrowser
+		if err := v.account.Logout(testContext(t), account.LogoutRequest{Actor: previous.actor, Key: f.IdempotencyKey(newID[struct{}](t).String())}); err != nil {
+			t.Fatal("formal Logout", err)
+		}
+		root.request(t, previous, "GET", meetingSummarySettingsPath, nil).want(t, 401)
+		v.adminBrowser = v.login(t, previous.email)
+		v.admin = v.adminBrowser.actor
+		if v.admin.Details().SessionID == previous.actor.Details().SessionID {
+			t.Fatal("replay identity is not a new formal Session")
+		}
+		v.selectModel(t, next) // formal later update makes the original receipt historical.
+		stable := v.summaryFacts(t)
+		lookup := independentSettingsNative(t, root, v.adminBrowser, "POST", "/api/v1/system/model-commands/lookup", key, summaryJSON(t, map[string]string{"command": "model.selection.update"}), false).want(t, 200).object(t)
+		if lookup["found"] != true {
+			t.Fatal("original command missing from new Session lookup")
+		}
+		httpSameFacts(t, stable, v.summaryFacts(t))
+		replayed := independentSettingsNative(t, root, v.adminBrowser, "PUT", meetingSummarySettingsPath, key, body, false).want(t, 200)
+		history := replayed.object(t)
+		if history["resource_id"] != initial["id"] || history["version"] != "2" || history["affected_references"] != "0" || !bytes.Equal(summaryJSON(t, lookup["receipt"]), summaryJSON(t, history)) {
+			t.Fatal("original native replay did not return the same historical receipt")
+		}
+		httpSameFacts(t, stable, v.summaryFacts(t))
+		oldFields := old.object(t)
+		legacyBody := summaryJSON(t, map[string]any{"id": oldFields["id"], "expected_version": oldFields["version"], "embedding": embedding, "memory": target.String(), "reranker": nil, "image": nil})
+		independentSettingsNative(t, root, v.adminBrowser, "PUT", "/api/v1/system/model-selection", key, legacyBody, false).problem(t, 409, f.IdempotencyKeyReused)
+		httpSameFacts(t, stable, v.summaryFacts(t))
+		if got := root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", nil).want(t, 200); !bytes.Equal(got.body, old.body) {
+			t.Fatal("cross-selector conflict changed old four-purpose state")
+		}
+		now := root.request(t, v.adminBrowser, "GET", meetingSummarySettingsPath, nil).want(t, 200).object(t)
+		if now["version"] != "3" || now["model"] != next.String() {
+			t.Fatal("historical replay replaced the current observation")
+		}
+		ready := root.request(t, v.adminBrowser, "GET", "/readyz", nil)
+		var readiness map[string]any
+		if ready.status != 503 || json.Unmarshal(ready.body, &readiness) != nil || (readiness["code"] != string(f.DependencyUnbound) && readiness["code"] != string(f.DependencyUnavailable)) || readiness["commit_state"] != "not_started" {
+			t.Fatal("default root readiness Problem changed")
+		}
+		root.stop(t)
+		t.Log("default root native PUT: application read one actual byte then closed; accepted server fact, formal Logout/new Login, read-only historical lookup and original PUT at later current version; old selector key conflict effect-free. This is client response loss, not server Unknown.")
+	})
+}
+
+func independentSettingsNative(t *testing.T, root *projectUsageRoot, browser systemHTTPBrowser, method, path, key string, body []byte, prefixOnly bool) systemHTTPResponse {
+	t.Helper()
+	request, err := http.NewRequestWithContext(testContext(t), method, "http://"+root.address+path, bytes.NewReader(body))
+	if err != nil {
+		t.Fatal("private native request construction failed")
+	}
+	request.Host = "system-http.example.test"
+	request.Header.Set("Origin", systemHTTPOrigin)
+	request.Header.Set("Sec-Fetch-Site", "same-origin")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("X-CSRF-Token", browser.csrf)
+	request.Header.Set("Idempotency-Key", key)
+	request.AddCookie(&http.Cookie{Name: "__Host-agenteam_session", Value: browser.cookie})
+	response, err := root.client.Do(request)
+	if err != nil {
+		t.Fatal("private native request failed")
+	}
+	defer response.Body.Close()
+	var raw []byte
+	if prefixOnly {
+		if response.ContentLength <= 1 {
+			t.Fatal("native response length cannot prove partial application read")
+		}
+		raw = make([]byte, 1)
+		if _, err = io.ReadFull(response.Body, raw); err != nil {
+			t.Fatal("native prefix unavailable")
+		}
+	} else {
+		raw, err = io.ReadAll(io.LimitReader(response.Body, 600001))
+		if err != nil || len(raw) > 600000 || !json.Valid(raw) {
+			t.Fatal("native body did not complete bounded valid JSON")
+		}
+	}
+	if err = response.Body.Close(); err != nil {
+		t.Fatal("native response actual Close failed")
+	}
+	return systemHTTPResponse{response.StatusCode, response.Header.Clone(), raw}
+}

@@ -1,0 +1,88 @@
+{
+  "status": "final author S2 backend candidate04 bounded technical PASS; final independent/client/browser/product acceptance separate",
+  "candidate04": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04.json",
+    "sha256": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f"
+  },
+  "current_owned14_all_hash_match": true,
+  "source_scope": "S2 #1-13 and#32 only; no README authorized or edited",
+  "production_implementation_unchanged_since_candidate01": true,
+  "candidate03_author_results": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/author-final03.json",
+    "sha256": "01ef3e6c9739a9f2fe38a0cf44ecc35d6ec050d44c113bd9a691b608aa0d367e"
+  },
+  "candidate04_delta": "sole#13 actual nonempty X-Request-ID whitelist export for Unknown response; body original bytes/command binding preserved; independently STATIC approved; no product behavior change",
+  "candidate04_checks": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/result.json",
+    "sha256": "2462a6d6c69b348a3a26d7e004d3ebd4ad6b3af6680555418f5e163f66dbdbde"
+  },
+  "candidate04_resource_supplement": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/safe-http-supplement04.json",
+    "sha256": "185b8b361e5187ba07c029aac47442a736914ee9de4fbdc1d27eb3c5f45e6296"
+  },
+  "final_source_closure": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/closure.json",
+    "sha256": "160aa178e52c386fff2aecfc6028de4dbe762f4580b24021abc8f8a2eee24338"
+  },
+  "final_source_union": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/source-union04.json",
+    "sha256": "79e9d33e2475ba2886000342754cc8e44e20377a586da71f3346cb6c3bcd0feb"
+  },
+  "final_resource_freeze": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v03/frozen.json",
+    "sha256": "19720dc289007a622dc5da0c1198876a9cc98d337dcf6ae2a3aeecdc9d2b206b"
+  },
+  "driver_sha256": "616b8c343dd2a698531ec4dbb8441c776bf3d5d8fbf5f91265a0450d6de60367",
+  "final_integration_binary": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/bin/model-integration.test",
+    "sha256": "187fbe447723610c664d4ce891f041cf9307168de941e1a7f70002030060ab52"
+  },
+  "bounded_success": {
+    "unique_real_test_top": 8,
+    "unique_real_test_sub": 35,
+    "additional_Recovery_header_evidence_top": 1,
+    "additional_Recovery_header_evidence_sub": 3,
+    "successful_real_rounds": 5,
+    "preserved_first_failed_real_rounds": 1,
+    "native_top": 3,
+    "native_sub": 12,
+    "each_real_round_exact_resources": 7,
+    "all_real_rounds_actualwait_and_double_cleanup": true,
+    "forced_tail_actions": 0,
+    "adopted_resource_waits": 0
+  },
+  "two_preserved_evidence_gaps_and_resolution": {
+    "first_real_failure": "candidate02 trailing-slash expectation incorrectly404, existing Account boundary400. Original retained, candidate03 only test correction and canonical unknown404, rerun complete PASS.",
+    "missing_Unknown_actual_header": "successful candidate03 export omitted actual X-Request-ID; old body request_id never substituted. candidate04 actual same-round header/body supplement complete PASS, now sent to public client/schema verifier."
+  },
+  "safe_body_sources": {
+    "earlier_eight": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/safe-http-delivery03.json",
+      "sha256": "f30df011f81cf973e3e527f26c35c56cf4492665e057f9e827a607b9f5bd3f7c"
+    },
+    "supplementary_five_including_actual_Unknown_header": {
+      "path": "/workspace/scratch/meeting-summary-settings-backend/safe-http-supplement04.json",
+      "sha256": "185b8b361e5187ba07c029aac47442a736914ee9de4fbdc1d27eb3c5f45e6296"
+    },
+    "composition_rule": "Earlier seven client/eight schema checks retain exact old response labels. New Unknown client/schema must use new body with its actual header sidecar. New same-round false/replay also available and same captured command; do not attach fresh header to old body."
+  },
+  "daemon_shim_Z": {
+    "author_rounds": 6,
+    "new_per_author_round": 4,
+    "new_author_total_not_owned_or_waited": 24,
+    "author_first_baseline": 76,
+    "after_author_first_five": 96,
+    "intervening_independent_A_new_not_author": 4,
+    "supplement_baseline": 100,
+    "supplement_final": 104,
+    "not_whole_machine_cleanup": true
+  },
+  "evidence_index": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/backend-evidence-index04.json",
+    "sha256": "4048480dd32a90361c736b19db0a95a6341196d7cff8175737ed60774b47b51c"
+  },
+  "new_indexed_artifact_count": 55,
+  "source_write_state": "stopped; all14 match candidate04",
+  "resource_state": "returned to root after recovery-header01 actualwait/seven resource doublecleanup; no PG/browser/native activity remains",
+  "README_state": "not authorized, not edited"
+}

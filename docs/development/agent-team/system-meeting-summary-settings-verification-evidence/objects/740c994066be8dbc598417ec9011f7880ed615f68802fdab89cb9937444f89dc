@@ -1,0 +1,33 @@
+{
+  "phase": "applied",
+  "session_sha256": "770961029c5939a14eb5771d2c3f881e76414ec3f385ef4264db92d5bb1906f4",
+  "deltas": {
+    "old-to-stage_after": [
+      {
+        "path": ".",
+        "fields": {
+          "ctime_ns": {
+            "before": 1790982177929142569,
+            "after": 1791387941324803152
+          },
+          "size": {
+            "before": 67,
+            "after": 4096
+          }
+        }
+      }
+    ],
+    "candidate-to-published_after": [
+      {
+        "path": ".",
+        "fields": {
+          "ctime_ns": {
+            "before": 1791385516193370994,
+            "after": 1791387941324803152
+          }
+        }
+      }
+    ]
+  },
+  "fixture_or_browser_spawned": false
+}

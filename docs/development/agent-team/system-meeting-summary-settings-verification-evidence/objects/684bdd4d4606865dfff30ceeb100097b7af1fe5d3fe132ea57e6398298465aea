@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 14102.226657368,
+      "top": "TestAccountSystemMeetingSummaryWebLifecycle"
+    },
+    {
+      "event": "result",
+      "monotonic": 14112.416943074,
+      "observed_seconds": 10.190285705999486,
+      "reported_seconds": 10.21,
+      "state": "PASS",
+      "top": "TestAccountSystemMeetingSummaryWebLifecycle"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemMeetingSummaryWebLifecycle"
+  ],
+  "failures": []
+}

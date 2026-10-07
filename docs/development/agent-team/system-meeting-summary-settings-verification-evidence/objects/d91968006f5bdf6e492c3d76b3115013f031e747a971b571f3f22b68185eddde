@@ -1,0 +1,55 @@
+{
+  "status": "candidate03 stopped; one HTTP test canonical-path expectation repair; production unchanged; affected compile/list pending",
+  "base_product_commit": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "scope": "S2 rev3 #1-13 plus #32; backend14; README excluded",
+  "scope32_authorization": "root formal scope32 authorization after independent STATIC PASS; accepted rev3 commit bound below",
+  "files": {
+    "internal/central/model/http.go": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a",
+    "internal/central/model/http_meeting_summary.go": "846984d236d53c63bbdf565c7be657246811749066bfa3a3d5501d9739eb7361",
+    "internal/central/model/http_meeting_summary_test.go": "511ac5453b4cae178c0b316bcc42e2730fb1540b2682accbe65e6467d6f42bfb",
+    "internal/central/model/http_meeting_summary_native_test.go": "5193620c85341e2ce29df3e6082e162a0ca6740a14989c6364209c77e0d33211",
+    "api/openapi/model-system.json": "d4dcc2c8852916828e68e6927145867432d9ae192b48fd54cf516c95a4afd50e",
+    "internal/central/app/account.go": "4a268680ae569d14568b824465e84d3b426afb04e8d0b2bbde5094fb9669ae72",
+    "internal/central/app/project_usage.go": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+    "internal/central/app/project_usage_test.go": "5321f1119dc32d075b8e332cf132c03ad5864e700bf25f9ba6bff4cd2ad272cf",
+    "internal/central/app/model_test.go": "a21efaa382a99c587c9450130a0e9308de919f3176008d2f72b8064055564f7a",
+    "tests/model/meeting_summary_http_test.go": "455c1d39264efdb7bef2a83e8c929452c35b40f661d58631c29fa15d7f4f4fd2",
+    "tests/model/meeting_summary_settings_http_test.go": "ae7fd516da52cd67618698267a5cfe23fcbd9730313f535b08eb7e77204f612e",
+    "tests/model/meeting_summary_settings_root_test.go": "01941516beb59dfa3089b30f53bf18f992ada927869577724755f4f770eb6dd6",
+    "tests/model/meeting_summary_settings_fixture_test.go": "c88be65ecd06627de58b4ee5135ef2937e5c1d27616fe3f08b46d1f0489c0f2f",
+    "internal/central/model/http_test.go": "3f4736e845ba70c08572c09acfba124611fedb4c713df20ad7e86afc4724315a"
+  },
+  "snapshot": "candidate01 unchanged twelve; candidate02 fixture safe-export helper; candidate03-delta HTTP test",
+  "patch_sha256": "62393e040b70910327ca77ededced7094cbee855d5b09e3d163019f765becc37",
+  "go_mod_sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+  "go_sum_sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+  "static_checks": {
+    "unchanged_other_thirteen": true,
+    "production_unchanged": true,
+    "gofmt_one": true,
+    "one_wrong_expectation_corrected": true,
+    "canonical_unknown_404_added": true
+  },
+  "execution": {
+    "compile_list_for_candidate03": false,
+    "real_rerun": false
+  },
+  "accepted_specification": {
+    "path": "docs/development/work-items/d09-system-meeting-summary-settings.md",
+    "sha256": "85283d57927c05fe39df4af15cff6f8a12be5d13d048bbffcde3e0b5ce19c035",
+    "commit": "fdfcffdbc5949006030c80e48833bfe3b49a86cc",
+    "remote_confirmed_by": "root"
+  },
+  "parent": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate02.json",
+    "sha256": "b06c6a3b4eefcfea07a9adc6c601b88f6033b7fae54d8b3d86e61c58cceaaf78"
+  },
+  "changed_paths": [
+    "tests/model/meeting_summary_settings_http_test.go"
+  ],
+  "authorization": "root accepted canonical-path existing Account CheckRequest precedence; #11 only correct trailing slash to400 InvalidArgument and add canonical unknown404; no production change; integration compile/list allowed; real rerun needs independent static/root grant",
+  "reuse": {
+    "model_app_compile_vet_pure_native_binary": "unchanged actual inputs; native not yet run",
+    "integration": "candidate01 compiled/listed only; rebuild required for these two changed test files; no testbody run yet"
+  }
+}

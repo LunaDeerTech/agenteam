@@ -1,0 +1,76 @@
+--- candidate01/tests/model/meeting_summary_settings_http_test.go
++++ candidate02/tests/model/meeting_summary_settings_http_test.go
+@@ -46,7 +46,7 @@
+ 	body := meetingSummarySettingsBody(original)
+ 	receipt := request(v.adminBrowser, "PUT", string(original.Key), body)
+ 	meetingSummarySettingsReceipt(t, receipt, original)
+-	meetingSummarySettingsSafeBody(t, "receipt", meetingSummarySettingsPath, receipt)
++	meetingSummarySettingsSafeBody(t, "receipt", meetingSummarySettingsPath, receipt, original)
+ 	configured := request(v.adminBrowser, "GET", "", nil).want(t, 200)
+ 	if out := configured.object(t); out["model"] != plain.String() || out["version"] != "2" {
+ 		t.Fatal("plain text chat not selected")
+@@ -200,7 +200,7 @@
+ 			t.Fatal("original lookup did not observe receipt")
+ 		}
+ 		httpSameFacts(t, stable, v.summaryFacts(t))
+-		meetingSummarySettingsSafeBody(t, "lookup", "/api/v1/system/model-commands/lookup", lookup)
++		meetingSummarySettingsSafeBody(t, "lookup", "/api/v1/system/model-commands/lookup", lookup, original)
+ 		changed := meetingSummarySettingsBody(original)
+ 		changed["model"] = next.String()
+ 		meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "PUT", meetingSummarySettingsPath, string(original.Key), changed).problem(t, 409, f.IdempotencyKeyReused)
+@@ -359,6 +359,7 @@
+ 		if json.Unmarshal(got.response.body, &wire) != nil || wire["retry_hint"] != "lookup" {
+ 			t.Fatal("Unknown original lookup hint lost")
+ 		}
++		meetingSummarySettingsSafeBody(t, "unknown", meetingSummarySettingsPath, got.response, original)
+ 		releaseWriter()
+ 		waitSignal(t, held.completed)
+ 		key, e := f.CommandLock(identity)
+@@ -372,13 +373,16 @@
+ 			t.Fatal("original writer did not actually release command lock", terminal.Fault())
+ 		}
+ 		stable := base.summaryFacts(t)
+-		lookup := base.request(t, base.adminBrowser, "POST", "/api/v1/system/model-commands/lookup", string(original.Key), map[string]any{"command": "model.selection.update"}).want(t, 200).object(t)
++		lookupResponse := base.request(t, base.adminBrowser, "POST", "/api/v1/system/model-commands/lookup", string(original.Key), map[string]any{"command": "model.selection.update"}).want(t, 200)
++		lookup := lookupResponse.object(t)
+ 		if lookup["found"] != false || lookup["receipt"] != nil || base.summary(t).Model != nil {
+ 			t.Fatal("rolled-back writer became receipt")
+ 		}
+ 		httpSameFacts(t, stable, base.summaryFacts(t))
++		meetingSummarySettingsSafeBody(t, "lookup-false", "/api/v1/system/model-commands/lookup", lookupResponse, original)
+ 		replay := meetingSummarySettingsRequest(t, base.systemHTTPFixture, base.adminBrowser, "PUT", meetingSummarySettingsPath, string(original.Key), meetingSummarySettingsBody(original))
+ 		meetingSummarySettingsReceipt(t, replay, original)
++		meetingSummarySettingsSafeBody(t, "replay", meetingSummarySettingsPath, replay, original)
+ 		t.Log("original actual final COMMIT remained pending through HTTP503/Unknown; original writer then actually ended, read-only lookup returned false, exact original PUT applied once")
+ 	})
+ 
+--- candidate01/tests/model/meeting_summary_settings_fixture_test.go
++++ candidate02/tests/model/meeting_summary_settings_fixture_test.go
+@@ -94,7 +94,7 @@
+ func meetingSummarySettingsBody(r mc.UpdateMeetingSummarySelectionRequest) map[string]any {
+ 	return map[string]any{"id": r.SelectionID, "expected_version": r.ExpectedVersion.String(), "model": r.Model.String()}
+ }
+-func meetingSummarySettingsSafeBody(t *testing.T, name, target string, r systemHTTPResponse) {
++func meetingSummarySettingsSafeBody(t *testing.T, name, target string, r systemHTTPResponse, captured ...mc.UpdateMeetingSummarySelectionRequest) {
+ 	t.Helper()
+ 	dir := os.Getenv("AGENTEAM_MEETING_SUMMARY_SETTINGS_EVIDENCE_DIR")
+ 	if dir == "" {
+@@ -104,8 +104,17 @@
+ 	if e != nil || !stat.IsDir() || stat.Mode().Perm()&0077 != 0 {
+ 		t.Fatal("private safe body directory required")
+ 	}
++	method, ok := map[string]string{"null": "GET", "configured": "GET", "receipt": "PUT", "lookup": "POST", "deletion-impact": "GET", "unknown": "PUT", "lookup-false": "POST", "replay": "PUT"}[name]
++	if !ok || len(captured) > 1 {
++		t.Fatal("closed safe body name and at most one captured command required")
++	}
+ 	sum := sha256.Sum256(r.body)
+-	metadata := map[string]any{"method": map[string]string{"null": "GET", "configured": "GET", "receipt": "PUT", "lookup": "POST", "deletion-impact": "GET"}[name], "target": target, "status": r.status, "content_type": r.headers.Get("Content-Type"), "body_sha256": hex.EncodeToString(sum[:]), "source_test": t.Name(), "source_run": os.Getenv("AGENTEAM_MEETING_SUMMARY_SETTINGS_RUN")}
++	metadata := map[string]any{"method": method, "target": target, "status": r.status, "content_type": r.headers.Get("Content-Type"), "body_sha256": hex.EncodeToString(sum[:]), "source_test": t.Name(), "source_run": os.Getenv("AGENTEAM_MEETING_SUMMARY_SETTINGS_RUN")}
++	if len(captured) == 1 {
++		// Only the three original public command fields are exported; CommandMeta
++		// (including the idempotency key and actor) never enters the evidence.
++		metadata["captured_command"] = meetingSummarySettingsBody(captured[0])
++	}
+ 	if e = os.WriteFile(filepath.Join(dir, name+".json"), r.body, 0600); e != nil {
+ 		t.Fatal(e)
+ 	}

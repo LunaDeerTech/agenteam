@@ -1,0 +1,11 @@
+{
+  "product_delta": "none relative to accepted frozen candidate04/frontend delivery01",
+  "private_changes": "beforeunload reload waiting primitive; URL/timeOrigin assertions; config location only in Go helper; no timeout/legacy/core/navigation assertion relaxation",
+  "before_browser_sha256": "3b4d22710d82e3aec3936b07005340fb0edb7b23ad27864976a79f09a99bb604",
+  "after_browser_sha256": "89a4121dc308dd191a5d076a4c73729a384b00d9fc891c6fb09d465cf5a1ac45",
+  "prior_B01_result": {
+    "path": "/workspace/scratch/summary-verification/S2-probes/runtime-b01/runs/independent-b01/result.json",
+    "sha256": "9ad70f36e3136aa0233d9b44e58521a00343b29a489fc4a8c1285ff03033e46a"
+  },
+  "reload_semantics_limit": "no pendingDocument runtime trace; locked implementation explains observed wait but unique underlying race is not asserted"
+}

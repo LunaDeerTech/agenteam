@@ -1,0 +1,39 @@
+{
+  "status": "candidate04 affected compile/exact Recovery list PASS; no testbody in these checks",
+  "candidate04": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04.json",
+    "sha256": "220948d48558c59a0696062300d78b9f445653ca27afd7165b3c63714a0a219f"
+  },
+  "checks": {
+    "model-integration-compile04": {
+      "result": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/model-integration-compile04/result.json",
+        "sha256": "2114973bd426f451388d1610778abd4a7a30d918dff8ef54ed18ae4b5ee1d4a4"
+      },
+      "exit": 0,
+      "seconds": 5.825627876998624,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_same": true,
+      "adopted": 0,
+      "forced": 0
+    },
+    "recovery-list04": {
+      "result": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/recovery-list04/result.json",
+        "sha256": "a44d6afa5eaa3807e54eb3e4abf1a1ffa632bebab81ffd12e237a91b9a6272ea"
+      },
+      "exit": 0,
+      "seconds": 1.3650494260000414,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "inputs_same": true,
+      "adopted": 0,
+      "forced": 0
+    }
+  },
+  "binary": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate04-checks/bin/model-integration.test",
+    "sha256": "187fbe447723610c664d4ce891f041cf9307168de941e1a7f70002030060ab52"
+  }
+}

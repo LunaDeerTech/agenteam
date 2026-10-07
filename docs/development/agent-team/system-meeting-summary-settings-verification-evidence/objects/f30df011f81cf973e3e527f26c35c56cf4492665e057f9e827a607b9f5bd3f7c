@@ -1,0 +1,145 @@
+{
+  "status": "eight original response byte files from complete author PASS rounds; no reencoding",
+  "responses": [
+    {
+      "name": "null",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/safe-http-evidence/null.json",
+        "sha256": "b928185037e1894ab66b8d0ec05375a6aa6eab0bf3b98f911d9745a9b15bbd26"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/safe-http-evidence/null-source.json",
+        "sha256": "14de20e5be318fe0e2cc78095b334350110139b00a96323e8d1fe98cec2ff3a7"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "source_run": "new-http-rerun",
+      "source_test": "TestModelMeetingSummarySettingsHTTP",
+      "has_safe_captured_command": false,
+      "whole_source_round_pass": true
+    },
+    {
+      "name": "receipt",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/safe-http-evidence/receipt.json",
+        "sha256": "1cfbe14c6322443586c0aa426382681995403dc1e43a46b8eec0d3cf1d070252"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/safe-http-evidence/receipt-source.json",
+        "sha256": "92b2fac4d7f088c2413ca73b23974dd24feccd2ba8bd2e913421d1d16142e781"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "source_run": "new-http-rerun",
+      "source_test": "TestModelMeetingSummarySettingsHTTP",
+      "has_safe_captured_command": true,
+      "whole_source_round_pass": true
+    },
+    {
+      "name": "configured",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/safe-http-evidence/configured.json",
+        "sha256": "d64ff2556575cb6a57ccd64822a839e68a3e35c00f944343a9624d0d1db9fa88"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-http-rerun/safe-http-evidence/configured-source.json",
+        "sha256": "89fcc8655e8dda1b9739c98b763eaf9e086b346c95b044e80c32100f349f3b27"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "source_run": "new-http-rerun",
+      "source_test": "TestModelMeetingSummarySettingsHTTP",
+      "has_safe_captured_command": false,
+      "whole_source_round_pass": true
+    },
+    {
+      "name": "lookup",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup.json",
+        "sha256": "142b35916bab2edea87f87a63e7dc2b864f1628197cb2d260adf9c06c93e8cfb"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup-source.json",
+        "sha256": "b006f27aab81171ddcfaa71309954f810bd5a7ac167f8d15e085c1b1977fb6a6"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "source_run": "new-recovery01",
+      "source_test": "TestModelMeetingSummarySettingsRecovery/accepted_short_response_and_historical_replay",
+      "has_safe_captured_command": true,
+      "whole_source_round_pass": true
+    },
+    {
+      "name": "deletion-impact",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/deletion-impact.json",
+        "sha256": "372add9e027ef8a3a10cb445dd820f1184044cde7b75a07484250857e64f1df2"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/deletion-impact-source.json",
+        "sha256": "46a14dcd0137e3f9d4f41e91cd54092796bf55f92771eebde1c02e9af5e4e995"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "source_run": "new-recovery01",
+      "source_test": "TestModelMeetingSummarySettingsRecovery/accepted_short_response_and_historical_replay",
+      "has_safe_captured_command": false,
+      "whole_source_round_pass": true
+    },
+    {
+      "name": "unknown",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/unknown.json",
+        "sha256": "961493126833167ab3b2f1ecf7d530cc53685f6acb654f7516fc8200c03a5ad8"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/unknown-source.json",
+        "sha256": "659efa6bf99d3099e5e02ba0fa1ef2e2d1fa13d9d61e5c911269c0af4595a4f2"
+      },
+      "actual_status": 503,
+      "actual_content_type": "application/problem+json",
+      "source_run": "new-recovery01",
+      "source_test": "TestModelMeetingSummarySettingsRecovery/pending_original_writer_then_lookup_and_replay",
+      "has_safe_captured_command": true,
+      "whole_source_round_pass": true
+    },
+    {
+      "name": "lookup-false",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup-false.json",
+        "sha256": "3998c1796653397077a9d89f2413eda9cc774701a9fd955f0622f4b549bb6d28"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/lookup-false-source.json",
+        "sha256": "967392db07f6ae2390a1ec6a973ffd995aaa838075e6f94ea6fb1d3f40f41afd"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "source_run": "new-recovery01",
+      "source_test": "TestModelMeetingSummarySettingsRecovery/pending_original_writer_then_lookup_and_replay",
+      "has_safe_captured_command": true,
+      "whole_source_round_pass": true
+    },
+    {
+      "name": "replay",
+      "body": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/replay.json",
+        "sha256": "c94d1e00298741f2747dfac3e282ad8ef21fb6ed3a7779287368046630c859e3"
+      },
+      "source": {
+        "path": "/workspace/scratch/meeting-summary-settings-backend/pg-driver-v02/runs/new-recovery01/safe-http-evidence/replay-source.json",
+        "sha256": "3ed880c94204d3c63b8c1bee0d713acf9f194e8affaeff8b85f4529012e35e70"
+      },
+      "actual_status": 200,
+      "actual_content_type": "application/json",
+      "source_run": "new-recovery01",
+      "source_test": "TestModelMeetingSummarySettingsRecovery/pending_original_writer_then_lookup_and_replay",
+      "has_safe_captured_command": true,
+      "whole_source_round_pass": true
+    }
+  ],
+  "unknown_false_replay_safe_captured_command_equal": true,
+  "no_secret_fields_exported": true,
+  "prior_failed_round_bodies": "pg-driver-v01/runs/new-http01/safe-http-evidence are distinct failure evidence, not substituted",
+  "scope": "author controlled formal PG HTTP with real services; separate native and root evidence; not independent/client/schema acceptance"
+}

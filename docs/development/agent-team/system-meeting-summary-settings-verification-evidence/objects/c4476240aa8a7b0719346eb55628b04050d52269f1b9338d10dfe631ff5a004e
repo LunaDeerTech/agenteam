@@ -1,0 +1,9 @@
+# S2 backend candidate03 — independent STATIC delta
+
+PASS. Candidate03 d91968006f5bdf6e492c3d76b3115013f031e747a971b571f3f22b68185eddde and patch62393e040b70910327ca77ededced7094cbee855d5b09e3d163019f765becc37 verified. Only tests/model/meeting_summary_settings_http_test.go changed; thirteen other sources, including every production source, equal candidate02.
+
+The frozen c210 Account HTTPBoundary.check rejects Path != path.Clean(Path), backslash/NUL and RawPath before Model routing. Candidate http.go invokes CheckRequest before route lookup. Thus /meeting-summary/ is a noncanonical request and correctly returns400 INVALID_ARGUMENT rather than router404. The author new-http01 raw line62 records this exact first failure, HTTP400/want404/commit not_started. Candidate03 repairs that one wrong expectation and adds a canonical /meeting-summary/unknown request requiring404 NOT_FOUND. Both exact error codes remain asserted; unknown-route coverage is stronger, not removed. No handler/path normalization or authorization behavior changed.
+
+No test/resource was executed by this delta review. Original failed-run raw/cleanup and its three partial exported bodies remain author evidence; they do not establish complete HTTP PASS. Independent probe offline results remain attached to actual candidate02 before/after input. The candidate03 test-only difference should enter the final execution manifest without a mechanical rerun of unrelated pure/native checks. Candidate03 manifest reuse wording about native not-yet-run is inherited historical metadata; root's subsequent native3 result is separate and is not erased by it.
+
+Fixed prior source and exact one-file delta are saved locally. All scratch writes for this phase stopped; no business/spec/Git changes.

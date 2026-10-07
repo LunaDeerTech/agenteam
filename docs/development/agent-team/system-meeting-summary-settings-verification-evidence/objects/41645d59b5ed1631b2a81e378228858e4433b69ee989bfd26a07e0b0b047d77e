@@ -1,0 +1,106 @@
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > captures the full immutable original before key allocation and exposes no key/CSRF/body 32ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'fetch' owned after the visible 30s cutoff until its actual tail joins 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'read' owned after the visible 30s cutoff until its actual tail joins 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'reader-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'read'/'body-cancel' owned after the visible 30s cutoff until its actual tail joins 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'fetch' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'read' owned after the visible 30s cutoff until its actual tail joins 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'reader-cancel' owned after the visible 30s cutoff until its actual tail joins 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'write'/'body-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'fetch' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'read' owned after the visible 30s cutoff until its actual tail joins 8ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'reader-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps 'lookup'/'body-cancel' owned after the visible 30s cutoff until its actual tail joins 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > uses one signal and one 30s owner across two sequential native body reads, with no half-publication 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > abandons native GET 1 without publishing or advancing until cancel is joined 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > abandons native GET 2 without publishing or advancing until cancel is joined 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > does not dispatch Provider GET after cancellation at the first actual finalizer 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps a failed Provider response body owned until its native cancel joins 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > separates saved-reference cancellation from the active candidate page 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > keeps a real overflow cancel tail owned and returns no candidate 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > other domain abandonment does not cancel Selection read 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > other domain abandonment does not cancel Selection write 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > other domain abandonment does not cancel Selection lookup 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel personal or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel users or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel invitations or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel provider or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel model or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > Selection abandonment does not cancel restore or release its tail 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection on the existing Cookie owner > preserves both Provider Credential→Provider stages during Selection cleanup 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > treats found lookup only as history and explicitly replays the exact original PUT 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > treats missing lookup only as history and explicitly replays the exact original PUT 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > treats failed lookup only as history and explicitly replays the exact original PUT 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps VERSION_CONFLICT distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps CAPABILITY_UNSUPPORTED distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps NOT_FOUND distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps COMMIT_UNKNOWN distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > keeps INTERNAL_ERROR distinct from a confirmed or guessed save 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not erase prior uncertainty with a known refusal or permit reused-key recovery 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates current identity on Selection write CSRF_FAILED 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates current identity on Selection lookup CSRF_FAILED 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears every system private state on current FORBIDDEN and restores access only after Session revalidation 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates exact identity on current Selection read 401 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates exact identity on current Selection write 401 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > invalidates exact identity on current Selection lookup 401 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not apply a late old-generation FORBIDDEN to a restored identity 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not apply a late old-generation SESSION_REVOKED to a restored identity 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not apply a late old-generation CSRF_FAILED to a restored identity 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late read/SESSION_REVOKED only under the original identity/generation rule 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late write/CSRF_FAILED only under the original identity/generation rule 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late lookup/CSRF_FAILED only under the original identity/generation rule 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > applies already parsed late read/FORBIDDEN only under the original identity/generation rule 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears an uncertain intent when the restored role changes 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears an uncertain intent when the restored session changes 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > clears an uncertain intent when the restored csrf changes 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not dispatch or resurrect progress after a synchronous submitting consumer abandons 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection original Execute recovery and authority > does not erase a successor started synchronously from confirmation 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > does not publish retired native observations after identity invalidation 15ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > does not publish retired native observations after route invalidation 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending model read and unsent saved references without crossing native cancel 8ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending provider read and unsent saved references without crossing native cancel 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > retires a pending singleton without inventing references and recovers only on explicit refresh 7ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > preserves completed errors and optional empty slots while retiring only unfinished references 5ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > lets a continued valid batch finish and preserves all ready observations on a later discard 17ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > isolates a late old-generation success from an explicit same-ID new observation 7ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection cancelled observation batches > isolates a late old-generation error from an explicit same-ID new observation 8ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > keeps null/v1 unconfigured, selects only the active purpose, and saves a complete group once 19ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > bounds the saved reference round to distinct Model IDs, duplicate=false 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > bounds the saved reference round to distinct Model IDs, duplicate=true 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > preserves a saved ID after exact Provider GET failure with no half-details or new PUT until explicit re-read 5ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains a now-ineligible current binding after model-disabled 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains a now-ineligible current binding after provider-disabled 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains a now-ineligible current binding after memory-capability 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > updates selected draft evidence from an exact disabled Provider, preserving IDs and version until an explicit valid reread 8ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > uses a completed same-ID Model page observation of model-disabled to block a new command 5ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > uses a completed same-ID Model page observation of memory-capability to block a new command 4ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > invalidates only exact Provider evidence on failed detail, not on page absence or an unrelated Provider 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > applies only observed Provider rows and requires a fresh Model parse after protocol changes 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > allows declared Memory capabilities without imposing narrower Runtime restrictions and rejects wrong-purpose candidates 5ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > uses explicit cursor steps, hides failed rows, and restarts only on an explicit invalid-cursor action 6ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > partitions Model cursors by selected Provider and purpose without prefetching other purposes 5ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > cancels a stale Provider read on purpose switch and starts the one pending page only after actual join 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > defers the initial read once behind another owner and does not resume after detach=false 2ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > defers the initial read once behind another owner and does not resume after detach=true 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > retains conflict draft IDs until explicit latest-version review, then requires new evidence for changed references 7ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection App-lifetime controller and explicit choices > preserves strict save confirmation after GET failure and only re-reads on refresh 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > allows both uncertain intents, isolates local abandon and preserves original replay inputs 3ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > summary abandon cannot cancel the active platform read and reverse abandon cannot cancel Summary 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > holds Summary owner through visible timeout and actual cancel tail, blocking every sibling dispatch 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration same preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration session preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration csrf preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > restoration role preserves or clears both slots together without replay 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > Summary missing lookup enables only an explicit replay with the same intent 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > Summary failed lookup enables only an explicit replay with the same intent 1ms
+ ✓ src/tests/system-model-selection-state.spec.ts > Selection two independent private intents with one Cookie owner > accepts plain chat independently of memory capabilities and refuses disabled/nonchat targets 0ms
+
+ Test Files  1 passed (1)
+      Tests  96 passed (96)
+   Start at  14:58:45
+   Duration  1.18s (transform 285ms, setup 0ms, import 381ms, tests 323ms, environment 364ms)
+

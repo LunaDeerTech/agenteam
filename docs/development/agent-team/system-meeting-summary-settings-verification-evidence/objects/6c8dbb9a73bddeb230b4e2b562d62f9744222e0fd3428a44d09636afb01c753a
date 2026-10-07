@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 12683.023215923,
+      "top": "TestModelMeetingSummarySettingsHTTP"
+    },
+    {
+      "event": "result",
+      "monotonic": 12685.67845552,
+      "observed_seconds": 2.6552395969993086,
+      "reported_seconds": 2.66,
+      "state": "FAIL",
+      "top": "TestModelMeetingSummarySettingsHTTP"
+    }
+  ],
+  "expected": [
+    "TestModelMeetingSummarySettingsHTTP"
+  ],
+  "failures": []
+}

@@ -1,0 +1,228 @@
+{
+  "status": "author bounded native three groups PASS; exclusive resource window returned to root",
+  "groups": {
+    "keepalive": {
+      "wrapper_observed_exit": 0,
+      "binary_exit": 0,
+      "execution_seconds": 1.2615336449998722,
+      "top_passes": 1,
+      "sub_passes": 0,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 308865,
+          "starttime": "1214923",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791386198.666227
+        },
+        {
+          "role": "adopted",
+          "pid": 308869,
+          "starttime": "1214923",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791386198.66833
+        }
+      ],
+      "forced_signals": [],
+      "listeners": 1,
+      "connection_pairs": 1,
+      "ports": [
+        43809,
+        50886
+      ],
+      "all_closed_tcp_inode_count": 6,
+      "input_and_source_sets_unchanged": true,
+      "read_only_cleanup_seconds": 61.649293422698975,
+      "initial_time_wait_rows": 1,
+      "double_all_state_owned_zero": [
+        {
+          "at": 1791386260.1244214,
+          "owned_processes": [],
+          "owned_port_rows": [],
+          "active_port_rows": [],
+          "time_wait_rows": []
+        },
+        {
+          "at": 1791386260.3304358,
+          "owned_processes": [],
+          "owned_port_rows": [],
+          "active_port_rows": [],
+          "time_wait_rows": []
+        }
+      ],
+      "command_sha256": "e8d89e6944207adf7dee0f636f87e42a23eeca06a3bc8f54c1d056ff837b5158",
+      "trace_sha256": "a2aff466e977ef67fb521a3436941bbcd950ef5f4a58fa6e1f6d7cdf15959629",
+      "raw_sha256": "fb261ae243bc73a567b1036ffc805045e8fb5ef292646bc51c3abf2cde26244e",
+      "port_mapping_sha256": "4e157527296b867fc9aaa812291f71595c4a07bd019c937fd29b9690c261a32e"
+    },
+    "slowbody": {
+      "wrapper_observed_exit": 0,
+      "binary_exit": 0,
+      "execution_seconds": 34.336237597000945,
+      "top_passes": 1,
+      "sub_passes": 4,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 309939,
+          "starttime": "1222445",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791386306.9584699
+        },
+        {
+          "role": "adopted",
+          "pid": 309943,
+          "starttime": "1222445",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791386306.9602714
+        }
+      ],
+      "forced_signals": [],
+      "listeners": 4,
+      "connection_pairs": 4,
+      "ports": [
+        33441,
+        36845,
+        38313,
+        38940,
+        39384,
+        45169,
+        54002,
+        60954
+      ],
+      "all_closed_tcp_inode_count": 15,
+      "input_and_source_sets_unchanged": true,
+      "read_only_cleanup_seconds": 61.612420320510864,
+      "initial_time_wait_rows": 4,
+      "double_all_state_owned_zero": [
+        {
+          "at": 1791386368.3786879,
+          "owned_processes": [],
+          "owned_port_rows": [],
+          "active_port_rows": [],
+          "time_wait_rows": []
+        },
+        {
+          "at": 1791386368.5846775,
+          "owned_processes": [],
+          "owned_port_rows": [],
+          "active_port_rows": [],
+          "time_wait_rows": []
+        }
+      ],
+      "command_sha256": "ac3204c53266c878ec1a0dbd57d6700b03528d4ec5da7111001a5109ab032aa4",
+      "trace_sha256": "ebdf518f6f206c888ae9a49539d91aaeb6b6174657433b8ce0f92ca0af0ecf49",
+      "raw_sha256": "56a8872af0fa1264b2159f050e11f3cd9a78fd9b6e20f8f50eb494b12a31d54b",
+      "port_mapping_sha256": "f37d04e8a2bd03f552a55ea26953a42403e56ec8e73afa5f46dfb68b72bad358"
+    },
+    "writeclose": {
+      "wrapper_observed_exit": 0,
+      "binary_exit": 0,
+      "execution_seconds": 1.5086749600013718,
+      "top_passes": 1,
+      "sub_passes": 8,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 311108,
+          "starttime": "1233086",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791386380.5457575
+        },
+        {
+          "role": "adopted",
+          "pid": 311112,
+          "starttime": "1233086",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791386380.5475295
+        }
+      ],
+      "forced_signals": [],
+      "listeners": 8,
+      "connection_pairs": 8,
+      "ports": [
+        32997,
+        33598,
+        39017,
+        40231,
+        41027,
+        41929,
+        42336,
+        42759,
+        43126,
+        43325,
+        44769,
+        48876,
+        51042,
+        52972,
+        54836,
+        55662
+      ],
+      "all_closed_tcp_inode_count": 27,
+      "input_and_source_sets_unchanged": true,
+      "read_only_cleanup_seconds": 59.64035630226135,
+      "initial_time_wait_rows": 8,
+      "double_all_state_owned_zero": [
+        {
+          "at": 1791386439.9958093,
+          "owned_processes": [],
+          "owned_port_rows": [],
+          "active_port_rows": [],
+          "time_wait_rows": []
+        },
+        {
+          "at": 1791386440.2020414,
+          "owned_processes": [],
+          "owned_port_rows": [],
+          "active_port_rows": [],
+          "time_wait_rows": []
+        }
+      ],
+      "command_sha256": "77a78497d3eee01d15cd3b762a1bb74147d6c3d38f843c1785be25b74322e049",
+      "trace_sha256": "4f1058653b61bbab313c8f9a19ada976028480fb1bf2fd5f0805a00c047cb075",
+      "raw_sha256": "8928d0127498ec8dfdbe9579feb34324684b3536e19e42246fcd42b828397eaf",
+      "port_mapping_sha256": "0a48488f32f3d77203d65cf2ed8a6137fbd0ec4dede75386556c0b4a97dfeccf"
+    }
+  },
+  "totals": {
+    "top_passes": 3,
+    "sub_passes": 12,
+    "listeners": 13,
+    "connection_pairs": 13,
+    "actual_direct_waits": 3,
+    "actual_adopted_tracer_waits": 3,
+    "forced_signals": 0,
+    "all_closed_tcp_inode_count": 48
+  },
+  "natural_deadline_observed_seconds": {
+    "GET": 3.01,
+    "PUT": 30.03
+  },
+  "candidate": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/candidate02.json",
+    "sha256": "b06c6a3b4eefcfea07a9adc6c601b88f6033b7fae54d8b3d86e61c58cceaaf78"
+  },
+  "binary": {
+    "path": "/workspace/scratch/meeting-summary-settings-backend/compile01/bin/model-race.test",
+    "sha256": "61accceb92dcb1ee96459c5b868f1f185356426e7b8d05fe48eb5894ff8e4ab1"
+  },
+  "driver_sha256": "8c1ee4d9cc48ed1da6b2687d21e9fdcf2e3cf0d7c401efd9db0ae7818d1f82f1",
+  "parser_sha256": "e9ae7102034cb87c15bb9086a76130a879d0b0d1caca0cbb2b7e8d27a07c054a",
+  "execution_freeze_sha256": "dd0ce696d26c940c28080955938e81eab4d560c62c4e5fdae25aa30e2b36c2f9",
+  "evidence_index_sha256": "6216ffa7073d2192fc8273c67ee34efcaa4d02c07e0d71b1dd83cca19795e780",
+  "evidence_file_count": 422,
+  "no_source_repairs": true,
+  "no_pg_browser_resources": true,
+  "historical_usage_parser_limit": "original Usage wrapper exit1 and empty-port cleanup invalid; accepted recovery parser reused, oldtrace check is only parser provenance",
+  "acceptance_boundary": "Controlled auth/service with real loopback HTTP I/O, not formal Session/PG/default-root/browser verification. No whole-machine cleanup claim. TIME_WAIT observation is cleanup only, not extra test budget.",
+  "window_returned_utc": "2026-10-07T15:21:17Z"
+}
