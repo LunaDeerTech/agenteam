@@ -1,0 +1,12 @@
+{
+  "actual_exit": 0,
+  "argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/self-check.py"
+  ],
+  "cwd": "/workspace",
+  "followup_markdown_utf8_lf_whitespace_check": true,
+  "scope": "Documentation arithmetic/path/source-hash checks only. No product probe/build/test/resource command.",
+  "stdout": "{\"full_sha256\": \"91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0\", \"tech_sha256\": \"1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133\", \"fixed_sources\": 31, \"candidates\": 16, \"checks\": \"PASS: static self-check only\"}\n",
+  "tool_wall_time_seconds": 0.005685777
+}

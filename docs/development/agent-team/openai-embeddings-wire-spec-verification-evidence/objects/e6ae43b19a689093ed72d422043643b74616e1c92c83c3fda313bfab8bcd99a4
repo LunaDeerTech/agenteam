@@ -1,0 +1,42 @@
+{
+  "purpose": "bounded public source evidence; guide is time-pinned bytes, not a claimed Git revision",
+  "records": [
+    {
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_model.py",
+      "file": "embedding_model.py.txt",
+      "revision": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+      "started_utc": "2026-10-07T04:43:32.776500+00:00",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_model.py",
+      "content_type": "text/plain; charset=utf-8",
+      "etag": "\"a3ad688a91af2637f5b57de46c1c1c36681443842400afc38e1d6ae4ee0b20a6\"",
+      "last_modified": null,
+      "bytes": 280,
+      "sha256": "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e",
+      "duration_seconds": 0.280329
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/LICENSE",
+      "file": "LICENSE.txt",
+      "revision": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+      "started_utc": "2026-10-07T04:43:32.777198+00:00",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/LICENSE",
+      "content_type": "text/plain; charset=utf-8",
+      "etag": "\"0466eb41028eed0a142c7c85d06636eb8c91e1522f799b0b88c46a80f33921fd\"",
+      "last_modified": null,
+      "bytes": 11336,
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+      "duration_seconds": 0.374473
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/guides/embeddings",
+      "file": "embeddings-guide.html",
+      "revision": null,
+      "started_utc": "2026-10-07T04:43:32.777608+00:00",
+      "error_type": "URLError",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "duration_seconds": 0.012193
+    }
+  ]
+}

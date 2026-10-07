@@ -1,0 +1,24 @@
+# Embeddings float wire 独立静审
+
+结论：**STATIC PASS**。完整审查 private rev0.1 §1–7；未发现需要先修订的契约、预算或候选范围阻断。该结论允许进入独立授权的实施阶段，不是产品、SDK 或真实供应商动态通过。
+
+## 固定输入
+
+- 草案：`/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/d09-openai-embeddings-wire.draft.md`；全文 `91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0`；技术 `1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133`。
+- 作者 `inputs.json`：`757e16523c31a8b01bfdf59497209940b479a9bd99fa4ce65ae6cd01c28d29f1`；`freeze.json`：`894f2dc942933600b63824578590b6e83aee12cfb979e7673ee778ad5d85548f`；`report.md`：`900603ebfad954ce38ee12c5ec5d66160a887f30b1a874ca37000e9e13dc44fb`。
+- 固定 Git 为 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`。31 个声明的 Git 来源已逐字节核对并保存在本根 `fixed/`；记录 `input-check01.json` SHA `3b8f8eebe93f98f2b45fbac724e707f5cea3c334bc528f1c6aa9865e81fcf4ef`。为核实际 Drain 尾部，另只读取同一 Git 的 `internal/central/outbound/client.go`，SHA `127467315ed1798db92d4785d856880b46b7e2b723c2dc723d3fbf7b1dcc4816`，来源记录 `additional-input01.json` SHA `f41fab77b8505aca47c8feec86a8f33acd0b703deaeee76b919de68a43f85ed8`。没有全树库存。
+- 六件官方原件及两个代理 403 记录均沿作者冻结件核 SHA；本轮没有联网或补取证。官方固定 revision 为 `openai/openai-python@becc1d20eed83c1b8d85e15dc131a372d9dc7813`，SDK 字段不能证明运行时 conformance、默认维度或账号能力。
+
+## 核定依据
+
+1. **边界与输入成立。** 独立 lower-wire 结果不冒 `contract.Nonchat` 必需的 InvocationID、consumer/lease 或发送资格。ExpectedDimensions 是受信 caller 的显式本地要求，1–4096 与 N×D≤262144 是工程边界；没有据 SDK 猜默认维度。原生 dimensions、token 输入、base64、user 与 overwrite 均有明确拒绝，实际请求仅 model/input/encoding_format。现有 C0 Snapshot/Usage、D04 origin 绑定和转义路径接缝可以承载，不需要范围外配置、Runtime 或根变更。
+2. **严格解析与预算可实现。** 索引全覆盖、有限 float、重复键/额外键/UTF-8/代理项/整数精度、usage 的 nil/0/Unknown 区分及失败零结果均明确。16 MiB+1 原始响应、两个至多 2 MiB float backing 和 64 KiB 辅助容量合计 21,037,057 B，小于 21 MiB；它只约束列明的解析器容量，不是总 RSS、D04 或请求缓冲承诺。专用扫描器可避免整份第二副本和逐标量对象树；实际容量、分配前门禁和每 4 KiB/1024 标量取消仍须实现后按卡验证。本静审未把算术当作内存动态证明。
+3. **可靠 usage 与尾部边界明确。** 完整 JSON/EOF 后合法 usage 可独立保留，语义失败或晚取消不发布向量。公开 Response.Close 当前返回 nil，不暴露内部原生 Close error；草案已经准确限定。固定 `outbound/client.go:156` 的 Drain 等待 active、writers，Stop 后亦等待 connections；原 Chat `waitJoined` 接缝和 `tests/model/openai_chat_wire_stream_test.go:238` 的真实 WroteRequest hold 可以支持新 handle 的可见取消与实际终局分离，不能凭 ctx/Close/EOF 释放材料或配额。
+4. **共享 Budget 与范围可闭合。** 当前 map[*Exchange] 和同锁 64/8 计数可窄化为两种 exact handle 的私有工作接口；保留 accept 及公共形状，旧 transport 仅加私有转发可行。Force 全部取消后共用一个 ctx Drain，不需要新队列、另一套计数或运行框架。16 路径为 12 新源、3 既有代码和 1 文档末件；旧客户端、C0、错误 parser、Chat 主流程与原测试断言不在改动范围。
+5. **真实验收接缝可实施。** 现有 ScenarioConfig.Mode/WireScenario 足够；只在 server 新增 embeddings 模式及 suffix 分支即可，旧 Chat 与其他 mode 限制保留。原 nonce/连接跟踪、512 chunks/512 KiB 响应和 State≤2 MiB 不扩；最大协议载体留纯阶段，真实用小代表和较紧 cap。三新精确顶层 HTTP/Terminal/Budget 覆盖实际请求、EOF/取消及混合计数，六旧 text/structured 顶层均在固定源存在。原真实 callback hold、Policy/Account/Audit fixture 可复用；没有新增任意代理、producer 或停止任务入口。
+
+## 结论限制与后续门槛
+
+本轮仅文件读取、指纹核对和私有报告写入；没有 probe、产品测试、构建、监听、Docker、供应商调用、主树或 Git 修改。未把已有旧动态证据写成本轮重跑。45s 离线命令、每真实顶层≤2m、包 6m/race/count1 以及 exact IDs/PID-start/actualwait/双扫仍是后继执行门槛；需要 root 单独授权和冻结实际闭包。
+
+三项既有停止任务、Summary、真实 Model consumer/Invocation/Usage、型号 conformance 均保持未进入本卡。尚无实施候选，故 parser 实际内存、混合 Budget race、真实 server 计数及全部实际尾部只能在后续冻结实现中验收。没有发现需要扩大 16 路径或放宽断言才能实施的静态前提。

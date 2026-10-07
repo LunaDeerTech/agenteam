@@ -1,0 +1,25 @@
+# OpenAI Embeddings wire 私有规格交接
+
+草案已冻结供独立 STATIC 审查；这是作者的静态自查，不是产品或独立验收。固定产品 `c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`，没有读取未验 tools/SPA/Object 候选，没有产品实现、构建、业务 probe 或运行资源。
+
+规格 `d09-openai-embeddings-wire.draft.md`：全文 SHA-256 `91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0`；技术 §1–7 SHA-256 `1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133`。16 候选为新12、既有生产/fixture3、既有文档末件1，精确路径及旧字节见 `inputs.json`。
+
+已接受依赖 C0 `e6e94c4`、text `9c72190`、structured `be0bd07`、D04 `abf5c37`、后继管理口 `a942779` 均实际核为固定产品祖先。使用的是 c1427fa 当前字节。31 个有限 Git 依据逐 SHA 固定，不是完整编译/运行闭包，不复制仓库或 cache。
+
+实际接缝与范围判断：
+
+| 接缝 | 固定源码事实与本稿处理 |
+| --- | --- |
+| lower wire / Nonchat | `contract/nonchat.go` 的业务端口需要 Actor/Consumer/ResolvedModel/lease 和 InvocationID。本卡独立 EmbeddingRequest/Result，不实现该端口，不造 InvocationID；维度绑定和事实落库仍由后继承担。 |
+| 维度与型号 | C0 没有可直接借用的 Embedding 默认维度字段。按 root 已确认边界，ExpectedDimensions 是受信 caller 的显式校验要求；首版原生 dimensions/其他参数在 Do 前拒绝，仅 `{}` 与 float 批量。公开证据不支持默认维度或完整型号限额声明。 |
+| 同一 Budget | 现 active map 键为 `*Exchange`；最小私有共同 handle 可容纳新类型，保留旧 accept、取消/等待顺序与同锁64/8计数。旧 snapshot 测试只消费长度，无需修改旧断言或公共接口；transport.go 只需私有转发。未发现此范围内的接口阻断。 |
+| D04 尾部 | 正式 Do/Drain/Response 支持本卡需要的实际 EOF、writer/callback 终局。公开 Response.Close 当前返回nil；不能声称其传播内部 Body.Close 错误。本稿只要求处理公开边界实际返回的错误并实际 join，不改 D04 或旧 Chat 处理流程。 |
+| 真实 fixture | 已接受 newWireFixture 有实际 PG/Authority/Audit/Policy，身份/快照为该协议 fixture 合成输入，不冒正式业务 consumer。ScenarioConfig.Mode/WireScenario 可直接复用；server 现硬限 chat/completions，因此只增加 Embeddings mode/suffix，保留旧分支/限额，客户端与旧helper只读。 |
+
+工程值和字段采纳见草案，不需要用户重选已定 Embeddings 方向。向量上限 N×D=262144，对应 float backing 2 MiB；原始响应16 MiB+1、两份向量各2 MiB及辅助64 KiB的容量总和为21037057 B，严格小于21 MiB。此为解析器自有容量契约，不是进程 RSS 实测；实现后还须有边界/取消证据。
+
+官方取证仅固定 revision 的六件，GET 原件/URL/字节/SHA和两次代理 CONNECT 403 全保留，详见 `official-evidence.md`。未运行 SDK、没有供应商账号或 conformance smoke；无默认维度证据，不用SDK字段声明取代本项目 usage 规则。本卡完整子结果也不代表全部 Embedding 可选能力、Nonchat Runtime、D09 或平台完成。未继续取证。
+
+`self-check.py` 实际 exit 0：UTF-8/LF/无行尾空白、7节、16唯一路径及12新/4既有、固定 Git 相对链接、六个旧真实顶层名称存在、新三个名称未占用、官方原件 SHA/字节一致及容量算式。只是静态文档与 Git 字节检查；未编译、未执行测试体、未监听或启动容器。之前有限定位曾用错 `backend/model.md` 与旧报告 `input.json` 文件名，实际不存在，已改用现有 `backend/README.md` 和 `inputs.json`；不将定位失败包装成业务红例。
+
+建议按草案阶段先纯 API/codec，再共享 Budget 兼容，最后三个新真实顶层和六个旧兼容顶层；资源与源码各由唯一负责人持有，真实窗口先冻结计划再由 root 授予。当前没有产品含义或共享 Budget 公开契约待裁决项；独立 STATIC 仍须审查工程闭包与可验性。所有本目录交付冻结后停止写入，主树/Git 未改。

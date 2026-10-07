@@ -1,0 +1,44 @@
+# Runtime UI 后继完整结果：有限只读梳理
+
+固定 Git：`c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c`。**有一个可先立窄规格的候选：D09 OpenAI Embeddings wire 库。** 它可只消费已接受的契约、Secret 材料载体与 D04 受控出站，不等待 Runtime UI，也不消费未验 tools。现有能力足以进入工程规格阶段，尚不足以直接下发实现：专用 wire 形状、维度/总量和共享 Budget 接缝须在新卡内明确。
+
+本结论限于协议库完整结果，不是平台 Embedding 调用链已经具备生产开工条件。未新增规格、产品决定、测试或资源。
+
+## 1. 已有能力与接受依据
+
+| 已接受结果 | 实际提交与本次静态依据 | 可消费边界 |
+| --- | --- | --- |
+| Model C0 | `e6e94c4d5a42d3234a73954bc628930cac72350e`；D09 主卡 §B01/C0，`model/contract/types.go`、`nonchat.go` | 已有 `OpenAIEmbeddings` / `OpenAIEmbeddingsV1`、不可变配置载体、文本输入/向量/usage 类型及校验；纯载体不是业务运行服务。 |
+| D04 出站 | D04 完整入口接受 `abf5c37fde852000a4fa3d17ca7b322c5cb1108e`；后续管理 HTTP `a94277982620f01dc15488b09ae6ea9064977b5a` 已接受，同实例 policy/client 绑定见台账 97–101 行 | 正式 PolicyService、Client.Do、origin 凭据绑定、TLS/受限 HTTP、安全 Decision 与实际 Drain。实际消费固定 c1427fa 中的接受版本，不回退到早期源码。 |
+| OpenAI text wire | `9c72190fc1600f27c3607a3315854967ae008138`；正式验收记录“固定输入与边界”及真实 fixture 段 | 已真实验证单次 wire、JSON/SSE、原生 usage、出站与 64 全局/8 Project 无队列 Budget；明确没有 Runtime/消费者/Invocation/HTTP/root。 |
+| structured wire | `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`；正式验收记录“固定输入与交付能力” | 当前已接受的共享传输/取消出口及原 text 兼容；不能把此前 Chat 的 schema/field conformance 当成 Embeddings 已通过。 |
+
+上述提交均为固定 c1427fa 的祖先。精确有限来源及 SHA 见 `inputs.json`；未读取活动 Runtime UI 或任何停止任务私有候选。限定 `internal/central/model` 的构造器/Embed/Rerank 定位仅找到 `NewOpenAIChat`，adapter 文件清单亦没有 Embeddings/Rerank 实现。
+
+## 2. wire 与正式 Nonchat 的边界
+
+`adapter/openai_chat.go` 本来就声明“bounded wire exchanges, not Model business calls”；其输入是 `ConfigSnapshot`、专用消息与 `CallOptions`，输出 wire `Result/End/Usage`，不产生 InvocationID。新候选应沿相同层次，完成**不可变 wire 输入 → 正式 D04 单次 POST → 完整向量/usage 或安全错误 → 实际 I/O 终局**，不把 Chat 消息/文本结果硬装成向量接口。
+
+正式 `contract.Nonchat.Embed` 接收 `EmbeddingRequest{NonchatCall, Texts}`；`NonchatCall` 另要求 Actor、CallID、Consumer、ResolvedModel/LeaseOwner、InputIdentity 的真实关联，`Embeddings` 结果要求合法 InvocationID。D09 设计 §5 明确 Model Runtime 是 invocation/finalize 唯一写者，先完成发送资格与账本事实，之后才发网络。本候选**不实现或宣称绑定这个业务端口，不制造 InvocationID、consumer authority、reservation 或成功 stub**；生产 Resolver/Facts owner/Usage/D13/D14 仍由原后继模块真实绑定。wire 结果只交已解析向量与可靠 Provider usage，未来 Runtime 才能把它组装成有真实 InvocationID 的业务结果。
+
+## 3. 足够的契约与仍需工程定稿之处
+
+| 项目 | 已有规则 | 新卡必须补齐，不能推测为已实现 |
+| --- | --- | --- |
+| 原生输入/输出 | D09 设计 §6 已固定相对 `/embeddings`、Bearer、文本/文本数组、显式 `encoding_format=float`、原 `data.index` 和 float 数组；embedding usage 只映射 `prompt_tokens`/`total_tokens`，output 缺失为 NULL | 专用 wire 请求/结果、profile revision、完整不可变复制和安全格式化；采用字段的精确官方源与 conformance 向量。 |
+| 维度/数量 | `Embeddings.Validate` 要求索引覆盖、等维、非空和有限 float；`ValidateFor(n, dimensions)` 可验证输入数量与给定维度 | 给定维度从何处取得、何种型号允许发送 `dimensions`、默认维度与拒绝行为。Capabilities 没有专门维度字段；Parameters 只作 64 KiB JSON 结构校验，不能据此认定维度或任意参数已受支持。 |
+| 有界解析/拒绝 | `EmbeddingRequest.Validate` 仅要求非空 Texts 和每项至多 16 MiB；一般 C0/配置合法不证明某 profile 支持 | 文本数量、编码后请求总量、向量数×维度/解码内存、数字/重复键/截断/错 MIME/错 index 等整份拒绝；不能把逐项 16 MiB 当成总预算。未知或未核参数拒绝，不静默忽略。具体数值本报告不代定。 |
+| 时间与实际终局 | D04 非流 Profile 上限 Overall 120s、请求/响应 body 各 16 MiB；已验 Chat 要求显式 Overall≤120s、ReadIdle≤min(60s,Overall)，无 adapter 请求重试，取消/错误后实际 join 才归还槽位 | 明确本 profile 的有限值与更早 parent 继承、完整输出发布时点、body/writer/callback 尾部；不借创建新 ctx 刷新预算。受控 server 通过与真实供应商账号 smoke 分列。 |
+| 共享并发 | 现 `budget.go` 是全局 64/每 Project 8、无队列，但实际 `active map[*Exchange]...`，Exchange 持有 Chat `Result` 与 parser | 不是现成通用 Embedding 槽位接口。新卡须列出最小内部适配及旧 Chat 回归，仍由同一 Budget 计数，不能另造每协议配额翻倍或扩大成通用 Runtime 框架。 |
+
+官方依据已有固定 `openai-python@becc1d20eed83c1b8d85e15dc131a372d9dc7813` 和 §6 所列 `resources/embeddings.py`、`types/{embedding_create_params,create_embedding_response,embedding}.py` 的字段结论；本轮没有补抓或运行这些官方原件。新卡仍须精确绑定采用源码、型号维度/限额证据及真正受控 server conformance，不能把 SDK 类型或旧 Chat 的 17 文件证据当成新协议实测。这是工程证据缺口，不需要替用户重新选择已定 OpenAI Embeddings 产品方向。
+
+## 4. 建议最小规格范围与次选
+
+第一候选仅覆盖 `internal/central/model/adapter` 的专用 Embeddings wire/严格 parser/必要 Budget 内部适配、相邻纯测试、一个固定来源/profile manifest、`tests/model` 的正式 D04 受控 HTTP 代表及局部后端说明；具体路径数待独立规格固定，不在本报告授权。既有 Chat 公共签名与行为保持；不纳入迁移、HTTP/root、前端、Resolver/Usage 生产绑定、Object/Artifact 或 consumer 实现。验收必须证明协议正反例、policy 拒绝零发送、原请求次数/取消实际尾部、共享槽位及 text/structured 兼容；不以静态 schema 检查替代实际协议交换。
+
+第二候选仅作排队提示：Jina Rerank 已选为首期协议，但 D09 设计 §6 明示尚无官方字段证据，须先补工程证据与规格，**目前不列为可直接实施项**；无需展开或改产品选择。
+
+Project/Knowledge/Artifact 完整结果仍受未验生命周期/共享 Object 边界阻挡；生成图片业务结果也要求真实 Object 成功，不能借 wire 空结果宣称完成。完整 Model/Usage 生产链仍缺实际 consumer/Facts owner，Summary 仍待用户决定。Object runtime join、OpenAI tools 独立验证、SPA publication 三停止项保持原状，本候选不消费其未验源码，也不设计它们的替代/绕行路径。以上是有限候选筛选，不声称穷举 D01–D28 的所有潜在拆分。
+
+本轮仅固定 Git 文档/接口读取和指纹自查；无联网、产品/测试/构建、监听器或其他资源，无 main/Git 写入或再委派。报告冻结后停写，由主线程评估是否另立新规格。

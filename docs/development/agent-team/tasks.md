@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-07：OpenAI Embeddings float wire规格接受与有限A阶段启动
+
+- [正式卡rev1](../work-items/d09-openai-embeddings-wire.md)已独立完整STATIC PASS、主线程采纳并提交推送`15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597`，核远端一致；[规格报告](openai-embeddings-wire-spec-verification.md)保存27逻辑原件/26对象，作者31项Git输入与独审追加1项分列，技术`1320107d…53133`保持。
+- 六份官方SDK原件及两次proxy403仅作字段来源；ExpectedDimensions不是默认维度，原生dimensions不支持，Nonchat/InvocationID与业务绑定未交付。16候选中唯一backend已实际启动A五路径输入/编码/parser/纯测/manifest；constructor/Start/handle、Budget/transport/fixture/README尚未开始，无真实资源或产品PASS。
+- Runtime UI作者C已冻结1875检查，独立C已启动，整UI无真实资源/未接受；仅协调事实不纳活动原件。旧档/旧段保持，完整D08–D28/E01未完、E01未开始，Summary待决、ready503及Object/tools/SPA publication三停止不变。
+
 ## 2026-10-07：System运行信息UI规格接受与私有API阶段启动
 
 - [正式卡rev2](../work-items/d27-system-runtime-information-ui.md)已独立完整STATIC PASS、主线程采纳并提交推送`2aceadfef6e7a214bc631822317ccf4283bcabc0`，核远端一致；[规格报告](system-runtime-information-ui-spec-verification.md)保存原稿/rev2/正式页首、独立审查和计划。技术`85b3d003…27400`保持，24逻辑引用/22对象/55固定Git输入不冒运行闭包。

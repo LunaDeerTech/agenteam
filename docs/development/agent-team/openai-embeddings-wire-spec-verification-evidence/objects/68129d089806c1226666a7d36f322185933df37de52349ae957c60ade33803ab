@@ -1,0 +1,40 @@
+{
+  "status": "STATIC PASS",
+  "scope": "Complete draft sections 1-7; no implementation or dynamic validation",
+  "review_md": "/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/review.md",
+  "review_md_sha256": "208d90a678e22364debe5f59b86abd9b21a0449566815cf1d28203c828456f51",
+  "draft": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/d09-openai-embeddings-wire.draft.md",
+  "full_sha256": "91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0",
+  "technical_sha256": "1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133",
+  "fixed_git": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "input_check": {
+    "path": "/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/input-check01.json",
+    "sha256": "3b8f8eebe93f98f2b45fbac724e707f5cea3c334bc528f1c6aa9865e81fcf4ef",
+    "git_files": 31
+  },
+  "additional_input": {
+    "path": "/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/additional-input01.json",
+    "sha256": "f41fab77b8505aca47c8feec86a8f33acd0b703deaeee76b919de68a43f85ed8",
+    "git_files": 1
+  },
+  "candidate_paths": 16,
+  "new_real_top_levels": [
+    "TestModelOpenAIEmbeddingsWireHTTP",
+    "TestModelOpenAIEmbeddingsWireTerminal",
+    "TestModelOpenAIEmbeddingsWireBudget"
+  ],
+  "old_real_top_levels": [
+    "TestModelOpenAIChatWireHTTP",
+    "TestModelOpenAIChatWireStream",
+    "TestModelOpenAIChatWireJoinAndBudget",
+    "TestModelOpenAIChatStructuredHTTP",
+    "TestModelOpenAIChatStructuredStream",
+    "TestModelOpenAIChatStructuredCloseAndBudget"
+  ],
+  "blocking_findings": [],
+  "no_product_execution": true,
+  "no_network": true,
+  "no_resources": true,
+  "no_main_or_git_mutation": true,
+  "source_hashes_rechecked_before_report": true
+}

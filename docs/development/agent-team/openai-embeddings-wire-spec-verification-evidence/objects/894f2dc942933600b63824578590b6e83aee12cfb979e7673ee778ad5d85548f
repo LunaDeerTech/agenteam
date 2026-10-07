@@ -1,0 +1,88 @@
+{
+  "external_provider_called": false,
+  "files": {
+    "checks.json": {
+      "bytes": 2719,
+      "sha256": "5d27e72624ce87919b1ac2e75afb59bf43c1e27b6eab69fb113294dcdb0caf54"
+    },
+    "d09-openai-embeddings-wire.draft.md": {
+      "bytes": 19443,
+      "sha256": "91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0"
+    },
+    "inputs.json": {
+      "bytes": 13533,
+      "sha256": "757e16523c31a8b01bfdf59497209940b479a9bd99fa4ce65ae6cd01c28d29f1"
+    },
+    "official-evidence.md": {
+      "bytes": 4008,
+      "sha256": "3c583fe3a4c4782fe217ae45966e7427e1f139900524ac01f4e621b9e3906626"
+    },
+    "official/LICENSE.txt": {
+      "bytes": 11336,
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4"
+    },
+    "official/create_embedding_response.py.txt": {
+      "bytes": 847,
+      "sha256": "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c"
+    },
+    "official/embedding.py.txt": {
+      "bytes": 716,
+      "sha256": "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942"
+    },
+    "official/embedding_create_params.py.txt": {
+      "bytes": 2081,
+      "sha256": "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f"
+    },
+    "official/embedding_model.py.txt": {
+      "bytes": 280,
+      "sha256": "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e"
+    },
+    "official/embeddings.py.txt": {
+      "bytes": 11163,
+      "sha256": "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262"
+    },
+    "official/fetch-cookbook.json": {
+      "bytes": 311,
+      "sha256": "6d8c87a01c353f125e6c0e263182fd4c3712d37778bd82b08af52bc464c13c10"
+    },
+    "official/fetch-extra.json": {
+      "bytes": 2007,
+      "sha256": "e6ae43b19a689093ed72d422043643b74616e1c92c83c3fda313bfab8bcd99a4"
+    },
+    "official/fetch.json": {
+      "bytes": 3117,
+      "sha256": "3fa82e87428df04665cf2f5283e543e335ac8b9f70ba2b4f643a814407082e08"
+    },
+    "origin.json": {
+      "bytes": 260,
+      "sha256": "1099a0525b46612e7dc14193c02ad37b24e71975599371ee0b563b17e23e9a00"
+    },
+    "report.md": {
+      "bytes": 4254,
+      "sha256": "900603ebfad954ce38ee12c5ec5d66160a887f30b1a874ca37000e9e13dc44fb"
+    },
+    "self-check-result.json": {
+      "bytes": 658,
+      "sha256": "5423e1011d51fad026ca6cc8d10fec0bc66cc90381fd7b255d82521a646a3c15"
+    },
+    "self-check.py": {
+      "bytes": 9090,
+      "sha256": "11a3fa7b12657a5e99a9b5390508ae4618fa4758553fe1604848d1aee38ff03a"
+    }
+  },
+  "fixed_git": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "frozen_utc": "2026-10-07T05:02:33.718868+00:00",
+  "full_sha256": "91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0",
+  "git_mutation": false,
+  "network_fetch_complete": true,
+  "prior_candidate_report": {
+    "path": "/workspace/scratch/agenteam-next-result-review-e3qlans9/report.md",
+    "sha256": "ca5d00236890c7ddc8e894d0ab378e1de58f18dd48e39af645e4740b2f0ea349"
+  },
+  "product_executed": false,
+  "product_files_written": false,
+  "resources_started": false,
+  "status": "Private candidate ready for independent STATIC; no implementation or resource authorization.",
+  "stop_writing": true,
+  "technical_sha256": "1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133"
+}

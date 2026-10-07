@@ -1,0 +1,135 @@
+from pathlib import Path, PurePosixPath
+import hashlib, json, re, subprocess
+
+root = Path('/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o')
+repo = Path('/workspace/agenteam')
+base = 'c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c'
+spec = root / 'd09-openai-embeddings-wire.draft.md'
+
+def sha(b): return hashlib.sha256(b).hexdigest()
+def git(*args):
+    return subprocess.run(['git', *args], cwd=repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout
+
+def write(name, value):
+    (root / name).write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + '\n')
+
+sources = {
+ 'AGENTS.md': 'accepted/stopped task and workflow clauses; inherited bounded review',
+ '.agents/skills/agenteam-design/SKILL.md': 'design workflow',
+ '.agents/skills/agenteam-go-development/SKILL.md': 'Go scope and future implementation checks',
+ '.agents/skills/agenteam-verification/SKILL.md': 'evidence and resource ownership',
+ 'docs/development/work-items/d09-model-system-token-usage.md': 'accepted C0, lower-wire and successor boundaries',
+ 'docs/development/work-items/d09-model-system-token-usage-design.md': 'sections 1, 5, 6, 7 and 13; dimensions only for evidenced models',
+ 'docs/development/work-items/recovery-d09-openai-chat-wire.md': 'accepted lower-wire public contract and budgets',
+ 'docs/development/work-items/recovery-d09-openai-chat-structured-wire.md': 'accepted additive revision and compatibility',
+ 'docs/architecture/platform-infrastructure/model-system/model-configuration.md': 'consumer/capability/profile separation; inherited bounded review',
+ 'docs/development/agent-team/d09-openai-chat-wire-verification.md': 'existing acceptance and fixture limits; inherited bounded review',
+ 'docs/development/agent-team/d09-openai-chat-structured-wire-verification.md': 'existing acceptance; inherited bounded review',
+ 'internal/central/model/contract/nonchat.go': 'NonchatCall/Embed/EmbeddingResult validation and InvocationID responsibility',
+ 'internal/central/model/contract/types.go': 'snapshot, capabilities, purpose/project and usage types',
+ 'internal/central/model/contract/configuration.go': 'C0 structural parameters and endpoint validation',
+ 'internal/central/model/adapter/openai_chat.go': 'formal constructor, public options/observation, prepare and limits',
+ 'internal/central/model/adapter/budget.go': 'complete shared 64/8 admission/release/Force/Drain implementation',
+ 'internal/central/model/adapter/budget_test.go': 'old private accept and handle use; no test execution',
+ 'internal/central/model/adapter/transport.go': 'Result/Observe/Close/Joined and D04 tail ownership',
+ 'internal/central/model/adapter/transport_test.go': 'snapshot compatibility locator; no execution',
+ 'internal/central/model/adapter/structured_stream_test.go': 'snapshot compatibility locator; no execution',
+ 'internal/central/model/adapter/errors.go': 'safe error/request-ID and parser boundary helpers',
+ 'internal/central/outbound/profile.go': 'real body/time/header limits and origin credential binding',
+ 'internal/central/outbound/http.go': 'POST redirect, writer/callback/body actual tail and public Close shape',
+ 'tests/model/openai_chat_wire_fixture_test.go': 'real PG/policy/authority fixture and synthetic input ownership',
+ 'tests/model/openai_chat_wire_http_test.go': 'existing exact top-level name',
+ 'tests/model/openai_chat_wire_stream_test.go': 'existing exact stream/join top-level names',
+ 'tests/model/openai_chat_structured_http_test.go': 'existing exact top-level name',
+ 'tests/model/openai_chat_structured_stream_test.go': 'existing exact stream/CloseAndBudget top-level names',
+ 'tests/testsupport/outbound/fixture.go': 'existing Mode/WireScenario/public control DTO and state caps',
+ 'tests/testsupport/outbound/cmd/server/main.go': 'existing wire path restriction, mode branching and original caps',
+ 'docs/development/backend/README.md': 'last documentation candidate existence and existing accepted scope',
+}
+files = {}
+source_bytes = {}
+for path, inspection in sources.items():
+    data = git('show', f'{base}:{path}')
+    source_bytes[path] = data
+    files[path] = {'bytes': len(data), 'sha256': sha(data), 'inspection': inspection}
+
+accepted = [
+ 'e6e94c4d5a42d3234a73954bc628930cac72350e',
+ '9c72190fc1600f27c3607a3315854967ae008138',
+ 'be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74',
+ 'abf5c37fde852000a4fa3d17ca7b322c5cb1108e',
+ 'a94277982620f01dc15488b09ae6ea9064977b5a',
+]
+for commit in accepted:
+    git('merge-base', '--is-ancestor', commit, base)
+
+official = {}
+records = json.loads((root/'official/fetch.json').read_text())['records'] + json.loads((root/'official/fetch-extra.json').read_text())['records']
+for record in records:
+    if record.get('status') == 200:
+        path = 'official/' + record['file']
+        data = (root/path).read_bytes()
+        assert sha(data) == record['sha256'] and len(data) == record['bytes']
+        official[path] = {'bytes': len(data), 'sha256': sha(data), 'revision': record['revision'], 'url': record['url'], 'actual_status': 200}
+for path in ['official/fetch.json','official/fetch-extra.json','official/fetch-cookbook.json']:
+    data = (root/path).read_bytes()
+    official[path] = {'bytes': len(data), 'sha256': sha(data), 'kind': 'original public GET record; includes two unsuccessful proxy CONNECT attempts'}
+assert len([r for r in records if r.get('status') == 200]) == 6
+assert len([r for r in records if r.get('error_type')]) == 1
+assert json.loads((root/'official/fetch-cookbook.json').read_text())['error_type'] == 'URLError'
+
+raw = spec.read_bytes()
+text = raw.decode('utf-8')
+assert raw.endswith(b'\n') and b'\r' not in raw
+assert all(line == line.rstrip() for line in text.splitlines())
+assert re.findall(r'^## (\d+)\.', text, re.M) == [str(i) for i in range(1,8)]
+paths = re.findall(r'^\| \d+ \| `([^`]+)` \|', text, re.M)
+assert len(paths) == len(set(paths)) == 16
+candidates = []
+for path in paths:
+    p = subprocess.run(['git','cat-file','-e',f'{base}:{path}'],cwd=repo,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    assert p.returncode in (0,128)
+    old = p.returncode == 0
+    candidates.append({'path': path, 'existing': old, 'base_sha256': sha(git('show',f'{base}:{path}')) if old else None})
+assert sum(x['existing'] for x in candidates) == 4
+assert {x['path'] for x in candidates if x['existing']} == {
+ 'internal/central/model/adapter/budget.go', 'internal/central/model/adapter/transport.go',
+ 'tests/testsupport/outbound/cmd/server/main.go', 'docs/development/backend/README.md'}
+formal_dir = PurePosixPath('docs/development/work-items')
+links = re.findall(r'\]\(([^)]+)\)', text)
+resolved_links = []
+for link in links:
+    parts = []
+    for part in (formal_dir/PurePosixPath(link)).parts:
+        if part == '..': parts.pop()
+        elif part != '.': parts.append(part)
+    target = '/'.join(parts)
+    git('cat-file','-e',f'{base}:{target}')
+    resolved_links.append({'link':link,'fixed_git_target':target})
+old_tops = [
+ 'TestModelOpenAIChatWireHTTP','TestModelOpenAIChatWireStream','TestModelOpenAIChatWireJoinAndBudget',
+ 'TestModelOpenAIChatStructuredHTTP','TestModelOpenAIChatStructuredStream','TestModelOpenAIChatStructuredCloseAndBudget']
+top_sources = {}
+for top in old_tops:
+    found = [path for path,data in source_bytes.items() if path.startswith('tests/model/') and f'func {top}(t *testing.T)'.encode() in data]
+    assert len(found) == 1, (top,found)
+    top_sources[top] = found[0]
+new_tops = ['TestModelOpenAIEmbeddingsWireHTTP','TestModelOpenAIEmbeddingsWireTerminal','TestModelOpenAIEmbeddingsWireBudget']
+for top in new_tops:
+    p = subprocess.run(['git','grep','-n',f'func {top}(',base,'--','tests/model'],cwd=repo,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    assert p.returncode == 1
+
+tech = raw[raw.index(b'## 1.'):]
+write('inputs.json', {'fixed_git':base,'files':files,'official':official,'accepted_dependencies_ancestor_checked':accepted,
+ 'scope':'Finite static references, not a product execution/compilation dependency closure; no source copies or cache copies.',
+ 'candidate_paths':candidates})
+write('checks.json', {'scope':'document/source checks only; no implementation probe or product execution',
+ 'source_count':len(files),'official_source_count':6,'failed_public_GET_records':2,
+ 'candidate_count':len(candidates),'existing_candidates':4,'new_candidates':12,
+ 'utf8_lf_no_trailing_whitespace':True,'sections_1_to_7':True,'relative_links':resolved_links,
+ 'old_exact_tops':top_sources,'new_exact_tops_absent_in_base':new_tops,
+ 'parser_capacity_arithmetic':{'raw_max_bytes':16*1024*1024+1,'vectors_max_bytes':262144*8,'return_copy_max_bytes':262144*8,
+ 'aux_max_bytes':64*1024,'sum_bytes':16*1024*1024+1+2*262144*8+64*1024,'bound_bytes_exclusive':21*1024*1024},
+ 'full_sha256':sha(raw),'technical_sections_1_to_7_sha256':sha(tech),
+ 'product_checks_run':False,'resources_started':False,'main_or_git_writes':False})
+print(json.dumps({'full_sha256':sha(raw),'tech_sha256':sha(tech),'fixed_sources':len(files),'candidates':len(candidates),'checks':'PASS: static self-check only'},ensure_ascii=False))

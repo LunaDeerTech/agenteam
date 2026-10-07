@@ -1,0 +1,31 @@
+# 固定官方字段来源
+
+仅取证，不运行 SDK 或供应商请求。所有成功来源均为官方 `openai/openai-python` 的固定 Git revision `becc1d20eed83c1b8d85e15dc131a372d9dc7813`，2026-10-07 实际 GET 200；原文件及请求记录留在 `official/`。URL 前缀为 `https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/`，下表路径直接接在该前缀后，记录文件中也保存完整 URL。
+
+| 原路径 | 本地原件 | 字节 | SHA-256 |
+| --- | --- | ---: | --- |
+| `src/openai/resources/embeddings.py` | `official/embeddings.py.txt` | 11163 | `3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262` |
+| `src/openai/types/embedding_create_params.py` | `official/embedding_create_params.py.txt` | 2081 | `0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f` |
+| `src/openai/types/create_embedding_response.py` | `official/create_embedding_response.py.txt` | 847 | `7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c` |
+| `src/openai/types/embedding.py` | `official/embedding.py.txt` | 716 | `11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942` |
+| `src/openai/types/embedding_model.py` | `official/embedding_model.py.txt` | 280 | `d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e` |
+| `LICENSE` | `official/LICENSE.txt` | 11336 | `636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4` |
+
+采用的证据只到字段与固定 SDK 行为：
+
+- `resources/embeddings.py`：`POST /embeddings`、Bearer security、model/input/encoding_format 参数。SDK 在未显式指定 encoding_format 时设 base64；本卡显式 float，不调用 SDK 的后处理。
+- `embedding_create_params.py`：文本或文本数组是合法 input 分支，encoding_format 为 float/base64；原生 dimensions 注释限定 text-embedding-3 及以后。其他 token 数组、user、dimensions 本版均未采用。
+- `embedding.py` 与 `create_embedding_response.py`：向量为 float 列表、index 为整数、条目 object=embedding；根 object=list、model/data/usage，usage 字段为 prompt_tokens 和 total_tokens。SDK 类型不证明运行时有限数、唯一索引、严格 JSON 或 EOF；这些是本卡须实现并验收的本地约束。
+- `embedding_model.py`：固定枚举 ada-002、3-small、3-large，同时参数类型允许任意字符串。它不是账号可用性、默认维度或型号限额表，本卡不加入型号白名单。
+- `LICENSE` 原件为 Apache License 2.0；只保留取证来源，无 SDK 依赖或代码运行。
+
+注释中的单 input 8192 tokens、总量 300000 tokens 不提供本项目 tokenizer；“array ... 2048 dimensions”原句不当成输出维度。固定六件没有默认向量维度或各型号完整容量证据。本卡的 N≤128、D≤4096、N×D≤262144、请求8 MiB/响应16 MiB是工程上限，不是供应商保证。ExpectedDimensions 由受信 caller 明确提供，仅校验响应；后续 Runtime/consumer 绑定须从正式配置事实建立，不能用本卡推断默认值。原生 dimensions 在 Do 前 unsupported，首版 parameters 仅 `{}`。
+
+两次失败取证永久保留，不当作取得了页面内容：
+
+| URL | 原记录 | 实际结果 |
+| --- | --- | --- |
+| `https://developers.openai.com/api/docs/guides/embeddings` | `official/fetch-extra.json` | 2026-10-07T04:43:32.777608Z，URLError，代理 CONNECT 返回 403；无页面字节。 |
+| `https://api.github.com/repos/openai/openai-cookbook/commits?path=examples/Embedding_long_inputs.ipynb&per_page=1` | `official/fetch-cookbook.json` | 2026-10-07T04:44:53.501093Z，URLError，代理 CONNECT 返回 403；无 revision 或 notebook。 |
+
+没有继续取证、重试失败目标或以别处材料冒充上述来源。SDK 来源不等于真实供应商 smoke，也不覆盖全部 Embedding 可选能力。D09 已定的“缺 usage 可成功但 unknown”高层约束保留，本卡刻意不照搬 SDK 两字段必填的类型声明。

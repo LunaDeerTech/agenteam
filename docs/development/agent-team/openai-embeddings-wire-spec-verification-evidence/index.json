@@ -1,0 +1,636 @@
+{
+  "administrative_base": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+  "artifacts": {
+    "author/checks.json": {
+      "bytes": 2719,
+      "object": "objects/5d27e72624ce87919b1ac2e75afb59bf43c1e27b6eab69fb113294dcdb0caf54",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/checks.json",
+      "sha256": "5d27e72624ce87919b1ac2e75afb59bf43c1e27b6eab69fb113294dcdb0caf54"
+    },
+    "author/d09-openai-embeddings-wire.draft.md": {
+      "bytes": 19443,
+      "object": "objects/91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/d09-openai-embeddings-wire.draft.md",
+      "sha256": "91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0"
+    },
+    "author/freeze.json": {
+      "bytes": 3265,
+      "object": "objects/894f2dc942933600b63824578590b6e83aee12cfb979e7673ee778ad5d85548f",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/freeze.json",
+      "sha256": "894f2dc942933600b63824578590b6e83aee12cfb979e7673ee778ad5d85548f"
+    },
+    "author/inputs.json": {
+      "bytes": 13533,
+      "object": "objects/757e16523c31a8b01bfdf59497209940b479a9bd99fa4ce65ae6cd01c28d29f1",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/inputs.json",
+      "sha256": "757e16523c31a8b01bfdf59497209940b479a9bd99fa4ce65ae6cd01c28d29f1"
+    },
+    "author/official-evidence.md": {
+      "bytes": 4008,
+      "object": "objects/3c583fe3a4c4782fe217ae45966e7427e1f139900524ac01f4e621b9e3906626",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official-evidence.md",
+      "sha256": "3c583fe3a4c4782fe217ae45966e7427e1f139900524ac01f4e621b9e3906626"
+    },
+    "author/official/LICENSE.txt": {
+      "bytes": 11336,
+      "object": "objects/636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/LICENSE.txt",
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4"
+    },
+    "author/official/create_embedding_response.py.txt": {
+      "bytes": 847,
+      "object": "objects/7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/create_embedding_response.py.txt",
+      "sha256": "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c"
+    },
+    "author/official/embedding.py.txt": {
+      "bytes": 716,
+      "object": "objects/11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/embedding.py.txt",
+      "sha256": "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942"
+    },
+    "author/official/embedding_create_params.py.txt": {
+      "bytes": 2081,
+      "object": "objects/0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/embedding_create_params.py.txt",
+      "sha256": "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f"
+    },
+    "author/official/embedding_model.py.txt": {
+      "bytes": 280,
+      "object": "objects/d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/embedding_model.py.txt",
+      "sha256": "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e"
+    },
+    "author/official/embeddings.py.txt": {
+      "bytes": 11163,
+      "object": "objects/3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/embeddings.py.txt",
+      "sha256": "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262"
+    },
+    "author/official/fetch-cookbook.json": {
+      "bytes": 311,
+      "object": "objects/6d8c87a01c353f125e6c0e263182fd4c3712d37778bd82b08af52bc464c13c10",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/fetch-cookbook.json",
+      "sha256": "6d8c87a01c353f125e6c0e263182fd4c3712d37778bd82b08af52bc464c13c10"
+    },
+    "author/official/fetch-extra.json": {
+      "bytes": 2007,
+      "object": "objects/e6ae43b19a689093ed72d422043643b74616e1c92c83c3fda313bfab8bcd99a4",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/fetch-extra.json",
+      "sha256": "e6ae43b19a689093ed72d422043643b74616e1c92c83c3fda313bfab8bcd99a4"
+    },
+    "author/official/fetch.json": {
+      "bytes": 3117,
+      "object": "objects/3fa82e87428df04665cf2f5283e543e335ac8b9f70ba2b4f643a814407082e08",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/official/fetch.json",
+      "sha256": "3fa82e87428df04665cf2f5283e543e335ac8b9f70ba2b4f643a814407082e08"
+    },
+    "author/origin.json": {
+      "bytes": 260,
+      "object": "objects/1099a0525b46612e7dc14193c02ad37b24e71975599371ee0b563b17e23e9a00",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/origin.json",
+      "sha256": "1099a0525b46612e7dc14193c02ad37b24e71975599371ee0b563b17e23e9a00"
+    },
+    "author/report.md": {
+      "bytes": 4254,
+      "object": "objects/900603ebfad954ce38ee12c5ec5d66160a887f30b1a874ca37000e9e13dc44fb",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/report.md",
+      "sha256": "900603ebfad954ce38ee12c5ec5d66160a887f30b1a874ca37000e9e13dc44fb"
+    },
+    "author/self-check-result.json": {
+      "bytes": 658,
+      "object": "objects/5423e1011d51fad026ca6cc8d10fec0bc66cc90381fd7b255d82521a646a3c15",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/self-check-result.json",
+      "sha256": "5423e1011d51fad026ca6cc8d10fec0bc66cc90381fd7b255d82521a646a3c15"
+    },
+    "author/self-check.py": {
+      "bytes": 9090,
+      "object": "objects/11a3fa7b12657a5e99a9b5390508ae4618fa4758553fe1604848d1aee38ff03a",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-spec-dszd_w7o/self-check.py",
+      "sha256": "11a3fa7b12657a5e99a9b5390508ae4618fa4758553fe1604848d1aee38ff03a"
+    },
+    "formal/checks.json": {
+      "bytes": 1160,
+      "object": "objects/0de3dd94b49eccb94dabce3c0b1a71b79dc24c99d3303951e0fe265ec3ccc629",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-formal-ymzrcfab/checks.json",
+      "sha256": "0de3dd94b49eccb94dabce3c0b1a71b79dc24c99d3303951e0fe265ec3ccc629"
+    },
+    "formal/d09-openai-embeddings-wire.md": {
+      "bytes": 19966,
+      "git": {
+        "commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+        "path": "docs/development/work-items/d09-openai-embeddings-wire.md"
+      },
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-formal-ymzrcfab/d09-openai-embeddings-wire.md",
+      "sha256": "9154874ac03b0e6b4563b1eb994f5dcde0b11a66ce305953c6cf550d28585b15"
+    },
+    "formal/delivery.json": {
+      "bytes": 854,
+      "object": "objects/e37303197c2f8f5f8e4758c866a7a0da93d853fe425570fbca72cb9a80d5095b",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-formal-ymzrcfab/delivery.json",
+      "sha256": "e37303197c2f8f5f8e4758c866a7a0da93d853fe425570fbca72cb9a80d5095b"
+    },
+    "formal/header.diff": {
+      "bytes": 1902,
+      "object": "objects/531b05cb8811dc5808383f09a002f7d93345984b886b7068f173a6ffdc6ef2c4",
+      "origin": "/workspace/scratch/agenteam-openai-embeddings-formal-ymzrcfab/header.diff",
+      "sha256": "531b05cb8811dc5808383f09a002f7d93345984b886b7068f173a6ffdc6ef2c4"
+    },
+    "independent/additional-input01.json": {
+      "bytes": 465,
+      "object": "objects/f41fab77b8505aca47c8feec86a8f33acd0b703deaeee76b919de68a43f85ed8",
+      "origin": "/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/additional-input01.json",
+      "sha256": "f41fab77b8505aca47c8feec86a8f33acd0b703deaeee76b919de68a43f85ed8"
+    },
+    "independent/input-check01.json": {
+      "bytes": 14042,
+      "object": "objects/3b8f8eebe93f98f2b45fbac724e707f5cea3c334bc528f1c6aa9865e81fcf4ef",
+      "origin": "/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/input-check01.json",
+      "sha256": "3b8f8eebe93f98f2b45fbac724e707f5cea3c334bc528f1c6aa9865e81fcf4ef"
+    },
+    "independent/review.json": {
+      "bytes": 1755,
+      "object": "objects/68129d089806c1226666a7d36f322185933df37de52349ae957c60ade33803ab",
+      "origin": "/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/review.json",
+      "sha256": "68129d089806c1226666a7d36f322185933df37de52349ae957c60ade33803ab"
+    },
+    "independent/review.md": {
+      "bytes": 5187,
+      "object": "objects/208d90a678e22364debe5f59b86abd9b21a0449566815cf1d28203c828456f51",
+      "origin": "/workspace/scratch/agenteam-embeddings-spec-independent-rtb6bf88/review.md",
+      "sha256": "208d90a678e22364debe5f59b86abd9b21a0449566815cf1d28203c828456f51"
+    },
+    "prior-candidate/report.md": {
+      "bytes": 7890,
+      "object": "objects/ca5d00236890c7ddc8e894d0ab378e1de58f18dd48e39af645e4740b2f0ea349",
+      "origin": "/workspace/scratch/agenteam-next-result-review-e3qlans9/report.md",
+      "sha256": "ca5d00236890c7ddc8e894d0ab378e1de58f18dd48e39af645e4740b2f0ea349"
+    }
+  },
+  "candidate_scope": [
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/openai_embeddings.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/embedding_transport.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/embedding_json.go"
+    },
+    {
+      "base_sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+      "existing": true,
+      "path": "internal/central/model/adapter/budget.go"
+    },
+    {
+      "base_sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "existing": true,
+      "path": "internal/central/model/adapter/transport.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/openai_embeddings_test.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/embedding_transport_test.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/embedding_json_test.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/embedding_budget_test.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "tests/model/openai_embeddings_wire_fixture_test.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "tests/model/openai_embeddings_wire_http_test.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "tests/model/openai_embeddings_wire_terminal_test.go"
+    },
+    {
+      "base_sha256": null,
+      "existing": false,
+      "path": "tests/model/openai_embeddings_wire_budget_test.go"
+    },
+    {
+      "base_sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071",
+      "existing": true,
+      "path": "tests/testsupport/outbound/cmd/server/main.go"
+    },
+    {
+      "base_sha256": "670427cda0f7f5795478131e01a2fcdc6ea2a14b744db8d652e0b56ca07ff7b8",
+      "existing": true,
+      "path": "docs/development/backend/README.md"
+    }
+  ],
+  "card": "docs/development/work-items/d09-openai-embeddings-wire.md",
+  "coordination_only": {
+    "backend_A_five_paths_started": true,
+    "budget_transport_fixture_resources_started": false,
+    "constructor_Start_handle_implemented": false,
+    "implementation_independently_accepted": false,
+    "runtime_UI_author_C_frozen_1875": true,
+    "runtime_UI_independent_C_started": true,
+    "runtime_UI_product_accepted": false,
+    "runtime_UI_real_resources_started": false,
+    "source": "Main-thread task handoff and actual backend ACK; no active implementation read."
+  },
+  "counts": {
+    "author_fixed_git_inputs": 31,
+    "candidate_paths": 16,
+    "existing_candidate_paths": 4,
+    "failed_proxy_requests": 2,
+    "independent_additional_git_inputs": 1,
+    "logical_artifacts": 27,
+    "missing_required_originals": 0,
+    "new_candidate_paths": 12,
+    "object_bytes": 122343,
+    "objects": 26,
+    "official_source_files": 6
+  },
+  "draft_sha256": "91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0",
+  "fixed_git_inputs": [
+    {
+      "bytes": 3874,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": ".agents/skills/agenteam-design/SKILL.md",
+      "scope": "author-original-31",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+    },
+    {
+      "bytes": 3637,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": ".agents/skills/agenteam-go-development/SKILL.md",
+      "scope": "author-original-31",
+      "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b"
+    },
+    {
+      "bytes": 4496,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": ".agents/skills/agenteam-verification/SKILL.md",
+      "scope": "author-original-31",
+      "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61"
+    },
+    {
+      "bytes": 38693,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "AGENTS.md",
+      "scope": "author-original-31",
+      "sha256": "20284ce730b733f32614768ed4589171093b698da61046fac5002c0e41e09e35"
+    },
+    {
+      "bytes": 20680,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "scope": "author-original-31",
+      "sha256": "8af3c658dbe1978f5f9b1cdae9820788a14c6775cc9e529ae0d4603cf925a439"
+    },
+    {
+      "bytes": 9934,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/development/agent-team/d09-openai-chat-structured-wire-verification.md",
+      "scope": "author-original-31",
+      "sha256": "8b3ce34449cd0a8ca23ca9291bfec9db99c98e7172cbc290a773fd8b419a7934"
+    },
+    {
+      "bytes": 11358,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/development/agent-team/d09-openai-chat-wire-verification.md",
+      "scope": "author-original-31",
+      "sha256": "b91c3bc3f24b42a35eecd71df9fc36264ecca29e4539f5859a212191463b4c95"
+    },
+    {
+      "bytes": 38502,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/development/backend/README.md",
+      "scope": "author-original-31",
+      "sha256": "670427cda0f7f5795478131e01a2fcdc6ea2a14b744db8d652e0b56ca07ff7b8"
+    },
+    {
+      "bytes": 66903,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "scope": "author-original-31",
+      "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133"
+    },
+    {
+      "bytes": 11913,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/development/work-items/d09-model-system-token-usage.md",
+      "scope": "author-original-31",
+      "sha256": "928c20d4f29586622e615af2c8a3f6b6d9fcd0db425951a13158b722f6f4831e"
+    },
+    {
+      "bytes": 21860,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+      "scope": "author-original-31",
+      "sha256": "7774aff73cec0626271895a3abcb1f3c88e5ff9efdd05382777c6c0894b56356"
+    },
+    {
+      "bytes": 29152,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "docs/development/work-items/recovery-d09-openai-chat-wire.md",
+      "scope": "author-original-31",
+      "sha256": "ed7c50ecd20156362dfbfab2a2e542ddec2b64c89d816a73a4db1843599ab824"
+    },
+    {
+      "bytes": 2607,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/adapter/budget.go",
+      "scope": "author-original-31",
+      "sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a"
+    },
+    {
+      "bytes": 3404,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/adapter/budget_test.go",
+      "scope": "author-original-31",
+      "sha256": "4f2d0babcd7f67e65ca303a5a128756ac9f082b3500346512baea28a4e0d9b30"
+    },
+    {
+      "bytes": 11274,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/adapter/errors.go",
+      "scope": "author-original-31",
+      "sha256": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499"
+    },
+    {
+      "bytes": 11254,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "scope": "author-original-31",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556"
+    },
+    {
+      "bytes": 8764,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/adapter/structured_stream_test.go",
+      "scope": "author-original-31",
+      "sha256": "194af0abec900add91bd1d923e3fb9e08b4da609ef2cb76fb322576ed9e6591b"
+    },
+    {
+      "bytes": 11948,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/adapter/transport.go",
+      "scope": "author-original-31",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf"
+    },
+    {
+      "bytes": 4218,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/adapter/transport_test.go",
+      "scope": "author-original-31",
+      "sha256": "c9be8f7f49bf6e460bad132cb55bf5567949d834c8060feb2527ebc6e824cc15"
+    },
+    {
+      "bytes": 19050,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/contract/configuration.go",
+      "scope": "author-original-31",
+      "sha256": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14"
+    },
+    {
+      "bytes": 7997,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/contract/nonchat.go",
+      "scope": "author-original-31",
+      "sha256": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d"
+    },
+    {
+      "bytes": 19439,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/model/contract/types.go",
+      "scope": "author-original-31",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    },
+    {
+      "bytes": 18294,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/outbound/http.go",
+      "scope": "author-original-31",
+      "sha256": "f55b178fef52c4ea19e897835c64679c703045ccb86ea3863959953152ff3eb6"
+    },
+    {
+      "bytes": 9282,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/outbound/profile.go",
+      "scope": "author-original-31",
+      "sha256": "a2d9000c8cf1b8df4bf5450ab67cf4575b35763dd85765307b7e9f433d73dca0"
+    },
+    {
+      "bytes": 9614,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "tests/model/openai_chat_structured_http_test.go",
+      "scope": "author-original-31",
+      "sha256": "3a1a1417b49a41843a8fbf6e65388878056905decce13470f28a2b57f3e50d02"
+    },
+    {
+      "bytes": 11026,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "tests/model/openai_chat_structured_stream_test.go",
+      "scope": "author-original-31",
+      "sha256": "f8f10b59a17ed24f3b62c1dd79da4c2d8cc8bfb38a5ce5e74e0cd0abdd13270a"
+    },
+    {
+      "bytes": 10655,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "tests/model/openai_chat_wire_fixture_test.go",
+      "scope": "author-original-31",
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8"
+    },
+    {
+      "bytes": 9025,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "tests/model/openai_chat_wire_http_test.go",
+      "scope": "author-original-31",
+      "sha256": "d8eb23185ca49431f58f2ba0faa336834f557f0b73343d24f361418874378d77"
+    },
+    {
+      "bytes": 14545,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "tests/model/openai_chat_wire_stream_test.go",
+      "scope": "author-original-31",
+      "sha256": "dc9106cf7f2b05c6d574dd627ce3614c5f8606ac6d468f39b0fae105953edbc3"
+    },
+    {
+      "bytes": 10592,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "tests/testsupport/outbound/cmd/server/main.go",
+      "scope": "author-original-31",
+      "sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071"
+    },
+    {
+      "bytes": 5394,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "tests/testsupport/outbound/fixture.go",
+      "scope": "author-original-31",
+      "sha256": "525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc"
+    },
+    {
+      "bytes": 13519,
+      "commit": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+      "path": "internal/central/outbound/client.go",
+      "scope": "independent-additional-1",
+      "sha256": "127467315ed1798db92d4785d856880b46b7e2b723c2dc723d3fbf7b1dcc4816"
+    }
+  ],
+  "fixed_product": "c1427fa4fb7fa118b12b2fb1f5d5f8917113ce2c",
+  "formal_spec_commit": "15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597",
+  "full_formal_sha256": "9154874ac03b0e6b4563b1eb994f5dcde0b11a66ce305953c6cf550d28585b15",
+  "gaps": [],
+  "implementation_accepted": false,
+  "limits": [
+    "Only specification STATIC PASS; no implementation, build, native/TCP, resource or provider conformance acceptance.",
+    "31 original author fixed Git inputs plus one explicitly additional independent input; neither is a runtime closure.",
+    "Six official SDK originals at one fixed revision are field provenance, not execution or provider default/availability evidence.",
+    "Two proxy CONNECT 403 records contain no guide or cookbook response/notebook bytes; no fetch was retried by this archive.",
+    "ExpectedDimensions is a mandatory trusted caller requirement, not a provider default; native dimensions are unsupported.",
+    "Nonchat/InvocationID/Resolver/Facts/Runtime/Usage and real consumer authorization remain outside the wire library.",
+    "Author self-check result contains argv/cwd/exit and embedded stdout, but no separate supervised raw/env/actual-wait record; not reconstructed.",
+    "Two early author locator errors are only narrated in the original author report; no separate command/raw was declared, and none is invented.",
+    "Original historical headers stay unchanged; current implementation coordination is separate from archived STATIC evidence."
+  ],
+  "objects": {
+    "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f": {
+      "bytes": 2081,
+      "path": "objects/0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f"
+    },
+    "0de3dd94b49eccb94dabce3c0b1a71b79dc24c99d3303951e0fe265ec3ccc629": {
+      "bytes": 1160,
+      "path": "objects/0de3dd94b49eccb94dabce3c0b1a71b79dc24c99d3303951e0fe265ec3ccc629"
+    },
+    "1099a0525b46612e7dc14193c02ad37b24e71975599371ee0b563b17e23e9a00": {
+      "bytes": 260,
+      "path": "objects/1099a0525b46612e7dc14193c02ad37b24e71975599371ee0b563b17e23e9a00"
+    },
+    "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942": {
+      "bytes": 716,
+      "path": "objects/11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942"
+    },
+    "11a3fa7b12657a5e99a9b5390508ae4618fa4758553fe1604848d1aee38ff03a": {
+      "bytes": 9090,
+      "path": "objects/11a3fa7b12657a5e99a9b5390508ae4618fa4758553fe1604848d1aee38ff03a"
+    },
+    "208d90a678e22364debe5f59b86abd9b21a0449566815cf1d28203c828456f51": {
+      "bytes": 5187,
+      "path": "objects/208d90a678e22364debe5f59b86abd9b21a0449566815cf1d28203c828456f51"
+    },
+    "3b8f8eebe93f98f2b45fbac724e707f5cea3c334bc528f1c6aa9865e81fcf4ef": {
+      "bytes": 14042,
+      "path": "objects/3b8f8eebe93f98f2b45fbac724e707f5cea3c334bc528f1c6aa9865e81fcf4ef"
+    },
+    "3c583fe3a4c4782fe217ae45966e7427e1f139900524ac01f4e621b9e3906626": {
+      "bytes": 4008,
+      "path": "objects/3c583fe3a4c4782fe217ae45966e7427e1f139900524ac01f4e621b9e3906626"
+    },
+    "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262": {
+      "bytes": 11163,
+      "path": "objects/3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262"
+    },
+    "3fa82e87428df04665cf2f5283e543e335ac8b9f70ba2b4f643a814407082e08": {
+      "bytes": 3117,
+      "path": "objects/3fa82e87428df04665cf2f5283e543e335ac8b9f70ba2b4f643a814407082e08"
+    },
+    "531b05cb8811dc5808383f09a002f7d93345984b886b7068f173a6ffdc6ef2c4": {
+      "bytes": 1902,
+      "path": "objects/531b05cb8811dc5808383f09a002f7d93345984b886b7068f173a6ffdc6ef2c4"
+    },
+    "5423e1011d51fad026ca6cc8d10fec0bc66cc90381fd7b255d82521a646a3c15": {
+      "bytes": 658,
+      "path": "objects/5423e1011d51fad026ca6cc8d10fec0bc66cc90381fd7b255d82521a646a3c15"
+    },
+    "5d27e72624ce87919b1ac2e75afb59bf43c1e27b6eab69fb113294dcdb0caf54": {
+      "bytes": 2719,
+      "path": "objects/5d27e72624ce87919b1ac2e75afb59bf43c1e27b6eab69fb113294dcdb0caf54"
+    },
+    "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4": {
+      "bytes": 11336,
+      "path": "objects/636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4"
+    },
+    "68129d089806c1226666a7d36f322185933df37de52349ae957c60ade33803ab": {
+      "bytes": 1755,
+      "path": "objects/68129d089806c1226666a7d36f322185933df37de52349ae957c60ade33803ab"
+    },
+    "6d8c87a01c353f125e6c0e263182fd4c3712d37778bd82b08af52bc464c13c10": {
+      "bytes": 311,
+      "path": "objects/6d8c87a01c353f125e6c0e263182fd4c3712d37778bd82b08af52bc464c13c10"
+    },
+    "757e16523c31a8b01bfdf59497209940b479a9bd99fa4ce65ae6cd01c28d29f1": {
+      "bytes": 13533,
+      "path": "objects/757e16523c31a8b01bfdf59497209940b479a9bd99fa4ce65ae6cd01c28d29f1"
+    },
+    "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c": {
+      "bytes": 847,
+      "path": "objects/7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c"
+    },
+    "894f2dc942933600b63824578590b6e83aee12cfb979e7673ee778ad5d85548f": {
+      "bytes": 3265,
+      "path": "objects/894f2dc942933600b63824578590b6e83aee12cfb979e7673ee778ad5d85548f"
+    },
+    "900603ebfad954ce38ee12c5ec5d66160a887f30b1a874ca37000e9e13dc44fb": {
+      "bytes": 4254,
+      "path": "objects/900603ebfad954ce38ee12c5ec5d66160a887f30b1a874ca37000e9e13dc44fb"
+    },
+    "91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0": {
+      "bytes": 19443,
+      "path": "objects/91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0"
+    },
+    "ca5d00236890c7ddc8e894d0ab378e1de58f18dd48e39af645e4740b2f0ea349": {
+      "bytes": 7890,
+      "path": "objects/ca5d00236890c7ddc8e894d0ab378e1de58f18dd48e39af645e4740b2f0ea349"
+    },
+    "d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e": {
+      "bytes": 280,
+      "path": "objects/d90fcf1d47d2d99afb42338a0cb98efddfb9a55caccb10c5012086162810576e"
+    },
+    "e37303197c2f8f5f8e4758c866a7a0da93d853fe425570fbca72cb9a80d5095b": {
+      "bytes": 854,
+      "path": "objects/e37303197c2f8f5f8e4758c866a7a0da93d853fe425570fbca72cb9a80d5095b"
+    },
+    "e6ae43b19a689093ed72d422043643b74616e1c92c83c3fda313bfab8bcd99a4": {
+      "bytes": 2007,
+      "path": "objects/e6ae43b19a689093ed72d422043643b74616e1c92c83c3fda313bfab8bcd99a4"
+    },
+    "f41fab77b8505aca47c8feec86a8f33acd0b703deaeee76b919de68a43f85ed8": {
+      "bytes": 465,
+      "path": "objects/f41fab77b8505aca47c8feec86a8f33acd0b703deaeee76b919de68a43f85ed8"
+    }
+  },
+  "report": "docs/development/agent-team/openai-embeddings-wire-spec-verification.md",
+  "resources_run_by_this_archive": false,
+  "schema": 1,
+  "status": "Accepted specification only; private implementation stage A started",
+  "stopped_tasks_unchanged": [
+    "Object runtime join",
+    "OpenAI tools independent verification",
+    "SPA concurrent-publication"
+  ],
+  "technical_sha256": "1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133"
+}

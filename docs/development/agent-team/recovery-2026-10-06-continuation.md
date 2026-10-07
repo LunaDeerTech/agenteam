@@ -406,3 +406,13 @@ A01跨字段实际RED保留，A02三行guard／同probeGREEN；错误作者笛�
 主线程已确认唯一前端API A三源私有实施与离线自测实际开始；owner/page/harness/README尚未开始。独立计划已实际准备并冻结，但没有独立实现或真实资源结论。计划中的两真实代表与预算待固定实现和后续授权，不预称通过。本档不消费活动源码，不改既有产品与规格历史。
 
 完整D08–D28/E01未完成、E01未开始，Summary待决、未绑定能力/ready503和Object/tools/SPA publication三停止不变。
+
+## 36. OpenAI Embeddings float wire规格接受与有限实施
+
+正式卡rev1已独立完整STATIC PASS并提交推送`15d7e08fd72eb2c05f7ef64c14cc0de4f5a87597`、主线程核远端一致；[规格报告](openai-embeddings-wire-spec-verification.md)固定产品`c1427fa4`、原稿、正式页首和独审。技术`1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133`原字节，16候选、作者31项Git加独审额外1项明确分列；27逻辑原件/26对象不复制产品树。
+
+六份官方SDK原件只证明字段来源，guide与cookbook revision两次proxy403保留原记录，无对应页面/Notebook原文。ExpectedDimensions由受信caller明确给定，不推断Provider默认；原生dimensions与Nonchat/InvocationID/真实consumer/Usage绑定均不在本卡。STATIC、文档自查与公开GET不冒产品、SDK或真实供应商动态PASS。
+
+主线程已收到backend实际ACK：仅五路径输入/编码/parser/纯测/manifest私有A阶段启动；constructor/Start/handle、Budget/transport/fixture与末件README未开始，无真实资源授权或产品接受。本次只记录协调事实，不读取活动实现。Runtime UI作者C已完成并冻结1875检查，独立C刚实际开始，尚无真实资源或整卡接受。
+
+§1–35及所有既有验收保持原字节。完整D08–D28/E01未完成、E01未开始，Summary待决、ready503不变；Object runtime join、OpenAI tools独立验证与SPA concurrent-publication三停止不重试、不改写、不改派。SPA有限受控/native通过不代表完整产品交付。

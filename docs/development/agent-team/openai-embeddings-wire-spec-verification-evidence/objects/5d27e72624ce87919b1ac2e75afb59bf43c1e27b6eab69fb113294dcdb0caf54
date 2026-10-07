@@ -1,0 +1,67 @@
+{
+  "candidate_count": 16,
+  "existing_candidates": 4,
+  "failed_public_GET_records": 2,
+  "full_sha256": "91767b4685c37209648fca103672db33de537031ca30c51c1e40cc4de28d36f0",
+  "main_or_git_writes": false,
+  "new_candidates": 12,
+  "new_exact_tops_absent_in_base": [
+    "TestModelOpenAIEmbeddingsWireHTTP",
+    "TestModelOpenAIEmbeddingsWireTerminal",
+    "TestModelOpenAIEmbeddingsWireBudget"
+  ],
+  "official_source_count": 6,
+  "old_exact_tops": {
+    "TestModelOpenAIChatStructuredCloseAndBudget": "tests/model/openai_chat_structured_stream_test.go",
+    "TestModelOpenAIChatStructuredHTTP": "tests/model/openai_chat_structured_http_test.go",
+    "TestModelOpenAIChatStructuredStream": "tests/model/openai_chat_structured_stream_test.go",
+    "TestModelOpenAIChatWireHTTP": "tests/model/openai_chat_wire_http_test.go",
+    "TestModelOpenAIChatWireJoinAndBudget": "tests/model/openai_chat_wire_stream_test.go",
+    "TestModelOpenAIChatWireStream": "tests/model/openai_chat_wire_stream_test.go"
+  },
+  "parser_capacity_arithmetic": {
+    "aux_max_bytes": 65536,
+    "bound_bytes_exclusive": 22020096,
+    "raw_max_bytes": 16777217,
+    "return_copy_max_bytes": 2097152,
+    "sum_bytes": 21037057,
+    "vectors_max_bytes": 2097152
+  },
+  "product_checks_run": false,
+  "relative_links": [
+    {
+      "fixed_git_target": "docs/development/work-items/d09-model-system-token-usage.md",
+      "link": "d09-model-system-token-usage.md"
+    },
+    {
+      "fixed_git_target": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "link": "d09-model-system-token-usage-design.md"
+    },
+    {
+      "fixed_git_target": "docs/development/work-items/recovery-d09-openai-chat-wire.md",
+      "link": "recovery-d09-openai-chat-wire.md"
+    },
+    {
+      "fixed_git_target": "docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+      "link": "recovery-d09-openai-chat-structured-wire.md"
+    },
+    {
+      "fixed_git_target": ".agents/skills/agenteam-design/SKILL.md",
+      "link": "../../../.agents/skills/agenteam-design/SKILL.md"
+    },
+    {
+      "fixed_git_target": ".agents/skills/agenteam-go-development/SKILL.md",
+      "link": "../../../.agents/skills/agenteam-go-development/SKILL.md"
+    },
+    {
+      "fixed_git_target": ".agents/skills/agenteam-verification/SKILL.md",
+      "link": "../../../.agents/skills/agenteam-verification/SKILL.md"
+    }
+  ],
+  "resources_started": false,
+  "scope": "document/source checks only; no implementation probe or product execution",
+  "sections_1_to_7": true,
+  "source_count": 31,
+  "technical_sections_1_to_7_sha256": "1320107dd2bebba97188c976780a111d0ec12e2fb11ae866c9ad3473b5e53133",
+  "utf8_lf_no_trailing_whitespace": true
+}

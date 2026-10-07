@@ -1,0 +1,57 @@
+{
+  "purpose": "bounded official source GET evidence, not SDK execution",
+  "records": [
+    {
+      "revision": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+      "source_path": "src/openai/resources/embeddings.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/embeddings.py",
+      "started_utc": "2026-10-07T04:42:52.252624+00:00",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/embeddings.py",
+      "content_type": "text/plain; charset=utf-8",
+      "bytes": 11163,
+      "sha256": "3c8f49bd504319f298b4cc5cc67d537e434814a3b06f352b41ad4a04fddaa262",
+      "file": "embeddings.py.txt",
+      "duration_seconds": 0.368265
+    },
+    {
+      "revision": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+      "source_path": "src/openai/types/embedding_create_params.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_create_params.py",
+      "started_utc": "2026-10-07T04:42:52.253748+00:00",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding_create_params.py",
+      "content_type": "text/plain; charset=utf-8",
+      "bytes": 2081,
+      "sha256": "0b4f8235983b9c6ed04f9ab5563b22c9f144e46e597ff8dfc084a2f021a67c3f",
+      "file": "embedding_create_params.py.txt",
+      "duration_seconds": 0.336349
+    },
+    {
+      "revision": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+      "source_path": "src/openai/types/create_embedding_response.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/create_embedding_response.py",
+      "started_utc": "2026-10-07T04:42:52.254346+00:00",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/create_embedding_response.py",
+      "content_type": "text/plain; charset=utf-8",
+      "bytes": 847,
+      "sha256": "7a5a25314a25b5fc13361de3f77eecfdcd5c77e52c402955588957bffcebe13c",
+      "file": "create_embedding_response.py.txt",
+      "duration_seconds": 0.364382
+    },
+    {
+      "revision": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+      "source_path": "src/openai/types/embedding.py",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding.py",
+      "started_utc": "2026-10-07T04:42:52.254842+00:00",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/embedding.py",
+      "content_type": "text/plain; charset=utf-8",
+      "bytes": 716,
+      "sha256": "11348ef537cd3994c0395b7ef55640b55504d1b2fe9d5c4deec31a9e160b6942",
+      "file": "embedding.py.txt",
+      "duration_seconds": 0.363003
+    }
+  ]
+}
