@@ -335,6 +335,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.core = core }) {
 		return context.Canceled
 	}
+	projectUsage, err := createProjectUsage(cfg, db, authority)
+	if err != nil {
+		return err
+	}
 	deps.runtimeInformation = runtimeInformationHandlerFactory(runtimeStore, authority, core, cfg.PublicOrigin())
 	if deps.observeAccount != nil {
 		deps.observeAccount(core)
@@ -407,8 +411,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	usageHandler, err := projectUsage.handler(core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
-		accounts.handler = systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler)
+		accounts.handler = projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler)
 	}) {
 		return context.Canceled
 	}
@@ -431,7 +439,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if err = ctx.Err(); err != nil {
 			return secrets, err
 		}
-		return secrets, models.Initialize(ctx)
+		return secrets, initializeModelsAndUsage(ctx, models.Initialize, projectUsage.reader.Initialize)
 	}
 	deps.outbound = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (egress, error) {
 		if deps.outboundInitialize != nil {
