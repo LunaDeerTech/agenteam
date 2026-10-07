@@ -132,7 +132,7 @@ func (s SelectionRef) Validate() error {
 			return bad()
 		}
 	case "platform":
-		if s.ProjectID != nil || !s.Selector.Valid() || s.Selector == MeetingSummarySelector {
+		if s.ProjectID != nil || !s.Selector.Valid() {
 			return bad()
 		}
 	case "project_summary":
@@ -173,7 +173,7 @@ func (s SelectionRequest) Validate() error {
 				return bad()
 			}
 		} else {
-			want := map[Purpose]SelectorKind{KnowledgeEmbedding: EmbeddingSelector, MemoryEmbedding: EmbeddingSelector, MemoryExtraction: MemorySelector, MemoryConsolidation: MemorySelector, MemoryReflection: MemorySelector, Rerank: RerankerSelector, ImageGeneration: ImageSelector}
+			want := map[Purpose]SelectorKind{KnowledgeEmbedding: EmbeddingSelector, MemoryEmbedding: EmbeddingSelector, MemoryExtraction: MemorySelector, MemoryConsolidation: MemorySelector, MemoryReflection: MemorySelector, MeetingSummaryInitial: MeetingSummarySelector, MeetingSummaryUpdate: MeetingSummarySelector, Rerank: RerankerSelector, ImageGeneration: ImageSelector}
 			if want[s.Consumer.Purpose] != s.Selection.Selector {
 				return bad()
 			}

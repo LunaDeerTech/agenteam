@@ -196,6 +196,9 @@ func resolutionBaseLocks(r mc.ResolveRequest, identity f.CommandIdentity, snapsh
 	}
 	if r.Selection != nil && r.Selection.Kind == "platform" {
 		locks = append(locks, systemLock("model-platform-selection", f.Shared))
+		if r.Selection.Selector == mc.MeetingSummarySelector {
+			locks = append(locks, systemLock("model-meeting-summary-selection", f.Shared))
+		}
 	}
 	if r.ModelRef != nil {
 		locks = append(locks, aggregateLock(f.ModelConfigAggregate, r.ModelRef.String(), f.Shared))

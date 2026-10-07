@@ -151,3 +151,106 @@ func TestModelCurrentResolutionDurableIdentityClosedFacts(t *testing.T) {
 		t.Fatal("different owner produced same canonical identity")
 	}
 }
+
+func TestModelMeetingSummaryResolutionUnitMappingAndLocks(t *testing.T) {
+	r := meetingResolutionTestRequest(t)
+	identity, e := resolutionIdentity(r)
+	if e != nil {
+		t.Fatal(e)
+	}
+	dto := resolutionRequest(r)
+	if e := dto.validate(); e != nil {
+		t.Fatal(e)
+	}
+	for _, change := range []func(*mc.ResolveRequest){
+		func(c *mc.ResolveRequest) { c.Purpose = mc.MeetingSummaryUpdate; c.Consumer.Purpose = c.Purpose },
+		func(c *mc.ResolveRequest) { c.Consumer.MeetingID = mustID[struct{}](t).String() },
+		func(c *mc.ResolveRequest) { c.Consumer.OperationID = mustID[struct{}](t).String() },
+		func(c *mc.ResolveRequest) { v := f.Version(1); c.Selection.Version = &v },
+		func(c *mc.ResolveRequest) { c.Actor, _ = id.NewHuman(mustID[id.User](t), mustID[id.Session](t)) },
+	} {
+		c := r.Clone()
+		change(&c)
+		other, e := resolutionIdentity(c)
+		if e != nil || other.Canonical() != identity.Canonical() || resolutionSemantic(c) == resolutionSemantic(r) {
+			t.Fatal("same Call escaped semantic conflict", e)
+		}
+	}
+	copy := r.Clone()
+	uid, _ := f.ParseID[id.User](r.Actor.Details().UserID)
+	copy.Actor, _ = id.NewHuman(uid, mustID[id.Session](t))
+	if resolutionSemantic(copy) != resolutionSemantic(r) {
+		t.Fatal("new Session changed durable meaning")
+	}
+	b, _ := mc.ResolveBinding(r)
+	other, _ := mc.ResolveBinding(copy)
+	if b == other {
+		t.Fatal("new Session reused in-memory plan")
+	}
+	draft := resolutionDraft{Snapshot: resolutionSnapshotDTO{Identity: mc.ModelIdentity{ProviderID: mustID[mc.Provider](t), ModelID: mustID[mc.Model](t)}}}
+	locks, e := resolutionUnion(resolutionBaseLocks(r, identity, mustID[mc.Snapshot](t), draft))
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, name := range []string{"model-meeting-summary-selection", "model-platform-selection", "model-references"} {
+		want := systemLock(name, f.Shared)
+		found := false
+		for _, lock := range locks {
+			if lock.Key.Canonical() == want.Key.Canonical() {
+				found = lock.Mode == f.Shared
+			}
+		}
+		if !found {
+			t.Fatal("missing Summary loader shared lock", name)
+		}
+	}
+	for i := 1; i < len(locks); i++ {
+		if f.CompareLockKeys(locks[i-1].Key, locks[i].Key) >= 0 {
+			t.Fatal("lock union unordered or duplicate")
+		}
+	}
+	// Extending the selection vocabulary must not add fields to format v1.
+	encodedDTO, e := encoded(dto)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(encodedDTO, &fields) != nil || len(fields) != 9 || string(fields["format_version"]) != "1" {
+		t.Fatalf("durable format changed: %s", encodedDTO)
+	}
+}
+
+// Golden format-v1 bytes from the unchanged direct/memory DTO contract. These
+// are serialization regressions, not claims of a cross-binary receipt upgrade.
+func TestModelMeetingSummaryPreservesLegacyResolutionBytes(t *testing.T) {
+	const key = "018f0000-0000-7000-8000-000000000001"
+	project, _ := f.ParseID[id.Project](key)
+	agent, _ := f.ParseID[id.Agent](key)
+	execution, _ := f.ParseID[id.Execution](key)
+	user, _ := f.ParseID[id.User](key)
+	session, _ := f.ParseID[id.Session](key)
+	model, _ := f.ParseID[mc.Model](key)
+	actor, _ := id.NewHuman(user, session)
+	owner, _ := sc.NewCredentialLeaseOwner(sc.ModelCallOwner, key)
+	r := mc.ResolveRequest{Actor: actor, Consumer: mc.Consumer{Kind: mc.AgentConsumer, ProjectID: project, Purpose: mc.AgentGeneration, AgentID: &agent, ExecutionID: &execution}, Purpose: mc.AgentGeneration, Source: mc.CurrentSelectionSource, ModelRef: &model, Selection: &mc.SelectionRef{Kind: "direct"}, LeaseOwner: owner}
+	prefix := `{"format_version":1,"Actor":{"Kind":"human","UserID":"` + key + `","SessionID":"","ProjectID":"","AgentID":"","ExecutionID":"","ServiceName":"","CauseRef":""},"Consumer":`
+	suffix := `,"ReasoningEffort":"","Owner":{"kind":"model_call","id":"` + key + `"}}`
+	direct := prefix + `{"kind":"agent","project_id":"` + key + `","purpose":"agent_generation","agent_id":"` + key + `","execution_id":"` + key + `"},"Purpose":"agent_generation","Source":"current_selection","ModelRef":"` + key + `","Selection":{"kind":"direct"}` + suffix
+	memory := prefix + `{"kind":"memory","project_id":"` + key + `","purpose":"memory_extraction","agent_id":"` + key + `","operation_id":"` + key + `"},"Purpose":"memory_extraction","Source":"current_selection","ModelRef":null,"Selection":{"kind":"platform","selector":"memory"}` + suffix
+	for _, want := range []string{direct, memory} {
+		if e := r.Validate(); e != nil {
+			t.Fatal(e)
+		}
+		raw, e := encoded(resolutionRequest(r))
+		if e != nil || string(raw) != want || resolutionSemantic(r) != hash([]byte(want)) {
+			t.Fatalf("legacy bytes changed: %s; %v", raw, e)
+		}
+		r.Consumer.Kind = mc.MemoryConsumer
+		r.Consumer.Purpose = mc.MemoryExtraction
+		r.Consumer.ExecutionID = nil
+		r.Consumer.OperationID = key
+		r.Purpose = mc.MemoryExtraction
+		r.ModelRef = nil
+		r.Selection = &mc.SelectionRef{Kind: "platform", Selector: mc.MemorySelector}
+	}
+}

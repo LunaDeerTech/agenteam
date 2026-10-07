@@ -14,6 +14,50 @@ import (
 type resolutionNoIOConsumer struct{ mc.ConsumerAuthority }
 type resolutionConsumerChan chan int
 
+func meetingResolutionTestRequest(t *testing.T) mc.ResolveRequest {
+	t.Helper()
+	actor, _ := id.NewHuman(mustID[id.User](t), mustID[id.Session](t))
+	owner, _ := sc.NewCredentialLeaseOwner(sc.ModelCallOwner, mustID[mc.Call](t).String())
+	return mc.ResolveRequest{Actor: actor, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: mustID[id.Project](t), MeetingID: mustID[struct{}](t).String(), OperationID: mustID[struct{}](t).String(), Purpose: mc.MeetingSummaryInitial}, Purpose: mc.MeetingSummaryInitial, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}, LeaseOwner: owner}
+}
+
+func TestModelMeetingSummaryResolutionEntryGuards(t *testing.T) {
+	store := &noIOStore{}
+	svc, e := New(store, resolutionTestAuthority(t, store), testDependencies(t))
+	if e != nil {
+		t.Fatal(e)
+	}
+	r := meetingResolutionTestRequest(t)
+	if r.Validate() != nil || resolutionVariant(r) != nil {
+		t.Fatal("new variant rejected")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	p, e := svc.DiscoverResolve(ctx, r)
+	if !errors.Is(e, context.Canceled) || p.Validate() == nil {
+		t.Fatal("canceled plan published", e)
+	}
+	out, e := svc.ResolveModel(ctx, r)
+	if !errors.Is(e, context.Canceled) || out.Validate() == nil {
+		t.Fatal("canceled result published", e)
+	}
+	r.ReasoningEffort = "high"
+	_, e = svc.DiscoverResolve(context.Background(), r)
+	requireCode(t, e, f.CapabilityUnsupported)
+	r.ReasoningEffort = ""
+	r.Selection.Kind, r.Selection.ProjectID = "project_summary", &r.Consumer.ProjectID
+	if r.Validate() != nil {
+		t.Fatal("old project Summary structure changed")
+	}
+	_, e = svc.DiscoverResolve(context.Background(), r)
+	requireCode(t, e, f.DependencyUnbound)
+	r = meetingResolutionTestRequest(t)
+	reg, _ := id.RegisterService(id.SecretService)
+	actor, _ := reg.Actor(mustID[struct{}](t).String(), id.SystemScope())
+	_, e = svc.SelectModel(context.Background(), actor, mc.SelectionRequest{Consumer: r.Consumer, Selection: *r.Selection})
+	requireCode(t, e, f.DependencyUnbound)
+}
+
 func (resolutionConsumerChan) Discover(context.Context, mc.ConsumerRequest) (mc.ConsumerDependencies, error) {
 	panic("nil channel called")
 }

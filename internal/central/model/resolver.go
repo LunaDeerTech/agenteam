@@ -54,6 +54,10 @@ func (s *Service) SelectModel(ctx context.Context, actor id.Actor, r mc.Selectio
 	}
 	if r.Selection.Kind == "platform" {
 		locks = append(locks, systemLock("model-platform-selection", f.Shared))
+		if r.Selection.Selector == mc.MeetingSummarySelector {
+			// The Summary loader also checks the old singleton's distinct ID.
+			locks = append(locks, systemLock("model-meeting-summary-selection", f.Shared))
+		}
 	}
 	if candidate.Snapshot.Identity.ProviderID.Validate() == nil {
 		locks = append(locks, aggregateLock(f.ProviderAggregate, candidate.Snapshot.Identity.ProviderID.String(), f.Shared))

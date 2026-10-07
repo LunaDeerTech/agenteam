@@ -83,3 +83,51 @@ func TestEndpointPortAndFragmentStructure(t *testing.T) {
 		})
 	}
 }
+
+func meetingSelectionRequest(t *testing.T, purpose Purpose) SelectionRequest {
+	t.Helper()
+	return SelectionRequest{Consumer: Consumer{Kind: MeetingConsumer, ProjectID: fresh[id.Project](t), MeetingID: fresh[struct{}](t).String(), OperationID: fresh[struct{}](t).String(), Purpose: purpose}, Selection: SelectionRef{Kind: "platform", Selector: MeetingSummarySelector}}
+}
+
+func TestMeetingSummaryPlatformSelectionClosedAndRequired(t *testing.T) {
+	for _, purpose := range []Purpose{MeetingSummaryInitial, MeetingSummaryUpdate} {
+		r := meetingSelectionRequest(t, purpose)
+		must(t, r.Validate())
+		r.Selection.Version = ptrVersion(3)
+		must(t, r.Validate())
+		result := SelectionResult{Selected: ptr(fresh[Model](t)), ModelVersion: ptrVersion(2), SelectionVersion: ptrVersion(3)}
+		must(t, result.ValidateFor(r))
+		reject(t, (SelectionResult{SelectionVersion: ptrVersion(3)}).ValidateFor(r))
+		for name, change := range map[string]func(*SelectionRequest){
+			"project-override": func(v *SelectionRequest) { v.Selection.ProjectID = &v.Consumer.ProjectID },
+			"zero-version":     func(v *SelectionRequest) { v.Selection.Version = ptrVersion(0) },
+			"direct": func(v *SelectionRequest) {
+				v.Selection = SelectionRef{Kind: "direct"}
+				v.ModelRef = ptr(fresh[Model](t))
+			},
+			"model-ref":     func(v *SelectionRequest) { v.ModelRef = ptr(fresh[Model](t)) },
+			"memory":        func(v *SelectionRequest) { v.Selection.Selector = MemorySelector },
+			"agent":         func(v *SelectionRequest) { v.Consumer.AgentID = ptr(fresh[id.Agent](t)) },
+			"execution":     func(v *SelectionRequest) { v.Consumer.ExecutionID = ptr(fresh[id.Execution](t)) },
+			"no-meeting":    func(v *SelectionRequest) { v.Consumer.MeetingID = "" },
+			"no-operation":  func(v *SelectionRequest) { v.Consumer.OperationID = "" },
+			"other-purpose": func(v *SelectionRequest) { v.Consumer.Purpose = MemoryExtraction },
+		} {
+			t.Run(string(purpose)+"/"+name, func(t *testing.T) { c := r.Clone(); change(&c); reject(t, c.Validate()) })
+		}
+		c := r.Clone()
+		*c.Selection.Version = 9
+		if *r.Selection.Version != 3 {
+			t.Fatal("selection clone aliases version")
+		}
+		copy := result.Clone()
+		*copy.Selected = fresh[Model](t)
+		*copy.ModelVersion, *copy.SelectionVersion = 4, 5
+		if *result.ModelVersion != 2 || *result.SelectionVersion != 3 || *copy.Selected == *result.Selected {
+			t.Fatal("projection clone aliases")
+		}
+		old := r.Clone()
+		old.Selection.Kind, old.Selection.ProjectID = "project_summary", &old.Consumer.ProjectID
+		must(t, old.Validate())
+	}
+}

@@ -193,7 +193,7 @@ func TestMeetingSummaryDoesNotChangeExistingSelectionContracts(t *testing.T) {
 	if string(raw) != want {
 		t.Fatalf("legacy PlatformSelection changed: %s", raw)
 	}
-	reject(t, (SelectionRef{Kind: "platform", Selector: MeetingSummarySelector}).Validate())
+	must(t, (SelectionRef{Kind: "platform", Selector: MeetingSummarySelector}).Validate())
 	project := fresh[id.Project](t)
 	must(t, (SelectionRef{Kind: "project_summary", ProjectID: &project, Selector: MeetingSummarySelector}).Validate())
 }

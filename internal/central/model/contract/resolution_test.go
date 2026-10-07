@@ -1,6 +1,8 @@
 package contract
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -28,6 +30,47 @@ func TestResolveBindingIncludesFullActorAndSource(t *testing.T) {
 	}
 	r.Source = ""
 	reject(t, r.Validate())
+}
+
+func TestMeetingSummaryResolveExactCallAndBinding(t *testing.T) {
+	for _, purpose := range []Purpose{MeetingSummaryInitial, MeetingSummaryUpdate} {
+		s := meetingSelectionRequest(t, purpose)
+		actor, _ := id.NewHuman(fresh[id.User](t), fresh[id.Session](t))
+		owner, _ := sc.NewCredentialLeaseOwner(sc.ModelCallOwner, fresh[Call](t).String())
+		r := ResolveRequest{Actor: actor, Consumer: s.Consumer, Purpose: purpose, Source: CurrentSelectionSource, Selection: &s.Selection, LeaseOwner: owner}
+		must(t, r.Validate())
+		binding, e := ResolveBinding(r)
+		must(t, e)
+		for name, change := range map[string]func(*ResolveRequest){
+			"purpose": func(c *ResolveRequest) { c.Purpose = AgentGeneration },
+			"execution-owner": func(c *ResolveRequest) {
+				c.LeaseOwner, _ = sc.NewCredentialLeaseOwner(sc.ExecutionOwner, fresh[id.Execution](t).String())
+			},
+			"serving": func(c *ResolveRequest) { c.Source = ServingSnapshotSource },
+			"model":   func(c *ResolveRequest) { c.ModelRef = ptr(fresh[Model](t)) },
+		} {
+			t.Run(name, func(t *testing.T) { c := r.Clone(); change(&c); reject(t, c.Validate()) })
+		}
+		for _, change := range []func(*ResolveRequest){
+			func(c *ResolveRequest) { c.Consumer.MeetingID = fresh[struct{}](t).String() },
+			func(c *ResolveRequest) { c.Consumer.OperationID = fresh[struct{}](t).String() },
+			func(c *ResolveRequest) { c.Selection.Version = ptrVersion(1) },
+			func(c *ResolveRequest) {
+				c.LeaseOwner, _ = sc.NewCredentialLeaseOwner(sc.ModelCallOwner, fresh[Call](t).String())
+			},
+		} {
+			c := r.Clone()
+			change(&c)
+			got, e := ResolveBinding(c)
+			must(t, e)
+			if got == binding {
+				t.Fatal("request fact omitted from binding")
+			}
+		}
+		if text := fmt.Sprintf("%+v", r); strings.Contains(text, r.Consumer.MeetingID) || text != "model_resolve_request" {
+			t.Fatal("unsafe formatting")
+		}
+	}
 }
 func TestServingResolutionKeepsOldConfigAndNewCallOwner(t *testing.T) {
 	x := setup(t)

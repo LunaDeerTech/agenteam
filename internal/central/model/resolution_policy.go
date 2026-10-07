@@ -15,7 +15,7 @@ func resolutionVariant(r mc.ResolveRequest) error {
 	if r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind == "project_summary" {
 		return fault(f.DependencyUnbound)
 	}
-	if r.Selection.Kind != "direct" && (r.Selection.Kind != "platform" || r.Selection.Selector != mc.MemorySelector) {
+	if r.Selection.Kind != "direct" && (r.Selection.Kind != "platform" || r.Selection.Selector != mc.MemorySelector && r.Selection.Selector != mc.MeetingSummarySelector) {
 		return fault(f.CapabilityUnsupported)
 	}
 	if r.ReasoningEffort != "" {
@@ -34,7 +34,7 @@ func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selection
 	if slices.Contains(c.StructuredOutputModes, "json_schema") {
 		return adapter.OpenAIChatStructuredRevision, nil
 	}
-	if selection.Kind == "platform" {
+	if selection.Kind == "platform" && selection.Selector != mc.MeetingSummarySelector {
 		return "", fault(f.CapabilityUnsupported)
 	}
 	if len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
@@ -53,6 +53,23 @@ func currentResolutionDraft(ctx context.Context, x postgres.SQLExecutor, r mc.Re
 	key := ""
 	if r.Selection.Kind == "direct" {
 		key = r.ModelRef.String()
+	} else if r.Selection.Selector == mc.MeetingSummarySelector {
+		selection, e := loadMeetingSummaryState(ctx, x)
+		if e != nil {
+			return d, e
+		}
+		if selection == nil {
+			return d, fault(f.DependencyUnbound)
+		}
+		v := selection.Version
+		d.Snapshot.SelectionVersion = &v
+		if selection.Model == "" {
+			return d, fault(f.InvalidState)
+		}
+		if r.Selection.Version != nil && *r.Selection.Version != v {
+			return d, fault(f.ResourceBusy)
+		}
+		key = selection.Model
 	} else {
 		selection, e := loadSelection(ctx, x)
 		if e != nil {
