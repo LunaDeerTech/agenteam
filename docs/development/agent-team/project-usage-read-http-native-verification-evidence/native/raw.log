@@ -1,0 +1,25 @@
+=== RUN   TestProjectUsageHTTPNativeKeepAlive
+--- PASS: TestProjectUsageHTTPNativeKeepAlive (0.21s)
+=== RUN   TestProjectUsageHTTPNativeSlowBody
+=== RUN   TestProjectUsageHTTPNativeSlowBody/declared/1m0s
+=== RUN   TestProjectUsageHTTPNativeSlowBody/declared/120ms
+=== RUN   TestProjectUsageHTTPNativeSlowBody/hidden/1m0s
+=== RUN   TestProjectUsageHTTPNativeSlowBody/hidden/120ms
+--- PASS: TestProjectUsageHTTPNativeSlowBody (4.25s)
+    --- PASS: TestProjectUsageHTTPNativeSlowBody/declared/1m0s (2.00s)
+    --- PASS: TestProjectUsageHTTPNativeSlowBody/declared/120ms (0.12s)
+    --- PASS: TestProjectUsageHTTPNativeSlowBody/hidden/1m0s (2.00s)
+    --- PASS: TestProjectUsageHTTPNativeSlowBody/hidden/120ms (0.12s)
+=== RUN   TestProjectUsageHTTPNativeWriteAndClose
+=== RUN   TestProjectUsageHTTPNativeWriteAndClose/short_write
+=== RUN   TestProjectUsageHTTPNativeWriteAndClose/write_error
+=== RUN   TestProjectUsageHTTPNativeWriteAndClose/flush_error
+=== RUN   TestProjectUsageHTTPNativeWriteAndClose/close_error
+=== RUN   TestProjectUsageHTTPNativeWriteAndClose/native_write_deadline
+--- PASS: TestProjectUsageHTTPNativeWriteAndClose (6.53s)
+    --- PASS: TestProjectUsageHTTPNativeWriteAndClose/short_write (0.00s)
+    --- PASS: TestProjectUsageHTTPNativeWriteAndClose/write_error (0.00s)
+    --- PASS: TestProjectUsageHTTPNativeWriteAndClose/flush_error (0.00s)
+    --- PASS: TestProjectUsageHTTPNativeWriteAndClose/close_error (0.00s)
+    --- PASS: TestProjectUsageHTTPNativeWriteAndClose/native_write_deadline (6.52s)
+PASS

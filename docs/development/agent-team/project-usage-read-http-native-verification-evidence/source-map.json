@@ -1,0 +1,341 @@
+{
+  "scope": "Native01 limited acceptance: one actual test execution plus later read-only cleanup recovery; not C/root/PG or whole-card acceptance.",
+  "source_root": "/workspace/scratch/usage-http-verification/native01",
+  "review_sha256": "1e274ef8681a32dbe374b5c86ed7ba4ad608fd8b7dbd1778610cc97b923313ac",
+  "accepted_product_commit": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+  "accepted_summary_dependency_commit": "e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a",
+  "saved_originals": [
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/review.md",
+      "archive": "review.md",
+      "sha256": "1e274ef8681a32dbe374b5c86ed7ba4ad608fd8b7dbd1778610cc97b923313ac",
+      "bytes": 3838
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/READY.md",
+      "archive": "READY.md",
+      "sha256": "561457a0a00a53c77d1017d3d3f5bf06438ea790b68c14dceb8b4f51a843f66c",
+      "bytes": 2649
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/preflight.py",
+      "archive": "preflight.py",
+      "sha256": "1a8d368154f4ccaa12bdb3f55afb8b0eb08224e0401a3b9775e65e88b69f60a3",
+      "bytes": 3695
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/preflight.json",
+      "archive": "preflight.json",
+      "sha256": "9823dfd20e79d8e030aa1a167d3ce459c9df690cf63323230d60fb9b7302e69a",
+      "bytes": 1050
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/run.py",
+      "archive": "run.py",
+      "sha256": "f8edfd51dec7a9244bf4ba5e0283b5163350a117c4cdd3ff83ecf36276b91f3e",
+      "bytes": 8495
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recover.py",
+      "archive": "recover.py",
+      "sha256": "298b60a46cb556cebeee0d93d331c0bfb981c7a4a873f97d0d89e6e16ab2c267",
+      "bytes": 6603
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/binary-build-info.raw",
+      "archive": "binary-build-info.raw",
+      "sha256": "fd649829ef7dac13198d093b2e446360e798853465067a427e8e0e1a3f8a7a00",
+      "bytes": 3093
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/final-state.json",
+      "archive": "final-state.json",
+      "sha256": "f87e25996917250c7d163e2345d0b4b8adaaac278690032ebd26b2f8bd961800",
+      "bytes": 647
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/baseline-processes.json",
+      "archive": "native/baseline-processes.json",
+      "sha256": "8ce9cb5e9dc798ca099d6c29345c1c3abc09a7ed0ebd96a6426a1c68ac15d915",
+      "bytes": 3719
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/baseline-tcp.raw",
+      "archive": "native/baseline-tcp.raw",
+      "sha256": "cdd58c002d9936d1e1d3e495a3264eaf4af17181460b78b7d82a474e3916a604",
+      "bytes": 900
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/baseline-tcp6.raw",
+      "archive": "native/baseline-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/baseline-unix.raw",
+      "archive": "native/baseline-unix.raw",
+      "sha256": "b21f116dc120065835af4759750885e145fbe80e9ba6373b99729e14719510cf",
+      "bytes": 2452
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/cleanup-double-zero.json",
+      "archive": "native/cleanup-double-zero.json",
+      "sha256": "cc9e044f70bd2c189813c3cb48a221a71b42763e9c126143ad80fde45d631851",
+      "bytes": 295
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/cleanup-observations.json",
+      "archive": "native/cleanup-observations.json",
+      "sha256": "cc9e044f70bd2c189813c3cb48a221a71b42763e9c126143ad80fde45d631851",
+      "bytes": 295
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/command.json",
+      "archive": "native/command.json",
+      "sha256": "cec0c67902378a59000cbe34aa2c8ff3f937dda8e726646008d38c1b3299d2d0",
+      "bytes": 5433
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/input-after.json",
+      "archive": "native/input-after.json",
+      "sha256": "bcacea1b738b8670bd9012c300bae848cccfa091259c61ec88c6008f6e470dd5",
+      "bytes": 1277
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/input-before.json",
+      "archive": "native/input-before.json",
+      "sha256": "bcacea1b738b8670bd9012c300bae848cccfa091259c61ec88c6008f6e470dd5",
+      "bytes": 1277
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/ports.json",
+      "archive": "native/ports.json",
+      "sha256": "7ed889db51df4fda196b57675cbe4e5bc0806a48232373dbc8548aa284c03004",
+      "bytes": 724
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/raw.log",
+      "archive": "native/raw.log",
+      "sha256": "5821ebb462a057f60ba7af2128f4279b73ea043cc48fa0366e5689c416bce39f",
+      "bytes": 1527
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/native/trace.raw",
+      "archive": "native/trace.raw",
+      "sha256": "67a505e56ed6d9e9577e79af1817242b4cad5fec3b8559d47cf831698c94514a",
+      "bytes": 48759
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-01-tcp.raw",
+      "archive": "recovery/cleanup-01-tcp.raw",
+      "sha256": "15dd165854a9f0fe20a2932380bbb9a140b1ee96b06532cf6abe6aadfa8d22e2",
+      "bytes": 1050
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-01-tcp6.raw",
+      "archive": "recovery/cleanup-01-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-02-tcp.raw",
+      "archive": "recovery/cleanup-02-tcp.raw",
+      "sha256": "afdb04b17c2835b599474e7f2c63fea3608260e9eafbf278cc7fc26a538ba72f",
+      "bytes": 1050
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-02-tcp6.raw",
+      "archive": "recovery/cleanup-02-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-03-tcp.raw",
+      "archive": "recovery/cleanup-03-tcp.raw",
+      "sha256": "d91e7bf64a9ff42ef04f703da369ebf092151e18979f13c81ce97eca436a9a82",
+      "bytes": 1050
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-03-tcp6.raw",
+      "archive": "recovery/cleanup-03-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-04-tcp.raw",
+      "archive": "recovery/cleanup-04-tcp.raw",
+      "sha256": "cdd58c002d9936d1e1d3e495a3264eaf4af17181460b78b7d82a474e3916a604",
+      "bytes": 900
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-04-tcp6.raw",
+      "archive": "recovery/cleanup-04-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-05-tcp.raw",
+      "archive": "recovery/cleanup-05-tcp.raw",
+      "sha256": "cdd58c002d9936d1e1d3e495a3264eaf4af17181460b78b7d82a474e3916a604",
+      "bytes": 900
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-05-tcp6.raw",
+      "archive": "recovery/cleanup-05-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/cleanup-observations.json",
+      "archive": "recovery/cleanup-observations.json",
+      "sha256": "047ae01fcb9c78d82e913c984a5a9789f66c7badf4ad297606ffe0ff9954ad0c",
+      "bytes": 2607
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/reassembled-calls.json",
+      "archive": "recovery/reassembled-calls.json",
+      "sha256": "115ce09cf61e2f6edf4f649d9a07c4828f1596f651310f165b6482011bd7b305",
+      "bytes": 80710
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/recovered-ports.json",
+      "archive": "recovery/recovered-ports.json",
+      "sha256": "11a563e29bc454651fb58cddc55d8c0a021049f1b53dd653c4ae791c7d03b555",
+      "bytes": 10712
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/recovery/result.json",
+      "archive": "recovery/result.json",
+      "sha256": "370878e13de37685d42a17127a7642252799526e2b40ea09d1715b03d0be7a12",
+      "bytes": 2415
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/command.json",
+      "archive": "probe/command.json",
+      "sha256": "18056478a90b0eef9cdbbcbf986b5e0395edc63e77ba2d47e37bfa338281984f",
+      "bytes": 5154
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/raw.log",
+      "archive": "probe/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/trace.raw",
+      "archive": "probe/trace.raw",
+      "sha256": "d4c8af7d5a63f5e472c37223d11d120168c4f028e3d939bb6f29e66d9e3fb671",
+      "bytes": 530
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/ports.json",
+      "archive": "probe/ports.json",
+      "sha256": "6b546c34aa7a2b56142dd7e847c8df66e29866614343c733d37fc5ce55133037",
+      "bytes": 72
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/cleanup-double-zero.json",
+      "archive": "probe/cleanup-double-zero.json",
+      "sha256": "3f4472ec9be5f1cf02a73869e777d761abbc392db42234dc02aa5d38827d74da",
+      "bytes": 295
+    }
+  ],
+  "saved_original_count": 39,
+  "saved_original_bytes": 205043,
+  "omitted_duplicate_preparation_files": [
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/baseline-processes.json",
+      "sha256": "b7267659372895dbf485a7b9ab546e8af278db9f3afea1f60405fbc2dba4e8f9",
+      "bytes": 3595,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/baseline-tcp.raw",
+      "sha256": "3cefd14eaeee6eb5d1af3fa3434119673ce5ca57fdae82708f1f6f8837c241e4",
+      "bytes": 900,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/baseline-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/baseline-unix.raw",
+      "sha256": "b21f116dc120065835af4759750885e145fbe80e9ba6373b99729e14719510cf",
+      "bytes": 2452,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/baseline-processes.json",
+      "sha256": "f940d30e3135ac0ffe14d08edc1d21777bbd43113169c952264ae77379008d8b",
+      "bytes": 3719,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/baseline-tcp.raw",
+      "sha256": "dcd21d29f9ffa9bf983510cba8e1d4e30b3caa6af25c48ae20b1c8d92a41b081",
+      "bytes": 900,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/baseline-tcp6.raw",
+      "sha256": "66f915c0e78f7e3bd8aeec8cc07d3d4780f8308887579d66378913cc9c31ee60",
+      "bytes": 145,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/baseline-unix.raw",
+      "sha256": "b21f116dc120065835af4759750885e145fbe80e9ba6373b99729e14719510cf",
+      "bytes": 2452,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/cleanup-observations.json",
+      "sha256": "3f4472ec9be5f1cf02a73869e777d761abbc392db42234dc02aa5d38827d74da",
+      "bytes": 295,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/input-after.json",
+      "sha256": "bcacea1b738b8670bd9012c300bae848cccfa091259c61ec88c6008f6e470dd5",
+      "bytes": 1277,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    },
+    {
+      "source": "/workspace/scratch/usage-http-verification/native01/probe/input-before.json",
+      "sha256": "bcacea1b738b8670bd9012c300bae848cccfa091259c61ec88c6008f6e470dd5",
+      "bytes": 1277,
+      "reason": "Repeated preparation/probe baseline or duplicate input/cleanup observation; pertinent probe command, trace, waits and double-check retained."
+    }
+  ],
+  "reuse": {
+    "stage_b_evidence": "../project-usage-read-http-stage-b-verification-evidence/source-map.json",
+    "race_binary": {
+      "source": "/workspace/scratch/usage-http-author/B/usage-http.test",
+      "sha256": "fc86e607bc6b9f5abebdca787634b06fb79ad8a012451ccb11235dbe9c7acf50",
+      "bytes": 21119045,
+      "copied": false
+    },
+    "race_dependency_graph": {
+      "sha256": "f96cbb50bb8afd9a0aeed0f07013f70c317cef4e9c6f9af270f5a10318035264",
+      "copied": false
+    },
+    "product_source_tree_copied": false,
+    "tools_or_caches_copied": false
+  },
+  "work_card_before": {
+    "path": "docs/development/work-items/d09-project-usage-read-http.md",
+    "sha256": "7a4f09c1ca0fe10494cfcbfe40685bc952fec9b15bde8f98319087c18a643c95",
+    "header_snapshot": "work-card-header-before.txt",
+    "header_sha256": "5721ed4c75f4b1b47c021b05d5eb6c7ba3eb3a88e8ab9467d653e342c65c7acc",
+    "technical_section_1_onward_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d"
+  },
+  "limitations": [
+    "native/ports.json is empty because the original parser expected endpoint text, while trace exposed TCP inode annotations.",
+    "Original native empty-port double cleanup is invalid for proving port absence and remains unchanged.",
+    "Later recovered port/proc observations prove only their recorded times, not the earlier wrapper end.",
+    "No product or original driver/parser executed during this documentation task; no Git command used."
+  ]
+}

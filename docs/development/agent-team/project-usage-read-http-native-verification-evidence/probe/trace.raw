@@ -1,0 +1,7 @@
+60221 1791377085.053604 execve("/bin/sleep", ["/bin/sleep", "0.25"], 0x7ffceeb8c188 /* 12 vars */) = 0
+60221 1791377085.054589 close(3</etc/ld.so.cache>) = 0
+60221 1791377085.055058 close(3</usr/lib/x86_64-linux-gnu/libc.so.6>) = 0
+60221 1791377085.305896 close(1</workspace/scratch/usage-http-verification/native01/probe/raw.log>) = 0
+60221 1791377085.305995 close(2</workspace/scratch/usage-http-verification/native01/probe/raw.log>) = 0
+60221 1791377085.306065 exit_group(0)   = ?
+60221 1791377085.306418 +++ exited with 0 +++

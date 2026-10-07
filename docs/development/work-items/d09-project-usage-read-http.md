@@ -1,7 +1,7 @@
 # D09 Project Owner Usage 只读 HTTP 与根装配
 
-修订：rev1。状态：规格已独立完整 STATIC PASS；[阶段 A 五路径](../agent-team/project-usage-read-http-stage-a-verification.md)与[阶段 B handler 两源](../agent-team/project-usage-read-http-stage-b-verification.md)均已获独立限定 PASS、主线程采纳并提交推送，B 产品提交为 `e7304512e73fdddb25bdbf1c0882400ad5b5f791`。B 作者受控9顶层/61子例、独立race4顶层/5子例通过，native仅编译/发现；作者C七路径已实际ACK，尚无默认root/真实HTTP/PG/native或整卡产品验收。A原失败及a04未join限制保留。技术 §1–7 保持原字节，后续阶段以任务台账和各自固定证据为准。
-补充工程调度，不改原rev1技术§1–7：native三测试仅消费已提交A/B及Summary纯契约，无app/C import依赖，可在C离线实现同时独立先行。须固定该组实际源/binary/driver闭包、独立唯一loopback窗口，保持原45s包预算、真实wait及双清；原C/PG完整14源冻结门槛不变。独立负责人仅已ACK准备native门禁，尚未实际运行；这是主线程按已授权真实依赖并行调度，不增加产品功能或放宽检查，B的受控接受不变成native验收。
+修订：rev1。状态：规格已独立完整 STATIC PASS；[阶段 A 五路径](../agent-team/project-usage-read-http-stage-a-verification.md)与[阶段 B handler 两源](../agent-team/project-usage-read-http-stage-b-verification.md)均已获独立限定 PASS、主线程采纳并提交推送，B 产品提交为 `e7304512e73fdddb25bdbf1c0882400ad5b5f791`。B 的受控接受另存；主线程现采纳[native01限定PASS](../agent-team/project-usage-read-http-native-verification.md)：3顶层/9子例actual0、12.036552s，原wrapper exit1保留，后续仅只读恢复端口映射与清理、没有重跑。作者C七路径已实际ACK，默认root、正式Session/Owner/PG及整卡产品仍未验收。A原失败及a04未join限制保留。技术 §1–7 保持原字节，后续阶段以任务台账和各自固定证据为准。
+补充工程调度，不改原rev1技术§1–7：native三测试仅消费已提交A/B及Summary纯契约，无app/C import依赖，已按固定实际源/binary/driver闭包、独立唯一loopback窗口和原45s包预算运行一次。direct/adopted均实际wait0；原空端口双清无效，恢复补查先见TIME_WAIT、后两次全部为空，不倒填历史清理。native窗口已结束；原C/PG完整14源冻结门槛不变，本限定结果不增加产品功能或放宽后续验收。
 固定产品基线：`4ae02e5c58f4efc3b360706cb2622df05a96cdf0`。
 已接受依赖：Usage ledger `36e5ff1a124c957d200888ad2e40bdc4ecb01305`、Project Owner/Store `6319d03`、Project 配置 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`；实际消费均以固定基线原字节为准。
 依据：[D09 §8/11](d09-model-system-token-usage-design.md)、[D08 路径、Owner 与 HTTP 契约](d08-project-owner-design.md)、[Usage ledger 工作卡](recovery-d09-invocation-usage-ledger.md)。只补下述读边界，不重述或替换其内部契约。

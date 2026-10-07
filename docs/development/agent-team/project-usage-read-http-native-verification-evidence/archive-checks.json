@@ -1,0 +1,43 @@
+{
+  "scope": "Documentation self-check only: no product, original script, resource or Git command executed.",
+  "cwd": "/workspace/agenteam",
+  "report_sha256": "2c719ec0b045f62439f7b05765de746a4192b679626f0d7d984d0bf7ba6d1db4",
+  "source_map_sha256": "daa084cc66a646248ff076d0ff044c70b45e4b06ddb985bca12ab74f31be0892",
+  "saved_originals_byte_identical": 39,
+  "saved_original_bytes": 205043,
+  "original_json_parsed": 16,
+  "omitted_duplicate_fingerprints_checked": 11,
+  "raw_test_pass_counts": {
+    "top": 3,
+    "sub": 9
+  },
+  "binary_exit": 0,
+  "binary_elapsed_seconds": 12.036552268999912,
+  "original_wrapper_exit": 1,
+  "original_empty_port_double_cleanup_invalid": true,
+  "rerun": false,
+  "actual_wait_records_identical_across_command_recovery_final": true,
+  "recovery_mapping": {
+    "listeners": 10,
+    "connections": 10,
+    "ports": 20,
+    "closed_socket_inodes": 33,
+    "reassembled_calls": 423
+  },
+  "recovery_first_scan_time_wait": 1791377200.1413133,
+  "recovery_two_all_zero_times": [
+    1791377203.15821,
+    1791377203.3624508
+  ],
+  "no_original_time_wait_zero_claim": true,
+  "work_card_before_sha256": "7a4f09c1ca0fe10494cfcbfe40685bc952fec9b15bde8f98319087c18a643c95",
+  "work_card_after_sha256": "13f1c7fc48e649a679cbddb7b0343b479d112a32238080070fba8c6fef766b93",
+  "work_card_header_only_change": true,
+  "work_card_technical_sha256": "36a7fa5c64cbb8d6716f87851b2b5eea895d344319944f6d558c37c55f53a11d",
+  "local_links_checked": 28,
+  "fragments_checked": [],
+  "authored_utf8_lf_final_newline_whitespace_fences": "PASS",
+  "git_checks": "Not run: task prohibits Git operations; exact header reconstruction and explicit text checks used.",
+  "raw_original_format_policy": "Preserved byte-for-byte, including /proc table padding; authored prose formatting rules are not applied to raw originals.",
+  "product_source_reuse": "Existing B evidence and recorded accepted Git bindings reused; no active C or product tree read."
+}

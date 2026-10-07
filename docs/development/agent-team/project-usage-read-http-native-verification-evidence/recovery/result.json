@@ -1,0 +1,86 @@
+{
+  "recovery_script_sha256": "298b60a46cb556cebeee0d93d331c0bfb981c7a4a873f97d0d89e6e16ab2c267",
+  "original_artifacts_unchanged": {
+    "run.py": "f8edfd51dec7a9244bf4ba5e0283b5163350a117c4cdd3ff83ecf36276b91f3e",
+    "native/trace.raw": "67a505e56ed6d9e9577e79af1817242b4cad5fec3b8559d47cf831698c94514a",
+    "native/raw.log": "5821ebb462a057f60ba7af2128f4279b73ea043cc48fa0366e5689c416bce39f",
+    "native/command.json": "cec0c67902378a59000cbe34aa2c8ff3f937dda8e726646008d38c1b3299d2d0",
+    "native/ports.json": "7ed889db51df4fda196b57675cbe4e5bc0806a48232373dbc8548aa284c03004",
+    "native/cleanup-double-zero.json": "cc9e044f70bd2c189813c3cb48a221a71b42763e9c126143ad80fde45d631851",
+    "native/input-before.json": "bcacea1b738b8670bd9012c300bae848cccfa091259c61ec88c6008f6e470dd5",
+    "native/input-after.json": "bcacea1b738b8670bd9012c300bae848cccfa091259c61ec88c6008f6e470dd5"
+  },
+  "test_rerun": false,
+  "original_wrapper_exit": 1,
+  "original_empty_port_cleanup_invalid": true,
+  "test_binary_exit": 0,
+  "test_binary_execution_seconds": 12.036552268999912,
+  "top_passes": 3,
+  "sub_passes": 9,
+  "actual_waits": [
+    {
+      "role": "direct",
+      "pid": 60727,
+      "starttime": "308203",
+      "returncode": 0,
+      "actual_wait": true,
+      "time": 1791377142.239595
+    },
+    {
+      "role": "adopted",
+      "pid": 60731,
+      "starttime": "308203",
+      "wait_status": 0,
+      "returncode": 0,
+      "actual_wait": true,
+      "time": 1791377142.2401032
+    }
+  ],
+  "listeners": 10,
+  "connection_pairs": 10,
+  "ports": [
+    32861,
+    33345,
+    34470,
+    34605,
+    35867,
+    36837,
+    38976,
+    39028,
+    40241,
+    41577,
+    41828,
+    41905,
+    42241,
+    46395,
+    46888,
+    47050,
+    50720,
+    56416,
+    57338,
+    59710
+  ],
+  "all_33_socket_inodes_close_success": true,
+  "two_current_cleanup_scans": [
+    {
+      "at": 1791377203.15821,
+      "owned_processes": [],
+      "rows": [],
+      "active_rows": [],
+      "time_wait_rows": []
+    },
+    {
+      "at": 1791377203.3624508,
+      "owned_processes": [],
+      "rows": [],
+      "active_rows": [],
+      "time_wait_rows": []
+    }
+  ],
+  "source_closure_packages": 379,
+  "source_closure_files": 2349,
+  "source_closure_digest": "211c9e568bd1ce2aa9499b82a5ba0676841feb40a044b98036e19177773ad3b1",
+  "source_closure_unchanged": true,
+  "no_historical_time_wait_claim": true,
+  "recovery_pass": true
+}

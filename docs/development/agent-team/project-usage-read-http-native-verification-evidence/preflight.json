@@ -1,0 +1,27 @@
+{
+  "commit": "e7304512e73fdddb25bdbf1c0882400ad5b5f791",
+  "summary_accepted": "e6cb70bdfc6ef7569d740f767f7dca3211a2ef7a",
+  "B_final_manifest_sha256": "f99553429fffdb163086eadda94e28d2cbc1d78f80cff1b4955f5530faf5f3a7",
+  "binary": "/workspace/scratch/usage-http-author/B/usage-http.test",
+  "binary_sha256": "fc86e607bc6b9f5abebdca787634b06fb79ad8a012451ccb11235dbe9c7acf50",
+  "binary_bytes": 21119045,
+  "race_binary_confirmed": true,
+  "product_graph_paths_fixed_git_match": 291,
+  "active_C_paths_not_imported": true,
+  "generated_testmain_sha256": "20db1c7fcbf22be8985ae3926eda286736d8d250b17c9ff21d89d6e88903ebb5",
+  "testmain_no_custom_hook": true,
+  "native_top_names": [
+    "TestProjectUsageHTTPNativeSlowBody",
+    "TestProjectUsageHTTPNativeWriteAndClose",
+    "TestProjectUsageHTTPNativeKeepAlive"
+  ],
+  "listener": "127.0.0.1:0",
+  "no_resources_started": true,
+  "space_bytes": {
+    "workspace": 25038270464,
+    "tmp": 9040764928
+  },
+  "strace": "/usr/bin/strace",
+  "ss": "/usr/bin/ss",
+  "preparation_at": 1791376889.7472146
+}

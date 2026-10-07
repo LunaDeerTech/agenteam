@@ -1,0 +1,28 @@
+{
+  "at": 1791377261.689961,
+  "native_pgrp": 60727,
+  "native_pgrp_members": [],
+  "native_driver_pid60724_present": false,
+  "direct_and_adopted_actual_waits": [
+    {
+      "role": "direct",
+      "pid": 60727,
+      "starttime": "308203",
+      "returncode": 0,
+      "actual_wait": true,
+      "time": 1791377142.239595
+    },
+    {
+      "role": "adopted",
+      "pid": 60731,
+      "starttime": "308203",
+      "wait_status": 0,
+      "returncode": 0,
+      "actual_wait": true,
+      "time": 1791377142.2401032
+    }
+  ],
+  "wrapper_failed_port_parser_preserved": true,
+  "no_rerun": true,
+  "historical_zombies_outside_ownership": true
+}
