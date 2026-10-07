@@ -452,11 +452,12 @@ describe('Model actual App/router/form composition', () => {
       'Providers',
       'Models',
       '平台模型用途',
+      '系统审计',
       '账号安全',
       'SMTP',
       '出站规则',
     ])
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
     await f.wrapper.get('a[href="/system/models"]').trigger('click')
     await flushPromises()
     expect(f.wrapper.get('h1').text()).toBe('Models')

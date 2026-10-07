@@ -30,6 +30,11 @@ const groups = [
     ],
   },
   {
+    key: 'audit',
+    label: '审计',
+    children: [{ label: '系统审计', path: '/system/audit' }],
+  },
+  {
     key: 'platform-configuration',
     label: '平台配置',
     children: [

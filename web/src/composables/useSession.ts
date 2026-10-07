@@ -24,7 +24,7 @@ import {
   type ResetInspection,
   type ResetAccepted,
 } from '../api/account'
-import { AccountFailure, type Problem } from '../api/client'
+import { AccountFailure, uuid7, type Problem } from '../api/client'
 import {
   createSystemAccountAPI,
   type SystemAccountAPI,
@@ -111,6 +111,13 @@ import {
   type OutboundPolicyUpdate,
   type OutboundPolicyReceipt,
 } from '../api/system-outbound-policy'
+
+import {
+  createSystemAuditAPI,
+  captureAuditQuery,
+  type SystemAuditAPI,
+  type AuditQuery,
+} from '../api/system-audit'
 
 type OutboundPolicyAction = 'outbound-policy-read' | 'outbound-policy-write'
 export type SystemOutboundPolicyProgress = Readonly<{
@@ -301,6 +308,7 @@ type Action =
   | 'personal'
   | 'entry'
   | 'system'
+  | 'audit-read'
   | 'invitation-read'
   | 'invitation-write'
   | ProviderAction
@@ -415,6 +423,7 @@ export function createSessionController(
   smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),
   smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),
   outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI(),
+  auditAPI: SystemAuditAPI = createSystemAuditAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -450,7 +459,8 @@ export function createSessionController(
   const systemState = shallowReactive<{ deniedIdentity: PersonalIdentity | null }>({
     deniedIdentity: null,
   })
-  let systemRevision = 0
+  let systemRevision = 0,
+    auditRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
   let invitationIntent: SystemInvitationIntent | null = null
@@ -614,6 +624,7 @@ export function createSessionController(
       clearSMTPState(true)
       clearSMTPDeliveryState()
       clearOutboundPolicyState()
+      clearAuditRead()
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -729,6 +740,7 @@ export function createSessionController(
       (outboundIntent && outboundIntent.csrf !== sessionCSRF)
     )
       clearOutboundPolicyState()
+    if (!same || view.user.role !== 'admin') clearAuditRead()
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -1158,6 +1170,7 @@ export function createSessionController(
     kind:
       | 'personal'
       | 'system'
+      | 'audit-read'
       | 'invitation-read'
       | 'invitation-write'
       | ProviderAction
@@ -1172,25 +1185,27 @@ export function createSessionController(
     const revisionNow = () =>
       kind === 'system'
         ? systemRevision
-        : kind === 'invitation-read'
-          ? invitationReadRevision
-          : kind === 'invitation-write'
-            ? invitationRevision
-            : kind === 'personal'
-              ? personalRevision
-              : isModelAction(kind)
-                ? modelRevisions[kind]
-                : isSelectionAction(kind)
-                  ? selectionRevisions[kind]
-                  : isAccountSecurityAction(kind)
-                    ? accountSecurityRevisions[kind]
-                    : isSMTPAction(kind)
-                      ? smtpRevisions[kind]
-                      : isSMTPDeliveryAction(kind)
-                        ? smtpDeliveryRevisions[kind]
-                        : isOutboundPolicyAction(kind)
-                          ? outboundRevisions[kind]
-                          : providerRevisions[kind]
+        : kind === 'audit-read'
+          ? auditRevision
+          : kind === 'invitation-read'
+            ? invitationReadRevision
+            : kind === 'invitation-write'
+              ? invitationRevision
+              : kind === 'personal'
+                ? personalRevision
+                : isModelAction(kind)
+                  ? modelRevisions[kind]
+                  : isSelectionAction(kind)
+                    ? selectionRevisions[kind]
+                    : isAccountSecurityAction(kind)
+                      ? accountSecurityRevisions[kind]
+                      : isSMTPAction(kind)
+                        ? smtpRevisions[kind]
+                        : isSMTPDeliveryAction(kind)
+                          ? smtpDeliveryRevisions[kind]
+                          : isOutboundPolicyAction(kind)
+                            ? outboundRevisions[kind]
+                            : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1454,7 +1469,12 @@ export function createSessionController(
         clearBrowser()
         state.phase = 'unavailable'
         state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
-      } else if (current() && e.problem?.status === 403 && e.problem.code === 'FORBIDDEN') {
+      } else if (
+        current() &&
+        (op.kind !== 'audit-read' || e.kind === 'problem') &&
+        e.problem?.status === 403 &&
+        e.problem.code === 'FORBIDDEN'
+      ) {
         clearInvitationState()
         clearProviderState()
         clearModelState()
@@ -1463,6 +1483,7 @@ export function createSessionController(
         clearSMTPState(true)
         clearSMTPDeliveryState()
         clearOutboundPolicyState()
+        clearAuditRead()
         systemState.deniedIdentity = identity
       }
     }
@@ -3300,7 +3321,44 @@ export function createSessionController(
       return performOutboundPolicy(outboundIntent)
     },
   }
+  function clearAuditRead() {
+    ++auditRevision
+    if (owner?.kind === 'audit-read') owner.abandon?.()
+  }
+  const audit = {
+    list(query: AuditQuery) {
+      try {
+        const identity = invitationIdentity()
+        const captured = captureAuditQuery(query)
+        return runAuthorized(
+          identity,
+          (op) => auditAPI.list(captured, op.abort.signal),
+          undefined,
+          'audit-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    get(id: string) {
+      try {
+        const identity = invitationIdentity()
+        if (typeof id !== 'string' || !uuid7.test(id)) throw new AccountFailure('invalid-input')
+        const target = id
+        return runAuthorized(
+          identity,
+          (op) => auditAPI.get(target, op.abort.signal),
+          undefined,
+          'audit-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    abandon: clearAuditRead,
+  }
   const system = {
+    audit,
     outboundPolicy,
     smtpDelivery,
     smtp,

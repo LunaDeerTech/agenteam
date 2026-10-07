@@ -736,7 +736,7 @@ describe('Outbound drafts, reads and historical command results', () => {
 })
 
 describe('Outbound structured View and public navigation composition', () => {
-  it('has eight leaves in three groups, preserves users default and accepts only the twelfth exact return', async () => {
+  it('has nine leaves in four groups, preserves users default and validates the twelfth exact return', async () => {
     const f = await app(view(), '/system')
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -750,11 +750,12 @@ describe('Outbound structured View and public navigation composition', () => {
       'Providers',
       'Models',
       '平台模型用途',
+      '系统审计',
       '账号安全',
       'SMTP',
       '出站规则',
     ])
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
     expect(safeReturnTarget('/system/outbound-policy')).toBe('/system/outbound-policy')
     for (const value of [
       '/system/outbound-policy?x=1',

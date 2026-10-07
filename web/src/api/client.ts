@@ -74,6 +74,8 @@ const endpoints = {
   inspectPasswordReset: ['POST', '/api/v1/password-resets/inspect', 200],
   completePasswordReset: ['POST', '/api/v1/password-resets/complete', 204],
   systemUsers: ['GET', '/api/v1/system/users', 200],
+  listSystemAudit: ['GET', '/api/v1/system/audit', 200],
+  getSystemAudit: ['GET', '/api/v1/system/audit/{id}', 200],
   listProviders: ['GET', '/api/v1/system/model-providers', 200],
   getProvider: ['GET', '/api/v1/system/model-providers/{id}', 200],
   createProvider: ['POST', '/api/v1/system/model-providers', 200],
@@ -392,7 +394,193 @@ const outboundPolicyEndpoints: readonly OutboundPolicyEndpoint[] = [
   'updateOutboundPolicy',
 ]
 
+export const auditFilterActions = [
+  'secret.create',
+  'secret.update',
+  'secret.delete',
+  'secret.resolve',
+  'secret.master.register',
+  'secret.master.rotation.start',
+  'secret.master.rotation.complete',
+  'secret.master.rotation.failed',
+  'outbound.policy.update',
+  'outbound.access.deny',
+  'object.upload.complete',
+  'object.upload.failed',
+  'object.delete',
+  'object.transfer.issue',
+  'object.transfer.complete',
+  'object.transfer.revoke',
+  'artifact.create',
+  'artifact.list',
+  'artifact.read',
+  'artifact.download',
+  'outbox.delivery.requeue',
+  'account.bootstrap',
+  'account.login',
+  'account.logout',
+  'account.invite.create',
+  'account.invite.revoke',
+  'account.invite.redeem',
+  'account.password.change',
+  'account.password.reset.request',
+  'account.password.reset.complete',
+  'account.profile.update',
+  'account.avatar.update',
+  'account.settings.update',
+  'smtp.settings.update',
+  'smtp.test.request',
+  'smtp.delivery',
+  'smtp.delivery.retry',
+  'project.create.accepted',
+  'project.create.completed',
+  'project.update',
+  'project.archive.accepted',
+  'project.archive.completed',
+  'project.restore',
+  'project.delete.accepted',
+  'project.lifecycle.retry',
+  'provider.create',
+  'provider.update',
+  'provider.delete',
+  'model.create',
+  'model.update',
+  'model.delete',
+  'model.selection.update',
+  'knowledge.delete_subtree',
+] as const
+export const auditFilterResourceKinds = [
+  'secret',
+  'secret_master',
+  'secret_rotation',
+  'outbound_policy',
+  'agent',
+  'stored_object',
+  'object_transfer',
+  'artifact',
+  'artifact_collection',
+  'outbox_delivery',
+  'user',
+  'session',
+  'account_attempt',
+  'invitation',
+  'password_reset',
+  'account_settings',
+  'smtp_settings',
+  'mail_job',
+  'project',
+  'project_operation',
+  'project_creation',
+  'model_provider',
+  'model_config',
+  'model_selection',
+  'knowledge_document',
+] as const
+export const auditFilterFields = [
+  'from',
+  'to',
+  'actor_kind',
+  'actor_id',
+  'action',
+  'outcome',
+  'resource_kind',
+  'resource_id',
+  'tool_id',
+  'execution_id',
+  'operation_id',
+  'approval_id',
+  'runner_id',
+  'agent_id',
+] as const
+export type AuditFilterField = (typeof auditFilterFields)[number]
+export type AuditWireQuery = Readonly<
+  Partial<Record<AuditFilterField | 'limit' | 'cursor', string>>
+>
+const auditQueryKeys = [...auditFilterFields, 'limit', 'cursor'] as const
+
+function auditCanonicalTime(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(value)) return false
+  const y = Number(value.slice(0, 4)),
+    m = Number(value.slice(5, 7)),
+    d = Number(value.slice(8, 10))
+  const days = [
+    31,
+    y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0) ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ]
+  return (
+    m >= 1 &&
+    m <= 12 &&
+    d >= 1 &&
+    d <= days[m - 1]! &&
+    Number(value.slice(11, 13)) <= 23 &&
+    Number(value.slice(14, 16)) <= 59 &&
+    Number(value.slice(17, 19)) <= 59
+  )
+}
+
+// The transport accepts only a captured canonical query, never raw URLs or headers.
+// The page API normalizes legal offset Instants before this independent wire gate.
+export function captureAuditWireQuery(value: unknown): AuditWireQuery {
+  try {
+    const source = shape(value, [], auditQueryKeys)
+    const result: Partial<Record<(typeof auditQueryKeys)[number], string>> = {}
+    for (const key of auditQueryKeys) {
+      if (!Object.hasOwn(source, key)) continue
+      const entry = source[key]
+      if (typeof entry !== 'string') throw new Error()
+      if (key === 'limit') {
+        if (!/^[1-9][0-9]{0,2}$/.test(entry) || Number(entry) > 200) throw new Error()
+      } else {
+        if (entry === '') continue
+        if (key === 'from' || key === 'to') {
+          if (!auditCanonicalTime(entry)) throw new Error()
+        } else if (key === 'cursor') {
+          if (!/^[A-Za-z0-9_.-]+$/.test(entry) || new TextEncoder().encode(entry).byteLength > 8192)
+            throw new Error()
+        } else if (key === 'actor_kind') {
+          if (!['human', 'agent_run', 'service'].includes(entry)) throw new Error()
+        } else if (key === 'action') {
+          if (!(auditFilterActions as readonly string[]).includes(entry)) throw new Error()
+        } else if (key === 'outcome') {
+          if (!['success', 'denied', 'failed', 'unknown'].includes(entry)) throw new Error()
+        } else if (key === 'resource_kind') {
+          if (!(auditFilterResourceKinds as readonly string[]).includes(entry)) throw new Error()
+        } else if (!uuid7.test(entry)) throw new Error()
+      }
+      result[key] = entry
+    }
+    if (result.from && result.to && result.from >= result.to) throw new Error()
+    if (result.actor_kind === 'service' && result.actor_id) throw new Error()
+    const encoded = new URLSearchParams(result).toString()
+    if (new TextEncoder().encode(encoded).byteLength > 32 * 1024) throw new Error()
+    return Object.freeze(result)
+  } catch {
+    throw new AccountFailure('invalid-input')
+  }
+}
+
+type AuditEndpoint = 'listSystemAudit' | 'getSystemAudit'
+type AuditOptions<E extends AuditEndpoint> = E extends 'listSystemAudit'
+  ? { signal: AbortSignal; audit: AuditWireQuery }
+  : { signal: AbortSignal; target: string }
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends AuditEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: AuditOptions<E>,
+  ): Promise<T>
+
   function request<T, E extends OutboundPolicyEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -456,6 +644,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | SMTPEndpoint
       | SMTPDeliveryEndpoint
       | OutboundPolicyEndpoint
+      | AuditEndpoint
     >,
     parse: (value: unknown) => T,
     options: RequestOptions & { users?: never; invitations?: never; target?: never },
@@ -469,13 +658,28 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       providers?: Readonly<{ cursor?: string }>
       models?: Readonly<{ provider_id: string; cursor?: string }>
       mailJobs?: Readonly<{ cursor?: string }>
+      audit?: AuditWireQuery
       target?: string
     },
   ): Promise<T> {
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if (
+    if (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') {
+      try {
+        if (endpoint === 'listSystemAudit') {
+          shape(options, ['signal', 'audit'])
+          const encoded = new URLSearchParams(captureAuditWireQuery(options.audit)).toString()
+          if (encoded) path += '?' + encoded
+        } else {
+          shape(options, ['signal', 'target'])
+          if (!uuid7.test(string(options.target, 36, 36))) throw new Error()
+          path = basePath.replace('{id}', options.target!)
+        }
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (
       providerEndpoints.includes(endpoint as ProviderEndpoint) ||
       modelEndpoints.includes(endpoint as ModelEndpoint) ||
       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
@@ -563,6 +767,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         throw new AccountFailure('invalid-input')
       }
     } else if (
+      Object.hasOwn(options, 'audit') ||
       Object.hasOwn(options, 'users') ||
       Object.hasOwn(options, 'invitations') ||
       Object.hasOwn(options, 'providers') ||
@@ -661,7 +866,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          endpoint === 'listProviders' && success ? 2 * 1024 * 1024 : 600_000,
+          endpoint === 'listProviders' && success
+            ? 2 * 1024 * 1024
+            : (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') && success
+              ? 1024 * 1024
+              : 600_000,
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')

@@ -213,6 +213,7 @@ describe('System user directory page and shared shells', () => {
       'Providers',
       'Models',
       '平台模型用途',
+      '系统审计',
       '账号安全',
       'SMTP',
       '出站规则',

@@ -277,7 +277,7 @@ describe('real App, router and invitations controller composition', () => {
     expect(f.wrapper.get('nav[aria-label="系统设置"] [aria-current="page"]').text()).toBe(
       '待注册邀请',
     )
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
     expect(
       f.wrapper
         .get('nav[aria-label="系统设置"]')
@@ -289,6 +289,7 @@ describe('real App, router and invitations controller composition', () => {
       'Providers',
       'Models',
       '平台模型用途',
+      '系统审计',
       '账号安全',
       'SMTP',
       '出站规则',

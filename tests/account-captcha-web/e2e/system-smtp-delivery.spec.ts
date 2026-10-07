@@ -1421,8 +1421,8 @@ test("[navigation] active section ownership, two native confirmations and eight 
   expect((await writes(page)).length).toBe(0);
   await page.goto("/system/users");
   const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
-  await expect(nav.getByRole("link")).toHaveCount(8);
-  await expect(nav.locator(".settings-group-toggle")).toHaveCount(3);
+  await expect(nav.getByRole("link")).toHaveCount(9);
+  await expect(nav.locator(".settings-group-toggle")).toHaveCount(4);
   let after = await seq(page);
   await nav.getByRole("link", { name: "SMTP", exact: true }).click();
   await factAfter(
@@ -1552,7 +1552,7 @@ test("[navigation] active section ownership, two native confirmations and eight 
       if (width === 390) {
         const toggle = button(page, "系统设置栏目");
         await toggle.click();
-        await expect(top(page).getByRole("link")).toHaveCount(8);
+        await expect(top(page).getByRole("link")).toHaveCount(9);
         await focusContained(page);
         await page.keyboard.press("Escape");
         await expect(page.locator(".ui-overlay")).toHaveCount(0);

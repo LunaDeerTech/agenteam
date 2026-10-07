@@ -316,7 +316,7 @@ async function openDirty() {
 }
 
 describe('Provider actual App/router/controller composition', () => {
-  it('keeps users as default, has exactly eight leaves in three groups and validates twelve exact return paths', async () => {
+  it('keeps users as default, has exactly nine leaves in four groups and preserves Provider return validation', async () => {
     const f = await page('/system')
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -330,11 +330,12 @@ describe('Provider actual App/router/controller composition', () => {
       'Providers',
       'Models',
       '平台模型用途',
+      '系统审计',
       '账号安全',
       'SMTP',
       '出站规则',
     ])
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
     await f.wrapper.get('a[href="/system/providers"]').trigger('click')
     await flushPromises()
     expect(f.wrapper.get('h1').text()).toBe('Providers')

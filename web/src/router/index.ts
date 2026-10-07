@@ -64,6 +64,7 @@ export const router = createRouter({
           path: 'model-selection',
           component: () => import('../views/system/SystemModelSelectionView.vue'),
         },
+        { path: 'audit', component: () => import('../views/system/SystemAuditView.vue') },
         {
           path: 'account-security',
           component: () => import('../views/system/SystemAccountSecurityView.vue'),

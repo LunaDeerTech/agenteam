@@ -1,0 +1,258 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiField from '../../components/ui/UiField.vue'
+import {
+  auditFilterActions,
+  auditFilterResourceKinds,
+  type AuditQueryField,
+} from '../../api/system-audit'
+import type { AuditFilterDraft } from '../../composables/useSystemAudit'
+defineProps<{
+  draft: Readonly<AuditFilterDraft>
+  errors: Readonly<Partial<Record<AuditQueryField, string>>>
+  message: string
+  dirty: boolean
+  blocked: boolean
+}>()
+const emit = defineEmits<{
+  update: [field: keyof AuditFilterDraft, value: string]
+  apply: [event: SubmitEvent]
+  reset: [event: MouseEvent]
+}>()
+const form = ref<HTMLFormElement | null>(null)
+const groups = [
+  {
+    label: '时间与事件',
+    fields: [
+      {
+        key: 'from',
+        label: '起始时间（含）',
+        hint: '完整时区，例如 2026-10-07T08:00:00.123456+08:00；最多六位小数。',
+      },
+      { key: 'to', label: '结束时间（不含）', hint: '必须晚于起始时间；留空表示不限制此边界。' },
+      { key: 'action', label: '动作' },
+      { key: 'outcome', label: '结果' },
+    ],
+  },
+  {
+    label: '操作者与资源',
+    fields: [
+      { key: 'actor_kind', label: '操作者类型' },
+      { key: 'actor_id', label: '操作者 ID', hint: '小写 UUIDv7；service 不能同时指定操作者 ID。' },
+      { key: 'resource_kind', label: '资源类型' },
+      { key: 'resource_id', label: '资源 ID' },
+    ],
+  },
+  {
+    label: '关联 ID',
+    fields: [
+      { key: 'tool_id', label: 'Tool ID' },
+      { key: 'execution_id', label: 'Execution ID' },
+      { key: 'operation_id', label: 'Operation ID' },
+      { key: 'approval_id', label: 'Approval ID' },
+      { key: 'runner_id', label: 'Runner ID' },
+      { key: 'agent_id', label: 'Agent ID' },
+    ],
+  },
+] satisfies {
+  label: string
+  fields: { key: keyof AuditFilterDraft; label: string; hint?: string }[]
+}[]
+const actionGroups = [
+  ['secret', 'Secret'],
+  ['outbound', '出站规则'],
+  ['object', 'Object'],
+  ['artifact', 'Artifact'],
+  ['outbox', 'Outbox'],
+  ['account', '账号'],
+  ['smtp', 'SMTP'],
+  ['project', '项目'],
+  ['provider', 'Provider'],
+  ['model', '模型'],
+  ['knowledge', '知识'],
+]
+  .map(([prefix, label]) => ({
+    label,
+    values: auditFilterActions.filter((action) => action.startsWith(prefix + '.')),
+  }))
+  .filter((group) => group.values.length > 0)
+const outcomes = [
+  { value: 'success', label: '成功（success）' },
+  { value: 'denied', label: '拒绝（denied）' },
+  { value: 'failed', label: '失败（failed）' },
+  { value: 'unknown', label: '结果未知（unknown）' },
+]
+function update(field: keyof AuditFilterDraft, event: Event) {
+  emit('update', field, (event.target as HTMLInputElement | HTMLSelectElement).value)
+}
+defineExpose({
+  focusInvalid() {
+    const input = form.value?.querySelector<HTMLInputElement | HTMLSelectElement>(
+      '[aria-invalid="true"]',
+    )
+    if (!input?.isConnected || input.disabled) return false
+    input.focus()
+    return input.ownerDocument.activeElement === input
+  },
+})
+</script>
+<template>
+  <form
+    ref="form"
+    class="audit-filters"
+    aria-label="系统审计筛选"
+    novalidate
+    @submit.prevent="emit('apply', $event as SubmitEvent)"
+  >
+    <fieldset v-for="group in groups" :key="group.label" :disabled="blocked">
+      <legend>{{ group.label }}</legend>
+      <div class="filter-grid">
+        <UiField
+          v-for="field in group.fields"
+          :key="field.key"
+          :id="'audit-filter-' + field.key"
+          :label="field.label"
+          :hint="
+            'hint' in field
+              ? field.hint
+              : field.key.endsWith('_id')
+                ? '可空的小写 UUIDv7。'
+                : undefined
+          "
+          :error="errors[field.key]"
+          v-slot="slot"
+        >
+          <select
+            v-if="field.key === 'action'"
+            :id="slot.id"
+            class="ui-input"
+            :value="draft.action"
+            :aria-invalid="slot.invalid || undefined"
+            :aria-describedby="slot.describedby"
+            @change="update('action', $event)"
+          >
+            <option value="">全部</option>
+            <optgroup v-for="group in actionGroups" :key="group.label" :label="group.label">
+              <option v-for="action in group.values" :key="action" :value="action">
+                {{ action }}
+              </option>
+            </optgroup>
+          </select>
+          <select
+            v-else-if="
+              field.key === 'actor_kind' || field.key === 'outcome' || field.key === 'resource_kind'
+            "
+            :id="slot.id"
+            class="ui-input"
+            :value="draft[field.key]"
+            :aria-invalid="slot.invalid || undefined"
+            :aria-describedby="slot.describedby"
+            @change="update(field.key, $event)"
+          >
+            <option value="">全部</option>
+            <template v-if="field.key === 'actor_kind'"
+              ><option v-for="kind in ['human', 'agent_run', 'service']" :key="kind" :value="kind">
+                {{ kind }}
+              </option></template
+            >
+            <template v-else-if="field.key === 'outcome'"
+              ><option v-for="outcome in outcomes" :key="outcome.value" :value="outcome.value">
+                {{ outcome.label }}
+              </option></template
+            >
+            <template v-else
+              ><option v-for="kind in auditFilterResourceKinds" :key="kind" :value="kind">
+                {{ kind }}
+              </option></template
+            >
+          </select>
+          <input
+            v-else
+            :id="slot.id"
+            class="ui-input"
+            type="text"
+            :value="draft[field.key]"
+            :aria-invalid="slot.invalid || undefined"
+            :aria-describedby="slot.describedby"
+            autocomplete="off"
+            spellcheck="false"
+            @input="update(field.key, $event)"
+          />
+        </UiField>
+      </div>
+    </fieldset>
+    <UiField
+      id="audit-filter-limit"
+      label="每页数量"
+      hint="1–200 的完整整数，默认 50；应用后从第一页读取。"
+      :error="errors.limit"
+      v-slot="slot"
+    >
+      <input
+        :id="slot.id"
+        class="ui-input page-size"
+        type="text"
+        inputmode="numeric"
+        :value="draft.limit"
+        :disabled="blocked"
+        :aria-invalid="slot.invalid || undefined"
+        :aria-describedby="slot.describedby"
+        autocomplete="off"
+        @input="update('limit', $event)"
+      />
+    </UiField>
+    <p v-if="dirty" class="meta" role="status">
+      筛选已修改，尚未应用。当前结果仍来自上次已应用的条件。
+    </p>
+    <p v-if="message" class="error-text" role="alert">{{ message }}</p>
+    <div class="filter-actions">
+      <UiButton type="submit" variant="primary" :disabled="blocked">应用筛选</UiButton>
+      <UiButton :disabled="blocked" @click="emit('reset', $event)">重置筛选</UiButton>
+    </div>
+  </form>
+</template>
+<style scoped>
+.audit-filters {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+legend {
+  padding: 0 6px;
+  font-weight: 600;
+}
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.filter-grid :deep(.ui-field) {
+  min-width: 0;
+}
+input,
+select {
+  width: 100%;
+  min-width: 0;
+}
+.page-size {
+  max-width: 240px;
+}
+.filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@media (max-width: 760px) {
+  .filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>
