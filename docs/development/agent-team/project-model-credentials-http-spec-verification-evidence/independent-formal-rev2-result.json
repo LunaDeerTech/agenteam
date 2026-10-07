@@ -1,0 +1,45 @@
+{
+  "status": "FORMAL_COMPLETE_BOUNDED_SPEC_STATIC_PASS",
+  "formal_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+    "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444"
+  },
+  "formal_freeze": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/formal-rev2.freeze.json",
+    "sha256": "7e068c22487288f79b806a1ade54f56943399bac137fe7a35665cb6e061fd2cc"
+  },
+  "accepted_draft": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/draft-rev2.md",
+    "sha256": "30e7a3f3180e548abddec54564ee97e7373ef5c47a1f4cbc119f2bd55812e4b3"
+  },
+  "accepted_version_combination": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/static-rev2/result.json",
+    "sha256": "5ff9bc9b87f241e5a55e6436180be8bc37e7d0a2e890efd4ef4ab20100927b23"
+  },
+  "fixed_inputs": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/inputs-rev2.json",
+    "sha256": "7fdc93c8ed79605fdec6f020fe8c0afc18a6268ce70a94bf1be815dbf54f7ab7"
+  },
+  "technical_sections_1_to_8_byte_identical": true,
+  "technical_sha256": "cd6ac3e4b8378452520d2cf4daca9d9882395258c0123e36392478d380cb702b",
+  "header_only_administrative_placement": true,
+  "links": [
+    {
+      "link": "d09-project-model-owner-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-update-http-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/project-owner-update-http-verification.md",
+      "exists": true
+    }
+  ],
+  "scope": "22 technical plus separately authorized README; no implementation or resource permission",
+  "limits": [
+    "No product/Go/native/PG acceptance",
+    "Model read full product acceptance and explicit shared-root handover remain required",
+    "No active Model read source consumed; no business/Git writes or test/resource execution"
+  ],
+  "own_write_stopped": true
+}

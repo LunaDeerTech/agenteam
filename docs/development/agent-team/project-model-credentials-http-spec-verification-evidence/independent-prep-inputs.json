@@ -1,0 +1,54 @@
+{
+  "status": "STATIC_PREPARATION_ONLY_NOT_DRAFT_REVIEW",
+  "accepted_product": "61bed1fcf47c362f420f6bb45158b227af581acf",
+  "recommendation": {
+    "path": "/workspace/scratch/next-frontier-after-update/recommendation.md",
+    "sha256": "7e328fe3bd5d9199df90970c06d36141164157ad5b36a7369c59530ff37c1a43"
+  },
+  "recommendation_sources": {
+    "path": "/workspace/scratch/next-frontier-after-update/sources.json",
+    "sha256": "35db4efa26df49c9554a15ab55520820f2640eb25015c4badf87e10b77cbbfc3"
+  },
+  "accepted_update_closure": {
+    "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/closure.json",
+    "sha256": "899f117bb49142bcc5494723e8008d7a7279a7f84b763d2297638ea6482641de"
+  },
+  "fixed_nonactive_source_hashes_match_accepted_closure": {
+    "internal/central/secret/contract/write_lookup.go": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+    "internal/central/secret/write_lookup.go": "971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6",
+    "internal/central/secret/write.go": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f",
+    "internal/central/secret/service.go": "26f6f876e502e7d26afe9b43c11732d72356826d787baa4950b44ed15dac6906",
+    "internal/central/secret/project_audit.go": "2f05d1ec7e33f9e97b201804b2865a547fb5c50d6e0bbd0d71f4b779e802e6ba",
+    "internal/central/project/authority.go": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+    "internal/central/project/secret_authority.go": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79",
+    "internal/central/app/project_usage.go": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+    "internal/central/app/security.go": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+    "internal/central/model/configuration.go": "45306abf851b5f963a1ce1f21f758989792f061f0eabf9107f3361fe4605f31d",
+    "internal/central/model/references.go": "4c0b7e19587bf7d38da9a21d7aa415d9974d5a3a4a845d38048968917c96357c",
+    "internal/central/model/commands.go": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1",
+    "internal/central/secret/contract/material.go": "a83f362b2d163ea0f7a9ea320670beb0bba7d046361a8f45590b8aca8ecd4a9f",
+    "internal/central/project/contract/lifecycle.go": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+    "internal/central/model/http_credentials.go": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b"
+  },
+  "account_read_only_accepted_snapshot": {
+    "path": "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/app/account.go",
+    "sha256": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8"
+  },
+  "document_hashes": {
+    "docs/development/agent-team/project-secret-audit-binding-verification.md": "924b4efcee10c0eec11538237cc0eb1450f3e93958100705629def3ba9a2ed34",
+    "docs/development/agent-team/secret-project-audit-verification.md": "a63800cc04315d1fe7916fcbb53acd6f84cd1b6747c8b3e247ff2a2a1c36d733",
+    "docs/development/agent-team/d09-system-model-http-verification.md": "5cdf794661aed92f70111e7eb341e8a1d23f10841c20682f05efc70b6bdc9f67",
+    "docs/development/agent-team/system-model-management-reads-verification.md": "b0b6f45178332c8250646668cb5cdaa5851c6371ea3e7b41983b82647d6ec532",
+    "docs/development/agent-team/d09-project-configuration-verification.md": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291",
+    "docs/development/agent-team/project-owner-update-http-verification.md": "a79a76f60a38f57af558734892836f55883cfc0da105d4ff85bdcf8591bb1a50",
+    "docs/development/work-items/recovery-project-secret-audit-binding.md": "19181b2a04b80ba24b684e2dbdfe65bc1e5bad1994b24e71f1e108670f3de6e2",
+    "docs/development/work-items/d09-project-model-owner-read-http.md": "28fb448189e3845c6be2a169f42cd1445d731a2383f29c78d592c59cb1debdce",
+    "docs/development/work-items/d10-skills-initialization.md": "87033b3a37d03568fa47441084d9153c3ce3d2bebf34c5949dd52150d4ea2f6b",
+    "docs/architecture/platform-infrastructure/model-system/model-configuration.md": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+  },
+  "limitations": [
+    "No active ProjectModelRead13/account source consumed",
+    "No full draft read or acceptance yet",
+    "No Go/Node/test/resource/network/Git command executed; only readonly file checks and own scratch"
+  ]
+}

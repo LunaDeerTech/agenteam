@@ -1,0 +1,510 @@
+{
+  "revision": "rev2",
+  "status": "FROZEN_SCRATCH_SPEC_FOR_INDEPENDENT_STATIC_NOT_AUTHORIZED_IMPLEMENTATION",
+  "accepted_product": "61bed1fcf47c362f420f6bb45158b227af581acf",
+  "archive": "c839f965",
+  "draft": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/draft-rev2.md",
+    "sha256": "30e7a3f3180e548abddec54564ee97e7373ef5c47a1f4cbc119f2bd55812e4b3"
+  },
+  "accepted_update_closure": {
+    "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/closure.json",
+    "sha256": "899f117bb49142bcc5494723e8008d7a7279a7f84b763d2297638ea6482641de"
+  },
+  "sources": {
+    "internal/central/secret/contract/write_lookup.go": {
+      "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+      "bytes": 1769,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/contract/write_lookup.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/secret/write_lookup.go": {
+      "sha256": "971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6",
+      "bytes": 3929,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/write_lookup.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/secret/write.go": {
+      "sha256": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f",
+      "bytes": 20203,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/write.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/secret/service.go": {
+      "sha256": "26f6f876e502e7d26afe9b43c11732d72356826d787baa4950b44ed15dac6906",
+      "bytes": 7496,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/service.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/secret/project_audit.go": {
+      "sha256": "2f05d1ec7e33f9e97b201804b2865a547fb5c50d6e0bbd0d71f4b779e802e6ba",
+      "bytes": 11508,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/project_audit.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/secret/contract/material.go": {
+      "sha256": "a83f362b2d163ea0f7a9ea320670beb0bba7d046361a8f45590b8aca8ecd4a9f",
+      "bytes": 1842,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/contract/material.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/secret/contract/types.go": {
+      "sha256": "2e9109c3278ef461166d41e4def3f6c76b0fde2cdd11fff7b755bdbcd1052cd7",
+      "bytes": 8981,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/contract/types.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/project/authority.go": {
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "bytes": 9818,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/project/authority.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/project/secret_authority.go": {
+      "sha256": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79",
+      "bytes": 1900,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/project/secret_authority.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/app/project_usage.go": {
+      "sha256": "df4ce7a5752f97a382901bde8e11fe393fbfae45409bf4b7b67dfacf42ae7337",
+      "bytes": 2789,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/app/project_usage.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/app/security.go": {
+      "sha256": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+      "bytes": 1703,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/app/security.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/model/http_credentials.go": {
+      "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b",
+      "bytes": 7535,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/model/http_credentials.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/model/http_management.go": {
+      "sha256": "9865c1d4172c7903eb2c7ee37d5037a93065d0819e546c63f5c33c689c56f6cc",
+      "bytes": 2332,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/model/http_management.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/model/http_dto.go": {
+      "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+      "bytes": 9114,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/model/http_dto.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/model/http.go": {
+      "sha256": "7084f53c0794f122be2b18113c6e6602f26939bc19a9a778fa5f653c58c1986a",
+      "bytes": 5628,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/model/http.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/model/service.go": {
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "bytes": 3641,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/model/service.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/account/http_boundary.go": {
+      "sha256": "39e87840acced340197c533f9db25b64a42f52643f99d95ee2bff8040333c572",
+      "bytes": 3112,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/account/http_boundary.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/account/service.go": {
+      "sha256": "0ef5a16b15079dcc718c4bdb7d10c95bf9817e3047060ddf05475c372be2f537",
+      "bytes": 6163,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/account/service.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/httpapi/json.go": {
+      "sha256": "5d1f29283f303400573261df614fa0c0ced66a1575c184cf02ffd720a02a2d6a",
+      "bytes": 8722,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/httpapi/json.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/project/http/update.go": {
+      "sha256": "99f487afa654325e60d505149f3d9def1c6a747e6fd6444c8703cb8997710d25",
+      "bytes": 6854,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/project/http/update.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/project/http/update_wire.go": {
+      "sha256": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452",
+      "bytes": 4273,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/project/http/update_wire.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "tests/model/project_owner_update_http_fixture_test.go": {
+      "sha256": "fd4aae26e4f60dea081dcc0028ffd6d04a218b65fd79608caf2ddf5ed401675d",
+      "bytes": 9655,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/tests/model/project_owner_update_http_fixture_test.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "tests/project/secret_metadata_read_test.go": {
+      "sha256": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8",
+      "bytes": 9708,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/tests/project/secret_metadata_read_test.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "tests/model/system_http_credentials_test.go": {
+      "sha256": "aa6802bf3caedf6aa168c516e7d855370a6a95b6818163e100b45f894c2db1bb",
+      "bytes": 21502,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/tests/model/system_http_credentials_test.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/secret/contract/write_lookup_test.go": {
+      "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+      "bytes": 3306,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/contract/write_lookup_test.go",
+      "accepted_update_closure_match": null,
+      "provenance": "non-active existing source; fixed here for STATIC, accepted source provenance follows cited domain reports; not a new dynamic acceptance"
+    },
+    "internal/central/secret/write_lookup_test.go": {
+      "sha256": "38f1b7a06e019e37ea93917e3e5b0ddba092589c42ae32f8b51157fcec82f5f7",
+      "bytes": 9765,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/secret/write_lookup_test.go",
+      "accepted_update_closure_match": null,
+      "provenance": "non-active existing source; fixed here for STATIC, accepted source provenance follows cited domain reports; not a new dynamic acceptance"
+    },
+    "internal/central/app/project_usage_test.go": {
+      "sha256": "5321f1119dc32d075b8e332cf132c03ad5864e700bf25f9ba6bff4cd2ad272cf",
+      "bytes": 6754,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/app/project_usage_test.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/app/model_test.go": {
+      "sha256": "add9f36b02578dc62291d9fe89ffd2df99274cd4d492f1d2f79f6a6d8f2f1dfc",
+      "bytes": 6211,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/app/model_test.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "api/openapi/common.json": {
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/api/openapi/common.json",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/app/account.go": {
+      "sha256": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8",
+      "bytes": 15727,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/app/account.go",
+      "provenance": "accepted Update candidate06 snapshot; never read active workspace account.go"
+    },
+    "AGENTS.md": {
+      "sha256": "2a995ccb3c246c692f03c45eadf55ff6327ab64aac54822e59db9a1c17af4f1e",
+      "bytes": 57758,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/AGENTS.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/agent-team/README.md": {
+      "sha256": "9d8bad3c85cf2a34fd0d9360bbc9eb27ea5c76082222a174984f78d599701c40",
+      "bytes": 14625,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/agent-team/README.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    ".agents/skills/agenteam-design/SKILL.md": {
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "bytes": 3874,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/.agents/skills/agenteam-design/SKILL.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    ".agents/skills/agenteam-go-development/SKILL.md": {
+      "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b",
+      "bytes": 3637,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/.agents/skills/agenteam-go-development/SKILL.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    ".agents/skills/agenteam-verification/SKILL.md": {
+      "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61",
+      "bytes": 4496,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/.agents/skills/agenteam-verification/SKILL.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/work-items/recovery-project-secret-audit-binding.md": {
+      "sha256": "19181b2a04b80ba24b684e2dbdfe65bc1e5bad1994b24e71f1e108670f3de6e2",
+      "bytes": 17365,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/work-items/recovery-project-secret-audit-binding.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/work-items/d09-project-model-owner-read-http.md": {
+      "sha256": "28fb448189e3845c6be2a169f42cd1445d731a2383f29c78d592c59cb1debdce",
+      "bytes": 36970,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/work-items/d08-project-owner-update-http.md": {
+      "sha256": "fe99b367797e6a4d02278581cff900c38fa769d572c1d5e98389d5a70bf3846d",
+      "bytes": 30498,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/work-items/d08-project-owner-update-http.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/agent-team/project-secret-audit-binding-verification.md": {
+      "sha256": "924b4efcee10c0eec11538237cc0eb1450f3e93958100705629def3ba9a2ed34",
+      "bytes": 12937,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/agent-team/project-secret-audit-binding-verification.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/agent-team/secret-project-audit-verification.md": {
+      "sha256": "a63800cc04315d1fe7916fcbb53acd6f84cd1b6747c8b3e247ff2a2a1c36d733",
+      "bytes": 9484,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/agent-team/secret-project-audit-verification.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/agent-team/system-model-management-reads-verification.md": {
+      "sha256": "b0b6f45178332c8250646668cb5cdaa5851c6371ea3e7b41983b82647d6ec532",
+      "bytes": 5086,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/agent-team/system-model-management-reads-verification.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/agent-team/d09-system-model-http-verification.md": {
+      "sha256": "5cdf794661aed92f70111e7eb341e8a1d23f10841c20682f05efc70b6bdc9f67",
+      "bytes": 8470,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/agent-team/d09-system-model-http-verification.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/agent-team/d09-project-configuration-verification.md": {
+      "sha256": "15abc5df4ee29054bf6045e6b5ca316a8b9280e0205c26bf23ae9c72297d7291",
+      "bytes": 12387,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/agent-team/d09-project-configuration-verification.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/development/agent-team/project-owner-update-http-verification.md": {
+      "sha256": "a79a76f60a38f57af558734892836f55883cfc0da105d4ff85bdcf8591bb1a50",
+      "bytes": 8320,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/development/agent-team/project-owner-update-http-verification.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "docs/architecture/platform-infrastructure/model-system/model-configuration.md": {
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4",
+      "bytes": 22379,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "provenance": "fixed governing document; historical headers apply only to their own stage"
+    },
+    "internal/central/project/http/handler.go": {
+      "sha256": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+      "bytes": 8814,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/project/http/handler.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/httpapi/problem.go": {
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "bytes": 8391,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/httpapi/problem.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/app/resources.go": {
+      "sha256": "b1560671393b44a7911adf3baa8f4433da036d89e9478e225051dbbadfde07a5",
+      "bytes": 8722,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/app/resources.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update actual closure"
+    },
+    "internal/central/httpapi/response_writer.go": {
+      "sha256": "360d0992159938812cfdad706a4b8b53de1e7673859462100aad4bd44bd361bc",
+      "bytes": 3529,
+      "snapshot": "/workspace/scratch/project-model-credentials-http-spec/fixed/internal/central/httpapi/response_writer.go",
+      "accepted_update_closure_match": true,
+      "provenance": "accepted Update closure; fixed responseState/Unwrap/code and committed ownership source for CRD-STATIC-01"
+    }
+  },
+  "proposed_scope": [
+    {
+      "number": 1,
+      "path": "internal/central/secret/contract/write_lookup.go",
+      "existing": true
+    },
+    {
+      "number": 2,
+      "path": "internal/central/secret/contract/write_lookup_test.go",
+      "existing": true
+    },
+    {
+      "number": 3,
+      "path": "internal/central/secret/write_lookup.go",
+      "existing": true
+    },
+    {
+      "number": 4,
+      "path": "internal/central/secret/write_lookup_test.go",
+      "existing": true
+    },
+    {
+      "number": 5,
+      "path": "internal/central/model/http_project_credentials.go",
+      "existing": false
+    },
+    {
+      "number": 6,
+      "path": "internal/central/model/http_project_credentials_wire.go",
+      "existing": false
+    },
+    {
+      "number": 7,
+      "path": "internal/central/model/http_project_credentials_test.go",
+      "existing": false
+    },
+    {
+      "number": 8,
+      "path": "internal/central/model/http_project_credentials_wire_test.go",
+      "existing": false
+    },
+    {
+      "number": 9,
+      "path": "internal/central/model/http_project_credentials_native_test.go",
+      "existing": false
+    },
+    {
+      "number": 10,
+      "path": "api/openapi/project-model-credentials.json",
+      "existing": false
+    },
+    {
+      "number": 11,
+      "path": "internal/central/app/project_credentials.go",
+      "existing": false
+    },
+    {
+      "number": 12,
+      "path": "internal/central/app/project_credentials_test.go",
+      "existing": false
+    },
+    {
+      "number": 13,
+      "path": "internal/central/app/account.go",
+      "existing": true
+    },
+    {
+      "number": 14,
+      "path": "internal/central/app/project_usage.go",
+      "existing": true
+    },
+    {
+      "number": 15,
+      "path": "internal/central/app/project_usage_test.go",
+      "existing": true
+    },
+    {
+      "number": 16,
+      "path": "internal/central/app/security.go",
+      "existing": true
+    },
+    {
+      "number": 17,
+      "path": "internal/central/app/model_test.go",
+      "existing": true
+    },
+    {
+      "number": 18,
+      "path": "tests/model/project_credentials_http_fixture_test.go",
+      "existing": false
+    },
+    {
+      "number": 19,
+      "path": "tests/model/project_credentials_http_test.go",
+      "existing": false
+    },
+    {
+      "number": 20,
+      "path": "tests/model/project_credentials_http_authority_test.go",
+      "existing": false
+    },
+    {
+      "number": 21,
+      "path": "tests/model/project_credentials_http_unknown_test.go",
+      "existing": false
+    },
+    {
+      "number": 22,
+      "path": "tests/model/project_credentials_http_root_test.go",
+      "existing": false
+    },
+    {
+      "number": 23,
+      "path": "docs/development/backend/README.md",
+      "existing": true
+    }
+  ],
+  "active_read_exclusion": "No active http_project*, project_models*, project-models.json or project_configuration_http* source consumed as dependency; account from accepted snapshot only. Shared root implementation waits accepted read + explicit handover.",
+  "checks": {
+    "new_technical_paths_absent": [
+      "internal/central/model/http_project_credentials.go",
+      "internal/central/model/http_project_credentials_wire.go",
+      "internal/central/model/http_project_credentials_test.go",
+      "internal/central/model/http_project_credentials_wire_test.go",
+      "internal/central/model/http_project_credentials_native_test.go",
+      "api/openapi/project-model-credentials.json",
+      "internal/central/app/project_credentials.go",
+      "internal/central/app/project_credentials_test.go",
+      "tests/model/project_credentials_http_fixture_test.go",
+      "tests/model/project_credentials_http_test.go",
+      "tests/model/project_credentials_http_authority_test.go",
+      "tests/model/project_credentials_http_unknown_test.go",
+      "tests/model/project_credentials_http_root_test.go"
+    ],
+    "existing_technical_paths_present": [
+      "internal/central/secret/contract/write_lookup.go",
+      "internal/central/secret/contract/write_lookup_test.go",
+      "internal/central/secret/write_lookup.go",
+      "internal/central/secret/write_lookup_test.go",
+      "internal/central/app/account.go",
+      "internal/central/app/project_usage.go",
+      "internal/central/app/project_usage_test.go",
+      "internal/central/app/security.go",
+      "internal/central/app/model_test.go"
+    ],
+    "source_snapshots_byte_identical": true,
+    "trailing_whitespace": [],
+    "executed": "read/stat/hash, own scratch write, no Go/resources/Git",
+    "limit": "STATIC self-check only; no independent or product PASS"
+  },
+  "revision_delta": {
+    "issue": "CRD-STATIC-01",
+    "independent_rev1_report": {
+      "path": "/workspace/scratch/project-owner-credential-http-verification/static-rev1/review.md",
+      "sha256": "57c26bc185232d7904f2f50772515eacdd8e2ee73e6dc79ac3c36eb78b17eae0"
+    },
+    "previous_inputs_sha256": "8efd22ca4201be434764b4ff7d5a67f9b06ea0769ef31f8b4ac9d357bcd03add",
+    "diff": {
+      "path": "/workspace/scratch/project-model-credentials-http-spec/rev1-to-rev2.diff",
+      "sha256": "69bd09cae893c2e2f9aed7238a0a75dbf93f724b5c86984cd7491d0a3c0970d0"
+    },
+    "scope_unchanged": true,
+    "sections_1_2_3_4_6_7_byte_identical": true,
+    "previous_48_source_entries_unchanged": true,
+    "only_additional_source": "internal/central/httpapi/response_writer.go",
+    "verification": "STATIC author checks only; no Go/resources/Git"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "status": "COMPLETE_BOUNDED_SPEC_STATIC_PASS_BY_VERSION_COMBINATION",
+  "draft": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/draft-rev2.md",
+    "sha256": "30e7a3f3180e548abddec54564ee97e7373ef5c47a1f4cbc119f2bd55812e4b3"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/inputs-rev2.json",
+    "sha256": "7fdc93c8ed79605fdec6f020fe8c0afc18a6268ce70a94bf1be815dbf54f7ab7"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/rev1-to-rev2.diff",
+    "sha256": "69bd09cae893c2e2f9aed7238a0a75dbf93f724b5c86984cd7491d0a3c0970d0"
+  },
+  "prior_full_review": {
+    "path": "/workspace/scratch/project-owner-credential-http-verification/static-rev1/result.json",
+    "sha256": "28c9e72a7e5e908b967dbc255d20a06c9d283df8e1c46afd6f80f7f3f9e7843f"
+  },
+  "closed_finding": "CRD-STATIC-01",
+  "checks": {
+    "only_header_sections5_8_changed": true,
+    "unchanged_technical_sections": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7
+    ],
+    "original_48_source_entries_identical": true,
+    "all49_snapshot_hashes_match": true,
+    "new_fixed_response_writer_matches_accepted_closure": true,
+    "scope_same_22_technical_plus_deferred_README": true,
+    "utf8_lf_no_trailing_whitespace": true
+  },
+  "finding_closure": [
+    "independent safe-call recover for both deadline setters in start/callback/abort/reset; continue remaining cleanup and do not format panic values",
+    "owned Close local panic-to-error, once-only ownership, continue actual callback stop/join; no successful keepalive claim after reset failure",
+    "business writer retains original tracked/Unwrap chain and committed/code semantics, controller capability adapter cannot obscure stateOf",
+    "exact lifecycle syscall allowlist; no network/all or read/write/send/recv buffers and no post-hoc redaction substitute",
+    "controlled matrix includes all panic sites, remaining cleanup and real callback wait; formal tracked writer code+second-write test; argv/raw trace review"
+  ],
+  "limits": [
+    "specification acceptance only; no product/Go/native/PG result or implementation permission",
+    "Model Owner read product must be fully accepted and shared roots explicitly handed over before new implementation/common graph",
+    "no source/product/Git mutation or resource execution; only own scratch"
+  ],
+  "old_original_failure_and_review_retained": true
+}

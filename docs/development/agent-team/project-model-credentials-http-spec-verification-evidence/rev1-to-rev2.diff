@@ -1,0 +1,42 @@
+--- draft-rev1.md
++++ draft-rev2.md
+@@ -1,6 +1,6 @@
+ # D09 Project Owner 模型凭据管理 HTTP 与真实根绑定
+ 
+-修订 rev1，2026-10-07。**scratch 工程规格候选，待完整独立 STATIC；没有正式卡/产品/Go/native/PG授权。** 推荐已获 root 采纳，本文件尚未接受。固定产品为 `61bed1fcf47c362f420f6bb45158b227af581acf`（Update 完整19），归档 `c839f965`。固定来源见同目录 `inputs-rev1.json`；当前活动 Project Model Owner read #1–13 不作已验输入。实施前须其完整接受并正式交接共享根，届时更新实际输入，不能直接按旧根覆盖。
++修订 rev2，2026-10-07。**scratch 工程规格候选，待完整独立 STATIC；没有正式卡/产品/Go/native/PG授权。** 推荐已获 root 采纳，本文件尚未接受。固定产品为 `61bed1fcf47c362f420f6bb45158b227af581acf`（Update 完整19），归档 `c839f965`。固定来源见同目录 `inputs-rev2.json`；当前活动 Project Model Owner read #1–13 不作已验输入。实施前须其完整接受并正式交接共享根，届时更新实际输入，不能直接按旧根覆盖。
+ 
+ ## 1. 完整结果、已有能力与范围
+ 
+@@ -82,11 +82,13 @@
+ 
+ 材料仅在本次私有DTO/同步SecretMaterial中短暂存在。可复用既有安全 `httpCredentialValue`，但所有新增含value DTO及错误/Format/slog均须审防泄漏。完整strict DTO成功后才创建owned bytes/SecretMaterial；owned临时bytes clear，SecretMaterial在所有返回/panic路径Destroy且恰当同步；不保留request/value到闭包后台/响应/日志。Go JSON decoder、string及runtime内部副本不能声称可可靠擦除；不改公共DecodeJSON或SecretMaterial来制造此承诺。
+ 
+-不得持久化材料请求raw、Cookie、CSRF token、密码、DSN、加密key或Material hash到公开证据。最大材料/异义测试仅公开场景标签、长度、计数/布尔及安全响应；敏感fixture/handoff如必须落盘仅私有0600且cleanup删除。native/proxy trace只捕PID/starttime、socket建立/关闭、长度/阶段/锁摘要；禁止read/write/send/recv的buffer内容、raw PostgreSQL帧进入raw证据。真实schema只导出安全response原byte，安全source包含method/path/status/真实Content-Type/length/target/run/candidate/schemahash，不含请求头或body。
++不得持久化材料请求raw、Cookie、CSRF token、密码、DSN、加密key或Material hash到公开证据。最大材料/异义测试仅公开场景标签、长度、计数/布尔及安全响应；敏感fixture/handoff如必须落盘仅私有0600且cleanup删除。native/proxy trace只捕PID/starttime、socket建立/关闭、长度/阶段/锁摘要；syscall trace固定为安全闭集 `socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close`，只记录端点/FD和返回状态。禁止 `%network`、`all`、read/write/send/recv及其向量/消息变体等会记录buffer的调用，不以 `-s 0` 或事后脱敏代替采集前闭集；raw PostgreSQL帧不得进入证据。真实schema只导出安全response原byte，安全source包含method/path/status/真实Content-Type/length/target/run/candidate/schemahash，不含请求头或body。
+ 
+ 从handler入口至授权、读body、所有顺序lookup/metadata/Execute、校验编码与Write/Flush采用同一最短ctx：三写 **30s**，GET/HEAD及显式lookup **2s**，更早caller优先；内部Metadata原3s不得覆盖更早HTTP期限。写前置查证共享写的30s，不另嵌2s窗口改变流程。此为发布/I/O预算，原Store事务回收及Body.Close/AfterFunc callback都需同步实际收尾，不宣称整个handler必在30s/2s返回。
+ 
+-在任何认证/业务调用/写头前，有限解析writer的SetReadDeadline/SetWriteDeadline/Flush能力；逐能力保持ResponseController的首接收者/FlushError优先Flusher再Unwrap语义，最大64层、typed nil/环/无能力拒绝，不先Flush提交200。先建安全adapter+budget并安装finish defer，再解析，Unwrap panic也走原Body.Close/abort；拒绝后finish不能重新陷入Unwrap环。能力不可用或deadline设置失败时业务0/发布0，仍拥有原body同步Close。不得改已接受Ownerread/Update/本轮read helper。
++在任何认证/业务调用/写头前，有限解析writer的SetReadDeadline/SetWriteDeadline/Flush能力；逐能力保持ResponseController的首接收者/FlushError优先Flusher再Unwrap语义，最大64层、typed nil/环/无能力拒绝，不先Flush提交200。先建安全adapter+budget并安装finish defer，再解析，Unwrap panic也走原Body.Close/abort；拒绝后finish不能重新陷入Unwrap环。能力不可用或deadline设置失败时业务0/发布0，仍拥有原body同步Close。业务writer必须保留 `httpapi.stateOf` 的透明链：认证、DecodeJSON、WriteProblem及业务Write/Header仍走原writer或正确Unwrap至原tracked writer的包装；能力adapter仅供ResponseController使用，若也参与业务链则必须正确Unwrap。不得因屏蔽stateOf丢失code记录或已提交防二写，不能绕过原tracked writer直接发布。不得改已接受Ownerread/Update/本轮read helper。
++
++start、AfterFunc取消callback、finish的abort/正常reset每次调用SetReadDeadline或SetWriteDeadline，都必须各自以私有safe-call独立recover为固定安全error；不得格式化、记录或返回panic值。任一setter报错/panic仍继续另一setter和其余必要收尾；start失败禁止认证/业务，callback失败不能逃逸goroutine且必须并发安全记录失败并触发实际完成通知。finish须继续原Body.Close与已启动callback的实际stop/wait，最后才统一ErrAbortHandler；不得让abort/reset重复触发的panic跳过Close或join。owned Body.Close同样局部recover为安全error，在调用前标记已调用，至多调用一次，panic结束不能跳过后续callback join，也不能伪报正常完成。正常reset仅在callback已停止或实际完成后执行，任一reset失败保留失败并abort，不能宣称连接可安全keepalive。
+ 
+ 正常与取消分别实际停止/等待AfterFunc，原Body.Close恰一次，保持原body所有权不重复关闭MaxBytesReader wrapper；正常路径写前先完成Close、再次核ctx，成功后Flush并仅在实际收尾后复位deadline供keepalive。过发布期、write/flush/close/callback/panic失败用ErrAbortHandler终止；禁止迟到200、Problem或部分JSON尾缀，不起无法join的goroutine。HEAD、错误响应同样受deadline与收尾，错误HEAD无body。测试环wrapper只证明新handler接缝，不把旧httpapi.stateOf宣称任意环安全。
+ 
+@@ -145,13 +147,13 @@
+ | 查证真实锁/终局 | 精确Command/User/Project SH同Tx、当前Session/Owner在读取receipt前；缺锁/typednil/crossStore、不合法receipt/当前权限变化拒绝；读事务present/absent Unknown/NotCommitted/提交后取消零observation；原writer EX阻塞时不能假absent。 |
+ | Audit/原子引用 | 真Secret→Project gate→Secret checker完整witness；修改合法Entry actor/session/cause/changed_fields或错误Tx到达真实validator被拒，canonical/receipt/Audit一起回滚；typed constructor拒绝不能替代validator证据；引用/活lease删除拒绝与释放后删除、旋转原语义保持。nonce准备预留单独记，不假称失败全部表无变化。 |
+ | 物理Unknown | Prepare阶段与最终Apply阶段区分；最终精确Project/command事实和唯一backend锁后arm，COMMIT已server terminal丢ACK、ROLLBACK、held-writer pending分别核。HTTPUnknown只单次Execute、零候选；另一个原keylookup等待真实writer终局并重新授权，撤权无泄漏。无原帧/凭据落证据。 |
+-| native/关闭 | keepalive成功deadline复位；自然写30s/显式lookup2s及更早parent覆盖慢body/写/Flush；缺能力业务0、Unwrap panic/环有界；Body.Close与callback阻塞时尚未完成，放行实际join；默认root在途writer/取消正常及合法耗尽shutdown，不用idle stop替代。 |
++| native/关闭 | keepalive成功deadline复位；自然写30s/显式lookup2s及更早parent覆盖慢body/写/Flush；缺能力业务0、Unwrap panic/环有界；受控逐次注入start/callback/abort/reset的read/write setter panic，以及owned Close panic，证明另一setter、Close至多一次与callback实际join仍执行，无panic逃逸/晚写；callback或Close阻塞时不得先报完成，放行实际join。用正式tracked writer核Problem code记录及committed后二写被拒，能力adapter不遮蔽stateOf；默认root在途writer/取消正常及合法耗尽shutdown，不用idle stop替代。 |
+ | 默认root兼容 | 不注入handler/Store成功假口；真实app.Run全部六operation及当前read五GET/HEAD、原Owner GET/PATCH/Usage/System凭据/Summary兼容，安全模型配置只消费CredentialRef；Secret Audit有且仅一次，重放不增；无新Project/ModelEvent、ready503与未绑定保持。 |
+ 
+ 新PG顶层固定5个：`TestModelProjectCredentialHTTPCRUDAndHistory`、`TestModelProjectCredentialHTTPCurrentAuthorityAndFacts`、`TestModelProjectCredentialHTTPPassiveLookup`、`TestModelProjectCredentialHTTPUnknown`、`TestModelProjectCredentialHTTPDefaultRoot`。native精确3个：`TestModelProjectCredentialNativeKeepalive`、`TestModelProjectCredentialNativeBodyDeadline`、`TestModelProjectCredentialNativeWriteAndClose`；纯自然预算代表显式Pure命名并事先精确list，不在普通短组意外超过45s。
+ 
+ 旧必要PG集合固定：`TestProjectSecretAuditBindingCRUD`、`TestProjectSecretAuditBindingCurrentAuthority`、`TestProjectSecretAuditBindingFactRejection`、`TestProjectSecretAuditBindingUnknown`、`TestProjectSecretMetadataReadCompatibility`（tests/project）；`TestModelSystemHTTPCredentialWritesAndBinding`、`TestModelSystemHTTPPassiveCredentialLookup`、`TestModelSystemHTTPPassiveLookupLocksAndFailures`、`TestModelSystemHTTPUnknownAndHistoricalResults`、`TestModelProjectSecretReferencesAndAtomicEffects`、`TestModelProjectOwnerUpdateHTTPRootBinding`、`TestModelMeetingSummarySettingsRoot`、`TestModelProjectUsageHTTPRootBinding`（tests/model）。当前read产品接受后另固定其默认root精确top，未接受前不引用活动helper/断言；旧System/Project库同源证据可复用适用未变场景，不把SKIP/no-tests/编译当行为通过。
+ 
+-native每轮≥2GiB，test45s/干预55s和额外退役分开，生命周期trace不记录buffer；真实TCP含TIME_WAIT/PID-starttime双空，actualwait。PG每轮≥5GiB，新top120s**含Cleanup**、包6m、race/count1/p1，实时-v watchdog实际逐top计时；完整原fixture链、7exact资源/全Mount/nonce，实际direct/adopted wait及owned/runtime双清。启动前新环境baseline/固定工具与两local镜像digest检查，缺失不默拉最新。任何失败先实际清理、停后继、保原raw，不自动重跑；root明确授每个独占窗，预算不足先分轮。daemon/PID1 Z按实际集合差单列非owned未wait，不称全机清零。
++native每轮≥2GiB，test45s/干预55s和额外退役分开，生命周期trace命令须逐项冻结§5安全syscall闭集，独审核原argv及实际raw不含buffer、材料或协议帧，不使用 `%network`/`all`；真实TCP含TIME_WAIT/PID-starttime双空，actualwait。PG每轮≥5GiB，新top120s**含Cleanup**、包6m、race/count1/p1，实时-v watchdog实际逐top计时；完整原fixture链、7exact资源/全Mount/nonce，实际direct/adopted wait及owned/runtime双清。启动前新环境baseline/固定工具与两local镜像digest检查，缺失不默拉最新。任何失败先实际清理、停后继、保原raw，不自动重跑；root明确授每个独占窗，预算不足先分轮。daemon/PID1 Z按实际集合差单列非owned未wait，不称全机清零。
+ 
+ 独立验收先核完整停写候选，A至少重组当前权限/archived双语义、Project lookup锁/原子Audit及真实Unknown代表；B默认root、真实安全response原byte+Draft202012/FormatChecker与材料日志负证据、在途关闭。普通格式/schema只读检查不计Go/资源通过。技术22完整独立接受后才另授README，完整23由root最终采纳/提交；本scratch无产品完成声明。

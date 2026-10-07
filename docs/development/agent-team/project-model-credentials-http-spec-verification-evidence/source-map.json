@@ -1,0 +1,224 @@
+{
+  "description": "Generated archive source mapping, not original execution output",
+  "spec_commit": "9a2a9a1a1d27d79fe00204147e58d5b66000ca35",
+  "remote_status_source": "root reports specification committed, pushed and remote-confirmed; archive worker executed no Git",
+  "accepted_product_baseline": "61bed1fcf47c362f420f6bb45158b227af581acf",
+  "baseline_archive": "c839f965e61821cec5e6d65fd16d2b0e4a7e24db",
+  "accepted_card": {
+    "path": "docs/development/work-items/d09-project-model-credentials-http.md",
+    "sha256": "2f0aa708e1f9ccbe5bf03a637ed7fc32f131d19633bb6b2f8d82c99c52186444",
+    "technical_sections_1_through_8_sha256": "cd6ac3e4b8378452520d2cf4daca9d9882395258c0123e36392478d380cb702b",
+    "copied": false,
+    "reuse": "accepted specification commit; formal placement diff retained"
+  },
+  "scope": "22 technical paths (9 existing,13 new) plus separately authorized final README; only specification STATIC acceptance, no product/Go/native/PG or implementation authorization",
+  "originals": [
+    {
+      "source": "/workspace/scratch/project-model-credentials-http-spec/draft-rev1.md",
+      "archive": "author-draft-rev1.md",
+      "sha256": "cbf07235af92b97f71817d39b3e7288b01dd1836c0f6e71eea47d0d6dceb10ff",
+      "bytes": 27833,
+      "purpose": "Original rev1 candidate; sole engineering finding remains"
+    },
+    {
+      "source": "/workspace/scratch/project-model-credentials-http-spec/draft-rev2.md",
+      "archive": "author-draft-rev2.md",
+      "sha256": "30e7a3f3180e548abddec54564ee97e7373ef5c47a1f4cbc119f2bd55812e4b3",
+      "bytes": 29803,
+      "purpose": "Reviewed rev2 candidate before formal administrative placement"
+    },
+    {
+      "source": "/workspace/scratch/project-model-credentials-http-spec/inputs-rev2.json",
+      "archive": "author-inputs-rev2.json",
+      "sha256": "7fdc93c8ed79605fdec6f020fe8c0afc18a6268ce70a94bf1be815dbf54f7ab7",
+      "bytes": 25569,
+      "purpose": "Original 49-entry fixed source mapping; no mapped source-tree copy"
+    },
+    {
+      "source": "/workspace/scratch/project-model-credentials-http-spec/rev1-to-rev2.diff",
+      "archive": "rev1-to-rev2.diff",
+      "sha256": "69bd09cae893c2e2f9aed7238a0a75dbf93f724b5c86984cd7491d0a3c0970d0",
+      "bytes": 12277,
+      "purpose": "Original bounded correction closing CRD-STATIC-01"
+    },
+    {
+      "source": "/workspace/scratch/project-model-credentials-http-spec/formal-rev2.delta.diff",
+      "archive": "formal-rev2.delta.diff",
+      "sha256": "5261f7d4118c79c9ec9579e668656065e6c285302a9d9385d445b521aaa3dc48",
+      "bytes": 2277,
+      "purpose": "Original formal placement/header-only delta"
+    },
+    {
+      "source": "/workspace/scratch/project-model-credentials-http-spec/formal-rev2.freeze.json",
+      "archive": "author-formal-rev2-freeze.json",
+      "sha256": "7e068c22487288f79b806a1ade54f56943399bac137fe7a35665cb6e061fd2cc",
+      "bytes": 1364,
+      "purpose": "Formal card/technical body hashes and scope freeze"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/spec-prep01/checkpoints.md",
+      "archive": "independent-prep-checkpoints.md",
+      "sha256": "69f6205f349f1f6536da3614b905165207c7f0f9e5ca4bc8cf69afccf7f10073",
+      "bytes": 5264,
+      "purpose": "Historical independent preparation; not full review"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/spec-prep01/inputs.json",
+      "archive": "independent-prep-inputs.json",
+      "sha256": "5c94d373203361559da6aa92283b31763c9f2810684ff757079a9f4d6aa13095",
+      "bytes": 4440,
+      "purpose": "Original preparation inputs and fixed accepted-source fingerprints"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/spec-prep01/result.json",
+      "archive": "independent-prep-result.json",
+      "sha256": "c55af150e982061662f4c48a9d83676eaef743423afa396af7ecec58ec19de82",
+      "bytes": 538,
+      "purpose": "Original preparation-only result"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/static-rev1/review.md",
+      "archive": "independent-rev1-review.md",
+      "sha256": "57c26bc185232d7904f2f50772515eacdd8e2ee73e6dc79ac3c36eb78b17eae0",
+      "bytes": 4005,
+      "purpose": "Complete original review with CRD-STATIC-01 pending"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/static-rev1/result.json",
+      "archive": "independent-rev1-result.json",
+      "sha256": "28c9e72a7e5e908b967dbc255d20a06c9d283df8e1c46afd6f80f7f3f9e7843f",
+      "bytes": 568,
+      "purpose": "Original rev1 hold; no product acceptance"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/static-rev1/checks.json",
+      "archive": "independent-rev1-checks.json",
+      "sha256": "c48f1208bf191d43fe4d1a057a3c1c069f65ae190adc53334f7ebf8eecbb6492",
+      "bytes": 4071,
+      "purpose": "Original 48-source and scope/static checks"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/static-rev2/result.json",
+      "archive": "independent-rev2-result.json",
+      "sha256": "5ff9bc9b87f241e5a55e6436180be8bc37e7d0a2e890efd4ef4ab20100927b23",
+      "bytes": 2437,
+      "purpose": "Complete bounded STATIC PASS by version combination, finding closed"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-credential-http-verification/formal-rev2/result.json",
+      "archive": "independent-formal-rev2-result.json",
+      "sha256": "7e1d5b948134a746cc127ce6f0e6be06b977e8ed4dc9ed08968bb9f98b743f27",
+      "bytes": 2072,
+      "purpose": "Final formal placement STATIC PASS with unchanged technical body"
+    }
+  ],
+  "fingerprint_only": [
+    {
+      "source": "/workspace/scratch/project-model-credentials-http-spec/inputs-rev1.json",
+      "sha256": "8efd22ca4201be434764b4ff7d5a67f9b06ea0769ef31f8b4ac9d357bcd03add",
+      "bytes": 24258,
+      "reason": "Historical 48-entry predecessor; every original source entry is byte-for-byte equivalent as a JSON value in archived inputs-rev2. The original predecessor file is not copied."
+    },
+    {
+      "source": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/closure.json",
+      "sha256": "899f117bb49142bcc5494723e8008d7a7279a7f84b763d2297638ea6482641de",
+      "reason": "Accepted Update closure fingerprint bound by original inputs. Large closure not copied or re-read; reuse baseline product/archive."
+    }
+  ],
+  "mapped_sources": {
+    "archived_mapping": "author-inputs-rev2.json",
+    "count": 49,
+    "old_entries_unchanged": 48,
+    "added_source": "internal/central/httpapi/response_writer.go",
+    "fixed_snapshot_hashes_checked": 49,
+    "source_tree_copied": false
+  },
+  "whitespace_exceptions": [
+    {
+      "archive": "rev1-to-rev2.diff",
+      "issues": [
+        {
+          "line": 5,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 8,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 10,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 12,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 14,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 17,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 19,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 24,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 26,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 34,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 36,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 38,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 41,
+          "type": "trailing whitespace"
+        }
+      ],
+      "reason": "Original unified-diff context whitespace; original bytes and hashes retained, no ignore rules"
+    },
+    {
+      "archive": "formal-rev2.delta.diff",
+      "issues": [
+        {
+          "line": 5,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 12,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 14,
+          "type": "trailing whitespace"
+        }
+      ],
+      "reason": "Original unified-diff context whitespace; original bytes and hashes retained, no ignore rules"
+    }
+  ],
+  "original_reference_semantics": "Original Markdown/JSON references retain original source locations; not rewritten as archive links. New report links checked separately.",
+  "execution_limits": "Only metadata/hash/byte/JSON/UTF8/Markdown/diff checks. No original scripts, Git, Go, product, network or resource execution. No separate command/raw outputs were supplied in these source directories; none fabricated.",
+  "not_copied": [
+    "49 mapped source snapshots",
+    "accepted product source tree",
+    "large closure/graphs",
+    "previous archive trees",
+    "cache/binary/private runtime"
+  ],
+  "implementation_gate": "Wait for Model Owner read complete product acceptance and root explicit handover of account.go/project_usage.go/security.go and related shared tests; then freeze actual combined inputs. Active read is not accepted dependency."
+}

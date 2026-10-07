@@ -1,0 +1,83 @@
+{
+  "status": "REV1_FULL_STATIC_COMPLETE_PENDING_CRD_STATIC_01_CLARIFICATION",
+  "draft": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/draft-rev1.md",
+    "sha256": "cbf07235af92b97f71817d39b3e7288b01dd1836c0f6e71eea47d0d6dceb10ff"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-model-credentials-http-spec/inputs-rev1.json",
+    "sha256": "8efd22ca4201be434764b4ff7d5a67f9b06ea0769ef31f8b4ac9d357bcd03add"
+  },
+  "all_48_snapshot_hashes_match": true,
+  "additional_accepted_fixed_middleware": {
+    "middleware.go": {
+      "path": "/workspace/agenteam/internal/central/httpapi/middleware.go",
+      "sha256": "3db915b7be11aa978347a434bb22a2c6ae225022b65dac9ca2e1349e3008491c"
+    },
+    "response_writer.go": {
+      "path": "/workspace/agenteam/internal/central/httpapi/response_writer.go",
+      "sha256": "360d0992159938812cfdad706a4b8b53de1e7673859462100aad4bd44bd361bc"
+    }
+  },
+  "source_scope_count": 23,
+  "technical_existing": 9,
+  "technical_new": 13,
+  "readme_deferred": true,
+  "exact_old_13_top_sources": {
+    "TestModelMeetingSummarySettingsRoot": {
+      "path": "/workspace/agenteam/tests/model/meeting_summary_settings_root_test.go",
+      "sha256": "01941516beb59dfa3089b30f53bf18f992ada927869577724755f4f770eb6dd6"
+    },
+    "TestModelProjectSecretReferencesAndAtomicEffects": {
+      "path": "/workspace/agenteam/tests/model/project_configuration_integration_test.go",
+      "sha256": "2f632e27ee339346983ad8872706bc96632be7c7d777f9c4b19693fa6a13c1b6"
+    },
+    "TestModelProjectUsageHTTPRootBinding": {
+      "path": "/workspace/agenteam/tests/model/project_usage_http_root_test.go",
+      "sha256": "1d63defd90cbf1637b290adf1eba9b3e2c9c449453d63d17b1204e6ae3f67f8c"
+    },
+    "TestModelSystemHTTPCredentialWritesAndBinding": {
+      "path": "/workspace/agenteam/tests/model/system_http_credentials_test.go",
+      "sha256": "aa6802bf3caedf6aa168c516e7d855370a6a95b6818163e100b45f894c2db1bb"
+    },
+    "TestModelSystemHTTPPassiveCredentialLookup": {
+      "path": "/workspace/agenteam/tests/model/system_http_credentials_test.go",
+      "sha256": "aa6802bf3caedf6aa168c516e7d855370a6a95b6818163e100b45f894c2db1bb"
+    },
+    "TestModelSystemHTTPPassiveLookupLocksAndFailures": {
+      "path": "/workspace/agenteam/tests/model/system_http_credentials_test.go",
+      "sha256": "aa6802bf3caedf6aa168c516e7d855370a6a95b6818163e100b45f894c2db1bb"
+    },
+    "TestModelSystemHTTPUnknownAndHistoricalResults": {
+      "path": "/workspace/agenteam/tests/model/system_http_credentials_test.go",
+      "sha256": "aa6802bf3caedf6aa168c516e7d855370a6a95b6818163e100b45f894c2db1bb"
+    },
+    "TestProjectSecretAuditBindingCRUD": {
+      "path": "/workspace/agenteam/tests/project/b03_secret_audit_test.go",
+      "sha256": "bf98816eb342ecd079238b81b8344109531416d38b91d38bb20aee1337389c51"
+    },
+    "TestProjectSecretAuditBindingCurrentAuthority": {
+      "path": "/workspace/agenteam/tests/project/b03_secret_audit_test.go",
+      "sha256": "bf98816eb342ecd079238b81b8344109531416d38b91d38bb20aee1337389c51"
+    },
+    "TestProjectSecretAuditBindingFactRejection": {
+      "path": "/workspace/agenteam/tests/project/b03_secret_audit_test.go",
+      "sha256": "bf98816eb342ecd079238b81b8344109531416d38b91d38bb20aee1337389c51"
+    },
+    "TestProjectSecretAuditBindingUnknown": {
+      "path": "/workspace/agenteam/tests/project/b03_secret_audit_test.go",
+      "sha256": "bf98816eb342ecd079238b81b8344109531416d38b91d38bb20aee1337389c51"
+    },
+    "TestProjectSecretMetadataReadCompatibility": {
+      "path": "/workspace/agenteam/tests/project/secret_metadata_read_test.go",
+      "sha256": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8"
+    },
+    "TestModelProjectOwnerUpdateHTTPRootBinding": {
+      "path": "/workspace/agenteam/tests/model/project_owner_update_http_root_test.go",
+      "sha256": "352cfa5d35c39109fd0759cc8879ebe65e53df2a686e564b5c5fa9fd388b0103"
+    }
+  },
+  "no_active_read_source_consumed": true,
+  "no_go_resource_network_or_git": true,
+  "dynamic_result": null
+}

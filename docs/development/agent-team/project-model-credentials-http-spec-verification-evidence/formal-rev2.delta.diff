@@ -1,0 +1,14 @@
+--- scratch/draft-rev2.md
++++ docs/development/work-items/d09-project-model-credentials-http.md
+@@ -1,6 +1,10 @@
+ # D09 Project Owner 模型凭据管理 HTTP 与真实根绑定
+ 
+-修订 rev2，2026-10-07。**scratch 工程规格候选，待完整独立 STATIC；没有正式卡/产品/Go/native/PG授权。** 推荐已获 root 采纳，本文件尚未接受。固定产品为 `61bed1fcf47c362f420f6bb45158b227af581acf`（Update 完整19），归档 `c839f965`。固定来源见同目录 `inputs-rev2.json`；当前活动 Project Model Owner read #1–13 不作已验输入。实施前须其完整接受并正式交接共享根，届时更新实际输入，不能直接按旧根覆盖。
++修订 rev2，2026-10-07。**完整限定独立 STATIC PASS（rev1 全审＋rev2 差量），root 已采纳；尚未授权产品实施、Go、native 或 PG。** 当前仅正式规格归位。实施须先等 [Project Model Owner read](d09-project-model-owner-read-http.md) 完整产品接受，再由 root 正式移交 `account.go`、`project_usage.go`、`security.go` 及相关共享测试，重新冻结实际输入；当前活动 read #1–13 不作已验依赖。
++
++固定已接受产品基线为 [Owner Update 完整19](../agent-team/project-owner-update-http-verification.md) `61bed1fcf47c362f420f6bb45158b227af581acf`，归档 `c839f965`。下列 §1–8 保持已独审 rev2 技术条款原字节；其中候选白名单和实施前门槛不构成业务执行授权，不得用旧根覆盖后继已接受增量。
++
++固定证据：49 项来源清单 `inputs-rev2.json` SHA-256 `7fdc93c8ed79605fdec6f020fe8c0afc18a6268ce70a94bf1be815dbf54f7ab7`；被审技术稿 SHA-256 `30e7a3f3180e548abddec54564ee97e7373ef5c47a1f4cbc119f2bd55812e4b3`；独立完整版本组合结果 SHA-256 `5ff9bc9b87f241e5a55e6436180be8bc37e7d0a2e890efd4ef4ab20100927b23`，关闭唯一工程条款 CRD-STATIC-01。清单原件定位 `/workspace/scratch/project-model-credentials-http-spec/inputs-rev2.json`，独立结果定位 `/workspace/scratch/project-owner-credential-http-verification/static-rev2/result.json`；它们是按上述指纹冻结的证据来源，不是本卡相邻文件或产品动态验收。后续持久归档由 root 另行安排。
+ 
+ ## 1. 完整结果、已有能力与范围
+ 
