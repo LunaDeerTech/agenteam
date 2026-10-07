@@ -1,0 +1,107 @@
+{
+  "status": "BOUNDED_18_TECHNICAL_PATHS_PASS",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-update-http-author/candidate06/manifest.json",
+    "sha256": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+  },
+  "scope": "Accepted Owner name/description PATCH + update-only lookup + real default root lifecycle; not all D08/D09",
+  "evidence": {
+    "review": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/final01/review.md",
+      "sha256": "22c484402a0ea72adf08a953f4ad0ec98f17e05db964086dc16380c5fa235ed5"
+    },
+    "sources": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/final01/sources.json",
+      "sha256": "e2ebd8d3b166e9f8b37e4554f1c007a9c8e39d7d5667035f78194b4581f9ad9f"
+    },
+    "pg_rounds": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/final01/pg-rounds.json",
+      "sha256": "0f9dbcd573f524945cee151596b43b2a46e9422a7d160891d865ef726bb06612"
+    },
+    "schema_actual_bytes": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/schema01/result.json",
+      "sha256": "d66f6e851616557d4b82ae1b4b26c319ee8411831515ec14433a5cda42acac23"
+    },
+    "independent_http": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/http01/result.json",
+      "sha256": "50dc71dd59e59bd50be795ea97d47b03ee6d2962fcf7a56b9bf17ad578703af4"
+    },
+    "http_review": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/http01/review.md",
+      "sha256": "fbe6eb43f420dc5b2d4569279a9b51c1671f53a69ccc606e1040eb0cd0c7fe3a"
+    },
+    "static04": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/static02/review.md",
+      "sha256": "9d062be04126ab34df8e08c8aea50e3e10674a634c002ae905acc570066afb4b"
+    },
+    "u04_initial": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/static02/U04-addendum.md",
+      "sha256": "59b36556fae56bd7289a6491b6f7b8e876f54585b02ef67ae9b913f2f807062d"
+    },
+    "u04_panic": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/static02/U04-candidate05.md",
+      "sha256": "115009e889a8a4d8cf10720014d67aeb07791c08b8ae48951d2eac2c76d070ac"
+    },
+    "author_final": {
+      "path": "/workspace/scratch/project-owner-update-http-author/technical-handoff06.json",
+      "sha256": "2447aa61d5a8b02886109b0950b7d9ea7f33e0a62e6d081839c138afb32e815e"
+    },
+    "author_report": {
+      "path": "/workspace/scratch/project-owner-update-http-author/author-final06.md",
+      "sha256": "e93f91e4d1686f46c47e8cb1f6d2e111a99d7e22b5ecfa8ca43063062796b305"
+    },
+    "author_native_verified": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/author-evidence01/native.json",
+      "sha256": "6620a62f8a98a444d392c1b9a159e1a2dcb2249a9671c38e80fcc445e4482ccd"
+    },
+    "author_new1_3_verified": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/author-evidence01/pg-new1-3.json",
+      "sha256": "bbd5b3dff733bf3072299b21a3daf00e1a65d195405339af902961b2614ab859"
+    },
+    "author_new4_old9_verified": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/author-evidence01/pg-new4-old9.json",
+      "sha256": "cb785a2805b0db90223db88f1ecea792298bca4b4a5173d59316397374046f98"
+    },
+    "private_initial_proposal": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/probes02/proposal.json",
+      "sha256": "0d31f0c87a2a481a5d852e45c968b047b4e4b14982dfca4966fb8b18b5218396"
+    },
+    "private_sql_fix_proposal": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/probes03/proposal.json",
+      "sha256": "3346b1d6f5acf66ba40f2dc85869109e87e8c0642b41eea259c600d7fe97ab28"
+    },
+    "private_sql_attribution": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/probes03/attribution.json",
+      "sha256": "8582f1401ac367b38016f6e8b6a96bceb1c2a21267aeae9e788feb5942eb11a0"
+    },
+    "first_b_failure": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/result.json",
+      "sha256": "ff6a1f94444819da8d43266b33aa812d8a92468d6d4ced54112ee06421e8d327"
+    },
+    "independent_A": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/result.json",
+      "sha256": "9067270eddea3eb6a0bfa2db406e76bf92b3f86529500cf11b7e751156f2c0c0"
+    },
+    "independent_B": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/result.json",
+      "sha256": "f443ef3f5305be6cadb862b98c9fddf8203d7f7327b1ab58a27d5b8ae7f5eff9"
+    }
+  },
+  "version_mapping": {
+    "production_final": "candidate06; prior accepted unaffected natural tests combined with06 changed tests/native",
+    "independent_http": "06+http01 race PASS",
+    "independent_A": "candidate06+probes02 A01 PASS reused; probes03 A body unchanged",
+    "independent_B": "candidate06+probes03 B02 PASS; B01 auxiliary column typo FAIL retained",
+    "schema": "same B02 original bytes, prior frozen parser, two actual0 results"
+  },
+  "pg_rounds": 8,
+  "pg_original_failures": 1,
+  "pg_exact_distinct_resources": 56,
+  "task_daemon_zombie_delta": 32,
+  "total_pid1_zombies_baseline": 217,
+  "total_pid1_zombies_final": 250,
+  "other_between_rounds": 1,
+  "resource_window_released": true,
+  "active_owned_commands_or_resources": false,
+  "readme19": "Not in this technical conclusion; frozen document receives separate narrow static addendum."
+}

@@ -1,0 +1,9 @@
+{
+  "scope": "Verifier invocation hash typo; no child Go process and no run directory created",
+  "command": "offline-run.py graph-plan.json 85e0cf7db5a5017ce9c309497b164dbcd74062ce7195db19a2ba6c33ffeb758be g01-race-http",
+  "actual_plan_sha256": "ffe0ce71dbbebf8fa24320d3a688a1c467cca3dfb4859a65c910d61bcd29ac6b",
+  "exec_command_exit": 1,
+  "error": "RuntimeError: bound input mismatch: /workspace/scratch/project-owner-update-http-verification/http01/graph-plan.json",
+  "run_directory_created": false,
+  "product_failure": false
+}

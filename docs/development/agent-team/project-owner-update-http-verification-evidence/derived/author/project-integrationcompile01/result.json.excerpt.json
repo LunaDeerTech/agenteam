@@ -1,0 +1,46 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/project-integrationcompile01/result.json",
+  "source_sha256": "4adf0e89fd4e5a83e041f87291e6558d7a6ad381b5cdd24913960a9b0526815c",
+  "source_bytes": 513702,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.9675334630010184,
+    "direct_child_pid": 647336,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 647336,
+        "ppid": 647333,
+        "pgid": 647336,
+        "state": "Z",
+        "starttime": "2430016"
+      },
+      {
+        "pid": 647359,
+        "ppid": 647336,
+        "pgid": 647336,
+        "state": "S",
+        "starttime": "2430036"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

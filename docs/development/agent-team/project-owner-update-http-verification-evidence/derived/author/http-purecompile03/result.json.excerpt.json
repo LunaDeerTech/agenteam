@@ -1,0 +1,67 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/http-purecompile03/result.json",
+  "source_sha256": "e60716b8f7b799dacb1464ab1e3bf0d8c019700f97032b7dfb307d7823b66f7c",
+  "source_bytes": 514082,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.101980545998231,
+    "direct_child_pid": 650889,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 650889,
+        "ppid": 650858,
+        "pgid": 650889,
+        "state": "Z",
+        "starttime": "2461680"
+      },
+      {
+        "pid": 650907,
+        "ppid": 650889,
+        "pgid": 650889,
+        "state": "R",
+        "starttime": "2461700"
+      },
+      {
+        "pid": 650912,
+        "ppid": 650889,
+        "pgid": 650889,
+        "state": "R",
+        "starttime": "2461762"
+      },
+      {
+        "pid": 650920,
+        "ppid": 650889,
+        "pgid": 650889,
+        "state": "S",
+        "starttime": "2461765"
+      },
+      {
+        "pid": 650928,
+        "ppid": 650889,
+        "pgid": 650889,
+        "state": "R",
+        "starttime": "2461830"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

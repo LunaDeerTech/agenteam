@@ -1,0 +1,70 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/driver.py",
+    "--name",
+    "input-only",
+    "--group",
+    "independent-a",
+    "--frozen",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/frozen.json",
+    "--check-input-only"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-update-http-verification/probes02/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes02/tmp",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "plan_sha256": "44e609597f927552c36769ff49e6608321ba888cf92310ae985aeeb68e2baa24",
+  "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "started_unix": 1791399523.6118755,
+  "subreaper": true,
+  "main_pid": 661261,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.9305587429989828,
+  "total_seconds": 1.4977844380009628,
+  "observed_processes": [
+    {
+      "pid": 661261,
+      "starttime": "2547544",
+      "ppid": 661202,
+      "pgrp": 661261,
+      "state": "R"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791399524.55177,
+      "remaining": []
+    },
+    {
+      "time": 1791399524.6556714,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "stdout_sha256": "397719e031fc509fa63b0ee3b321d7f5e4bcce9ae1b486b3b69742e2cd33a32a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

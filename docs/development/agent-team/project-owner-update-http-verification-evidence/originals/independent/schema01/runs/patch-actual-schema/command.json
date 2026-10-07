@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/validate_body.py",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/safe-http-evidence/patch.json",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/safe-http-evidence/patch-source.json",
+    "/workspace/agenteam/api/openapi",
+    "patch",
+    "independent-b02",
+    "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-update-http-verification/probes03/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-verification/schema01/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-verification/schema01/tmp",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "plan_sha256": "2d4e54edcf72097c7d43b421b2b9c3b00a8c1f1e2b550d5ed02275e46950f9e9",
+  "tool_before_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "started_unix": 1791400407.2239814,
+  "subreaper": true,
+  "main_pid": 727261
+}

@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 26294.277711901,
+      "top": "TestModelProjectOwnerUpdateIndependentRootAndHistory"
+    },
+    {
+      "event": "result",
+      "monotonic": 26299.037337198,
+      "observed_seconds": 4.7596252969997295,
+      "reported_seconds": 4.77,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerUpdateIndependentRootAndHistory"
+    }
+  ],
+  "expected": [
+    "TestModelProjectOwnerUpdateIndependentRootAndHistory"
+  ],
+  "failures": []
+}

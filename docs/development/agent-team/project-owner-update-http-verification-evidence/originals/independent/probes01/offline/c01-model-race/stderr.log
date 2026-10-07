@@ -1,0 +1,10 @@
+# github.com/LunaDeerTech/agenteam/tests/model_test [github.com/LunaDeerTech/agenteam/tests/model.test]
+../scratch/project-owner-update-http-verification/probes01/independent_update_test.go:332:52: not enough arguments in call to root.request
+	have (*testing.T, systemHTTPBrowser, string, string)
+	want (*testing.T, systemHTTPBrowser, string, string, any)
+../scratch/project-owner-update-http-verification/probes01/independent_update_test.go:355:41: not enough arguments in call to root.request
+	have (*testing.T, systemHTTPBrowser, string, string)
+	want (*testing.T, systemHTTPBrowser, string, string, any)
+../scratch/project-owner-update-http-verification/probes01/independent_update_test.go:356:41: not enough arguments in call to root.request
+	have (*testing.T, systemHTTPBrowser, string, string)
+	want (*testing.T, systemHTTPBrowser, string, string, any)

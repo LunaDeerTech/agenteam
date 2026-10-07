@@ -1,0 +1,93 @@
+{
+  "status": "AUTHOR_NATIVE_EVIDENCE_BOUNDED_ACCEPTABLE_FOR_VERSION_COMBINATION",
+  "source_index": {
+    "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/result-summary.json",
+    "sha256": "82b101cbf974e07aec790a9bd4f75134f49546fb92ae77b77d3f9fbbb83e732f"
+  },
+  "candidate06": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b",
+  "rounds": [
+    {
+      "mode": "keepalive",
+      "command": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/command.json",
+        "sha256": "443bf968ac18e5a21e3052047de7f779a3533ef906387d7366cf108bb77c230f"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/raw.log",
+        "sha256": "a7ac60e37ef182c89c35c7d5b9d89bc29d885e4514ae1a83c831d1fe83cf2258"
+      },
+      "trace": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/trace.raw",
+        "sha256": "31c937db43456519c016aacbb213293038d6505fc616294ec6b2f939d4277fa1"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/cleanup-double-zero.json",
+        "sha256": "0de5b3799475349498d71f67c404f3e62aa41091bfa5adce6318d6017f4dd13f"
+      },
+      "direct_wait_count": 1,
+      "adopted_wait_count": 1,
+      "each_returncode": 0,
+      "listeners": 1,
+      "top": 1,
+      "sub": 0
+    },
+    {
+      "mode": "slowbody",
+      "command": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/command.json",
+        "sha256": "f9e0257f58bb910535a0858d1d620bd10c44fcac09e0464c176dfd622b61b134"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/raw.log",
+        "sha256": "60e91061b732586195f5cabfbede474c3e7f1ffa4e18546f5ee0f37815716e63"
+      },
+      "trace": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/trace.raw",
+        "sha256": "c2ed90792eaf50a21e76aadb0fba34af4854cf04acdaf84304d7a51727ac1ae2"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/cleanup-double-zero.json",
+        "sha256": "99175e284fe805fb6697c81ee7a377e23d831881419e4b92170c8d3d3f07e795"
+      },
+      "direct_wait_count": 1,
+      "adopted_wait_count": 1,
+      "each_returncode": 0,
+      "listeners": 3,
+      "top": 1,
+      "sub": 3
+    },
+    {
+      "mode": "writeclose",
+      "command": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/command.json",
+        "sha256": "429f2e3636b4a757e38438cabe88fc650d7baa85ebd48e612225926d8d99b2a1"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/raw.log",
+        "sha256": "5e04b1515b2441a4b63ef46585e737ef6d7c314ebb98b45f2c4e7bb14f42f9d9"
+      },
+      "trace": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/trace.raw",
+        "sha256": "634e1a13b8fb8e967efd5ef572dc7848c6d6b4944e1028fe48f17a1bea3240b1"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/cleanup-double-zero.json",
+        "sha256": "a056f7a6ea666cb089b7e60a8f9893aed81a1a52ca97d821bd7fa21991387794"
+      },
+      "direct_wait_count": 1,
+      "adopted_wait_count": 1,
+      "each_returncode": 0,
+      "listeners": 4,
+      "top": 1,
+      "sub": 4
+    }
+  ],
+  "counts": {
+    "top": 3,
+    "sub": 7,
+    "listeners": 8,
+    "direct_waits": 3,
+    "adopted_waits": 3
+  },
+  "limits": "Read-only verification of original command/raw/trace hashes, exact results, waits and last two TCP/process empties including TIME_WAIT; no native rerun; not whole-machine cleanup. PG and independent A/B pending."
+}

@@ -1,6 +1,6 @@
 # D08 Project Owner 名称/描述更新、命令查证与默认根
 
-修订：rev1，2026-10-07，**完整限定独立 STATIC PASS，root 已采纳；尚未授权产品实施、Go 检查或资源执行**。本轮唯一仓库写入为本页；下列实施白名单不是业务、测试或资源授权。
+修订：rev1，2026-10-07，**完整19路径（18技术源及后端README末件）已独立有界PASS、root采纳；产品 `61bed1fcf47c362f420f6bb45158b227af581acf` 已提交推送并核远端一致**。见[验收归档](../agent-team/project-owner-update-http-verification.md)；下列技术规格及原基线保留，完整D08/D09与既有停止事项未因此完成。
 
 固定已接受产品基线：`901eb54605d293d4308caadd278c2c3a7ae1b824`，root 已确认提交推送及远端一致。它包含 [Owner 列表/详情只读完整结果](../agent-team/project-owner-read-http-verification.md)、已接受 Usage root 和 Summary S1/S2/S3；不消费未验实现。本卡由 root 采纳的下一完整结果建议而来，只把已定 Owner 改名/描述能力接到正式 HTTP 和真实根，不重新定义 Project 业务契约。
 

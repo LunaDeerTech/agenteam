@@ -8,6 +8,12 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-07 当前增量：[Project Owner Update HTTP](agent-team/project-owner-update-http-verification.md)完整19路径（含后端README末件）已接受，产品 `61bed1fc` 已推送、root核远端一致；版本组合、原失败与八轮PG实际wait/每轮七资源双清沿档保留。32个新增daemon/PID1 shim非owned未wait，轮间另1个git Z及forced root不证明内部全部join的限制单列，不称全机清零。
+
+[D09 Project Model Owner只读规格](agent-team/project-model-owner-read-http-spec-verification.md) `f68c5c95` /归档 `70974605` 已接受；沿基线 `61bed1fc` 正式交接 `account.go`，`fixture_recovery` 已实际ACK并开始#1–13技术实施。必要offline已授、尚无Go结果；`summary_verification` 已ACK仅独立准备，native/PG资源与README14末件未授，D09产品未接受。
+
+Owner-read、Summary S1/S2/S3及Usage既有接受保持。系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则不改；production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
+
 2026-10-07 当前增量：[D09 Project Model Owner只读HTTP rev2规格](agent-team/project-model-owner-read-http-spec-verification.md) `f68c5c95` 与归档 `70974605` 已完整限定STATIC接受并推送、root核远端一致；仅规格接受，13技术路径实施未授权，须D08 Update完整产品接受后正式交接 `account.go`。
 
 [D08 Update](work-items/d08-project-owner-update-http.md) candidate06的18技术源未提交、未接受。作者受影响离线检查按版本组合通过，三轮native共3顶层/7子测/8 listeners通过；direct/adopted各3实际wait exit0，owned进程/端口含TIME_WAIT双空。独立HTTP06离线1顶层/11嵌套节点（9叶）通过，所有原失败保留。作者五轮串行PG验证已启动，尚无整窗结论；独立A/B已获条件资源授权但尚未执行，须作者五轮全部实际清理释放并由root转达后才可启动；#19 README末件未授。

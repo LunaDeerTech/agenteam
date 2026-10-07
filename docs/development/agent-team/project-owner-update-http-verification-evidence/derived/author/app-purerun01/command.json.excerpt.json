@@ -1,0 +1,50 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/app-purerun01/command.json",
+  "source_sha256": "de667f821cc1ce95e452fff2aeed696bf3227ef65032c26978154717319420ef",
+  "source_bytes": 514977,
+  "omitted": [
+    {
+      "json_path": "inputs_before",
+      "type": "dict",
+      "entries": 3637
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "argv": [
+      "/workspace/scratch/project-owner-update-http-author/app-pure.test",
+      "-test.v",
+      "-test.count=1",
+      "-test.timeout=35s",
+      "-test.run",
+      "^(TestProjectUpdate.*|TestProjectReadRootPure.*|TestProjectUsageRootPure.*|TestModelRootRequiredConstructionDependencies|TestB04AppMailFinishesBeforeCoreRetirement|TestB04AppJointGuardRequiresEveryActualJoin|TestB04AppPartialSinkAndLateAcquisitionUseOneOwner)$"
+    ],
+    "cwd": "/workspace/agenteam/internal/central/app",
+    "environment_overrides": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "TMPDIR": "/workspace/scratch/project-owner-update-http-author/tmp",
+      "CGO_ENABLED": "1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+      "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "subreaper": true,
+    "driver_pid": 642187,
+    "driver_sha256": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06",
+    "frozen_manifest_sha256": "34d526ca76bd01f00800615821e4e81bb6d5600128188e24eddb91e6c2db6fff",
+    "started_utc": "2026-10-07T18:31:56Z",
+    "total_deadline_seconds": 45,
+    "child_timeout_seconds": 42
+  }
+}

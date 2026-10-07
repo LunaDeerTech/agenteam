@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 25522.103528453,
+      "top": "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+    },
+    {
+      "event": "result",
+      "monotonic": 25527.969264697,
+      "observed_seconds": 5.865736243998981,
+      "reported_seconds": 5.86,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+    }
+  ],
+  "expected": [
+    "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+  ],
+  "failures": []
+}

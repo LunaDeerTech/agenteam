@@ -1,0 +1,245 @@
+{
+  "listeners": [
+    {
+      "inode": 1724767,
+      "port": 33523,
+      "listen": {
+        "tid": 655060,
+        "line": 30,
+        "completed_line": 30,
+        "time": 1791399013.909604,
+        "body": "listen(5<TCP:[1724767]>, 4096) = 0"
+      },
+      "closed": true
+    },
+    {
+      "inode": 1723264,
+      "port": 41019,
+      "listen": {
+        "tid": 655067,
+        "line": 71,
+        "completed_line": 71,
+        "time": 1791399013.914061,
+        "body": "listen(5<TCP:[1723264]>, 4096) = 0"
+      },
+      "closed": true
+    },
+    {
+      "inode": 1723266,
+      "port": 41809,
+      "listen": {
+        "tid": 655067,
+        "line": 115,
+        "completed_line": 115,
+        "time": 1791399013.918144,
+        "body": "listen(5<TCP:[1723266]>, 4096) = 0"
+      },
+      "closed": true
+    },
+    {
+      "inode": 1724135,
+      "port": 36049,
+      "listen": {
+        "tid": 655066,
+        "line": 158,
+        "completed_line": 158,
+        "time": 1791399013.921859,
+        "body": "listen(5<TCP:[1724135]>, 4096) = 0"
+      },
+      "closed": true
+    }
+  ],
+  "connections": [
+    {
+      "inode": 1724768,
+      "server_port": 33523,
+      "source": {
+        "tid": 655060,
+        "line": 33,
+        "completed_line": 35,
+        "time": 1791399013.910071,
+        "body": "connect(6<TCP:[1724768]>, {sa_family=AF_INET, sin_port=htons(33523), sin_addr=inet_addr(\"127.0.0.1\")}, 16 ) = -1 EINPROGRESS (Operation now in progress)"
+      },
+      "client_port": 47470
+    },
+    {
+      "inode": 1723265,
+      "server_port": 41019,
+      "source": {
+        "tid": 655067,
+        "line": 76,
+        "completed_line": 78,
+        "time": 1791399013.914764,
+        "body": "connect(6<TCP:[1723265]>, {sa_family=AF_INET, sin_port=htons(41019), sin_addr=inet_addr(\"127.0.0.1\")}, 16 ) = -1 EINPROGRESS (Operation now in progress)"
+      },
+      "client_port": 45404
+    },
+    {
+      "inode": 1723267,
+      "server_port": 41809,
+      "source": {
+        "tid": 655067,
+        "line": 121,
+        "completed_line": 121,
+        "time": 1791399013.918644,
+        "body": "connect(6<TCP:[1723267]>, {sa_family=AF_INET, sin_port=htons(41809), sin_addr=inet_addr(\"127.0.0.1\")}, 16) = -1 EINPROGRESS (Operation now in progress)"
+      },
+      "client_port": 56362
+    },
+    {
+      "inode": 1724136,
+      "server_port": 36049,
+      "source": {
+        "tid": 655066,
+        "line": 162,
+        "completed_line": 164,
+        "time": 1791399013.922238,
+        "body": "connect(6<TCP:[1724136]>, {sa_family=AF_INET, sin_port=htons(36049), sin_addr=inet_addr(\"127.0.0.1\")}, 16 ) = -1 EINPROGRESS (Operation now in progress)"
+      },
+      "client_port": 38348
+    }
+  ],
+  "accepted_connections": [
+    {
+      "inode": 1723262,
+      "source": {
+        "tid": 655067,
+        "line": 36,
+        "completed_line": 36,
+        "time": 1791399013.910582,
+        "body": "accept4(5<TCP:[1724767]>, {sa_family=AF_INET, sin_port=htons(47470), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[1723262]>"
+      }
+    },
+    {
+      "inode": 1724131,
+      "source": {
+        "tid": 655066,
+        "line": 79,
+        "completed_line": 79,
+        "time": 1791399013.915282,
+        "body": "accept4(5<TCP:[1723264]>, {sa_family=AF_INET, sin_port=htons(45404), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[1724131]>"
+      }
+    },
+    {
+      "inode": 1724133,
+      "source": {
+        "tid": 655066,
+        "line": 122,
+        "completed_line": 122,
+        "time": 1791399013.919144,
+        "body": "accept4(5<TCP:[1723266]>, {sa_family=AF_INET, sin_port=htons(56362), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[1724133]>"
+      }
+    },
+    {
+      "inode": 1724771,
+      "source": {
+        "tid": 655060,
+        "line": 165,
+        "completed_line": 165,
+        "time": 1791399013.922666,
+        "body": "accept4(5<TCP:[1724135]>, {sa_family=AF_INET, sin_port=htons(38348), sin_addr=inet_addr(\"127.0.0.1\")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[1724771]>"
+      }
+    }
+  ],
+  "all_ports": [
+    33523,
+    36049,
+    38348,
+    41019,
+    41809,
+    45404,
+    47470,
+    56362
+  ],
+  "all_inodes": [
+    1723262,
+    1723264,
+    1723265,
+    1723266,
+    1723267,
+    1724131,
+    1724133,
+    1724135,
+    1724136,
+    1724763,
+    1724764,
+    1724765,
+    1724767,
+    1724768,
+    1724771
+  ],
+  "created_inodes": [
+    1723264,
+    1723265,
+    1723266,
+    1723267,
+    1724135,
+    1724136,
+    1724763,
+    1724764,
+    1724765,
+    1724767,
+    1724768
+  ],
+  "all_closed_inodes": [
+    1723262,
+    1723264,
+    1723265,
+    1723266,
+    1723267,
+    1724131,
+    1724133,
+    1724135,
+    1724136,
+    1724763,
+    1724764,
+    1724765,
+    1724767,
+    1724768,
+    1724771
+  ],
+  "binds": [
+    {
+      "tid": 655060,
+      "line": 19,
+      "completed_line": 19,
+      "time": 1791399013.908586,
+      "body": "bind(5<TCPv6:[1724764]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, \"::1\", &sin6_addr), sin6_scope_id=0}, 28) = 0"
+    },
+    {
+      "tid": 655060,
+      "line": 22,
+      "completed_line": 22,
+      "time": 1791399013.908849,
+      "body": "bind(6<TCPv6:[1724765]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, \"::ffff:127.0.0.1\", &sin6_addr), sin6_scope_id=0}, 28) = 0"
+    },
+    {
+      "tid": 655060,
+      "line": 29,
+      "completed_line": 29,
+      "time": 1791399013.909498,
+      "body": "bind(5<TCP:[1724767]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr(\"127.0.0.1\")}, 16) = 0"
+    },
+    {
+      "tid": 655067,
+      "line": 70,
+      "completed_line": 70,
+      "time": 1791399013.913929,
+      "body": "bind(5<TCP:[1723264]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr(\"127.0.0.1\")}, 16) = 0"
+    },
+    {
+      "tid": 655067,
+      "line": 114,
+      "completed_line": 114,
+      "time": 1791399013.918041,
+      "body": "bind(5<TCP:[1723266]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr(\"127.0.0.1\")}, 16) = 0"
+    },
+    {
+      "tid": 655066,
+      "line": 157,
+      "completed_line": 157,
+      "time": 1791399013.92174,
+      "body": "bind(5<TCP:[1724135]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr(\"127.0.0.1\")}, 16) = 0"
+    }
+  ]
+}

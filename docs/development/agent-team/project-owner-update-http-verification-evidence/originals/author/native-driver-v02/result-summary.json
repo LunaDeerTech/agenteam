@@ -1,0 +1,55 @@
+{
+  "candidate": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b",
+  "driver": "a3a041b9ad919905de108b0d5132a63aadf41560058607208c186d7f4831ddcf",
+  "freeze": "230febbc53e800821f86646a03f786a7a1f810caa11e9d5612428ae976726e60",
+  "pass": true,
+  "rounds": [
+    {
+      "mode": "keepalive",
+      "command_result": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/command.json",
+      "sha256": "443bf968ac18e5a21e3052047de7f779a3533ef906387d7366cf108bb77c230f",
+      "pass": true,
+      "execution_seconds": 1.242572717997973,
+      "direct_waits": 1,
+      "adopted_waits": 1,
+      "listener_count": 1,
+      "top_count": 1,
+      "sub_count": 0,
+      "input_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "signals": []
+    },
+    {
+      "mode": "slowbody",
+      "command_result": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/command.json",
+      "sha256": "f9e0257f58bb910535a0858d1d620bd10c44fcac09e0464c176dfd622b61b134",
+      "pass": true,
+      "execution_seconds": 33.19727697599956,
+      "direct_waits": 1,
+      "adopted_waits": 1,
+      "listener_count": 3,
+      "top_count": 1,
+      "sub_count": 3,
+      "input_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "signals": []
+    },
+    {
+      "mode": "writeclose",
+      "command_result": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/command.json",
+      "sha256": "429f2e3636b4a757e38438cabe88fc650d7baa85ebd48e612225926d8d99b2a1",
+      "pass": true,
+      "execution_seconds": 1.0445758130008471,
+      "direct_waits": 1,
+      "adopted_waits": 1,
+      "listener_count": 4,
+      "top_count": 1,
+      "sub_count": 4,
+      "input_unchanged": true,
+      "double_all_port_and_process_zero": true,
+      "signals": []
+    }
+  ],
+  "publication_budget": "30s PATCH /2s lookup, distinct from original \u22643s library confirmation tail",
+  "retirement": "actual direct/adopted waits plus exact socket includingTIME_WAIT double empty; separate retirement after45s binary/55s intervention; no global process/resource zero claim"
+}

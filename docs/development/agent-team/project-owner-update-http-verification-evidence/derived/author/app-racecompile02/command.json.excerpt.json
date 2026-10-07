@@ -1,0 +1,51 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/app-racecompile02/command.json",
+  "source_sha256": "5953c035d0257b802905811499876b8646f8a29ae212d692f580333bab048892",
+  "source_bytes": 514297,
+  "omitted": [
+    {
+      "json_path": "inputs_before",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-race",
+      "-c",
+      "-o",
+      "/workspace/scratch/project-owner-update-http-author/app-race06.test",
+      "./internal/central/app"
+    ],
+    "cwd": "/workspace/agenteam",
+    "environment_overrides": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "TMPDIR": "/workspace/scratch/project-owner-update-http-author/tmp",
+      "CGO_ENABLED": "1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+      "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "subreaper": true,
+    "driver_pid": 652392,
+    "driver_sha256": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06",
+    "frozen_manifest_sha256": "036e3eb7b0c6b5d2fc95ea3f0c91da124ca5b36afba2012bd886907c5cabfb26",
+    "started_utc": "2026-10-07T18:46:26Z",
+    "total_deadline_seconds": 45,
+    "child_timeout_seconds": 42
+  }
+}

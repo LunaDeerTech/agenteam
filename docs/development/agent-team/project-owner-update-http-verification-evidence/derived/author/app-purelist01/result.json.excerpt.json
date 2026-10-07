@@ -1,0 +1,39 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/app-purelist01/result.json",
+  "source_sha256": "0bfa37b7900b325812465d261604bce5373daa3596263d880d60351ca5c10c6d",
+  "source_bytes": 514010,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3637
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 0.5987611579985241,
+    "direct_child_pid": 642076,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 642076,
+        "ppid": 642068,
+        "pgid": 642076,
+        "state": "Z",
+        "starttime": "2385773"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "b9008d0b1cb0081ccd104049248c9529d7a17bfaff962f2e792f6c49a6bc2f71",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

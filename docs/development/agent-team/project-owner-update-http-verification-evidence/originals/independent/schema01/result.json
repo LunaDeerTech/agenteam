@@ -1,0 +1,85 @@
+{
+  "status": "REAL_INDEPENDENT_B02_ORIGINAL_BYTES_SCHEMA_PASS",
+  "plan": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/schema01/plan.json",
+    "sha256": "2d4e54edcf72097c7d43b421b2b9c3b00a8c1f1e2b550d5ed02275e46950f9e9"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/schema01/closure.json",
+    "sha256": "a59371f50fef8116cabc913a2a308cf32b01fedd744cebab6893ba3032792062"
+  },
+  "parser": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/validate_body.py",
+    "sha256": "6d63ab67948c7548cb01fdc4f0ac84f6b0ad5946aaf923ec0d03956af7cdedff"
+  },
+  "source_run": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/result.json",
+    "sha256": "f443ef3f5305be6cadb862b98c9fddf8203d7f7327b1ab58a27d5b8ae7f5eff9"
+  },
+  "checks": [
+    {
+      "kind": "patch",
+      "raw_body": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/safe-http-evidence/patch.json",
+        "sha256": "11d6defd47fb7016cb38ae2efeb1a6f00d039a0d7e2e02301c3ddcdb89c12d06"
+      },
+      "source_metadata": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/safe-http-evidence/patch-source.json",
+        "sha256": "e7dfc1a93b990360ac71b02aa3c8dce1cbc992017b8cbe9e85a073208f202868"
+      },
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/schema01/runs/patch-actual-schema/result.json",
+        "sha256": "3767d8715f181c86e3acee5b6b400c86c934a1a5a3671620b1f267c1ab14c618"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/schema01/runs/patch-actual-schema/stdout.log",
+        "sha256": "7275a3d98d0fecc379f3cb840458fafeb75d1bb044f1fd1d1082944e6022ad4a"
+      },
+      "actual_seconds": 0.0987584649992641,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "validation": {
+        "result": "ACTUAL_BODY_SCHEMA_PASS",
+        "kind": "patch",
+        "body_sha256": "11d6defd47fb7016cb38ae2efeb1a6f00d039a0d7e2e02301c3ddcdb89c12d06",
+        "schema_sha256": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+        "run": "independent-b02",
+        "candidate": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+      }
+    },
+    {
+      "kind": "lookup",
+      "raw_body": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/safe-http-evidence/lookup.json",
+        "sha256": "c820b6ea6cba6e26bad074daef74f87ad8562832aa2611c0d7621e1debabb66f"
+      },
+      "source_metadata": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/runs/independent-b02/safe-http-evidence/lookup-source.json",
+        "sha256": "ff403638efff5b768bc0c1c738e07300acc8b693284fb7ef256117d160aba7ea"
+      },
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/schema01/runs/lookup-actual-schema/result.json",
+        "sha256": "b4555c6af1b8dc25df5e62f05d0679f0711c2f53668c67fb5bc39732ddee380a"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/schema01/runs/lookup-actual-schema/stdout.log",
+        "sha256": "b449ea1e1af9089996e4708064da568d4677d10b492a83747f16c16044f65d87"
+      },
+      "actual_seconds": 0.09703034300036961,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "validation": {
+        "result": "ACTUAL_BODY_SCHEMA_PASS",
+        "kind": "lookup",
+        "body_sha256": "c820b6ea6cba6e26bad074daef74f87ad8562832aa2611c0d7621e1debabb66f",
+        "schema_sha256": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+        "run": "independent-b02",
+        "candidate": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+      }
+    }
+  ],
+  "limits": [
+    "Actual independent HTTP body bytes used unchanged; no author response substitution and no synthetic body",
+    "Draft202012 + FormatChecker with only frozen project-owner/common localrefs; no network retrieval"
+  ]
+}

@@ -1,0 +1,79 @@
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/missing
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/cycle
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/cycle-with-deadlines
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/nil-unwrap
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/panic-unwrap
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/FlushError
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/Flusher
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/wrapped
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/missing
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/cycle
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/cycle-with-deadlines
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/nil-unwrap
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/panic-unwrap
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/FlushError
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/Flusher
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/wrapped
+=== RUN   TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/per-capability-receiver-and-priority
+--- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/missing (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/cycle (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/cycle-with-deadlines (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/nil-unwrap (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/panic-unwrap (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/FlushError (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/Flusher (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/PATCH/wrapped (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/missing (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/cycle (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/cycle-with-deadlines (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/nil-unwrap (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/panic-unwrap (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/FlushError (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/Flusher (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/lookup/wrapped (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureIOCapabilitiesBeforeService/per-capability-receiver-and-priority (0.00s)
+=== RUN   TestProjectOwnerUpdatePureRoutesAndCalls
+=== RUN   TestProjectOwnerUpdatePureRoutesAndCalls/PATCH
+=== RUN   TestProjectOwnerUpdatePureRoutesAndCalls/lookup
+--- PASS: TestProjectOwnerUpdatePureRoutesAndCalls (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRoutesAndCalls/PATCH (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRoutesAndCalls/lookup (0.00s)
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/null
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/empty
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/query
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/force-query
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/id
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/foreign-command
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/missing-key
+=== RUN   TestProjectOwnerUpdatePureRejectBeforeService/duplicate-key
+--- PASS: TestProjectOwnerUpdatePureRejectBeforeService (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/null (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/empty (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/query (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/force-query (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/id (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/foreign-command (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/missing-key (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureRejectBeforeService/duplicate-key (0.00s)
+=== RUN   TestProjectOwnerUpdatePureUnknownAndOwnedTail
+--- PASS: TestProjectOwnerUpdatePureUnknownAndOwnedTail (0.03s)
+=== RUN   TestProjectOwnerUpdatePureActualIO
+=== RUN   TestProjectOwnerUpdatePureActualIO/short
+=== RUN   TestProjectOwnerUpdatePureActualIO/write
+=== RUN   TestProjectOwnerUpdatePureActualIO/flush
+=== RUN   TestProjectOwnerUpdatePureActualIO/close
+=== RUN   TestProjectOwnerUpdatePureActualIO/unsupported
+=== RUN   TestProjectOwnerUpdatePureActualIO/panic
+=== RUN   TestProjectOwnerUpdatePureActualIO/clear
+--- PASS: TestProjectOwnerUpdatePureActualIO (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureActualIO/short (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureActualIO/write (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureActualIO/flush (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureActualIO/close (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureActualIO/unsupported (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureActualIO/panic (0.00s)
+    --- PASS: TestProjectOwnerUpdatePureActualIO/clear (0.00s)
+PASS

@@ -1,0 +1,9 @@
+=== RUN   TestProjectOwnerUpdateNativeBodyDeadline
+=== RUN   TestProjectOwnerUpdateNativeBodyDeadline/PATCH30s
+=== RUN   TestProjectOwnerUpdateNativeBodyDeadline/POST2s
+=== RUN   TestProjectOwnerUpdateNativeBodyDeadline/PATCH120ms
+--- PASS: TestProjectOwnerUpdateNativeBodyDeadline (32.15s)
+    --- PASS: TestProjectOwnerUpdateNativeBodyDeadline/PATCH30s (30.02s)
+    --- PASS: TestProjectOwnerUpdateNativeBodyDeadline/POST2s (2.01s)
+    --- PASS: TestProjectOwnerUpdateNativeBodyDeadline/PATCH120ms (0.13s)
+PASS

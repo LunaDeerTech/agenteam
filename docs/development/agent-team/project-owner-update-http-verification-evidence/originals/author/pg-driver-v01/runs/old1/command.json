@@ -1,0 +1,48 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp|TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName|TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal|TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization|TestModelProjectOwnerReadHTTPProjectionAndPaging|TestModelProjectOwnerReadHTTPRootBinding|TestModelProjectUsageHTTPRootBinding|TestModelMeetingSummarySettingsRoot|TestModelSystemHTTPConfigurationCRUD)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-07T19:05:07.970580+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery/bin/minio",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "AGENTEAM_PROJECT_UPDATE_BODY_DIR": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/safe-http-evidence",
+    "AGENTEAM_PROJECT_UPDATE_CANDIDATE": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b",
+    "AGENTEAM_PROJECT_UPDATE_RUN": "old1",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "HOME": "/home/agent",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 691150,
+  "pid_stat": "691150 (sh) R 691091 691150 691150 0 -1 4194560 9 0 0 0 0 0 0 0 20 0 1 0 2576676 540672 0 18446744073709551615 94156404498432 94156404579425 140730233671632 0 0 0 0 0 0 0 0 0 17 1 0 0 0 0 0 94156404608560 94156404613696 94156893237248 140730233678128 140730233678608 140730233678608 140730233679852 0\n",
+  "seconds": 93.033,
+  "started_utc": "2026-10-07T19:03:34.937490+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

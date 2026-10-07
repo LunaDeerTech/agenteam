@@ -1,0 +1,713 @@
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:4: space before tab in indent.
++ 	"sync"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:5: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:6: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:8: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:9: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:10: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:11: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:13: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:14: space before tab in indent.
++ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:15: space before tab in indent.
++ 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:17: space before tab in indent.
++ 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:18: space before tab in indent.
++ 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:19: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:39: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:45: space before tab in indent.
++ 	database
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:46: space before tab in indent.
++ 	project.Store
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:49: space before tab in indent.
++ 	t.Helper()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:50: space before tab in indent.
++ 	cfg := testConfig(t, "1s")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:52: space before tab in indent.
++ 		t.Fatal(e)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:53: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:54: space before tab in indent.
++ 	process := accountProcessAuthority{process: updateRootID[ac.Process](), guard: &object.ProcessGuard{}}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:57: space before tab in indent.
++ 	if e != nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:58: space before tab in indent.
++ 		t.Fatal(e)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate02/delta.diff:59: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:4: space before tab in indent.
++ 	"sync"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:5: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:6: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:8: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:9: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:10: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:11: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:13: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:14: space before tab in indent.
++ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:15: space before tab in indent.
++ 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:17: space before tab in indent.
++ 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:18: space before tab in indent.
++ 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:19: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:39: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:45: space before tab in indent.
++ 	database
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:46: space before tab in indent.
++ 	project.Store
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:49: space before tab in indent.
++ 	t.Helper()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:50: space before tab in indent.
++ 	cfg := testConfig(t, "1s")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:52: space before tab in indent.
++ 		t.Fatal(e)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:53: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:54: space before tab in indent.
++ 	process := accountProcessAuthority{process: updateRootID[ac.Process](), guard: &object.ProcessGuard{}}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:57: space before tab in indent.
++ 	if e != nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:58: space before tab in indent.
++ 		t.Fatal(e)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:59: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:63: space before tab in indent.
++ 	"net/http/httptest"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:64: space before tab in indent.
++ 	"os"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:65: space before tab in indent.
++ 	"path/filepath"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:67: space before tab in indent.
++ 	"sync/atomic"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:68: space before tab in indent.
++ 	"testing"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:69: space before tab in indent.
++ 	"time"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:71: space before tab in indent.
++ 	journal  *outbox.Service
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:75: space before tab in indent.
++ 	*project.Authority
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:76: space before tab in indent.
++ 	producerCurrent, producerNew, projectCurrent, projectNew, audits atomic.Int32
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:77: space before tab in indent.
++ 	reject                                                           string
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:79: space before tab in indent.
++ 	} else {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:80: space before tab in indent.
++ 		g.producerNew.Add(1)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:81: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:85: space before tab in indent.
++ 	err := g.Authority.ValidateAppendInTx(ctx, tx, a, s, d, stage)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:89: space before tab in indent.
++ 	if err == nil && g.reject == "producer" {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:90: space before tab in indent.
++ 		return f.NewFault(f.Forbidden, f.NotStarted)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:91: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:93: space before tab in indent.
++ 	} else {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:94: space before tab in indent.
++ 		g.projectNew.Add(1)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:95: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:105: space before tab in indent.
++ 	err := g.Authority.ValidateInTx(ctx, tx, r, d)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:109: space before tab in indent.
++ 	if err == nil && g.reject == "project" {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:110: space before tab in indent.
++ 		return f.NewFault(f.Forbidden, f.NotStarted)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:111: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:115: space before tab in indent.
++ 	g.audits.Add(1)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:147: space before tab in indent.
++ 	t.Helper()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:151: space before tab in indent.
++ 			t.Fatal("real gate rejection changed facts")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:152: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:153: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:162: space before tab in indent.
++ 	v.gates.reject = ""
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:163: space before tab in indent.
++ 	v.write(t, v.ownerBrowser, "PATCH", path, "atomic", body).want(t, 200)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:164: space before tab in indent.
++ 	if v.gates.audits.Load() == 0 || v.gates.producerCurrent.Load() == 0 || v.gates.producerNew.Load() == 0 || v.gates.projectCurrent.Load() == 0 || v.gates.projectNew.Load() == 0 {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:168: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:170: space before tab in indent.
++ 	"context"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:172: space before tab in indent.
++ 	"fmt"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:174: space before tab in indent.
++ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:175: space before tab in indent.
++ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:177: space before tab in indent.
++ 	"net"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:180: space before tab in indent.
++ 	"net/url"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:181: space before tab in indent.
++ 	"strings"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:183: space before tab in indent.
++ 	"sync/atomic"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:184: space before tab in indent.
++ 	"testing"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:187: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:189: space before tab in indent.
++ 	projectOwnerReadTop(t)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:190: space before tab in indent.
++ 	v := newProjectUpdateFixture(t)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:192: space before tab in indent.
++ 	for _, phase := range []string{"planned", "completed"} {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:193: space before tab in indent.
++ 		t.Run(phase, func(t *testing.T) {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:194: space before tab in indent.
++ 			// Only this synchronous Project Service uses the proxy Store; Account HTTP
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:196: space before tab in indent.
++ 		})
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:197: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:503: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:505: space before tab in indent.
++ 	"bytes"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:513: space before tab in indent.
++ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:518: space before tab in indent.
++ 	"io"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:521: space before tab in indent.
++ 	"net/http"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:525: space before tab in indent.
++ 	"strings"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:527: space before tab in indent.
++ 	"testing"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:530: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:533: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:534: space before tab in indent.
++ 	root.request(t, v.ownerBrowser, "POST", "/api/v1/projects", nil).problem(t, 405, f.MethodNotAllowed)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:535: space before tab in indent.
++ 	projectUpdateRootRequest(t, root, v.adminBrowser, "PATCH", path, "root-original", body).problem(t, 404, f.NotFound)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:542: space before tab in indent.
++ 	projectUpdateExport(t, "root-patch", "PATCH", path, first)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:543: space before tab in indent.
++ 	projectUpdateExport(t, "root-lookup", "POST", lookup, history)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:544: space before tab in indent.
++ 	root.stop(t)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:546: space before tab in indent.
++ 			t.Fatal("root leaked command")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:547: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:548: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate03/delta.diff:550: space before tab in indent.
++ 	t.Log("public default root real Audit/Outbox/Project Service; original key preserved, current GET differs from historical receipt; actual shutdown")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:4: space before tab in indent.
++ 	"sync"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:5: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:6: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:8: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:9: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:10: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:11: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:13: space before tab in indent.
++ 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:14: space before tab in indent.
++ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:15: space before tab in indent.
++ 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:17: space before tab in indent.
++ 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:18: space before tab in indent.
++ 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:19: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:39: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:45: space before tab in indent.
++ 	database
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:46: space before tab in indent.
++ 	project.Store
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:49: space before tab in indent.
++ 	t.Helper()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:50: space before tab in indent.
++ 	cfg := testConfig(t, "1s")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:52: space before tab in indent.
++ 		t.Fatal(e)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:53: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:54: space before tab in indent.
++ 	process := accountProcessAuthority{process: updateRootID[ac.Process](), guard: &object.ProcessGuard{}}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:57: space before tab in indent.
++ 	if e != nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:58: space before tab in indent.
++ 		t.Fatal(e)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:59: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:63: space before tab in indent.
++ 	"net/http/httptest"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:64: space before tab in indent.
++ 	"os"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:65: space before tab in indent.
++ 	"path/filepath"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:67: space before tab in indent.
++ 	"sync/atomic"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:68: space before tab in indent.
++ 	"testing"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:69: space before tab in indent.
++ 	"time"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:71: space before tab in indent.
++ 	journal  *outbox.Service
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:75: space before tab in indent.
++ 	*project.Authority
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:76: space before tab in indent.
++ 	producerCurrent, producerNew, projectCurrent, projectNew, audits atomic.Int32
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:77: space before tab in indent.
++ 	reject                                                           string
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:79: space before tab in indent.
++ 	} else {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:80: space before tab in indent.
++ 		g.producerNew.Add(1)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:81: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:85: space before tab in indent.
++ 	err := g.Authority.ValidateAppendInTx(ctx, tx, a, s, d, stage)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:89: space before tab in indent.
++ 	if err == nil && g.reject == "producer" {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:90: space before tab in indent.
++ 		return f.NewFault(f.Forbidden, f.NotStarted)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:91: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:93: space before tab in indent.
++ 	} else {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:94: space before tab in indent.
++ 		g.projectNew.Add(1)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:95: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:105: space before tab in indent.
++ 	err := g.Authority.ValidateInTx(ctx, tx, r, d)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:109: space before tab in indent.
++ 	if err == nil && g.reject == "project" {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:110: space before tab in indent.
++ 		return f.NewFault(f.Forbidden, f.NotStarted)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:111: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:115: space before tab in indent.
++ 	g.audits.Add(1)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:147: space before tab in indent.
++ 	t.Helper()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:151: space before tab in indent.
++ 			t.Fatal("real gate rejection changed facts")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:152: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:153: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:162: space before tab in indent.
++ 	v.gates.reject = ""
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:163: space before tab in indent.
++ 	v.write(t, v.ownerBrowser, "PATCH", path, "atomic", body).want(t, 200)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:164: space before tab in indent.
++ 	if v.gates.audits.Load() == 0 || v.gates.producerCurrent.Load() == 0 || v.gates.producerNew.Load() == 0 || v.gates.projectCurrent.Load() == 0 || v.gates.projectNew.Load() == 0 {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:168: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:170: space before tab in indent.
++ 	"context"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:172: space before tab in indent.
++ 	"fmt"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:174: space before tab in indent.
++ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:175: space before tab in indent.
++ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:177: space before tab in indent.
++ 	"net"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:180: space before tab in indent.
++ 	"net/url"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:181: space before tab in indent.
++ 	"strings"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:183: space before tab in indent.
++ 	"sync/atomic"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:184: space before tab in indent.
++ 	"testing"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:187: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:190: space before tab in indent.
++ 			t.Log("physical phase", phase, "backend", backend.Load(), "attempt", attempt.AttemptID().String(), "ACK dropped; actual writer terminal serialized")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:191: space before tab in indent.
++ 		})
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:192: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:516: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:518: space before tab in indent.
++ 	"bytes"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:526: space before tab in indent.
++ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:531: space before tab in indent.
++ 	"io"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:534: space before tab in indent.
++ 	"net/http"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:538: space before tab in indent.
++ 	"strings"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:540: space before tab in indent.
++ 	"testing"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:543: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:546: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:547: space before tab in indent.
++ 	root.request(t, v.ownerBrowser, "POST", "/api/v1/projects", nil).problem(t, 405, f.MethodNotAllowed)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:548: space before tab in indent.
++ 	projectUpdateRootRequest(t, root, v.adminBrowser, "PATCH", path, "root-original", body).problem(t, 404, f.NotFound)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:555: space before tab in indent.
++ 	projectUpdateExport(t, "root-patch", "PATCH", path, first)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:556: space before tab in indent.
++ 	projectUpdateExport(t, "root-lookup", "POST", lookup, history)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:557: space before tab in indent.
++ 	root.stop(t)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:559: space before tab in indent.
++ 			t.Fatal("root leaked command")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:560: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:561: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate04/delta.diff:563: space before tab in indent.
++ 	t.Log("public default root real Audit/Outbox/Project Service; original key preserved, current GET differs from historical receipt; actual shutdown")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:4: space before tab in indent.
++ 	boundary accountBoundary
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:6: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:70: space before tab in indent.
++ 	if service == nil || boundary == nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:72: space before tab in indent.
++ 	defer cancel()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:73: space before tab in indent.
++ 	r := request.WithContext(ctx)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:74: space before tab in indent.
++ 	w = abortWriter{w}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:76: space before tab in indent.
++ 	// Keep ownership of the original stream: DecodeJSON's MaxBytesReader only
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:77: space before tab in indent.
++ 	// wraps it and is never independently closed by this handler.
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:80: space before tab in indent.
++ 	normal := false
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:81: space before tab in indent.
++ 	defer func() {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:82: space before tab in indent.
++ 		panicked := recover() != nil
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:84: space before tab in indent.
++ 			panic(http.ErrAbortHandler)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:85: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:86: space before tab in indent.
++ 	}()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:90: space before tab in indent.
++ 	if err := budget.start(); err != nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:91: space before tab in indent.
++ 		panic(http.ErrAbortHandler)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:92: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:97: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:222: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate05/delta-from04.diff:224: space before tab in indent.
++ 	for _, v := range []struct {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:4: space before tab in indent.
++ 	flush func() error
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:6: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:11: space before tab in indent.
++ 	for depth := 0; depth < 64 && w != nil; depth++ {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:12: space before tab in indent.
++ 		if io.read == nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:13: space before tab in indent.
++ 			if v, ok := w.(interface{ SetReadDeadline(time.Time) error }); ok {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:15: space before tab in indent.
++ 			}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:16: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:17: space before tab in indent.
++ 		if io.read != nil && io.write != nil && io.flush != nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:20: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:21: space before tab in indent.
++ 		v, ok := w.(interface{ Unwrap() http.ResponseWriter })
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:22: space before tab in indent.
++ 		if !ok {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:24: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:25: space before tab in indent.
++ 		w = v.Unwrap()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:26: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:31: space before tab in indent.
++ 	if w.read == nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:33: space before tab in indent.
++ 	defer cancel()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:34: space before tab in indent.
++ 	r := request.WithContext(ctx)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:35: space before tab in indent.
++ 	w = abortWriter{w}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:38: space before tab in indent.
++ 	// Keep ownership of the original stream: DecodeJSON's MaxBytesReader only
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:39: space before tab in indent.
++ 	// wraps it and is never independently closed by this handler.
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:40: space before tab in indent.
++ 	budget := requestIO{controller: http.NewResponseController(io), ctx: ctx, body: r.Body}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:42: space before tab in indent.
++ 			panic(http.ErrAbortHandler)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:43: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:44: space before tab in indent.
++ 	}()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:47: space before tab in indent.
++ 		panic(http.ErrAbortHandler)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:48: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:49: space before tab in indent.
++ 	if err := budget.start(); err != nil {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:53: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:55: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:61: space before tab in indent.
++ 	for _, lookup := range []bool{false, true} {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:64: space before tab in indent.
++ 			t.Run(map[bool]string{false: "PATCH", true: "lookup"}[lookup]+"/"+mode, func(t *testing.T) {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:65: space before tab in indent.
++ 				h, b, s := updateFixture()
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:66: space before tab in indent.
++ 				method, path, body := "PATCH", httpDetailPath, updateTestBody
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:68: space before tab in indent.
++ 					}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:69: space before tab in indent.
++ 				case "nil-unwrap":
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:70: space before tab in indent.
++ 					writer = &updateUnwrapper{ResponseWriter: base}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:73: space before tab in indent.
++ 				case "Flusher":
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:74: space before tab in indent.
++ 					writer = updateFlusher{handlerNoFlush{base}}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:75: space before tab in indent.
++ 				case "wrapped":
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:77: space before tab in indent.
++ 				r := updateRequest(method, path, body)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:78: space before tab in indent.
++ 				stream := &handlerBody{Reader: strings.NewReader(body)}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:79: space before tab in indent.
++ 				r.Body = stream
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:89: space before tab in indent.
++ 				if stream.closes.Load() != 1 {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:90: space before tab in indent.
++ 					t.Fatal("original body not closed exactly once")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:91: space before tab in indent.
++ 				}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:93: space before tab in indent.
++ 				} else if !aborted || s.updates.Load()+s.lookups.Load() != 0 || auth != 0 || writes != 0 || headers != 0 || base.Body.Len() != 0 || base.flushes != 0 || base.Header().Get("Content-Type") != "" {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:94: space before tab in indent.
++ 					t.Fatal("unsupported capability reached auth/service/publication")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:95: space before tab in indent.
++ 				}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:99: space before tab in indent.
++ 			})
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:100: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:101: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:103: space before tab in indent.
++ 		lower := updateBothFlush{base, &flusher}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:104: space before tab in indent.
++ 		middle := updateWriteUnwrapper{&updateUnwrapper{ResponseWriter: base, next: lower}, &writes}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:105: space before tab in indent.
++ 		upper := updateReadUnwrapper{&updateUnwrapper{ResponseWriter: base, next: middle}, &reads}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:109: space before tab in indent.
++ 		if !ready || reads+writes+flusher+base.flushes != 0 || len(base.reads)+len(base.writes) != 0 {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:110: space before tab in indent.
++ 			t.Fatal("preflight performed I/O")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/candidate06/delta-from05.diff:111: space before tab in indent.
++ 		}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/baseline-tcp.raw:1: trailing whitespace.
++  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/baseline-tcp.raw:2: trailing whitespace.
++   0: 00000000:0410 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 1150 1 0000000088be7787 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/baseline-tcp.raw:3: trailing whitespace.
++   1: 0100007F:1538 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4712 1 000000004e29e956 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/baseline-tcp.raw:4: trailing whitespace.
++   2: 0100007F:2329 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4687 1 00000000ebd9438b 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/baseline-tcp.raw:5: trailing whitespace.
++   3: 0100007F:2328 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 3715 1 00000000fb52c538 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/baseline-tcp.raw:6: trailing whitespace.
++   4: 9E001FAC:DA3C 9D001FAC:1F90 01 00000000:00000000 00:00000000 00000000  1000        0 1612466 1 000000009ce08720 20 4 31 287 -1                 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-01-tcp.raw:1: trailing whitespace.
++  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-01-tcp.raw:2: trailing whitespace.
++   0: 00000000:0410 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 1150 1 0000000088be7787 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-01-tcp.raw:3: trailing whitespace.
++   1: 0100007F:1538 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4712 1 000000004e29e956 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-01-tcp.raw:4: trailing whitespace.
++   2: 0100007F:2329 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4687 1 00000000ebd9438b 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-01-tcp.raw:5: trailing whitespace.
++   3: 0100007F:2328 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 3715 1 00000000fb52c538 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-01-tcp.raw:6: trailing whitespace.
++   4: 0100007F:D898 0100007F:A635 06 00000000:00000000 03:00001709 00000000     0        0 0 3 0000000036318152                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-01-tcp.raw:7: trailing whitespace.
++   5: 9E001FAC:DA3C 9D001FAC:1F90 01 00000000:00000000 00:00000000 00000000  1000        0 1612466 1 000000009ce08720 20 4 31 287 -1                 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-61-tcp.raw:1: trailing whitespace.
++  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-61-tcp.raw:2: trailing whitespace.
++   0: 00000000:0410 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 1150 1 0000000088be7787 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-61-tcp.raw:3: trailing whitespace.
++   1: 0100007F:1538 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4712 1 000000004e29e956 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-61-tcp.raw:4: trailing whitespace.
++   2: 0100007F:2329 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4687 1 00000000ebd9438b 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-61-tcp.raw:5: trailing whitespace.
++   3: 0100007F:2328 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 3715 1 00000000fb52c538 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/keepalive/cleanup-61-tcp.raw:6: trailing whitespace.
++   4: 9E001FAC:DA3C 9D001FAC:1F90 01 00000000:00000000 00:00000000 00000000  1000        0 1612466 1 000000009ce08720 20 4 28 287 -1                 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:1: trailing whitespace.
++  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:2: trailing whitespace.
++   0: 00000000:0410 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 1150 1 0000000088be7787 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:3: trailing whitespace.
++   1: 0100007F:1538 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4712 1 000000004e29e956 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:4: trailing whitespace.
++   2: 0100007F:2329 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4687 1 00000000ebd9438b 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:5: trailing whitespace.
++   3: 0100007F:2328 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 3715 1 00000000fb52c538 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:6: trailing whitespace.
++   4: 0100007F:9589 0100007F:8036 06 00000000:00000000 03:000016FC 00000000     0        0 0 3 00000000b65d42ac                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:7: trailing whitespace.
++   5: 9E001FAC:DA3C 9D001FAC:1F90 01 00000000:00000000 00:00000000 00000000  1000        0 1612466 1 000000009ce08720 20 4 31 287 -1                 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:8: trailing whitespace.
++   6: 0100007F:A169 0100007F:A390 06 00000000:00000000 03:00001708 00000000     0        0 0 3 00000000c672eb6a                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-01-tcp.raw:9: trailing whitespace.
++   7: 0100007F:AAEB 0100007F:BA3C 06 00000000:00000000 03:00001633 00000000     0        0 0 3 0000000002d7c765                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-63-tcp.raw:1: trailing whitespace.
++  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-63-tcp.raw:2: trailing whitespace.
++   0: 00000000:0410 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 1150 1 0000000088be7787 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-63-tcp.raw:3: trailing whitespace.
++   1: 0100007F:1538 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4712 1 000000004e29e956 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-63-tcp.raw:4: trailing whitespace.
++   2: 0100007F:2329 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4687 1 00000000ebd9438b 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-63-tcp.raw:5: trailing whitespace.
++   3: 0100007F:2328 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 3715 1 00000000fb52c538 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/slowbody/cleanup-63-tcp.raw:6: trailing whitespace.
++   4: 9E001FAC:DA3C 9D001FAC:1F90 01 00000000:00000000 00:00000000 00000000  1000        0 1612466 3 000000009ce08720 20 4 31 287 -1                 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:1: trailing whitespace.
++  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:2: trailing whitespace.
++   0: 00000000:0410 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 1150 1 0000000088be7787 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:3: trailing whitespace.
++   1: 0100007F:1538 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4712 1 000000004e29e956 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:4: trailing whitespace.
++   2: 0100007F:2329 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4687 1 00000000ebd9438b 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:5: trailing whitespace.
++   3: 0100007F:2328 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 3715 1 00000000fb52c538 100 0 0 10 0                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:6: trailing whitespace.
++   4: 0100007F:82F3 0100007F:B96E 06 00000000:00000000 03:00001708 00000000     0        0 0 3 00000000adaf9618                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:7: trailing whitespace.
++   5: 0100007F:A351 0100007F:DC2A 06 00000000:00000000 03:00001709 00000000     0        0 0 3 000000001d672825                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:8: trailing whitespace.
++   6: 0100007F:A03B 0100007F:B15C 06 00000000:00000000 03:00001709 00000000     0        0 0 3 0000000037555ef0                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:9: trailing whitespace.
++   7: 9E001FAC:DA3C 9D001FAC:1F90 01 00000000:00000000 00:00000000 00000000  1000        0 1612466 1 000000009ce08720 20 4 31 287 -1                 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/native-driver-v02/writeclose/cleanup-01-tcp.raw:10: trailing whitespace.
++   8: 0100007F:8CD1 0100007F:95CC 06 00000000:00000000 03:0000170A 00000000     0        0 0 3 0000000018e50f07                                      
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/pg-driver-v01/delta.diff:16: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:4: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:6: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:9: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:11: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:13: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:15: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:28: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:30: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/author/readme-final01/delta.diff:30: new blank line at EOF.
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/driver-v01/from-author.diff:16: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/driver-v01/from-author.diff:20: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/driver-v01/from-author.diff:76: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/driver-v01/from-author.diff:77: trailing whitespace.
++ 
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:4: space before tab in indent.
++ 	first := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "PATCH", path, "ind-root-original", body).want(t, 200)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:5: space before tab in indent.
++ 	name := "independent-renamed"
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:6: space before tab in indent.
++ 	ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "PATCH", path, "ind-root-next", projectUpdateBody(t, 2, &name, nil)).want(t, 200)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:9: space before tab in indent.
++ 	replay := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "PATCH", path, "ind-root-original", body).want(t, 200)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:10: space before tab in indent.
++ 	history := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "POST", lookup, "ind-root-original", projectUpdateLookupBody).want(t, 200)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:11: space before tab in indent.
++ 	if current.object(t)["version"] != "3" || !bytes.Equal(first.body, replay.body) || first.object(t)["description"] != description {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:13: space before tab in indent.
++ 		t.Fatal("update lookup exposed Create namespace")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:14: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:15: space before tab in indent.
++ 	ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "POST", lookup, createKey, []byte(`{"command":"create"}`)).problem(t, 400, f.InvalidArgument)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:20: space before tab in indent.
++ 	dir := os.Getenv("AGENTEAM_PROJECT_UPDATE_BODY_DIR")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:21: space before tab in indent.
++ 	if dir == "" {
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes02/from-probes01.diff:22: space before tab in indent.
++ 		t.Fatal("fixed safe body destination required")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes03/delta.diff:4: space before tab in indent.
++ 		t.Fatal("lookup widened or advanced history")
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes03/delta.diff:5: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes03/delta.diff:6: space before tab in indent.
++ 	var createKey string
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes03/delta.diff:9: space before tab in indent.
++ 		t.Fatal(err)
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes03/delta.diff:10: space before tab in indent.
++ 	}
+docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/probes03/delta.diff:11: space before tab in indent.
++ 	otherVerb := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "POST", lookup, createKey, projectUpdateLookupBody).want(t, 200)

@@ -1,0 +1,25 @@
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/patch
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/patch-unwrap
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/lookup
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/lookup-unwrap
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/patch-exact
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/patch-overflow
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/lookup-exact
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/lookup-overflow
+=== RUN   TestProjectOwnerUpdateIndependentPureBoundaryOwnership/original-close-and-cancel-callback-both-join
+--- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership (0.03s)
+    --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation (0.00s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/patch (0.00s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/patch-unwrap (0.00s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/lookup (0.00s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/flush-capability-before-mutation/lookup-unwrap (0.00s)
+    --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps (0.01s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/patch-exact (0.00s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/patch-overflow (0.00s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/lookup-exact (0.00s)
+        --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/exact-encoded-body-caps/lookup-overflow (0.00s)
+    --- PASS: TestProjectOwnerUpdateIndependentPureBoundaryOwnership/original-close-and-cancel-callback-both-join (0.02s)
+PASS

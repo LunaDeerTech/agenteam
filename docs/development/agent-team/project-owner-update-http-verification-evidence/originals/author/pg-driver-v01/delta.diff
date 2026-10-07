@@ -1,0 +1,40 @@
+--- accepted-owner-read-pg-v02
++++ update-pg-driver-v01
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Frozen D08 Project Owner read HTTP fixture runner. --execute-authorized requires root's resource window."""
++"""Frozen D08 Project Owner update HTTP fixture runner. --execute-authorized requires root's resource window."""
+ import argparse
+ import ctypes
+ import datetime
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+-GROUPS = {'new-projection': ['TestModelProjectOwnerReadHTTPProjectionAndPaging'], 'new-terminal': ['TestModelProjectOwnerReadHTTPAuthorityAndTerminal'], 'new-root': ['TestModelProjectOwnerReadHTTPRootBinding'], 'old': ['TestProjectB02OwnerSessionNamePathAndPaging', 'TestProjectB02OwnerPortRequiresCallerTransactionLocks', 'TestModelProjectUsageHTTPProjectionAndPath', 'TestModelProjectUsageHTTPRootBinding', 'TestModelSystemHTTPBoundaryAndStrictWire', 'TestModelSystemHTTPCurrentAdministrator'], 'old-usage-recovery': ['TestModelProjectUsageHTTPProjectionAndPath']}
++GROUPS = {'new-strict': ['TestModelProjectOwnerUpdateHTTPStrictAndReplay'], 'new-authority': ['TestModelProjectOwnerUpdateHTTPAuthorityAndAtomicity'], 'new-unknown': ['TestModelProjectOwnerUpdateHTTPUnknown'], 'new-root': ['TestModelProjectOwnerUpdateHTTPRootBinding'], 'old': ['TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp', 'TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName', 'TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal', 'TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization', 'TestModelProjectOwnerReadHTTPProjectionAndPaging', 'TestModelProjectOwnerReadHTTPRootBinding', 'TestModelProjectUsageHTTPRootBinding', 'TestModelMeetingSummarySettingsRoot', 'TestModelSystemHTTPConfigurationCRUD']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -352,9 +352,9 @@
+     env = runtime_environment(runtime)
+     evidence = run / 'safe-http-evidence'
+     evidence.mkdir(mode=0o700)
+-    env['AGENTEAM_PROJECT_READ_BODY_DIR'] = str(evidence)
+-    env['AGENTEAM_PROJECT_READ_RUN'] = args.name
+-    env['AGENTEAM_PROJECT_READ_CANDIDATE'] = FROZEN['candidate_sha256']
++    env['AGENTEAM_PROJECT_UPDATE_BODY_DIR'] = str(evidence)
++    env['AGENTEAM_PROJECT_UPDATE_RUN'] = args.name
++    env['AGENTEAM_PROJECT_UPDATE_CANDIDATE'] = FROZEN['candidate_sha256']
+     env['AGENTEAM_PROJECT_READ_SCHEMA_PYTHON'] = PYTHON
+     env['AGENTEAM_USAGE_SCHEMA_PYTHON'] = PYTHON
+     expected = set(GROUPS[args.group])
+@@ -387,7 +387,7 @@
+                 process.send_signal(signal.SIGTERM)
+         signal.signal(signal.SIGTERM, request_stop)
+         signal.signal(signal.SIGINT, request_stop)
+-        watcher = threading.Thread(target=watch_output, args=(run / 'raw.log', watchdog, watch_stop, request_stop, errors), name='project-owner-read-top-watchdog')
++        watcher = threading.Thread(target=watch_output, args=(run / 'raw.log', watchdog, watch_stop, request_stop, errors), name='project-owner-update-top-watchdog')
+         watcher.start()
+         next_resources = 0.0
+         while True:

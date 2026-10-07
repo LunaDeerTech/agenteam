@@ -1,0 +1,46 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/graph-fixture01/result.json",
+  "source_sha256": "7dea3faf92b1c1c60e211273abfb5f34ad251d79f88a76f6bd28fecf159289fe",
+  "source_bytes": 513702,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 0.8838652530030231,
+    "direct_child_pid": 633973,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 633973,
+        "ppid": 633970,
+        "pgid": 633973,
+        "state": "Z",
+        "starttime": "2316204"
+      },
+      {
+        "pid": 633979,
+        "ppid": 633973,
+        "pgid": 633973,
+        "state": "R",
+        "starttime": "2316216"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "84bc1962f9a92a369d68bf277e501a281a9dd0a0775bb71b1dd18673fa702939",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

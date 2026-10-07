@@ -1,0 +1,50 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/http-purerun01/command.json",
+  "source_sha256": "9a7731155cd6b2cf94b7b8cf0f291e7c2f09f9cab4b0c316b852a52a54952c25",
+  "source_bytes": 514637,
+  "omitted": [
+    {
+      "json_path": "inputs_before",
+      "type": "dict",
+      "entries": 3636
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "argv": [
+      "/workspace/scratch/project-owner-update-http-author/http-pure.test",
+      "-test.v",
+      "-test.count=1",
+      "-test.timeout=40s",
+      "-test.run",
+      "^TestProjectOwner(ReadHTTPPure|ReadWire|UpdatePure|UpdateWire)"
+    ],
+    "cwd": "/workspace/agenteam/internal/central/project/http",
+    "environment_overrides": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "TMPDIR": "/workspace/scratch/project-owner-update-http-author/tmp",
+      "CGO_ENABLED": "1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+      "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "subreaper": true,
+    "driver_pid": 635419,
+    "driver_sha256": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06",
+    "frozen_manifest_sha256": "7bc8841c3a000c312ce645ae2e400aaa2cb7097b761c8a1fe7bf024c139827ce",
+    "started_utc": "2026-10-07T18:21:51Z",
+    "total_deadline_seconds": 45,
+    "child_timeout_seconds": 42
+  }
+}

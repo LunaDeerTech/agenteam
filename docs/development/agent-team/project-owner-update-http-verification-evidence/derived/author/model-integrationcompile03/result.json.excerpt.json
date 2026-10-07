@@ -1,0 +1,95 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/model-integrationcompile03/result.json",
+  "source_sha256": "9d86b83b0a5132bf42baa9e70a5c579c92dac8f7e2a167ca98adb357dcb9fcfd",
+  "source_bytes": 514589,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 8.11964890300078,
+    "direct_child_pid": 652153,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 652153,
+        "ppid": 652150,
+        "pgid": 652153,
+        "state": "Z",
+        "starttime": "2472601"
+      },
+      {
+        "pid": 652172,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "S",
+        "starttime": "2472623"
+      },
+      {
+        "pid": 652176,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "S",
+        "starttime": "2472667"
+      },
+      {
+        "pid": 652200,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "R",
+        "starttime": "2472753"
+      },
+      {
+        "pid": 652245,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "R",
+        "starttime": "2473179"
+      },
+      {
+        "pid": 652253,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "R",
+        "starttime": "2473183"
+      },
+      {
+        "pid": 652284,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "S",
+        "starttime": "2473316"
+      },
+      {
+        "pid": 652288,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "R",
+        "starttime": "2473321"
+      },
+      {
+        "pid": 652292,
+        "ppid": 652153,
+        "pgid": 652153,
+        "state": "S",
+        "starttime": "2473329"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

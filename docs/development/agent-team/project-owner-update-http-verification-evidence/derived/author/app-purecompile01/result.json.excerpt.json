@@ -1,0 +1,53 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/app-purecompile01/result.json",
+  "source_sha256": "d3ca03e08dff75adc9965dea940bd426b813cf367e468273975f13a02c7830d5",
+  "source_bytes": 513829,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 1,
+    "timed_out": false,
+    "elapsed_seconds": 1.1525427480009967,
+    "direct_child_pid": 634583,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 634583,
+        "ppid": 634580,
+        "pgid": 634583,
+        "state": "Z",
+        "starttime": "2319937"
+      },
+      {
+        "pid": 634602,
+        "ppid": 634583,
+        "pgid": 634583,
+        "state": "R",
+        "starttime": "2319956"
+      },
+      {
+        "pid": 634606,
+        "ppid": 634583,
+        "pgid": 634583,
+        "state": "S",
+        "starttime": "2319986"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 1,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "100e08ba6a2f92e65d19748095a0a0cc1c27a00a90ed8317d60d4938ae1ce0e1"
+  }
+}

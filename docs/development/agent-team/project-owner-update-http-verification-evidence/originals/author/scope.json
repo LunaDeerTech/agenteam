@@ -1,0 +1,92 @@
+[
+  {
+    "path": "internal/central/project/http/update.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/project/http/update_wire.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/project/http/update_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/project/http/update_wire_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/project/http/update_native_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/project/http/wire.go",
+    "new": false,
+    "baseline_sha256": "563f97c2dcc7899ff2675308c60c0f6e6432b8c1dd8a9d9a03de1623b79c68e0"
+  },
+  {
+    "path": "api/openapi/project-owner.json",
+    "new": false,
+    "baseline_sha256": "a1c635616c0bbf51aa232c4faba0480107cf57f02b7609ef59c3cc39c77c005e"
+  },
+  {
+    "path": "internal/central/app/project_update.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/app/project_update_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/app/account.go",
+    "new": false,
+    "baseline_sha256": "4e8c3e18b4748caeef850a1437106b60ecf4477bdb85378c7e998ed98afcfe53"
+  },
+  {
+    "path": "internal/central/app/security.go",
+    "new": false,
+    "baseline_sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7"
+  },
+  {
+    "path": "internal/central/app/model_test.go",
+    "new": false,
+    "baseline_sha256": "a21efaa382a99c587c9450130a0e9308de919f3176008d2f72b8064055564f7a"
+  },
+  {
+    "path": "internal/central/app/account_lifecycle_test.go",
+    "new": false,
+    "baseline_sha256": "aed79b3475216ad3c72fca7c79d4998cdfa30006d86345c4eab8e638a7daa598"
+  },
+  {
+    "path": "tests/model/project_owner_update_http_fixture_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/project_owner_update_http_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/project_owner_update_http_unknown_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/project_owner_update_http_root_test.go",
+    "new": true,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/project_owner_read_http_root_test.go",
+    "new": false,
+    "baseline_sha256": "b726bf27c67f0ee8030b8531b2af3c368a2b7e70859095c73347c899a643e35f"
+  }
+]

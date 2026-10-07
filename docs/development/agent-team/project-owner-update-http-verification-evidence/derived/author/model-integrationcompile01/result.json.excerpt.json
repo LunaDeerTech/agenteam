@@ -1,0 +1,95 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/model-integrationcompile01/result.json",
+  "source_sha256": "487bf10a8c18139e0204ce426d2dbcddecc5657f26ae9fbfda55aea0c4452dbd",
+  "source_bytes": 514590,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 8.532535678998102,
+    "direct_child_pid": 635852,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 635852,
+        "ppid": 635829,
+        "pgid": 635852,
+        "state": "Z",
+        "starttime": "2330216"
+      },
+      {
+        "pid": 635871,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "R",
+        "starttime": "2330238"
+      },
+      {
+        "pid": 635875,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "R",
+        "starttime": "2330281"
+      },
+      {
+        "pid": 635879,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "S",
+        "starttime": "2330374"
+      },
+      {
+        "pid": 635962,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "Z",
+        "starttime": "2330834"
+      },
+      {
+        "pid": 635971,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "Z",
+        "starttime": "2330838"
+      },
+      {
+        "pid": 635982,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "R",
+        "starttime": "2330979"
+      },
+      {
+        "pid": 635986,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "R",
+        "starttime": "2330983"
+      },
+      {
+        "pid": 635990,
+        "ppid": 635852,
+        "pgid": 635852,
+        "state": "S",
+        "starttime": "2330992"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

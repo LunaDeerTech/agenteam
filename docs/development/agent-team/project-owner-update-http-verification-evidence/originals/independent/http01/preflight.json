@@ -1,0 +1,21 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-update-http-author/candidate06/manifest.json",
+    "sha256": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+  },
+  "parent": {
+    "path": "/workspace/scratch/project-owner-update-http-author/pregraph01.json",
+    "sha256": "7807d9317f24da98ed6a1ce89d8ef4d3eb72fb13a62cf99683b61e607d4a603e"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/overlay.json",
+    "sha256": "3e68911dc5dd6afdd1918a7291eb1a29c24280f5e7de25df97585b48a2bd539b"
+  },
+  "tool_fingerprints": {
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "mismatches": [],
+  "expected_files_count": 3196
+}

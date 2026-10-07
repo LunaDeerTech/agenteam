@@ -1,0 +1,69 @@
+{
+  "scope": "Model private two probes: compile/list only, no test bodies or resources.",
+  "runner_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/closure.json",
+    "sha256": "ba4c5a43abddb208baf4db1ab27877584f9bb68f26dab22e6afe365a26798297"
+  },
+  "tools": {
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "environment": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-update-http-verification/probes03/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes03/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes03/tmp",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+  },
+  "cwd": "/workspace/agenteam",
+  "output_root": "/workspace/scratch/project-owner-update-http-verification/probes03/offline",
+  "commands": [
+    {
+      "label": "f03-format-d",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-d",
+        "/workspace/scratch/project-owner-update-http-verification/probes03/independent_update_test.go"
+      ],
+      "stdout_empty": true
+    },
+    {
+      "label": "c02-model-race",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-p=1",
+        "-c",
+        "-o",
+        "/workspace/scratch/project-owner-update-http-verification/probes03/bin/model-race.test",
+        "./tests/model"
+      ],
+      "binary_output": "/workspace/scratch/project-owner-update-http-verification/probes03/bin/model-race.test"
+    },
+    {
+      "label": "v01-model-race",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-race",
+        "-tags=integration",
+        "./tests/model"
+      ]
+    }
+  ]
+}

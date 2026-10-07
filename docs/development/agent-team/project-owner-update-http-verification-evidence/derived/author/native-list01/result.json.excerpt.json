@@ -1,0 +1,39 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/native-list01/result.json",
+  "source_sha256": "b67e2651b79092a422a9891755d52b2dcc835e26a6b80dd425541e4fd2b47510",
+  "source_bytes": 514010,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3637
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.6485816280001018,
+    "direct_child_pid": 646530,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 646530,
+        "ppid": 646505,
+        "pgid": 646530,
+        "state": "Z",
+        "starttime": "2423460"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "d05162ba001bb40dfa41cbf877e2e484d13a6efc7e6c1c35671de4598d748967",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

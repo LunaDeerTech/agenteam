@@ -1,0 +1,87 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-race",
+    "-tags=integration",
+    "./tests/model"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-update-http-verification/probes02/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes02/tmp",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "plan_sha256": "3c0af0d49544f3034f1d82a81b63ae6bddd71e97b89f75c9f87620662c98a8f0",
+  "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "started_unix": 1791399421.1502545,
+  "subreaper": true,
+  "main_pid": 659387,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.7890539799991529,
+  "total_seconds": 1.337032362996979,
+  "observed_processes": [
+    {
+      "pid": 659387,
+      "starttime": "2537297",
+      "ppid": 659384,
+      "pgrp": 659387,
+      "state": "S"
+    },
+    {
+      "pid": 659414,
+      "starttime": "2537325",
+      "ppid": 659387,
+      "pgrp": 659387,
+      "state": "R"
+    },
+    {
+      "pid": 659418,
+      "starttime": "2537330",
+      "ppid": 659387,
+      "pgrp": 659387,
+      "state": "S"
+    },
+    {
+      "pid": 659422,
+      "starttime": "2537338",
+      "ppid": 659387,
+      "pgrp": 659387,
+      "state": "R"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791399421.9469385,
+      "remaining": []
+    },
+    {
+      "time": 1791399422.0504365,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

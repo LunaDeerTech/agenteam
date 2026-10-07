@@ -1,0 +1,11 @@
+--- probes02/independent_update_test.go
++++ probes03/independent_update_test.go
+@@ -344,7 +344,7 @@
+ 		t.Fatal("lookup widened or advanced history")
+ 	}
+ 	var createKey string
+-	if err := v.raw.QueryRow(testContext(t), `SELECT key FROM agenteam_project.creations WHERE project_id=$1`, v.project.ID.String()).Scan(&createKey); err != nil {
++	if err := v.raw.QueryRow(testContext(t), `SELECT command_key FROM agenteam_project.creations WHERE project_id=$1`, v.project.ID.String()).Scan(&createKey); err != nil {
+ 		t.Fatal(err)
+ 	}
+ 	otherVerb := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "POST", lookup, createKey, projectUpdateLookupBody).want(t, 200)

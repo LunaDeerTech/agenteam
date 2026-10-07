@@ -1,0 +1,63 @@
+{
+  "parent": {
+    "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/closure.json",
+    "sha256": "899f117bb49142bcc5494723e8008d7a7279a7f84b763d2297638ea6482641de"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-update-http-author/candidate06/manifest.json",
+    "sha256": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+  },
+  "independent_graph": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes01/actual-graph-check.json",
+    "sha256": "4da18abe2737ef5a7647470f375e794630e6b49284cb2fe305a806f7c6ab3fc9"
+  },
+  "files": {
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/project/http/update.go": "99f487afa654325e60d505149f3d9def1c6a747e6fd6444c8703cb8997710d25",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/project/http/update_wire.go": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/project/http/update_test.go": "53f844976d08f06f62314e6ed4cb5ef4b4a63473d58fe76c20fb172c05a4a50c",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/project/http/update_wire_test.go": "10d6e59510fb445a1e3490852692b75dc43cee642fafb1eefb81fc30af7d789e",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/project/http/update_native_test.go": "45899c572783c465f754195ac2ab572296889e24cf07159b0b03a8bf2201b708",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/project/http/wire.go": "323936c09a2f78059abadfedfbdc38dce35040cb361ea8c62287112605da3bc5",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/api/openapi/project-owner.json": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/app/project_update.go": "98f55d15d6799d98c335680b5ef6ddd840597a78e201ca3de3c6f1601baa96fa",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/app/project_update_test.go": "7cdf19d327d9c516a6b9d0a68295c1b936ca7580f986c0b62bea30fd8cea347b",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/app/account.go": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/app/security.go": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/app/model_test.go": "add9f36b02578dc62291d9fe89ffd2df99274cd4d492f1d2f79f6a6d8f2f1dfc",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/internal/central/app/account_lifecycle_test.go": "53e8dad0a3f6d9fc62236f9777148838dcfe9b238504a812f05edcb4e6e5d4a3",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/tests/model/project_owner_update_http_fixture_test.go": "fd4aae26e4f60dea081dcc0028ffd6d04a218b65fd79608caf2ddf5ed401675d",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/tests/model/project_owner_update_http_test.go": "1808113edba7570bacb38582097ed8e8715a437a1ac1310ed5c1b44f1d575bbc",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/tests/model/project_owner_update_http_unknown_test.go": "beb939a03979e4f5c7c34e40f2fa6cb2ba762e828636eb6c4ae69ad438e95ef3",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/tests/model/project_owner_update_http_root_test.go": "352cfa5d35c39109fd0759cc8879ebe65e53df2a686e564b5c5fa9fd388b0103",
+    "/workspace/scratch/project-owner-update-http-author/candidate06/src/tests/model/project_owner_read_http_root_test.go": "3c4fed7f38b259257190ea97f08bb8aa77c2bd18c1c3114d3e1eb232722112d5",
+    "/workspace/scratch/project-owner-update-http-verification/probes01/independent_update_test.go": "9d892d1dc20030b2604871abc5e154591bb5271ed716e47cf5bd91a69e64ed70",
+    "/workspace/scratch/project-owner-update-http-verification/probes01/independent_transport_test.go": "9d95855b3b43e27698fb53c4d90ef8007db07f6eadddd9bde750ff563c70827b",
+    "/workspace/scratch/project-owner-update-http-verification/probes01/overlay.json": "3d041f1f68fd61064904219a71c068496552429b8d5b60d5457fb483becd4e8d",
+    "/workspace/.cache/go-build/1a/1aded6a6ac0bb7254efc08c41f613ecff3d5666d6beb54583cca73733e6671f5-d": "1aded6a6ac0bb7254efc08c41f613ecff3d5666d6beb54583cca73733e6671f5",
+    "/workspace/scratch/project-owner-update-http-verification/probes01/close-graph.py": "8c1218caefdb5372af97a805fc76e8cbc24cf40367f3785540b7fe03843e6450",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/independent_update_test.go": "4bdc06e6ec9c5dad7f340965ee15606aaffc3eac6d225523256d55a4e7d33025",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/overlay.json": "85ad26380ac13b7cedc5d190a1a232ed04ad12cebc4f2eeaf70d43ba8620ad87",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/driver.py": "0c2f2bf5b6b263fc00f1df1a400b1f80a201603f6960e563c53a307c1e03b5e0",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/bin/model-race.test": "398778e3a246e62005a64a75df88089856c1ecc57285f08a82afdd6980c7da91",
+    "/workspace/agenteam/api/openapi/project-owner.json": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/independent_update_test.go": "8c0bdd44764466f17f409c044bdb3e817e9262f94facf841758106cdcabe9a7f",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/overlay.json": "558c30d207afdd95010bc5353301a74e4f2ee54ddcfc5f897805f81d13c2d472",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/bin/model-race.test": "4802f8f8a2d7064484dd715ba901c540d8f61a41bf7a1036ed3332a9c96e31a4",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/driver.py": "0c2f2bf5b6b263fc00f1df1a400b1f80a201603f6960e563c53a307c1e03b5e0"
+  },
+  "package_file_additions": {
+    "/workspace/agenteam/tests/model": [
+      "zz_independent_update_test.go",
+      "zz_independent_transport_test.go"
+    ]
+  },
+  "actual_graph_topology_reuse": {
+    "graph": {
+      "path": "/workspace/scratch/project-owner-update-http-verification/probes01/actual-graph-check.json",
+      "sha256": "4da18abe2737ef5a7647470f375e794630e6b49284cb2fe305a806f7c6ab3fc9"
+    },
+    "reason": "One auxiliary SQL column string key->command_key in B; no import/fileset/runtime dependency change; A bytes unchanged."
+  },
+  "resource_readiness": "No resources started. Requires root exclusive window; fresh current-environment PID/starttime/daemon/7-resource baselines will be recorded then.",
+  "runtime_read_note": "Go overlay does not affect os.ReadFile. Real HTTP export reads actual repository project-owner.json, separately fingerprinted alongside frozen snapshot; common.json remains in parent runtime closure."
+}

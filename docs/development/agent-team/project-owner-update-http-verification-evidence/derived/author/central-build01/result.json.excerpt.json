@@ -1,0 +1,67 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/central-build01/result.json",
+  "source_sha256": "542a28a866589d7c4c5404d028445f46567b44ac2ea11487e3df13563886b9ca",
+  "source_bytes": 514083,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.6341435150025063,
+    "direct_child_pid": 644160,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 644160,
+        "ppid": 644137,
+        "pgid": 644160,
+        "state": "Z",
+        "starttime": "2403942"
+      },
+      {
+        "pid": 644165,
+        "ppid": 644160,
+        "pgid": 644160,
+        "state": "R",
+        "starttime": "2403947"
+      },
+      {
+        "pid": 644200,
+        "ppid": 644160,
+        "pgid": 644160,
+        "state": "R",
+        "starttime": "2403961"
+      },
+      {
+        "pid": 644204,
+        "ppid": 644160,
+        "pgid": 644160,
+        "state": "R",
+        "starttime": "2404035"
+      },
+      {
+        "pid": 644212,
+        "ppid": 644160,
+        "pgid": 644160,
+        "state": "S",
+        "starttime": "2404042"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

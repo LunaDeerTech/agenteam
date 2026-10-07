@@ -1,0 +1,30 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/project-library-reuse06.json",
+  "source_sha256": "0f81b72c0655cd2cc06fd8af361349e821e1a6c9648ba748eb96b522fed6c892",
+  "source_bytes": 253826,
+  "omitted": [
+    {
+      "json_path": "files",
+      "type": "dict",
+      "entries": 1819
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "accepted_project_race_result": "/workspace/scratch/project-owner-read-http-author/project-racerun01/result.json",
+    "accepted_project_race_result_sha256": "7340a4c5acb717a331fd704f6c7dd8f5d64d3921d840869f6b1eb6b65a046868",
+    "selected_packages": 293,
+    "actual_selected_files": 1819,
+    "missing_prior_fingerprints": [],
+    "changed_actual_files": [],
+    "limitation": "No new Project-library source changes. Original pure version combination includes retained owner-read project-purerun01 assertion failures and5top rerun02; race full52top is accepted final unchanged source. No new tests claimed.",
+    "generated_testmain": [
+      {
+        "path": "/workspace/.cache/go-build/fe/febbcea1e3851e8b0825bd5c70c823c499f61cca5e020fd368e1a86b3d6fd053-d",
+        "sha256": "febbcea1e3851e8b0825bd5c70c823c499f61cca5e020fd368e1a86b3d6fd053"
+      }
+    ],
+    "generated_testmain_same_as_accepted_graph": true
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "rounds": [
+    {
+      "run": "independent-a01",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateIndependentAuthorityAndTerminal"
+        ]
+      ],
+      "double_cleanup": true,
+      "new_daemon_identities": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 703747,
+          "ppid": 1,
+          "starttime": "2592847",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 704280,
+          "ppid": 1,
+          "starttime": "2593239",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 704566,
+          "ppid": 1,
+          "starttime": "2593431",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 705141,
+          "ppid": 1,
+          "starttime": "2593622",
+          "state": "Z"
+        }
+      ],
+      "refs": {
+        "result.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/result.json",
+          "sha256": "9067270eddea3eb6a0bfa2db406e76bf92b3f86529500cf11b7e751156f2c0c0"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/raw.log",
+          "sha256": "f4753af8cdb17e940f4a2e43b3b44924f0ee33bcc77228de60e53eb0d3cdca3c"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/command.json",
+          "sha256": "5d4f96936a5a2053fa08fc6bc08c1d702bde6077f444f817c52663a4e69c065a"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/cleanup.json",
+          "sha256": "14ccb09de3802644e6ee9a74a682205656659976c85993079ab2bb2d4322fbb4"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/watchdog.json",
+          "sha256": "d027d16f5969287042f2e4e70901955cabf5ef8a64b696f48a00804663d9d13a"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/input-before.json",
+          "sha256": "5228783b88cf9d61a8f1de3b6f318c6c2b9d9171084966398f2543c1d6d52e1e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/input-after.json",
+          "sha256": "5228783b88cf9d61a8f1de3b6f318c6c2b9d9171084966398f2543c1d6d52e1e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/frozen-input.json",
+          "sha256": "b19aa963d68ae9b84693d55cae1a8bb81beb6ee5908b72a702ff6a23dc8e7b82"
+        }
+      }
+    },
+    {
+      "run": "independent-b01",
+      "actual_exit": 1,
+      "actual_wait": true,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectOwnerUpdateIndependentRootAndHistory"
+        ]
+      ],
+      "double_cleanup": true,
+      "new_daemon_identities": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 710993,
+          "ppid": 1,
+          "starttime": "2600648",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 711431,
+          "ppid": 1,
+          "starttime": "2601025",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 711795,
+          "ppid": 1,
+          "starttime": "2601233",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 712354,
+          "ppid": 1,
+          "starttime": "2601418",
+          "state": "Z"
+        }
+      ],
+      "refs": {
+        "result.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/result.json",
+          "sha256": "ff6a1f94444819da8d43266b33aa812d8a92468d6d4ced54112ee06421e8d327"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/raw.log",
+          "sha256": "4cb0d0967dc415ab2613e92d69623a1ed1db1bc6bfe47885df82cab7bbba69da"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/command.json",
+          "sha256": "f8d4f60b4c7a3fbad73ca9dcdebc856e571ab606f393098b6976f226df83cf2c"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/cleanup.json",
+          "sha256": "fd6913952cc8d8ae90156bbf34d5fa0a2d52a92c4e87430b0dd7a321f7b50130"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/watchdog.json",
+          "sha256": "83e1d26ade315be4580d3830e947f97d8a95ff219d8cc7431cbf90a3de52afd7"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/input-before.json",
+          "sha256": "5228783b88cf9d61a8f1de3b6f318c6c2b9d9171084966398f2543c1d6d52e1e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/input-after.json",
+          "sha256": "5228783b88cf9d61a8f1de3b6f318c6c2b9d9171084966398f2543c1d6d52e1e"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/frozen-input.json",
+          "sha256": "b19aa963d68ae9b84693d55cae1a8bb81beb6ee5908b72a702ff6a23dc8e7b82"
+        }
+      }
+    }
+  ],
+  "limit": "B01 failed auxiliarySQL and fully cleaned; all first failure evidence retained. No retry evidence implied."
+}

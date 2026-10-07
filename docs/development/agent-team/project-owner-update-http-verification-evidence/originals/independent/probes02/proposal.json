@@ -1,0 +1,112 @@
+{
+  "status": "READY_FOR_ROOT_EXCLUSIVE_RESOURCE_AUTHORIZATION_NOT_EXECUTED",
+  "proposal": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/PROPOSAL.md",
+    "sha256": "f6b1c6ec883702cfe12c406b36e76f6d985b511b15c757c6b284c163a124cb16"
+  },
+  "driver": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/driver.py",
+    "sha256": "0c2f2bf5b6b263fc00f1df1a400b1f80a201603f6960e563c53a307c1e03b5e0"
+  },
+  "frozen": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/frozen.json",
+    "sha256": "b19aa963d68ae9b84693d55cae1a8bb81beb6ee5908b72a702ff6a23dc8e7b82"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/closure.json",
+    "sha256": "b0740990c975fa3fb612342326b06d3662fe27e43115d9741c1d3abc17177105"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/overlay.json",
+    "sha256": "85ad26380ac13b7cedc5d190a1a232ed04ad12cebc4f2eeaf70d43ba8620ad87"
+  },
+  "probe": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/independent_update_test.go",
+    "sha256": "4bdc06e6ec9c5dad7f340965ee15606aaffc3eac6d225523256d55a4e7d33025"
+  },
+  "transport": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes01/independent_transport_test.go",
+    "sha256": "9d95855b3b43e27698fb53c4d90ef8007db07f6eadddd9bde750ff563c70827b"
+  },
+  "binary": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/bin/model-race.test",
+    "sha256": "398778e3a246e62005a64a75df88089856c1ecc57285f08a82afdd6980c7da91"
+  },
+  "independent_actual_graph": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes01/actual-graph-check.json",
+    "sha256": "4da18abe2737ef5a7647470f375e794630e6b49284cb2fe305a806f7c6ab3fc9"
+  },
+  "author_parent_closure": {
+    "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/closure.json",
+    "sha256": "899f117bb49142bcc5494723e8008d7a7279a7f84b763d2297638ea6482641de"
+  },
+  "schema_post_parser": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/validate_body.py",
+    "sha256": "6d63ab67948c7548cb01fdc4f0ac84f6b0ad5946aaf923ec0d03956af7cdedff"
+  },
+  "first_compile_failure": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes01/offline/c01-model-race/result.json",
+    "sha256": "894ecf23b36b5cec1a88561be1d1ae76e17064947525ba34a21343416199f5c8"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/from-probes01.diff",
+    "sha256": "671f7c13beaa6149913582efb771d304ea5cc35f031e330d11bcf2485db2b0dd"
+  },
+  "template_check": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/template-check.json",
+    "sha256": "51ecfd175fe8afb0d0de2b347774f352f343232c2a0e43c21f52d8db9a68f5de"
+  },
+  "runs": {
+    "f03-format-d": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes02/offline/f03-format-d/result.json",
+        "sha256": "804bb1f428d3cc6f676ea2a6d35a52fe35a7570858bdaf1c015bfa25d903ab80"
+      },
+      "execution_seconds": 0.005963570998574141,
+      "adopted_wait_count": 0,
+      "actual_wait": true,
+      "double_owned_empty": true
+    },
+    "c02-model-race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes02/offline/c02-model-race/result.json",
+        "sha256": "b2f0dc89de1a3295fe1f52f98322b63de20bcddf59701b9198915712fb6e0486"
+      },
+      "execution_seconds": 6.425394826001138,
+      "adopted_wait_count": 0,
+      "actual_wait": true,
+      "double_owned_empty": true
+    },
+    "v01-model-race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes02/offline/v01-model-race/result.json",
+        "sha256": "acee986fce7da5f4dd32dcb7b5f5659a5144fabe0211cddd986bce423f21f11b"
+      },
+      "execution_seconds": 0.7890539799991529,
+      "adopted_wait_count": 0,
+      "actual_wait": true,
+      "double_owned_empty": true
+    },
+    "l01-private-exact2": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes02/offline/l01-private-exact2/result.json",
+        "sha256": "ed5d601e547e0ae4b8e8b63a8b3b3cc1c0f5f575464cc0d655a7356020c48d85"
+      },
+      "execution_seconds": 1.041192543998477,
+      "adopted_wait_count": 0,
+      "actual_wait": true,
+      "double_owned_empty": true
+    },
+    "g02-resource-input-only": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes02/offline/g02-resource-input-only/result.json",
+        "sha256": "1d86117c330d57d524bbe08e8327e294ee7923c905c98b5010d8725ad5184ce6"
+      },
+      "execution_seconds": 0.9305587429989828,
+      "adopted_wait_count": 0,
+      "actual_wait": true,
+      "double_owned_empty": true
+    }
+  },
+  "resource_authorization": false
+}

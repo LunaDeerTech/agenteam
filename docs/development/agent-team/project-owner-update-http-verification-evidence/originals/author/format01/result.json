@@ -1,0 +1,47 @@
+{
+  "command_exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 0.12930627699824981,
+  "direct_child_pid": 633307,
+  "direct_child_joined": true,
+  "subreaper": true,
+  "adopted_reaped": [],
+  "processes_seen": [
+    {
+      "pid": 633307,
+      "ppid": 633304,
+      "pgid": 633307,
+      "state": "Z",
+      "starttime": "2310941"
+    }
+  ],
+  "actions": [],
+  "remaining_descendants": [],
+  "inputs_after": {
+    "/workspace/agenteam/internal/central/project/http/update.go": "971baf9484d09b883c3bd6816da66b09c1f249b89f95199dddb0062c6c94d657",
+    "/workspace/agenteam/internal/central/project/http/update_wire.go": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452",
+    "/workspace/agenteam/internal/central/project/http/update_test.go": "471e7b6fbf735a5477a2289df0a99791f92c418d5ab2558c011bd7a807ee9478",
+    "/workspace/agenteam/internal/central/project/http/update_wire_test.go": "10d6e59510fb445a1e3490852692b75dc43cee642fafb1eefb81fc30af7d789e",
+    "/workspace/agenteam/internal/central/project/http/update_native_test.go": "45899c572783c465f754195ac2ab572296889e24cf07159b0b03a8bf2201b708",
+    "/workspace/agenteam/internal/central/project/http/wire.go": "323936c09a2f78059abadfedfbdc38dce35040cb361ea8c62287112605da3bc5",
+    "/workspace/agenteam/internal/central/app/project_update.go": "a0373de54ea5b5d6eedc6b9143c5600fc42bea2c8eef1d2d64a6ce9a8a09d390",
+    "/workspace/agenteam/internal/central/app/project_update_test.go": "11ad707c65a06f210f634e553096ec7f11a03f339cbe4c8abb86cb7cb2a7637f",
+    "/workspace/agenteam/internal/central/app/account.go": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8",
+    "/workspace/agenteam/internal/central/app/security.go": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+    "/workspace/agenteam/internal/central/app/model_test.go": "add9f36b02578dc62291d9fe89ffd2df99274cd4d492f1d2f79f6a6d8f2f1dfc",
+    "/workspace/agenteam/internal/central/app/account_lifecycle_test.go": "53e8dad0a3f6d9fc62236f9777148838dcfe9b238504a812f05edcb4e6e5d4a3",
+    "/workspace/agenteam/tests/model/project_owner_update_http_fixture_test.go": "503a6a9befb3512fa0c87c2ed73a2ec1c07920f9cb1ca80257948972fdfa4163",
+    "/workspace/agenteam/tests/model/project_owner_update_http_test.go": "823ef88f2833399f77a321fbaa3283681b89215dd7c59f01b3969e74926558ba",
+    "/workspace/agenteam/tests/model/project_owner_update_http_unknown_test.go": "e101159f1dbb5f8af767965315636f03e525386631b5a1a71f463ac022380eb9",
+    "/workspace/agenteam/tests/model/project_owner_update_http_root_test.go": "5af75d96b28f03dab223fe8725222473a8222bdd503aacb288506cad6b811e52",
+    "/workspace/agenteam/tests/model/project_owner_read_http_root_test.go": "3c4fed7f38b259257190ea97f08bb8aa77c2bd18c1c3114d3e1eb232722112d5",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/scratch/project-owner-update-http-author/offline-driver.py": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06"
+  },
+  "inputs_match": true,
+  "owned_clear_observations": 2,
+  "exit_code": 0,
+  "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

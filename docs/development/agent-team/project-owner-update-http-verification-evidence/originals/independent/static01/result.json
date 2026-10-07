@@ -1,0 +1,34 @@
+{
+  "status": "STATIC_PRODUCTION_NO_BLOCKING_SEEN_VALIDATION_HOLD",
+  "review_sha256": "67fee047f43e95e0747f49cec6993383f19f34cc7fb20bbb64cb29fb9a8bdb23",
+  "inputs": [
+    {
+      "path": "/workspace/scratch/project-owner-update-http-author/candidate01/manifest.json",
+      "sha256": "2fee5d4b066f8d8e78ca6dbd2b095ddd12ac0038ea9a12c95ca54e6dddd7800e"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-author/candidate01/changes.diff",
+      "sha256": "11e302dff452dffdb7961c4c5147fa379c5f204842d8a38afd21e10ca9700d98"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-author/candidate02/manifest.json",
+      "sha256": "787e494ce78c3b1450680e725f68a287a4ab73308516a6e7d37c3bf25dc7208c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-author/candidate02/delta.diff",
+      "sha256": "fd63a8bcc33a92d779472d71ee7bb188819fb1ed8c0a324aa9211c2c12de12e2"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-update-http-author/graph-index01.json",
+      "sha256": "f23ea15bcf8e26e2b225cb9a74ed5098f02535aff9a2a1f89e0deb56873a6083"
+    }
+  ],
+  "findings": [
+    "U01 readyz new test assertion",
+    "U02 actual Unknown cancel/Drain/default-root in-flight shutdown coverage",
+    "U03 actual invalid facts/held-lock validator coverage"
+  ],
+  "author_repairs_coordinated_by_root": true,
+  "tests_or_resources_executed": false,
+  "stopped_writing": true
+}

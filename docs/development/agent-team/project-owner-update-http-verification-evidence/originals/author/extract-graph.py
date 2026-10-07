@@ -1,0 +1,20 @@
+from pathlib import Path
+import json,hashlib,sys
+b=Path('/workspace/scratch/project-owner-update-http-author');run=sys.argv[1];manifest=Path(sys.argv[2]);frozen=json.loads(manifest.read_text());raw=(b/run/'stdout.log').read_text();decoder=json.JSONDecoder();i=0;packages=[];files=set();generated=[]
+fields=['GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles']
+while i<len(raw):
+ while i<len(raw) and raw[i].isspace():i+=1
+ if i==len(raw):break
+ p,i=decoder.raw_decode(raw,i)
+ assert not p.get('Error') and not p.get('DepsErrors'),p.get('Error')
+ packages.append({'import':p['ImportPath'],'dir':p.get('Dir'),'standard':p.get('Standard',False),'for_test':p.get('ForTest')})
+ for field in fields:
+  for name in p.get(field,[]):
+   path=str(Path(name) if Path(name).is_absolute() else Path(p['Dir'])/name)
+   if '/.cache/go-build/' in path and p['ImportPath'].endswith('.test'):
+    generated.append({'path':path,'sha256':hashlib.sha256(Path(path).read_bytes()).hexdigest()});continue
+   files.add(path)
+extra=sorted(files-set(frozen['files']))
+m={'packages':packages,'files':{p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in sorted(files)},'generated_testmain':generated,'extra':extra}
+(b/run/'actual-graph.json').write_text(json.dumps(m,indent=2)+'\n')
+print(json.dumps({'packages':len(packages),'files':len(files),'generated':len(generated),'extra':extra[:40],'extra_count':len(extra)},indent=2))

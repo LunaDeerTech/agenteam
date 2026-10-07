@@ -1,0 +1,53 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/graph-dynamic01/command.json",
+  "source_sha256": "67c56072f089550b8209b170cd2a27cd18b1ba3664a0e9f949d807d71fac8b5d",
+  "source_bytes": 514383,
+  "omitted": [
+    {
+      "json_path": "inputs_before",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "list",
+      "-deps",
+      "-json",
+      "./tests/testsupport/objectstore/cmd/fixture",
+      "./tests/testsupport/outbound/cmd/fixture",
+      "./tests/testsupport/postgres/cmd/fixture",
+      "./cmd/agenteam",
+      "./cmd/agenteam-runner"
+    ],
+    "cwd": "/workspace/agenteam",
+    "environment_overrides": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "TMPDIR": "/workspace/scratch/project-owner-update-http-author/tmp",
+      "CGO_ENABLED": "1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+      "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "subreaper": true,
+    "driver_pid": 634062,
+    "driver_sha256": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06",
+    "frozen_manifest_sha256": "7807d9317f24da98ed6a1ce89d8ef4d3eb72fb13a62cf99683b61e607d4a603e",
+    "started_utc": "2026-10-07T18:20:14Z",
+    "total_deadline_seconds": 45,
+    "child_timeout_seconds": 42
+  }
+}

@@ -1,0 +1,111 @@
+--- candidate05/internal/central/project/http/update.go
++++ candidate06/internal/central/project/http/update.go
+@@ -35,8 +35,8 @@
+ 	flush func() error
+ }
+ 
+-func prepareUpdateIO(w http.ResponseWriter) (*updateIOWriter, bool) {
+-	io := &updateIOWriter{ResponseWriter: w}
++func (io *updateIOWriter) prepare() bool {
++	w := io.ResponseWriter
+ 	for depth := 0; depth < 64 && w != nil; depth++ {
+ 		if io.read == nil {
+ 			if v, ok := w.(interface{ SetReadDeadline(time.Time) error }); ok {
+@@ -57,7 +57,7 @@
+ 			}
+ 		}
+ 		if io.read != nil && io.write != nil && io.flush != nil {
+-			return io, true
++			return true
+ 		}
+ 		v, ok := w.(interface{ Unwrap() http.ResponseWriter })
+ 		if !ok {
+@@ -65,7 +65,7 @@
+ 		}
+ 		w = v.Unwrap()
+ 	}
+-	return io, false
++	return false
+ }
+ func (w *updateIOWriter) SetReadDeadline(at time.Time) error {
+ 	if w.read == nil {
+@@ -126,7 +126,7 @@
+ 	defer cancel()
+ 	r := request.WithContext(ctx)
+ 	w = abortWriter{w}
+-	io, ready := prepareUpdateIO(w)
++	io := &updateIOWriter{ResponseWriter: w}
+ 	// Keep ownership of the original stream: DecodeJSON's MaxBytesReader only
+ 	// wraps it and is never independently closed by this handler.
+ 	budget := requestIO{controller: http.NewResponseController(io), ctx: ctx, body: r.Body}
+@@ -138,7 +138,7 @@
+ 			panic(http.ErrAbortHandler)
+ 		}
+ 	}()
+-	if !ready {
++	if !io.prepare() {
+ 		panic(http.ErrAbortHandler)
+ 	}
+ 	if err := budget.start(); err != nil {
+--- candidate05/internal/central/project/http/update_test.go
++++ candidate06/internal/central/project/http/update_test.go
+@@ -99,9 +99,13 @@
+ 
+ func (w updateBothFlush) Flush() { *w.flusher++ }
+ 
++type updatePanicUnwrapper struct{ handlerNoFlush }
++
++func (w updatePanicUnwrapper) Unwrap() http.ResponseWriter { panic("private unwrap") }
++
+ func TestProjectOwnerUpdatePureIOCapabilitiesBeforeService(t *testing.T) {
+ 	for _, lookup := range []bool{false, true} {
+-		for _, mode := range []string{"missing", "cycle", "cycle-with-deadlines", "nil-unwrap", "FlushError", "Flusher", "wrapped"} {
++		for _, mode := range []string{"missing", "cycle", "cycle-with-deadlines", "nil-unwrap", "panic-unwrap", "FlushError", "Flusher", "wrapped"} {
+ 			t.Run(map[bool]string{false: "PATCH", true: "lookup"}[lookup]+"/"+mode, func(t *testing.T) {
+ 				h, b, s := updateFixture()
+ 				method, path, body := "PATCH", httpDetailPath, updateTestBody
+@@ -132,6 +136,8 @@
+ 					}
+ 				case "nil-unwrap":
+ 					writer = &updateUnwrapper{ResponseWriter: base}
++				case "panic-unwrap":
++					writer = updatePanicUnwrapper{handlerNoFlush{base}}
+ 				case "Flusher":
+ 					writer = updateFlusher{handlerNoFlush{base}}
+ 				case "wrapped":
+@@ -141,7 +147,14 @@
+ 				r := updateRequest(method, path, body)
+ 				stream := &handlerBody{Reader: strings.NewReader(body)}
+ 				r.Body = stream
+-				aborted := updateServe(h, writer, r)
++				// Allocate the formal request identity before injecting a malformed
++				// writer into this handler. The shared middleware's own Unwrap walk
++				// is outside this handler capability/Close test.
++				aborted := handlerAborts(func() {
++					httpapi.WithRequestID(nil, http.HandlerFunc(func(_ http.ResponseWriter, tagged *http.Request) {
++						h.ServeHTTP(writer, tagged)
++					})).ServeHTTP(base, r)
++				})
+ 				if stream.closes.Load() != 1 {
+ 					t.Fatal("original body not closed exactly once")
+ 				}
+@@ -153,6 +166,9 @@
+ 				} else if !aborted || s.updates.Load()+s.lookups.Load() != 0 || auth != 0 || writes != 0 || headers != 0 || base.Body.Len() != 0 || base.flushes != 0 || base.Header().Get("Content-Type") != "" {
+ 					t.Fatal("unsupported capability reached auth/service/publication")
+ 				}
++				if mode == "panic-unwrap" || mode == "cycle-with-deadlines" || mode == "missing" {
++					base.assertCleared(t)
++				}
+ 			})
+ 		}
+ 	}
+@@ -162,7 +178,8 @@
+ 		lower := updateBothFlush{base, &flusher}
+ 		middle := updateWriteUnwrapper{&updateUnwrapper{ResponseWriter: base, next: lower}, &writes}
+ 		upper := updateReadUnwrapper{&updateUnwrapper{ResponseWriter: base, next: middle}, &reads}
+-		io, ready := prepareUpdateIO(upper)
++		io := &updateIOWriter{ResponseWriter: upper}
++		ready := io.prepare()
+ 		if !ready || reads+writes+flusher+base.flushes != 0 || len(base.reads)+len(base.writes) != 0 {
+ 			t.Fatal("preflight performed I/O")
+ 		}

@@ -1,0 +1,39 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/http-purerun02/result.json",
+  "source_sha256": "06e8e19398834ba509ed0c35e5ec14b809b8920aea5b7d488e0a567d16603157",
+  "source_bytes": 513718,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3635
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 2,
+    "timed_out": false,
+    "elapsed_seconds": 3.231058672998188,
+    "direct_child_pid": 649929,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 649929,
+        "ppid": 649905,
+        "pgid": 649929,
+        "state": "Z",
+        "starttime": "2452976"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 2,
+    "stdout.log_sha256": "4ca184f427ceffbf164353cb0567a987795aab357422dbcb93210222c5ea9158",
+    "stderr.log_sha256": "4f1b1b40619fbde640dde83f7f6a436bcaee36ba12007642a95e19db16844b94"
+  }
+}

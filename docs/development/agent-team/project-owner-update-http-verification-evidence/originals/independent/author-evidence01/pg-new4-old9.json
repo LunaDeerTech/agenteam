@@ -1,0 +1,204 @@
+{
+  "status": "BOUNDED_AUTHOR_NEW4_OLD9_EVIDENCE_PASS",
+  "rounds": [
+    {
+      "name": "new4",
+      "refs": {
+        "result.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/result.json",
+          "sha256": "05065b7a7d0180aab704cba74ae886fd233d30f23ca11edf24cc0bf2688c7601"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/raw.log",
+          "sha256": "d92e764dbd01b769a9c08158c4aca2201e421d537cabf883d752000124ba896f"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/command.json",
+          "sha256": "6152821c562c9cad351d3b54f02db9b0643bd05b86a61afcd235a1017d1c2767"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/cleanup.json",
+          "sha256": "21d8b9273af50247983d30a7a5667beff751b76e538e376cb2f12f9c7e1ead55"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/watchdog.json",
+          "sha256": "5c5d73076da7e0cfb170818af132b21be19813c2d9ae6712e135e4157218d870"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/input-before.json",
+          "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/input-after.json",
+          "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/frozen-input.json",
+          "sha256": "a08931e14dd5a4d71b2ed385fde496f468912119ceea07d67eb6d37707418f15"
+        }
+      },
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPRootBinding"
+        ]
+      ],
+      "nested_pass": 2,
+      "new_daemon_identities": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 684108,
+          "ppid": 1,
+          "starttime": "2570745",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 684565,
+          "ppid": 1,
+          "starttime": "2571135",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 684934,
+          "ppid": 1,
+          "starttime": "2571331",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 685435,
+          "ppid": 1,
+          "starttime": "2571507",
+          "state": "Z"
+        }
+      ],
+      "owned_pid_count": 82,
+      "actual_wait": true,
+      "double_seven_cleanup": true
+    },
+    {
+      "name": "old1",
+      "refs": {
+        "result.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/result.json",
+          "sha256": "28a89cc41daf1c892ec152c03a606b56fb5f98f36f3f69f1c144ecb974f42d27"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/raw.log",
+          "sha256": "267579cf1d29da902722e7cec2c53ca566d8e22ac004600b508f84faf1cebd38"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/command.json",
+          "sha256": "2540bcdba4ac355e65898e3b408be2ec7df938593481f87da2b7601f9535a5b2"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/cleanup.json",
+          "sha256": "c83ff0fbe48499939ed758e54721ab7563b7c9d13f0b3a8ae58c63882d0eb6a5"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/watchdog.json",
+          "sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/input-before.json",
+          "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/input-after.json",
+          "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/frozen-input.json",
+          "sha256": "a08931e14dd5a4d71b2ed385fde496f468912119ceea07d67eb6d37707418f15"
+        }
+      },
+      "top_levels": [
+        [
+          "PASS",
+          "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp"
+        ],
+        [
+          "PASS",
+          "TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName"
+        ],
+        [
+          "PASS",
+          "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal"
+        ],
+        [
+          "PASS",
+          "TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySettingsRoot"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerReadHTTPProjectionAndPaging"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelSystemHTTPConfigurationCRUD"
+        ]
+      ],
+      "nested_pass": 20,
+      "new_daemon_identities": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 691542,
+          "ppid": 1,
+          "starttime": "2577137",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 692078,
+          "ppid": 1,
+          "starttime": "2577599",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 692443,
+          "ppid": 1,
+          "starttime": "2577859",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 693046,
+          "ppid": 1,
+          "starttime": "2578037",
+          "state": "Z"
+        }
+      ],
+      "owned_pid_count": 92,
+      "actual_wait": true,
+      "double_seven_cleanup": true
+    }
+  ],
+  "limits": [
+    "normal root waits before pending writer release; legal100ms forced return does not prove root inner join; later proxy/backend terminal separately joined",
+    "old nine selectors exact existing tests; no new business scope",
+    "daemon PID1 zombies are not owned or waited; no whole-machine clear claim"
+  ]
+}

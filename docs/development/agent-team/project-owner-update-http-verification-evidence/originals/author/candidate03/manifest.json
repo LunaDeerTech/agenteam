@@ -1,0 +1,27 @@
+{
+  "status": "FROZEN_FOR_STATIC_AND_OFFLINE_NOT_ACCEPTED",
+  "baseline": "901eb546",
+  "source_files": {
+    "internal/central/project/http/update.go": "971baf9484d09b883c3bd6816da66b09c1f249b89f95199dddb0062c6c94d657",
+    "internal/central/project/http/update_wire.go": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452",
+    "internal/central/project/http/update_test.go": "471e7b6fbf735a5477a2289df0a99791f92c418d5ab2558c011bd7a807ee9478",
+    "internal/central/project/http/update_wire_test.go": "10d6e59510fb445a1e3490852692b75dc43cee642fafb1eefb81fc30af7d789e",
+    "internal/central/project/http/update_native_test.go": "45899c572783c465f754195ac2ab572296889e24cf07159b0b03a8bf2201b708",
+    "internal/central/project/http/wire.go": "323936c09a2f78059abadfedfbdc38dce35040cb361ea8c62287112605da3bc5",
+    "api/openapi/project-owner.json": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+    "internal/central/app/project_update.go": "98f55d15d6799d98c335680b5ef6ddd840597a78e201ca3de3c6f1601baa96fa",
+    "internal/central/app/project_update_test.go": "7cdf19d327d9c516a6b9d0a68295c1b936ca7580f986c0b62bea30fd8cea347b",
+    "internal/central/app/account.go": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8",
+    "internal/central/app/security.go": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+    "internal/central/app/model_test.go": "add9f36b02578dc62291d9fe89ffd2df99274cd4d492f1d2f79f6a6d8f2f1dfc",
+    "internal/central/app/account_lifecycle_test.go": "53e8dad0a3f6d9fc62236f9777148838dcfe9b238504a812f05edcb4e6e5d4a3",
+    "tests/model/project_owner_update_http_fixture_test.go": "fd4aae26e4f60dea081dcc0028ffd6d04a218b65fd79608caf2ddf5ed401675d",
+    "tests/model/project_owner_update_http_test.go": "1808113edba7570bacb38582097ed8e8715a437a1ac1310ed5c1b44f1d575bbc",
+    "tests/model/project_owner_update_http_unknown_test.go": "efff68256f6a3ef6539a7deaaf10ea7234e77d4a6eba630c8871250bc0fda06b",
+    "tests/model/project_owner_update_http_root_test.go": "0f8b7e29eeda2e7bcd88ae1d749c7a760e28db439d93401e4a905aa5bcb07417",
+    "tests/model/project_owner_read_http_root_test.go": "3c4fed7f38b259257190ea97f08bb8aa77c2bd18c1c3114d3e1eb232722112d5"
+  },
+  "source_snapshot": "/workspace/scratch/project-owner-update-http-author/candidate03/src",
+  "delta_from": "candidate01",
+  "delta_sha256": "9352ce42bf4b8d5231340b75e4d3d8ea6698d0c318a851124e9d67edf4131bfc"
+}

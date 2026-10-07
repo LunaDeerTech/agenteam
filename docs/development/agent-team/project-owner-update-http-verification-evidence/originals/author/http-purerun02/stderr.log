@@ -1,0 +1,338 @@
+runtime: goroutine stack exceeds 1000000000-byte limit
+runtime: sp=0x256f528e0390 stack=[0x256f528e0000, 0x256f728e0000]
+fatal error: stack overflow
+
+runtime stack:
+runtime.throw({0x8bb861?, 0x41ff01?})
+	/workspace/toolchains/go1.27.1/src/runtime/panic.go:1243 +0x48 fp=0x7fff1a56e6f8 sp=0x7fff1a56e6c8 pc=0x48d868
+runtime.newstack()
+	/workspace/toolchains/go1.27.1/src/runtime/stack.go:1207 +0x5dd fp=0x7fff1a56e828 sp=0x7fff1a56e6f8 pc=0x46d03d
+runtime.morestack()
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:650 +0x7b fp=0x7fff1a56e830 sp=0x7fff1a56e828 pc=0x49315b
+
+goroutine 23 gp=0x256f3278ad20 m=0 mp=0xec2f00 [running]:
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:27 +0x134 fp=0x256f528e03a0 sp=0x256f528e0398 pc=0x7d5db4
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e03c8 sp=0x256f528e03a0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e03f0 sp=0x256f528e03c8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0418 sp=0x256f528e03f0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0440 sp=0x256f528e0418 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0468 sp=0x256f528e0440 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0490 sp=0x256f528e0468 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e04b8 sp=0x256f528e0490 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e04e0 sp=0x256f528e04b8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0508 sp=0x256f528e04e0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0530 sp=0x256f528e0508 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0558 sp=0x256f528e0530 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0580 sp=0x256f528e0558 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e05a8 sp=0x256f528e0580 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e05d0 sp=0x256f528e05a8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e05f8 sp=0x256f528e05d0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0620 sp=0x256f528e05f8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0648 sp=0x256f528e0620 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0670 sp=0x256f528e0648 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0698 sp=0x256f528e0670 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e06c0 sp=0x256f528e0698 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e06e8 sp=0x256f528e06c0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0710 sp=0x256f528e06e8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0738 sp=0x256f528e0710 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0760 sp=0x256f528e0738 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0788 sp=0x256f528e0760 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e07b0 sp=0x256f528e0788 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e07d8 sp=0x256f528e07b0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0800 sp=0x256f528e07d8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0828 sp=0x256f528e0800 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0850 sp=0x256f528e0828 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0878 sp=0x256f528e0850 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e08a0 sp=0x256f528e0878 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e08c8 sp=0x256f528e08a0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e08f0 sp=0x256f528e08c8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0918 sp=0x256f528e08f0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0940 sp=0x256f528e0918 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0968 sp=0x256f528e0940 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0990 sp=0x256f528e0968 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e09b8 sp=0x256f528e0990 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e09e0 sp=0x256f528e09b8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0a08 sp=0x256f528e09e0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0a30 sp=0x256f528e0a08 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0a58 sp=0x256f528e0a30 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0a80 sp=0x256f528e0a58 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0aa8 sp=0x256f528e0a80 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0ad0 sp=0x256f528e0aa8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0af8 sp=0x256f528e0ad0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0b20 sp=0x256f528e0af8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f528e0b48 sp=0x256f528e0b20 pc=0x7d5cff
+...13421631 frames elided...
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df548 sp=0x256f728df520 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df570 sp=0x256f728df548 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df598 sp=0x256f728df570 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df5c0 sp=0x256f728df598 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df5e8 sp=0x256f728df5c0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df610 sp=0x256f728df5e8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df638 sp=0x256f728df610 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df660 sp=0x256f728df638 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df688 sp=0x256f728df660 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df6b0 sp=0x256f728df688 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df6d8 sp=0x256f728df6b0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df700 sp=0x256f728df6d8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df728 sp=0x256f728df700 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df750 sp=0x256f728df728 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df778 sp=0x256f728df750 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df7a0 sp=0x256f728df778 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df7c8 sp=0x256f728df7a0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df7f0 sp=0x256f728df7c8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df818 sp=0x256f728df7f0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df840 sp=0x256f728df818 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df868 sp=0x256f728df840 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df890 sp=0x256f728df868 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df8b8 sp=0x256f728df890 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df8e0 sp=0x256f728df8b8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df908 sp=0x256f728df8e0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df930 sp=0x256f728df908 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df958 sp=0x256f728df930 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df980 sp=0x256f728df958 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df9a8 sp=0x256f728df980 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df9d0 sp=0x256f728df9a8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728df9f8 sp=0x256f728df9d0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfa20 sp=0x256f728df9f8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfa48 sp=0x256f728dfa20 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfa70 sp=0x256f728dfa48 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfa98 sp=0x256f728dfa70 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfac0 sp=0x256f728dfa98 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfae8 sp=0x256f728dfac0 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfb10 sp=0x256f728dfae8 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc0f90?, 0x256f327bba20})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfb38 sp=0x256f728dfb10 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.stateOf({0xdc1020?, 0x256f327b4420})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:32 +0x7f fp=0x256f728dfb60 sp=0x256f728dfb38 pc=0x7d5cff
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.trackResponse({0xdc1020, 0x256f327b4420})
+	/workspace/agenteam/internal/central/httpapi/response_writer.go:105 +0x25 fp=0x256f728dfb98 sp=0x256f728dfb60 pc=0x7d60c5
+github.com/LunaDeerTech/agenteam/internal/central/httpapi.WithRequestID.func1({0xdc1020, 0x256f327b4420}, 0x256f32879680)
+	/workspace/agenteam/internal/central/httpapi/middleware.go:35 +0x313 fp=0x256f728dfd48 sp=0x256f728dfb98 pc=0x7d6773
+net/http.HandlerFunc.ServeHTTP(0x0?, {0xdc1020?, 0x256f327b4420?}, 0xf?)
+	/workspace/toolchains/go1.27.1/src/net/http/server.go:2338 +0x29 fp=0x256f728dfd70 sp=0x256f728dfd48 pc=0x70ade9
+github.com/LunaDeerTech/agenteam/internal/central/project/http.updateServe.1()
+	/workspace/agenteam/internal/central/project/http/update_test.go:54 +0x50 fp=0x256f728dfdb8 sp=0x256f728dfd70 pc=0x846270
+github.com/LunaDeerTech/agenteam/internal/central/project/http.handlerAborts(0x20?)
+	/workspace/agenteam/internal/central/project/http/handler_test.go:169 +0x4c fp=0x256f728dfde8 sp=0x256f728dfdb8 pc=0x82c72c
+github.com/LunaDeerTech/agenteam/internal/central/project/http.updateServe(...)
+	/workspace/agenteam/internal/central/project/http/update_test.go:54
+github.com/LunaDeerTech/agenteam/internal/central/project/http.TestProjectOwnerUpdatePureIOCapabilitiesBeforeService.func1(0x256f32812fc8)
+	/workspace/agenteam/internal/central/project/http/update_test.go:144 +0x9a5 fp=0x256f728dff70 sp=0x256f728dfde8 pc=0x845fa5
+testing.tRunner(0x256f32812fc8, 0x256f327bb9a0)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0xea fp=0x256f728dffc0 sp=0x256f728dff70 pc=0x52eb8a
+testing.(*T).Run.gowrap1()
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x1b fp=0x256f728dffe0 sp=0x256f728dffc0 pc=0x5347fb
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f728dffe8 sp=0x256f728dffe0 pc=0x494b21
+created by testing.(*T).Run in goroutine 21
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x4d4
+
+goroutine 1 gp=0x256f327001e0 m=nil [chan receive]:
+runtime.gopark(0xdbd540?, 0x7feaa447f368?, 0xb?, 0xac?, 0xd40148?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f3289f908 sp=0x256f3289f8e8 pc=0x48d98a
+runtime.chanrecv(0x256f3281cc00, 0x256f3289f9ef, 0x1)
+	/workspace/toolchains/go1.27.1/src/runtime/chan.go:667 +0x4ae fp=0x256f3289f980 sp=0x256f3289f908 pc=0x41a94e
+runtime.chanrecv1(0x18?, 0xd760f0?)
+	/workspace/toolchains/go1.27.1/src/runtime/chan.go:509 +0x12 fp=0x256f3289f9a8 sp=0x256f3289f980 pc=0x41a472
+testing.(*T).Run(0x256f328126c8, {0x8d3fed?, 0x256f3289faa0?}, 0xdc45e0)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2266 +0x4f2 fp=0x256f3289fa80 sp=0x256f3289f9a8 pc=0x52f0f2
+testing.runTests.func1(0x256f328126c8)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x37 fp=0x256f3289fac0 sp=0x256f3289fa80 pc=0x534a77
+testing.tRunner(0x256f328126c8, 0x256f3289fbc8)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0xea fp=0x256f3289fb10 sp=0x256f3289fac0 pc=0x52eb8a
+testing.runTests({0x8c809b, 0x20}, {0x8d6b71, 0x3e}, 0x256f327b4240, {0xeb8140, 0x1b, 0x1b}, {0xc2a9c2967850228a, 0x9504b7691, ...})
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x510 fp=0x256f3289fbf8 sp=0x256f3289fb10 pc=0x531150
+testing.(*M).Run(0x256f3286f0e0)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0x6af fp=0x256f3289fe38 sp=0x256f3289fbf8 pc=0x52fd0f
+main.main()
+	_testmain.go:98 +0x9b fp=0x256f3289feb8 sp=0x256f3289fe38 pc=0x84cb5b
+runtime.main()
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:302 +0x427 fp=0x256f3289ffe0 sp=0x256f3289feb8 pc=0x453f47
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f3289ffe8 sp=0x256f3289ffe0 pc=0x494b21
+
+goroutine 2 gp=0x256f32700d20 m=nil [force gc (idle)]:
+runtime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f3274afa8 sp=0x256f3274af88 pc=0x48d98a
+runtime.goparkunlock(...)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:480
+runtime.forcegchelper()
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:387 +0xb3 fp=0x256f3274afe0 sp=0x256f3274afa8 pc=0x454213
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f3274afe8 sp=0x256f3274afe0 pc=0x494b21
+created by runtime.init.7 in goroutine 1
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:375 +0x1a
+
+goroutine 3 gp=0x256f327012c0 m=nil [GC sweep wait]:
+runtime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f3274b788 sp=0x256f3274b768 pc=0x48d98a
+runtime.goparkunlock(...)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:480
+runtime.bgsweep(0x256f32774000)
+	/workspace/toolchains/go1.27.1/src/runtime/mgcsweep.go:279 +0x94 fp=0x256f3274b7c8 sp=0x256f3274b788 pc=0x43cc14
+runtime.gcenable.gowrap1()
+	/workspace/toolchains/go1.27.1/src/runtime/mgc.go:214 +0x17 fp=0x256f3274b7e0 sp=0x256f3274b7c8 pc=0x4832f7
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f3274b7e8 sp=0x256f3274b7e0 pc=0x494b21
+created by runtime.gcenable in goroutine 1
+	/workspace/toolchains/go1.27.1/src/runtime/mgc.go:214 +0x66
+
+goroutine 4 gp=0x256f327014a0 m=nil [GC scavenge wait]:
+runtime.gopark(0x256f32774000?, 0x8e51b0?, 0x1?, 0x0?, 0x256f327014a0?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f3274bf78 sp=0x256f3274bf58 pc=0x48d98a
+runtime.goparkunlock(...)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:480
+runtime.(*scavengerState).park(0xec16a0)
+	/workspace/toolchains/go1.27.1/src/runtime/mgcscavenge.go:425 +0x49 fp=0x256f3274bfa8 sp=0x256f3274bf78 pc=0x43a7c9
+runtime.bgscavenge(0x256f32774000)
+	/workspace/toolchains/go1.27.1/src/runtime/mgcscavenge.go:653 +0x3c fp=0x256f3274bfc8 sp=0x256f3274bfa8 pc=0x43ad1c
+runtime.gcenable.gowrap2()
+	/workspace/toolchains/go1.27.1/src/runtime/mgc.go:215 +0x17 fp=0x256f3274bfe0 sp=0x256f3274bfc8 pc=0x4832b7
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f3274bfe8 sp=0x256f3274bfe0 pc=0x494b21
+created by runtime.gcenable in goroutine 1
+	/workspace/toolchains/go1.27.1/src/runtime/mgc.go:215 +0xa5
+
+goroutine 18 gp=0x256f3278a000 m=nil [GOMAXPROCS updater (idle)]:
+runtime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f32746788 sp=0x256f32746768 pc=0x48d98a
+runtime.goparkunlock(...)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:480
+runtime.updateMaxProcsGoroutine()
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:7146 +0xe7 fp=0x256f327467e0 sp=0x256f32746788 pc=0x461727
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f327467e8 sp=0x256f327467e0 pc=0x494b21
+created by runtime.defaultGOMAXPROCSUpdateEnable in goroutine 1
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:7134 +0x37
+
+goroutine 19 gp=0x256f3278a5a0 m=nil [finalizer wait]:
+runtime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f32746e20 sp=0x256f32746e00 pc=0x48d98a
+runtime.runFinalizers()
+	/workspace/toolchains/go1.27.1/src/runtime/mfinal.go:210 +0x107 fp=0x256f32746fe0 sp=0x256f32746e20 pc=0x42dd27
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f32746fe8 sp=0x256f32746fe0 pc=0x494b21
+created by runtime.createfing in goroutine 1
+	/workspace/toolchains/go1.27.1/src/runtime/mfinal.go:172 +0x3d
+
+goroutine 20 gp=0x256f3278a780 m=nil [cleanup wait]:
+runtime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f32747768 sp=0x256f32747748 pc=0x48d98a
+runtime.goparkunlock(...)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:480
+runtime.(*cleanupQueue).dequeue(0xec1ae0)
+	/workspace/toolchains/go1.27.1/src/runtime/mcleanup.go:522 +0xd3 fp=0x256f327477a0 sp=0x256f32747768 pc=0x42aa53
+runtime.runCleanups()
+	/workspace/toolchains/go1.27.1/src/runtime/mcleanup.go:718 +0x45 fp=0x256f327477e0 sp=0x256f327477a0 pc=0x42b0c5
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f327477e8 sp=0x256f327477e0 pc=0x494b21
+created by runtime.(*cleanupQueue).createGs in goroutine 1
+	/workspace/toolchains/go1.27.1/src/runtime/mcleanup.go:672 +0xa5
+
+goroutine 21 gp=0x256f3278ab40 m=nil [chan receive]:
+runtime.gopark(0xdbd540?, 0x7feaa447f368?, 0xb?, 0xac?, 0xd40148?)
+	/workspace/toolchains/go1.27.1/src/runtime/proc.go:474 +0xca fp=0x256f3275dbf8 sp=0x256f3275dbd8 pc=0x48d98a
+runtime.chanrecv(0x256f3281cd80, 0x256f3275dcdf, 0x1)
+	/workspace/toolchains/go1.27.1/src/runtime/chan.go:667 +0x4ae fp=0x256f3275dc70 sp=0x256f3275dbf8 pc=0x41a94e
+runtime.chanrecv1(0x18?, 0xd760f0?)
+	/workspace/toolchains/go1.27.1/src/runtime/chan.go:509 +0x12 fp=0x256f3275dc98 sp=0x256f3275dc70 pc=0x41a472
+testing.(*T).Run(0x256f32812908, {0x256f32854fc0?, 0x256f3275ddae?}, 0x256f327bb9a0)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2266 +0x4f2 fp=0x256f3275dd70 sp=0x256f3275dc98 pc=0x52f0f2
+github.com/LunaDeerTech/agenteam/internal/central/project/http.TestProjectOwnerUpdatePureIOCapabilitiesBeforeService(0x256f32812908)
+	/workspace/agenteam/internal/central/project/http/update_test.go:105 +0x18d fp=0x256f3275df70 sp=0x256f3275dd70 pc=0x8321ed
+testing.tRunner(0x256f32812908, 0xdc45e0)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0xea fp=0x256f3275dfc0 sp=0x256f3275df70 pc=0x52eb8a
+testing.(*T).Run.gowrap1()
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x1b fp=0x256f3275dfe0 sp=0x256f3275dfc0 pc=0x5347fb
+runtime.goexit({})
+	/workspace/toolchains/go1.27.1/src/runtime/asm_amd64.s:1264 +0x1 fp=0x256f3275dfe8 sp=0x256f3275dfe0 pc=0x494b21
+created by testing.(*T).Run in goroutine 1
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x4d4

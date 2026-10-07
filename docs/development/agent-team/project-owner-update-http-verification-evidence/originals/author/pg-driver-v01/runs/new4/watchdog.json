@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 25744.345386246,
+      "top": "TestModelProjectOwnerUpdateHTTPRootBinding"
+    },
+    {
+      "event": "result",
+      "monotonic": 25750.97787827,
+      "observed_seconds": 6.632492024000385,
+      "reported_seconds": 6.63,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerUpdateHTTPRootBinding"
+    }
+  ],
+  "expected": [
+    "TestModelProjectOwnerUpdateHTTPRootBinding"
+  ],
+  "failures": []
+}

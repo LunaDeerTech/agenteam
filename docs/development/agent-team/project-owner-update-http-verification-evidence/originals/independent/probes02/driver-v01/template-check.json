@@ -1,0 +1,29 @@
+{
+  "author": {
+    "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/driver.py",
+    "sha256": "295f9c70706afa87c641115a565b49eae9e46570342795826a6944c177e9f493"
+  },
+  "changed_functions": [
+    "source_input",
+    "runtime_environment",
+    "main"
+  ],
+  "unchanged_functions": [
+    "sha",
+    "load_bound",
+    "digest",
+    "processes",
+    "observe_processes",
+    "reap_adopted",
+    "retire_owned",
+    "TopWatchdog",
+    "watch_output",
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "resource_topology"
+  ],
+  "main_only_change": "TopWatchdog(expected) for the two independent groups; all resource spawn/monitor/retirement/wait/double-cleanup code unchanged.",
+  "environment_delta": "Fixed go overlay; no HOME reassignment; all other explicit offline/resource environment inherited."
+}

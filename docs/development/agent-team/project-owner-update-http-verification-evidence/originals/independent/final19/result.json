@@ -1,0 +1,398 @@
+{
+  "status": "BOUNDED_19_PATH_DELIVERY_PASS",
+  "technical_reuse": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/final01/result.json",
+    "sha256": "065d8d5fd7ad414d78df84fd721123ff25bf5dc570d07e44949e794a06260db9"
+  },
+  "readme": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "sha256": "5b58b10c910fe1d0b38c5602abb7fb84b07ae338489d6d0acc5f23f26d990c8e"
+  },
+  "manifest19": {
+    "path": "/workspace/scratch/project-owner-update-http-author/readme-final01/manifest19.json",
+    "sha256": "9973bc5e7792fc8383434630b1898b13ce8801fb4a6bf08f28cb1860f50c74c2"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-update-http-author/readme-final01/delta.diff",
+    "sha256": "bbe59c2bb66b60887fc51ce02042aa7630f6b0a237318ef79313cdfa499a8db3"
+  },
+  "source_files": {
+    "internal/central/project/http/update.go": "99f487afa654325e60d505149f3d9def1c6a747e6fd6444c8703cb8997710d25",
+    "internal/central/project/http/update_wire.go": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452",
+    "internal/central/project/http/update_test.go": "53f844976d08f06f62314e6ed4cb5ef4b4a63473d58fe76c20fb172c05a4a50c",
+    "internal/central/project/http/update_wire_test.go": "10d6e59510fb445a1e3490852692b75dc43cee642fafb1eefb81fc30af7d789e",
+    "internal/central/project/http/update_native_test.go": "45899c572783c465f754195ac2ab572296889e24cf07159b0b03a8bf2201b708",
+    "internal/central/project/http/wire.go": "323936c09a2f78059abadfedfbdc38dce35040cb361ea8c62287112605da3bc5",
+    "api/openapi/project-owner.json": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+    "internal/central/app/project_update.go": "98f55d15d6799d98c335680b5ef6ddd840597a78e201ca3de3c6f1601baa96fa",
+    "internal/central/app/project_update_test.go": "7cdf19d327d9c516a6b9d0a68295c1b936ca7580f986c0b62bea30fd8cea347b",
+    "internal/central/app/account.go": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8",
+    "internal/central/app/security.go": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+    "internal/central/app/model_test.go": "add9f36b02578dc62291d9fe89ffd2df99274cd4d492f1d2f79f6a6d8f2f1dfc",
+    "internal/central/app/account_lifecycle_test.go": "53e8dad0a3f6d9fc62236f9777148838dcfe9b238504a812f05edcb4e6e5d4a3",
+    "tests/model/project_owner_update_http_fixture_test.go": "fd4aae26e4f60dea081dcc0028ffd6d04a218b65fd79608caf2ddf5ed401675d",
+    "tests/model/project_owner_update_http_test.go": "1808113edba7570bacb38582097ed8e8715a437a1ac1310ed5c1b44f1d575bbc",
+    "tests/model/project_owner_update_http_unknown_test.go": "beb939a03979e4f5c7c34e40f2fa6cb2ba762e828636eb6c4ae69ad438e95ef3",
+    "tests/model/project_owner_update_http_root_test.go": "352cfa5d35c39109fd0759cc8879ebe65e53df2a686e564b5c5fa9fd388b0103",
+    "tests/model/project_owner_read_http_root_test.go": "3c4fed7f38b259257190ea97f08bb8aa77c2bd18c1c3114d3e1eb232722112d5",
+    "docs/development/backend/README.md": "5b58b10c910fe1d0b38c5602abb7fb84b07ae338489d6d0acc5f23f26d990c8e"
+  },
+  "independent_checks": {
+    "current_19_hashes_match": true,
+    "technical18_same_candidate06": true,
+    "readme_matches_snapshot": true,
+    "changed_hunks": [
+      {
+        "tag": "replace",
+        "before_lines": [
+          5,
+          5
+        ],
+        "after_lines": [
+          5,
+          5
+        ]
+      },
+      {
+        "tag": "replace",
+        "before_lines": [
+          141,
+          141
+        ],
+        "after_lines": [
+          141,
+          151
+        ]
+      }
+    ],
+    "summary_and_intermediate_sections_unchanged": true,
+    "usage_and_suffix_unchanged": true,
+    "local_links_count": 52,
+    "links": [
+      {
+        "target": "database.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "audit.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "secret.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/secret.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "outbound.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d05-object-storage-design.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-design.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../../../api/openapi/model-system.json",
+        "resolved": "/workspace/agenteam/api/openapi/model-system.json",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/recovery-d09-system-model-root.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-system-model-root.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "object-runtime.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/object-runtime.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/object-runtime-join-regression.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/object-runtime-join-regression.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../../../api/openapi/account.json",
+        "resolved": "/workspace/agenteam/api/openapi/account.json",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "artifact.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/artifact.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/system-model-management-reads-verification.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/system-model-management-reads-verification.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/recovery-d09-system-model-management-reads.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-system-model-management-reads.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d09-system-meeting-summary-selection.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-selection.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d09-system-meeting-summary-settings.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-settings.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d09-system-meeting-summary-resolution.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-resolution.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/invocation-usage-ledger-verification.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/invocation-usage-ledger-verification.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/recovery-d09-openai-chat-structured-wire.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/d09-openai-chat-structured-wire-verification.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/d09-openai-chat-structured-wire-verification.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d09-openai-embeddings-wire.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d09-openai-embeddings-wire.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "outbound.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d28-central-spa-hosting.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d28-central-spa-hosting.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/system-central-spa-hosting-spec-verification.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "account.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "accountmail.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/accountmail.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/d26-authentication-verification.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/d26-authentication-verification.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/personal-settings-verification.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/personal-settings-verification.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../agent-team/public-account-entry-verification.md",
+        "resolved": "/workspace/agenteam/docs/development/agent-team/public-account-entry-verification.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d07-account-session-smtp.md#当前进度",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d07-account-session-smtp.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "../../../deploy/central.env.example",
+        "resolved": "/workspace/agenteam/deploy/central.env.example",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../../../deploy/runner.env.example",
+        "resolved": "/workspace/agenteam/deploy/runner.env.example",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "audit.md#cursor-与部署配置",
+        "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "secret.md#部署配置与启动",
+        "resolved": "/workspace/agenteam/docs/development/backend/secret.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "account.md#部署输入与首次管理员",
+        "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "outbound.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "database.md#版本与配置",
+        "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "database.md#迁移与修复",
+        "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "account.md#正式-http-与资料头像",
+        "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "../../../api/openapi/model-system.json",
+        "resolved": "/workspace/agenteam/api/openapi/model-system.json",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "accountmail.md#smtp-与日志",
+        "resolved": "/workspace/agenteam/docs/development/backend/accountmail.md",
+        "exists": true,
+        "fragment_checked": true
+      },
+      {
+        "target": "../../../api/openapi/project-owner.json",
+        "resolved": "/workspace/agenteam/api/openapi/project-owner.json",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d08-project-owner-read-http.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d08-project-owner-update-http.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-update-http.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../../../api/openapi/project-owner.json",
+        "resolved": "/workspace/agenteam/api/openapi/project-owner.json",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../../../api/openapi/project-usage.json",
+        "resolved": "/workspace/agenteam/api/openapi/project-usage.json",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d09-project-usage-read-http.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-usage-read-http.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../../../api/openapi/runtime-information.json",
+        "resolved": "/workspace/agenteam/api/openapi/runtime-information.json",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d28-system-runtime-information-http.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d28-system-runtime-information-http.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "artifact.md",
+        "resolved": "/workspace/agenteam/docs/development/backend/artifact.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d05-object-storage-research.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-research.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d05-object-storage-artifact.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-artifact.md",
+        "exists": true,
+        "fragment_checked": false
+      },
+      {
+        "target": "../work-items/d06-transactional-outbox-design.md",
+        "resolved": "/workspace/agenteam/docs/development/work-items/d06-transactional-outbox-design.md",
+        "exists": true,
+        "fragment_checked": false
+      }
+    ],
+    "utf8_lf_final_newline_no_trailing_space": true
+  },
+  "meaning_checks": [
+    "PATCH/currentOwner/strictpresence/update-onlylookup and historical ProjectRef agree with accepted contract",
+    "real Authority/Audit/Outbox/catalog/Service/actualDrain joins are accurately bounded",
+    "30s publication+2slookup and original3sconfirm tail; no wholehandler30s promise",
+    "accepted author/offline/native/PG and independentA01/B02+actualbody schema version combination accurate",
+    "B01 private SQL and prior U04/cyclic test/compile failures retained",
+    "forcedroot laterproxy wait not retroactiveinnerjoin; daemon nonowned/unwaited limitation explicit",
+    "creation/lifecycle/UI/Resolution/Invocations/D24/three stops/ready503 unchanged"
+  ],
+  "no_business_tests_rerun": true,
+  "scope": "Technical18 PASS reused plus README narrow STATIC; not all D08/D09 complete"
+}

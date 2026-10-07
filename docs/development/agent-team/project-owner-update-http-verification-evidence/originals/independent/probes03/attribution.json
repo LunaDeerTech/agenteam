@@ -1,0 +1,21 @@
+{
+  "status": "PRIVATE_SQL_COLUMN_FIX_ONLY",
+  "first_failure_result": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/result.json",
+    "sha256": "ff6a1f94444819da8d43266b33aa812d8a92468d6d4ced54112ee06421e8d327"
+  },
+  "error": "DATABASE_SQL_FAILED at private line348; query selected nonexistent key column",
+  "fixed_baseline": "901eb546",
+  "fixed_repository_go_sha256": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+  "actual_columns": "const creationColumns = `id::text,project_id::text,owner_user_id::text,command_key,semantic_digest,request_name,request_description,state,initialization_key,protected_skill_id::text,protected_revision,safe_reason,version,created_at,updated_at,event_id::text,event_header,event_payload,safe_result`",
+  "minimal_fix": "SELECT command_key, not key; no product file change",
+  "scope": [
+    "only B namespace auxiliary SQL read",
+    "A unchanged and original PASS reused",
+    "no import/fileset change; prior actual graph topology reused"
+  ],
+  "delta": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/delta.diff",
+    "sha256": "063e465f4a066adcea45b404e76646a8c19f5dc2495449816dbb136b0f77c351"
+  }
+}

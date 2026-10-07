@@ -1,0 +1,157 @@
+{
+  "status": "BOUNDED_INDEPENDENT_HTTP_OFFLINE_PASS_REAL_A_B_PENDING",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-update-http-author/candidate06/manifest.json",
+    "sha256": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/overlay.json",
+    "sha256": "3e68911dc5dd6afdd1918a7291eb1a29c24280f5e7de25df97585b48a2bd539b"
+  },
+  "probe": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/independent_http_test.go",
+    "sha256": "c258cc5a766919738303747c63935167ec7e53a03f47cfb161a7a0fa18515671"
+  },
+  "runner": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline-run.py",
+    "sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/actual-graph-check.json",
+    "sha256": "4dec613ef5f058371c19b9fa4deab38edea44f4b017ff8cba13c1f430c01f206"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/closure03.json",
+    "sha256": "1b379e1f3b2e63a9c066261ec21b2aaa868f659d47aa9d3bd7716301797bb26f"
+  },
+  "run_plan": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/run-plan.json",
+    "sha256": "849238236a89592ebe1638ad2d29b71474ca4ce0ccd81605a635f1a49a74319e"
+  },
+  "runs": {
+    "f01-format-output": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/f01-format-output/result.json",
+        "sha256": "305c32344847076632f1c4947161cbd864779fd6918e34ed8d9ccda19db4785f"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/f01-format-output/stdout.log",
+        "sha256": "c258cc5a766919738303747c63935167ec7e53a03f47cfb161a7a0fa18515671"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/f01-format-output/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_seconds": 0.005036331996961962,
+      "direct_wait_count": 1,
+      "direct_exit": 0,
+      "adopted_wait_count": 0,
+      "double_owned_empty": true
+    },
+    "g01-race-http": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/g01-race-http/result.json",
+        "sha256": "39e30d804f76e8eb9447f836bb9a935f13248473d2f57e5120dd95037f60ae52"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/g01-race-http/stdout.log",
+        "sha256": "841f8de23034d0a4393895f2bfc0bfc11837a2dc7ea18dc838454917d185f004"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/g01-race-http/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_seconds": 0.18683480300023803,
+      "direct_wait_count": 1,
+      "direct_exit": 0,
+      "adopted_wait_count": 0,
+      "double_owned_empty": true
+    },
+    "c01-http-race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/c01-http-race/result.json",
+        "sha256": "2669a03fae99a6b016b1483857d6b0bad62439482e8513fb91b6af6c76102eb7"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/c01-http-race/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/c01-http-race/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_seconds": 2.2513871379997,
+      "direct_wait_count": 1,
+      "direct_exit": 0,
+      "adopted_wait_count": 0,
+      "double_owned_empty": true
+    },
+    "v01-http-race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/v01-http-race/result.json",
+        "sha256": "3e5571bcc845fe1e355243471dd2ad4901ceb0bacde3ee368984013e2403a2c5"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/v01-http-race/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/v01-http-race/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_seconds": 0.34620859999995446,
+      "direct_wait_count": 1,
+      "direct_exit": 0,
+      "adopted_wait_count": 0,
+      "double_owned_empty": true
+    },
+    "l01-private-exact": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/l01-private-exact/result.json",
+        "sha256": "876bc1b408776a6dd312246dafb5b0f73387a81a1f88a72ced613d6a346a5160"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/l01-private-exact/stdout.log",
+        "sha256": "b7fcc076b4c6530b5ebc30a2d83a2e07c3dfbec5f5cb705b5ce3164a6f1c5de5"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/l01-private-exact/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_seconds": 1.0195382130004873,
+      "direct_wait_count": 1,
+      "direct_exit": 0,
+      "adopted_wait_count": 0,
+      "double_owned_empty": true
+    },
+    "p01-private-race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/p01-private-race/result.json",
+        "sha256": "9beeaaa346038f7c0dc74f5b26b877c563a74b778b816442f6314fa50e0acf24"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/p01-private-race/stdout.log",
+        "sha256": "176661af9710c86ea6ebe8ad2294e49dd01474c978e0680803cd9347df748c67"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/http01/offline/p01-private-race/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_seconds": 1.0469884759986599,
+      "direct_wait_count": 1,
+      "direct_exit": 0,
+      "adopted_wait_count": 0,
+      "double_owned_empty": true
+    }
+  },
+  "test_counts": {
+    "top": 1,
+    "nested_including_group_containers": 11,
+    "leaf": 9
+  },
+  "first_gate_rejection": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/http01/graph-gate-first-red.json",
+    "sha256": "11187f63f6751ad9e6ccdd618aa98da711a55cefc113830f5748bfe5df4fd079"
+  },
+  "no_resources": true
+}

@@ -1,0 +1,175 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/command.json",
+  "source_sha256": "429f2e3636b4a757e38438cabe88fc650d7baa85ebd48e612225926d8d99b2a1",
+  "source_bytes": 1346021,
+  "omitted": [
+    {
+      "json_path": "before.files",
+      "type": "dict",
+      "entries": 3198
+    },
+    {
+      "json_path": "before.sets",
+      "type": "dict",
+      "entries": 440
+    },
+    {
+      "json_path": "after.files",
+      "type": "dict",
+      "entries": 3198
+    },
+    {
+      "json_path": "after.sets",
+      "type": "dict",
+      "entries": 440
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "mode": "writeclose",
+    "driver_sha256": "a3a041b9ad919905de108b0d5132a63aadf41560058607208c186d7f4831ddcf",
+    "driver_pid": 655056,
+    "driver_stat": {
+      "pid": 655056,
+      "starttime": "2496525",
+      "ppid": 850,
+      "pgrp": 655056,
+      "state": "R",
+      "name": "python3"
+    },
+    "subreaper": true,
+    "command": [
+      "/usr/bin/strace",
+      "-D",
+      "-f",
+      "-ttt",
+      "-yy",
+      "-e",
+      "trace=%network,%process,close",
+      "-o",
+      "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/trace.raw",
+      "/workspace/scratch/project-owner-update-http-author/http-race06.test",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=45s",
+      "-test.run=^TestProjectOwnerUpdateNativeWriteAndClose$",
+      "-test.v"
+    ],
+    "env": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+      "HOME": "/home/agent",
+      "TMPDIR": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/writeclose/tmp",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOPATH": "/workspace/go",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOWORK": "off",
+      "CGO_ENABLED": "1",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "1"
+    },
+    "cwd": "/workspace/agenteam/internal/central/project/http",
+    "budget_seconds": 55,
+    "cleanup_grace_seconds": 15,
+    "started": 1791399013.883505,
+    "before": {
+      "sha256": "a2ac6e3e1920a35f28d930c8851c10626493cf7a9bb148b70628bcfe94098061"
+    },
+    "direct_pid": {
+      "pid": 655060,
+      "starttime": "2496571",
+      "ppid": 655056,
+      "pgrp": 655060,
+      "state": "R",
+      "name": "strace"
+    },
+    "execution_elapsed_seconds": 1.0445758130008471,
+    "exit": 0,
+    "actual_waits": [
+      {
+        "role": "direct",
+        "pid": 655060,
+        "starttime": "2496571",
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791399014.9281294
+      },
+      {
+        "role": "adopted",
+        "pid": 655064,
+        "starttime": "2496571",
+        "wait_status": 0,
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791399014.9319224
+      }
+    ],
+    "signals": [],
+    "owned_processes": [
+      {
+        "pid": 655060,
+        "starttime": "2496571",
+        "ppid": 655056,
+        "pgrp": 655060,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791399013.883931
+      },
+      {
+        "pid": 655064,
+        "starttime": "2496571",
+        "ppid": 655056,
+        "pgrp": 655060,
+        "state": "S",
+        "name": "strace",
+        "first_observed": 1791399013.8918638
+      }
+    ],
+    "execution_finished": 1791399014.9354482,
+    "after": {
+      "sha256": "a2ac6e3e1920a35f28d930c8851c10626493cf7a9bb148b70628bcfe94098061"
+    },
+    "inputs_unchanged": true,
+    "finished": 1791399077.2397454,
+    "listener_ports": [
+      33523,
+      36049,
+      41019,
+      41809
+    ],
+    "all_ports": [
+      33523,
+      36049,
+      38348,
+      41019,
+      41809,
+      45404,
+      47470,
+      56362
+    ],
+    "double_all_port_and_process_zero": true,
+    "trace_sha256": "634e1a13b8fb8e967efd5ef572dc7848c6d6b4944e1028fe48f17a1bea3240b1",
+    "raw_sha256": "5e04b1515b2441a4b63ef46585e737ef6d7c314ebb98b45f2c4e7bb14f42f9d9",
+    "test_results": {
+      "top_passes": [
+        "TestProjectOwnerUpdateNativeWriteAndClose"
+      ],
+      "sub_passes": [
+        "TestProjectOwnerUpdateNativeWriteAndClose/short_write",
+        "TestProjectOwnerUpdateNativeWriteAndClose/write_error",
+        "TestProjectOwnerUpdateNativeWriteAndClose/flush_error",
+        "TestProjectOwnerUpdateNativeWriteAndClose/close_error"
+      ],
+      "test_bodies": true
+    },
+    "exact_test_results": true,
+    "expected_listeners_observed": true,
+    "expected_connection_pairs": 4,
+    "pass": true
+  }
+}

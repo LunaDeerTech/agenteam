@@ -1,0 +1,64 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-d",
+    "/workspace/scratch/project-owner-update-http-verification/probes02/independent_update_test.go"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-update-http-verification/probes02/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes02/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes02/tmp",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "plan_sha256": "3c0af0d49544f3034f1d82a81b63ae6bddd71e97b89f75c9f87620662c98a8f0",
+  "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "started_unix": 1791399396.091996,
+  "subreaper": true,
+  "main_pid": 659074,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.005963570998574141,
+  "total_seconds": 0.5491011339981924,
+  "observed_processes": [
+    {
+      "pid": 659074,
+      "starttime": "2534792",
+      "ppid": 659071,
+      "pgrp": 659074,
+      "state": "Z"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791399396.1060255,
+      "remaining": []
+    },
+    {
+      "time": 1791399396.2100315,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

@@ -1,0 +1,161 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/command.json",
+  "source_sha256": "443bf968ac18e5a21e3052047de7f779a3533ef906387d7366cf108bb77c230f",
+  "source_bytes": 1345648,
+  "omitted": [
+    {
+      "json_path": "before.files",
+      "type": "dict",
+      "entries": 3198
+    },
+    {
+      "json_path": "before.sets",
+      "type": "dict",
+      "entries": 440
+    },
+    {
+      "json_path": "after.files",
+      "type": "dict",
+      "entries": 3198
+    },
+    {
+      "json_path": "after.sets",
+      "type": "dict",
+      "entries": 440
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "mode": "keepalive",
+    "driver_sha256": "a3a041b9ad919905de108b0d5132a63aadf41560058607208c186d7f4831ddcf",
+    "driver_pid": 652882,
+    "driver_stat": {
+      "pid": 652882,
+      "starttime": "2477283",
+      "ppid": 850,
+      "pgrp": 652882,
+      "state": "R",
+      "name": "python3"
+    },
+    "subreaper": true,
+    "command": [
+      "/usr/bin/strace",
+      "-D",
+      "-f",
+      "-ttt",
+      "-yy",
+      "-e",
+      "trace=%network,%process,close",
+      "-o",
+      "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/trace.raw",
+      "/workspace/scratch/project-owner-update-http-author/http-race06.test",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=45s",
+      "-test.run=^TestProjectOwnerUpdateNativeKeepalive$",
+      "-test.v"
+    ],
+    "env": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+      "HOME": "/home/agent",
+      "TMPDIR": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/keepalive/tmp",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOPATH": "/workspace/go",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOWORK": "off",
+      "CGO_ENABLED": "1",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "1"
+    },
+    "cwd": "/workspace/agenteam/internal/central/project/http",
+    "budget_seconds": 55,
+    "cleanup_grace_seconds": 15,
+    "started": 1791398821.468764,
+    "before": {
+      "sha256": "a2ac6e3e1920a35f28d930c8851c10626493cf7a9bb148b70628bcfe94098061"
+    },
+    "direct_pid": {
+      "pid": 652885,
+      "starttime": "2477329",
+      "ppid": 652882,
+      "pgrp": 652885,
+      "state": "R",
+      "name": "strace"
+    },
+    "execution_elapsed_seconds": 1.242572717997973,
+    "exit": 0,
+    "actual_waits": [
+      {
+        "role": "direct",
+        "pid": 652885,
+        "starttime": "2477329",
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791398822.711445
+      },
+      {
+        "role": "adopted",
+        "pid": 652889,
+        "starttime": "2477330",
+        "wait_status": 0,
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791398822.715
+      }
+    ],
+    "signals": [],
+    "owned_processes": [
+      {
+        "pid": 652885,
+        "starttime": "2477329",
+        "ppid": 652882,
+        "pgrp": 652885,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791398821.4692602
+      },
+      {
+        "pid": 652889,
+        "starttime": "2477330",
+        "ppid": 652882,
+        "pgrp": 652885,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791398821.4796348
+      }
+    ],
+    "execution_finished": 1791398822.718549,
+    "after": {
+      "sha256": "a2ac6e3e1920a35f28d930c8851c10626493cf7a9bb148b70628bcfe94098061"
+    },
+    "inputs_unchanged": true,
+    "finished": 1791398883.946465,
+    "listener_ports": [
+      42549
+    ],
+    "all_ports": [
+      42549,
+      55448
+    ],
+    "double_all_port_and_process_zero": true,
+    "trace_sha256": "31c937db43456519c016aacbb213293038d6505fc616294ec6b2f939d4277fa1",
+    "raw_sha256": "a7ac60e37ef182c89c35c7d5b9d89bc29d885e4514ae1a83c831d1fe83cf2258",
+    "test_results": {
+      "top_passes": [
+        "TestProjectOwnerUpdateNativeKeepalive"
+      ],
+      "sub_passes": [],
+      "test_bodies": true
+    },
+    "exact_test_results": true,
+    "expected_listeners_observed": true,
+    "expected_connection_pairs": 1,
+    "pass": true
+  }
+}

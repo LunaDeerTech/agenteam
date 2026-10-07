@@ -1,0 +1,8 @@
+# github.com/LunaDeerTech/agenteam/internal/central/app [github.com/LunaDeerTech/agenteam/internal/central/app.test]
+internal/central/app/project_update.go:25:157: cannot use processes (variable of struct type accountProcessAuthority) as "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract".ProcessAuthority value in struct literal: accountProcessAuthority does not implement "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract".ProcessAuthority (wrong type for method ConfirmStopped)
+		have ConfirmStopped(context.Context, "github.com/LunaDeerTech/agenteam/internal/central/account/contract".ProcessID) error
+		want ConfirmStopped(context.Context, "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract".ProcessID) error
+internal/central/app/project_update_test.go:46:22: cannot use store (variable of type interface{database; project.Store}) as audit.Store value in argument to audit.New: interface{database; project.Store} does not implement audit.Store (missing method Acquire)
+internal/central/app/project_update_test.go:56:239: cannot use process (variable of struct type accountProcessAuthority) as "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract".ProcessAuthority value in struct literal: accountProcessAuthority does not implement "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract".ProcessAuthority (wrong type for method ConfirmStopped)
+		have ConfirmStopped(context.Context, "github.com/LunaDeerTech/agenteam/internal/central/account/contract".ProcessID) error
+		want ConfirmStopped(context.Context, "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract".ProcessID) error

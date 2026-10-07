@@ -1,0 +1,63 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "/workspace/scratch/project-owner-update-http-verification/probes01/independent_transport_test.go"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-update-http-verification/probes01/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes01/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-verification/probes01/tmp",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "plan_sha256": "f7531f5ed8dd7416525b69185884c6b104054ba4cb598809d43009935c1fb49b",
+  "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "started_unix": 1791399300.4112048,
+  "subreaper": true,
+  "main_pid": 658026,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.005662366998876678,
+  "total_seconds": 0.5156924609982525,
+  "observed_processes": [
+    {
+      "pid": 658026,
+      "starttime": "2525224",
+      "ppid": 658023,
+      "pgrp": 658026,
+      "state": "Z"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791399300.4281487,
+      "remaining": []
+    },
+    {
+      "time": 1791399300.532118,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "stdout_sha256": "9d95855b3b43e27698fb53c4d90ef8007db07f6eadddd9bde750ff563c70827b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

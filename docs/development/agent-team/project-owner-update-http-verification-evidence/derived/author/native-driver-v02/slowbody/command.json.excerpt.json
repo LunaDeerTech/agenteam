@@ -1,0 +1,171 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/command.json",
+  "source_sha256": "f9e0257f58bb910535a0858d1d620bd10c44fcac09e0464c176dfd622b61b134",
+  "source_bytes": 1345906,
+  "omitted": [
+    {
+      "json_path": "before.files",
+      "type": "dict",
+      "entries": 3198
+    },
+    {
+      "json_path": "before.sets",
+      "type": "dict",
+      "entries": 440
+    },
+    {
+      "json_path": "after.files",
+      "type": "dict",
+      "entries": 3198
+    },
+    {
+      "json_path": "after.sets",
+      "type": "dict",
+      "entries": 440
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "mode": "slowbody",
+    "driver_sha256": "a3a041b9ad919905de108b0d5132a63aadf41560058607208c186d7f4831ddcf",
+    "driver_pid": 653723,
+    "driver_stat": {
+      "pid": 653723,
+      "starttime": "2485112",
+      "ppid": 850,
+      "pgrp": 653723,
+      "state": "R",
+      "name": "python3"
+    },
+    "subreaper": true,
+    "command": [
+      "/usr/bin/strace",
+      "-D",
+      "-f",
+      "-ttt",
+      "-yy",
+      "-e",
+      "trace=%network,%process,close",
+      "-o",
+      "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/trace.raw",
+      "/workspace/scratch/project-owner-update-http-author/http-race06.test",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=45s",
+      "-test.run=^TestProjectOwnerUpdateNativeBodyDeadline$",
+      "-test.v"
+    ],
+    "env": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+      "HOME": "/home/agent",
+      "TMPDIR": "/workspace/scratch/project-owner-update-http-author/native-driver-v02/slowbody/tmp",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOPATH": "/workspace/go",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOWORK": "off",
+      "CGO_ENABLED": "1",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "1"
+    },
+    "cwd": "/workspace/agenteam/internal/central/project/http",
+    "budget_seconds": 55,
+    "cleanup_grace_seconds": 15,
+    "started": 1791398899.7588608,
+    "before": {
+      "sha256": "a2ac6e3e1920a35f28d930c8851c10626493cf7a9bb148b70628bcfe94098061"
+    },
+    "direct_pid": {
+      "pid": 653746,
+      "starttime": "2485158",
+      "ppid": 653723,
+      "pgrp": 653746,
+      "state": "R",
+      "name": "strace"
+    },
+    "execution_elapsed_seconds": 33.19727697599956,
+    "exit": 0,
+    "actual_waits": [
+      {
+        "role": "direct",
+        "pid": 653746,
+        "starttime": "2485158",
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791398932.9561784
+      },
+      {
+        "role": "adopted",
+        "pid": 653750,
+        "starttime": "2485159",
+        "wait_status": 0,
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791398932.9598422
+      }
+    ],
+    "signals": [],
+    "owned_processes": [
+      {
+        "pid": 653746,
+        "starttime": "2485158",
+        "ppid": 653723,
+        "pgrp": 653746,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791398899.7597384
+      },
+      {
+        "pid": 653750,
+        "starttime": "2485159",
+        "ppid": 653723,
+        "pgrp": 653746,
+        "state": "S",
+        "name": "strace",
+        "first_observed": 1791398899.7688315
+      }
+    ],
+    "execution_finished": 1791398932.9635406,
+    "after": {
+      "sha256": "a2ac6e3e1920a35f28d930c8851c10626493cf7a9bb148b70628bcfe94098061"
+    },
+    "inputs_unchanged": true,
+    "finished": 1791398995.2118816,
+    "listener_ports": [
+      38281,
+      41321,
+      43755
+    ],
+    "all_ports": [
+      32822,
+      38281,
+      41321,
+      41872,
+      43755,
+      47676
+    ],
+    "double_all_port_and_process_zero": true,
+    "trace_sha256": "c2ed90792eaf50a21e76aadb0fba34af4854cf04acdaf84304d7a51727ac1ae2",
+    "raw_sha256": "60e91061b732586195f5cabfbede474c3e7f1ffa4e18546f5ee0f37815716e63",
+    "test_results": {
+      "top_passes": [
+        "TestProjectOwnerUpdateNativeBodyDeadline"
+      ],
+      "sub_passes": [
+        "TestProjectOwnerUpdateNativeBodyDeadline/PATCH30s",
+        "TestProjectOwnerUpdateNativeBodyDeadline/POST2s",
+        "TestProjectOwnerUpdateNativeBodyDeadline/PATCH120ms"
+      ],
+      "test_bodies": true
+    },
+    "exact_test_results": true,
+    "expected_listeners_observed": true,
+    "expected_connection_pairs": 3,
+    "pass": true
+  }
+}

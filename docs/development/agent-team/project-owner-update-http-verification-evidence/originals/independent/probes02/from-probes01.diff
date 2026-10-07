@@ -1,0 +1,22 @@
+--- probes01
++++ probes02
+@@ -329,7 +329,7 @@
+ 	first := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "PATCH", path, "ind-root-original", body).want(t, 200)
+ 	name := "independent-renamed"
+ 	ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "PATCH", path, "ind-root-next", projectUpdateBody(t, 2, &name, nil)).want(t, 200)
+-	current := root.request(t, v.ownerBrowser, "GET", path).want(t, 200)
++	current := root.request(t, v.ownerBrowser, "GET", path, nil).want(t, 200)
+ 	replay := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "PATCH", path, "ind-root-original", body).want(t, 200)
+ 	history := ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "POST", lookup, "ind-root-original", projectUpdateLookupBody).want(t, 200)
+ 	if current.object(t)["version"] != "3" || !bytes.Equal(first.body, replay.body) || first.object(t)["description"] != description {
+@@ -352,8 +352,8 @@
+ 		t.Fatal("update lookup exposed Create namespace")
+ 	}
+ 	ownerUpdateIndependentRequest(t, testContext(t), root, v.ownerBrowser, "POST", lookup, createKey, []byte(`{"command":"create"}`)).problem(t, 400, f.InvalidArgument)
+-	root.request(t, v.ownerBrowser, "GET", projectUsageResolve(v.ownerName, name)).want(t, 200)
+-	root.request(t, v.ownerBrowser, "GET", projectUsageResolve(v.ownerName, v.project.Name)).problem(t, 404, f.NotFound)
++	root.request(t, v.ownerBrowser, "GET", projectUsageResolve(v.ownerName, name), nil).want(t, 200)
++	root.request(t, v.ownerBrowser, "GET", projectUsageResolve(v.ownerName, v.project.Name), nil).problem(t, 404, f.NotFound)
+ 	dir := os.Getenv("AGENTEAM_PROJECT_UPDATE_BODY_DIR")
+ 	if dir == "" {
+ 		t.Fatal("fixed safe body destination required")

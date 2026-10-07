@@ -1,0 +1,53 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/pg-environment-preflight01/result.json",
+  "source_sha256": "2ddc5ea51b7941dffd7447b2ebe45d2a5e42571dce8aec8809553e638ff68bed",
+  "source_bytes": 513984,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3635
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 0.5705966770001396,
+    "direct_child_pid": 660409,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 660409,
+        "ppid": 660404,
+        "pgid": 660409,
+        "state": "Z",
+        "starttime": "2545895"
+      },
+      {
+        "pid": 660410,
+        "ppid": 660409,
+        "pgid": 660409,
+        "state": "S",
+        "starttime": "2545898"
+      },
+      {
+        "pid": 660437,
+        "ppid": 660409,
+        "pgid": 660409,
+        "state": "R",
+        "starttime": "2545902"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "07ac1d5d8ed2c960891f0b3a3d91e88c01ced06dd37c5b94648d5f5bbfc29493",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

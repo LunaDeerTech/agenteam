@@ -1,0 +1,11 @@
+=== RUN   TestProjectOwnerUpdateNativeWriteAndClose
+=== RUN   TestProjectOwnerUpdateNativeWriteAndClose/short_write
+=== RUN   TestProjectOwnerUpdateNativeWriteAndClose/write_error
+=== RUN   TestProjectOwnerUpdateNativeWriteAndClose/flush_error
+=== RUN   TestProjectOwnerUpdateNativeWriteAndClose/close_error
+--- PASS: TestProjectOwnerUpdateNativeWriteAndClose (0.02s)
+    --- PASS: TestProjectOwnerUpdateNativeWriteAndClose/short_write (0.01s)
+    --- PASS: TestProjectOwnerUpdateNativeWriteAndClose/write_error (0.00s)
+    --- PASS: TestProjectOwnerUpdateNativeWriteAndClose/flush_error (0.00s)
+    --- PASS: TestProjectOwnerUpdateNativeWriteAndClose/close_error (0.00s)
+PASS

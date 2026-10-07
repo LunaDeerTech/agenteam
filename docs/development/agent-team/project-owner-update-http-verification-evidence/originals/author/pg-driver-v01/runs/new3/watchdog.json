@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 25672.587677305,
+      "top": "TestModelProjectOwnerUpdateHTTPUnknown"
+    },
+    {
+      "event": "result",
+      "monotonic": 25677.994718375,
+      "observed_seconds": 5.40704107000056,
+      "reported_seconds": 5.41,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerUpdateHTTPUnknown"
+    }
+  ],
+  "expected": [
+    "TestModelProjectOwnerUpdateHTTPUnknown"
+  ],
+  "failures": []
+}

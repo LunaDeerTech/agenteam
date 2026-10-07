@@ -1,0 +1,195 @@
+{
+  "status": "AUTHOR_COMPLETED_NEW1_NEW2_NEW3_BOUNDED_EVIDENCE_PASS",
+  "rounds": [
+    {
+      "run": "new1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "4393dc7fe67db2917a248b5bc92a4ffce74254cd5aeb52efee3bb01aff30c151"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/raw.log",
+        "sha256": "4ae4aabc420dac4033d4c922ff2629f398f70e84c0cb0c51e5468b5c942143f0"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/command.json",
+        "sha256": "f995559f45a4cb522645d6cf265b79a353d709c5a0679fe3487aca782aa27cd1"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/cleanup.json",
+        "sha256": "df87fbced370b8c3c202bdba9e2d7982cbd4372f303d374f53ecd3f40eb5324e"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/watchdog.json",
+        "sha256": "b69bfef57be79d3bc06b04db7d5f37d8c01cdacad5fffcc8cc476111809da35c"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/input-before.json",
+        "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/input-after.json",
+        "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/frozen-input.json",
+        "sha256": "a08931e14dd5a4d71b2ed385fde496f468912119ceea07d67eb6d37707418f15"
+      },
+      "top": [
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+        ]
+      ],
+      "sub_pass_count": 0,
+      "owned_pid_count": 86,
+      "new_daemon_identities": [
+        {
+          "pid": 660967,
+          "starttime": "2547386"
+        },
+        {
+          "pid": 661458,
+          "starttime": "2547778"
+        },
+        {
+          "pid": 661846,
+          "starttime": "2548019"
+        },
+        {
+          "pid": 662447,
+          "starttime": "2548269"
+        }
+      ]
+    },
+    {
+      "run": "new2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "87b4fd2fbed47d4615c49dbf70d74203ea948a5921409c701e106c6bb2a312af"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/raw.log",
+        "sha256": "bf10ac8a16d316b6dfe76e21e134db652c96299c16d668850348bdb0a7e43d47"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/command.json",
+        "sha256": "42c0884d9aca5fe0f09d6fef3249e5ba78e1cdc0aa22d94df80cc237f72d9b9e"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/cleanup.json",
+        "sha256": "d09827321915e6100d6fb0f627b61b7dc29beb2b03f598e53e6ec6bc5530a980"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/watchdog.json",
+        "sha256": "4f3aa2f6a657e2892b020dd73a8c3d7dfcf186d9100eeb791e2e5c7bc1256cee"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/input-before.json",
+        "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/input-after.json",
+        "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/frozen-input.json",
+        "sha256": "a08931e14dd5a4d71b2ed385fde496f468912119ceea07d67eb6d37707418f15"
+      },
+      "top": [
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPAuthorityAndAtomicity"
+        ]
+      ],
+      "sub_pass_count": 0,
+      "owned_pid_count": 84,
+      "new_daemon_identities": [
+        {
+          "pid": 669377,
+          "starttime": "2556332"
+        },
+        {
+          "pid": 669910,
+          "starttime": "2556813"
+        },
+        {
+          "pid": 670386,
+          "starttime": "2557182"
+        },
+        {
+          "pid": 670890,
+          "starttime": "2557364"
+        }
+      ]
+    },
+    {
+      "run": "new3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/result.json",
+        "sha256": "66e7b3cfffcd9757c41e78cc9782911fa263464482d6cfc02b30cb6b37277cdd"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/raw.log",
+        "sha256": "48212260a6e617567c325f6c0c4ed239711c3a9a8a40ca00430256d10bc081b0"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/command.json",
+        "sha256": "a3f923c1b47c139ae393e338134492287397e80170c4d1a43a34bab85c87eb25"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/cleanup.json",
+        "sha256": "0bc527983f08354ef7321751761c2c817901f086641fd97549e25c7f86ccfa55"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/watchdog.json",
+        "sha256": "e2c3f9655e081065ba16e78aa5d6cd7b0a755d1fe6c4a52a0513e4f27522c22d"
+      },
+      "input_before": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/input-before.json",
+        "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/input-after.json",
+        "sha256": "b2db654095cd481ff569d49af84fbc691499a670f099cafda7bcab3ea85c671d"
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/frozen-input.json",
+        "sha256": "a08931e14dd5a4d71b2ed385fde496f468912119ceea07d67eb6d37707418f15"
+      },
+      "top": [
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPUnknown"
+        ]
+      ],
+      "sub_pass_count": 4,
+      "owned_pid_count": 84,
+      "new_daemon_identities": [
+        {
+          "pid": 676859,
+          "starttime": "2563523"
+        },
+        {
+          "pid": 677389,
+          "starttime": "2563950"
+        },
+        {
+          "pid": 677667,
+          "starttime": "2564127"
+        },
+        {
+          "pid": 678169,
+          "starttime": "2564305"
+        }
+      ]
+    }
+  ],
+  "new_daemon_union_count": 12,
+  "limits": [
+    "new4/old round not reviewed while active",
+    "held COMMIT reached means original frame received but not sent upstream; released COMMIT+idle is the physical server terminal",
+    "Logout case proves queueing and eventual Logout/HTTP actual join plus later401, not deterministic Logout-before-confirmation transaction",
+    "no whole machine clear or daemon wait claim; independent missing-lock/stale-plan/committed-Logout and default root same-body schema still pending"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 25603.203541614,
+      "top": "TestModelProjectOwnerUpdateHTTPAuthorityAndAtomicity"
+    },
+    {
+      "event": "result",
+      "monotonic": 25607.676385461,
+      "observed_seconds": 4.472843847001059,
+      "reported_seconds": 4.46,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerUpdateHTTPAuthorityAndAtomicity"
+    }
+  ],
+  "expected": [
+    "TestModelProjectOwnerUpdateHTTPAuthorityAndAtomicity"
+  ],
+  "failures": []
+}

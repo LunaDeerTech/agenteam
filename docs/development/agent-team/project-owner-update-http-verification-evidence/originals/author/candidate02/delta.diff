@@ -1,0 +1,59 @@
+--- candidate01/internal/central/app/project_update.go
++++ candidate02/internal/central/app/project_update.go
+@@ -6,10 +6,12 @@
+ 	"sync"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	ac "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+ 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
+@@ -22,7 +24,23 @@
+ 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {
+ 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+ 	}
+-	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: processes, Cursors: cfg.CursorKeyring()}, project.DefaultConfig())
++	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: projectCommandProcess{processes}, Cursors: cfg.CursorKeyring()}, project.DefaultConfig())
++}
++
++// The IDs have distinct nominal types but identify the very same root process.
++// All stop confirmation still reaches the existing account adapter and guard.
++type projectCommandProcess struct{ source accountProcessAuthority }
++
++func (p projectCommandProcess) CurrentProcess() oc.ProcessID {
++	value, _ := foundation.ParseID[oc.Process](p.source.CurrentProcess().String())
++	return value
++}
++func (p projectCommandProcess) ConfirmStopped(ctx context.Context, target oc.ProcessID) error {
++	value, err := foundation.ParseID[ac.Process](target.String())
++	if err != nil {
++		return foundation.NewFault(foundation.InvalidArgument, foundation.NotStarted)
++	}
++	return p.source.ConfirmStopped(ctx, value)
+ }
+ 
+ type projectCommandWork struct {
+--- candidate01/internal/central/app/project_update_test.go
++++ candidate02/internal/central/app/project_update_test.go
+@@ -32,6 +32,7 @@
+ func updateRootService(t *testing.T, store interface {
+ 	database
+ 	project.Store
++	audit.Store
+ }) (*project.Service, *project.Authority) {
+ 	t.Helper()
+ 	cfg := testConfig(t, "1s")
+@@ -53,7 +54,7 @@
+ 		t.Fatal(e)
+ 	}
+ 	process := accountProcessAuthority{process: updateRootID[ac.Process](), guard: &object.ProcessGuard{}}
+-	journal, e := outbox.New(store, catalog, outbox.Authorizations{Producers: map[ec.StableName]oc.ProducerAuthority{pc.ProjectProducer: usage.projects}, Projects: usage.projects, Sessions: accounts, System: accounts, Audit: aud, Processes: process, Cursors: cfg.CursorKeyring()})
++	journal, e := outbox.New(store, catalog, outbox.Authorizations{Producers: map[ec.StableName]oc.ProducerAuthority{pc.ProjectProducer: usage.projects}, Projects: usage.projects, Sessions: accounts, System: accounts, Audit: aud, Processes: projectCommandProcess{process}, Cursors: cfg.CursorKeyring()})
+ 	if e != nil {
+ 		t.Fatal(e)
+ 	}

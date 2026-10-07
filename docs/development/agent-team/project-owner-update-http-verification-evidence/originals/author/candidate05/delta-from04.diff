@@ -1,0 +1,224 @@
+--- candidate04/internal/central/project/http/update.go
++++ candidate05/internal/central/project/http/update.go
+@@ -25,6 +25,67 @@
+ 	boundary accountBoundary
+ }
+ 
++// Resolve capabilities without performing I/O. ResponseController itself follows
++// Unwrap without a bound; resolving here also keeps malformed wrapper cycles out
++// of both initialization and the synchronous abort/Close tail.
++type updateIOWriter struct {
++	http.ResponseWriter
++	read  func(time.Time) error
++	write func(time.Time) error
++	flush func() error
++}
++
++func prepareUpdateIO(w http.ResponseWriter) (*updateIOWriter, bool) {
++	io := &updateIOWriter{ResponseWriter: w}
++	for depth := 0; depth < 64 && w != nil; depth++ {
++		if io.read == nil {
++			if v, ok := w.(interface{ SetReadDeadline(time.Time) error }); ok {
++				io.read = v.SetReadDeadline
++			}
++		}
++		if io.write == nil {
++			if v, ok := w.(interface{ SetWriteDeadline(time.Time) error }); ok {
++				io.write = v.SetWriteDeadline
++			}
++		}
++		if io.flush == nil {
++			switch v := w.(type) {
++			case interface{ FlushError() error }:
++				io.flush = v.FlushError
++			case http.Flusher:
++				io.flush = func() error { v.Flush(); return nil }
++			}
++		}
++		if io.read != nil && io.write != nil && io.flush != nil {
++			return io, true
++		}
++		v, ok := w.(interface{ Unwrap() http.ResponseWriter })
++		if !ok {
++			break
++		}
++		w = v.Unwrap()
++	}
++	return io, false
++}
++func (w *updateIOWriter) SetReadDeadline(at time.Time) error {
++	if w.read == nil {
++		return http.ErrNotSupported
++	}
++	return w.read(at)
++}
++func (w *updateIOWriter) SetWriteDeadline(at time.Time) error {
++	if w.write == nil {
++		return http.ErrNotSupported
++	}
++	return w.write(at)
++}
++func (w *updateIOWriter) FlushError() error {
++	if w.flush == nil {
++		return http.ErrNotSupported
++	}
++	return w.flush()
++}
++
+ // NewUpdateHTTPHandler binds only Owner metadata updates and update-key lookup.
+ func NewUpdateHTTPHandler(service *project.Service, boundary *account.HTTPBoundary) (http.Handler, error) {
+ 	if service == nil || boundary == nil {
+@@ -65,9 +126,10 @@
+ 	defer cancel()
+ 	r := request.WithContext(ctx)
+ 	w = abortWriter{w}
++	io, ready := prepareUpdateIO(w)
+ 	// Keep ownership of the original stream: DecodeJSON's MaxBytesReader only
+ 	// wraps it and is never independently closed by this handler.
+-	budget := requestIO{controller: http.NewResponseController(w), ctx: ctx, body: r.Body}
++	budget := requestIO{controller: http.NewResponseController(io), ctx: ctx, body: r.Body}
+ 	normal := false
+ 	defer func() {
+ 		panicked := recover() != nil
+@@ -76,6 +138,9 @@
+ 			panic(http.ErrAbortHandler)
+ 		}
+ 	}()
++	if !ready {
++		panic(http.ErrAbortHandler)
++	}
+ 	if err := budget.start(); err != nil {
+ 		panic(http.ErrAbortHandler)
+ 	}
+--- candidate04/internal/central/project/http/update_test.go
++++ candidate05/internal/central/project/http/update_test.go
+@@ -55,6 +55,129 @@
+ }
+ 
+ const updateTestBody = `{"expected_version":"1","description":"test"}`
++
++type updateUnwrapper struct {
++	http.ResponseWriter
++	next http.ResponseWriter
++}
++
++func (w *updateUnwrapper) Unwrap() http.ResponseWriter { return w.next }
++
++type updateFlusher struct{ handlerNoFlush }
++
++func (w updateFlusher) Flush() { _ = w.w.FlushError() }
++
++type updateObservedWriter struct {
++	http.ResponseWriter
++	headers *int
++}
++
++func (w updateObservedWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
++func (w updateObservedWriter) WriteHeader(code int) {
++	*w.headers++
++	w.ResponseWriter.WriteHeader(code)
++}
++
++type updateReadUnwrapper struct {
++	*updateUnwrapper
++	called *int
++}
++
++func (w updateReadUnwrapper) SetReadDeadline(time.Time) error { *w.called++; return nil }
++
++type updateWriteUnwrapper struct {
++	*updateUnwrapper
++	called *int
++}
++
++func (w updateWriteUnwrapper) SetWriteDeadline(time.Time) error { *w.called++; return nil }
++
++type updateBothFlush struct {
++	*handlerWriter
++	flusher *int
++}
++
++func (w updateBothFlush) Flush() { *w.flusher++ }
++
++func TestProjectOwnerUpdatePureIOCapabilitiesBeforeService(t *testing.T) {
++	for _, lookup := range []bool{false, true} {
++		for _, mode := range []string{"missing", "cycle", "cycle-with-deadlines", "nil-unwrap", "FlushError", "Flusher", "wrapped"} {
++			t.Run(map[bool]string{false: "PATCH", true: "lookup"}[lookup]+"/"+mode, func(t *testing.T) {
++				h, b, s := updateFixture()
++				method, path, body := "PATCH", httpDetailPath, updateTestBody
++				if lookup {
++					method, path, body = "POST", path+updateLookupSuffix, `{"command":"update"}`
++				}
++				base := newHandlerWriter()
++				writes, headers, auth := 0, 0, 0
++				base.write = func(p []byte) (int, error) { writes++; return base.ResponseRecorder.Write(p) }
++				base.flush = func() error {
++					if s.updates.Load()+s.lookups.Load() != 1 || writes != 1 {
++						t.Fatal("preflight performed a flush")
++					}
++					return nil
++				}
++				b.auth = func(*http.Request) (id.Actor, error) { auth++; return wireActor(), nil }
++				var writer http.ResponseWriter = base
++				allowed := mode == "FlushError" || mode == "Flusher" || mode == "wrapped"
++				switch mode {
++				case "missing":
++					writer = handlerNoFlush{base}
++				case "cycle", "cycle-with-deadlines":
++					cycle := &updateUnwrapper{ResponseWriter: base}
++					cycle.next = cycle
++					writer = cycle
++					if mode == "cycle-with-deadlines" {
++						writer = &updateDeadlineUnwrapper{handlerNoFlush{base}, cycle}
++					}
++				case "nil-unwrap":
++					writer = &updateUnwrapper{ResponseWriter: base}
++				case "Flusher":
++					writer = updateFlusher{handlerNoFlush{base}}
++				case "wrapped":
++					writer = &updateUnwrapper{ResponseWriter: base, next: &updateUnwrapper{ResponseWriter: base, next: base}}
++				}
++				writer = updateObservedWriter{writer, &headers}
++				r := updateRequest(method, path, body)
++				stream := &handlerBody{Reader: strings.NewReader(body)}
++				r.Body = stream
++				aborted := updateServe(h, writer, r)
++				if stream.closes.Load() != 1 {
++					t.Fatal("original body not closed exactly once")
++				}
++				if allowed {
++					if aborted || s.updates.Load()+s.lookups.Load() != 1 || auth != 1 || writes != 1 || headers != 1 || base.flushes != 1 {
++						t.Fatal("supported capability changed execution")
++					}
++					base.assertCleared(t)
++				} else if !aborted || s.updates.Load()+s.lookups.Load() != 0 || auth != 0 || writes != 0 || headers != 0 || base.Body.Len() != 0 || base.flushes != 0 || base.Header().Get("Content-Type") != "" {
++					t.Fatal("unsupported capability reached auth/service/publication")
++				}
++			})
++		}
++	}
++	t.Run("per-capability-receiver-and-priority", func(t *testing.T) {
++		base := newHandlerWriter()
++		reads, writes, flusher := 0, 0, 0
++		lower := updateBothFlush{base, &flusher}
++		middle := updateWriteUnwrapper{&updateUnwrapper{ResponseWriter: base, next: lower}, &writes}
++		upper := updateReadUnwrapper{&updateUnwrapper{ResponseWriter: base, next: middle}, &reads}
++		io, ready := prepareUpdateIO(upper)
++		if !ready || reads+writes+flusher+base.flushes != 0 || len(base.reads)+len(base.writes) != 0 {
++			t.Fatal("preflight performed I/O")
++		}
++		if io.SetReadDeadline(time.Now()) != nil || io.SetWriteDeadline(time.Now()) != nil || io.FlushError() != nil || reads != 1 || writes != 1 || flusher != 0 || base.flushes != 1 || len(base.reads)+len(base.writes) != 0 {
++			t.Fatal("capability layer or FlushError priority changed")
++		}
++	})
++}
++
++type updateDeadlineUnwrapper struct {
++	handlerNoFlush
++	next http.ResponseWriter
++}
++
++func (w *updateDeadlineUnwrapper) Unwrap() http.ResponseWriter { return w.next }
+ 
+ func TestProjectOwnerUpdatePureRoutesAndCalls(t *testing.T) {
+ 	for _, v := range []struct {

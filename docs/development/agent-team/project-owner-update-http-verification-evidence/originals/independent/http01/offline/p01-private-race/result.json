@@ -1,0 +1,68 @@
+{
+  "argv": [
+    "/workspace/scratch/project-owner-update-http-verification/http01/bin/http-race.test",
+    "-test.v",
+    "-test.run",
+    "^TestProjectOwnerUpdateIndependentPureBoundaryOwnership$",
+    "-test.count=1",
+    "-test.timeout=40s",
+    "-test.parallel=1"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/project-owner-update-http-verification/http01/overlay.json",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-verification/http01/tmp",
+    "GOTMPDIR": "/workspace/scratch/project-owner-update-http-verification/http01/tmp",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "3800b385e953acadd8dc2137a13f111363c4546b44fad97b10492db371fdc1f4",
+  "plan_sha256": "849238236a89592ebe1638ad2d29b71474ca4ce0ccd81605a635f1a49a74319e",
+  "tool_before_sha256": "f8601c574a3373e67500acc259c44371d16ad36ea3791209d0e01c9237f98c90",
+  "started_unix": 1791398975.4470234,
+  "subreaper": true,
+  "main_pid": 654630,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 1.0469884759986599,
+  "total_seconds": 1.5782652999987477,
+  "observed_processes": [
+    {
+      "pid": 654630,
+      "starttime": "2492727",
+      "ppid": 654627,
+      "pgrp": 654630,
+      "state": "S"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791398976.5021362,
+      "remaining": []
+    },
+    {
+      "time": 1791398976.6058204,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "f8601c574a3373e67500acc259c44371d16ad36ea3791209d0e01c9237f98c90",
+  "stdout_sha256": "176661af9710c86ea6ebe8ad2294e49dd01474c978e0680803cd9347df748c67",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

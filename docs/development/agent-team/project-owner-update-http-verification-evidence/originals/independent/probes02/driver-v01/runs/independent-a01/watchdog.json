@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 25965.343498693,
+      "top": "TestModelProjectOwnerUpdateIndependentAuthorityAndTerminal"
+    },
+    {
+      "event": "result",
+      "monotonic": 25969.518826419,
+      "observed_seconds": 4.175327725999523,
+      "reported_seconds": 4.17,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerUpdateIndependentAuthorityAndTerminal"
+    }
+  ],
+  "expected": [
+    "TestModelProjectOwnerUpdateIndependentAuthorityAndTerminal"
+  ],
+  "failures": []
+}

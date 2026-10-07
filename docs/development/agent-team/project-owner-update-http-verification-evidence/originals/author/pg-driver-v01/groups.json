@@ -1,0 +1,25 @@
+{
+  "new-strict": [
+    "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+  ],
+  "new-authority": [
+    "TestModelProjectOwnerUpdateHTTPAuthorityAndAtomicity"
+  ],
+  "new-unknown": [
+    "TestModelProjectOwnerUpdateHTTPUnknown"
+  ],
+  "new-root": [
+    "TestModelProjectOwnerUpdateHTTPRootBinding"
+  ],
+  "old": [
+    "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+    "TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName",
+    "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+    "TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization",
+    "TestModelProjectOwnerReadHTTPProjectionAndPaging",
+    "TestModelProjectOwnerReadHTTPRootBinding",
+    "TestModelProjectUsageHTTPRootBinding",
+    "TestModelMeetingSummarySettingsRoot",
+    "TestModelSystemHTTPConfigurationCRUD"
+  ]
+}

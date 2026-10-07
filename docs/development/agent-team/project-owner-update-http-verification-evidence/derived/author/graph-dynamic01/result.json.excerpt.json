@@ -1,0 +1,46 @@
+{
+  "kind": "DERIVED_EXCERPT_NOT_ORIGINAL",
+  "source": "/workspace/scratch/project-owner-update-http-author/graph-dynamic01/result.json",
+  "source_sha256": "be172a7c8e72c5e9bcfca714295e17dee9bb709539b0a5523cc3412351f6ea13",
+  "source_bytes": 513702,
+  "omitted": [
+    {
+      "json_path": "inputs_after",
+      "type": "dict",
+      "entries": 3634
+    }
+  ],
+  "reason": "Repeated dependency-map entries omitted; every other original JSON value retained without reinterpretation. Full source only fingerprinted.",
+  "retained": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 0.7062868249995518,
+    "direct_child_pid": 634083,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 634083,
+        "ppid": 634062,
+        "pgid": 634083,
+        "state": "Z",
+        "starttime": "2316691"
+      },
+      {
+        "pid": 634090,
+        "ppid": 634083,
+        "pgid": 634083,
+        "state": "S",
+        "starttime": "2316697"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "44c86729da66e3c21324fe230e7bfc765035a83352a53bbfd5daf1513b4689d0",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

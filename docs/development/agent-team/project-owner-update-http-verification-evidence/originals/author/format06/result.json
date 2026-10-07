@@ -1,0 +1,31 @@
+{
+  "command_exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 0.060740929999155924,
+  "direct_child_pid": 650863,
+  "direct_child_joined": true,
+  "subreaper": true,
+  "adopted_reaped": [],
+  "processes_seen": [
+    {
+      "pid": 650863,
+      "ppid": 650862,
+      "pgid": 650863,
+      "state": "Z",
+      "starttime": "2461616"
+    }
+  ],
+  "actions": [],
+  "remaining_descendants": [],
+  "inputs_after": {
+    "/workspace/agenteam/internal/central/project/http/update.go": "99f487afa654325e60d505149f3d9def1c6a747e6fd6444c8703cb8997710d25",
+    "/workspace/agenteam/internal/central/project/http/update_test.go": "53f844976d08f06f62314e6ed4cb5ef4b4a63473d58fe76c20fb172c05a4a50c",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/workspace/scratch/project-owner-update-http-author/offline-driver.py": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06"
+  },
+  "inputs_match": true,
+  "owned_clear_observations": 2,
+  "exit_code": 0,
+  "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

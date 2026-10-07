@@ -1,0 +1,508 @@
+{
+  "candidate_sha256": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b",
+  "source_files": {
+    "internal/central/project/http/update.go": "99f487afa654325e60d505149f3d9def1c6a747e6fd6444c8703cb8997710d25",
+    "internal/central/project/http/update_wire.go": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452",
+    "internal/central/project/http/update_test.go": "53f844976d08f06f62314e6ed4cb5ef4b4a63473d58fe76c20fb172c05a4a50c",
+    "internal/central/project/http/update_wire_test.go": "10d6e59510fb445a1e3490852692b75dc43cee642fafb1eefb81fc30af7d789e",
+    "internal/central/project/http/update_native_test.go": "45899c572783c465f754195ac2ab572296889e24cf07159b0b03a8bf2201b708",
+    "internal/central/project/http/wire.go": "323936c09a2f78059abadfedfbdc38dce35040cb361ea8c62287112605da3bc5",
+    "api/openapi/project-owner.json": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+    "internal/central/app/project_update.go": "98f55d15d6799d98c335680b5ef6ddd840597a78e201ca3de3c6f1601baa96fa",
+    "internal/central/app/project_update_test.go": "7cdf19d327d9c516a6b9d0a68295c1b936ca7580f986c0b62bea30fd8cea347b",
+    "internal/central/app/account.go": "ea2bd2720e74063398b558a31fc806c747b11780a72ddf60132560e08ea68de8",
+    "internal/central/app/security.go": "1b124f6b5ca35f951317058e074ecf4c319db99f0255a84ee1c1c6d6525f8903",
+    "internal/central/app/model_test.go": "add9f36b02578dc62291d9fe89ffd2df99274cd4d492f1d2f79f6a6d8f2f1dfc",
+    "internal/central/app/account_lifecycle_test.go": "53e8dad0a3f6d9fc62236f9777148838dcfe9b238504a812f05edcb4e6e5d4a3",
+    "tests/model/project_owner_update_http_fixture_test.go": "fd4aae26e4f60dea081dcc0028ffd6d04a218b65fd79608caf2ddf5ed401675d",
+    "tests/model/project_owner_update_http_test.go": "1808113edba7570bacb38582097ed8e8715a437a1ac1310ed5c1b44f1d575bbc",
+    "tests/model/project_owner_update_http_unknown_test.go": "beb939a03979e4f5c7c34e40f2fa6cb2ba762e828636eb6c4ae69ad438e95ef3",
+    "tests/model/project_owner_update_http_root_test.go": "352cfa5d35c39109fd0759cc8879ebe65e53df2a686e564b5c5fa9fd388b0103",
+    "tests/model/project_owner_read_http_root_test.go": "3c4fed7f38b259257190ea97f08bb8aa77c2bd18c1c3114d3e1eb232722112d5"
+  },
+  "18_sources_match": true,
+  "pg_driver_sha256": "295f9c70706afa87c641115a565b49eae9e46570342795826a6944c177e9f493",
+  "pg_frozen_sha256": "a08931e14dd5a4d71b2ed385fde496f468912119ceea07d67eb6d37707418f15",
+  "pg_closure_sha256": "899f117bb49142bcc5494723e8008d7a7279a7f84b763d2297638ea6482641de",
+  "resource_window_released": true,
+  "rounds": [
+    {
+      "run": "new1",
+      "result_path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new1/result.json",
+      "result_sha256": "4393dc7fe67db2917a248b5bc92a4ffce74254cd5aeb52efee3bb01aff30c151",
+      "command_sha256": "f995559f45a4cb522645d6cf265b79a353d709c5a0679fe3487aca782aa27cd1",
+      "raw_sha256": "4ae4aabc420dac4033d4c922ff2629f398f70e84c0cb0c51e5468b5c942143f0",
+      "cleanup_sha256": "df87fbced370b8c3c202bdba9e2d7982cbd4372f303d374f53ecd3f40eb5324e",
+      "watchdog_sha256": "b69bfef57be79d3bc06b04db7d5f37d8c01cdacad5fffcc8cc476111809da35c",
+      "exit": 0,
+      "seconds": 64.416,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "resource_count": 7,
+      "topology_exact": true,
+      "double_cleanup": true,
+      "forced_tail_actions": 0,
+      "source_same": true,
+      "verification_same": true,
+      "top_watchdog_complete": true,
+      "watchdog_join": true,
+      "top_passes": [
+        "TestModelProjectOwnerUpdateHTTPStrictAndReplay"
+      ],
+      "sub_count": 0,
+      "pid1_z_baseline_count": 217,
+      "pid1_z_cleanup_count": 221,
+      "new_pid1_not_owned_not_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 660967,
+          "ppid": 1,
+          "starttime": "2547386",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 661458,
+          "ppid": 1,
+          "starttime": "2547778",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 661846,
+          "ppid": 1,
+          "starttime": "2548019",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 662447,
+          "ppid": 1,
+          "starttime": "2548269",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new2",
+      "result_path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new2/result.json",
+      "result_sha256": "87b4fd2fbed47d4615c49dbf70d74203ea948a5921409c701e106c6bb2a312af",
+      "command_sha256": "42c0884d9aca5fe0f09d6fef3249e5ba78e1cdc0aa22d94df80cc237f72d9b9e",
+      "raw_sha256": "bf10ac8a16d316b6dfe76e21e134db652c96299c16d668850348bdb0a7e43d47",
+      "cleanup_sha256": "d09827321915e6100d6fb0f627b61b7dc29beb2b03f598e53e6ec6bc5530a980",
+      "watchdog_sha256": "4f3aa2f6a657e2892b020dd73a8c3d7dfcf186d9100eeb791e2e5c7bc1256cee",
+      "exit": 0,
+      "seconds": 56.565,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "resource_count": 7,
+      "topology_exact": true,
+      "double_cleanup": true,
+      "forced_tail_actions": 0,
+      "source_same": true,
+      "verification_same": true,
+      "top_watchdog_complete": true,
+      "watchdog_join": true,
+      "top_passes": [
+        "TestModelProjectOwnerUpdateHTTPAuthorityAndAtomicity"
+      ],
+      "sub_count": 0,
+      "pid1_z_baseline_count": 221,
+      "pid1_z_cleanup_count": 225,
+      "new_pid1_not_owned_not_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 669377,
+          "ppid": 1,
+          "starttime": "2556332",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 669910,
+          "ppid": 1,
+          "starttime": "2556813",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 670386,
+          "ppid": 1,
+          "starttime": "2557182",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 670890,
+          "ppid": 1,
+          "starttime": "2557364",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new3",
+      "result_path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new3/result.json",
+      "result_sha256": "66e7b3cfffcd9757c41e78cc9782911fa263464482d6cfc02b30cb6b37277cdd",
+      "command_sha256": "a3f923c1b47c139ae393e338134492287397e80170c4d1a43a34bab85c87eb25",
+      "raw_sha256": "48212260a6e617567c325f6c0c4ed239711c3a9a8a40ca00430256d10bc081b0",
+      "cleanup_sha256": "0bc527983f08354ef7321751761c2c817901f086641fd97549e25c7f86ccfa55",
+      "watchdog_sha256": "e2c3f9655e081065ba16e78aa5d6cd7b0a755d1fe6c4a52a0513e4f27522c22d",
+      "exit": 0,
+      "seconds": 54.846,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "resource_count": 7,
+      "topology_exact": true,
+      "double_cleanup": true,
+      "forced_tail_actions": 0,
+      "source_same": true,
+      "verification_same": true,
+      "top_watchdog_complete": true,
+      "watchdog_join": true,
+      "top_passes": [
+        "TestModelProjectOwnerUpdateHTTPUnknown"
+      ],
+      "sub_count": 4,
+      "pid1_z_baseline_count": 226,
+      "pid1_z_cleanup_count": 230,
+      "new_pid1_not_owned_not_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 676859,
+          "ppid": 1,
+          "starttime": "2563523",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 677389,
+          "ppid": 1,
+          "starttime": "2563950",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 677667,
+          "ppid": 1,
+          "starttime": "2564127",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 678169,
+          "ppid": 1,
+          "starttime": "2564305",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new4",
+      "result_path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/new4/result.json",
+      "result_sha256": "05065b7a7d0180aab704cba74ae886fd233d30f23ca11edf24cc0bf2688c7601",
+      "command_sha256": "6152821c562c9cad351d3b54f02db9b0643bd05b86a61afcd235a1017d1c2767",
+      "raw_sha256": "d92e764dbd01b769a9c08158c4aca2201e421d537cabf883d752000124ba896f",
+      "cleanup_sha256": "21d8b9273af50247983d30a7a5667beff751b76e538e376cb2f12f9c7e1ead55",
+      "watchdog_sha256": "5c5d73076da7e0cfb170818af132b21be19813c2d9ae6712e135e4157218d870",
+      "exit": 0,
+      "seconds": 55.664,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "resource_count": 7,
+      "topology_exact": true,
+      "double_cleanup": true,
+      "forced_tail_actions": 0,
+      "source_same": true,
+      "verification_same": true,
+      "top_watchdog_complete": true,
+      "watchdog_join": true,
+      "top_passes": [
+        "TestModelProjectOwnerUpdateHTTPRootBinding"
+      ],
+      "sub_count": 2,
+      "pid1_z_baseline_count": 230,
+      "pid1_z_cleanup_count": 234,
+      "new_pid1_not_owned_not_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 684108,
+          "ppid": 1,
+          "starttime": "2570745",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 684565,
+          "ppid": 1,
+          "starttime": "2571135",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 684934,
+          "ppid": 1,
+          "starttime": "2571331",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 685435,
+          "ppid": 1,
+          "starttime": "2571507",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old1",
+      "result_path": "/workspace/scratch/project-owner-update-http-author/pg-driver-v01/runs/old1/result.json",
+      "result_sha256": "28a89cc41daf1c892ec152c03a606b56fb5f98f36f3f69f1c144ecb974f42d27",
+      "command_sha256": "2540bcdba4ac355e65898e3b408be2ec7df938593481f87da2b7601f9535a5b2",
+      "raw_sha256": "267579cf1d29da902722e7cec2c53ca566d8e22ac004600b508f84faf1cebd38",
+      "cleanup_sha256": "c83ff0fbe48499939ed758e54721ab7563b7c9d13f0b3a8ae58c63882d0eb6a5",
+      "watchdog_sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "exit": 0,
+      "seconds": 93.033,
+      "actual_wait": true,
+      "adopted_waits": 0,
+      "resource_count": 7,
+      "topology_exact": true,
+      "double_cleanup": true,
+      "forced_tail_actions": 0,
+      "source_same": true,
+      "verification_same": true,
+      "top_watchdog_complete": true,
+      "watchdog_join": true,
+      "top_passes": [
+        "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+        "TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName",
+        "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+        "TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization",
+        "TestModelMeetingSummarySettingsRoot",
+        "TestModelProjectOwnerReadHTTPRootBinding",
+        "TestModelProjectOwnerReadHTTPProjectionAndPaging",
+        "TestModelProjectUsageHTTPRootBinding",
+        "TestModelSystemHTTPConfigurationCRUD"
+      ],
+      "sub_count": 20,
+      "pid1_z_baseline_count": 234,
+      "pid1_z_cleanup_count": 238,
+      "new_pid1_not_owned_not_joined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 691542,
+          "ppid": 1,
+          "starttime": "2577137",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 692078,
+          "ppid": 1,
+          "starttime": "2577599",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 692443,
+          "ppid": 1,
+          "starttime": "2577859",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 693046,
+          "ppid": 1,
+          "starttime": "2578037",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "new_pid1_union_not_owned_not_joined": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 660967,
+      "ppid": 1,
+      "starttime": "2547386",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 661458,
+      "ppid": 1,
+      "starttime": "2547778",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 661846,
+      "ppid": 1,
+      "starttime": "2548019",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 662447,
+      "ppid": 1,
+      "starttime": "2548269",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 669377,
+      "ppid": 1,
+      "starttime": "2556332",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 669910,
+      "ppid": 1,
+      "starttime": "2556813",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 670386,
+      "ppid": 1,
+      "starttime": "2557182",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 670890,
+      "ppid": 1,
+      "starttime": "2557364",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 676859,
+      "ppid": 1,
+      "starttime": "2563523",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 677389,
+      "ppid": 1,
+      "starttime": "2563950",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 677667,
+      "ppid": 1,
+      "starttime": "2564127",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 678169,
+      "ppid": 1,
+      "starttime": "2564305",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 684108,
+      "ppid": 1,
+      "starttime": "2570745",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 684565,
+      "ppid": 1,
+      "starttime": "2571135",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 684934,
+      "ppid": 1,
+      "starttime": "2571331",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 685435,
+      "ppid": 1,
+      "starttime": "2571507",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 691542,
+      "ppid": 1,
+      "starttime": "2577137",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 692078,
+      "ppid": 1,
+      "starttime": "2577599",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 692443,
+      "ppid": 1,
+      "starttime": "2577859",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 693046,
+      "ppid": 1,
+      "starttime": "2578037",
+      "state": "Z"
+    }
+  ],
+  "new_pid1_union_count": 20,
+  "global_boundary": "per-round actual PID/starttime differences; background git zombie appeared between rounds and is not attributed to task; no global zero or daemon wait claim",
+  "pass": true
+}

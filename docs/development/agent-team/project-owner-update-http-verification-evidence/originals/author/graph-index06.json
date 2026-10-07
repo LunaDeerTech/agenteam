@@ -1,0 +1,46 @@
+{
+  "candidate": "/workspace/scratch/project-owner-update-http-author/candidate06/manifest.json",
+  "input": "/workspace/scratch/project-owner-update-http-author/candidate06-input.json",
+  "input_sha256": "036e3eb7b0c6b5d2fc95ea3f0c91da124ca5b36afba2012bd886907c5cabfb26",
+  "graphs": [
+    {
+      "name": "graph-normal01",
+      "path": "/workspace/scratch/project-owner-update-http-author/graph-normal01/actual-graph.json",
+      "sha256": "956451a7d50cac7aa19def79d8af6ce2f018b6b0b3e0010f0f8a5bd83861e345",
+      "packages": 397,
+      "files": 2479
+    },
+    {
+      "name": "graph-race01",
+      "path": "/workspace/scratch/project-owner-update-http-author/graph-race01/actual-graph.json",
+      "sha256": "a5c64b7ab19d4555c66d9ab23c5626d85d22d527b5742677eebbdc0d249e168a",
+      "packages": 399,
+      "files": 2485
+    },
+    {
+      "name": "graph-fixture02",
+      "path": "/workspace/scratch/project-owner-update-http-author/graph-fixture02/actual-graph.json",
+      "sha256": "3b89a8d8c924f44d1f61f50cc1b32a0dcea9cf1d153fbcbbf25ace55f0e97181",
+      "packages": 453,
+      "files": 2901
+    },
+    {
+      "name": "graph-dynamic01",
+      "path": "/workspace/scratch/project-owner-update-http-author/graph-dynamic01/actual-graph.json",
+      "sha256": "889ee7a4c810285ddd29bdd7af9349692cd40d66edde399765b26ff5aec1062e",
+      "packages": 385,
+      "files": 2390
+    },
+    {
+      "name": "graph-outbound-cgo0-01",
+      "path": "/workspace/scratch/project-owner-update-http-author/graph-outbound-cgo0-01/actual-graph.json",
+      "sha256": "fbafa2b7406f46da4604aa1ac112f1216329ba5b903f543ccdc90f799355b8a6",
+      "packages": 200,
+      "files": 1219
+    }
+  ],
+  "runtime_schema": "Frozen actual Python module runtime plus20 jsonschema_specifications data; standard Draft202012+FormatChecker exercised in update WireStandardSchema.",
+  "environment_restored": "all prior closure bytes except own seven expected sources match, no missing tools; no previous PID baseline reused",
+  "candidate_sha256": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b",
+  "reuse": "Candidate04\u219206 changed only already-selected HTTP files with identical imports/filesets; original generated TestMain belongs to each graph run, current HTTP test-discovery is separately bound by native-list02 and compile/test binary. Fixture graph does not compile HTTP package test sources. Candidate02 app adaptation and04 test imports captured by fixture02."
+}

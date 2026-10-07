@@ -1,0 +1,96 @@
+{
+  "status": "READY_B_ONLY_RETRY_PENDING_ROOT_RESOURCE_AUTHORIZATION",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-update-http-author/candidate06/manifest.json",
+    "sha256": "e5f288f04c9ff061ebd70f6b974501c91a3aecdd8f53c33273c63e9e82aef27b"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/delta.diff",
+    "sha256": "063e465f4a066adcea45b404e76646a8c19f5dc2495449816dbb136b0f77c351"
+  },
+  "attribution": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/attribution.json",
+    "sha256": "8582f1401ac367b38016f6e8b6a96bceb1c2a21267aeae9e788feb5942eb11a0"
+  },
+  "probe": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/independent_update_test.go",
+    "sha256": "8c0bdd44764466f17f409c044bdb3e817e9262f94facf841758106cdcabe9a7f"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/overlay.json",
+    "sha256": "558c30d207afdd95010bc5353301a74e4f2ee54ddcfc5f897805f81d13c2d472"
+  },
+  "driver": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/driver.py",
+    "sha256": "0c2f2bf5b6b263fc00f1df1a400b1f80a201603f6960e563c53a307c1e03b5e0"
+  },
+  "frozen": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/frozen.json",
+    "sha256": "4a73450ee7582a5f594bdf22dfdb998d776f6f4cd0898a434b601b8c643edbf5"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/closure.json",
+    "sha256": "ee85c872e6145ea542637f9805702b7cafb4a55d1e02b9175ccb7d13a3f9a082"
+  },
+  "runs": {
+    "f03-format-d": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/offline/f03-format-d/result.json",
+        "sha256": "e7f75a2ecd000fe8b6f71bd117cb104435c5d040a759148dfe66e739fec700db"
+      },
+      "seconds": 0.005734530001063831
+    },
+    "c02-model-race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/offline/c02-model-race/result.json",
+        "sha256": "d48786082b462b0a3de32d507613e7c6a64c4073676a224a1e428b73c222d1eb"
+      },
+      "seconds": 6.586091350000061
+    },
+    "v01-model-race": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/offline/v01-model-race/result.json",
+        "sha256": "c9266c6e0e5803f305ce3bd1813a519d82065455a26faf74c465f0bb5ec87ebb"
+      },
+      "seconds": 0.574065292999876
+    },
+    "l02-b-exact": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/offline/l02-b-exact/result.json",
+        "sha256": "69f2c021c4cd12d4b44469106642aa8c5a02fb6061ced983ff859e4ea59a1141"
+      },
+      "seconds": 1.0327466540002206
+    },
+    "g03-resource-input-only": {
+      "result": {
+        "path": "/workspace/scratch/project-owner-update-http-verification/probes03/offline/g03-resource-input-only/result.json",
+        "sha256": "23803c1099d74ee0a42ba7f3040947ce01f41e9234b1afb2a525adf3bc15be2d"
+      },
+      "seconds": 0.5870066659990698
+    }
+  },
+  "reuse_A": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-a01/result.json",
+    "sha256": "9067270eddea3eb6a0bfa2db406e76bf92b3f86529500cf11b7e751156f2c0c0"
+  },
+  "first_B_failure": {
+    "path": "/workspace/scratch/project-owner-update-http-verification/probes02/driver-v01/runs/independent-b01/result.json",
+    "sha256": "ff6a1f94444819da8d43266b33aa812d8a92468d6d4ced54112ee06421e8d327"
+  },
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/driver.py",
+    "--name",
+    "independent-b02",
+    "--group",
+    "independent-b",
+    "--frozen",
+    "/workspace/scratch/project-owner-update-http-verification/probes03/driver-v01/frozen.json",
+    "--execute-authorized"
+  ],
+  "limits": [
+    "Only one auxiliary SQL column string changes; A bytes unchanged and PASS reused.",
+    "Driver byte-identical; permitted_groups narrowed to B. Fresh baseline,120s top including Cleanup,6m package,actualwait/seven-resource doublecleanup retained.",
+    "No resource rerun started. After successful B, original bytes parsed with prior frozen standard-schema parser."
+  ]
+}

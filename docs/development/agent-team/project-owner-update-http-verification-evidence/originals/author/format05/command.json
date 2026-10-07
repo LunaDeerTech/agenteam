@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "/workspace/agenteam/internal/central/project/http/update.go",
+    "/workspace/agenteam/internal/central/project/http/update_test.go"
+  ],
+  "cwd": "/workspace/agenteam",
+  "environment_overrides": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "TMPDIR": "/workspace/scratch/project-owner-update-http-author/tmp",
+    "CGO_ENABLED": "1",
+    "GOMAXPROCS": "2",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+    "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "subreaper": true,
+  "driver_pid": 649324,
+  "driver_sha256": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06",
+  "frozen_manifest_sha256": "1f7f6923d06473b140097078284ca3f95f1cb27d3b9b6f3e4dee9b765cef4deb",
+  "started_utc": "2026-10-07T18:42:07Z",
+  "total_deadline_seconds": 45,
+  "child_timeout_seconds": 42,
+  "inputs_before": {
+    "/workspace/agenteam/internal/central/project/http/update.go": "fba8821b282eef8b909e720ed77100938835e24da4d2545dea779eb8eaa9abe0",
+    "/workspace/agenteam/internal/central/project/http/update_test.go": "843ef18d971bc681801a24498eda72643c92be3a8467080d4565ebace4c90b3f",
+    "/workspace/toolchains/go1.27.1/bin/gofmt": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+    "/workspace/scratch/project-owner-update-http-author/offline-driver.py": "cb8021aea1323027a004a34a8c6acf0f0d88caf3b5bf73afc1076761c76b3a06"
+  }
+}
