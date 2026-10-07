@@ -32,3 +32,5 @@ forced root 返回不证明全部 inner join，代理/进程/资源终局另列�
 [来源映射](project-model-credentials-http-verification-evidence/source-map.json)逐项绑定241个去重原件、173个同字节别名、171份元数据的5个明确派生束、27项仅指纹来源。重复大图/input map、完整初始源码差量和README全文复用固定提交/原索引，不复制树、binary、cache或私密runtime；不声称整个原依赖闭包已入仓。原始文档里的scratch链接保留其原位置语义，通过source-map定位已存副本。
 
 逐件核来源/副本SHA与原字节、JSON/脚本AST及新文档链接；卡§1–8与四入口旧历史字节不变。原件14文件有367条尾空白/space-before-tab/空EOF扫描记录，另35份原件无末换行，逐行位置见source-map；均不改字节、不加ignore。这是归档字节扫描，Git差量检查由root执行。本任务未运行Go、业务、资源或证据脚本。
+
+root后验补记：归档 `0596a24d` 已提交推送并核远端一致。实际 Git 差量检查为 **368条＝原扫描367条＋原patch的EOF分类1条**：`originals/author/readme23/delta.diff:42` 为 `new blank line at EOF`，原SHA-256 `504bd817cd653092887fc2922ebaaeb544b4a5d7989df7922f3d9c2dc666cf86`。该行的尾空白已在原367条内，EOF分类为后验新增；原扫描记录与所有证据字节保留，root日志指纹见source-map。本次仅补文档记录。

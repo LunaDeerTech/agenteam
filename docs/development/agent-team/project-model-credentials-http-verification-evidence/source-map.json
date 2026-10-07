@@ -6852,5 +6852,35 @@
     "scripts_AST_parsed_only": true,
     "original_scripts_run": false,
     "Go_Git_resources_run": false
+  },
+  "root_post_archive_git_check": {
+    "archive_commit": "0596a24d37f94818fee34eb26f8dfe1ec52ebcb2",
+    "publication": "root reports archive commit pushed and remote equality; this two-document follow-up is separate, not an amend",
+    "original_documentation_byte_scan": {
+      "registered_whitespace_records": 367,
+      "preserved_without_rewriting": true,
+      "original_missing_final_newline_files_separate": 35
+    },
+    "actual_root_git_diff_check": {
+      "whitespace_records": 368,
+      "previous_registered_records_matched": 367,
+      "additional_original_record": {
+        "archive": "originals/author/readme23/delta.diff",
+        "sha256": "504bd817cd653092887fc2922ebaaeb544b4a5d7989df7922f3d9c2dc666cf86",
+        "line": 42,
+        "type": "new blank line at EOF",
+        "original_line_bytes_hex": "200a",
+        "same_line_already_registered_as": "trailing whitespace"
+      }
+    },
+    "root_log_fingerprint_only": {
+      "source": "/workspace/scratch/recovery-docs/project-model-credentials-http-archive/root-staged-check.txt",
+      "sha256": "1cbca2a8fa80daa2f26d6d17b12486b0159dd2c1e1f99c883859e8f4867fb894",
+      "bytes": 79941,
+      "not_copied": true
+    },
+    "diagnostic_history": "Root checker initially treated a missing-final-newline record as if it had a line key; after correction, exact set comparison found this additional EOF classification. These were documentation check issues; original evidence and product bytes were unchanged.",
+    "original_bytes_unchanged": true,
+    "ignore_or_normalization_added": false
   }
 }
