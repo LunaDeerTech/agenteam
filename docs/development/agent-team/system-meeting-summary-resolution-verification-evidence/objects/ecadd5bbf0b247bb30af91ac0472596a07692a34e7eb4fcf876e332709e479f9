@@ -1,0 +1,38 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 11714.003329411,
+      "top": "TestModelMeetingSummaryResolutionAtomicity"
+    },
+    {
+      "event": "result",
+      "monotonic": 11719.739784204,
+      "observed_seconds": 5.73645479300103,
+      "reported_seconds": 5.73,
+      "state": "PASS",
+      "top": "TestModelMeetingSummaryResolutionAtomicity"
+    },
+    {
+      "event": "run",
+      "monotonic": 11719.739784204,
+      "top": "TestModelMeetingSummaryResolutionReplay"
+    },
+    {
+      "event": "result",
+      "monotonic": 11724.742401655,
+      "observed_seconds": 5.002617450998514,
+      "reported_seconds": 5.01,
+      "state": "PASS",
+      "top": "TestModelMeetingSummaryResolutionReplay"
+    }
+  ],
+  "expected": [
+    "TestModelMeetingSummaryResolutionAtomicity",
+    "TestModelMeetingSummaryResolutionReplay"
+  ],
+  "failures": []
+}

@@ -1,0 +1,11 @@
+--- /workspace/scratch/summary-resolution-static-verification/probes02/independent_meeting_resolution_test.go
++++ /workspace/scratch/summary-resolution-static-verification/probes03/independent_meeting_resolution_test.go
+@@ -284,7 +284,7 @@
+ 		v.atomicFacts(t, r, p, 1)
+ 		summary := v.summary(t)
+ 		memory, e := v.service.GetPlatformSelection(testContext(t), v.admin)
+-		if e != nil || summary.Model == nil || *summary.Model != next.ID || summary.Version != beforeSummary.Version+1 || memory.Memory != next.ID || memory.Version != beforeMemory.Version+1 {
++		if e != nil || summary.Model == nil || *summary.Model != next.ID || summary.Version != beforeSummary.Version+1 || memory.Configured == nil || memory.Configured.Memory != next.ID || memory.Version != beforeMemory.Version+1 {
+ 			t.Fatal("two distinct selector owners did not move atomically", e)
+ 		}
+ 		replay := v.resolve(t, r)

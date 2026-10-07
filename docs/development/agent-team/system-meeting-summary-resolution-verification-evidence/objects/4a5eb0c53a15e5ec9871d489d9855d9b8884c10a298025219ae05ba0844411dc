@@ -1,0 +1,24 @@
+# S3 candidate02 独立 STATIC
+
+结论：**限定 STATIC PASS，可进入共同冻结后的离线编译准备；不是 S3 产品接受。** 未发现需解冻返修的生产实现缺陷。本轮只读 16 个冻结副本和 c210d249 固定依赖，只写本目录，无 Go/测试/监听/数据库/容器运行，无产品、卡片、Git 或旧证据改动。
+
+输入为 candidate02 manifest `f52d2500435625f274c1cccc0710e44c0781be9161df70da8dba936c7d06a849`；fixture `69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b`，其余 15 源继承 candidate01。`input.json` 保存精确 snapshot 路径；`close.py` / `close.json` 实际退出 0，复核 16 源未漂移、9 个必要固定依赖及 candidate01→02 仅删除未使用 sc 导入。此静态纠正未经历 Go 编译，不称编译首红。生产六路径实际差异见 `model-six.diff`。
+
+| 已核边界 | 静态依据及结论 |
+| --- | --- |
+| 请求闭集和旧兼容 | platform.meeting_summary 只与两 Meeting Purpose 配对；direct、Memory 三用途和旧四用途保持原路径；project_summary 保留结构并由 Resolver 返回 DependencyUnbound。未增加公共 Resolver/consumer 口、持久 DTO 字段、迁移或 root 绑定。四合同详细审查与离线组合见下述原报告。 |
+| 当前选择和 profile | policy 使用 S1 loadMeetingSummaryState，保留 singleton/reference 完整性检查；缺失/NULL/错误/显式 Summary version 各沿既定分类；无 Project fallback。plain 使用 text-v1，含 json_schema 使用 structured-v1，保留 capabilities，未放宽原协议、参数、工具和 reasoning 闭集。 |
+| 锁与当前权限 | Select 和 Resolution base union 均加新 selector SH，保留 loader 实际读取需要的旧 singleton SH 和原 refs/Project/User/Provider/Model/记录锁。原 preflight、准备、最终及 Secret 回调的当前授权、same Store/Tx、完整 RequireHeld、issuer/witness、poison 逻辑未改。 |
+| 不可变接受点 | prepared 仍重规划同 SnapshotID；committed 从保存的完整 draft 恢复，跳过 live 配置替换但不跳过当前 consumer 授权。稳定 semantic 与 Session 绑定区别、CallID 幂等域、lease canonical/无 ref 零调用、Unknown 原 cause/attempt 和取消零发布均沿原实现。历史比较使用完整 snapshot JSON；ConfigSnapshot 仅 fmt/log 脱敏，没有把 JSON 化成常量。 |
+| strict Meeting fixture | 正式 Bootstrap/Invitation/Redeem/Login/Logout 建立当前身份，同 Store 的 Account/Project/Model/Secret/Audit/Outbox；未调用直接插 users/sessions 的旧 constructor。独立 Meeting/Operation canonical 列包含 Project、CallID、Purpose、initiator、input、phase/version；消费者先核 Store/锁/Session/Project，再逐项与实例签名 mapping 核对。Meeting/Operation aggregate 与私有事实锁进入 union，不是完整请求 JSON 等式。测试专属 input 行只证外 Tx 原子性。 |
+| 五个真实 top 的代码准备 | 覆盖选择/两 revision、孤立新 SH holder 和缺锁 poison、正式当前权限及 canonical 负例、准备失效与跨实例历史、真实 COMMIT/ROLLBACK 后装饰 Unknown 和原 Command 缺行屏障。普通 holder 等实际 CommitResult 后返回。生产 Project gate/lease 的直接 SQL 仅用于显式负事实，不冒充正式生命周期；旧 helper 身份限制仍属旧回归限制。 |
+
+四合同的独立静态报告保持 `../contract01/review.md`（SHA bdbf71fea1e6c279faa4452eae9af6cf52aa2b8c84ffe5e242412502f4bc422d）。作者固定 pure33/race33/vet、普通及 race 图的必要 raw/result 已另行复核并限定采纳，见 `../contract-evidence01/review.md`（SHA a02d59501754ffc507b03bc06ca8612a36765df86b34ffffc61f1973f3df184a）。首 shell127 和 driver01 KeyError 均保留且排除完成证据；本轮未重跑这些命令。其他 12 源尚无本次编译或动态 PASS。
+
+非阻断限制：fixture Account cleanup 已包含 fresh Force、无条件等待 forceDone 及 Joined。复用的 outbound/registry cleanup 在超时后只报失败，没有随后组件 join 证明；实际轮仍必须由已接受 outer driver 保有进程直到实际终局及双清，不能将组件超时误写成 join。原 Unknown 装饰是真实 SQL 终局之后的 API 结果边界，不能升级为物理 COMMIT ACK 丢失证明。Select 仅证明安全投影，不授 Meeting/Operation 生成权限。
+
+独立 A/B 探针可行性保持 `../product-plan01/plan.md`：A 复用 strict fixture，在正式两 Project/两 Purpose 下验证当前权限、新 selector 单锁与最终事务持锁时双 owner 删除竞争；B 验跨实例完整历史、无 ref/有 ref 原子性和两个代表 Unknown 后态。私有 probe 可用已有同 package helper，无需导出生产口或复制全树。后续加一条有效 MemoryConsumer→Summary 的精确负例，以补合同作者 `other-purpose` 个案先被 Consumer 结构拦截的覆盖局限；不要求为此返修当前产品。
+
+剩余门槛：S2/S3 共享编译包及 TestMain 动态构建/helper 的实际共同冻结闭包；其余 12 源编译/格式/纯检查；卡列五新 top、八旧真实 top 和独立 A/B；每轮授权、120s top 含 Cleanup / 包 6m、原 fixture 七资源及 owned actual wait/双清，daemon/PID1 差量单列。S2 不是 S3 库语义前置，但其活动源码不能混入未冻结运行图。production Resolution 继续 nil，D24 真实 Meeting 绑定和生成、完整 D09/D24/E01 均未交付。
+
+本报告结束即停止本轮写入与审读，等待 root 的共同冻结和下一阶段授权。

@@ -1,0 +1,23 @@
+from pathlib import Path
+import json,hashlib,sys
+base=Path('/workspace/scratch/meeting-summary-s3-author');b=base/'overlay02';manifest=json.loads((b/'pregraph-input.json').read_text());overlay=json.loads((b/'overlay.json').read_text())['Replace'];run=sys.argv[1];s=(base/run/'stdout.log').read_text();dec=json.JSONDecoder();objects=[]
+while s.strip():
+ obj,n=dec.raw_decode(s.lstrip());objects.append(obj);s=s.lstrip()[n:]
+files={};outside=[];excluded=[];generated={}
+for obj in objects:
+ if obj.get('Error') or obj.get('DepsErrors'):raise RuntimeError(obj)
+ for field in ('GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles','TestGoFiles','XTestGoFiles','TestEmbedFiles','XTestEmbedFiles'):
+  for name in obj.get(field,[]):
+   virtual=str(Path(obj['Dir'])/name);actual=overlay.get(virtual,virtual)
+   if not actual:excluded.append(virtual);continue
+   p=Path(actual)
+   if not p.is_file():outside.append({'virtual':virtual,'reason':'missing actual source'});continue
+   h=hashlib.sha256(p.read_bytes()).hexdigest()
+   if obj['ImportPath'].endswith('.test') and str(p).startswith('/workspace/.cache/go-build/'):
+    generated[actual]=h;continue
+   files[virtual]={'actual':actual,'sha256':h}
+   if manifest['effective_files'].get(virtual)!=files[virtual]:outside.append({'virtual':virtual,'actual':actual,'sha256':h})
+result={'run':run,'overlay_sha256':manifest['overlay']['sha256'],'packages':[{'ImportPath':o['ImportPath'],'Dir':o['Dir'],'Standard':o.get('Standard',False)} for o in objects],'files':files,'generated_testmain_cache':generated,'outside_conservative_input':outside,'excluded_source_selected':excluded}
+path=base/run/'actual-graph.json';path.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'run':run,'packages':len(objects),'files':len(files),'generated_testmain':len(generated),'outside':outside,'excluded_selected':excluded,'actual_graph_sha256':hashlib.sha256(path.read_bytes()).hexdigest()}))
+if outside or excluded:raise SystemExit(1)

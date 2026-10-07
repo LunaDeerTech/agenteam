@@ -1,0 +1,39 @@
+# Meeting Summary Resolution S3 — author handoff
+
+Candidate03 is frozen; all 16 repository sources match [manifest](candidate03/manifest.json) `ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9`. This is author verification, not final independent product acceptance. No README/root/adapter/S1-loader/migration/public authority API or files outside the 16-path technical scope were changed. No active author command or owned resource remains.
+
+The library now resolves platform `meeting_summary` for Meeting initial/update against the independent system selector, supports plain text and existing structured profiles, and holds the new selector lock in addition to the existing loader dependency lock. Select remains a current Project read; generation uses current Session/Project and strict Meeting canonical facts, existing immutable snapshot/binding/lease transactions and Secret callbacks. Default root and D24 consumers remain unbound; production Invocations nil, ready503, the three stopped tasks, compaction snapshots and all unrelated purposes are unchanged. This does not complete D09/D24 or any whole module.
+
+## Fixed inputs and offline checks
+
+The accepted dependency base is product `c210d249600d98871513c56fb9a8fff7c50a4c34`. [Overlay03](overlay03/overlay.json) retains 32 maps: eight fixed accepted old sources/embeds, eight new S2 Go paths hidden, sixteen frozen S3 sources. Candidate03 only changes two test assertions from candidate02; imports, embed/build directives, package inventories and runtime reads are unchanged. The preceding actual ordinary/race/full fixture/dynamic-command/CGO0 graphs are reused with that explicit content delta; no new graph execution is claimed. Dynamic fixture children and both process commands inherit the absolute GOFLAGS overlay. Selected runtime reads are task-owned private recovery logs and fixture descriptors, not active S2 schemas.
+
+- Contract: 33 top-level pure and race tests plus race vet passed; [result](contract-result01.json), [ordinary graph](contract-graph02.json), [race graph](contract-race-graph01.json).
+- Model: 52 top-level and 141 nested cases passed in both ordinary and race binaries; [result](overlay02/unit-results.json). The sole runtime OpenAPI read used the fixed accepted schema by controlled cwd. The model race vet, integration race compile and both command builds passed; [compile result](overlay02/compile-results.json).
+- Candidate03 affected integration race compile passed in 5.618s and exact five-new/eight-old list in 1.329s; [result](overlay03/results.json) `f2cd9bcec567d9e232178357b34c2c9174186ecf3aaf8348ad7306ddc72a64d0`. Binary SHA `ce94f4a0f718fe1a484ee46b41a2e3711b61f73539a3d394f7f8dda6b36f1ef3`. Each bounded command actually joined its child, reaped adopted children if present, checked owned emptiness twice and preserved equal effective inputs. Unchanged pure/vet/build checks were not repeated.
+
+## Real author runs
+
+[Exact run index](author-runs01.json) `df66ac01d967d5df95e5b3688680001ddbd96676a4126e5705483fd9cb076f77` binds each command, original raw bytes, result, watchdog, before/after input, two cleanup records and daemon PID/starttime sets.
+
+| Run | Result | Top-level / nested cases | Seconds to final cleanup |
+| --- | --- | --- | --- |
+| v01 new1 | actual 1, retained | 2 failed tops; 21 passed / 4 failed nested cases | 77.796 |
+| v02 new1-rerun | actual 0 | 2 passed / 25 passed | 57.780 |
+| v02 new2 | actual 0 | 2 passed / 13 passed | 61.885 |
+| v02 new3 | actual 0 | 1 passed / 6 passed | 58.778 |
+| v02 old1 | actual 0 | 8 passed / 47 passed | 70.221 |
+
+The accepted author coverage is five new tops / 44 nested cases and eight existing tops / 47 nested cases. All five actual rounds, including the failed original, met fresh ≥5 GiB, exact seven owned resources, actual process wait, unchanged baseline/full Mounts, empty owned processes and runtime entries on both cleanup passes, equal source/verification hashes, completed/joined watchdog, zero monitor errors, zero forced tail actions and zero adopted waits. New tops completed within the fixed 120s limit including test cleanup; original package budget was 6m with race/count1/p1. The four successful rounds used [identical driver-v02 code](driver-v02/driver.py) `f827c10c756adb84b6088881b837a0a0d006b7e83223ff53168edd7979652573`, [frozen input](driver-v02/frozen.json) `5ff40ee0d01f8317c636d9d04f32257b943bccc65795ce637f78861c3a29518b` and [closure02](resource-closure02.json) `4cdb5def0aab0c4bae89d7b5aa01e7867ced284961fa14541a98c767a6785ef6`.
+
+Each round added four daemon-owned PID1 shim zombies, not owned or waited by the task. Actual recorded sets progress 48→52→56→60→64→68. No whole-machine zero-process claim is made. Reused outbound/registry component cleanup may time out before an inner join; the actual enclosing process termination and outer ownership cleanup remain the accepted final safeguard.
+
+The new S3 identity fixture uses formal Bootstrap/Login and Invitation/Redeem/Login for its human identities, plus formal Logout/new Login. Meeting/Operation/input canonical rows are a strict test-only owner fixture, not implemented D24 generation. The eight retained regression tests keep their prior fixture identity provenance; this run does not upgrade them to account creation/invitation E2E. Unknown coverage decorates CommitResult after real commit or rollback as allowed by the S3 card; it does not claim a transport-level lost-ACK experiment.
+
+## Original failures and bounded repair
+
+[Attribution and exact diff](candidate03/attribution.md), [original failure index](candidate03/new1-failure-index.json), [two-test delta](candidate03/source.diff). New1 wrongly expected Forbidden for non-owner Project access; existing Project policy returns NotFound including system administrators. Altered LeaseID is part of the Secret usage binding and fails before the stale-witness gate with outer SECRET_INPUT_INVALID and wrapped InvalidArgument; unchanged stale witness still returns Forbidden. Only those exact test expectations changed. Zero-plan, reached-callback and NotCommitted assertions remain. All production bytes stayed unchanged, and independent candidate03 STATIC delta review passed before the complete affected two-top rerun.
+
+Earlier preparation records remain: shell127 wrong Python path (Go never started); offline driver01 metadata KeyError after wait (no completed result credited); overbroad graph extractor counting unused dependency tests (corrected extractor, original raw retained); and first actual CGO0 graph revealing one missing fixed Go standard source (`net/cgo_stub.go`), followed by a minimal added hash and successful identical graph rerun. Candidate02's removed unused import was static cleanup before compilation, not a test failure. None is erased or represented as an original PASS.
+
+All sixteen source paths remain stopped at candidate03. Independent A/B and root acceptance, and the separately authorized final backend README update, remain pending.

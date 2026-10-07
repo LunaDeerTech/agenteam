@@ -1,0 +1,406 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/candidate03/manifest.json",
+    "sha256": "ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9"
+  },
+  "run_evidence": [
+    {
+      "driver": "driver-v01",
+      "run": "new1",
+      "directory": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1",
+      "result_sha256": "d5508034ea1e0ae431d573f975243f3653454e0fd02871205d2317a1b78e598c",
+      "raw_sha256": "3ce737581400a0d5280049ab5fa3630595e983cc17cae0d135cf7360daa36f1a",
+      "cleanup_sha256": "e565a29c6d540e1c3f2a56b2f6c4b07a8b812d43316d17366726e1ab31eccfae",
+      "watchdog_sha256": "a8846b943ea8efac253c0307439ee424da0ae011714df91fcf26014523f70771",
+      "input_before_sha256": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34",
+      "input_after_sha256": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34",
+      "command_sha256": "05a24e61b367970127ac0affa78ecde0b59446c66b28cc150f35bb2898401a41",
+      "actual_exit": 1,
+      "actual_wait": true,
+      "owned_double_cleanup": true,
+      "baseline_unchanged": true,
+      "resources": 7,
+      "observed_processes": 97,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "fresh_free_bytes": 21928222720,
+      "elapsed_to_final_cleanup_seconds": 77.795806,
+      "top_results": [
+        [
+          "FAIL",
+          "TestModelMeetingSummaryResolutionAuthorization",
+          "5.41"
+        ],
+        [
+          "FAIL",
+          "TestModelMeetingSummaryResolutionSelection",
+          "4.57"
+        ]
+      ],
+      "subtests_pass": 21,
+      "subtests_fail": 4,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true,
+      "new_daemon_pid1_zombies_not_owned_or_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 259940,
+          "ppid": 1,
+          "starttime": "1109509",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 260567,
+          "ppid": 1,
+          "starttime": "1110151",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 260934,
+          "ppid": 1,
+          "starttime": "1110412",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 261840,
+          "ppid": 1,
+          "starttime": "1110839",
+          "state": "Z"
+        }
+      ],
+      "baseline_daemon_zombies": 48,
+      "final_daemon_zombies": 52
+    },
+    {
+      "driver": "driver-v02",
+      "run": "new1-rerun",
+      "directory": "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun",
+      "result_sha256": "47e4852ce7c5cb8e405d94f54593092380629a891d4f2373c421bf148380102b",
+      "raw_sha256": "69f5f201ecc625ae3cb09de5b836317f74279ddb217ea5cf7053c81936c53447",
+      "cleanup_sha256": "edad2e26683328cdabf1ebec78c1b92744137d4423dff3787a59b4fefff9a10f",
+      "watchdog_sha256": "9d830ed367ec88da949c114a053f9b4c658ab7930600749369b55de3ba6a8496",
+      "input_before_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "input_after_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "command_sha256": "a60ef97a4af36216247c666e9ead438c7c48aa13a8c849f4c53ba877a27367c1",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_double_cleanup": true,
+      "baseline_unchanged": true,
+      "resources": 7,
+      "observed_processes": 86,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "fresh_free_bytes": 21814632448,
+      "elapsed_to_final_cleanup_seconds": 57.779679,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummaryResolutionAuthorization",
+          "5.37"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummaryResolutionSelection",
+          "5.06"
+        ]
+      ],
+      "subtests_pass": 25,
+      "subtests_fail": 0,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true,
+      "new_daemon_pid1_zombies_not_owned_or_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 273826,
+          "ppid": 1,
+          "starttime": "1158062",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 274186,
+          "ppid": 1,
+          "starttime": "1158301",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 274553,
+          "ppid": 1,
+          "starttime": "1158513",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 275044,
+          "ppid": 1,
+          "starttime": "1158701",
+          "state": "Z"
+        }
+      ],
+      "baseline_daemon_zombies": 52,
+      "final_daemon_zombies": 56
+    },
+    {
+      "driver": "driver-v02",
+      "run": "new2",
+      "directory": "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2",
+      "result_sha256": "5f8d3bb0044db923758be8a66e9cde30ee6b7e03f44c8113bedfb0e05b3213be",
+      "raw_sha256": "d5ef3a53d16a964f42b975b3ee971f94740cecb1e4403743a46bbcac87ba3eb3",
+      "cleanup_sha256": "ff1ed080a14e62f7b0867e2cdfd7b81670d9510a11fe9ef9532f70bfabbf5159",
+      "watchdog_sha256": "ecadd5bbf0b247bb30af91ac0472596a07692a34e7eb4fcf876e332709e479f9",
+      "input_before_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "input_after_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "command_sha256": "771342ed3f12f05c8037d152723fea98bd92c0a1a02985f4c4d51fbf714664b5",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_double_cleanup": true,
+      "baseline_unchanged": true,
+      "resources": 7,
+      "observed_processes": 87,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "fresh_free_bytes": 21811040256,
+      "elapsed_to_final_cleanup_seconds": 61.884723,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummaryResolutionAtomicity",
+          "5.73"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummaryResolutionReplay",
+          "5.01"
+        ]
+      ],
+      "subtests_pass": 13,
+      "subtests_fail": 0,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true,
+      "new_daemon_pid1_zombies_not_owned_or_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 281857,
+          "ppid": 1,
+          "starttime": "1167578",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 282310,
+          "ppid": 1,
+          "starttime": "1167929",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 282675,
+          "ppid": 1,
+          "starttime": "1168133",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 283174,
+          "ppid": 1,
+          "starttime": "1168320",
+          "state": "Z"
+        }
+      ],
+      "baseline_daemon_zombies": 56,
+      "final_daemon_zombies": 60
+    },
+    {
+      "driver": "driver-v02",
+      "run": "new3",
+      "directory": "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3",
+      "result_sha256": "36737ccdad57537f835f4611a394b56f742f14ecf7d7907b9367a3275b7d5391",
+      "raw_sha256": "44bc1f1cabd97333d179b87ef32393e23826d4e0f2a588b084fd889260d261ba",
+      "cleanup_sha256": "51901f120289708b1dc6e622ba75c95e5ecc48130196d755334956e49380dfbe",
+      "watchdog_sha256": "e5629872c58f68149d1c7a5a88b98fa8efa06e75235996e53a725aeb27d14191",
+      "input_before_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "input_after_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "command_sha256": "90ce002e7545315fe72f0c5922faeeb8ca8e50bb5861a4960a9675c9d104a2b1",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_double_cleanup": true,
+      "baseline_unchanged": true,
+      "resources": 7,
+      "observed_processes": 89,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "fresh_free_bytes": 21740232704,
+      "elapsed_to_final_cleanup_seconds": 58.777526,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelMeetingSummaryResolutionUnknown",
+          "4.89"
+        ]
+      ],
+      "subtests_pass": 6,
+      "subtests_fail": 0,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true,
+      "new_daemon_pid1_zombies_not_owned_or_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 290156,
+          "ppid": 1,
+          "starttime": "1176126",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 290688,
+          "ppid": 1,
+          "starttime": "1176628",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 291167,
+          "ppid": 1,
+          "starttime": "1177010",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 291771,
+          "ppid": 1,
+          "starttime": "1177206",
+          "state": "Z"
+        }
+      ],
+      "baseline_daemon_zombies": 60,
+      "final_daemon_zombies": 64
+    },
+    {
+      "driver": "driver-v02",
+      "run": "old1",
+      "directory": "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1",
+      "result_sha256": "fb862069c3aed9b623b1fd836e1a3732ef435470cef6b688408ac8697a93ecfd",
+      "raw_sha256": "6ae5864cbe4aaba07578e13c025cc1c43033d99febc1373f572b79b8b61e4358",
+      "cleanup_sha256": "10d72b284f782319b663716a342e2e367a57d7ee4eb0aa78df130dd7fb4c4b8e",
+      "watchdog_sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "input_before_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "input_after_sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "command_sha256": "f26de90b38cd4afd27020ca7b0ca350f074e6f6785beaee4048a43f4a1279dbb",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_double_cleanup": true,
+      "baseline_unchanged": true,
+      "resources": 7,
+      "observed_processes": 87,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "fresh_free_bytes": 21739139072,
+      "elapsed_to_final_cleanup_seconds": 70.221137,
+      "top_results": [
+        [
+          "PASS",
+          "TestModelCurrentResolutionAtomicity",
+          "1.82"
+        ],
+        [
+          "PASS",
+          "TestModelCurrentResolutionCanonicalLease",
+          "1.74"
+        ],
+        [
+          "PASS",
+          "TestModelCurrentResolutionAuthorization",
+          "1.31"
+        ],
+        [
+          "PASS",
+          "TestModelCurrentResolutionSelection",
+          "1.88"
+        ],
+        [
+          "PASS",
+          "TestModelCurrentResolutionReplay",
+          "1.76"
+        ],
+        [
+          "PASS",
+          "TestModelCurrentResolutionUnknown",
+          "1.88"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummaryReplacement",
+          "4.63"
+        ],
+        [
+          "PASS",
+          "TestModelMeetingSummarySelection",
+          "3.45"
+        ]
+      ],
+      "subtests_pass": 47,
+      "subtests_fail": 0,
+      "source_files_unchanged": true,
+      "verification_inputs_unchanged": true,
+      "new_daemon_pid1_zombies_not_owned_or_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 297756,
+          "ppid": 1,
+          "starttime": "1183581",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 298290,
+          "ppid": 1,
+          "starttime": "1184006",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 298573,
+          "ppid": 1,
+          "starttime": "1184216",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 299175,
+          "ppid": 1,
+          "starttime": "1184401",
+          "state": "Z"
+        }
+      ],
+      "baseline_daemon_zombies": 64,
+      "final_daemon_zombies": 68
+    }
+  ],
+  "status": "author bounded real checks only; independent product review and root acceptance pending",
+  "original_failure": "new1 two test code expectations only; preserved; candidate03 two-test correction independently static reviewed; no production correction",
+  "no_global_zero_claim": true
+}

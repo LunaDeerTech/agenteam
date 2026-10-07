@@ -1,0 +1,36 @@
+{
+  "path": "/workspace/agenteam/docs/development/backend/README.md",
+  "before_sha256": "b011e9f9ca395d2325a4bc6badb26652874052536f2a6c1a87e8854fa0bf9696",
+  "after_sha256": "36670ae9683a7ac3c6e2bc068d0fc5b231dc3a96e65f5fa11f7878c327d3a8f2",
+  "diff_sha256": "21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f",
+  "local_links_checked": 47,
+  "missing_links": [],
+  "whitespace_check": "PASS",
+  "S2_paragraph_unchanged": true,
+  "all_content_after_summary_unchanged": true,
+  "technical16_unchanged": true,
+  "tests_or_resources_run": false,
+  "source_evidence": {
+    "author_report": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/author-report01.md",
+      "sha256": "a1cf52179dfff6a99ae741b0512ec4f82392fe974dd98b72af7d266874304456"
+    },
+    "candidate": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate03/manifest.json",
+      "sha256": "ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9"
+    },
+    "independent-a01": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/result.json",
+      "sha256": "6b3da925b79253a605deb991f9bf33bb13038371724796adcd234bc65f4bfdf0"
+    },
+    "independent-b01": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/result.json",
+      "sha256": "b2c1605f09bde8f645ddc3e4bb6f96c5d254950a2f96c39a7333bc38872778f9"
+    },
+    "independent_final": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/final01/review.md",
+      "sha256": "6656dde87482d037ade6db14c5f40fa0afd815b76ef2447889b61618dfaa3049"
+    }
+  },
+  "status": "README candidate frozen; independent documentation review pending"
+}

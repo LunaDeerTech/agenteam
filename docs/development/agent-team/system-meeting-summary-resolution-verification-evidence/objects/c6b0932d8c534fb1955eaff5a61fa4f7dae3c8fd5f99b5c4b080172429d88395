@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-d",
+    "/workspace/scratch/summary-resolution-static-verification/probes03/independent_meeting_resolution_test.go"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMAXPROCS": "2",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json",
+    "TMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp",
+    "GOTMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "5f812b8970c9dd90278f07673c9f472eea2c88dcbece8970e95bf6d663394f59",
+  "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "started_unix": 1791386202.2724838,
+  "subreaper": true
+}

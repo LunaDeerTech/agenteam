@@ -1,0 +1,13 @@
+# S3 contract 四源：限定 STATIC PASS
+
+固定输入 `/workspace/scratch/meeting-summary-s3-author/contract-input01.json` SHA256 `6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe`。只审 configuration.go、configuration_test.go、resolution_test.go、meeting_summary_test.go 冻结副本，与 c210d249 对照；必要 types/resolution/authority/meeting_summary 与测试 helper 依赖从固定 Git 原件读取，hash 与作者 manifest 相同。未读取活动 model/testmodel。
+
+结论无必须返修项：
+
+- 唯一生产变更为 SelectionRef 允许既有有效枚举 meeting_summary，以及 Purpose 映射新增 initial/update 两键。平台 ProjectID 仍必须 nil；其他 Kind、Version、ModelRef 与旧 Purpose 映射逻辑原样。
+- 新两 Purpose 经未改 Consumer.Validate 只能合法绑定 MeetingConsumer，要求 Project/Meeting/Operation，禁止 Agent/Execution；SelectionRequest 保持 Meeting 不可 direct、ModelRef 必须 nil、不能用 Memory selector。ResolveRequest 继续绑定 Consumer.Purpose、Actor 和 model_call owner，serving 分支未开放。
+- SelectionResult.ValidateFor 的既有 required 规则自动适用新 selector：无选中模型不合法，独立正版本必需；clone、完整 ResolveBinding 与安全格式保持。
+- 旧 project_summary 的结构分支完全未改；这只证明合同仍接受旧结构，Resolver 的 DependencyUnbound 留待其冻结源审查，当前不冒运行结论。旧 direct、Memory及其余平台映射原值保持；PlatformSelection 六字段原字节断言除新 SelectionRef 阶段性断言外完全保留。
+- 新测试静态覆盖两 Purpose 正例、version/override/direct/model-ref/Memory/Agent/Execution/缺Meeting或Operation反例、required 投影、clone与绑定关键字段。`other-purpose` 一例先由 Consumer.Validate 拒绝；后继独立纯探针可用结构合法 MemoryConsumer+Summary selector 检映射层，当前两行生产差量静态没有此缺陷，不需为此解冻四源。
+
+实际仅 SHA256、固定 Git 四文件 diff/必要依赖读取、人工逻辑/测试结构审查及末次 hash。没有 Go list/编译/测试/vet 或任何资源执行，未引用作者未完成检查为 PASS。原 manifest 是 conservative static closure，不被本报告当作实际 go list 图。产品、测试、卡与 Git 未修改；本 scratch 已停写。此结果只限四源 STATIC，不是 S3 合同动态或完整 S3 验收。

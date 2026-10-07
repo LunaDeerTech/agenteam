@@ -1,0 +1,2435 @@
+{
+  "kind": "DERIVED PREPARATION; these projections are not original evidence files",
+  "records": {
+    "/workspace/scratch/meeting-summary-s3-author/contract-compile01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-compile01/command.json",
+        "sha256": "9862c1aa3fc24d017ce6db8bd390de6695e399f86bef69c36fc007cd55701924",
+        "bytes": 9285
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/contract-pure01.test",
+          "./internal/central/model/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 239350,
+        "driver_sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:35:22Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-compile01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-compile01/result.json",
+        "sha256": "a29788299657b1dfa4a18ac2821c88145e5adb18ad65dee6b8765979e1e3f365",
+        "bytes": 9337
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.343178467999678,
+        "direct_child_pid": 239355,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 239355,
+            "ppid": 239350,
+            "pgid": 239355,
+            "state": "Z",
+            "starttime": "967429"
+          },
+          {
+            "pid": 239360,
+            "ppid": 239355,
+            "pgid": 239355,
+            "state": "R",
+            "starttime": "967432"
+          },
+          {
+            "pid": 239385,
+            "ppid": 239355,
+            "pgid": 239355,
+            "state": "R",
+            "starttime": "967437"
+          },
+          {
+            "pid": 239399,
+            "ppid": 239355,
+            "pgid": 239355,
+            "state": "S",
+            "starttime": "967525"
+          },
+          {
+            "pid": 239407,
+            "ppid": 239355,
+            "pgid": 239355,
+            "state": "R",
+            "starttime": "967527"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-list01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-list01/command.json",
+        "sha256": "1aa7a1a0a5071421dee7fa7a88dfcff6ba18bf1ce48668f81f75b33899d9584e",
+        "bytes": 9215
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 238812,
+        "driver_sha256": "696d510ef31b171c3b1bf323ee65b2b729878d69bae7c593d8690506ee0d5358",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:34:44Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-list02/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-list02/command.json",
+        "sha256": "de77724f7107c5ba9923b486a5ccd80ea36708e88a3d0d12c45adecc34cd6eda",
+        "bytes": 9215
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 239010,
+        "driver_sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:34:57Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-list02/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-list02/result.json",
+        "sha256": "9fbda77bfebb989066fece94a8da1e3d6e3eced2a39a0bf29724d617e98043b3",
+        "bytes": 8961
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.20747985199886898,
+        "direct_child_pid": 239014,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 239014,
+            "ppid": 239010,
+            "pgid": 239014,
+            "state": "Z",
+            "starttime": "964925"
+          },
+          {
+            "pid": 239019,
+            "ppid": 239014,
+            "pgid": 239014,
+            "state": "R",
+            "starttime": "964929"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "1d6e99605b354195ef44c5fb1bd49cefbfda27ec72036b83cca481ee186b6501",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-pure01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-pure01/command.json",
+        "sha256": "eb6b11382f7ffab9d3183651e9d87857ce71c01a2689fe6880bd72367078b517",
+        "bytes": 9223
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-s3-author/contract-pure01.test",
+          "-test.v",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/model/contract",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 239478,
+        "driver_sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:35:30Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-pure01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-pure01/result.json",
+        "sha256": "1b538a50af111b56004c2d7adfeb14212f54d2f5e9c38239db51330e0037f774",
+        "bytes": 8834
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.0734145719998196,
+        "direct_child_pid": 239481,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 239481,
+            "ppid": 239478,
+            "pgid": 239481,
+            "state": "Z",
+            "starttime": "968237"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "6ba1a90c39069f66e2f91eef0e608156b0ab0907bd7c56c995dfea6a8787c2b0",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/command.json",
+        "sha256": "5a9c485843b468bc86d0fc679b76e59f5eac899c78828bbc2ab4d45ea88e2d36",
+        "bytes": 9298
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/contract-race01.test",
+          "./internal/central/model/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 239528,
+        "driver_sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:35:34Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/result.json",
+        "sha256": "60c957deadf7760ff9eb63560be2630b280ea7c90daf69fe57d160f05f6bb338",
+        "bytes": 9338
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.8182829230008792,
+        "direct_child_pid": 239531,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 239531,
+            "ppid": 239528,
+            "pgid": 239531,
+            "state": "Z",
+            "starttime": "968648"
+          },
+          {
+            "pid": 239536,
+            "ppid": 239531,
+            "pgid": 239531,
+            "state": "Z",
+            "starttime": "968652"
+          },
+          {
+            "pid": 239549,
+            "ppid": 239531,
+            "pgid": 239531,
+            "state": "S",
+            "starttime": "968656"
+          },
+          {
+            "pid": 239575,
+            "ppid": 239531,
+            "pgid": 239531,
+            "state": "R",
+            "starttime": "968778"
+          },
+          {
+            "pid": 239583,
+            "ppid": 239531,
+            "pgid": 239531,
+            "state": "S",
+            "starttime": "968782"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/command.json",
+        "sha256": "32d0e6dae67d9826e5030287562d0c3e3e71db35531620e9840066978ced5e11",
+        "bytes": 9228
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 240464,
+        "driver_sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:36:53Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/result.json",
+        "sha256": "e00ebac2818d55e0c532c03d8bc502010a70f1259b8ee5e446225b53636df644",
+        "bytes": 8961
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.20406361799905426,
+        "direct_child_pid": 240467,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 240467,
+            "ppid": 240464,
+            "pgid": 240467,
+            "state": "Z",
+            "starttime": "976578"
+          },
+          {
+            "pid": 240472,
+            "ppid": 240467,
+            "pgid": 240467,
+            "state": "R",
+            "starttime": "976582"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "086a0a45df76322bedd848685ee006cd2c8acd1c783c7475256d9b15d522b1f7",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/command.json",
+        "sha256": "2f752d11d3af976a6af32cab12709df711210b7d6d05bc62a67cf6812e6ef384",
+        "bytes": 9188
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "./internal/central/model/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 240070,
+        "driver_sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:36:21Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/result.json",
+        "sha256": "0bbae21a57d597bbe27ba726df61c72d784fc3e7a48afef6a0d6968c98e1f29e",
+        "bytes": 8960
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.2058752290013217,
+        "direct_child_pid": 240073,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 240073,
+            "ppid": 240070,
+            "pgid": 240073,
+            "state": "Z",
+            "starttime": "973283"
+          },
+          {
+            "pid": 240099,
+            "ppid": 240073,
+            "pgid": 240073,
+            "state": "S",
+            "starttime": "973293"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race01/command.json",
+        "sha256": "5d406a975e89a61daf90f6a81e180943d940eb5c3801e318610968cac87587be",
+        "bytes": 9223
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-s3-author/contract-race01.test",
+          "-test.v",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/model/contract",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 239782,
+        "driver_sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+        "frozen_manifest_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+        "started_utc": "2026-10-07T14:35:54Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/contract-race01/result.json",
+        "sha256": "39e2718bd526375727ea96c0b669a4a7dd65fff24aa7eff0660e9e6d065edfd9",
+        "bytes": 8833
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.079624795998825,
+        "direct_child_pid": 239785,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 239785,
+            "ppid": 239782,
+            "pgid": 239785,
+            "state": "Z",
+            "starttime": "970627"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "18941e80791cd91b2b742b454d1704118a5da83a7f657204145cf82fd7523150",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/command.json",
+        "sha256": "f657bd1ff6f164c42b7cb185646295b8770b8412c853c7fc7b37782e045d78d2",
+        "bytes": 410637
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/agenteam-overlay02",
+          "./cmd/agenteam"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 249885,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:48:44Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/result.json",
+        "sha256": "539dac345c436bb04160315b0bd4f6714d2ab8aadca05e365b1c57b6a716ad14",
+        "bytes": 411299
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.3708534790002886,
+        "direct_child_pid": 249888,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 249888,
+            "ppid": 249885,
+            "pgid": 249888,
+            "state": "Z",
+            "starttime": "1047610"
+          },
+          {
+            "pid": 249893,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "R",
+            "starttime": "1047615"
+          },
+          {
+            "pid": 249920,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "R",
+            "starttime": "1047619"
+          },
+          {
+            "pid": 249933,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "R",
+            "starttime": "1047626"
+          },
+          {
+            "pid": 249934,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "R",
+            "starttime": "1047626"
+          },
+          {
+            "pid": 249964,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "S",
+            "starttime": "1047649"
+          },
+          {
+            "pid": 249968,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "S",
+            "starttime": "1047692"
+          },
+          {
+            "pid": 249972,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "S",
+            "starttime": "1047762"
+          },
+          {
+            "pid": 249976,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "R",
+            "starttime": "1047818"
+          },
+          {
+            "pid": 249984,
+            "ppid": 249888,
+            "pgid": 249888,
+            "state": "R",
+            "starttime": "1047823"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/command.json",
+        "sha256": "b35d5cc89f8906c4dc99f57aae4eee4ebe49171fc81c06dc48d0642cf69a4187",
+        "bytes": 410804
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-json",
+          "./cmd/agenteam",
+          "./cmd/agenteam-runner",
+          "./tests/testsupport/objectstore/cmd/fixture",
+          "./tests/testsupport/outbound/cmd/fixture",
+          "./tests/testsupport/outbound/cmd/server",
+          "./tests/testsupport/postgres/cmd/fixture"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 247950,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:46:33Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/result.json",
+        "sha256": "2cc550fce219c908f22eb48a87af6f888a2ec6df308c02fa17ca74639635849c",
+        "bytes": 410410
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5580681810006354,
+        "direct_child_pid": 247954,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 247954,
+            "ppid": 247950,
+            "pgid": 247954,
+            "state": "Z",
+            "starttime": "1034533"
+          },
+          {
+            "pid": 247959,
+            "ppid": 247954,
+            "pgid": 247954,
+            "state": "S",
+            "starttime": "1034540"
+          },
+          {
+            "pid": 247999,
+            "ppid": 247954,
+            "pgid": 247954,
+            "state": "Z",
+            "starttime": "1034553"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "ce94678583b8c34dd8f912d0aa8fcda05216b85f58f779f844d2a042d52eb4d1",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/actual-graph02.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/actual-graph02.json",
+        "sha256": "9aec8da59bb2dccf00586c429e553fa1f9020b15b06fc2e06a94d30c37770105",
+        "bytes": 652149
+      },
+      "kind": "derived actual-graph boundary projection; not an original byte copy",
+      "fields": {
+        "run": "overlay-dynamic-graph01",
+        "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+        "outside_conservative_input": [],
+        "excluded_source_selected": []
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/command.json",
+        "sha256": "86724bc1584402dd423bdae47c43bb169148930c4916dbb3f0c79288b6edfe73",
+        "bytes": 410705
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/model-integration01.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 249431,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:48:10Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/result.json",
+        "sha256": "cb12c4e4b7f10b8a5c22cc98c651c3c0a8a67b42c4ba39053bd55d49c81b0cf7",
+        "bytes": 411171
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 9.016895873000976,
+        "direct_child_pid": 249455,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 249455,
+            "ppid": 249431,
+            "pgid": 249455,
+            "state": "Z",
+            "starttime": "1044296"
+          },
+          {
+            "pid": 249473,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "S",
+            "starttime": "1044311"
+          },
+          {
+            "pid": 249474,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "R",
+            "starttime": "1044311"
+          },
+          {
+            "pid": 249482,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "S",
+            "starttime": "1044351"
+          },
+          {
+            "pid": 249486,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "Z",
+            "starttime": "1044439"
+          },
+          {
+            "pid": 249523,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "R",
+            "starttime": "1044542"
+          },
+          {
+            "pid": 249527,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "Z",
+            "starttime": "1044626"
+          },
+          {
+            "pid": 249592,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "S",
+            "starttime": "1045018"
+          },
+          {
+            "pid": 249600,
+            "ppid": 249455,
+            "pgid": 249455,
+            "state": "R",
+            "starttime": "1045023"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/command.json",
+        "sha256": "a725cdea9d6a1d078cbf223fc644b768e90d609ee28c9c987d2dbf90ef3b3fd9",
+        "bytes": 411123
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-tags=integration",
+          "-race",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/postgres/...",
+          "./tests/database/...",
+          "./internal/central/app/...",
+          "./tests/process/...",
+          "./tests/security/...",
+          "./tests/outbox/...",
+          "./internal/central/outbox/...",
+          "./tests/account/...",
+          "./tests/accountmail/...",
+          "./internal/central/accountmail/...",
+          "./internal/central/recoverylog/...",
+          "./tests/project/...",
+          "./internal/central/model/...",
+          "./tests/model/...",
+          "./tests/objects/...",
+          "./internal/central/object/..."
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 247629,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:46:24Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/result.json",
+        "sha256": "8de649178574320e42b492517a3b1b8d3eacc5ac57b5ad0d484848156bfd2af9",
+        "bytes": 410283
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.7277783600002294,
+        "direct_child_pid": 247633,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 247633,
+            "ppid": 247629,
+            "pgid": 247633,
+            "state": "Z",
+            "starttime": "1033631"
+          },
+          {
+            "pid": 247639,
+            "ppid": 247633,
+            "pgid": 247633,
+            "state": "S",
+            "starttime": "1033643"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "c151605b017da74cf64f964628f06968c526ebcb72bf0f0cbae8ef128ce7a769",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/actual-graph02.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/actual-graph02.json",
+        "sha256": "bd0ec3d65905d4e462cd28ebe6ed040706b1bc9f6b7a4df3295a28dea782fe06",
+        "bytes": 788239
+      },
+      "kind": "derived actual-graph boundary projection; not an original byte copy",
+      "fields": {
+        "run": "overlay-integration-graph01",
+        "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+        "outside_conservative_input": [],
+        "excluded_source_selected": []
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/command.json",
+        "sha256": "6bc84dd825fe147c7517c739929b1b1d9f0de0a28f615de4c890cc2d3f2046a5",
+        "bytes": 411077
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-s3-author/model-integration01.test",
+          "-test.list=^(TestModelMeetingSummaryResolutionSelection|TestModelMeetingSummaryResolutionAtomicity|TestModelMeetingSummaryResolutionAuthorization|TestModelMeetingSummaryResolutionReplay|TestModelMeetingSummaryResolutionUnknown|TestModelCurrentResolutionSelection|TestModelCurrentResolutionReplay|TestModelCurrentResolutionAtomicity|TestModelCurrentResolutionCanonicalLease|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionUnknown|TestModelMeetingSummarySelection|TestModelMeetingSummaryReplacement)$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 252000,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:51:38Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/result.json",
+        "sha256": "226987a546f68cccdd7c5bf51ce6fe897277b6d2bd0d9efff4c086dba733e883",
+        "bytes": 410156
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.3063723980012583,
+        "direct_child_pid": 252022,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 252022,
+            "ppid": 252000,
+            "pgid": 252022,
+            "state": "Z",
+            "starttime": "1065068"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "826242957e2c6ebda49db22d1d3d32a34f73a0a7ba31a5fe42678b429f22231a",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/command.json",
+        "sha256": "77daf37d00c38f03a9fae257b9816ef485ba04e825a12195857a016628b1a851",
+        "bytes": 410671
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/model-pure01.test",
+          "./internal/central/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 248766,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:47:37Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/result.json",
+        "sha256": "0e8347892d8ddbde6aa2bb3d81416278b6af6f6c3d77904227d8b3322d851954",
+        "bytes": 410790
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 4.389171025999531,
+        "direct_child_pid": 248787,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 248787,
+            "ppid": 248766,
+            "pgid": 248787,
+            "state": "Z",
+            "starttime": "1040963"
+          },
+          {
+            "pid": 248807,
+            "ppid": 248787,
+            "pgid": 248787,
+            "state": "S",
+            "starttime": "1040977"
+          },
+          {
+            "pid": 248822,
+            "ppid": 248787,
+            "pgid": 248787,
+            "state": "Z",
+            "starttime": "1041042"
+          },
+          {
+            "pid": 248826,
+            "ppid": 248787,
+            "pgid": 248787,
+            "state": "S",
+            "starttime": "1041089"
+          },
+          {
+            "pid": 248852,
+            "ppid": 248787,
+            "pgid": 248787,
+            "state": "Z",
+            "starttime": "1041279"
+          },
+          {
+            "pid": 248860,
+            "ppid": 248787,
+            "pgid": 248787,
+            "state": "Z",
+            "starttime": "1041282"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/command.json",
+        "sha256": "9bb169c9fc678fb5ae6d79deeae9ad38ccb365e1e9727de71f61551a03de58a7",
+        "bytes": 410604
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 246538,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:45:10Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/result.json",
+        "sha256": "15a5adb157c120883010e0814cd88530b4602e83a5de5176f7204e6aa0b785e6",
+        "bytes": 410538
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.49351408099937544,
+        "direct_child_pid": 246541,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 246541,
+            "ppid": 246538,
+            "pgid": 246541,
+            "state": "Z",
+            "starttime": "1026225"
+          },
+          {
+            "pid": 246546,
+            "ppid": 246541,
+            "pgid": 246541,
+            "state": "R",
+            "starttime": "1026232"
+          },
+          {
+            "pid": 246573,
+            "ppid": 246541,
+            "pgid": 246541,
+            "state": "Z",
+            "starttime": "1026238"
+          },
+          {
+            "pid": 246582,
+            "ppid": 246541,
+            "pgid": 246541,
+            "state": "Z",
+            "starttime": "1026242"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "358fc1ea14b8122819f4c073a68395a836101fc89df48e47c1c564ab3c11d3cf",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/actual-graph.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/actual-graph.json",
+        "sha256": "6f43b30901d51b50a38f86b4764109ee8b517215ff9c5962bc02a586317ea745",
+        "bytes": 1423159
+      },
+      "kind": "derived actual-graph boundary projection; not an original byte copy",
+      "fields": {
+        "run": "overlay-model-graph01",
+        "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+        "excluded_source_selected": []
+      },
+      "omitted_fields": [
+        "outside_conservative_input"
+      ],
+      "derived_counts": {
+        "outside_conservative_input": {
+          "items": 1455,
+          "reason": "original overbroad extractor boundary list; full list is fingerprint-only, not stored",
+          "sample_first_three": [
+            {
+              "virtual": "/workspace/toolchains/go1.27.1/src/internal/abi/export_test.go",
+              "actual": "/workspace/toolchains/go1.27.1/src/internal/abi/export_test.go",
+              "sha256": "507ec342925b47fcc5eda31c1d3640aa4934df00c956b2d850ad8e68b66b2bd5"
+            },
+            {
+              "virtual": "/workspace/toolchains/go1.27.1/src/internal/abi/abi_test.go",
+              "actual": "/workspace/toolchains/go1.27.1/src/internal/abi/abi_test.go",
+              "sha256": "7cf8797dfbfb1f3e8bd0a437fa69222bc9635634e08cbf54540de2137d67812c"
+            },
+            {
+              "virtual": "/workspace/toolchains/go1.27.1/src/internal/unsafeheader/unsafeheader_test.go",
+              "actual": "/workspace/toolchains/go1.27.1/src/internal/unsafeheader/unsafeheader_test.go",
+              "sha256": "013036356d6a08a46700f6121657b7d7e840d759a5ff935c69e7606adef0e77f"
+            }
+          ]
+        }
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/actual-graph02.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/actual-graph02.json",
+        "sha256": "f0d71331cc0cb9da5b937235a91bc0da37ee8f496057efe9157940e704bca24b",
+        "bytes": 649773
+      },
+      "kind": "derived actual-graph boundary projection; not an original byte copy",
+      "fields": {
+        "run": "overlay-model-graph01",
+        "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+        "outside_conservative_input": [],
+        "excluded_source_selected": []
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/command.json",
+        "sha256": "47b1c5a7cdd9ee8853db0eb8e92974a049f622cc4dc5c1a1df4962e634143f60",
+        "bytes": 410653
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-s3-author/model-pure01.test",
+          "-test.v",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/scratch/meeting-summary-s3-author/overlay01/accepted/internal/central/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 251125,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:50:18Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/result.json",
+        "sha256": "9590587d54831c07735b9508d575981250e45bc48b4639d83e5b9b53e2345465",
+        "bytes": 410157
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.33702802800144127,
+        "direct_child_pid": 251128,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 251128,
+            "ppid": 251125,
+            "pgid": 251128,
+            "state": "Z",
+            "starttime": "1057098"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "45e7cb2709064103747af609747c1ae33176372e7e76c7127b18ab7ce0639c56",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/command.json",
+        "sha256": "8a1031b2fd94035474ec78f10e11e858cffd1253705fca7155e88cbeca9bf74f",
+        "bytes": 410684
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/model-race01.test",
+          "./internal/central/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 248918,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:47:45Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/result.json",
+        "sha256": "7b33ec9ec762c5a627e62253c9a9aab30ba8f3db37d5692676888e832acb74ed",
+        "bytes": 410790
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 6.135433743000249,
+        "direct_child_pid": 248921,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 248921,
+            "ppid": 248918,
+            "pgid": 248921,
+            "state": "Z",
+            "starttime": "1041783"
+          },
+          {
+            "pid": 248959,
+            "ppid": 248921,
+            "pgid": 248921,
+            "state": "S",
+            "starttime": "1041796"
+          },
+          {
+            "pid": 248965,
+            "ppid": 248921,
+            "pgid": 248921,
+            "state": "Z",
+            "starttime": "1041895"
+          },
+          {
+            "pid": 248969,
+            "ppid": 248921,
+            "pgid": 248921,
+            "state": "R",
+            "starttime": "1041967"
+          },
+          {
+            "pid": 249012,
+            "ppid": 248921,
+            "pgid": 248921,
+            "state": "R",
+            "starttime": "1042247"
+          },
+          {
+            "pid": 249020,
+            "ppid": 248921,
+            "pgid": 248921,
+            "state": "R",
+            "starttime": "1042251"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/command.json",
+        "sha256": "87b8bccc1f93b99038304318d2b11babb91ffbcd5460847acf18a235e15802dd",
+        "bytes": 410617
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 247451,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:46:15Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/result.json",
+        "sha256": "fe85b169dc954db17c238c0fe884671e2174c8d208882e95d8377bf8ad29509e",
+        "bytes": 410284
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.46850489499956893,
+        "direct_child_pid": 247454,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 247454,
+            "ppid": 247451,
+            "pgid": 247454,
+            "state": "Z",
+            "starttime": "1032799"
+          },
+          {
+            "pid": 247459,
+            "ppid": 247454,
+            "pgid": 247454,
+            "state": "S",
+            "starttime": "1032804"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "339991fce25587094ced921b3d5bd8148e6676394100877b2c953876095d0a10",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/actual-graph02.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/actual-graph02.json",
+        "sha256": "8840600341fa466bace3fbce7fff4b6ad7f15a353be62f34a769cebecc5f7885",
+        "bytes": 651550
+      },
+      "kind": "derived actual-graph boundary projection; not an original byte copy",
+      "fields": {
+        "run": "overlay-model-race-graph01",
+        "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+        "outside_conservative_input": [],
+        "excluded_source_selected": []
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/command.json",
+        "sha256": "20eefbd79912b4710a1da07fd2afa8dd5dc2ecceafe3c6be5ffddef2cad1ea0b",
+        "bytes": 410577
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "./internal/central/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 249315,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:48:04Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/result.json",
+        "sha256": "b0cd0cfac6c9af5221da46958272b9c157424027c2dd2dae9f432138de79930d",
+        "bytes": 410664
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.7286407179999514,
+        "direct_child_pid": 249318,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 249318,
+            "ppid": 249315,
+            "pgid": 249318,
+            "state": "Z",
+            "starttime": "1043616"
+          },
+          {
+            "pid": 249327,
+            "ppid": 249318,
+            "pgid": 249318,
+            "state": "S",
+            "starttime": "1043622"
+          },
+          {
+            "pid": 249344,
+            "ppid": 249318,
+            "pgid": 249318,
+            "state": "R",
+            "starttime": "1043634"
+          },
+          {
+            "pid": 249348,
+            "ppid": 249318,
+            "pgid": 249318,
+            "state": "R",
+            "starttime": "1043638"
+          },
+          {
+            "pid": 249352,
+            "ppid": 249318,
+            "pgid": 249318,
+            "state": "R",
+            "starttime": "1043643"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/command.json",
+        "sha256": "a4bb0f4551601d2247dab4e4ad2517451270095bcb531effe84074d79bf16c2e",
+        "bytes": 410653
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-s3-author/model-race01.test",
+          "-test.v",
+          "-test.timeout=35s"
+        ],
+        "cwd": "/workspace/scratch/meeting-summary-s3-author/overlay01/accepted/internal/central/model",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 251178,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:50:23Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/result.json",
+        "sha256": "e8237232852ca0d8555d9b1304f326b609b35654c8b044665d8929d4f6d55a82",
+        "bytes": 410156
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.4713556330007123,
+        "direct_child_pid": 251181,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 251181,
+            "ppid": 251178,
+            "pgid": 251181,
+            "state": "Z",
+            "starttime": "1057581"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "7f4154662fb535b19c074f4de411adcb3a9cb2427c2ffb91f1a2cef8642d8d6d",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/command.json",
+        "sha256": "058f1f7d09eb3bb201812b8b1cffbd6022dae3bb1e859f52ffaafea90df06a91",
+        "bytes": 410647
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/usr/bin/env",
+          "CGO_ENABLED=0",
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-json",
+          "./tests/testsupport/outbound/cmd/server"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 253640,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:53:50Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/result.json",
+        "sha256": "2b766a1614be816d50c7224a3796493f0f650bfca6f2e0fe38b93934ff3b0626",
+        "bytes": 410283
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.3951575579994824,
+        "direct_child_pid": 253644,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 253644,
+            "ppid": 253640,
+            "pgid": 253644,
+            "state": "Z",
+            "starttime": "1078209"
+          },
+          {
+            "pid": 253649,
+            "ppid": 253644,
+            "pgid": 253644,
+            "state": "R",
+            "starttime": "1078212"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "6deaac8217053fc2f5017205fffc8b40309c0366795c1c8d6eecca66470c33c4",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/actual-graph02.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/actual-graph02.json",
+        "sha256": "5da94a54d38cd8482d285ce3019391663c43d03359ac079d997b2ebc668443a2",
+        "bytes": 325760
+      },
+      "kind": "derived actual-graph boundary projection; not an original byte copy",
+      "fields": {
+        "run": "overlay-outbound-cgo0-graph01",
+        "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+        "outside_conservative_input": [
+          {
+            "virtual": "/workspace/toolchains/go1.27.1/src/net/cgo_stub.go",
+            "actual": "/workspace/toolchains/go1.27.1/src/net/cgo_stub.go",
+            "sha256": "6d59c19a524d2606996fbf3139891054073e74bcfda578b6482ce21c99a986ce"
+          }
+        ],
+        "excluded_source_selected": []
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/command.json",
+        "sha256": "9df5dcb4bd3b0428b6677517c130a8ed344855216138eba449fb9dc9edee91da",
+        "bytes": 410861
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/usr/bin/env",
+          "CGO_ENABLED=0",
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-json",
+          "./tests/testsupport/outbound/cmd/server"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 254505,
+        "driver_sha256": "b20bb5f315f6b8547df74e2400d83b0cdeee3e093831bdb4bc41e6e6a8294da0",
+        "frozen_manifest_sha256": "db0232fdad74cf47565ea98d3b52ead358c99426042e1a9f35b34883124683bf",
+        "started_utc": "2026-10-07T14:54:50Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/result.json",
+        "sha256": "f0251f739cea78083e5a8e4cfd8c6c5d7761f615634565bed38bf7549342405d",
+        "bytes": 410498
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.44269569699827116,
+        "direct_child_pid": 254509,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 254509,
+            "ppid": 254505,
+            "pgid": 254509,
+            "state": "Z",
+            "starttime": "1084269"
+          },
+          {
+            "pid": 254514,
+            "ppid": 254509,
+            "pgid": 254509,
+            "state": "R",
+            "starttime": "1084273"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "6deaac8217053fc2f5017205fffc8b40309c0366795c1c8d6eecca66470c33c4",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/actual-graph03.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/actual-graph03.json",
+        "sha256": "ead858d51a272fa392a46aec05fa06bf4dc4647016d017b14f3f702b9c0d802f",
+        "bytes": 325521
+      },
+      "kind": "derived actual-graph boundary projection; not an original byte copy",
+      "fields": {
+        "run": "overlay-outbound-cgo0-graph02",
+        "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+        "outside_conservative_input": [],
+        "excluded_source_selected": []
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/command.json",
+        "sha256": "812d509c9e456f855ce516f86aaa9cd1c72b827e621e5136222fa1d591066c63",
+        "bytes": 410651
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/agenteam-runner-overlay02",
+          "./cmd/agenteam-runner"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 250439,
+        "driver_sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+        "frozen_manifest_sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+        "started_utc": "2026-10-07T14:49:27Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/result.json",
+        "sha256": "3eeb15de02c038c7d936377564de80cf4821723d0aabf6c1613285ad0b45e897",
+        "bytes": 410537
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5242307160006021,
+        "direct_child_pid": 250442,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 250442,
+            "ppid": 250439,
+            "pgid": 250442,
+            "state": "Z",
+            "starttime": "1051940"
+          },
+          {
+            "pid": 250447,
+            "ppid": 250442,
+            "pgid": 250442,
+            "state": "R",
+            "starttime": "1051942"
+          },
+          {
+            "pid": 250478,
+            "ppid": 250442,
+            "pgid": 250442,
+            "state": "R",
+            "starttime": "1051949"
+          },
+          {
+            "pid": 250487,
+            "ppid": 250442,
+            "pgid": 250442,
+            "state": "R",
+            "starttime": "1051952"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/command.json",
+        "sha256": "aa726f3e3bfff29a9c69cfca34de4d1d9aa36ecda503905cd1bcb360f73503ac",
+        "bytes": 410919
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-tags=integration",
+          "-race",
+          "-c",
+          "-vet=off",
+          "-o",
+          "/workspace/scratch/meeting-summary-s3-author/model-integration02.test",
+          "./tests/model"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 272815,
+        "driver_sha256": "5490eee51e71417d88eb78620d17fcf6dcaae5692f1e489fc612ecb463bd1050",
+        "frozen_manifest_sha256": "54bfe199455c8ddd5b419b1721ce19d17cb5351a69c415ab38b544a69666974f",
+        "started_utc": "2026-10-07T15:06:04Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/result.json",
+        "sha256": "33e39cc5fcb95a4beabe77b57ea2431313327fa2b6d457b6eaa59498653faf41",
+        "bytes": 410750
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 5.617924489999496,
+        "direct_child_pid": 272818,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 272818,
+            "ppid": 272815,
+            "pgid": 272818,
+            "state": "Z",
+            "starttime": "1151662"
+          },
+          {
+            "pid": 272856,
+            "ppid": 272818,
+            "pgid": 272818,
+            "state": "S",
+            "starttime": "1151678"
+          },
+          {
+            "pid": 272881,
+            "ppid": 272818,
+            "pgid": 272818,
+            "state": "S",
+            "starttime": "1152060"
+          },
+          {
+            "pid": 272889,
+            "ppid": 272818,
+            "pgid": 272818,
+            "state": "S",
+            "starttime": "1152064"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/command.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/command.json",
+        "sha256": "9859c6110cef51bc61a2166ac5f2118574bcacb854d048af681a2d9897ef018a",
+        "bytes": 411291
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_before"
+      ],
+      "fields": {
+        "argv": [
+          "/workspace/scratch/meeting-summary-s3-author/model-integration02.test",
+          "-test.list=^(TestModelMeetingSummaryResolutionSelection|TestModelMeetingSummaryResolutionAtomicity|TestModelMeetingSummaryResolutionAuthorization|TestModelMeetingSummaryResolutionReplay|TestModelMeetingSummaryResolutionUnknown|TestModelCurrentResolutionSelection|TestModelCurrentResolutionReplay|TestModelCurrentResolutionAtomicity|TestModelCurrentResolutionCanonicalLease|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionUnknown|TestModelMeetingSummarySelection|TestModelMeetingSummaryReplacement)$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -overlay=/workspace/scratch/meeting-summary-s3-author/overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/meeting-summary-s3-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2"
+        },
+        "subreaper": true,
+        "driver_pid": 272957,
+        "driver_sha256": "5490eee51e71417d88eb78620d17fcf6dcaae5692f1e489fc612ecb463bd1050",
+        "frozen_manifest_sha256": "54bfe199455c8ddd5b419b1721ce19d17cb5351a69c415ab38b544a69666974f",
+        "started_utc": "2026-10-07T15:06:14Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      }
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/result.json": {
+      "original": {
+        "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/result.json",
+        "sha256": "f70d0001aa1e898876be77a0a3eeef677e485c0a27836a645d5ed8e0fdf3a859",
+        "bytes": 410370
+      },
+      "kind": "derived JSON field projection; not an original byte copy",
+      "omitted_fields": [
+        "inputs_after"
+      ],
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.3285230700003012,
+        "direct_child_pid": 272960,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 272960,
+            "ppid": 272957,
+            "pgid": 272960,
+            "state": "Z",
+            "starttime": "1152687"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "exit_code": 0,
+        "stdout.log_sha256": "826242957e2c6ebda49db22d1d3d32a34f73a0a7ba31a5fe42678b429f22231a",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  }
+}

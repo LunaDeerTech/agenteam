@@ -1,0 +1,387 @@
+=== RUN   TestModelAuditPlanHasExactStableCauseAndCurrentActor
+--- PASS: TestModelAuditPlanHasExactStableCauseAndCurrentActor (0.00s)
+=== RUN   TestModelMeetingSummaryUsesOriginalPlatformAuditShape
+--- PASS: TestModelMeetingSummaryUsesOriginalPlatformAuditShape (0.00s)
+=== RUN   TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant
+--- PASS: TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant (0.00s)
+=== RUN   TestModelCommandDigestStableUserButCompleteMeaning
+--- PASS: TestModelCommandDigestStableUserButCompleteMeaning (0.00s)
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked
+--- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked (0.00s)
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed
+--- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed (0.00s)
+=== RUN   TestModelPolicyDoesNotClaimUnverifiedNativeSchemas
+--- PASS: TestModelPolicyDoesNotClaimUnverifiedNativeSchemas (0.00s)
+=== RUN   TestModelProjectCommandsAreExplicitlyUnboundWithoutIO
+--- PASS: TestModelProjectCommandsAreExplicitlyUnboundWithoutIO (0.00s)
+=== RUN   TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL
+--- PASS: TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL (0.00s)
+=== RUN   TestModelEventPlansBindFullActorAndExactRegisteredPayload
+--- PASS: TestModelEventPlansBindFullActorAndExactRegisteredPayload (0.00s)
+=== RUN   TestModelMeetingSummaryConfigurationEvents
+--- PASS: TestModelMeetingSummaryConfigurationEvents (0.00s)
+=== RUN   TestSystemHTTPDTORequiredNullAndExactScalars
+--- PASS: TestSystemHTTPDTORequiredNullAndExactScalars (0.00s)
+=== RUN   TestSystemHTTPListQueryCanonicalAndProjection
+--- PASS: TestSystemHTTPListQueryCanonicalAndProjection (0.00s)
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/observed
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/denied
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error
+--- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/observed (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/denied (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error (0.00s)
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/valid
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/wrong-ref
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/project
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/purpose
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/version
+=== RUN   TestSystemManagementHTTPClosedMetadataAndHEAD/failure
+--- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/valid (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/wrong-ref (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/project (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/purpose (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/version (0.00s)
+    --- PASS: TestSystemManagementHTTPClosedMetadataAndHEAD/failure (0.00s)
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/query
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/empty-query
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/length
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/chunked
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/unknown-length
+=== RUN   TestSystemManagementHTTPRejectsInputWithoutReadingBody/bad-id
+--- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/query (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/empty-query (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/length (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/chunked (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/unknown-length (0.00s)
+    --- PASS: TestSystemManagementHTTPRejectsInputWithoutReadingBody/bad-id (0.00s)
+=== RUN   TestSystemManagementHTTPBudgetOnlyNewReads
+--- PASS: TestSystemManagementHTTPBudgetOnlyNewReads (0.00s)
+=== RUN   TestSystemHTTPConstructionAndRoutesMatchOpenAPI
+--- PASS: TestSystemHTTPConstructionAndRoutesMatchOpenAPI (0.01s)
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/empty
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/optional
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/all-seven
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/summary-only
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/all-eight
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/cap
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/sentinel
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/unknown-kind-role
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/negative
+=== RUN   TestModelManagementImpactClosedGroupsAndBoundedSQL/wrong-total
+--- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL (0.01s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/empty (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/optional (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/all-seven (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/summary-only (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/all-eight (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/cap (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/sentinel (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/unknown-kind-role (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/negative (0.00s)
+    --- PASS: TestModelManagementImpactClosedGroupsAndBoundedSQL/wrong-total (0.00s)
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/missing-reference
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/extra-owner
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/wrong-version
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/wrong-role
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/wrong-model
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/wrong-project
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/wrong-effort
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/fifth-row
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/unconfigured-extra
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/bad-singleton
+=== RUN   TestModelManagementCanonicalSelectionRejectsDrift/bad-version
+--- PASS: TestModelManagementCanonicalSelectionRejectsDrift (0.01s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/missing-reference (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/extra-owner (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/wrong-version (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/wrong-role (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/wrong-model (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/wrong-project (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/wrong-effort (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/fifth-row (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/unconfigured-extra (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/bad-singleton (0.00s)
+    --- PASS: TestModelManagementCanonicalSelectionRejectsDrift/bad-version (0.00s)
+=== RUN   TestModelManagementBothOwnersFiveEdgesAndSentinel
+--- PASS: TestModelManagementBothOwnersFiveEdgesAndSentinel (0.00s)
+=== RUN   TestModelManagementAuthorityAndResults
+=== RUN   TestModelManagementAuthorityAndResults/nil-context
+=== RUN   TestModelManagementAuthorityAndResults/bad-model
+=== RUN   TestModelManagementAuthorityAndResults/zero-service
+=== RUN   TestModelManagementAuthorityAndResults/typed-nil
+=== RUN   TestModelManagementAuthorityAndResults/wrong-store
+=== RUN   TestModelManagementAuthorityAndResults/actor
+=== RUN   TestModelManagementAuthorityAndResults/session
+=== RUN   TestModelManagementAuthorityAndResults/grant
+=== RUN   TestModelManagementAuthorityAndResults/acquire
+=== RUN   TestModelManagementAuthorityAndResults/held
+=== RUN   TestModelManagementAuthorityAndResults/executor
+=== RUN   TestModelManagementAuthorityAndResults/missing
+=== RUN   TestModelManagementAuthorityAndResults/unknown
+=== RUN   TestModelManagementAuthorityAndResults/not-committed
+=== RUN   TestModelManagementAuthorityAndResults/committed-cancel
+--- PASS: TestModelManagementAuthorityAndResults (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/nil-context (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/bad-model (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/zero-service (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/typed-nil (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/wrong-store (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/actor (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/session (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/grant (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/acquire (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/held (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/executor (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/missing (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/unknown (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/not-committed (0.00s)
+    --- PASS: TestModelManagementAuthorityAndResults/committed-cancel (0.00s)
+=== RUN   TestModelMeetingSummarySemanticAndLegacyBytes
+--- PASS: TestModelMeetingSummarySemanticAndLegacyBytes (0.00s)
+=== RUN   TestModelMeetingSummaryPlanClosedBranch
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/missing-after
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/wrong-version
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/old-selection-mixed
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/provider-mixed
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/wrong-provider
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/wrong-kind
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/clear
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/wrong-id
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/project
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/disabled
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/wrong-receipt
+=== RUN   TestModelMeetingSummaryPlanClosedBranch/missing-before
+--- PASS: TestModelMeetingSummaryPlanClosedBranch (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/missing-after (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/wrong-version (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/old-selection-mixed (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/provider-mixed (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/wrong-provider (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/wrong-kind (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/clear (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/wrong-id (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/project (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/disabled (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/wrong-receipt (0.00s)
+    --- PASS: TestModelMeetingSummaryPlanClosedBranch/missing-before (0.00s)
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-version
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-provider
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-count
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/old-id
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/missing-old-ref
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/wrong-role
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/third-owner
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-kind
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-count
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/changed
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-changed
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/old-other-role-mutated
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-version
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/old-version
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-model
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/missing-old-after
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/missing-old-before
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/extra-ref
+=== RUN   TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-resource
+--- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt (0.06s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-version (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-provider (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-count (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/old-id (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/missing-old-ref (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/wrong-role (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/third-owner (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-kind (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-count (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/changed (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-changed (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/old-other-role-mutated (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-version (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/old-version (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/metadata-model (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/missing-old-after (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/missing-old-before (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/extra-ref (0.00s)
+    --- PASS: TestModelMeetingSummaryPersistedDeletionPlanAndReceipt/receipt-resource (0.00s)
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/unconfigured
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/configured
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/uninitialized
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/absent-with-edge
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/extra-owner
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/extra-role
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/wrong-version
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/unknown
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/rollback
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/canceled
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/missing-schema
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/bad-json
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/two-singletons
+=== RUN   TestModelMeetingSummaryReadStateAndTerminal/collision
+--- PASS: TestModelMeetingSummaryReadStateAndTerminal (0.01s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/unconfigured (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/configured (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/uninitialized (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/absent-with-edge (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/extra-owner (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/extra-role (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/wrong-version (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/unknown (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/rollback (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/canceled (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/missing-schema (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/bad-json (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/two-singletons (0.00s)
+    --- PASS: TestModelMeetingSummaryReadStateAndTerminal/collision (0.00s)
+=== RUN   TestModelMeetingSummaryReadWaitsForActualTail
+--- PASS: TestModelMeetingSummaryReadWaitsForActualTail (0.02s)
+=== RUN   TestModelMeetingSummaryInvalidRequestsPerformNoIO
+--- PASS: TestModelMeetingSummaryInvalidRequestsPerformNoIO (0.00s)
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent
+--- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent (0.00s)
+=== RUN   TestModelProjectCommandNamespacesPreserveOldSystemBytes
+--- PASS: TestModelProjectCommandNamespacesPreserveOldSystemBytes (0.00s)
+=== RUN   TestModelProjectReceiptAndUnknownUseReadAndExactScope
+--- PASS: TestModelProjectReceiptAndUnknownUseReadAndExactScope (0.00s)
+=== RUN   TestModelProjectViewsPolicyAndPrivateFactsCarryScope
+--- PASS: TestModelProjectViewsPolicyAndPrivateFactsCarryScope (0.00s)
+=== RUN   TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession
+--- PASS: TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession (0.00s)
+=== RUN   TestModelProjectAvailableDTOContainsOnlySelectionFields
+--- PASS: TestModelProjectAvailableDTOContainsOnlySelectionFields (0.00s)
+=== RUN   TestModelCursorBindsStableUserQueryAndOriginalWatermark
+--- PASS: TestModelCursorBindsStableUserQueryAndOriginalWatermark (0.00s)
+=== RUN   TestModelUnconfiguredSelectionIsExplicitAbsence
+--- PASS: TestModelUnconfiguredSelectionIsExplicitAbsence (0.00s)
+=== RUN   TestModelReplacementPreservesRequiredTypeAndMemoryCapability
+--- PASS: TestModelReplacementPreservesRequiredTypeAndMemoryCapability (0.00s)
+=== RUN   TestModelCurrentResolutionStableSubjectAndExactActorPlan
+--- PASS: TestModelCurrentResolutionStableSubjectAndExactActorPlan (0.00s)
+=== RUN   TestModelCurrentResolutionSnapshotDTOAndPlanCopies
+--- PASS: TestModelCurrentResolutionSnapshotDTOAndPlanCopies (0.00s)
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/owner-mismatch
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/human-session-persisted
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/human-extra-role
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/agent-execution
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/agent-user
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/empty-actor
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/unknown-kind
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/human-missing-user
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/agent-project
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/service-role
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/service-cause
+=== RUN   TestModelCurrentResolutionDurableIdentityClosedFacts/service-project
+--- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/owner-mismatch (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/human-session-persisted (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/human-extra-role (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/agent-execution (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/agent-user (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/empty-actor (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/unknown-kind (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/human-missing-user (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/agent-project (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/service-role (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/service-cause (0.00s)
+    --- PASS: TestModelCurrentResolutionDurableIdentityClosedFacts/service-project (0.00s)
+=== RUN   TestModelMeetingSummaryResolutionUnitMappingAndLocks
+--- PASS: TestModelMeetingSummaryResolutionUnitMappingAndLocks (0.00s)
+=== RUN   TestModelMeetingSummaryPreservesLegacyResolutionBytes
+--- PASS: TestModelMeetingSummaryPreservesLegacyResolutionBytes (0.00s)
+=== RUN   TestModelCurrentResolutionProfileClosedMatrix
+=== RUN   TestModelCurrentResolutionProfileClosedMatrix/options
+=== RUN   TestModelCurrentResolutionProfileClosedMatrix/reasoning
+=== RUN   TestModelCurrentResolutionProfileClosedMatrix/tool
+=== RUN   TestModelCurrentResolutionProfileClosedMatrix/image
+=== RUN   TestModelCurrentResolutionProfileClosedMatrix/overwrite
+=== RUN   TestModelCurrentResolutionProfileClosedMatrix/protocol
+--- PASS: TestModelCurrentResolutionProfileClosedMatrix (0.00s)
+    --- PASS: TestModelCurrentResolutionProfileClosedMatrix/options (0.00s)
+    --- PASS: TestModelCurrentResolutionProfileClosedMatrix/reasoning (0.00s)
+    --- PASS: TestModelCurrentResolutionProfileClosedMatrix/tool (0.00s)
+    --- PASS: TestModelCurrentResolutionProfileClosedMatrix/image (0.00s)
+    --- PASS: TestModelCurrentResolutionProfileClosedMatrix/overwrite (0.00s)
+    --- PASS: TestModelCurrentResolutionProfileClosedMatrix/protocol (0.00s)
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/parameters
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/tools
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/reasoning
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/image
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/protocol
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/options
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/overwrite
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/headers
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/parallel
+=== RUN   TestModelMeetingSummaryResolutionProfileMatrix/efforts
+--- PASS: TestModelMeetingSummaryResolutionProfileMatrix (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/parameters (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/tools (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/reasoning (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/image (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/protocol (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/options (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/overwrite (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/headers (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/parallel (0.00s)
+    --- PASS: TestModelMeetingSummaryResolutionProfileMatrix/efforts (0.00s)
+=== RUN   TestModelCurrentResolutionCandidateCannotGrantOrRead
+--- PASS: TestModelCurrentResolutionCandidateCannotGrantOrRead (0.00s)
+=== RUN   TestModelMeetingSummaryResolutionEntryGuards
+--- PASS: TestModelMeetingSummaryResolutionEntryGuards (0.00s)
+=== RUN   TestModelCurrentResolutionConstructionAndClosedVariants
+--- PASS: TestModelCurrentResolutionConstructionAndClosedVariants (0.00s)
+=== RUN   TestModelCurrentResolutionRegistrationAndTypedNil
+--- PASS: TestModelCurrentResolutionRegistrationAndTypedNil (0.00s)
+=== RUN   TestModelSecretReleaseRequiresExactBeforeAfterCommandPlan
+--- PASS: TestModelSecretReleaseRequiresExactBeforeAfterCommandPlan (0.00s)
+=== RUN   TestModelSecretRouterPreservesFallbackAndDoesNotGuessLeasePurpose
+--- PASS: TestModelSecretRouterPreservesFallbackAndDoesNotGuessLeasePurpose (0.00s)
+=== RUN   TestModelConstructorsArePureAndRejectMissingOwnership
+--- PASS: TestModelConstructorsArePureAndRejectMissingOwnership (0.00s)
+=== RUN   TestModelCommitStatesDoNotTreatUnknownAsZeroReceiptSuccess
+--- PASS: TestModelCommitStatesDoNotTreatUnknownAsZeroReceiptSuccess (0.00s)
+PASS

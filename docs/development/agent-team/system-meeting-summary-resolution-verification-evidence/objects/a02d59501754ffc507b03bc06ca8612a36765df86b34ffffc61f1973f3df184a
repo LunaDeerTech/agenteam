@@ -1,0 +1,11 @@
+# S3 四 contract：有限组合 PASS
+
+复用已冻结四源独立 STATIC（contract01/review.md，bdbf71fe…c422d），补核作者 contract-result01（ed9530fe…e83ba）及七条原始 command/stdout/stderr/result：普通图、普通编译、pure、race编译、race运行、race vet、后补race图均实际0；pure与race各33个不同顶层PASS，无FAIL/SKIP/race诊断。前后68项输入均相同，四产品源末核仍为原 contract-input01。
+
+普通实际 go list 输出226包、race228包，与冻结图逐项一致；66个本地源全部在68项保守输入内，无新本地/活动model依赖；race仅增加两个 runtime/race包及17个标准源/文件差量。race补图是第七命令，关闭原总结尚称待补的边界，不改写原总结。
+
+每条命令均在45s总限内，直接子进程actual wait、收养wait0、动作0、尾进程空。两次空扫描由固定driver02的quiet==2成功分支及各轮低于44.5s退出限的实际耗时核明；逐次/proc快照未单独保存。driver02相对01仅修正最终比较从meta读取inputs_before。
+
+原shell127因不存在Python路径，Go未启动；driver01的KeyError原件仍在，缺完整result，因此不计完成或PASS。此次仅审证据，没有独立动态重跑、没有新Go/资源执行，也不扩大为model/fixture或完整S3接受。
+
+命令/raw/图/失败/工具来源hash与逐条核对见 evidence-check.json。旧STATIC报告不修改；仅本新scratch写入，现已停写。

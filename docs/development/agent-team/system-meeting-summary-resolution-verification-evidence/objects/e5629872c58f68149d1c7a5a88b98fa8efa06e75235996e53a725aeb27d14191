@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 11801.617537714,
+      "top": "TestModelMeetingSummaryResolutionUnknown"
+    },
+    {
+      "event": "result",
+      "monotonic": 11806.489827342,
+      "observed_seconds": 4.872289627999635,
+      "reported_seconds": 4.89,
+      "state": "PASS",
+      "top": "TestModelMeetingSummaryResolutionUnknown"
+    }
+  ],
+  "expected": [
+    "TestModelMeetingSummaryResolutionUnknown"
+  ],
+  "failures": []
+}

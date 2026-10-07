@@ -1,0 +1,160 @@
+{
+  "status": "PASS: read-only archive checks; no product execution",
+  "product_commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+  "committed_product17_match": true,
+  "stored_source_count": 193,
+  "unique_original_objects": 149,
+  "unique_original_bytes": 1076583,
+  "all_original_sources_and_bytes_match": true,
+  "fingerprint_only_sources_checked": 117,
+  "original_json_sources_parsed": 150,
+  "derived_projections_match_original_fields": true,
+  "independent_run_records": [
+    {
+      "name": "independent-a01",
+      "evidence_hashes_match": true,
+      "actual_wait": true,
+      "seven_resources_double_owned_cleanup": true,
+      "inputs_equal": true,
+      "watchdog_joined": true,
+      "daemon_before": 68,
+      "daemon_after": 72,
+      "daemon_delta_not_owned_or_waited": 4
+    },
+    {
+      "name": "independent-b01",
+      "evidence_hashes_match": true,
+      "actual_wait": true,
+      "seven_resources_double_owned_cleanup": true,
+      "inputs_equal": true,
+      "watchdog_joined": true,
+      "daemon_before": 72,
+      "daemon_after": 76,
+      "daemon_delta_not_owned_or_waited": 4
+    }
+  ],
+  "author_run_records": [
+    {
+      "run": "driver-v01/new1",
+      "actual_exit": 1,
+      "primary_index_hashes_match": true,
+      "actual_wait": true,
+      "resources": 7,
+      "double_owned_cleanup": true,
+      "watchdog_joined": true,
+      "inputs_before_after_equal": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_before": 48,
+      "daemon_after": 52,
+      "daemon_delta_not_owned_or_waited": 4
+    },
+    {
+      "run": "driver-v02/new1-rerun",
+      "actual_exit": 0,
+      "primary_index_hashes_match": true,
+      "actual_wait": true,
+      "resources": 7,
+      "double_owned_cleanup": true,
+      "watchdog_joined": true,
+      "inputs_before_after_equal": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_before": 52,
+      "daemon_after": 56,
+      "daemon_delta_not_owned_or_waited": 4
+    },
+    {
+      "run": "driver-v02/new2",
+      "actual_exit": 0,
+      "primary_index_hashes_match": true,
+      "actual_wait": true,
+      "resources": 7,
+      "double_owned_cleanup": true,
+      "watchdog_joined": true,
+      "inputs_before_after_equal": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_before": 56,
+      "daemon_after": 60,
+      "daemon_delta_not_owned_or_waited": 4
+    },
+    {
+      "run": "driver-v02/new3",
+      "actual_exit": 0,
+      "primary_index_hashes_match": true,
+      "actual_wait": true,
+      "resources": 7,
+      "double_owned_cleanup": true,
+      "watchdog_joined": true,
+      "inputs_before_after_equal": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_before": 60,
+      "daemon_after": 64,
+      "daemon_delta_not_owned_or_waited": 4
+    },
+    {
+      "run": "driver-v02/old1",
+      "actual_exit": 0,
+      "primary_index_hashes_match": true,
+      "actual_wait": true,
+      "resources": 7,
+      "double_owned_cleanup": true,
+      "watchdog_joined": true,
+      "inputs_before_after_equal": true,
+      "adopted_waits": 0,
+      "forced_tail_actions": 0,
+      "daemon_before": 64,
+      "daemon_after": 68,
+      "daemon_delta_not_owned_or_waited": 4
+    }
+  ],
+  "raw_original_whitespace_exceptions": {
+    "objects/4e3ddcffe0344dc821eb77630c35bde02043195a8295c96f13d4a7946245b4e1": {
+      "original_sha256": "4e3ddcffe0344dc821eb77630c35bde02043195a8295c96f13d4a7946245b4e1",
+      "diagnostic_types": [
+        "space before tab in indent."
+      ],
+      "diagnostic_count": 29
+    },
+    "objects/e018fd03895d70aa03b1ac8c461d8db5781ffc6616ae55a55fe711370e412137": {
+      "original_sha256": "e018fd03895d70aa03b1ac8c461d8db5781ffc6616ae55a55fe711370e412137",
+      "diagnostic_types": [
+        "space before tab in indent."
+      ],
+      "diagnostic_count": 6
+    },
+    "objects/a584319b338cca52cc7e3ac05403f6c44348b50aba98aad1ced61b31243b9f07": {
+      "original_sha256": "a584319b338cca52cc7e3ac05403f6c44348b50aba98aad1ced61b31243b9f07",
+      "diagnostic_types": [
+        "trailing whitespace."
+      ],
+      "diagnostic_count": 3
+    },
+    "objects/21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f": {
+      "original_sha256": "21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f",
+      "diagnostic_types": [
+        "new blank line at EOF.",
+        "trailing whitespace."
+      ],
+      "diagnostic_count": 8
+    }
+  },
+  "raw_original_policy": "Exact bytes preserved; only generated report/JSON must pass clean diff. Original links interpreted at mapped source locations, not rewritten.",
+  "card_repository_unchanged_sha256": "bb124b229914855a99980f21542f988b69a26942a0a264405d4e7f3bf98a2d1f",
+  "card_technical_from_section1_sha256": "f34de8333b80d8e6d68ad702ea42918fa22950278b2e9367f40c1a8cf215745b",
+  "card_header_draft_scratch_only": true,
+  "no_tests_scripts_resources_or_git_mutation": true,
+  "formal_report_relative_link_targets": 18,
+  "archive_checker_original_failure": {
+    "stage": "archive checker first attempt",
+    "source": "objects/21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f",
+    "actual_returncode": 3,
+    "stderr": "",
+    "first_diagnostic": "/workspace/agenteam/docs/development/agent-team/system-meeting-summary-resolution-verification-evidence/objects/21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f:4: trailing whitespace.",
+    "issue": "checker accepted only1/2 for diff-check diagnostics; observed actual return code preserved"
+  },
+  "archive_checker_correction": "Accept observed git diff --no-index --check code3 for preserved raw whitespace diagnostics; no original bytes changed",
+  "generated_utf8_lf_markdown_json_diff_check": "PASS"
+}

@@ -1,0 +1,121 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.232.68.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=2764f13fac4208b7fe17faa8162e95da
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=87745027248af87cc2cdfc5afc769623
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.425s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+=== RUN   TestModelMeetingSummaryResolutionAuthorization
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/meeting-project
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/meeting-phase
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/meeting-version
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/operation-meeting
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/call
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/purpose
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/initiator
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/input
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/operation-phase
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/operation-version
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/formal-logout-new-session-and-actual-project-gate
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/admin-other-user-and-other-project-cannot-bypass-canonical
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/signed-request-issuer-and-foreign-store
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/consumer-lock-and-lower-order-poison
+=== RUN   TestModelMeetingSummaryResolutionAuthorization/exact-secret-witness-cannot-cross-transaction-or-lease
+--- PASS: TestModelMeetingSummaryResolutionAuthorization (5.37s)
+    --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version (0.34s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/meeting-project (0.03s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/meeting-phase (0.03s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/meeting-version (0.04s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/operation-meeting (0.03s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/call (0.04s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/purpose (0.04s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/initiator (0.03s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/input (0.03s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/operation-phase (0.03s)
+        --- PASS: TestModelMeetingSummaryResolutionAuthorization/canonical-meeting-operation-input-phase-version/operation-version (0.03s)
+    --- PASS: TestModelMeetingSummaryResolutionAuthorization/formal-logout-new-session-and-actual-project-gate (0.96s)
+    --- PASS: TestModelMeetingSummaryResolutionAuthorization/admin-other-user-and-other-project-cannot-bypass-canonical (0.11s)
+    --- PASS: TestModelMeetingSummaryResolutionAuthorization/signed-request-issuer-and-foreign-store (0.11s)
+    --- PASS: TestModelMeetingSummaryResolutionAuthorization/consumer-lock-and-lower-order-poison (0.04s)
+    --- PASS: TestModelMeetingSummaryResolutionAuthorization/exact-secret-witness-cannot-cross-transaction-or-lease (0.04s)
+=== RUN   TestModelMeetingSummaryResolutionSelection
+=== RUN   TestModelMeetingSummaryResolutionSelection/missing-null-and-current-authority-before-state
+=== RUN   TestModelMeetingSummaryResolutionSelection/safe-select-is-not-generation-authority
+=== RUN   TestModelMeetingSummaryResolutionSelection/both-purposes-plain-text-independent-of-old-selector
+=== RUN   TestModelMeetingSummaryResolutionSelection/structured-capability-retained-and-memory-unmodified
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-model
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-provider
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/unsupported
+=== RUN   TestModelMeetingSummaryResolutionSelection/legacy-summary-and-project-target-no-fallback
+--- PASS: TestModelMeetingSummaryResolutionSelection (5.06s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/missing-null-and-current-authority-before-state (0.02s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/safe-select-is-not-generation-authority (0.02s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/both-purposes-plain-text-independent-of-old-selector (0.07s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/structured-capability-retained-and-memory-unmodified (0.33s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit (0.38s)
+        --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-model (0.09s)
+        --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-provider (0.08s)
+        --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/unsupported (0.10s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/legacy-summary-and-project-target-no-fallback (0.15s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	11.460s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+D03 fixture cleanup checked for nonce 08a6dafe2cf92c822ce7c34d71371cc4
+D04 outbound fixture cleanup checked for nonce 87745027248af87cc2cdfc5afc769623
+D05 object fixture exact resource cleanup checked nonce=2764f13fac4208b7fe17faa8162e95da

@@ -1,0 +1,247 @@
+{
+  "author_report_sha256": "a1cf52179dfff6a99ae741b0512ec4f82392fe974dd98b72af7d266874304456",
+  "author_index_sha256": "df66ac01d967d5df95e5b3688680001ddbd96676a4126e5705483fd9cb076f77",
+  "independent_static_evidence_check": true,
+  "no_rerun": true,
+  "runs": [
+    {
+      "run": "new1",
+      "actual_exit": 1,
+      "top_count": 2,
+      "sub_pass": 21,
+      "sub_fail": 4,
+      "hashes_match": true,
+      "actual_wait_and_7_resource_double_cleanup": true,
+      "same_inputs": true,
+      "daemon_before": 48,
+      "daemon_after": 52,
+      "new_daemon_unjoined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 259940,
+          "ppid": 1,
+          "starttime": "1109509",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 260567,
+          "ppid": 1,
+          "starttime": "1110151",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 260934,
+          "ppid": 1,
+          "starttime": "1110412",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 261840,
+          "ppid": 1,
+          "starttime": "1110839",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new1-rerun",
+      "actual_exit": 0,
+      "top_count": 2,
+      "sub_pass": 25,
+      "sub_fail": 0,
+      "hashes_match": true,
+      "actual_wait_and_7_resource_double_cleanup": true,
+      "same_inputs": true,
+      "daemon_before": 52,
+      "daemon_after": 56,
+      "new_daemon_unjoined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 273826,
+          "ppid": 1,
+          "starttime": "1158062",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 274186,
+          "ppid": 1,
+          "starttime": "1158301",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 274553,
+          "ppid": 1,
+          "starttime": "1158513",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 275044,
+          "ppid": 1,
+          "starttime": "1158701",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new2",
+      "actual_exit": 0,
+      "top_count": 2,
+      "sub_pass": 13,
+      "sub_fail": 0,
+      "hashes_match": true,
+      "actual_wait_and_7_resource_double_cleanup": true,
+      "same_inputs": true,
+      "daemon_before": 56,
+      "daemon_after": 60,
+      "new_daemon_unjoined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 281857,
+          "ppid": 1,
+          "starttime": "1167578",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 282310,
+          "ppid": 1,
+          "starttime": "1167929",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 282675,
+          "ppid": 1,
+          "starttime": "1168133",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 283174,
+          "ppid": 1,
+          "starttime": "1168320",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new3",
+      "actual_exit": 0,
+      "top_count": 1,
+      "sub_pass": 6,
+      "sub_fail": 0,
+      "hashes_match": true,
+      "actual_wait_and_7_resource_double_cleanup": true,
+      "same_inputs": true,
+      "daemon_before": 60,
+      "daemon_after": 64,
+      "new_daemon_unjoined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 290156,
+          "ppid": 1,
+          "starttime": "1176126",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 290688,
+          "ppid": 1,
+          "starttime": "1176628",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 291167,
+          "ppid": 1,
+          "starttime": "1177010",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 291771,
+          "ppid": 1,
+          "starttime": "1177206",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old1",
+      "actual_exit": 0,
+      "top_count": 8,
+      "sub_pass": 47,
+      "sub_fail": 0,
+      "hashes_match": true,
+      "actual_wait_and_7_resource_double_cleanup": true,
+      "same_inputs": true,
+      "daemon_before": 64,
+      "daemon_after": 68,
+      "new_daemon_unjoined": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 297756,
+          "ppid": 1,
+          "starttime": "1183581",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 298290,
+          "ppid": 1,
+          "starttime": "1184006",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 298573,
+          "ppid": 1,
+          "starttime": "1184216",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 299175,
+          "ppid": 1,
+          "starttime": "1184401",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "accepted_author_new": {
+    "top": 5,
+    "sub": 44
+  },
+  "accepted_author_old": {
+    "top": 8,
+    "sub": 47
+  },
+  "original_failure_preserved": true
+}

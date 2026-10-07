@@ -1,0 +1,60 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-d",
+    "/workspace/scratch/summary-resolution-static-verification/probes03/independent_meeting_resolution_test.go"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMAXPROCS": "2",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json",
+    "TMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp",
+    "GOTMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "5f812b8970c9dd90278f07673c9f472eea2c88dcbece8970e95bf6d663394f59",
+  "tool_before_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "started_unix": 1791386202.2724838,
+  "subreaper": true,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.029798153000228922,
+  "total_seconds": 0.5330557460001728,
+  "observed_processes": [
+    {
+      "pid": 308920,
+      "starttime": "1215410",
+      "ppid": 308917,
+      "pgrp": 308920,
+      "state": "Z"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791386202.3061414,
+      "remaining": []
+    },
+    {
+      "time": 1791386202.407965,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

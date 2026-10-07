@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/meeting-summary-s3-author/driver-contract01.py", line 137, in <module>
+    result['exit_code'] = 124 if timed_out else (125 if remaining or actions or result['inputs_after'] != result['inputs_before'] else rc)
+KeyError: 'inputs_before'

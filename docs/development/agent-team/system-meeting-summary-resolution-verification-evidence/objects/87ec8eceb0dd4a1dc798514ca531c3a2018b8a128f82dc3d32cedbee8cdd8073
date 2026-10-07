@@ -1,0 +1,114 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/resource-closure02.json",
+    "sha256": "4cdb5def0aab0c4bae89d7b5aa01e7867ced284961fa14541a98c767a6785ef6"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json",
+    "sha256": "a7d19ff525624cb19345dcfef038324b98c95afdd349cc011507d2d273ec8908"
+  },
+  "files": {
+    "/workspace/scratch/summary-resolution-static-verification/probes03/independent_meeting_resolution_test.go": {
+      "sha256": "9ffba649dae0ffa42dec104898f0e771adf35a6dbad5c7973c0aa40e2f09aa93",
+      "reason": "one private independent Go test overlay"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json": {
+      "sha256": "a7d19ff525624cb19345dcfef038324b98c95afdd349cc011507d2d273ec8908",
+      "reason": "parent32 plus private test mapping"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline-plan.json": {
+      "sha256": "b2c8f398f0f9b0a4d8ddb201ba277be8a63715228ad2e72b100d8f94fe5f5cf9",
+      "reason": "immutable private offline proof binding"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline-run.py": {
+      "sha256": "5f812b8970c9dd90278f07673c9f472eea2c88dcbece8970e95bf6d663394f59",
+      "reason": "immutable private offline proof binding"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/collect-private-graph.py": {
+      "sha256": "ffcbedea0d211b5a29aa2ee8c3dbaf7a47f8ff12ca5c0749e9585a467eeec612",
+      "reason": "immutable private offline proof binding"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/actual-graph.json": {
+      "sha256": "92f52c2f0e27377edd3f32442007ab40b45c76a176dee4b19fcdcb9ba57fe8a0",
+      "reason": "immutable private offline proof binding"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/result.json": {
+      "sha256": "41a876f54845c2cec62eb420a8654936b9a453706a23eaf6afa166afadfe9d63",
+      "reason": "immutable private offline proof binding"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/result.json": {
+      "sha256": "ade3b652aca2a04a70e5bc9218d8759c13630365a26ee34d7d4e57ac8f110fb3",
+      "reason": "immutable private offline proof binding"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/result.json": {
+      "sha256": "9bd40dc4920f36f3d42d13feed289a3e46a9f1e749c8486f5216cc6b1a24a01a",
+      "reason": "immutable private offline proof binding"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/result.json": {
+      "sha256": "9e882649821df07df76d38eb5bfa0acb7960d337ed5227b8f6d2b70d490e5d8b",
+      "reason": "immutable private offline proof binding"
+    }
+  },
+  "package_file_additions": {
+    "/workspace/agenteam/tests/model": [
+      "zz_independent_meeting_resolution_test.go"
+    ]
+  },
+  "independent_graph": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/actual-graph.json",
+    "sha256": "92f52c2f0e27377edd3f32442007ab40b45c76a176dee4b19fcdcb9ba57fe8a0"
+  },
+  "status": "OFFLINE READY; format, actual race graph, race compile, exact list PASS; test bodies and resources not executed",
+  "runtime_reads": "inherits own private recovery and fixture descriptors; probe only own PG facts; no active S2 source/schema/TS/browser read",
+  "excluded_inherited_descriptive_chain": "S1 UpgradeReceipts/old producer descriptive entry in base closure is not selected or executed; no old-binary environment is present",
+  "offline_evidence": [
+    {
+      "label": "p05-format",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/result.json",
+        "sha256": "41a876f54845c2cec62eb420a8654936b9a453706a23eaf6afa166afadfe9d63"
+      },
+      "execution_seconds": 0.029798153000228922,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    },
+    {
+      "label": "p06-race-graph",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/result.json",
+        "sha256": "ade3b652aca2a04a70e5bc9218d8759c13630365a26ee34d7d4e57ac8f110fb3"
+      },
+      "execution_seconds": 0.2029282780003996,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    },
+    {
+      "label": "p07-race-compile",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/result.json",
+        "sha256": "9bd40dc4920f36f3d42d13feed289a3e46a9f1e749c8486f5216cc6b1a24a01a"
+      },
+      "execution_seconds": 5.662594663999698,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    },
+    {
+      "label": "p08-list",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/result.json",
+        "sha256": "9e882649821df07df76d38eb5bfa0acb7960d337ed5227b8f6d2b70d490e5d8b"
+      },
+      "execution_seconds": 1.0213121420001698,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    }
+  ]
+}

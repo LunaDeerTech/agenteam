@@ -1,0 +1,53 @@
+--- candidate02/tests/model/meeting_summary_resolution_selection_test.go
++++ candidate03/tests/model/meeting_summary_resolution_selection_test.go
+@@ -29,7 +29,7 @@
+ 		changed.Actor = v.admin
+ 		p, e = v.resolving.DiscoverResolve(testContext(t), changed)
+ 		resolutionZeroPlan(t, p, e)
+-		requireCode(t, e, f.Forbidden)
++		requireCode(t, e, f.NotFound)
+ 	})
+ 	_, m, _ := v.config(t, false, false)
+ 	plain := m.Input.Clone()
+@@ -61,7 +61,7 @@
+ 		if e == nil || out.Selected != nil {
+ 			t.Fatal("admin read another Project")
+ 		}
+-		requireCode(t, e, f.Forbidden)
++		requireCode(t, e, f.NotFound)
+ 	})
+ 	t.Run("both-purposes-plain-text-independent-of-old-selector", func(t *testing.T) {
+ 		var configured bool
+--- candidate02/tests/model/meeting_summary_resolution_authorization_test.go
++++ candidate03/tests/model/meeting_summary_resolution_authorization_test.go
+@@ -98,14 +98,14 @@
+ 			v.bindFacts(t, r)
+ 			p, e := v.resolving.DiscoverResolve(testContext(t), r)
+ 			resolutionZeroPlan(t, p, e)
+-			requireCode(t, e, f.Forbidden)
++			requireCode(t, e, f.NotFound)
+ 		}
+ 		r := v.request(t, mc.MeetingSummaryInitial)
+ 		r.Consumer.ProjectID = v.createProject(t, v.identity.otherBrowser.actor).ID
+ 		v.bindFacts(t, r)
+ 		p, e := v.resolving.DiscoverResolve(testContext(t), r)
+ 		resolutionZeroPlan(t, p, e)
+-		requireCode(t, e, f.Forbidden)
++		requireCode(t, e, f.NotFound)
+ 	})
+ 	t.Run("signed-request-issuer-and-foreign-store", func(t *testing.T) {
+ 		r := v.request(t, mc.MeetingSummaryInitial)
+@@ -233,7 +233,12 @@
+ 			if !reached || inner == nil || result.State() != f.NotCommitted {
+ 				t.Fatal("stale exact witness accepted", inner)
+ 			}
+-			requireCode(t, inner, f.Forbidden)
++			if alter {
++				// A different LeaseID fails the signed usage binding before the witness gate.
++				requireCode(t, inner, f.InvalidArgument)
++			} else {
++				requireCode(t, inner, f.Forbidden)
++			}
+ 		}
+ 	})
+ }

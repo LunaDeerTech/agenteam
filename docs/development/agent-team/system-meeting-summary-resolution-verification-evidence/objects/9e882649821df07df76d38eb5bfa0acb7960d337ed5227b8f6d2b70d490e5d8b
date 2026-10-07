@@ -1,0 +1,60 @@
+{
+  "argv": [
+    "/workspace/scratch/summary-resolution-static-verification/probes03/integration-race.test",
+    "-test.timeout=35s",
+    "-test.list=^TestIndependentMeetingSummaryResolution(AuthorityAndSelection|ReplayAndAtomicity)$"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMAXPROCS": "2",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json",
+    "TMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp",
+    "GOTMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "5f812b8970c9dd90278f07673c9f472eea2c88dcbece8970e95bf6d663394f59",
+  "tool_before_sha256": "ae9df302ef54523f268df38f43de9b7e341ed3859fcd4fc7aaa55c79332de548",
+  "started_unix": 1791386226.5082724,
+  "subreaper": true,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 1.0213121420001698,
+  "total_seconds": 1.4955505870002526,
+  "observed_processes": [
+    {
+      "pid": 309383,
+      "starttime": "1217833",
+      "ppid": 309362,
+      "pgrp": 309383,
+      "state": "S"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791386227.534004,
+      "remaining": []
+    },
+    {
+      "time": 1791386227.6362429,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "ae9df302ef54523f268df38f43de9b7e341ed3859fcd4fc7aaa55c79332de548",
+  "stdout_sha256": "ef3c867c0bbc7b6ec072d85c461c1bc1f208ae7138b329adfff71c1ef78c2e47",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

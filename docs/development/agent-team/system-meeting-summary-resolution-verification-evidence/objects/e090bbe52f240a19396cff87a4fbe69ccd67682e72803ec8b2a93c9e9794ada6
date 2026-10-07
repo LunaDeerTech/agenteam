@@ -1,0 +1,251 @@
+{
+  "status": "PASS: independent README STATIC and combined17path bounded S3 delivery closed",
+  "readme_freeze": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/readme01/freeze.json",
+    "sha256": "d697f43c46bde3bab88f4af9a3fe723f8fc4bb176d48c102042ace2988d24ae0"
+  },
+  "readme": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "sha256": "36670ae9683a7ac3c6e2bc068d0fc5b231dc3a96e65f5fa11f7878c327d3a8f2"
+  },
+  "readme_snapshot": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/readme01/README.md",
+    "sha256": "36670ae9683a7ac3c6e2bc068d0fc5b231dc3a96e65f5fa11f7878c327d3a8f2"
+  },
+  "diff": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/readme01/source.diff",
+    "sha256": "21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f"
+  },
+  "technical16_reused": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/final01/result.json",
+    "sha256": "9db820da9c492186bdce52299fb6e7eae4027e96a25f5c1197637ee961a6822e"
+  },
+  "technical_report": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/final01/review.md",
+    "sha256": "6656dde87482d037ade6db14c5f40fa0afd815b76ef2447889b61618dfaa3049"
+  },
+  "exact_paths": {
+    "internal/central/model/contract/configuration.go": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+    "internal/central/model/contract/configuration_test.go": "1a530058bdaf828cc911daf7dc5da75e1bf9e5693e4acb97d7cfc773cf2beb01",
+    "internal/central/model/contract/resolution_test.go": "a1173d1eb5bfc9caafc750bfa85e64abbb1eb72dc3ff254471dec96894ce2980",
+    "internal/central/model/contract/meeting_summary_test.go": "c90c1a583bb8ec384ac346692ad90cc12b80bd795a28daa7bf385146aeadfbbd",
+    "internal/central/model/resolution_policy.go": "4e4b4ed8801a3def44dd6394b61be1358a3190fc03917eb25032edf8a1e1d038",
+    "internal/central/model/resolution_policy_test.go": "3c3faddcc248c659b47a69ff5b3194d68179f0f009c4bc5b32939c2f473366d0",
+    "internal/central/model/resolver.go": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d",
+    "internal/central/model/resolver_test.go": "6226fe1095419a47ad8520e7d48a14b4c5f5cd734c998cf6f41c12315ca02e19",
+    "internal/central/model/resolution_plan.go": "577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59",
+    "internal/central/model/resolution_plan_test.go": "0501fb561a094b8c57bfa8c9c7aca1a7fdb9e6aae310331180f8602a2cb8c323",
+    "tests/model/meeting_summary_resolution_fixture_test.go": "69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b",
+    "tests/model/meeting_summary_resolution_selection_test.go": "af952554891ddffc85561d47c82b725ffbdfd34590cc6fcd7649cae7e0e47916",
+    "tests/model/meeting_summary_resolution_atomicity_test.go": "2328c310216212635032ed36d65357234f5204516a3a637afe57744c928b8b3e",
+    "tests/model/meeting_summary_resolution_authorization_test.go": "8609d5ac4dcfd6c1fe731f81d71f6f303ecbd1114c3f0097410ad72eaa7c99b5",
+    "tests/model/meeting_summary_resolution_replay_test.go": "3ff5a1119160bf0adc5cde7c35f569f6f25ba6dd41911bd2658849ae010464d3",
+    "tests/model/meeting_summary_resolution_unknown_test.go": "83bd1288a8e4246243341a9d1895afc3e2fd8c4c2594c543851db7f6de0bf745",
+    "docs/development/backend/README.md": "36670ae9683a7ac3c6e2bc068d0fc5b231dc3a96e65f5fa11f7878c327d3a8f2"
+  },
+  "current_repository_all17_match": true,
+  "S2_existing_paragraph_byte_identical": true,
+  "all_following_content_byte_identical": true,
+  "local_link_paths_checked": 47,
+  "link_check_limit": "47 local destination paths; changed new S3 link has no fragment. Existing fragments unchanged and not revalidated.",
+  "links": [
+    {
+      "target": "database.md",
+      "exists": true
+    },
+    {
+      "target": "audit.md",
+      "exists": true
+    },
+    {
+      "target": "secret.md",
+      "exists": true
+    },
+    {
+      "target": "outbound.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d05-object-storage-design.md",
+      "exists": true
+    },
+    {
+      "target": "../../../api/openapi/model-system.json",
+      "exists": true
+    },
+    {
+      "target": "../work-items/recovery-d09-system-model-root.md",
+      "exists": true
+    },
+    {
+      "target": "object-runtime.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "exists": true
+    },
+    {
+      "target": "../../../api/openapi/account.json",
+      "exists": true
+    },
+    {
+      "target": "artifact.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/system-model-management-reads-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/recovery-d09-system-model-management-reads.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d09-system-meeting-summary-selection.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d09-system-meeting-summary-resolution.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/invocation-usage-ledger-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/recovery-d09-openai-chat-structured-wire.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/d09-openai-chat-structured-wire-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d09-openai-embeddings-wire.md",
+      "exists": true
+    },
+    {
+      "target": "outbound.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d28-central-spa-hosting.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/system-central-spa-hosting-spec-verification.md",
+      "exists": true
+    },
+    {
+      "target": "account.md",
+      "exists": true
+    },
+    {
+      "target": "accountmail.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/d26-authentication-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/personal-settings-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/public-account-entry-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d07-account-session-smtp.md#\u5f53\u524d\u8fdb\u5ea6",
+      "exists": true
+    },
+    {
+      "target": "../../../deploy/central.env.example",
+      "exists": true
+    },
+    {
+      "target": "../../../deploy/runner.env.example",
+      "exists": true
+    },
+    {
+      "target": "audit.md#cursor-\u4e0e\u90e8\u7f72\u914d\u7f6e",
+      "exists": true
+    },
+    {
+      "target": "secret.md#\u90e8\u7f72\u914d\u7f6e\u4e0e\u542f\u52a8",
+      "exists": true
+    },
+    {
+      "target": "account.md#\u90e8\u7f72\u8f93\u5165\u4e0e\u9996\u6b21\u7ba1\u7406\u5458",
+      "exists": true
+    },
+    {
+      "target": "outbound.md",
+      "exists": true
+    },
+    {
+      "target": "database.md#\u7248\u672c\u4e0e\u914d\u7f6e",
+      "exists": true
+    },
+    {
+      "target": "database.md#\u8fc1\u79fb\u4e0e\u4fee\u590d",
+      "exists": true
+    },
+    {
+      "target": "account.md#\u6b63\u5f0f-http-\u4e0e\u8d44\u6599\u5934\u50cf",
+      "exists": true
+    },
+    {
+      "target": "../../../api/openapi/model-system.json",
+      "exists": true
+    },
+    {
+      "target": "accountmail.md#smtp-\u4e0e\u65e5\u5fd7",
+      "exists": true
+    },
+    {
+      "target": "../../../api/openapi/project-usage.json",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d09-project-usage-read-http.md",
+      "exists": true
+    },
+    {
+      "target": "../../../api/openapi/runtime-information.json",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d28-system-runtime-information-http.md",
+      "exists": true
+    },
+    {
+      "target": "artifact.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d05-object-storage-research.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d05-object-storage-artifact.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d06-transactional-outbox-design.md",
+      "exists": true
+    }
+  ],
+  "changed_nonempty_lines": {
+    "removed": 1,
+    "added": 3
+  },
+  "whitespace": "PASS",
+  "behavior_evidence_and_limits": "S3 two purposes/system selector/profiles/locks/current authority/immutable snapshot+lease agree with fixed card and accepted16; author5new8old and independentA/B real results agree; strict fixture/Unknown result decoration/unjoined daemon and root/D24/ready503/stopped tasks clearly bounded",
+  "business_tests_rerun": false,
+  "resources_started": false,
+  "production_changes_by_verifier": [],
+  "stopped": true
+}

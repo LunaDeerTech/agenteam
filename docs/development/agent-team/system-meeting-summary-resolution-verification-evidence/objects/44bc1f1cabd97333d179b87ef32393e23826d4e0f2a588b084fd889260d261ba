@@ -1,0 +1,86 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.215.13.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=8ef112a09a36018f7bf1d872b304269a
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=572bb92e24bfe22b1bf5ec2fce821fd8
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.278s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+=== RUN   TestModelMeetingSummaryResolutionUnknown
+=== RUN   TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-2-rollback-false
+    meeting_summary_resolution_unknown_test.go:69: formal result decoration only: stage=2 actual=committed returned=unknown; canonical bindings before retry=0
+=== RUN   TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-2-rollback-true
+    meeting_summary_resolution_unknown_test.go:69: formal result decoration only: stage=2 actual=not_committed returned=unknown; canonical bindings before retry=0
+=== RUN   TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-3-rollback-false
+    meeting_summary_resolution_unknown_test.go:69: formal result decoration only: stage=3 actual=committed returned=unknown; canonical bindings before retry=1
+=== RUN   TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-3-rollback-true
+    meeting_summary_resolution_unknown_test.go:69: formal result decoration only: stage=3 actual=not_committed returned=unknown; canonical bindings before retry=0
+=== RUN   TestModelMeetingSummaryResolutionUnknown/committed-then-caller-cancelled-zero-publication
+=== RUN   TestModelMeetingSummaryResolutionUnknown/unknown-rollback-missing-row-still-waits-original-writer
+    meeting_summary_resolution_unknown_test.go:120: real rollback then decorated Unknown; missing preparation still waits original Command EX; ordinary holder actually joined; no wire ACK fault
+--- PASS: TestModelMeetingSummaryResolutionUnknown (4.89s)
+    --- PASS: TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-2-rollback-false (0.09s)
+    --- PASS: TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-2-rollback-true (0.06s)
+    --- PASS: TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-3-rollback-false (0.10s)
+    --- PASS: TestModelMeetingSummaryResolutionUnknown/result-decoration-stage-3-rollback-true (0.10s)
+    --- PASS: TestModelMeetingSummaryResolutionUnknown/committed-then-caller-cancelled-zero-publication (0.05s)
+    --- PASS: TestModelMeetingSummaryResolutionUnknown/unknown-rollback-missing-row-still-waits-original-writer (0.25s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	5.917s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce 63c2a8f395ce7a169e7486af7157f1d9
+D04 outbound fixture cleanup checked for nonce 572bb92e24bfe22b1bf5ec2fce821fd8
+D05 object fixture exact resource cleanup checked nonce=8ef112a09a36018f7bf1d872b304269a

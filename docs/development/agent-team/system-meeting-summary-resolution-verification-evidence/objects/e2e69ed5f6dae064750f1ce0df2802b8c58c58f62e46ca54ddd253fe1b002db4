@@ -1,0 +1,79 @@
+[
+  {
+    "source": "/workspace/agenteam/internal/central/model/http_test.go",
+    "actual": "/workspace/scratch/meeting-summary-s3-author/overlay02/accepted/internal/central/model/http_test.go",
+    "line": 47,
+    "function": "func TestSystemHTTPConstructionAndRoutesMatchOpenAPI(t *testing.T) ",
+    "statement": "data, err := os.ReadFile(\"../../../api/openapi/model-system.json\")"
+  },
+  {
+    "source": "/workspace/agenteam/internal/central/model/adapter/openai_chat_structured_test.go",
+    "actual": "/workspace/agenteam/internal/central/model/adapter/openai_chat_structured_test.go",
+    "line": 125,
+    "function": "func TestStructuredPinnedSources(t *testing.T) ",
+    "statement": "raw, err := os.ReadFile(\"testdata/openai-chat-structured-v1.json\")"
+  },
+  {
+    "source": "/workspace/agenteam/internal/central/model/adapter/openai_chat_structured_test.go",
+    "actual": "/workspace/agenteam/internal/central/model/adapter/openai_chat_structured_test.go",
+    "line": 157,
+    "function": "func TestStructuredPinnedSources(t *testing.T) ",
+    "statement": "old, err := os.ReadFile(\"testdata/openai-chat-text-v1.json\")"
+  },
+  {
+    "source": "/workspace/agenteam/internal/central/model/adapter/openai_chat_test.go",
+    "actual": "/workspace/agenteam/internal/central/model/adapter/openai_chat_test.go",
+    "line": 35,
+    "function": "func TestOpenAIChatPinnedProfileManifest(t *testing.T) ",
+    "statement": "raw, err := os.ReadFile(\"testdata/openai-chat-text-v1.json\")"
+  },
+  {
+    "source": "/workspace/agenteam/internal/central/model/adapter/openai_embeddings_test.go",
+    "actual": "/workspace/agenteam/internal/central/model/adapter/openai_embeddings_test.go",
+    "line": 39,
+    "function": "func TestOpenAIEmbeddingsProfileAndSafeViews(t *testing.T) ",
+    "statement": "raw, err := os.ReadFile(\"testdata/openai-embeddings-float-v1.json\")"
+  },
+  {
+    "source": "/workspace/agenteam/tests/model/meeting_summary_http_test.go",
+    "actual": "/workspace/scratch/meeting-summary-s3-author/overlay01/accepted/tests/model/meeting_summary_http_test.go",
+    "line": 43,
+    "function": "func TestModelMeetingSummaryExistingHTTP(t *testing.T) ",
+    "statement": "stat, e := os.Stat(dir)"
+  },
+  {
+    "source": "/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go",
+    "actual": "/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go",
+    "line": 51,
+    "function": "func TestModelMeetingSummaryUpgradeReceipts(t *testing.T) ",
+    "statement": "data, e := os.ReadFile(binary)"
+  },
+  {
+    "source": "/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go",
+    "actual": "/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go",
+    "line": 86,
+    "function": "func TestModelMeetingSummaryUpgradeReceipts(t *testing.T) ",
+    "statement": "stat, e := os.Stat(handoffPath)"
+  },
+  {
+    "source": "/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go",
+    "actual": "/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go",
+    "line": 90,
+    "function": "func TestModelMeetingSummaryUpgradeReceipts(t *testing.T) ",
+    "statement": "raw, e := os.ReadFile(handoffPath)"
+  },
+  {
+    "source": "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go",
+    "actual": "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go",
+    "line": 277,
+    "function": "func projectUsageRecoveryMaterial(t *testing.T, path, purpose, resource string) sc.SecretMaterial ",
+    "statement": "data, err := os.ReadFile(path)"
+  },
+  {
+    "source": "/workspace/agenteam/tests/model/system_http_fixture_test.go",
+    "actual": "/workspace/agenteam/tests/model/system_http_fixture_test.go",
+    "line": 343,
+    "function": "func newSystemHTTPFixture(t *testing.T) *systemHTTPFixture ",
+    "statement": "data, err := os.ReadFile(path)"
+  }
+]

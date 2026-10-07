@@ -1,0 +1,6 @@
+{
+  "command": "/usr/local/bin/python3 /workspace/scratch/meeting-summary-s3-author/driver-contract01.py contract-list01 -- /workspace/toolchains/go1.27.1/bin/go list -deps -test -json ./internal/central/model/contract",
+  "exit": 127,
+  "raw": "/bin/bash: line 1: /usr/local/bin/python3: No such file or directory\n",
+  "scope": "shell launch failed before driver and any Go process; corrected to inherited absolute Python3.12 runtime"
+}

@@ -1,0 +1,452 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"errors"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// Only accepted formal identity/service and strict canonical fact helpers are
+// reused. All calls, competing transactions and risk combinations are new.
+// The input row below is a fixture accept fact, not a D24 implementation.
+func independentMeetingRequest(t *testing.T, v *meetingResolutionFixture, actor id.Actor, project id.ProjectID, purpose mc.Purpose) mc.ResolveRequest {
+	t.Helper()
+	r := mc.ResolveRequest{Actor: actor, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: project, MeetingID: newID[struct{}](t).String(), OperationID: newID[struct{}](t).String(), Purpose: purpose}, Purpose: purpose, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}, LeaseOwner: resolutionCallOwner(t)}
+	v.bindFacts(t, r)
+	return r
+}
+
+func independentPlainModel(t *testing.T, v *meetingResolutionFixture) mc.ModelView {
+	t.Helper()
+	_, m, _ := v.config(t, false, false)
+	input := m.Input.Clone()
+	input.Capabilities.StructuredOutputModes = nil
+	receipt, e := v.service.UpdateModel(testContext(t), mc.UpdateModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: m.ID, ExpectedVersion: m.Version, Input: input})
+	if e != nil {
+		t.Fatal("formal plain model update", e)
+	}
+	m.Input, m.Version = input, receipt.Version
+	return m
+}
+
+func independentUnitFacts(t *testing.T, v *meetingResolutionFixture, r mc.ResolveRequest, preparation, binding, lease int) {
+	t.Helper()
+	var p, b, l int
+	e := v.raw.QueryRow(testContext(t), `SELECT (SELECT count(*) FROM agenteam_model.resolution_preparations WHERE project_id=$1 AND owner_id=$2),(SELECT count(*) FROM agenteam_model.snapshot_bindings WHERE project_id=$1 AND owner_id=$2),(SELECT count(*) FROM agenteam_secret.secret_leases WHERE owner_kind='model_call' AND owner_id=$2)`, r.Consumer.ProjectID.String(), r.LeaseOwner.Details().ID).Scan(&p, &b, &l)
+	if e != nil || p != preparation || b != binding || l != lease {
+		t.Fatalf("independent unit facts preparation/binding/lease=%d/%d/%d want=%d/%d/%d: %v", p, b, l, preparation, binding, lease, e)
+	}
+}
+
+func TestIndependentMeetingSummaryResolutionAuthorityAndSelection(t *testing.T) {
+	v := newMeetingResolutionFixture(t, true)
+	_, old, _ := v.config(t, false, true)
+	chosen := v.choose(t, old.ID)
+	other := v.identity.otherBrowser.actor
+	secondProject := v.createProject(t, other)
+	t.Run("two-formal-owners-two-purposes-one-system-choice", func(t *testing.T) {
+		seen := map[string]bool{}
+		for _, owner := range []struct {
+			actor   id.Actor
+			project id.ProjectID
+		}{{v.owner, v.project.ID}, {other, secondProject.ID}} {
+			for _, purpose := range []mc.Purpose{mc.MeetingSummaryInitial, mc.MeetingSummaryUpdate} {
+				r := independentMeetingRequest(t, v, owner.actor, owner.project, purpose)
+				out := v.resolve(t, r)
+				if out.Snapshot.Identity.ModelID != old.ID || out.Snapshot.SelectionVersion == nil || *out.Snapshot.SelectionVersion != chosen.Version || out.CredentialLease == nil || seen[out.Snapshot.ID.String()] {
+					t.Fatal("shared System choice lost independent owner/call snapshot")
+				}
+				seen[out.Snapshot.ID.String()] = true
+				independentUnitFacts(t, v, r, 1, 1, 1)
+			}
+		}
+		r := independentMeetingRequest(t, v, v.admin, secondProject.ID, mc.MeetingSummaryInitial)
+		p, e := v.resolving.DiscoverResolve(testContext(t), r)
+		resolutionZeroPlan(t, p, e)
+		requireCode(t, e, f.NotFound)
+		independentUnitFacts(t, v, r, 0, 0, 0)
+		// This is a structurally valid Memory consumer; rejection cannot be
+		// explained by an invalid Meeting purpose before the selector check.
+		agent := newID[id.Agent](t)
+		q := mc.SelectionRequest{Consumer: mc.Consumer{Kind: mc.MemoryConsumer, ProjectID: v.project.ID, AgentID: &agent, OperationID: newID[struct{}](t).String(), Purpose: mc.MemoryExtraction}, Selection: mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}}
+		if q.Consumer.Validate() != nil || q.Validate() == nil {
+			t.Fatal("valid Memory consumer crossed Summary selector boundary")
+		}
+	})
+	t.Run("formal-logout-and-canonical-input-change-reject-old-plan", func(t *testing.T) {
+		browser := v.identity.login(t, v.identity.ownerBrowser.email)
+		r := independentMeetingRequest(t, v, browser.actor, v.project.ID, mc.MeetingSummaryUpdate)
+		p := v.discover(t, r)
+		if e := v.identity.core.Logout(testContext(t), account.LogoutRequest{Actor: browser.actor, Key: f.IdempotencyKey(newID[struct{}](t).String())}); e != nil {
+			t.Fatal(e)
+		}
+		_, result := v.final(t, r, p, true, false)
+		if result.State() != f.NotCommitted {
+			t.Fatal("old Session reached accepted resolution")
+		}
+		v.atomicFacts(t, r, p, 0)
+		r = independentMeetingRequest(t, v, other, secondProject.ID, mc.MeetingSummaryInitial)
+		p = v.discover(t, r)
+		before := v.strict.validated.Load()
+		v.sql(t, `UPDATE meeting_resolution_fixture.operations SET input_id=$2,version=version+1 WHERE id=$1`, r.Consumer.OperationID, newID[struct{}](t).String())
+		_, result = v.final(t, r, p, true, false)
+		if result.State() != f.NotCommitted || v.strict.validated.Load() != before {
+			t.Fatal("changed canonical input validated an old plan")
+		}
+		requireCode(t, result.Fault(), f.Forbidden)
+		v.atomicFacts(t, r, p, 0)
+	})
+	t.Run("isolated-summary-lock-and-swallowed-missing-lock", func(t *testing.T) {
+		r := independentMeetingRequest(t, v, other, secondProject.ID, mc.MeetingSummaryUpdate)
+		key, e := f.SystemConfigLock("model-meeting-summary-selection")
+		if e != nil {
+			t.Fatal(e)
+		}
+		release := v.hold(t, f.LockRequest{Key: key, Mode: f.Exclusive})
+		ctx, cancel := context.WithTimeout(testContext(t), 150*time.Millisecond)
+		out, e := v.resolving.SelectModel(ctx, other, mc.SelectionRequest{Consumer: r.Consumer, Selection: *r.Selection})
+		cancel()
+		if e == nil || out.Selected != nil {
+			t.Fatal("Select passed isolated new EX holder")
+		}
+		ctx, cancel = context.WithTimeout(testContext(t), 150*time.Millisecond)
+		p, e := v.resolving.DiscoverResolve(ctx, r)
+		cancel()
+		resolutionZeroPlan(t, p, e)
+		independentUnitFacts(t, v, r, 0, 0, 0)
+		release()
+		p = v.discover(t, r)
+		locks := []f.LockRequest{}
+		removed := 0
+		for _, lock := range p.RequiredLocks() {
+			if lock.Key.Canonical() == key.Canonical() {
+				removed++
+				continue
+			}
+			locks = append(locks, lock)
+		}
+		if removed != 1 {
+			t.Fatal("new lock not uniquely present in full union")
+		}
+		var inner error
+		result := v.observed.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
+			if e := v.observed.AcquireAll(ctx, tx, locks); e != nil {
+				return e
+			}
+			_, inner = v.resolving.ResolveModelInTx(ctx, tx, r, p)
+			return nil
+		})
+		if inner == nil || result.State() != f.NotCommitted {
+			t.Fatal("missing lock error failed to poison transaction")
+		}
+		v.atomicFacts(t, r, p, 0)
+	})
+	t.Run("accepted-resolver-transaction-versus-real-two-owner-delete", func(t *testing.T) {
+		v.selectMemory(t, old)
+		v.choose(t, old.ID)
+		_, next, _ := v.config(t, false, true)
+		plain := independentPlainModel(t, v)
+		beforeSummary := v.summary(t)
+		beforeMemory, e := v.service.GetPlatformSelection(testContext(t), v.admin)
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, e = v.service.DeleteModel(testContext(t), mc.DeleteModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: old.ID, ExpectedVersion: old.Version, Replacement: &plain.ID})
+		requireCode(t, e, f.CapabilityUnsupported)
+		afterMemory, e := v.service.GetPlatformSelection(testContext(t), v.admin)
+		if e != nil || !bytes.Equal(resolutionJSON(beforeSummary), resolutionJSON(v.summary(t))) || !bytes.Equal(resolutionJSON(beforeMemory), resolutionJSON(afterMemory)) {
+			t.Fatal("invalid Memory replacement partially changed selector owners", e)
+		}
+		r := independentMeetingRequest(t, v, other, secondProject.ID, mc.MeetingSummaryUpdate)
+		p := v.discover(t, r)
+		type resolved struct {
+			out      mc.ResolvedModel
+			terminal f.CommitResult
+		}
+		ready, release, done := make(chan int, 1), make(chan struct{}), make(chan resolved, 1)
+		ctx, cancel := context.WithTimeout(testContext(t), 5*time.Second)
+		cause := recoveryCause(t)
+		var once sync.Once
+		var joined bool
+		var accepted resolved
+		finish := func() resolved {
+			once.Do(func() { close(release) })
+			if !joined {
+				accepted = <-done
+				joined = true
+				cancel()
+			}
+			return accepted
+		}
+		t.Cleanup(func() { finish() })
+		go func() {
+			var out mc.ResolvedModel
+			terminal := v.observed.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+				if e := v.observed.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+					return e
+				}
+				x, e := v.observed.InTx(tx)
+				if e != nil {
+					return e
+				}
+				var pid int
+				if e = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); e != nil {
+					return e
+				}
+				if _, e = x.Exec(ctx, `INSERT INTO meeting_resolution_fixture.inputs(operation_id,input_id,snapshot_id) SELECT id,input_id,$2 FROM meeting_resolution_fixture.operations WHERE id=$1`, r.Consumer.OperationID, p.Details().SnapshotID.String()); e != nil {
+					return e
+				}
+				out, e = v.resolving.ResolveModelInTx(ctx, tx, r, p)
+				if e != nil {
+					return e
+				}
+				ready <- pid
+				select {
+				case <-release:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			})
+			done <- resolved{out, terminal}
+		}()
+		var holder int
+		select {
+		case holder = <-ready:
+		case <-ctx.Done():
+			t.Fatal("resolver did not reach provisional locked accept", ctx.Err())
+		}
+		type deletion struct {
+			receipt mc.CommandReceipt
+			err     error
+		}
+		deleteDone := make(chan deletion, 1)
+		deleteCtx, deleteCancel := context.WithTimeout(testContext(t), 3*time.Second)
+		request := mc.DeleteModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: old.ID, ExpectedVersion: old.Version, Replacement: &next.ID}
+		deleteJoined := false
+		var deleted deletion
+		joinDelete := func() deletion {
+			if !deleteJoined {
+				deleted = <-deleteDone
+				deleteJoined = true
+			}
+			return deleted
+		}
+		t.Cleanup(func() { finish(); deleteCancel(); joinDelete() })
+		go func() {
+			receipt, err := v.service.DeleteModel(deleteCtx, request)
+			deleteDone <- deletion{receipt, err}
+		}()
+		// Observe an actual waiter blocked by this exact final transaction in
+		// this owned database; a timed sleep or goroutine-start signal is not proof.
+		observeCtx, observeCancel := context.WithTimeout(testContext(t), 800*time.Millisecond)
+		defer observeCancel()
+		blocked := 0
+		for blocked == 0 {
+			e = v.raw.QueryRow(observeCtx, `SELECT coalesce(min(pid),0) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND $1::integer=ANY(pg_blocking_pids(pid))`, holder).Scan(&blocked)
+			if e != nil {
+				t.Fatal("delete never observed blocked by exact Resolver backend", e)
+			}
+			if blocked != 0 {
+				break
+			}
+			select {
+			case <-observeCtx.Done():
+				t.Fatal("exact PG blocking witness absent")
+			case <-time.After(5 * time.Millisecond):
+			}
+		}
+		select {
+		case deleted = <-deleteDone:
+			deleteJoined = true
+			t.Fatal("deletion completed while provisional Resolver transaction still held", deleted.err)
+		default:
+		}
+		accepted = finish()
+		deleted = joinDelete()
+		deleteCancel()
+		if accepted.terminal.State() != f.Committed || accepted.out.Snapshot.Identity.ModelID != old.ID || deleted.err != nil || deleted.receipt.AffectedReferences != 2 {
+			t.Fatal("actual Resolver/delete terminal composition", accepted.terminal.Fault(), deleted.err)
+		}
+		v.atomicFacts(t, r, p, 1)
+		summary := v.summary(t)
+		memory, e := v.service.GetPlatformSelection(testContext(t), v.admin)
+		if e != nil || summary.Model == nil || *summary.Model != next.ID || summary.Version != beforeSummary.Version+1 || memory.Configured == nil || memory.Configured.Memory != next.ID || memory.Version != beforeMemory.Version+1 {
+			t.Fatal("two distinct selector owners did not move atomically", e)
+		}
+		replay := v.resolve(t, r)
+		fresh := v.resolve(t, independentMeetingRequest(t, v, v.owner, v.project.ID, mc.MeetingSummaryInitial))
+		if !bytes.Equal(resolutionJSON(accepted.out.Snapshot), resolutionJSON(replay.Snapshot)) || fresh.Snapshot.Identity.ModelID != next.ID || fresh.Snapshot.ID == replay.Snapshot.ID {
+			t.Fatal("accepted old snapshot or fresh-call selection drifted")
+		}
+		t.Logf("exact owned PG blocking witness holder=%d waiter=%d; both transaction goroutines actually joined", holder, blocked)
+	})
+}
+
+func TestIndependentMeetingSummaryResolutionReplayAndAtomicity(t *testing.T) {
+	v := newMeetingResolutionFixture(t, true)
+	plain := independentPlainModel(t, v)
+	v.choose(t, plain.ID)
+	beforeSecret := v.tap.calls.Load()
+	plainOut := v.resolve(t, independentMeetingRequest(t, v, v.owner, v.project.ID, mc.MeetingSummaryInitial))
+	if plainOut.Snapshot.Identity.AdapterRevision != adapter.OpenAIChatTextRevision || len(plainOut.Snapshot.Capabilities.StructuredOutputModes) != 0 || plainOut.CredentialLease != nil || v.tap.calls.Load() != beforeSecret {
+		t.Fatal("plain/no-ref branch changed capability or contacted Secret")
+	}
+	provider, selected, _ := v.config(t, false, true)
+	v.choose(t, selected.ID)
+	r := independentMeetingRequest(t, v, v.owner, v.project.ID, mc.MeetingSummaryUpdate)
+	p := v.discover(t, r)
+	_, terminal := v.final(t, r, p, true, true)
+	if terminal.State() != f.NotCommitted {
+		t.Fatal("outer rollback accepted provisional state")
+	}
+	v.atomicFacts(t, r, p, 0)
+	accepted, terminal := v.final(t, r, p, true, false)
+	if terminal.State() != f.Committed || accepted.CredentialLease == nil || accepted.Snapshot.Identity.AdapterRevision != adapter.OpenAIChatStructuredRevision || !strings.Contains(string(resolutionJSON(accepted.Snapshot.Capabilities.StructuredOutputModes)), "json_schema") {
+		t.Fatal("structured referenced atomic accept failed", terminal.Fault())
+	}
+	v.atomicFacts(t, r, p, 1)
+	frozen, lease := resolutionJSON(accepted.Snapshot), accepted.CredentialLease.LeaseID
+	assertHistorical := func(out mc.ResolvedModel) {
+		t.Helper()
+		if !bytes.Equal(frozen, resolutionJSON(out.Snapshot)) || out.CredentialLease == nil || out.CredentialLease.LeaseID != lease {
+			t.Fatal("full durable snapshot/canonical lease changed")
+		}
+	}
+	assertHistorical(v.resolve(t, r))
+	different := v.resolve(t, independentMeetingRequest(t, v, v.owner, v.project.ID, mc.MeetingSummaryUpdate))
+	if different.CredentialLease == nil || different.CredentialLease.LeaseID == lease {
+		t.Fatal("different Call shared canonical lease")
+	}
+	provider.Input.Enabled = false
+	provider.Input.BaseURL = "https://independent-history.example/v2"
+	receipt, e := v.service.UpdateProvider(testContext(t), mc.UpdateProviderRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: provider.ID, ExpectedVersion: provider.Version, Input: provider.Input})
+	if e != nil {
+		t.Fatal(e)
+	}
+	provider.Version = receipt.Version
+	selected.Input.Enabled = false
+	receipt, e = v.service.UpdateModel(testContext(t), mc.UpdateModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: selected.ID, ExpectedVersion: selected.Version, Input: selected.Input})
+	if e != nil {
+		t.Fatal(e)
+	}
+	selected.Version = receipt.Version
+	assertHistorical(v.resolve(t, r))
+	v.choose(t, plain.ID)
+	if _, e = v.service.DeleteModel(testContext(t), mc.DeleteModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: selected.ID, ExpectedVersion: selected.Version, Replacement: &plain.ID}); e != nil {
+		t.Fatal(e)
+	}
+	if _, e = v.service.DeleteProvider(testContext(t), mc.DeleteProviderRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: provider.ID, ExpectedVersion: provider.Version}); e != nil {
+		t.Fatal(e)
+	}
+	assertHistorical(v.resolve(t, r))
+	r.Actor = v.identity.login(t, v.identity.ownerBrowser.email).actor
+	_, terminal = v.final(t, r, p, false, false)
+	if terminal.State() != f.NotCommitted {
+		t.Fatal("new Session reused old in-memory plan")
+	}
+	restarted := bindMeetingResolution(t, v.projectConfigurationFixture, v.identity)
+	assertHistorical(restarted.resolve(t, r))
+	for _, kind := range []string{"purpose", "meeting", "operation"} {
+		changed := r.Clone()
+		switch kind {
+		case "purpose":
+			changed.Purpose = mc.MeetingSummaryInitial
+			changed.Consumer.Purpose = changed.Purpose
+		case "meeting":
+			changed.Consumer.MeetingID = newID[struct{}](t).String()
+		case "operation":
+			changed.Consumer.OperationID = newID[struct{}](t).String()
+		}
+		v.bindFacts(t, changed)
+		plan, e := restarted.resolving.DiscoverResolve(testContext(t), changed)
+		resolutionZeroPlan(t, plan, e)
+		requireCode(t, e, f.IdempotencyKeyReused)
+		v.bindFacts(t, r)
+	}
+	assertHistorical(restarted.resolve(t, r))
+	v.sql(t, `UPDATE meeting_resolution_fixture.operations SET phase='cancelled',version=version+1 WHERE id=$1`, r.Consumer.OperationID)
+	out, e := restarted.resolving.ResolveModel(testContext(t), r)
+	resolutionNoResult(t, out, e)
+	requireCode(t, e, f.Forbidden)
+	independentUnitFacts(t, v, r, 1, 1, 1)
+	fresh := restarted.resolve(t, independentMeetingRequest(t, v, r.Actor, v.project.ID, mc.MeetingSummaryInitial))
+	if fresh.Snapshot.Identity.ModelID != plain.ID || fresh.CredentialLease != nil || fresh.Snapshot.ID == accepted.Snapshot.ID {
+		t.Fatal("new legitimate Call did not observe current plain selection")
+	}
+
+	_, unknownModel, _ := v.config(t, false, true)
+	v.choose(t, unknownModel.ID)
+	t.Run("final-real-commit-decorated-unknown-reenters-exact-state", func(t *testing.T) {
+		request := independentMeetingRequest(t, v, r.Actor, v.project.ID, mc.MeetingSummaryUpdate)
+		v.arm(t, 3, false, true, nil)
+		out, e := v.resolving.ResolveModel(testContext(t), request)
+		resolutionNoResult(t, out, e)
+		var unknown *model.UnknownCommandError
+		if !errors.As(e, &unknown) {
+			t.Fatal("Unknown type lost", e)
+		}
+		v.observed.mu.Lock()
+		actual, returned, seen := v.observed.actual, v.observed.returned, v.observed.seen
+		v.observed.target = 0
+		v.observed.mu.Unlock()
+		if seen != 3 || actual.State() != f.Committed || returned.State() != f.Unknown || unknown.AttemptID() != returned.AttemptID() || unknown.Cause().Details().Primary.Canonical() != returned.Cause().Details().Primary.Canonical() {
+			t.Fatal("wrong stage or replaced Unknown provenance")
+		}
+		independentUnitFacts(t, v, request, 1, 1, 1)
+		var savedSnapshot, savedLease string
+		if e = v.raw.QueryRow(testContext(t), `SELECT b.snapshot_id::text,l.id::text FROM agenteam_model.snapshot_bindings b JOIN agenteam_secret.secret_leases l ON l.owner_id=b.owner_id AND l.owner_kind=b.owner_kind WHERE b.project_id=$1 AND b.owner_id=$2`, request.Consumer.ProjectID.String(), request.LeaseOwner.Details().ID).Scan(&savedSnapshot, &savedLease); e != nil {
+			t.Fatal(e)
+		}
+		reentered := v.resolve(t, request)
+		if reentered.Snapshot.ID.String() != savedSnapshot || reentered.CredentialLease == nil || reentered.CredentialLease.LeaseID.String() != savedLease {
+			t.Fatal("Unknown reentry replaced committed canonical facts")
+		}
+		independentUnitFacts(t, v, request, 1, 1, 1)
+	})
+	t.Run("prepare-real-rollback-unknown-missing-row-still-waits-writer", func(t *testing.T) {
+		request := independentMeetingRequest(t, v, r.Actor, v.project.ID, mc.MeetingSummaryInitial)
+		v.arm(t, 2, true, true, nil)
+		plan, e := v.resolving.DiscoverResolve(testContext(t), request)
+		resolutionZeroPlan(t, plan, e)
+		var unknown *model.UnknownCommandError
+		if !errors.As(e, &unknown) {
+			t.Fatal("preparation Unknown type lost", e)
+		}
+		v.observed.mu.Lock()
+		actual, returned, seen := v.observed.actual, v.observed.returned, v.observed.seen
+		v.observed.target = 0
+		v.observed.mu.Unlock()
+		if seen != 2 || actual.State() != f.NotCommitted || returned.State() != f.Unknown || unknown.AttemptID() != returned.AttemptID() || unknown.Cause().Details().Primary.Canonical() != returned.Cause().Details().Primary.Canonical() {
+			t.Fatal("wrong prepare stage or replaced Unknown provenance")
+		}
+		independentUnitFacts(t, v, request, 0, 0, 0)
+		key, e := f.CommandLock(returned.Cause().Details().Primary)
+		if e != nil {
+			t.Fatal(e)
+		}
+		release := v.hold(t, f.LockRequest{Key: key, Mode: f.Exclusive})
+		ctx, cancel := context.WithTimeout(testContext(t), 150*time.Millisecond)
+		out, e := v.resolving.ResolveModel(ctx, request)
+		cancel()
+		resolutionNoResult(t, out, e)
+		independentUnitFacts(t, v, request, 0, 0, 0)
+		release()
+		v.resolve(t, request)
+		independentUnitFacts(t, v, request, 1, 1, 1)
+	})
+	t.Log("independent real transaction result decoration only; no physical COMMIT ACK-loss or D24 generation claim")
+}

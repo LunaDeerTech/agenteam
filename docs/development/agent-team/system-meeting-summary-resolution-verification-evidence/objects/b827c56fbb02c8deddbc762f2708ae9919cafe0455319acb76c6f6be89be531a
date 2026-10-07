@@ -1,0 +1,124 @@
+{
+  "status": "OFFLINE PASS; INDEPENDENT REAL A/B PENDING",
+  "candidate": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/candidate03/manifest.json",
+    "sha256": "ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9"
+  },
+  "private_probe": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/independent_meeting_resolution_test.go",
+    "sha256": "9ffba649dae0ffa42dec104898f0e771adf35a6dbad5c7973c0aa40e2f09aa93"
+  },
+  "correction": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/private-fix.diff",
+    "sha256": "e018fd03895d70aa03b1ac8c461d8db5781ffc6616ae55a55fe711370e412137"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json",
+    "sha256": "a7d19ff525624cb19345dcfef038324b98c95afdd349cc011507d2d273ec8908"
+  },
+  "closure_delta": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/closure-delta-final.json",
+    "sha256": "87ec8eceb0dd4a1dc798514ca531c3a2018b8a128f82dc3d32cedbee8cdd8073"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/actual-graph.json",
+    "sha256": "92f52c2f0e27377edd3f32442007ab40b45c76a176dee4b19fcdcb9ba57fe8a0"
+  },
+  "graph_counts": {
+    "packages": 397,
+    "files": 2491,
+    "outside": 0
+  },
+  "driver": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/driver.py",
+    "sha256": "feff2997a0c24cb9dd2a80399c5698d60344f8d179d5d46c7195da7e867c0150"
+  },
+  "frozen": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/frozen.json",
+    "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+  },
+  "compiled_binary": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/integration-race.test",
+    "sha256": "ae9df302ef54523f268df38f43de9b7e341ed3859fcd4fc7aaa55c79332de548"
+  },
+  "commands": [
+    {
+      "label": "p05-format",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/result.json",
+        "sha256": "41a876f54845c2cec62eb420a8654936b9a453706a23eaf6afa166afadfe9d63"
+      },
+      "execution_seconds": 0.029798153000228922,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    },
+    {
+      "label": "p06-race-graph",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/result.json",
+        "sha256": "ade3b652aca2a04a70e5bc9218d8759c13630365a26ee34d7d4e57ac8f110fb3"
+      },
+      "execution_seconds": 0.2029282780003996,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    },
+    {
+      "label": "p07-race-compile",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/result.json",
+        "sha256": "9bd40dc4920f36f3d42d13feed289a3e46a9f1e749c8486f5216cc6b1a24a01a"
+      },
+      "execution_seconds": 5.662594663999698,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    },
+    {
+      "label": "p08-list",
+      "result": {
+        "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/result.json",
+        "sha256": "9e882649821df07df76d38eb5bfa0acb7960d337ed5227b8f6d2b70d490e5d8b"
+      },
+      "execution_seconds": 1.0213121420001698,
+      "actual_exit": 0,
+      "actual_wait": true,
+      "owned_checks_empty": true,
+      "adopted_waits": 0
+    }
+  ],
+  "retained_first_failure": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/result.json",
+    "sha256": "7c35699e25c834c845797ac45d463985da26cd2469be8a38eb2098296199924a"
+  },
+  "driver_reuse": {
+    "author": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v02/driver.py",
+      "sha256": "f827c10c756adb84b6088881b837a0a0d006b7e83223ff53168edd7979652573"
+    },
+    "unchanged_functions": [
+      "sha",
+      "load_bound",
+      "digest",
+      "runtime_environment",
+      "processes",
+      "observe_processes",
+      "reap_adopted",
+      "retire_owned",
+      "TopWatchdog",
+      "watch_output",
+      "utc",
+      "write",
+      "command",
+      "resources",
+      "resource_topology",
+      "main"
+    ],
+    "only_changed_function": "source_input: merge private closure delta and require actual graph"
+  },
+  "resources_executed": false
+}

@@ -1,0 +1,35 @@
+--- author-frozen-v01
++++ independent-draft-v01
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Frozen Meeting Summary S3 fixture runner. --execute-authorized requires root's resource window."""
++"""Frozen independent Meeting Summary S3 fixture runner. --execute-authorized requires root's resource window."""
+ import argparse
+ import ctypes
+ import datetime
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+-GROUPS = {'new-selection-authorization': ['TestModelMeetingSummaryResolutionSelection', 'TestModelMeetingSummaryResolutionAuthorization'], 'new-atomicity-replay': ['TestModelMeetingSummaryResolutionAtomicity', 'TestModelMeetingSummaryResolutionReplay'], 'new-unknown': ['TestModelMeetingSummaryResolutionUnknown'], 'old': ['TestModelCurrentResolutionSelection', 'TestModelCurrentResolutionReplay', 'TestModelCurrentResolutionAtomicity', 'TestModelCurrentResolutionCanonicalLease', 'TestModelCurrentResolutionAuthorization', 'TestModelCurrentResolutionUnknown', 'TestModelMeetingSummarySelection', 'TestModelMeetingSummaryReplacement']}
++GROUPS = {'new-independent-a': ['TestIndependentMeetingSummaryResolutionAuthorityAndSelection'], 'new-independent-b': ['TestIndependentMeetingSummaryResolutionReplayAndAtomicity']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -46,7 +46,15 @@
+ 
+ 
+ def source_input():
+-    closure = load_bound(FROZEN['closure'])
++    delta = load_bound(FROZEN['closure'])
++    if not delta.get('independent_graph'):
++        return {'accepted': False, 'reason': 'private overlay actual graph/compile/list still pending; STATIC draft cannot run resources'}
++    load_bound(delta['independent_graph'])
++    closure = load_bound(delta['base_closure'])
++    closure['overlay'] = delta['overlay']
++    closure['files'].update(delta['files'])
++    for directory, additions in delta['package_file_additions'].items():
++        closure['package_file_sets'][directory]['names'] = sorted(set(closure['package_file_sets'][directory]['names']) | set(additions))
+     candidate = load_bound(closure['candidate'])
+     overlay = load_bound(closure['overlay'])['Replace']
+     expected = {p: row['sha256'] for p, row in closure['files'].items()}

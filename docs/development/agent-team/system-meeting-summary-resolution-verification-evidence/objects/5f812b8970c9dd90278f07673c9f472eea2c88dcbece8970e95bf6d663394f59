@@ -1,0 +1,115 @@
+from pathlib import Path
+import ctypes,hashlib,json,os,signal,subprocess,sys,time
+
+B=Path('/workspace/scratch/summary-resolution-static-verification/probes03')
+R=Path('/workspace/agenteam')
+SUFFIX={'.go','.s','.S','.c','.h','.cc','.cpp','.cxx','.m','.mm','.f','.F','.for','.f90','.swig','.swigcxx','.syso'}
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def load(row):
+ assert sha(row['path'])==row['sha256'],row['path']
+ return json.loads(Path(row['path']).read_bytes())
+def write(p,v):p.write_text(json.dumps(v,indent=2)+'\n')
+assert sha(B/'offline-plan.json')=='b2c8f398f0f9b0a4d8ddb201ba277be8a63715228ad2e72b100d8f94fe5f5cf9'
+PLAN=json.loads((B/'offline-plan.json').read_bytes())
+assert sha(B/'closure-delta.json')=='92f426e0dced4ee85dd18712c37f0afc7b4f1356db3a2a77239edb032221b18d'
+DELTA=json.loads((B/'closure-delta.json').read_bytes())
+def inputs():
+ c=load(DELTA['base_closure']);candidate=load(c['candidate']);overlay=load(DELTA['overlay'])['Replace']
+ expected={p:v['sha256'] for p,v in c['files'].items()}
+ expected.update({p:v['sha256'] for p,v in DELTA['files'].items()});expected.update(PLAN['tools'])
+ expected.update({str(Path(__file__)):sha(__file__),str(B/'offline-plan.json'):'b2c8f398f0f9b0a4d8ddb201ba277be8a63715228ad2e72b100d8f94fe5f5cf9'})
+ actual={p:sha(p) for p in expected};assert actual==expected,'effective input byte drift'
+ for directory,row in c['package_file_sets'].items():
+  names={p.name for p in Path(directory).iterdir() if p.is_file() and (p.suffix in SUFFIX or row['embed_directory'])}
+  for virtual,backing in overlay.items():
+   p=Path(virtual)
+   if str(p.parent)==directory:
+    if not backing:names.discard(p.name)
+    elif p.suffix in SUFFIX or row['embed_directory']:names.add(p.name)
+  want=set(row['names'])|set(DELTA['package_file_additions'].get(directory,[]))
+  assert names==want,('effective package file set drift',directory,sorted(names^want))
+ assert all(sha(R/p)==wanted for p,wanted in candidate['files'].items()),'candidate repository drift'
+ return {'accepted':True,'files_count':len(actual),'digest':hashlib.sha256(json.dumps(actual,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'candidate':c['candidate'],'overlay':DELTA['overlay'],'closure':DELTA['base_closure']}
+def processes():
+ out={}
+ for p in Path('/proc').iterdir():
+  if not p.name.isdigit():continue
+  try:
+   z=(p/'stat').read_text().rsplit(') ',1)[1].split()
+   out[int(p.name)]={'pid':int(p.name),'starttime':z[19],'ppid':int(z[1]),'pgrp':int(z[2]),'state':z[0]}
+  except (FileNotFoundError,ProcessLookupError):pass
+ return out
+def observe(main,known):
+ now=processes();owned={main}|{p for p,v in now.items() if v['ppid']==os.getpid()}
+ while True:
+  enlarged=owned|{p for p,v in now.items() if v['ppid'] in owned}
+  if enlarged==owned:break
+  owned=enlarged
+ for p in owned:
+  if p in now:known[str(p)+':'+now[p]['starttime']]=now[p]
+ return now
+def live(main,known):
+ now=observe(main,known)
+ return [v for v in known.values() if v['pid'] in now and now[v['pid']]['starttime']==v['starttime']]
+def signal_owned(rows,sig,actions):
+ now=processes()
+ for row in rows:
+  p=row['pid'];cur=now.get(p)
+  if cur and cur['starttime']==row['starttime'] and cur['state']!='Z':
+   try:os.kill(p,sig)
+   except ProcessLookupError:continue
+   actions.append({'pid':p,'starttime':row['starttime'],'signal':sig.name})
+
+label=sys.argv[1];command=next(x for x in PLAN['commands'] if x['label']==label)
+run=B/'offline'/label;run.mkdir(parents=True,exist_ok=False)
+before=inputs();write(run/'input-before.json',before)
+Path(PLAN['environment']['TMPDIR']).mkdir(exist_ok=True)
+assert ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0
+tool_before=sha(command['argv'][0]);started=time.monotonic();known={};actions=[];waits=[]
+record={'argv':command['argv'],'env':PLAN['environment'],'cwd':PLAN['cwd'],'budget_seconds':45,'driver_sha256':sha(__file__),'tool_before_sha256':tool_before,'started_unix':time.time(),'subreaper':True}
+write(run/'command.json',record)
+with (run/'stdout.log').open('xb') as out,(run/'stderr.log').open('xb') as err:
+ child=subprocess.Popen(command['argv'],cwd=PLAN['cwd'],env=PLAN['environment'],stdout=out,stderr=err,start_new_session=True)
+ observe(child.pid,known)
+ while child.poll() is None:
+  observe(child.pid,known)
+  if time.monotonic()-started>=45:
+   signal_owned(live(child.pid,known),signal.SIGTERM,actions)
+   try:child.wait(timeout=3)
+   except subprocess.TimeoutExpired:signal_owned(live(child.pid,known),signal.SIGKILL,actions)
+   break
+  time.sleep(.025)
+ code=child.wait()
+terminal=time.monotonic()
+tail_started=time.monotonic();sent=set()
+while True:
+ now=observe(child.pid,known)
+ try:
+  while True:
+   pid,status=os.waitpid(-1,os.WNOHANG)
+   if not pid:break
+   identity=next((v for v in known.values() if v['pid']==pid),None)
+   waits.append({'pid':pid,'identity':identity,'status':status,'actual_wait':True})
+ except ChildProcessError:pass
+ remaining=live(child.pid,known)
+ if not remaining:break
+ sig=signal.SIGKILL if time.monotonic()-tail_started>=3 else signal.SIGTERM
+ fresh=[r for r in remaining if (r['pid'],r['starttime'],sig) not in sent]
+ signal_owned(fresh,sig,actions)
+ sent.update((r['pid'],r['starttime'],sig) for r in fresh);time.sleep(.025)
+cleanup=[]
+for i in range(2):
+ cleanup.append({'time':time.time(),'remaining':live(child.pid,known)})
+ if i==0:time.sleep(.1)
+after=inputs();write(run/'input-after.json',after)
+extra=True
+if label=='p05-format':extra=(run/'stdout.log').stat().st_size==0
+if label=='p08-list':
+ names=(run/'stdout.log').read_text().splitlines()
+ extra=sorted(names)==sorted(['TestIndependentMeetingSummaryResolutionAuthorityAndSelection','TestIndependentMeetingSummaryResolutionReplayAndAtomicity'])
+record.update(actual_exit=code,actual_wait=True,execution_seconds=terminal-started,total_seconds=time.monotonic()-started,observed_processes=list(known.values()),adopted_waits=waits,cleanup_actions=actions,cleanup_twice=cleanup,input_unchanged=before==after,tool_after_sha256=sha(command['argv'][0]),stdout_sha256=sha(run/'stdout.log'),stderr_sha256=sha(run/'stderr.log'),success_extra=extra)
+record['passed']=code==0 and not actions and before==after and tool_before==record['tool_after_sha256'] and extra and all(not c['remaining'] for c in cleanup)
+if label=='p07-race-compile' and code==0:record['binary_sha256']=sha(B/'integration-race.test')
+write(run/'result.json',record)
+print(json.dumps({k:record[k] for k in ['actual_exit','actual_wait','execution_seconds','total_seconds','input_unchanged','passed']}),flush=True)
+raise SystemExit(0 if record['passed'] else 1)

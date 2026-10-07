@@ -1,0 +1,1700 @@
+{
+  "status": "S3 bounded17path product accepted by root; commit and remote confirmation supplied by root",
+  "product_commit": "baa6ffac7bdf87dea6f052704e509d7b547e9886",
+  "product_baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "candidate_manifest_sha256": "ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9",
+  "stored": {
+    "/workspace/scratch/meeting-summary-s3-author/author-report01.md": {
+      "sha256": "a1cf52179dfff6a99ae741b0512ec4f82392fe974dd98b72af7d266874304456",
+      "bytes": 7014,
+      "object": "objects/a1cf52179dfff6a99ae741b0512ec4f82392fe974dd98b72af7d266874304456"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/author-runs01.json": {
+      "sha256": "df66ac01d967d5df95e5b3688680001ddbd96676a4126e5705483fd9cb076f77",
+      "bytes": 13061,
+      "object": "objects/df66ac01d967d5df95e5b3688680001ddbd96676a4126e5705483fd9cb076f77"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/candidate03/manifest.json": {
+      "sha256": "ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9",
+      "bytes": 2975,
+      "object": "objects/ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/candidate03/attribution.md": {
+      "sha256": "f71e6d42ca62178fb126a919e79971fa9d4497b36ce542f868df90553c4300c1",
+      "bytes": 2051,
+      "object": "objects/f71e6d42ca62178fb126a919e79971fa9d4497b36ce542f868df90553c4300c1"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/candidate03/new1-failure-index.json": {
+      "sha256": "5388d59984738eea8098ada53c1c57e4fba7429b57a7d72c54b1cdcd12471466",
+      "bytes": 2098,
+      "object": "objects/5388d59984738eea8098ada53c1c57e4fba7429b57a7d72c54b1cdcd12471466"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/candidate03/source.diff": {
+      "sha256": "4e3ddcffe0344dc821eb77630c35bde02043195a8295c96f13d4a7946245b4e1",
+      "bytes": 1901,
+      "object": "objects/4e3ddcffe0344dc821eb77630c35bde02043195a8295c96f13d4a7946245b4e1"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03/overlay.json": {
+      "sha256": "c4667f84bee5660fb6f9a2cb8586da62bb02937f2b2c2fcbfc2219982bc2f12c",
+      "bytes": 5079,
+      "object": "objects/c4667f84bee5660fb6f9a2cb8586da62bb02937f2b2c2fcbfc2219982bc2f12c"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03/proposal.md": {
+      "sha256": "977ae62ee698dabe3e753e5719e9dbc5c17ed5b9a80f610228dca28c2a239866",
+      "bytes": 588,
+      "object": "objects/977ae62ee698dabe3e753e5719e9dbc5c17ed5b9a80f610228dca28c2a239866"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/provenance.json": {
+      "sha256": "d2ad9ffe0b3a027cf7202ebf710a5b895b42fa2664627fab7fbe840872a118ad",
+      "bytes": 12628,
+      "object": "objects/d2ad9ffe0b3a027cf7202ebf710a5b895b42fa2664627fab7fbe840872a118ad"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/unit-results.json": {
+      "sha256": "333bf6fe175628245532809882f2342659a8426eeb510e5f8c1e83ce33e9ecf0",
+      "bytes": 844,
+      "object": "objects/333bf6fe175628245532809882f2342659a8426eeb510e5f8c1e83ce33e9ecf0"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/compile-results.json": {
+      "sha256": "a448589ebffc8899351f5a12edb671bdcf3942d8f915ec4a82cb1f74442abbc9",
+      "bytes": 2177,
+      "object": "objects/a448589ebffc8899351f5a12edb671bdcf3942d8f915ec4a82cb1f74442abbc9"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-result01.json": {
+      "sha256": "ed9530fe06be83c8d6b208de690841689a58ca863629eb281b033e72d24e83ba",
+      "bytes": 2439,
+      "object": "objects/ed9530fe06be83c8d6b208de690841689a58ca863629eb281b033e72d24e83ba"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-input01.json": {
+      "sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+      "bytes": 8573,
+      "object": "objects/6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-launch00.json": {
+      "sha256": "d20364c3fd0d44e390a6369ae9ab19b18fe14f69086d485899fe9eac6d2b1aa2",
+      "bytes": 439,
+      "object": "objects/d20364c3fd0d44e390a6369ae9ab19b18fe14f69086d485899fe9eac6d2b1aa2"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-list01/driver-failure.txt": {
+      "sha256": "244dbd4ca20466425ed2ca5ec25a51dbd3d6ba89dd00a07f5c2c8e84d594a332",
+      "bytes": 298,
+      "object": "objects/244dbd4ca20466425ed2ca5ec25a51dbd3d6ba89dd00a07f5c2c8e84d594a332"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-contract01.py": {
+      "sha256": "696d510ef31b171c3b1bf323ee65b2b729878d69bae7c593d8690506ee0d5358",
+      "bytes": 6433,
+      "object": "objects/696d510ef31b171c3b1bf323ee65b2b729878d69bae7c593d8690506ee0d5358"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-contract02.py": {
+      "sha256": "e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7",
+      "bytes": 6431,
+      "object": "objects/e397cc1c20320eef74a2252cf93d2b643bb5ebc65f44ac90e5d1c51c84d43cf7"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/driver.py": {
+      "sha256": "b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505",
+      "bytes": 7474,
+      "object": "objects/b5e1a4a250a405ce3990e06caca1d34c10d20ff10cdc470220dff74cf25ef505"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/driver03.py": {
+      "sha256": "b20bb5f315f6b8547df74e2400d83b0cdeee3e093831bdb4bc41e6e6a8294da0",
+      "bytes": 7478,
+      "object": "objects/b20bb5f315f6b8547df74e2400d83b0cdeee3e093831bdb4bc41e6e6a8294da0"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03/driver.py": {
+      "sha256": "5490eee51e71417d88eb78620d17fcf6dcaae5692f1e489fc612ecb463bd1050",
+      "bytes": 7474,
+      "object": "objects/5490eee51e71417d88eb78620d17fcf6dcaae5692f1e489fc612ecb463bd1050"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/collect-graph01.py": {
+      "sha256": "d588ed7d65599c9c72e046dffd6754ab53184d8993cbf202b419828583a14695",
+      "bytes": 2047,
+      "object": "objects/d588ed7d65599c9c72e046dffd6754ab53184d8993cbf202b419828583a14695"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/collect-graph02.py": {
+      "sha256": "8aa4672c295c81ff599d30afbb8af1b5783e30636a48caa169b3c7c1657d4905",
+      "bytes": 2027,
+      "object": "objects/8aa4672c295c81ff599d30afbb8af1b5783e30636a48caa169b3c7c1657d4905"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay02/collect-graph03.py": {
+      "sha256": "2d37578afb47acf82e439bd2db1b0cc94f53097f917c651eefe10771b4321f26",
+      "bytes": 2029,
+      "object": "objects/2d37578afb47acf82e439bd2db1b0cc94f53097f917c651eefe10771b4321f26"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/driver.py": {
+      "sha256": "f827c10c756adb84b6088881b837a0a0d006b7e83223ff53168edd7979652573",
+      "bytes": 24620,
+      "object": "objects/f827c10c756adb84b6088881b837a0a0d006b7e83223ff53168edd7979652573"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/frozen.json": {
+      "sha256": "4f1211ec2133878d22dfec0e0ae5113aebaba7fd2f48e15da6c31b76aeb5bce6",
+      "bytes": 12268,
+      "object": "objects/4f1211ec2133878d22dfec0e0ae5113aebaba7fd2f48e15da6c31b76aeb5bce6"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runtime-read-inventory.json": {
+      "sha256": "e2e69ed5f6dae064750f1ce0df2802b8c58c58f62e46ca54ddd253fe1b002db4",
+      "bytes": 3848,
+      "object": "objects/e2e69ed5f6dae064750f1ce0df2802b8c58c58f62e46ca54ddd253fe1b002db4"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/driver.py": {
+      "sha256": "f827c10c756adb84b6088881b837a0a0d006b7e83223ff53168edd7979652573",
+      "bytes": 24620,
+      "object": "objects/f827c10c756adb84b6088881b837a0a0d006b7e83223ff53168edd7979652573"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/frozen.json": {
+      "sha256": "5ff40ee0d01f8317c636d9d04f32257b943bccc65795ce637f78861c3a29518b",
+      "bytes": 12270,
+      "object": "objects/5ff40ee0d01f8317c636d9d04f32257b943bccc65795ce637f78861c3a29518b"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/candidate03-review/review.md": {
+      "sha256": "4bb8a5d5c58495aa2fed1f03084d4f6a5037ee836bcec3581076f27cf8e64a1a",
+      "bytes": 4124,
+      "object": "objects/4bb8a5d5c58495aa2fed1f03084d4f6a5037ee836bcec3581076f27cf8e64a1a"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/candidate03-review/result.json": {
+      "sha256": "a1bb4e9b3025eb4b881f7130bcb13d82fa5649f7215ba3c319899b2d85f7b34b",
+      "bytes": 6320,
+      "object": "objects/a1bb4e9b3025eb4b881f7130bcb13d82fa5649f7215ba3c319899b2d85f7b34b"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/command.json": {
+      "sha256": "05a24e61b367970127ac0affa78ecde0b59446c66b28cc150f35bb2898401a41",
+      "bytes": 1963,
+      "object": "objects/05a24e61b367970127ac0affa78ecde0b59446c66b28cc150f35bb2898401a41"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/raw.log": {
+      "sha256": "3ce737581400a0d5280049ab5fa3630595e983cc17cae0d135cf7360daa36f1a",
+      "bytes": 10001,
+      "object": "objects/3ce737581400a0d5280049ab5fa3630595e983cc17cae0d135cf7360daa36f1a"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/result.json": {
+      "sha256": "d5508034ea1e0ae431d573f975243f3653454e0fd02871205d2317a1b78e598c",
+      "bytes": 12537,
+      "object": "objects/d5508034ea1e0ae431d573f975243f3653454e0fd02871205d2317a1b78e598c"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/cleanup.json": {
+      "sha256": "e565a29c6d540e1c3f2a56b2f6c4b07a8b812d43316d17366726e1ab31eccfae",
+      "bytes": 27805,
+      "object": "objects/e565a29c6d540e1c3f2a56b2f6c4b07a8b812d43316d17366726e1ab31eccfae"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/watchdog.json": {
+      "sha256": "a8846b943ea8efac253c0307439ee424da0ae011714df91fcf26014523f70771",
+      "bytes": 956,
+      "object": "objects/a8846b943ea8efac253c0307439ee424da0ae011714df91fcf26014523f70771"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/input-before.json": {
+      "sha256": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34",
+      "bytes": 567,
+      "object": "objects/d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/input-after.json": {
+      "sha256": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34",
+      "bytes": 567,
+      "object": "objects/d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/observed-resources.json": {
+      "sha256": "67ca0778d1283ec175abb06a4922fbdfb58b80a2ff7e7941f8dca843af82cf67",
+      "bytes": 5013,
+      "object": "objects/67ca0778d1283ec175abb06a4922fbdfb58b80a2ff7e7941f8dca843af82cf67"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/observed-processes.json": {
+      "sha256": "15492d5cb52d5b82acbe2d21182c0e52c34a4fc903f14fc599b5aaa28cc4458c",
+      "bytes": 15669,
+      "object": "objects/15492d5cb52d5b82acbe2d21182c0e52c34a4fc903f14fc599b5aaa28cc4458c"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/baseline.json": {
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/process-baseline.json": {
+      "sha256": "58c7e3cbb13ecd383353ea9b640d7e00e455a23f0973b17c69b6db931f3a3604",
+      "bytes": 11457,
+      "object": "objects/58c7e3cbb13ecd383353ea9b640d7e00e455a23f0973b17c69b6db931f3a3604"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/disk-preflight.json": {
+      "sha256": "c29c8c87069735d36201f0908fdfb7d0775e99e6f195a5cbbaa26c5315dc97db",
+      "bytes": 183,
+      "object": "objects/c29c8c87069735d36201f0908fdfb7d0775e99e6f195a5cbbaa26c5315dc97db"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/disk-before-spawn.json": {
+      "sha256": "e76c2e0ab1ab1c2ba5a8d54ef9b46f7bd7378efe17c1e6a2c3feff5795b5808c",
+      "bytes": 183,
+      "object": "objects/e76c2e0ab1ab1c2ba5a8d54ef9b46f7bd7378efe17c1e6a2c3feff5795b5808c"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/verification-input.json": {
+      "sha256": "db78355ebd646b49809a55784c6c3c8aae2fffa31ac44386456e99c3f781a637",
+      "bytes": 183,
+      "object": "objects/db78355ebd646b49809a55784c6c3c8aae2fffa31ac44386456e99c3f781a637"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/owned-tail-retirement.json": {
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/command.json": {
+      "sha256": "a60ef97a4af36216247c666e9ead438c7c48aa13a8c849f4c53ba877a27367c1",
+      "bytes": 2002,
+      "object": "objects/a60ef97a4af36216247c666e9ead438c7c48aa13a8c849f4c53ba877a27367c1"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/raw.log": {
+      "sha256": "69f5f201ecc625ae3cb09de5b836317f74279ddb217ea5cf7053c81936c53447",
+      "bytes": 9604,
+      "object": "objects/69f5f201ecc625ae3cb09de5b836317f74279ddb217ea5cf7053c81936c53447"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/result.json": {
+      "sha256": "47e4852ce7c5cb8e405d94f54593092380629a891d4f2373c421bf148380102b",
+      "bytes": 13176,
+      "object": "objects/47e4852ce7c5cb8e405d94f54593092380629a891d4f2373c421bf148380102b"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/cleanup.json": {
+      "sha256": "edad2e26683328cdabf1ebec78c1b92744137d4423dff3787a59b4fefff9a10f",
+      "bytes": 29189,
+      "object": "objects/edad2e26683328cdabf1ebec78c1b92744137d4423dff3787a59b4fefff9a10f"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/watchdog.json": {
+      "sha256": "9d830ed367ec88da949c114a053f9b4c658ab7930600749369b55de3ba6a8496",
+      "bytes": 956,
+      "object": "objects/9d830ed367ec88da949c114a053f9b4c658ab7930600749369b55de3ba6a8496"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/input-before.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/input-after.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/observed-resources.json": {
+      "sha256": "2f3c7928d800fed64ad52c428e6422f096800494778d4d90d3167a64eab1907a",
+      "bytes": 5043,
+      "object": "objects/2f3c7928d800fed64ad52c428e6422f096800494778d4d90d3167a64eab1907a"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/observed-processes.json": {
+      "sha256": "f099a283b8bc95a674d281d3454ee0a76fb26a82986da825935820af316fc774",
+      "bytes": 13920,
+      "object": "objects/f099a283b8bc95a674d281d3454ee0a76fb26a82986da825935820af316fc774"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/baseline.json": {
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/process-baseline.json": {
+      "sha256": "3f89bceafd92845a8693e18e72f4692348f6a0e38d375379fe332667cb626dc6",
+      "bytes": 11985,
+      "object": "objects/3f89bceafd92845a8693e18e72f4692348f6a0e38d375379fe332667cb626dc6"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/disk-preflight.json": {
+      "sha256": "701b50febffe8175716d5ca4ad370212d58846d288a82a2c8b9d37a9356c4821",
+      "bytes": 183,
+      "object": "objects/701b50febffe8175716d5ca4ad370212d58846d288a82a2c8b9d37a9356c4821"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/disk-before-spawn.json": {
+      "sha256": "dfe81ab574f50399690da0003f6fa83459bd0089a83d45873f0b595a7e113792",
+      "bytes": 183,
+      "object": "objects/dfe81ab574f50399690da0003f6fa83459bd0089a83d45873f0b595a7e113792"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/verification-input.json": {
+      "sha256": "7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f",
+      "bytes": 183,
+      "object": "objects/7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new1-rerun/owned-tail-retirement.json": {
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/command.json": {
+      "sha256": "771342ed3f12f05c8037d152723fea98bd92c0a1a02985f4c4d51fbf714664b5",
+      "bytes": 1875,
+      "object": "objects/771342ed3f12f05c8037d152723fea98bd92c0a1a02985f4c4d51fbf714664b5"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/raw.log": {
+      "sha256": "d5ef3a53d16a964f42b975b3ee971f94740cecb1e4403743a46bbcac87ba3eb3",
+      "bytes": 6938,
+      "object": "objects/d5ef3a53d16a964f42b975b3ee971f94740cecb1e4403743a46bbcac87ba3eb3"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/result.json": {
+      "sha256": "5f8d3bb0044db923758be8a66e9cde30ee6b7e03f44c8113bedfb0e05b3213be",
+      "bytes": 13785,
+      "object": "objects/5f8d3bb0044db923758be8a66e9cde30ee6b7e03f44c8113bedfb0e05b3213be"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/cleanup.json": {
+      "sha256": "ff1ed080a14e62f7b0867e2cdfd7b81670d9510a11fe9ef9532f70bfabbf5159",
+      "bytes": 30573,
+      "object": "objects/ff1ed080a14e62f7b0867e2cdfd7b81670d9510a11fe9ef9532f70bfabbf5159"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/watchdog.json": {
+      "sha256": "ecadd5bbf0b247bb30af91ac0472596a07692a34e7eb4fcf876e332709e479f9",
+      "bytes": 934,
+      "object": "objects/ecadd5bbf0b247bb30af91ac0472596a07692a34e7eb4fcf876e332709e479f9"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/input-before.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/input-after.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/observed-resources.json": {
+      "sha256": "998d4b0e16a87b101cfe49b75dc830220510cefbfb26b3b55db14b85c07f07d6",
+      "bytes": 5010,
+      "object": "objects/998d4b0e16a87b101cfe49b75dc830220510cefbfb26b3b55db14b85c07f07d6"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/observed-processes.json": {
+      "sha256": "0bdaa7a92b222f02f50269a92e05c5b12c20da57e8a7691978a3d3fdf3cab318",
+      "bytes": 14087,
+      "object": "objects/0bdaa7a92b222f02f50269a92e05c5b12c20da57e8a7691978a3d3fdf3cab318"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/baseline.json": {
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/process-baseline.json": {
+      "sha256": "894da3b65f576685ef5d8ab97c9a32d8c8684da5367c7a7755a71ceb28d44a26",
+      "bytes": 12513,
+      "object": "objects/894da3b65f576685ef5d8ab97c9a32d8c8684da5367c7a7755a71ceb28d44a26"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/disk-preflight.json": {
+      "sha256": "ce137c996f66842cf781a8142487edb9b4fd17a790ddeb8f9b4103f78b48730b",
+      "bytes": 183,
+      "object": "objects/ce137c996f66842cf781a8142487edb9b4fd17a790ddeb8f9b4103f78b48730b"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/disk-before-spawn.json": {
+      "sha256": "9cbbfdd8439c845032d1d664ab481b555a729387a9acd7e48bf9c3c335db02f2",
+      "bytes": 183,
+      "object": "objects/9cbbfdd8439c845032d1d664ab481b555a729387a9acd7e48bf9c3c335db02f2"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/verification-input.json": {
+      "sha256": "7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f",
+      "bytes": 183,
+      "object": "objects/7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new2/owned-tail-retirement.json": {
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/command.json": {
+      "sha256": "90ce002e7545315fe72f0c5922faeeb8ca8e50bb5861a4960a9675c9d104a2b1",
+      "bytes": 1941,
+      "object": "objects/90ce002e7545315fe72f0c5922faeeb8ca8e50bb5861a4960a9675c9d104a2b1"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/raw.log": {
+      "sha256": "44bc1f1cabd97333d179b87ef32393e23826d4e0f2a588b084fd889260d261ba",
+      "bytes": 5715,
+      "object": "objects/44bc1f1cabd97333d179b87ef32393e23826d4e0f2a588b084fd889260d261ba"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/result.json": {
+      "sha256": "36737ccdad57537f835f4611a394b56f742f14ecf7d7907b9367a3275b7d5391",
+      "bytes": 14336,
+      "object": "objects/36737ccdad57537f835f4611a394b56f742f14ecf7d7907b9367a3275b7d5391"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/cleanup.json": {
+      "sha256": "51901f120289708b1dc6e622ba75c95e5ecc48130196d755334956e49380dfbe",
+      "bytes": 31957,
+      "object": "objects/51901f120289708b1dc6e622ba75c95e5ecc48130196d755334956e49380dfbe"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/watchdog.json": {
+      "sha256": "e5629872c58f68149d1c7a5a88b98fa8efa06e75235996e53a725aeb27d14191",
+      "bytes": 527,
+      "object": "objects/e5629872c58f68149d1c7a5a88b98fa8efa06e75235996e53a725aeb27d14191"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/input-before.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/input-after.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/observed-resources.json": {
+      "sha256": "10da26bd15df3fe00dd32143b9f1950c585929c0082c32ffc3e1837dc3969470",
+      "bytes": 5013,
+      "object": "objects/10da26bd15df3fe00dd32143b9f1950c585929c0082c32ffc3e1837dc3969470"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/observed-processes.json": {
+      "sha256": "f27fc74f3f38fe3610e0d5a62acb843491d5b42ee9bc784c043c3dd4f1a00bda",
+      "bytes": 14409,
+      "object": "objects/f27fc74f3f38fe3610e0d5a62acb843491d5b42ee9bc784c043c3dd4f1a00bda"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/baseline.json": {
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/process-baseline.json": {
+      "sha256": "0a1281bfa9dabd4ae9ec3ebd32ac6599a1e45fa5a1b208d3df1a764c3de24158",
+      "bytes": 13041,
+      "object": "objects/0a1281bfa9dabd4ae9ec3ebd32ac6599a1e45fa5a1b208d3df1a764c3de24158"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/disk-preflight.json": {
+      "sha256": "c1eb7ced07d377a1d3b839ee83f9c78bfafa3e06f4fcc01518e484f3f44d087e",
+      "bytes": 183,
+      "object": "objects/c1eb7ced07d377a1d3b839ee83f9c78bfafa3e06f4fcc01518e484f3f44d087e"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/disk-before-spawn.json": {
+      "sha256": "bbd08f73be6cdf184e6586ce7b77ad78ea10350e2cdd026ddc0cbaa8f08d6338",
+      "bytes": 183,
+      "object": "objects/bbd08f73be6cdf184e6586ce7b77ad78ea10350e2cdd026ddc0cbaa8f08d6338"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/verification-input.json": {
+      "sha256": "7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f",
+      "bytes": 183,
+      "object": "objects/7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/new3/owned-tail-retirement.json": {
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/command.json": {
+      "sha256": "f26de90b38cd4afd27020ca7b0ca350f074e6f6785beaee4048a43f4a1279dbb",
+      "bytes": 2188,
+      "object": "objects/f26de90b38cd4afd27020ca7b0ca350f074e6f6785beaee4048a43f4a1279dbb"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/raw.log": {
+      "sha256": "6ae5864cbe4aaba07578e13c025cc1c43033d99febc1373f572b79b8b61e4358",
+      "bytes": 14144,
+      "object": "objects/6ae5864cbe4aaba07578e13c025cc1c43033d99febc1373f572b79b8b61e4358"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/result.json": {
+      "sha256": "fb862069c3aed9b623b1fd836e1a3732ef435470cef6b688408ac8697a93ecfd",
+      "bytes": 15456,
+      "object": "objects/fb862069c3aed9b623b1fd836e1a3732ef435470cef6b688408ac8697a93ecfd"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/cleanup.json": {
+      "sha256": "10d72b284f782319b663716a342e2e367a57d7ee4eb0aa78df130dd7fb4c4b8e",
+      "bytes": 33341,
+      "object": "objects/10d72b284f782319b663716a342e2e367a57d7ee4eb0aa78df130dd7fb4c4b8e"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/watchdog.json": {
+      "sha256": "58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf",
+      "bytes": 118,
+      "object": "objects/58cf880972521e2418417068cc1b833631237fa6293e5d4c616628b2512593bf"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/input-before.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/input-after.json": {
+      "sha256": "bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50",
+      "bytes": 567,
+      "object": "objects/bcab56d47f2fb90b40687eed6cb22b509a0dcec837fefa948a6428834081fc50"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/observed-resources.json": {
+      "sha256": "782d20460f5b69f9fa2eea81586cd6908f45422269eeb64c533e2a14ef885656",
+      "bytes": 5013,
+      "object": "objects/782d20460f5b69f9fa2eea81586cd6908f45422269eeb64c533e2a14ef885656"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/observed-processes.json": {
+      "sha256": "806fbd15369ef9d52131c52dfba600734d36962e8e7cb1ad480b53a43d153152",
+      "bytes": 14087,
+      "object": "objects/806fbd15369ef9d52131c52dfba600734d36962e8e7cb1ad480b53a43d153152"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/baseline.json": {
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/process-baseline.json": {
+      "sha256": "3688209cfa54a14f9572c656f72eecf7d66f9c463c90cd6e07129b2a38acfee6",
+      "bytes": 13569,
+      "object": "objects/3688209cfa54a14f9572c656f72eecf7d66f9c463c90cd6e07129b2a38acfee6"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/disk-preflight.json": {
+      "sha256": "206717859f61bab9476c8f4d19a73a61393e368ee20a22f62db7911d443a6779",
+      "bytes": 183,
+      "object": "objects/206717859f61bab9476c8f4d19a73a61393e368ee20a22f62db7911d443a6779"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/disk-before-spawn.json": {
+      "sha256": "dec176334d075d5ffe8815814f29fe57936fad129bc47eba4f699fbb14ab4283",
+      "bytes": 183,
+      "object": "objects/dec176334d075d5ffe8815814f29fe57936fad129bc47eba4f699fbb14ab4283"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/verification-input.json": {
+      "sha256": "7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f",
+      "bytes": 183,
+      "object": "objects/7525b2b11aab804961c548162f4e65aa205f109671480ee67178516a1d02f06f"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/driver-v02/runs/old1/owned-tail-retirement.json": {
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-pure01/stdout.log": {
+      "sha256": "6ba1a90c39069f66e2f91eef0e608156b0ab0907bd7c56c995dfea6a8787c2b0",
+      "bytes": 18887,
+      "object": "objects/6ba1a90c39069f66e2f91eef0e608156b0ab0907bd7c56c995dfea6a8787c2b0"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/contract-race01/stdout.log": {
+      "sha256": "18941e80791cd91b2b742b454d1704118a5da83a7f657204145cf82fd7523150",
+      "bytes": 18887,
+      "object": "objects/18941e80791cd91b2b742b454d1704118a5da83a7f657204145cf82fd7523150"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/stdout.log": {
+      "sha256": "826242957e2c6ebda49db22d1d3d32a34f73a0a7ba31a5fe42678b429f22231a",
+      "bytes": 502,
+      "object": "objects/826242957e2c6ebda49db22d1d3d32a34f73a0a7ba31a5fe42678b429f22231a"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/stdout.log": {
+      "sha256": "45e7cb2709064103747af609747c1ae33176372e7e76c7127b18ab7ce0639c56",
+      "bytes": 28635,
+      "object": "objects/45e7cb2709064103747af609747c1ae33176372e7e76c7127b18ab7ce0639c56"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/stdout.log": {
+      "sha256": "7f4154662fb535b19c074f4de411adcb3a9cb2427c2ffb91f1a2cef8642d8d6d",
+      "bytes": 28635,
+      "object": "objects/7f4154662fb535b19c074f4de411adcb3a9cb2427c2ffb91f1a2cef8642d8d6d"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/stdout.log": {
+      "sha256": "826242957e2c6ebda49db22d1d3d32a34f73a0a7ba31a5fe42678b429f22231a",
+      "bytes": 502,
+      "object": "objects/826242957e2c6ebda49db22d1d3d32a34f73a0a7ba31a5fe42678b429f22231a"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/contract01/review.md": {
+      "sha256": "bdbf71fea1e6c279faa4452eae9af6cf52aa2b8c84ffe5e242412502f4bc422d",
+      "bytes": 2467,
+      "object": "objects/bdbf71fea1e6c279faa4452eae9af6cf52aa2b8c84ffe5e242412502f4bc422d"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/contract-evidence01/review.md": {
+      "sha256": "a02d59501754ffc507b03bc06ca8612a36765df86b34ffffc61f1973f3df184a",
+      "bytes": 1488,
+      "object": "objects/a02d59501754ffc507b03bc06ca8612a36765df86b34ffffc61f1973f3df184a"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/product-static01/review.md": {
+      "sha256": "4a5eb0c53a15e5ec9871d489d9855d9b8884c10a298025219ae05ba0844411dc",
+      "bytes": 5594,
+      "object": "objects/4a5eb0c53a15e5ec9871d489d9855d9b8884c10a298025219ae05ba0844411dc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline-result.json": {
+      "sha256": "b827c56fbb02c8deddbc762f2708ae9919cafe0455319acb76c6f6be89be531a",
+      "bytes": 4701,
+      "object": "objects/b827c56fbb02c8deddbc762f2708ae9919cafe0455319acb76c6f6be89be531a"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/result.json": {
+      "sha256": "7c35699e25c834c845797ac45d463985da26cd2469be8a38eb2098296199924a",
+      "bytes": 2223,
+      "object": "objects/7c35699e25c834c845797ac45d463985da26cd2469be8a38eb2098296199924a"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/private-fix.diff": {
+      "sha256": "e018fd03895d70aa03b1ac8c461d8db5781ffc6616ae55a55fe711370e412137",
+      "bytes": 888,
+      "object": "objects/e018fd03895d70aa03b1ac8c461d8db5781ffc6616ae55a55fe711370e412137"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/author-offline-evidence-check.json": {
+      "sha256": "d855ff893e8a1c860898776f69a30fc5ded57ff916ff92d12e270d9f3ffd7ab3",
+      "bytes": 6266,
+      "object": "objects/d855ff893e8a1c860898776f69a30fc5ded57ff916ff92d12e270d9f3ffd7ab3"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/author-evidence-check.json": {
+      "sha256": "25221c5217222a7f965be018405969fe4bc81be9ce4080757fb5f18b571f702e",
+      "bytes": 5844,
+      "object": "objects/25221c5217222a7f965be018405969fe4bc81be9ce4080757fb5f18b571f702e"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/final01/independent-runs.json": {
+      "sha256": "dc8d066a5f20ffefc101846336f4ef9a1b02a3d783f17b8dbe8357d6b8e95b06",
+      "bytes": 13250,
+      "object": "objects/dc8d066a5f20ffefc101846336f4ef9a1b02a3d783f17b8dbe8357d6b8e95b06"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/final01/technical-paths.json": {
+      "sha256": "34f6b00dcb07414787d7907759640c731d054039efefd5f052be29d7b66734b7",
+      "bytes": 2321,
+      "object": "objects/34f6b00dcb07414787d7907759640c731d054039efefd5f052be29d7b66734b7"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/final01/review.md": {
+      "sha256": "6656dde87482d037ade6db14c5f40fa0afd815b76ef2447889b61618dfaa3049",
+      "bytes": 6377,
+      "object": "objects/6656dde87482d037ade6db14c5f40fa0afd815b76ef2447889b61618dfaa3049"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/final01/result.json": {
+      "sha256": "9db820da9c492186bdce52299fb6e7eae4027e96a25f5c1197637ee961a6822e",
+      "bytes": 5740,
+      "object": "objects/9db820da9c492186bdce52299fb6e7eae4027e96a25f5c1197637ee961a6822e"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/readme01/review.md": {
+      "sha256": "22da5de558c1a8280b289023fd71fe9c7c61a574397bbf119327e6f80b2ed641",
+      "bytes": 1913,
+      "object": "objects/22da5de558c1a8280b289023fd71fe9c7c61a574397bbf119327e6f80b2ed641"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/readme01/result.json": {
+      "sha256": "e090bbe52f240a19396cff87a4fbe69ccd67682e72803ec8b2a93c9e9794ada6",
+      "bytes": 8630,
+      "object": "objects/e090bbe52f240a19396cff87a4fbe69ccd67682e72803ec8b2a93c9e9794ada6"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/independent_meeting_resolution_test.go": {
+      "sha256": "9ffba649dae0ffa42dec104898f0e771adf35a6dbad5c7973c0aa40e2f09aa93",
+      "bytes": 21003,
+      "object": "objects/9ffba649dae0ffa42dec104898f0e771adf35a6dbad5c7973c0aa40e2f09aa93"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json": {
+      "sha256": "a7d19ff525624cb19345dcfef038324b98c95afdd349cc011507d2d273ec8908",
+      "bytes": 5269,
+      "object": "objects/a7d19ff525624cb19345dcfef038324b98c95afdd349cc011507d2d273ec8908"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/closure-delta-final.json": {
+      "sha256": "87ec8eceb0dd4a1dc798514ca531c3a2018b8a128f82dc3d32cedbee8cdd8073",
+      "bytes": 5506,
+      "object": "objects/87ec8eceb0dd4a1dc798514ca531c3a2018b8a128f82dc3d32cedbee8cdd8073"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/driver.py": {
+      "sha256": "feff2997a0c24cb9dd2a80399c5698d60344f8d179d5d46c7195da7e867c0150",
+      "bytes": 24745,
+      "object": "objects/feff2997a0c24cb9dd2a80399c5698d60344f8d179d5d46c7195da7e867c0150"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/frozen.json": {
+      "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c",
+      "bytes": 14527,
+      "object": "objects/5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/from-author.diff": {
+      "sha256": "a584319b338cca52cc7e3ac05403f6c44348b50aba98aad1ced61b31243b9f07",
+      "bytes": 2427,
+      "object": "objects/a584319b338cca52cc7e3ac05403f6c44348b50aba98aad1ced61b31243b9f07"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline-run.py": {
+      "sha256": "5f812b8970c9dd90278f07673c9f472eea2c88dcbece8970e95bf6d663394f59",
+      "bytes": 6604,
+      "object": "objects/5f812b8970c9dd90278f07673c9f472eea2c88dcbece8970e95bf6d663394f59"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/collect-private-graph.py": {
+      "sha256": "ffcbedea0d211b5a29aa2ee8c3dbaf7a47f8ff12ca5c0749e9585a467eeec612",
+      "bytes": 3172,
+      "object": "objects/ffcbedea0d211b5a29aa2ee8c3dbaf7a47f8ff12ca5c0749e9585a467eeec612"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/readme01/freeze.json": {
+      "sha256": "d697f43c46bde3bab88f4af9a3fe723f8fc4bb176d48c102042ace2988d24ae0",
+      "bytes": 1755,
+      "object": "objects/d697f43c46bde3bab88f4af9a3fe723f8fc4bb176d48c102042ace2988d24ae0"
+    },
+    "/workspace/scratch/meeting-summary-s3-author/readme01/source.diff": {
+      "sha256": "21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f",
+      "bytes": 9646,
+      "object": "objects/21d1cc9958603a69dfb1586a0fe06a6a682f0d766963c109320074ccd0bdb14f"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/command.json": {
+      "sha256": "f6be577142d7f16518f132c57801ab513e9ec33b2d165d13d41ec061f1a75929",
+      "bytes": 2061,
+      "object": "objects/f6be577142d7f16518f132c57801ab513e9ec33b2d165d13d41ec061f1a75929"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/raw.log": {
+      "sha256": "dfe6979e48653186093be59c4f18011e8597590b85b3d4867f5f172aa3ab55ad",
+      "bytes": 4892,
+      "object": "objects/dfe6979e48653186093be59c4f18011e8597590b85b3d4867f5f172aa3ab55ad"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/result.json": {
+      "sha256": "6b3da925b79253a605deb991f9bf33bb13038371724796adcd234bc65f4bfdf0",
+      "bytes": 15656,
+      "object": "objects/6b3da925b79253a605deb991f9bf33bb13038371724796adcd234bc65f4bfdf0"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/cleanup.json": {
+      "sha256": "9a7078a44c972a20c4e4ceaa0a9fe88221c423ba149a1927146ddadee0ebaefe",
+      "bytes": 34725,
+      "object": "objects/9a7078a44c972a20c4e4ceaa0a9fe88221c423ba149a1927146ddadee0ebaefe"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/watchdog.json": {
+      "sha256": "4afb17e969c4ae186c374456f64be11eae31983eeff53d9fb65d46e41c731691",
+      "bytes": 587,
+      "object": "objects/4afb17e969c4ae186c374456f64be11eae31983eeff53d9fb65d46e41c731691"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/input-before.json": {
+      "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29",
+      "bytes": 567,
+      "object": "objects/b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/input-after.json": {
+      "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29",
+      "bytes": 567,
+      "object": "objects/b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/observed-resources.json": {
+      "sha256": "2daee47c09261addaeafc7326a5ef2f1a939a49b0a8d2b6bedf741e595f72b3c",
+      "bytes": 5175,
+      "object": "objects/2daee47c09261addaeafc7326a5ef2f1a939a49b0a8d2b6bedf741e595f72b3c"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/observed-processes.json": {
+      "sha256": "b776515c5db5814ad0bf2e261b1800965d2f12e589b5650e33f758ebeec34930",
+      "bytes": 14075,
+      "object": "objects/b776515c5db5814ad0bf2e261b1800965d2f12e589b5650e33f758ebeec34930"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/adopted-waits.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/owned-tail-retirement.json": {
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/process-baseline.json": {
+      "sha256": "fb39965fb0282a18a163022d456b0a4b4a3a082c40e54ec3b0998aaf85ceead0",
+      "bytes": 14097,
+      "object": "objects/fb39965fb0282a18a163022d456b0a4b4a3a082c40e54ec3b0998aaf85ceead0"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/baseline.json": {
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/disk-before-spawn.json": {
+      "sha256": "db0f78817ff36f101e742cb5860c7cae0aa437f2a8d2951538dcbd2eb06b6aa9",
+      "bytes": 205,
+      "object": "objects/db0f78817ff36f101e742cb5860c7cae0aa437f2a8d2951538dcbd2eb06b6aa9"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/frozen-input.json": {
+      "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c",
+      "bytes": 14527,
+      "object": "objects/5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/verification-input.json": {
+      "sha256": "2e8a03e08a18346521859cc8f6e416390d3929789bf7c288a707db1aca12e6e2",
+      "bytes": 183,
+      "object": "objects/2e8a03e08a18346521859cc8f6e416390d3929789bf7c288a707db1aca12e6e2"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/monitor-errors.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/cancellation.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/command.json": {
+      "sha256": "d48a40edf5edaa2e3532161a279009f050dde3bc01333d48092b71091f2001f2",
+      "bytes": 1950,
+      "object": "objects/d48a40edf5edaa2e3532161a279009f050dde3bc01333d48092b71091f2001f2"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/raw.log": {
+      "sha256": "a62ba5eeeb3aac3e58d0a2dc1cf7993e6b3a11ecb5700f603f96c7e71a3f2358",
+      "bytes": 4448,
+      "object": "objects/a62ba5eeeb3aac3e58d0a2dc1cf7993e6b3a11ecb5700f603f96c7e71a3f2358"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/result.json": {
+      "sha256": "b2c1605f09bde8f645ddc3e4bb6f96c5d254950a2f96c39a7333bc38872778f9",
+      "bytes": 16281,
+      "object": "objects/b2c1605f09bde8f645ddc3e4bb6f96c5d254950a2f96c39a7333bc38872778f9"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/cleanup.json": {
+      "sha256": "159fde8ce9c45cb4777099da482e115e5ab7811c34b0aefc1beb6cb9eb7ca0dc",
+      "bytes": 36109,
+      "object": "objects/159fde8ce9c45cb4777099da482e115e5ab7811c34b0aefc1beb6cb9eb7ca0dc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/watchdog.json": {
+      "sha256": "e866b19338b5a7818a84633b8f4d01a2be124c22d9da855a33b9554dbead780d",
+      "bytes": 578,
+      "object": "objects/e866b19338b5a7818a84633b8f4d01a2be124c22d9da855a33b9554dbead780d"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/input-before.json": {
+      "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29",
+      "bytes": 567,
+      "object": "objects/b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/input-after.json": {
+      "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29",
+      "bytes": 567,
+      "object": "objects/b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/observed-resources.json": {
+      "sha256": "50169496ea4e4a51919238a8202809d9a3ec37b8ec7ce7d0392ca00f0ed5a138",
+      "bytes": 5176,
+      "object": "objects/50169496ea4e4a51919238a8202809d9a3ec37b8ec7ce7d0392ca00f0ed5a138"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/observed-processes.json": {
+      "sha256": "4ad35d1a95778312ca52c86b9299ca5cd6e788fffa7c4da794852349bb088afe",
+      "bytes": 13926,
+      "object": "objects/4ad35d1a95778312ca52c86b9299ca5cd6e788fffa7c4da794852349bb088afe"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/adopted-waits.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/owned-tail-retirement.json": {
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "object": "objects/0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/process-baseline.json": {
+      "sha256": "c27401a1a2c930566dbbfc830ef070c686f8680a8e1fe33aaade51539a4b462f",
+      "bytes": 14625,
+      "object": "objects/c27401a1a2c930566dbbfc830ef070c686f8680a8e1fe33aaade51539a4b462f"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/baseline.json": {
+      "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41",
+      "bytes": 4129,
+      "object": "objects/c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/disk-before-spawn.json": {
+      "sha256": "f3d8174aa31a215502d5213e388b9c83d672f74721ab66e71b9565948d3daa86",
+      "bytes": 205,
+      "object": "objects/f3d8174aa31a215502d5213e388b9c83d672f74721ab66e71b9565948d3daa86"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/frozen-input.json": {
+      "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c",
+      "bytes": 14527,
+      "object": "objects/5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/verification-input.json": {
+      "sha256": "2e8a03e08a18346521859cc8f6e416390d3929789bf7c288a707db1aca12e6e2",
+      "bytes": 183,
+      "object": "objects/2e8a03e08a18346521859cc8f6e416390d3929789bf7c288a707db1aca12e6e2"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/monitor-errors.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/cancellation.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "object": "objects/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/command.json": {
+      "sha256": "362fa5bbe90e7b6d04080fb1473766c64797666f279cce80cf3c9cc6f7432192",
+      "bytes": 1267,
+      "object": "objects/362fa5bbe90e7b6d04080fb1473766c64797666f279cce80cf3c9cc6f7432192"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/input-before.json": {
+      "sha256": "676d958fe3072bd4bc6e4e5fd67d82995bc5c80117154a15a98ea9a5c47a78c1",
+      "bytes": 696,
+      "object": "objects/676d958fe3072bd4bc6e4e5fd67d82995bc5c80117154a15a98ea9a5c47a78c1"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/input-after.json": {
+      "sha256": "676d958fe3072bd4bc6e4e5fd67d82995bc5c80117154a15a98ea9a5c47a78c1",
+      "bytes": 696,
+      "object": "objects/676d958fe3072bd4bc6e4e5fd67d82995bc5c80117154a15a98ea9a5c47a78c1"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/stderr.log": {
+      "sha256": "7f72db227feeb2a4c53ca662d088eacab222ba720902a7040b15896d023afd35",
+      "bytes": 301,
+      "object": "objects/7f72db227feeb2a4c53ca662d088eacab222ba720902a7040b15896d023afd35"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/command.json": {
+      "sha256": "c6b0932d8c534fb1955eaff5a61fa4f7dae3c8fd5f99b5c4b080172429d88395",
+      "bytes": 1178,
+      "object": "objects/c6b0932d8c534fb1955eaff5a61fa4f7dae3c8fd5f99b5c4b080172429d88395"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/result.json": {
+      "sha256": "41a876f54845c2cec62eb420a8654936b9a453706a23eaf6afa166afadfe9d63",
+      "bytes": 2007,
+      "object": "objects/41a876f54845c2cec62eb420a8654936b9a453706a23eaf6afa166afadfe9d63"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/input-before.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/input-after.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/command.json": {
+      "sha256": "e3f3c7e631de19bd630ce1eb21bb0eb3972176db20ccc546f1b8256b39d911b9",
+      "bytes": 1162,
+      "object": "objects/e3f3c7e631de19bd630ce1eb21bb0eb3972176db20ccc546f1b8256b39d911b9"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/result.json": {
+      "sha256": "ade3b652aca2a04a70e5bc9218d8759c13630365a26ee34d7d4e57ac8f110fb3",
+      "bytes": 1990,
+      "object": "objects/ade3b652aca2a04a70e5bc9218d8759c13630365a26ee34d7d4e57ac8f110fb3"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/input-before.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/input-after.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/graph-summary.json": {
+      "sha256": "9757793d2945164bfb54b669a621e2cb58d8676117e3085a24f3fe6d0cb86726",
+      "bytes": 239,
+      "object": "objects/9757793d2945164bfb54b669a621e2cb58d8676117e3085a24f3fe6d0cb86726"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/command.json": {
+      "sha256": "170118a29a1ea5c4efad113e8d6e27d8d76bed73abf15594f327c8bf367e146e",
+      "bytes": 1267,
+      "object": "objects/170118a29a1ea5c4efad113e8d6e27d8d76bed73abf15594f327c8bf367e146e"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/result.json": {
+      "sha256": "9bd40dc4920f36f3d42d13feed289a3e46a9f1e749c8486f5216cc6b1a24a01a",
+      "bytes": 2561,
+      "object": "objects/9bd40dc4920f36f3d42d13feed289a3e46a9f1e749c8486f5216cc6b1a24a01a"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/input-before.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/input-after.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/command.json": {
+      "sha256": "d4c62a96f30e2c1f9477a0af645346f62b4c4dd4409c356f99228e927fef378d",
+      "bytes": 1230,
+      "object": "objects/d4c62a96f30e2c1f9477a0af645346f62b4c4dd4409c356f99228e927fef378d"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/result.json": {
+      "sha256": "9e882649821df07df76d38eb5bfa0acb7960d337ed5227b8f6d2b70d490e5d8b",
+      "bytes": 2057,
+      "object": "objects/9e882649821df07df76d38eb5bfa0acb7960d337ed5227b8f6d2b70d490e5d8b"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/input-before.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/input-after.json": {
+      "sha256": "9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc",
+      "bytes": 696,
+      "object": "objects/9bf0b5de9f9e3d16741c3f34d23bac69a8626baaa507b5e92e19621cac5f7bdc"
+    },
+    "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/stdout.log": {
+      "sha256": "ef3c867c0bbc7b6ec072d85c461c1bc1f208ae7138b329adfff71c1ef78c2e47",
+      "bytes": 119,
+      "object": "objects/ef3c867c0bbc7b6ec072d85c461c1bc1f208ae7138b329adfff71c1ef78c2e47"
+    }
+  },
+  "fingerprint_only": [
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-compile01/command.json",
+      "sha256": "9862c1aa3fc24d017ce6db8bd390de6695e399f86bef69c36fc007cd55701924",
+      "bytes": 9285
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-compile01/result.json",
+      "sha256": "a29788299657b1dfa4a18ac2821c88145e5adb18ad65dee6b8765979e1e3f365",
+      "bytes": 9337
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-list01/command.json",
+      "sha256": "1aa7a1a0a5071421dee7fa7a88dfcff6ba18bf1ce48668f81f75b33899d9584e",
+      "bytes": 9215
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-list01/stdout.log",
+      "sha256": "1d6e99605b354195ef44c5fb1bd49cefbfda27ec72036b83cca481ee186b6501",
+      "bytes": 515716
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-list01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-list02/command.json",
+      "sha256": "de77724f7107c5ba9923b486a5ccd80ea36708e88a3d0d12c45adecc34cd6eda",
+      "bytes": 9215
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-list02/result.json",
+      "sha256": "9fbda77bfebb989066fece94a8da1e3d6e3eced2a39a0bf29724d617e98043b3",
+      "bytes": 8961
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-list02/stdout.log",
+      "sha256": "1d6e99605b354195ef44c5fb1bd49cefbfda27ec72036b83cca481ee186b6501",
+      "bytes": 515716
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-list02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-pure01/command.json",
+      "sha256": "eb6b11382f7ffab9d3183651e9d87857ce71c01a2689fe6880bd72367078b517",
+      "bytes": 9223
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-pure01/result.json",
+      "sha256": "1b538a50af111b56004c2d7adfeb14212f54d2f5e9c38239db51330e0037f774",
+      "bytes": 8834
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-pure01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/command.json",
+      "sha256": "5a9c485843b468bc86d0fc679b76e59f5eac899c78828bbc2ab4d45ea88e2d36",
+      "bytes": 9298
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/result.json",
+      "sha256": "60c957deadf7760ff9eb63560be2630b280ea7c90daf69fe57d160f05f6bb338",
+      "bytes": 9338
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/command.json",
+      "sha256": "32d0e6dae67d9826e5030287562d0c3e3e71db35531620e9840066978ced5e11",
+      "bytes": 9228
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/result.json",
+      "sha256": "e00ebac2818d55e0c532c03d8bc502010a70f1259b8ee5e446225b53636df644",
+      "bytes": 8961
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/stdout.log",
+      "sha256": "086a0a45df76322bedd848685ee006cd2c8acd1c783c7475256d9b15d522b1f7",
+      "bytes": 518261
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-list01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/command.json",
+      "sha256": "2f752d11d3af976a6af32cab12709df711210b7d6d05bc62a67cf6812e6ef384",
+      "bytes": 9188
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/result.json",
+      "sha256": "0bbae21a57d597bbe27ba726df61c72d784fc3e7a48afef6a0d6968c98e1f29e",
+      "bytes": 8960
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-vet01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race01/command.json",
+      "sha256": "5d406a975e89a61daf90f6a81e180943d940eb5c3801e318610968cac87587be",
+      "bytes": 9223
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race01/result.json",
+      "sha256": "39e2718bd526375727ea96c0b669a4a7dd65fff24aa7eff0660e9e6d065edfd9",
+      "bytes": 8833
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/command.json",
+      "sha256": "f657bd1ff6f164c42b7cb185646295b8770b8412c853c7fc7b37782e045d78d2",
+      "bytes": 410637
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/result.json",
+      "sha256": "539dac345c436bb04160315b0bd4f6714d2ab8aadca05e365b1c57b6a716ad14",
+      "bytes": 411299
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-central-build01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/command.json",
+      "sha256": "b35d5cc89f8906c4dc99f57aae4eee4ebe49171fc81c06dc48d0642cf69a4187",
+      "bytes": 410804
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/result.json",
+      "sha256": "2cc550fce219c908f22eb48a87af6f888a2ec6df308c02fa17ca74639635849c",
+      "bytes": 410410
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/stdout.log",
+      "sha256": "ce94678583b8c34dd8f912d0aa8fcda05216b85f58f779f844d2a042d52eb4d1",
+      "bytes": 1218412
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large actual graph; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-dynamic-graph01/actual-graph02.json",
+      "sha256": "9aec8da59bb2dccf00586c429e553fa1f9020b15b06fc2e06a94d30c37770105",
+      "bytes": 652149
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/command.json",
+      "sha256": "86724bc1584402dd423bdae47c43bb169148930c4916dbb3f0c79288b6edfe73",
+      "bytes": 410705
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/result.json",
+      "sha256": "cb12c4e4b7f10b8a5c22cc98c651c3c0a8a67b42c4ba39053bd55d49c81b0cf7",
+      "bytes": 411171
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/command.json",
+      "sha256": "a725cdea9d6a1d078cbf223fc644b768e90d609ee28c9c987d2dbf90ef3b3fd9",
+      "bytes": 411123
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/result.json",
+      "sha256": "8de649178574320e42b492517a3b1b8d3eacc5ac57b5ad0d484848156bfd2af9",
+      "bytes": 410283
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/stdout.log",
+      "sha256": "c151605b017da74cf64f964628f06968c526ebcb72bf0f0cbae8ef128ce7a769",
+      "bytes": 1774633
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large actual graph; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-graph01/actual-graph02.json",
+      "sha256": "bd0ec3d65905d4e462cd28ebe6ed040706b1bc9f6b7a4df3295a28dea782fe06",
+      "bytes": 788239
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/command.json",
+      "sha256": "6bc84dd825fe147c7517c739929b1b1d9f0de0a28f615de4c890cc2d3f2046a5",
+      "bytes": 411077
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/result.json",
+      "sha256": "226987a546f68cccdd7c5bf51ce6fe897277b6d2bd0d9efff4c086dba733e883",
+      "bytes": 410156
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-integration-list01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/command.json",
+      "sha256": "77daf37d00c38f03a9fae257b9816ef485ba04e825a12195857a016628b1a851",
+      "bytes": 410671
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/result.json",
+      "sha256": "0e8347892d8ddbde6aa2bb3d81416278b6af6f6c3d77904227d8b3322d851954",
+      "bytes": 410790
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/command.json",
+      "sha256": "9bb169c9fc678fb5ae6d79deeae9ad38ccb365e1e9727de71f61551a03de58a7",
+      "bytes": 410604
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/result.json",
+      "sha256": "15a5adb157c120883010e0814cd88530b4602e83a5de5176f7204e6aa0b785e6",
+      "bytes": 410538
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/stdout.log",
+      "sha256": "358fc1ea14b8122819f4c073a68395a836101fc89df48e47c1c564ab3c11d3cf",
+      "bytes": 1064108
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large actual graph; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/actual-graph.json",
+      "sha256": "6f43b30901d51b50a38f86b4764109ee8b517215ff9c5962bc02a586317ea745",
+      "bytes": 1423159
+    },
+    {
+      "reason": "Large actual graph; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-graph01/actual-graph02.json",
+      "sha256": "f0d71331cc0cb9da5b937235a91bc0da37ee8f496057efe9157940e704bca24b",
+      "bytes": 649773
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/command.json",
+      "sha256": "47b1c5a7cdd9ee8853db0eb8e92974a049f622cc4dc5c1a1df4962e634143f60",
+      "bytes": 410653
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/result.json",
+      "sha256": "9590587d54831c07735b9508d575981250e45bc48b4639d83e5b9b53e2345465",
+      "bytes": 410157
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-pure01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/command.json",
+      "sha256": "8a1031b2fd94035474ec78f10e11e858cffd1253705fca7155e88cbeca9bf74f",
+      "bytes": 410684
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/result.json",
+      "sha256": "7b33ec9ec762c5a627e62253c9a9aab30ba8f3db37d5692676888e832acb74ed",
+      "bytes": 410790
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/command.json",
+      "sha256": "87b8bccc1f93b99038304318d2b11babb91ffbcd5460847acf18a235e15802dd",
+      "bytes": 410617
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/result.json",
+      "sha256": "fe85b169dc954db17c238c0fe884671e2174c8d208882e95d8377bf8ad29509e",
+      "bytes": 410284
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/stdout.log",
+      "sha256": "339991fce25587094ced921b3d5bd8148e6676394100877b2c953876095d0a10",
+      "bytes": 1067549
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large actual graph; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-graph01/actual-graph02.json",
+      "sha256": "8840600341fa466bace3fbce7fff4b6ad7f15a353be62f34a769cebecc5f7885",
+      "bytes": 651550
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/command.json",
+      "sha256": "20eefbd79912b4710a1da07fd2afa8dd5dc2ecceafe3c6be5ffddef2cad1ea0b",
+      "bytes": 410577
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/result.json",
+      "sha256": "b0cd0cfac6c9af5221da46958272b9c157424027c2dd2dae9f432138de79930d",
+      "bytes": 410664
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race-vet01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/command.json",
+      "sha256": "a4bb0f4551601d2247dab4e4ad2517451270095bcb531effe84074d79bf16c2e",
+      "bytes": 410653
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/result.json",
+      "sha256": "e8237232852ca0d8555d9b1304f326b609b35654c8b044665d8929d4f6d55a82",
+      "bytes": 410156
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-model-race01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/command.json",
+      "sha256": "058f1f7d09eb3bb201812b8b1cffbd6022dae3bb1e859f52ffaafea90df06a91",
+      "bytes": 410647
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/result.json",
+      "sha256": "2b766a1614be816d50c7224a3796493f0f650bfca6f2e0fe38b93934ff3b0626",
+      "bytes": 410283
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/stdout.log",
+      "sha256": "6deaac8217053fc2f5017205fffc8b40309c0366795c1c8d6eecca66470c33c4",
+      "bytes": 433805
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large actual graph; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph01/actual-graph02.json",
+      "sha256": "5da94a54d38cd8482d285ce3019391663c43d03359ac079d997b2ebc668443a2",
+      "bytes": 325760
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/command.json",
+      "sha256": "9df5dcb4bd3b0428b6677517c130a8ed344855216138eba449fb9dc9edee91da",
+      "bytes": 410861
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/result.json",
+      "sha256": "f0251f739cea78083e5a8e4cfd8c6c5d7761f615634565bed38bf7549342405d",
+      "bytes": 410498
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/stdout.log",
+      "sha256": "6deaac8217053fc2f5017205fffc8b40309c0366795c1c8d6eecca66470c33c4",
+      "bytes": 433805
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large actual graph; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-outbound-cgo0-graph02/actual-graph03.json",
+      "sha256": "ead858d51a272fa392a46aec05fa06bf4dc4647016d017b14f3f702b9c0d802f",
+      "bytes": 325521
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/command.json",
+      "sha256": "812d509c9e456f855ce516f86aaa9cd1c72b827e621e5136222fa1d591066c63",
+      "bytes": 410651
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/result.json",
+      "sha256": "3eeb15de02c038c7d936377564de80cf4821723d0aabf6c1613285ad0b45e897",
+      "bytes": 410537
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay-runner-build01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/command.json",
+      "sha256": "aa726f3e3bfff29a9c69cfca34de4d1d9aa36ecda503905cd1bcb360f73503ac",
+      "bytes": 410919
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/result.json",
+      "sha256": "33e39cc5fcb95a4beabe77b57ea2431313327fa2b6d457b6eaa59498653faf41",
+      "bytes": 410750
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/command.json",
+      "sha256": "9859c6110cef51bc61a2166ac5f2118574bcacb854d048af681a2d9897ef018a",
+      "bytes": 411291
+    },
+    {
+      "reason": "Repeated input-hash maps omitted; exact source fingerprint and explicitly derived command/result fields retained",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/result.json",
+      "sha256": "f70d0001aa1e898876be77a0a3eeef677e485c0a27836a645d5ed8e0fdf3a859",
+      "bytes": 410370
+    },
+    {
+      "reason": "Empty stream, or large raw Go graph/list stream; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03-integration-list01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-graph02.json",
+      "sha256": "09a0f3fdc3140e999150390736195aabfaad8d93c1feddd0a6bca25a1b2d1fd1",
+      "bytes": 351440
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/contract-race-graph01.json",
+      "sha256": "3330c5b652ca4148ef772df5ee36715ece0cc26d19d91657f011ee9f4696efc3",
+      "bytes": 327000
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay02/pregraph-input.json",
+      "sha256": "9e3a01a97dbe2b6be603828293a2cb968b213af350c65aeb870dc09d1395e955",
+      "bytes": 959728
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay02/pregraph-input03.json",
+      "sha256": "db0232fdad74cf47565ea98d3b52ead358c99426042e1a9f35b34883124683bf",
+      "bytes": 960224
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03/pregraph-input.json",
+      "sha256": "54bfe199455c8ddd5b419b1721ce19d17cb5351a69c415ab38b544a69666974f",
+      "bytes": 960280
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/overlay03/results.json",
+      "sha256": "f2cd9bcec567d9e232178357b34c2c9174186ecf3aaf8348ad7306ddc72a64d0",
+      "bytes": 833510
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/resource-closure01.json",
+      "sha256": "a2849e7946c987d2a0c4cb04735e2424fbd083f3212ad77b530ab1185edc3659",
+      "bytes": 773932
+    },
+    {
+      "reason": "Large dependency/closure or repeated aggregate; fingerprint only, not stored bytes",
+      "source": "/workspace/scratch/meeting-summary-s3-author/resource-closure02.json",
+      "sha256": "4cdb5def0aab0c4bae89d7b5aa01e7867ced284961fa14541a98c767a6785ef6",
+      "bytes": 774411
+    },
+    {
+      "reason": "Large independent actual graph; only fingerprint plus stored original graph-summary/closure delta",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/actual-graph.json",
+      "sha256": "92f52c2f0e27377edd3f32442007ab40b45c76a176dee4b19fcdcb9ba57fe8a0",
+      "bytes": 745965
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p05-format/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/stdout.log",
+      "sha256": "1bf9e205a011a14a23412b7a6feca9ac20c4373c378d60b637c304b5daceeb41",
+      "bytes": 1241430
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p07-race-compile/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "reason": "Large Go graph stream or empty stream; fingerprint only",
+      "source": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p08-list/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "derived": {
+    "offline-command-excerpts.json": {
+      "sha256": "fdd4a547b024be1811363a97e78a4db94fbfdc29c69a005c51011d7cabe979e7",
+      "kind": "derived selected JSON fields/counts; original source hash/size and omissions explicit; not original bytes"
+    }
+  },
+  "counts": {
+    "stored_source_names": 193,
+    "unique_original_objects": 149,
+    "unique_original_bytes": 1076583,
+    "fingerprint_only_sources": 117
+  },
+  "reuse_existing": [
+    "docs/development/agent-team/system-meeting-summary-selection-verification.md",
+    "docs/development/agent-team/system-meeting-summary-contract-verification.md",
+    "docs/development/agent-team/system-meeting-summary-resolution-spec-verification.md"
+  ],
+  "scope_limits": [
+    "Product sources are reused from fixed product commit, no source tree/toolchain/cache/binary/runtime/private credentials copied",
+    "Large repeated command/result inputs, original Go list graphs and closure records are fingerprints only and were not saved here in full",
+    "Original relative links are interpreted at their mapped source locations; historical pending/failure text and whitespace preserved",
+    "No product tests, original scripts, resource operations or Git mutations executed during this archive work"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "baseline": "bd94a1841a6978a1909b9fa3625bbd2c83ef8d0d",
+  "card_sha256": "bb124b229914855a99980f21542f988b69a26942a0a264405d4e7f3bf98a2d1f",
+  "files": {
+    "internal/central/model/contract/configuration.go": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+    "internal/central/model/contract/configuration_test.go": "1a530058bdaf828cc911daf7dc5da75e1bf9e5693e4acb97d7cfc773cf2beb01",
+    "internal/central/model/contract/resolution_test.go": "a1173d1eb5bfc9caafc750bfa85e64abbb1eb72dc3ff254471dec96894ce2980",
+    "internal/central/model/contract/meeting_summary_test.go": "c90c1a583bb8ec384ac346692ad90cc12b80bd795a28daa7bf385146aeadfbbd",
+    "internal/central/model/resolution_policy.go": "4e4b4ed8801a3def44dd6394b61be1358a3190fc03917eb25032edf8a1e1d038",
+    "internal/central/model/resolution_policy_test.go": "3c3faddcc248c659b47a69ff5b3194d68179f0f009c4bc5b32939c2f473366d0",
+    "internal/central/model/resolver.go": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d",
+    "internal/central/model/resolver_test.go": "6226fe1095419a47ad8520e7d48a14b4c5f5cd734c998cf6f41c12315ca02e19",
+    "internal/central/model/resolution_plan.go": "577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59",
+    "internal/central/model/resolution_plan_test.go": "0501fb561a094b8c57bfa8c9c7aca1a7fdb9e6aae310331180f8602a2cb8c323",
+    "tests/model/meeting_summary_resolution_fixture_test.go": "69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b",
+    "tests/model/meeting_summary_resolution_selection_test.go": "af952554891ddffc85561d47c82b725ffbdfd34590cc6fcd7649cae7e0e47916",
+    "tests/model/meeting_summary_resolution_atomicity_test.go": "2328c310216212635032ed36d65357234f5204516a3a637afe57744c928b8b3e",
+    "tests/model/meeting_summary_resolution_authorization_test.go": "8609d5ac4dcfd6c1fe731f81d71f6f303ecbd1114c3f0097410ad72eaa7c99b5",
+    "tests/model/meeting_summary_resolution_replay_test.go": "3ff5a1119160bf0adc5cde7c35f569f6f25ba6dd41911bd2658849ae010464d3",
+    "tests/model/meeting_summary_resolution_unknown_test.go": "83bd1288a8e4246243341a9d1895afc3e2fd8c4c2594c543851db7f6de0bf745"
+  },
+  "status": "stopped two-test assertion-only correction; all production bytes unchanged; affected integration compile and real rerun pending",
+  "contract_checks": "../contract-result01.json",
+  "contract_race_graph": "../contract-race-graph01.json",
+  "inherits": "candidate02 manifest/files; only two assertion sources snapshotted at candidate03/src",
+  "delta": {
+    "tests/model/meeting_summary_resolution_selection_test.go": "af952554891ddffc85561d47c82b725ffbdfd34590cc6fcd7649cae7e0e47916",
+    "tests/model/meeting_summary_resolution_authorization_test.go": "8609d5ac4dcfd6c1fe731f81d71f6f303ecbd1114c3f0097410ad72eaa7c99b5"
+  },
+  "reason": "new1 real failure retained; Project non-owner is NotFound; altered lease fails signed Secret usage binding as InvalidArgument before stale-witness gate"
+}

@@ -1,0 +1,42 @@
+# S3 完整技术独立验收
+
+**PASS，限定 16 个技术路径；后端 README 末件待独立静审。** 最终 candidate03 manifest 为 `ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9`，以已接受 `c210d249600d98871513c56fb9a8fff7c50a4c34` 为依赖基线。16 个仓库源当前字节全部相符。本验收者未参与产品实现，未写任何业务、仓库测试、卡片或 Git 文件。
+
+静态结论复用先前完整 candidate02 审查和 candidate03 两测试预期差量审查；动态结果现已闭合。platform.meeting_summary 仅绑定两个 Meeting Purpose，保留旧 project_summary/direct/Memory 兼容；text/structured profile 和 capabilities 规则不扩大。独立场景通过当前 Session/Project/严格 Meeting 事实授权、新 Summary selector 锁、缺锁 poison、双 selector owner 删除竞争，以及 immutable snapshot、canonical lease、无ref零调用、回滚原子性、历史重放仍校验当前权限和 Unknown 缺行 writer 屏障。无新增公共 Resolver 口或迁移。
+
+| 接受的证据 | 结果与来源 |
+| --- | --- |
+| 四合同 | pure33/race33/racevet，先前独立原件核对后复用 |
+| Model 离线 | 普通及race各52top/141sub；编译、vet、两cmd构建与candidate03受影响compile/list，10条必要原始command/raw/result此次复核相符 |
+| 作者真实 | candidate03 四成功轮：新5top/44sub、旧8top/47sub；原candidate02 new1失败轮独列保留 |
+| 独立 A | actual0，命令51.369s，top5.96s/4sub；87 owned PID记录，实际PG blocker holder130/waiter136且两事务goroutine已join |
+| 独立 B | actual0，命令56.626s，top5.68s/2sub及top体完整历史/lease/权限断言；86 owned PID记录 |
+
+A/B 使用独立场景源码和33项overlay。实际race图397包/2491文件、0未冻结来源，最小差量叠加作者完整原fixture/helper/command/CGO0图；未复制全源码树。tests/model无自定义TestMain；原wrapper其余包TestMain链照常执行。最终driver `feff2997a0c24cb9dd2a80399c5698d60344f8d179d5d46c7195da7e867c0150`、frozen `5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c`、closure delta `87ec8eceb0dd4a1dc798514ca531c3a2018b8a128f82dc3d32cedbee8cdd8073` 均原字节。实际命令、环境、原raw、输入前后、资源/PID/清理/watchdog全部由 [independent-runs.json](independent-runs.json) 固定引用。
+
+两独立轮分别 fresh>=5GiB、原race/count1/p1包6m、每top120s含Cleanup。每轮实际wait及watchdog join、精确7资源双清、基线/Mount保留、输入前后相同，0强制尾/0adopted wait/0monitorerror；最后只读PID/starttime复核亦无本轮owned存留。资源窗已归还root。两轮新增8个daemon所属PID1 shim Z，68→72→76，未操作或宣称task wait；计入作者原失败轮共七个S3资源轮新增28个，48→76。这不构成全机清零，复用outbound/registry内组件超时join限制保持。
+
+作者首个真实失败来自新测试误期望：既有非Owner Project隐匿NotFound，altered Secret lease绑定先报外层SECRET_INPUT_INVALID/内层InvalidArgument。candidate03仅修两测试预期，拒绝/到达/零副作用断言保留且生产不变。私有probe首轮编译错误 `memory.Memory` 保留，probes03只改正确DTO访问 `memory.Configured.Memory`，受影响离线通过；没有失败真实独审重跑。更早作者shell路径/driver元数据/图提取和CGO0补图原红仍索引保存，均不冒原始PASS。
+
+独立A/B复用作者冻结的正式Bootstrap/Invitation/Redeem/Login/Logout身份助手和严格Meeting/Operation canonical fixture；独立的是场景编排与断言，未宣称重实现这些助手。旧八组身份来源保持旧fixture限制。Unknown是在真实SQL commit/rollback后装饰API终局，非物理ACK丢失试验。S3仅库：S2不是前置且活动源被隔离；production Resolution/Invocations、D24真实Meeting生成仍未绑定，完整D09/D24/E01均未交付。后端README将单独静审，无需重跑本技术结果。
+
+精确16路径及SHA如下；[technical-paths.json](technical-paths.json) 同时绑定冻结来源。所有通过/原失败/限制的最小入口见 [result.json](result.json)。
+
+- `internal/central/model/contract/configuration.go` — `ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c`
+- `internal/central/model/contract/configuration_test.go` — `1a530058bdaf828cc911daf7dc5da75e1bf9e5693e4acb97d7cfc773cf2beb01`
+- `internal/central/model/contract/meeting_summary_test.go` — `c90c1a583bb8ec384ac346692ad90cc12b80bd795a28daa7bf385146aeadfbbd`
+- `internal/central/model/contract/resolution_test.go` — `a1173d1eb5bfc9caafc750bfa85e64abbb1eb72dc3ff254471dec96894ce2980`
+- `internal/central/model/resolution_plan.go` — `577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59`
+- `internal/central/model/resolution_plan_test.go` — `0501fb561a094b8c57bfa8c9c7aca1a7fdb9e6aae310331180f8602a2cb8c323`
+- `internal/central/model/resolution_policy.go` — `4e4b4ed8801a3def44dd6394b61be1358a3190fc03917eb25032edf8a1e1d038`
+- `internal/central/model/resolution_policy_test.go` — `3c3faddcc248c659b47a69ff5b3194d68179f0f009c4bc5b32939c2f473366d0`
+- `internal/central/model/resolver.go` — `3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d`
+- `internal/central/model/resolver_test.go` — `6226fe1095419a47ad8520e7d48a14b4c5f5cd734c998cf6f41c12315ca02e19`
+- `tests/model/meeting_summary_resolution_atomicity_test.go` — `2328c310216212635032ed36d65357234f5204516a3a637afe57744c928b8b3e`
+- `tests/model/meeting_summary_resolution_authorization_test.go` — `8609d5ac4dcfd6c1fe731f81d71f6f303ecbd1114c3f0097410ad72eaa7c99b5`
+- `tests/model/meeting_summary_resolution_fixture_test.go` — `69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b`
+- `tests/model/meeting_summary_resolution_replay_test.go` — `3ff5a1119160bf0adc5cde7c35f569f6f25ba6dd41911bd2658849ae010464d3`
+- `tests/model/meeting_summary_resolution_selection_test.go` — `af952554891ddffc85561d47c82b725ffbdfd34590cc6fcd7649cae7e0e47916`
+- `tests/model/meeting_summary_resolution_unknown_test.go` — `83bd1288a8e4246243341a9d1895afc3e2fd8c4c2594c543851db7f6de0bf745`
+
+本技术验收文件写入完成后停写；无业务写入、Go命令或自有真实资源在运行。后续只接受root另派的README冻结静审。

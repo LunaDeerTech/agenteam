@@ -1,0 +1,36 @@
+from pathlib import Path
+import hashlib,json
+B=Path('/workspace/scratch/summary-resolution-static-verification/probes03')
+h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+delta=json.loads((B/'closure-delta.json').read_bytes())
+parent=Path(delta['base_closure']['path']);assert h(parent)==delta['base_closure']['sha256']
+base=json.loads(parent.read_bytes());overlay=json.loads((B/'overlay.json').read_bytes())['Replace']
+expected={p:v['sha256'] for p,v in base['files'].items()};expected.update({p:v['sha256'] for p,v in delta['files'].items()})
+s=(B/'offline/p06-race-graph/stdout.log').read_text();decoder=json.JSONDecoder();objects=[]
+while s.strip():
+ s=s.lstrip();obj,n=decoder.raw_decode(s);objects.append(obj);s=s[n:]
+files={};outside=[];excluded=[];generated={}
+for obj in objects:
+ assert not obj.get('Error') and not obj.get('DepsErrors'),obj.get('ImportPath')
+ for field in ('GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles'):
+  for name in obj.get(field,[]):
+   virtual=str(Path(obj['Dir'])/name);actual=overlay.get(virtual,virtual)
+   if not actual:excluded.append(virtual);continue
+   p=Path(actual)
+   if not p.is_file():outside.append({'virtual':virtual,'actual':actual,'reason':'missing'});continue
+   value=h(p)
+   if obj['ImportPath'].endswith('.test') and str(p).startswith('/workspace/.cache/go-build/'):
+    generated[actual]=value;continue
+   files[virtual]={'actual':actual,'sha256':value,'field':field}
+   if expected.get(actual)!=value:outside.append({'virtual':virtual,'actual':actual,'sha256':value})
+probe=B/'independent_meeting_resolution_test.go';assert any(x['actual']==str(probe) for x in files.values())
+model_testmain=[(p,v) for p,v in generated.items()]
+assert len(model_testmain)==1
+testmain=Path(model_testmain[0][0]).read_text()
+assert 'TestIndependentMeetingSummaryResolutionAuthorityAndSelection' in testmain and 'TestIndependentMeetingSummaryResolutionReplayAndAtomicity' in testmain
+assert '.TestMain(' not in testmain
+new={'probe':{'path':str(probe),'sha256':h(probe)},'overlay':{'path':str(B/'overlay.json'),'sha256':h(B/'overlay.json')},'base_closure':delta['base_closure'],'command_result':{'path':str(B/'offline/p06-race-graph/result.json'),'sha256':h(B/'offline/p06-race-graph/result.json')},'packages':[{'ImportPath':o['ImportPath'],'Dir':o['Dir'],'Standard':o.get('Standard',False)} for o in objects],'files':files,'generated_testmain_cache':generated,'outside_frozen_input':outside,'excluded_source_selected':excluded,'generated_main_has_no_custom_TestMain':True,'private_has_no_init_or_TestMain':not any(('func '+n+'(') in probe.read_text() for n in ['init','TestMain'])}
+p=B/'offline/p06-race-graph/actual-graph.json';p.write_text(json.dumps(new,indent=2)+'\n')
+summary={'actual_graph_sha256':h(p),'packages':len(objects),'files':len(files),'generated_testmain':len(generated),'outside_count':len(outside),'outside':outside,'excluded':excluded,'no_TestMain':True}
+(B/'offline/p06-race-graph/graph-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+print(json.dumps(summary));raise SystemExit(1 if outside or excluded else 0)

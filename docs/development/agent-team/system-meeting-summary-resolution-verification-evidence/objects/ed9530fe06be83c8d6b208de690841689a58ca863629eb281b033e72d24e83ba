@@ -1,0 +1,71 @@
+{
+  "contract_input_sha256": "6e5c96da92aff4edb7d35704a013938afc2ab1c1279229589df2dd668d0eb1fe",
+  "actual_graph_sha256": "09a0f3fdc3140e999150390736195aabfaad8d93c1feddd0a6bca25a1b2d1fd1",
+  "runs": {
+    "contract-list02": {
+      "exit": 0,
+      "elapsed": 0.20747985199886898,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "top_passes": 0,
+      "result_sha256": "9fbda77bfebb989066fece94a8da1e3d6e3eced2a39a0bf29724d617e98043b3"
+    },
+    "contract-compile01": {
+      "exit": 0,
+      "elapsed": 1.343178467999678,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "top_passes": 0,
+      "result_sha256": "a29788299657b1dfa4a18ac2821c88145e5adb18ad65dee6b8765979e1e3f365"
+    },
+    "contract-pure01": {
+      "exit": 0,
+      "elapsed": 0.0734145719998196,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "top_passes": 33,
+      "result_sha256": "1b538a50af111b56004c2d7adfeb14212f54d2f5e9c38239db51330e0037f774"
+    },
+    "contract-race-compile01": {
+      "exit": 0,
+      "elapsed": 1.8182829230008792,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "top_passes": 0,
+      "result_sha256": "60c957deadf7760ff9eb63560be2630b280ea7c90daf69fe57d160f05f6bb338"
+    },
+    "contract-race01": {
+      "exit": 0,
+      "elapsed": 1.079624795998825,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "top_passes": 33,
+      "result_sha256": "39e2718bd526375727ea96c0b669a4a7dd65fff24aa7eff0660e9e6d065edfd9"
+    },
+    "contract-race-vet01": {
+      "exit": 0,
+      "elapsed": 0.2058752290013217,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "top_passes": 0,
+      "result_sha256": "0bbae21a57d597bbe27ba726df61c72d784fc3e7a48afef6a0d6968c98e1f29e"
+    }
+  },
+  "original_failures": [
+    {
+      "path": "contract-launch00.json",
+      "reason": "nonexistent Python path, shell127; Go never started"
+    },
+    {
+      "path": "contract-list01/driver-failure.txt",
+      "reason": "driver01 KeyError after cleanup loop; no final result so no completion claim; only scratch driver meta dictionary lookup fixed in driver02"
+    }
+  ],
+  "limits": "contract author checks only; ordinary graph matched 68 conservative inputs; race-specific Go graph not yet separately emitted; no model/app/integration/resource execution"
+}

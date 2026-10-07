@@ -1,0 +1,65 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-tags=integration",
+    "-race",
+    "-deps",
+    "-test",
+    "-json",
+    "./tests/model"
+  ],
+  "env": {
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/go",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMAXPROCS": "2",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/summary-resolution-static-verification/probes03/overlay.json",
+    "TMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp",
+    "GOTMPDIR": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-tmp"
+  },
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "driver_sha256": "5f812b8970c9dd90278f07673c9f472eea2c88dcbece8970e95bf6d663394f59",
+  "tool_before_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "started_unix": 1791386207.8729217,
+  "subreaper": true,
+  "actual_exit": 0,
+  "actual_wait": true,
+  "execution_seconds": 0.2029282780003996,
+  "total_seconds": 0.7569097499999771,
+  "observed_processes": [
+    {
+      "pid": 308994,
+      "starttime": "1215970",
+      "ppid": 308969,
+      "pgrp": 308994,
+      "state": "R"
+    }
+  ],
+  "adopted_waits": [],
+  "cleanup_actions": [],
+  "cleanup_twice": [
+    {
+      "time": 1791386208.0821345,
+      "remaining": []
+    },
+    {
+      "time": 1791386208.1844084,
+      "remaining": []
+    }
+  ],
+  "input_unchanged": true,
+  "tool_after_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "stdout_sha256": "1bf9e205a011a14a23412b7a6feca9ac20c4373c378d60b637c304b5daceeb41",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "success_extra": true,
+  "passed": true
+}

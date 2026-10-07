@@ -1,0 +1,26 @@
+{
+  "runs": {
+    "overlay-model-pure01": {
+      "exit": 0,
+      "elapsed": 0.33702802800144127,
+      "top_pass": 52,
+      "sub_pass": 141,
+      "joined": true,
+      "owned_empty": true,
+      "effective_inputs_equal": true,
+      "result_sha256": "9590587d54831c07735b9508d575981250e45bc48b4639d83e5b9b53e2345465"
+    },
+    "overlay-model-race01": {
+      "exit": 0,
+      "elapsed": 1.4713556330007123,
+      "top_pass": 52,
+      "sub_pass": 141,
+      "joined": true,
+      "owned_empty": true,
+      "effective_inputs_equal": true,
+      "result_sha256": "e8237232852ca0d8555d9b1304f326b609b35654c8b044665d8929d4f6d55a82"
+    }
+  },
+  "scope": "S3candidate02 + fixed c210 S2 masks, runtime schema from accepted private subtree; full ordinary model package pure and race; no integration/native resource",
+  "source_changed": false
+}

@@ -1,0 +1,57 @@
+{
+  "original_run": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1",
+  "evidence_sha256": {
+    "raw.log": "3ce737581400a0d5280049ab5fa3630595e983cc17cae0d135cf7360daa36f1a",
+    "result.json": "d5508034ea1e0ae431d573f975243f3653454e0fd02871205d2317a1b78e598c",
+    "cleanup.json": "e565a29c6d540e1c3f2a56b2f6c4b07a8b812d43316d17366726e1ab31eccfae",
+    "watchdog.json": "a8846b943ea8efac253c0307439ee424da0ae011714df91fcf26014523f70771",
+    "input-before.json": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34",
+    "input-after.json": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34"
+  },
+  "accepted_rule_sources_sha256": {
+    "internal/central/project/repository.go": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+    "internal/central/project/authority.go": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+    "internal/central/secret/usage_plan.go": "ad554aa10034aae01ca132ac6649bfecf8b8e894d14ba80faead61be1cc9c20b",
+    "internal/central/secret/error.go": "3935d74c6c49d00be8f942b72c15114c208c07c4855ef2e285bfbcf57572f651",
+    "internal/central/secret/contract/account.go": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9"
+  },
+  "driver_exit": 1,
+  "actual_wait_completed": true,
+  "double_cleanup": true,
+  "observed_resources": 7,
+  "new_daemon_zombies_not_owned_or_joined": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 259940,
+      "ppid": 1,
+      "starttime": "1109509",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 260567,
+      "ppid": 1,
+      "starttime": "1110151",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 260934,
+      "ppid": 1,
+      "starttime": "1110412",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 261840,
+      "ppid": 1,
+      "starttime": "1110839",
+      "state": "Z"
+    }
+  ],
+  "next_resource_rounds": "stopped; no retry authorized"
+}

@@ -1,0 +1,252 @@
+{
+  "accepted_commit": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "candidate_manifest": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/candidate02/manifest.json",
+    "sha256": "f52d2500435625f274c1cccc0710e44c0781be9161df70da8dba936c7d06a849"
+  },
+  "overlay_sha256": "2360816d2c91586ba8cc28a2f8063054d150b16f283206a3fe2cc411908d4cc7",
+  "paths": {
+    "internal/central/model/http.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/model/http.go"
+      ],
+      "exit": 0,
+      "sha256": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc",
+      "kind": "fixed accepted file"
+    },
+    "api/openapi/model-system.json": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:api/openapi/model-system.json"
+      ],
+      "exit": 0,
+      "sha256": "1de2d849f8a6534ef9473d2d5c4d472b17905d6cc0ce25651f5b1ad3c1b21dd6",
+      "kind": "fixed accepted file"
+    },
+    "internal/central/app/account.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/app/account.go"
+      ],
+      "exit": 0,
+      "sha256": "7cf981e59507f27bb6aac57378acb65ee109ec2f4a1f73d554a0ddb877e380ba",
+      "kind": "fixed accepted file"
+    },
+    "internal/central/app/project_usage.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/app/project_usage.go"
+      ],
+      "exit": 0,
+      "sha256": "de5dfb03150ccc7fc3a875c871e5dfef150eb838d4173b392a6ed397b3550144",
+      "kind": "fixed accepted file"
+    },
+    "internal/central/app/project_usage_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/app/project_usage_test.go"
+      ],
+      "exit": 0,
+      "sha256": "dfa09bf12b0e39323ef4c4e339a8c247de1f524e766d30827873541b5e014c8a",
+      "kind": "fixed accepted file"
+    },
+    "internal/central/app/model_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/app/model_test.go"
+      ],
+      "exit": 0,
+      "sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54",
+      "kind": "fixed accepted file"
+    },
+    "tests/model/meeting_summary_http_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:tests/model/meeting_summary_http_test.go"
+      ],
+      "exit": 0,
+      "sha256": "2466c3aea6f57de7cc1a5a75c88a3718dd893456cf3b9718b5ebce68be8de400",
+      "kind": "fixed accepted file"
+    },
+    "internal/central/model/http_meeting_summary.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/model/http_meeting_summary.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'internal/central/model/http_meeting_summary.go' exists on disk, but not in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "internal/central/model/http_meeting_summary_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/model/http_meeting_summary_test.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'internal/central/model/http_meeting_summary_test.go' exists on disk, but not in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "internal/central/model/http_meeting_summary_native_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/model/http_meeting_summary_native_test.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'internal/central/model/http_meeting_summary_native_test.go' exists on disk, but not in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "tests/model/meeting_summary_settings_http_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:tests/model/meeting_summary_settings_http_test.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'tests/model/meeting_summary_settings_http_test.go' exists on disk, but not in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "tests/model/meeting_summary_settings_root_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:tests/model/meeting_summary_settings_root_test.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'tests/model/meeting_summary_settings_root_test.go' exists on disk, but not in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "tests/model/meeting_summary_settings_fixture_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:tests/model/meeting_summary_settings_fixture_test.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'tests/model/meeting_summary_settings_fixture_test.go' exists on disk, but not in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "tests/account/system_meeting_summary_web_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:tests/account/system_meeting_summary_web_test.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'tests/account/system_meeting_summary_web_test.go' does not exist in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "tests/account/system_meeting_summary_web_fixture_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:tests/account/system_meeting_summary_web_fixture_test.go"
+      ],
+      "exit": 128,
+      "expected_absence_stderr": "fatal: path 'tests/account/system_meeting_summary_web_fixture_test.go' does not exist in 'c210d249600d98871513c56fb9a8fff7c50a4c34'\n",
+      "kind": "new S2 file excluded, whether currently present or later created"
+    },
+    "internal/central/model/contract/configuration.go": {
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/contract/configuration.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/contract/configuration_test.go": {
+      "sha256": "1a530058bdaf828cc911daf7dc5da75e1bf9e5693e4acb97d7cfc773cf2beb01",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/contract/configuration_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/contract/resolution_test.go": {
+      "sha256": "a1173d1eb5bfc9caafc750bfa85e64abbb1eb72dc3ff254471dec96894ce2980",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/contract/resolution_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/contract/meeting_summary_test.go": {
+      "sha256": "c90c1a583bb8ec384ac346692ad90cc12b80bd795a28daa7bf385146aeadfbbd",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/contract/meeting_summary_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/resolution_policy.go": {
+      "sha256": "4e4b4ed8801a3def44dd6394b61be1358a3190fc03917eb25032edf8a1e1d038",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/resolution_policy.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/resolution_policy_test.go": {
+      "sha256": "3c3faddcc248c659b47a69ff5b3194d68179f0f009c4bc5b32939c2f473366d0",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/resolution_policy_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/resolver.go": {
+      "sha256": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/resolver.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/resolver_test.go": {
+      "sha256": "6226fe1095419a47ad8520e7d48a14b4c5f5cd734c998cf6f41c12315ca02e19",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/resolver_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/resolution_plan.go": {
+      "sha256": "577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/resolution_plan.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/resolution_plan_test.go": {
+      "sha256": "0501fb561a094b8c57bfa8c9c7aca1a7fdb9e6aae310331180f8602a2cb8c323",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/internal/central/model/resolution_plan_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "tests/model/meeting_summary_resolution_fixture_test.go": {
+      "sha256": "69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate02/src/tests/model/meeting_summary_resolution_fixture_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "tests/model/meeting_summary_resolution_selection_test.go": {
+      "sha256": "b84e17f647ec3564d11016dcdfc640a408cf6f311d98e50a40f907c003148d1b",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/tests/model/meeting_summary_resolution_selection_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "tests/model/meeting_summary_resolution_atomicity_test.go": {
+      "sha256": "2328c310216212635032ed36d65357234f5204516a3a637afe57744c928b8b3e",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/tests/model/meeting_summary_resolution_atomicity_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "tests/model/meeting_summary_resolution_authorization_test.go": {
+      "sha256": "693660e66336ae8652d2988d219bdffd97eb4fff8d50fd75700c522dbafb5443",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/tests/model/meeting_summary_resolution_authorization_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "tests/model/meeting_summary_resolution_replay_test.go": {
+      "sha256": "3ff5a1119160bf0adc5cde7c35f569f6f25ba6dd41911bd2658849ae010464d3",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/tests/model/meeting_summary_resolution_replay_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "tests/model/meeting_summary_resolution_unknown_test.go": {
+      "sha256": "83bd1288a8e4246243341a9d1895afc3e2fd8c4c2594c543851db7f6de0bf745",
+      "path": "/workspace/scratch/meeting-summary-s3-author/candidate01/src/tests/model/meeting_summary_resolution_unknown_test.go",
+      "kind": "frozen S3 candidate02 effective source"
+    },
+    "internal/central/model/http_test.go": {
+      "command": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/model/http_test.go"
+      ],
+      "exit": 0,
+      "sha256": "e3271b0a5425e54b2c383650bed3918a6eff09acce29fb8e4ce4b53f58fb0a98",
+      "kind": "fixed c210 existing HTTP test preemptively masks S2 rev3 scope"
+    }
+  },
+  "status": "prepared only; no go overlay list/compile executed; no test bodies authorized",
+  "inherits": "overlay01 accepted7 and S3candidate02 source backings remain immutable"
+}

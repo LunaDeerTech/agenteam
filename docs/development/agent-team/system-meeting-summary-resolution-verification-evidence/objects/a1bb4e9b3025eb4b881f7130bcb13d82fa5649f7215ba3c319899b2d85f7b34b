@@ -1,0 +1,166 @@
+{
+  "result": "PASS_STATIC_DELTA; no new Go/test/resource execution",
+  "candidate_manifest": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/candidate03/manifest.json",
+    "sha256": "ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9"
+  },
+  "changed_paths": [
+    "tests/model/meeting_summary_resolution_selection_test.go",
+    "tests/model/meeting_summary_resolution_authorization_test.go"
+  ],
+  "unchanged_paths_count": 14,
+  "all_production_unchanged": true,
+  "source_diff_sha256": "4e3ddcffe0344dc821eb77630c35bde02043195a8295c96f13d4a7946245b4e1",
+  "attribution_sha256": "f71e6d42ca62178fb126a919e79971fa9d4497b36ce542f868df90553c4300c1",
+  "fixed_rule_evidence": {
+    "internal/central/project/repository.go": {
+      "sha256": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+      "argv": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/project/repository.go"
+      ],
+      "actual_exit": 0,
+      "stderr": ""
+    },
+    "internal/central/project/authority.go": {
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "argv": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/project/authority.go"
+      ],
+      "actual_exit": 0,
+      "stderr": ""
+    },
+    "internal/central/secret/usage_plan.go": {
+      "sha256": "ad554aa10034aae01ca132ac6649bfecf8b8e894d14ba80faead61be1cc9c20b",
+      "argv": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/secret/usage_plan.go"
+      ],
+      "actual_exit": 0,
+      "stderr": ""
+    },
+    "internal/central/secret/error.go": {
+      "sha256": "3935d74c6c49d00be8f942b72c15114c208c07c4855ef2e285bfbcf57572f651",
+      "argv": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/secret/error.go"
+      ],
+      "actual_exit": 0,
+      "stderr": ""
+    },
+    "internal/central/secret/contract/account.go": {
+      "sha256": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9",
+      "argv": [
+        "git",
+        "show",
+        "c210d249600d98871513c56fb9a8fff7c50a4c34:internal/central/secret/contract/account.go"
+      ],
+      "actual_exit": 0,
+      "stderr": ""
+    }
+  },
+  "new1_command": {
+    "argv": [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^(TestModelMeetingSummaryResolutionSelection|TestModelMeetingSummaryResolutionAuthorization)$"
+    ],
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 76.972,
+    "pid": 259539,
+    "watchdog_thread_joined": true
+  },
+  "new1_verified_evidence": {
+    "raw.log": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/raw.log",
+      "sha256": "3ce737581400a0d5280049ab5fa3630595e983cc17cae0d135cf7360daa36f1a"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/result.json",
+      "sha256": "d5508034ea1e0ae431d573f975243f3653454e0fd02871205d2317a1b78e598c"
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/cleanup.json",
+      "sha256": "e565a29c6d540e1c3f2a56b2f6c4b07a8b812d43316d17366726e1ab31eccfae"
+    },
+    "watchdog.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/watchdog.json",
+      "sha256": "a8846b943ea8efac253c0307439ee424da0ae011714df91fcf26014523f70771"
+    },
+    "input-before.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/input-before.json",
+      "sha256": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34"
+    },
+    "input-after.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/input-after.json",
+      "sha256": "d367d6d6a85c0642524e768539e1d262edd7fba81f9192869e3290bcfcc4ce34"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/command.json",
+      "sha256": "05a24e61b367970127ac0affa78ecde0b59446c66b28cc150f35bb2898401a41"
+    },
+    "owned-tail-retirement.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "adopted-waits.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "monitor-errors.json": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/driver-v01/runs/new1/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "new1_owned_clear_twice": true,
+  "new1_seven_resources_absent_twice": true,
+  "new_pid1_zombies_unowned_not_waited": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 259940,
+      "ppid": 1,
+      "starttime": "1109509",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 260567,
+      "ppid": 1,
+      "starttime": "1110151",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 260934,
+      "ppid": 1,
+      "starttime": "1110412",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 261840,
+      "ppid": 1,
+      "starttime": "1110839",
+      "state": "Z"
+    }
+  ],
+  "private_probe02": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes02/independent_meeting_resolution_test.go",
+    "sha256": "fb395bc82236f39e72a6823fd27daefeb314e8db97c25f2ad3fadc58a4d3741c",
+    "diff_sha256": "715f4525cc2ed26f7073fb5c6d5dc217eef8675e95ccd4c04cd37d9c7cb8f2e8",
+    "prior_formatted_preserved_sha256": "0029c8f9fc10b6c7c593bd852231cbc3205b08833e4a0146ba1501e5b21f2efe",
+    "changes": "one non-owner admin Project expectation Forbidden→NotFound; canonical negatives stay Forbidden; no private altered-lease assertion"
+  },
+  "pending": "author affected compilation/new1 real rerun; independent private overlay rebind and authorized compilation/list/resources"
+}

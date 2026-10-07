@@ -1,0 +1,274 @@
+{
+  "fixed_driver": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/driver.py",
+    "sha256": "feff2997a0c24cb9dd2a80399c5698d60344f8d179d5d46c7195da7e867c0150"
+  },
+  "fixed_input": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/frozen.json",
+    "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+  },
+  "closure_delta": {
+    "path": "/workspace/scratch/summary-resolution-static-verification/probes03/closure-delta-final.json",
+    "sha256": "87ec8eceb0dd4a1dc798514ca531c3a2018b8a128f82dc3d32cedbee8cdd8073"
+  },
+  "runs": [
+    {
+      "name": "independent-a01",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_seconds": 51.369,
+      "top_seconds": 5.96,
+      "top": "TestIndependentMeetingSummaryResolutionAuthorityAndSelection",
+      "sub_pass": 4,
+      "owned_process_count": 87,
+      "resource_count": 7,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "monitor_errors": 0,
+      "tail_actions": 0,
+      "adopted_waits": 0,
+      "fresh_free_bytes": 21585887232,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/command.json",
+          "sha256": "f6be577142d7f16518f132c57801ab513e9ec33b2d165d13d41ec061f1a75929"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/raw.log",
+          "sha256": "dfe6979e48653186093be59c4f18011e8597590b85b3d4867f5f172aa3ab55ad"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/result.json",
+          "sha256": "6b3da925b79253a605deb991f9bf33bb13038371724796adcd234bc65f4bfdf0"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/cleanup.json",
+          "sha256": "9a7078a44c972a20c4e4ceaa0a9fe88221c423ba149a1927146ddadee0ebaefe"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/watchdog.json",
+          "sha256": "4afb17e969c4ae186c374456f64be11eae31983eeff53d9fb65d46e41c731691"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/input-before.json",
+          "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/input-after.json",
+          "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/observed-resources.json",
+          "sha256": "2daee47c09261addaeafc7326a5ef2f1a939a49b0a8d2b6bedf741e595f72b3c"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/observed-processes.json",
+          "sha256": "b776515c5db5814ad0bf2e261b1800965d2f12e589b5650e33f758ebeec34930"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/process-baseline.json",
+          "sha256": "fb39965fb0282a18a163022d456b0a4b4a3a082c40e54ec3b0998aaf85ceead0"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/disk-before-spawn.json",
+          "sha256": "db0f78817ff36f101e742cb5860c7cae0aa437f2a8d2951538dcbd2eb06b6aa9"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/frozen-input.json",
+          "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+        },
+        "verification-input.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/verification-input.json",
+          "sha256": "2e8a03e08a18346521859cc8f6e416390d3929789bf7c288a707db1aca12e6e2"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-a01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        }
+      },
+      "baseline_daemon_zombies": 68,
+      "final_daemon_zombies": 72,
+      "new_daemon_not_owned_or_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 314170,
+          "ppid": 1,
+          "starttime": "1243920",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 314543,
+          "ppid": 1,
+          "starttime": "1244184",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 314920,
+          "ppid": 1,
+          "starttime": "1244397",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 315502,
+          "ppid": 1,
+          "starttime": "1244589",
+          "state": "Z"
+        }
+      ],
+      "final_readonly_owned_identity_check_empty": true
+    },
+    {
+      "name": "independent-b01",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "command_seconds": 56.626,
+      "top_seconds": 5.68,
+      "top": "TestIndependentMeetingSummaryResolutionReplayAndAtomicity",
+      "sub_pass": 2,
+      "owned_process_count": 86,
+      "resource_count": 7,
+      "double_cleanup": true,
+      "inputs_unchanged": true,
+      "monitor_errors": 0,
+      "tail_actions": 0,
+      "adopted_waits": 0,
+      "fresh_free_bytes": 21585358848,
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/command.json",
+          "sha256": "d48a40edf5edaa2e3532161a279009f050dde3bc01333d48092b71091f2001f2"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/raw.log",
+          "sha256": "a62ba5eeeb3aac3e58d0a2dc1cf7993e6b3a11ecb5700f603f96c7e71a3f2358"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/result.json",
+          "sha256": "b2c1605f09bde8f645ddc3e4bb6f96c5d254950a2f96c39a7333bc38872778f9"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/cleanup.json",
+          "sha256": "159fde8ce9c45cb4777099da482e115e5ab7811c34b0aefc1beb6cb9eb7ca0dc"
+        },
+        "watchdog.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/watchdog.json",
+          "sha256": "e866b19338b5a7818a84633b8f4d01a2be124c22d9da855a33b9554dbead780d"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/input-before.json",
+          "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/input-after.json",
+          "sha256": "b0097ab0b470a5cfd9bf7d6f6236e287cd8a537b89f3289d0fc5a57d757eea29"
+        },
+        "observed-resources.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/observed-resources.json",
+          "sha256": "50169496ea4e4a51919238a8202809d9a3ec37b8ec7ce7d0392ca00f0ed5a138"
+        },
+        "observed-processes.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/observed-processes.json",
+          "sha256": "4ad35d1a95778312ca52c86b9299ca5cd6e788fffa7c4da794852349bb088afe"
+        },
+        "adopted-waits.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "owned-tail-retirement.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        "process-baseline.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/process-baseline.json",
+          "sha256": "c27401a1a2c930566dbbfc830ef070c686f8680a8e1fe33aaade51539a4b462f"
+        },
+        "baseline.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/baseline.json",
+          "sha256": "c4ab7a4e152173fee73d18d170b3aa6fc1e594f5c3f21db3ac5cec50c4fdfb41"
+        },
+        "disk-before-spawn.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/disk-before-spawn.json",
+          "sha256": "f3d8174aa31a215502d5213e388b9c83d672f74721ab66e71b9565948d3daa86"
+        },
+        "frozen-input.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/frozen-input.json",
+          "sha256": "5be9709efa90bd57361ad67b7b664d2e169bcc818d7b8716c9c5545fbdaf371c"
+        },
+        "verification-input.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/verification-input.json",
+          "sha256": "2e8a03e08a18346521859cc8f6e416390d3929789bf7c288a707db1aca12e6e2"
+        },
+        "monitor-errors.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/monitor-errors.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        "cancellation.json": {
+          "path": "/workspace/scratch/summary-resolution-static-verification/probes03/driver-v01/runs/independent-b01/cancellation.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        }
+      },
+      "baseline_daemon_zombies": 72,
+      "final_daemon_zombies": 76,
+      "new_daemon_not_owned_or_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 321651,
+          "ppid": 1,
+          "starttime": "1251666",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 322191,
+          "ppid": 1,
+          "starttime": "1252104",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 322563,
+          "ppid": 1,
+          "starttime": "1252357",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 323134,
+          "ppid": 1,
+          "starttime": "1252555",
+          "state": "Z"
+        }
+      ],
+      "final_readonly_owned_identity_check_empty": true
+    }
+  ],
+  "resources_returned_to_root": true,
+  "no_real_rerun": true
+}

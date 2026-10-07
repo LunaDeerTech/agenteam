@@ -1,0 +1,92 @@
+{
+  "conclusion": "PASS: bounded S3 16 technical paths; final backend README separately pending static review",
+  "scope": "platform.meeting_summary library resolution for Meeting initial/update using accepted S1 selector and existing Resolver/ConsumerAuthority interfaces",
+  "candidate": {
+    "path": "/workspace/scratch/meeting-summary-s3-author/candidate03/manifest.json",
+    "sha256": "ec02c2b155dac0a9c626d6856f55b0cf1181236c4872f8358792bbdd42cce9f9"
+  },
+  "baseline": "c210d249600d98871513c56fb9a8fff7c50a4c34",
+  "technical_path_count": 16,
+  "all_current_source_hashes_match": true,
+  "evidence": {
+    "contract_static": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/contract01/review.md",
+      "sha256": "bdbf71fea1e6c279faa4452eae9af6cf52aa2b8c84ffe5e242412502f4bc422d"
+    },
+    "contract_author_evidence_review": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/contract-evidence01/review.md",
+      "sha256": "a02d59501754ffc507b03bc06ca8612a36765df86b34ffffc61f1973f3df184a"
+    },
+    "product_static": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/product-static01/review.md",
+      "sha256": "4a5eb0c53a15e5ec9871d489d9855d9b8884c10a298025219ae05ba0844411dc"
+    },
+    "candidate03_delta": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/candidate03-review/review.md",
+      "sha256": "4bb8a5d5c58495aa2fed1f03084d4f6a5037ee836bcec3581076f27cf8e64a1a"
+    },
+    "private_offline": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline-result.json",
+      "sha256": "b827c56fbb02c8deddbc762f2708ae9919cafe0455319acb76c6f6be89be531a"
+    },
+    "private_actual_graph": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes03/offline/p06-race-graph/actual-graph.json",
+      "sha256": "92f52c2f0e27377edd3f32442007ab40b45c76a176dee4b19fcdcb9ba57fe8a0"
+    },
+    "private_original_compile_failure": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes02/offline/p03-race-compile/result.json",
+      "sha256": "7c35699e25c834c845797ac45d463985da26cd2469be8a38eb2098296199924a"
+    },
+    "private_fix": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes03/private-fix.diff",
+      "sha256": "e018fd03895d70aa03b1ac8c461d8db5781ffc6616ae55a55fe711370e412137"
+    },
+    "author_offline_check": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes03/author-offline-evidence-check.json",
+      "sha256": "d855ff893e8a1c860898776f69a30fc5ded57ff916ff92d12e270d9f3ffd7ab3"
+    },
+    "author_real_check": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/probes03/author-evidence-check.json",
+      "sha256": "25221c5217222a7f965be018405969fe4bc81be9ce4080757fb5f18b571f702e"
+    },
+    "author_report": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/author-report01.md",
+      "sha256": "a1cf52179dfff6a99ae741b0512ec4f82392fe974dd98b72af7d266874304456"
+    },
+    "author_runs": {
+      "path": "/workspace/scratch/meeting-summary-s3-author/author-runs01.json",
+      "sha256": "df66ac01d967d5df95e5b3688680001ddbd96676a4126e5705483fd9cb076f77"
+    },
+    "independent_runs": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/final01/independent-runs.json",
+      "sha256": "dc8d066a5f20ffefc101846336f4ef9a1b02a3d783f17b8dbe8357d6b8e95b06"
+    },
+    "technical_paths": {
+      "path": "/workspace/scratch/summary-resolution-static-verification/final01/technical-paths.json",
+      "sha256": "34f6b00dcb07414787d7907759640c731d054039efefd5f052be29d7b66734b7"
+    }
+  },
+  "accepted_checks": {
+    "contract": "33 pure + 33 race + race vet, reused independently reviewed frozen author evidence",
+    "model": "52 top/141 sub ordinary and race; compile/vet/build and affected candidate03 compile/list independently checked raw/results without rerun",
+    "author_real": "5 new top/44 sub + 8 old top/47 sub in four successful candidate03 rounds; original candidate02 new1 FAIL remains separate",
+    "independent_real": "2 top/6 nested cases plus B top-body assertions, both first real attempts PASS, original seven-resource wrapper each"
+  },
+  "production_defects_found": [],
+  "repairs_during_verification": [
+    "Author candidate03 only integration expectations align existing Project NotFound and Secret altered-binding InvalidArgument; production unchanged",
+    "Private probes03 only DTO access Configured.Memory; initial private compile failure retained"
+  ],
+  "boundaries": [
+    "Shared S2 work excluded via fixed c210 plus author32/private33 overlay; no active S2 source/browser evidence consumed",
+    "Strict Meeting canonical fixture is test-only; formal Account lifecycle helpers reused from frozen author fixture; old regression identity provenance not upgraded",
+    "Unknown API result decoration after actual SQL terminal, not physical COMMIT ACK-loss",
+    "No new migration/public Resolver API; production resolution/Invocations and D24 generation remain unbound within S3 scope",
+    "Each real round actual owned process wait and exact seven-resource double cleanup; no whole-machine cleanup or inner outbound/registry component join claim",
+    "Seven S3 rounds including original author failure add28 daemon-owned PID1 shim zombies:48\u219276; eight of these from independent A/B68\u219272\u219276, not owned or waited by task",
+    "Backend README final-only static review remains pending; D09/D24/full modules/E01 not completed"
+  ],
+  "resource_window_returned": true,
+  "business_or_repo_files_written_by_verifier": [],
+  "final_background_activity": false
+}

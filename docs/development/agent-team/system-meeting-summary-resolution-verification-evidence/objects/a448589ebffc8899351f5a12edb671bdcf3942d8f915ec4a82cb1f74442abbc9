@@ -1,0 +1,60 @@
+{
+  "runs": {
+    "overlay-model-compile01": {
+      "exit": 0,
+      "seconds": 4.389171025999531,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "result_sha256": "0e8347892d8ddbde6aa2bb3d81416278b6af6f6c3d77904227d8b3322d851954"
+    },
+    "overlay-model-race-compile01": {
+      "exit": 0,
+      "seconds": 6.135433743000249,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "result_sha256": "7b33ec9ec762c5a627e62253c9a9aab30ba8f3db37d5692676888e832acb74ed"
+    },
+    "overlay-model-race-vet01": {
+      "exit": 0,
+      "seconds": 0.7286407179999514,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "result_sha256": "b0cd0cfac6c9af5221da46958272b9c157424027c2dd2dae9f432138de79930d"
+    },
+    "overlay-integration-compile01": {
+      "exit": 0,
+      "seconds": 9.016895873000976,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "result_sha256": "cb12c4e4b7f10b8a5c22cc98c651c3c0a8a67b42c4ba39053bd55d49c81b0cf7"
+    },
+    "overlay-central-build01": {
+      "exit": 0,
+      "seconds": 3.3708534790002886,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "result_sha256": "539dac345c436bb04160315b0bd4f6714d2ab8aadca05e365b1c57b6a716ad14"
+    },
+    "overlay-runner-build01": {
+      "exit": 0,
+      "seconds": 0.5242307160006021,
+      "joined": true,
+      "owned_empty": true,
+      "inputs_equal": true,
+      "result_sha256": "3eeb15de02c038c7d936377564de80cf4821723d0aabf6c1613285ad0b45e897"
+    }
+  },
+  "binaries": {
+    "model-pure01.test": "59a3010c4265570ad1db08b13664553a5eaf7922325c755f2d5ace886f168d27",
+    "model-race01.test": "3126beed6ff7fb030c06fecb3c5b67f96b6ea2cd56e1f9d04c84e43a306c66f1",
+    "model-integration01.test": "87270d7e685b15322dd9555cf7c2b500ae284424f6c5c1b41cdcb0f82876b766",
+    "agenteam-overlay02": "22656a50fcc8e907c251dab70b42fbd86a9348b636ac63b46bd1d829bed61249",
+    "agenteam-runner-overlay02": "44a77b0ae7e98169346d05c4aa766b22e5e59eeea47b95b02fbb2f8a85927ebc"
+  },
+  "limits": "compile/vet only; none of these binaries has executed; no resources"
+}
