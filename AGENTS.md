@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前接受（2026-10-08）：Go04/browser-v3四测试harness路径经STATIC/离线及read02真实读取/owned退役独立原件复核接受，46schema/16client真实读取、dot稳定ID通过；19前端源不变。原read01 FAIL永久档629bf2d0已推送核同，原资产3file已恢复，当前无资源。这不等于其余4新/16旧/独立实际A-B/视觉或完整D27接受；下一步仅new-edit，详情见[台账](docs/development/agent-team/tasks.md)。D08–D28/E01/生产未绑定/ready503与三停止保持。
+
 当前终局（2026-10-08）：[重建read01永久失败档](docs/development/agent-team/project-owner-ui-recovered-read01-verification.md)已冻结核原件；read02作者实际整轮PASS并完全退役，dot/schema/samebody正在独核，未据此接受完整D27或后继。原web/dist3file已再次按SHA恢复，测试53file保留供后继复用，当前无资源。Go04/browser-v3四路径未提交、UI19不变，待read02独立终局后小块交付与继续剩余新旧场景；[台账](docs/development/agent-team/tasks.md)保存精确范围。
 
 当前最新（2026-10-08）：重建真实read01 FAIL仅browser-v2标题期待过强，实际409 typed error正确；7资源/actualwait/owned双清独核，4非owned daemon shims另列。只返修JS→v3，产品19/Go/API不变；read02准备STATIC/PREPARED接受、尚未实际启动。原资产已在read01退役后恢复，第二轮测试再换53，原3完整备份original-dist-read02，后继退役后root须恢复。当前Go18–19/browser20–21未提交，完整卡未接受；[台账](docs/development/agent-team/tasks.md)记录原件与下一步。

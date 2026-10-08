@@ -1,5 +1,15 @@
 # 团队任务台账
 
+## 2026-10-08：Owner 读取浏览器harness四路径限定接受
+
+Go candidate04 #18–19 与 browser-v3 #20–21 四路径已正式独立限定接受，原STATIC/离线和read02实际读取/owned退役证据全同，无未关闭必修；本批仅四新测试源及协调记录，19前端产品源不改。独验负责人正式冻结 `/workspace/scratch/owner-ui-runtime-verification/read02-result-review/review.md` SHA `9274ffee79b67ca6a962f7caf27c5d2623ad2ce06c2e109b99ed6b91d2ac2a00`，111固定原件、46sidecar/39body逐SHA同，实际schema46和公开client list6/resolve3/get3/problem4按原X-Request-ID/真实URL参数复核；setup001–028及IPC042GET/043PATCH不计browser。dot036→037、settings038→039实际HTML/DOM/同稳定ID与原body通过。
+
+实际read02 command59.722s、top15.36s/browser8s、direct与4adopted actualwait、watchdog join、7ID逐两absent、owned/runtime双空及TCP全态delta双清（40.377s补充尾观测）、源与运行输入前后同。4新增daemon PID1 shim非owned/未wait单列，不称全机清零。root已在全部reader退役后恢复原globaldist3file及SHA，测试53保留可复用；当前无资源/asset替换。原read01 FAIL与窄测试返修保持，永久档629bf2d0已推送核同，不能改写成PASS。
+
+这是作者实际读取轮的独立证据复核与harness小块接受，**独立实际A/B、其余4新/16旧、视觉/焦点/Unknown三态尚未接受**；五case源码存在不代表均已执行。私有Skills初始化/终态归档准备不证明生产Skills绑定或生命周期runtime完成。短报告/必要成功小原件后续另档，不因排版拖延已验四源提交；产品以本节及四源同批Git历史定位，root立即推送并核远端。
+
+下一步：复用相同19产品源、Go04与browser-v3/实际闭包，按已验读取前置仅授new-edit一轮；成功并退役后再依次recovery/identity/layouts与旧16/独立A-B，失败先退役并保原件后限定修复。README22/完整D27仍未接受，完整D08–D28/E01未完成、E01未开始、生产未绑定/ready503及三停止保持；以下条目为历史时点。
+
 ## 2026-10-08：重建read01永久失败档与read02实际终局
 
 [read01失败与退役永久记录](project-owner-ui-recovered-read01-verification.md)及必要小原件已冻结，root核111逻辑原件source/archive SHA/字节、34固定Gitblob及111证据指纹/JSON/链接一致。原FAIL保留，独立task-owned退役接受；70原格式例外保留，其中只有raw.log十行尾空格是Git实际诊断，其余69为原JSON无末换行。4未提交Go04/browser-v2小源副本仅复现输入，不冒充产品接受，不复制完整树/依赖/资产/私有material。
