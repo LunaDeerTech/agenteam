@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "/workspace/scratch/project-initialization-convergence-verification/formal01/check.py"
+  ],
+  "chunk_id": "26a042",
+  "wall_time_seconds": 0.000017386,
+  "exit_code": 0,
+  "original_token_count": 69,
+  "output": "{\"kind\": \"formal-document-narrow-static-check\", \"formal_freeze_files\": 7, \"reversible_replacements\": 13, \"section_1_to_6_reverse_bytes_equal\": true, \"source_rows\": 57, \"stopped_source_rows\": 4, \"errors\": [], \"pass\": true, \"executed_go_resources_git\": false}\nlinks_checked=72\n"
+}

@@ -1,5 +1,7 @@
 # D08/D10 Project 初始化收敛授权库（rev1）
 
+持久归档（2026-10-08）：rev1全文及正式末件完整STATIC已接受；规格 `b01b08d440ca253124efe4e725dea093fa1a958e` 已推送并核远端一致，[原始审查、工具修正与来源映射](../agent-team/project-initialization-convergence-spec-verification.md)已归档。当前仅另授5技术scratch实施，不安装仓库、不Go或资源；不是产品接受。以下原状态按正式归位时点保留，§1起技术原字节不变。
+
 2026-10-08。状态：**完整规格独立 STATIC PASS，root 已采纳（含 active-only 工程边界）；正式归位末件待核，尚未授权产品实施、Go 或资源。** 固定产品基线 `4089d13128da8680955005d9507c8a7da74af1f1`。本卡归位不证明产品已经实现；原 scratch、独审与固定来源指纹见 §8。
 
 ## 1. 必要性、已接受依赖与结果边界

@@ -1,5 +1,11 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 后继固定状态：初始化收敛必要前置与UI未验边界
+
+[Project初始化收敛授权规格](project-initialization-convergence-spec-verification.md)完整rev1及正式末件STATIC已接受，规格 `b01b08d4` 已推送并核远端一致；root仅授5技术scratch实施，不安装仓库、不Go/资源，README未授、产品未接受。D10旧ProjectFactAuthority缺失说明已过时，但真实Skills/root仍受停止的Object runtime join依赖阻挡，新gate仅必要前置，不开放创建HTTP或发布。
+
+Audit完整16产品 `4089d131`／归档 `3ce7ec33` 接受保持。Owner工作区UI candidate02完整23技术STATIC与有限离线组合通过，产品未接受；实际5新＋16旧真实top、布局/视觉及资源尚未运行，README #22仍未授。管理员统一会议Summary initial/update含首标题，Project不override/复制初值，compaction/Execution Summary不变。production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持；以下历史原文保留。
+
 ## 后继固定状态：Audit完整接受与UI图交接
 
 [Project Owner Audit HTTP](project-owner-audit-http-verification.md)完整16路径已接受，产品 `4089d131` 已推送且root核远端一致。原失败和版本组合保留；3native、12实际PG的actualwait/双清已完成，原表实核84不同资源ID和48新增非owned、未wait的daemon shim，轮间另1git单列，不称全机清零。final14 cursor报告误句由final16明确纠正，原件保留。

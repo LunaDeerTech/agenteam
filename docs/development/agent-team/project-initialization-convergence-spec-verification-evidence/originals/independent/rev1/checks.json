@@ -1,0 +1,86 @@
+{
+  "kind": "independent-static-doc-input-check",
+  "declared_baseline": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "top_inputs": [
+    {
+      "path": "/workspace/scratch/project-create-frontier4089/draft-rev1.md",
+      "sha256": "34346798c4e526bf56c08cea24c4fe0ede8f59a73cb1fc8c9bbe222479db4f7b"
+    },
+    {
+      "path": "/workspace/scratch/project-create-frontier4089/inputs01.json",
+      "sha256": "057d9f57e0e7f2786444fcc685c11cda23557587c7bb9dab7bd45f478176367e"
+    },
+    {
+      "path": "/workspace/scratch/project-create-frontier4089/freeze-rev1.json",
+      "sha256": "1edf2e50ddb0e90ceca74e9ff2e21767329d54cb1f8e1f37784ef23c7e288d48"
+    }
+  ],
+  "freeze_files_checked": 5,
+  "fixed_sources_sha256_and_blob_checked": 57,
+  "matches_previously_bound_accepted_technical_sources": 12,
+  "links": [
+    {
+      "target": "fixed/docs/development/work-items/d10-skills-initialization-design.md",
+      "exists": true
+    },
+    {
+      "target": "fixed/docs/development/work-items/d08-project-owner.md",
+      "exists": true
+    },
+    {
+      "target": "fixed/docs/development/agent-team/d10-p1-recovery-verification.md",
+      "exists": true
+    },
+    {
+      "target": "fixed/docs/development/agent-team/object-project-audit-verification.md",
+      "exists": true
+    },
+    {
+      "target": "fixed/docs/development/agent-team/object-runtime-join-regression.md",
+      "exists": true
+    },
+    {
+      "target": "stopped-source-check.json",
+      "exists": true
+    },
+    {
+      "target": "fixed/internal/central/project/contract/initialization.go",
+      "exists": true
+    },
+    {
+      "target": "fixed/internal/central/identity/contract/identity.go",
+      "exists": true
+    },
+    {
+      "target": "fixed/db/migrations/00013_project_owner.sql",
+      "exists": true
+    },
+    {
+      "target": "fixed/internal/central/project/repository.go",
+      "exists": true
+    },
+    {
+      "target": "fixed/internal/central/project/creation.go",
+      "exists": true
+    },
+    {
+      "target": "inputs01.json",
+      "exists": true
+    }
+  ],
+  "scope": [
+    "internal/central/project/contract/initialization_convergence.go",
+    "internal/central/project/initialization_convergence.go",
+    "internal/central/project/initialization_convergence_test.go",
+    "tests/project/initialization_convergence_fixture_test.go",
+    "tests/project/initialization_convergence_test.go",
+    "docs/development/backend/README.md"
+  ],
+  "old_selectors_found": [
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock"
+  ],
+  "failures": [],
+  "pass": true,
+  "limits": "Hash/blob consistency with frozen index; no Git object lookup, Go, DB, socket, container or stopped probe executed."
+}

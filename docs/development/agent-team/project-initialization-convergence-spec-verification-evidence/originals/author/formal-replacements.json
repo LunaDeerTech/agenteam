@@ -1,0 +1,57 @@
+{
+  "scope": "section1-through-section6 reversible source links and administrative state only",
+  "replacements": [
+    [
+      "fixed/docs/development/work-items/d10-skills-initialization-design.md",
+      "d10-skills-initialization-design.md"
+    ],
+    [
+      "fixed/docs/development/work-items/d08-project-owner.md",
+      "d08-project-owner.md"
+    ],
+    [
+      "fixed/docs/development/agent-team/d10-p1-recovery-verification.md",
+      "../agent-team/d10-p1-recovery-verification.md"
+    ],
+    [
+      "fixed/docs/development/agent-team/object-project-audit-verification.md",
+      "../agent-team/object-project-audit-verification.md"
+    ],
+    [
+      "fixed/docs/development/agent-team/object-runtime-join-regression.md",
+      "../agent-team/object-runtime-join-regression.md"
+    ],
+    [
+      "fixed/internal/central/project/contract/initialization.go",
+      "../../../internal/central/project/contract/initialization.go"
+    ],
+    [
+      "fixed/internal/central/identity/contract/identity.go",
+      "../../../internal/central/identity/contract/identity.go"
+    ],
+    [
+      "fixed/db/migrations/00013_project_owner.sql",
+      "../../../db/migrations/00013_project_owner.sql"
+    ],
+    [
+      "fixed/internal/central/project/repository.go",
+      "../../../internal/central/project/repository.go"
+    ],
+    [
+      "fixed/internal/central/project/creation.go",
+      "../../../internal/central/project/creation.go"
+    ],
+    [
+      "stopped-source-check.json",
+      "#停止源同字节核对"
+    ],
+    [
+      "**active-only 为本草案明确的工程收敛边界，待独立 STATIC 确认，不表述成新用户产品决定。**",
+      "**active-only 已经完整规格独立 STATIC 与 root 采纳，属于工程收敛边界，不是新增用户产品决定。**"
+    ],
+    [
+      "只提议以下 **5 个新技术源 + 1 个后授文档末件**",
+      "本卡限定以下 **5 个新技术源 + 1 个后授文档末件**"
+    ]
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "kind": "scratch-static-only",
+  "commit": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "source_count": 57,
+  "source_mismatches": [],
+  "link_failures": [],
+  "whitespace": [],
+  "scope": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "exists_at_fixed_commit": false,
+      "exists_in_worktree": false
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "exists_at_fixed_commit": false,
+      "exists_in_worktree": false
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "exists_at_fixed_commit": false,
+      "exists_in_worktree": false
+    },
+    {
+      "path": "tests/project/initialization_convergence_fixture_test.go",
+      "exists_at_fixed_commit": false,
+      "exists_in_worktree": false
+    },
+    {
+      "path": "tests/project/initialization_convergence_test.go",
+      "exists_at_fixed_commit": false,
+      "exists_in_worktree": false
+    }
+  ],
+  "known_readonly_path_discovery_misses": [
+    "tests/project/fixture_test.go",
+    "internal/central/project/contract/enums.go",
+    "docs/architecture/project.md"
+  ],
+  "executed_go": false,
+  "executed_resources": false,
+  "repository_writes": false,
+  "git_mutations": false,
+  "pass": true
+}

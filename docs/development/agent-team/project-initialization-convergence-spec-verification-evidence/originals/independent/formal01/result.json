@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "conclusion": "complete formal specification STATIC PASS: accepted scratch rev1 plus formal narrow delta",
+  "formal_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d08-project-initialization-convergence.md",
+    "sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae"
+  },
+  "formal_freeze": {
+    "path": "/workspace/scratch/project-create-frontier4089/formal-rev1.freeze.json",
+    "sha256": "7246a4785adbdfa1095adccb31a3b63dcb243526d2b303db6cac08408f830c90"
+  },
+  "reused_full_static": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/rev1/result.json",
+    "sha256": "a583df8a99b3a9d492766c0a8cbbbadd6b8f75c52301d5e5ebfc1a0b503d6d61"
+  },
+  "required_fixes": [],
+  "technical_reverse_equivalent": true,
+  "sources": 57,
+  "stopped_source_summaries": 4,
+  "links": 72,
+  "implementation_authorized": false,
+  "go_or_resources_run": false,
+  "repository_writes": false,
+  "git_commands": false,
+  "evidence": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/formal01/review.md",
+      "sha256": "5014ffbdf54771c7876af05d47a86b64de43ded2530a05c9863fe0aa8c553052",
+      "bytes": 1837
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/formal01/checks.json",
+      "sha256": "d8a72197d12698e6db5c62ae9c3abc2a77e203cdfcf27c21f7579b40df204086",
+      "bytes": 8391
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/formal01/check.py",
+      "sha256": "93662f3416a5daa69225b98614d73aba8df1998b9b8c97c9cb7ca8b6b76012bd",
+      "bytes": 4010
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/formal01/check-command.json",
+      "sha256": "c728537c436d1245a3b47e5d32c82841cf992a4ff358001794ff68e3b7bd786c",
+      "bytes": 550
+    }
+  ],
+  "write_status": "stopped"
+}

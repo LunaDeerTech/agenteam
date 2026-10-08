@@ -1,0 +1,360 @@
+{
+  "status": "COMPLETE_REV1_SPEC_STATIC_AND_FORMAL_PLACEMENT_ACCEPTED_ONLY",
+  "specification_commit": "b01b08d440ca253124efe4e725dea093fa1a958e",
+  "root_commit_fact": "Root supplied commit/push/remote equality; worker performed no Git",
+  "fixed_product_baseline": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "originals": [
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/recommendation.md",
+      "sha256": "16a2e0df8d26cba75d42a9f55ab207b46f0f03cd565c6cab486168a2c062bdd3",
+      "bytes": 2502,
+      "archive": "originals/author/recommendation.md",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/inputs01.json",
+      "sha256": "057d9f57e0e7f2786444fcc685c11cda23557587c7bb9dab7bd45f478176367e",
+      "bytes": 19185,
+      "archive": "originals/author/inputs01.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/freeze-rev1.json",
+      "sha256": "1edf2e50ddb0e90ceca74e9ff2e21767329d54cb1f8e1f37784ef23c7e288d48",
+      "bytes": 1181,
+      "archive": "originals/author/freeze-rev1.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/checks-rev1.json",
+      "sha256": "727c29a1c9336f288dd6ca74dc960790186b52fb29bf6faecc03a88ec1fc1cbe",
+      "bytes": 1299,
+      "archive": "originals/author/checks-rev1.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/stopped-source-check.json",
+      "sha256": "8fac130c6cc3f61388c33e73caf9852ee6277c3b1741549d1d5a2c6310f16639",
+      "bytes": 763,
+      "archive": "originals/author/stopped-source-check.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/formal-rev1.freeze.json",
+      "sha256": "7246a4785adbdfa1095adccb31a3b63dcb243526d2b303db6cac08408f830c90",
+      "bytes": 1646,
+      "archive": "originals/author/formal-rev1.freeze.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/scratch-to-formal-rev1.diff",
+      "sha256": "5e1db26411b56f7abe8335df5607d89291382366ec47d9826e228ffe889bb17d",
+      "bytes": 28925,
+      "archive": "originals/author/scratch-to-formal-rev1.diff",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/formal-replacements.json",
+      "sha256": "48fcb1498f9e9e9dfe9d219689c4d986b328df6dd8ade72405f749bdacd8b954",
+      "bytes": 1975,
+      "archive": "originals/author/formal-replacements.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/formal-rev1-checks.json",
+      "sha256": "fc4d52dce9ffa130700fc6b9edf044b93b49f3aabdac44a5b60f10fb73a4e860",
+      "bytes": 7492,
+      "archive": "originals/author/formal-rev1-checks.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/formalize-rev1.py",
+      "sha256": "25b760b18c6cdbc287bfcc2f08be7737318ff9d6cca9db1874201ec537ce86d1",
+      "bytes": 5859,
+      "archive": "originals/author/formalize-rev1.py",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/check-formal-rev1.py",
+      "sha256": "c4d195680ba8790b22d35a950c4118d7cc46aeed182dc90805c9fbf562384a12",
+      "bytes": 2681,
+      "archive": "originals/author/check-formal-rev1.py",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/prep01/result.json",
+      "sha256": "5c5a2355bb77da4a275070d6b1c560376473fdb340660acc63844234e601b8c9",
+      "bytes": 775,
+      "archive": "originals/independent/prep01/result.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/prep01/sources.json",
+      "sha256": "ad8873e74b09c5a5d2bf934ae9bc73c87977bc6888ef30c1f27a0073b57a96ae",
+      "bytes": 6977,
+      "archive": "originals/independent/prep01/sources.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/prep01/plan.md",
+      "sha256": "67165cc367630eb0cccb9c557a73b582aa8f7ea5e8bbbfae8bad5de17e865ece",
+      "bytes": 5218,
+      "archive": "originals/independent/prep01/plan.md",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/prep01/plan-before-fixture-scope-clarification.md",
+      "sha256": "33f51be4ee2e79d2bc136a6bbbd00d28300e10e50c983c20d2806da561238b5a",
+      "bytes": 4920,
+      "archive": "originals/independent/prep01/plan-before-fixture-scope-clarification.md",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/prep01/unresolved-inheritance-original/sources.json",
+      "sha256": "100d98b399f7f9b3328299e72a73d6764be5d94b4c393c861830261040e19b49",
+      "bytes": 6368,
+      "archive": "originals/independent/prep01/unresolved-inheritance-original/sources.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/prep01/unresolved-inheritance-original/result.json",
+      "sha256": "a322c8e3f4816ff5180d6436fc1a2dfa9dfafd292e1f392d32799dc285304a4d",
+      "bytes": 572,
+      "archive": "originals/independent/prep01/unresolved-inheritance-original/result.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/prep01/unresolved-inheritance-original/plan.md",
+      "sha256": "33f51be4ee2e79d2bc136a6bbbd00d28300e10e50c983c20d2806da561238b5a",
+      "bytes": 4920,
+      "archive": "originals/independent/prep01/plan-before-fixture-scope-clarification.md",
+      "mode": "byte-identical alias"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/rev1/review.md",
+      "sha256": "54a8e0c5d4621ba10608ab7fc4a7a1530b218f8c077785232f2bd5b49d5b954c",
+      "bytes": 5970,
+      "archive": "originals/independent/rev1/review.md",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/rev1/result.json",
+      "sha256": "a583df8a99b3a9d492766c0a8cbbbadd6b8f75c52301d5e5ebfc1a0b503d6d61",
+      "bytes": 2385,
+      "archive": "originals/independent/rev1/result.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/rev1/checks.json",
+      "sha256": "f98cba26b4df0c26246005cd7ae56247b837260c0106e20413c41753a8ea711a",
+      "bytes": 2800,
+      "archive": "originals/independent/rev1/checks.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/rev1/check.py",
+      "sha256": "cae48775ecd50e4969a18d0d57a9ff60e0a35359bdcb8750924fc9d2eb8c3017",
+      "bytes": 4160,
+      "archive": "originals/independent/rev1/check.py",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/rev1/check-command.json",
+      "sha256": "9b2044f4163a65efba6e8b2a5cbc462510a11d6e811430c310cb486f819ef665",
+      "bytes": 3278,
+      "archive": "originals/independent/rev1/check-command.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/rev1/freeze.json",
+      "sha256": "27553b8b245f1c07f434604e68bc2a3e76f42c9c890172b4d6821c38e4ab6bb8",
+      "bytes": 1157,
+      "archive": "originals/independent/rev1/freeze.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/formal01/review.md",
+      "sha256": "5014ffbdf54771c7876af05d47a86b64de43ded2530a05c9863fe0aa8c553052",
+      "bytes": 1837,
+      "archive": "originals/independent/formal01/review.md",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/formal01/result.json",
+      "sha256": "32f4ca6ec377700cca195e729d54ac0c1039958d433e1e11f45f98f12bbf69ae",
+      "bytes": 1938,
+      "archive": "originals/independent/formal01/result.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/formal01/checks.json",
+      "sha256": "d8a72197d12698e6db5c62ae9c3abc2a77e203cdfcf27c21f7579b40df204086",
+      "bytes": 8391,
+      "archive": "originals/independent/formal01/checks.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/formal01/check.py",
+      "sha256": "93662f3416a5daa69225b98614d73aba8df1998b9b8c97c9cb7ca8b6b76012bd",
+      "bytes": 4010,
+      "archive": "originals/independent/formal01/check.py",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/formal01/check-command.json",
+      "sha256": "c728537c436d1245a3b47e5d32c82841cf992a4ff358001794ff68e3b7bd786c",
+      "bytes": 550,
+      "archive": "originals/independent/formal01/check-command.json",
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/formal01/freeze.json",
+      "sha256": "879f234aa471c2381f7feb7ca1dfa2ec6e4bffd323b9f97aae75c945ddc1add0",
+      "bytes": 1131,
+      "archive": "originals/independent/formal01/freeze.json",
+      "mode": "original"
+    }
+  ],
+  "fingerprint_only": [
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/draft-rev1.md",
+      "sha256": "34346798c4e526bf56c08cea24c4fe0ede8f59a73cb1fc8c9bbe222479db4f7b",
+      "bytes": 20114
+    },
+    {
+      "source": "/workspace/scratch/project-create-frontier4089/formal-rev1.snapshot.md",
+      "sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae",
+      "bytes": 34227
+    }
+  ],
+  "reconstruction": {
+    "formal": {
+      "commit": "b01b08d440ca253124efe4e725dea093fa1a958e",
+      "path": "docs/development/work-items/d08-project-initialization-convergence.md",
+      "sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae"
+    },
+    "inverse_patch": "originals/author/scratch-to-formal-rev1.diff",
+    "restored_draft_sha256": "34346798c4e526bf56c08cea24c4fe0ede8f59a73cb1fc8c9bbe222479db4f7b",
+    "exact_original_byte_equality": true,
+    "original_helper_executed": false
+  },
+  "fixed_sources": {
+    "index": "originals/author/inputs01.json",
+    "count": 57,
+    "archive_worker_SHA256_and_content_Git_blob_verified": 57,
+    "source_tree_copied": false,
+    "current_active_product_read": false
+  },
+  "scope": {
+    "new_technical": 5,
+    "later_readme": 1,
+    "only_spec_accepted": true,
+    "current_scratch_implementation_authorization_is_separate": true
+  },
+  "limits": [
+    "Draft/formal fulltexts reused from accepted specification commit and exact inverse diff; source snapshots/tools/cache/binary not copied.",
+    "Small original scripts stored and AST parsed only; not executed. Historical original Markdown and scratch paths retain provenance semantics, mapped here to copies.",
+    "Project/Object Audit checker/ProjectFactAuthority is already accepted; old D10 absence text is historical, not current. Runtime join stop still blocks real Skills publication/root; new gate is only a necessary independent prerequisite.",
+    "Read helper path misses and prep recursive-inheritance correction are preserved as documentation preparation facts, not product/test/resource failures.",
+    "Five-source scope and future pure/PG gates do not imply implementation, tests, production Skills/root/Create HTTP or full D08/D10 accepted."
+  ],
+  "original_format_exceptions": [
+    {
+      "archive": "originals/author/scratch-to-formal-rev1.diff",
+      "source": "/workspace/scratch/project-create-frontier4089/scratch-to-formal-rev1.diff",
+      "sha256": "5e1db26411b56f7abe8335df5607d89291382366ec47d9826e228ffe889bb17d",
+      "issues": [
+        {
+          "line": 10,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 12,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 23,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 25,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 27,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 29,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 32,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 34,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 42,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 44,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 47,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 49,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 51,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 53,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 56,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 60,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 62,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 65,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 69,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 71,
+          "type": "trailing whitespace"
+        }
+      ]
+    }
+  ],
+  "format_scope": "Byte scan including trailing whitespace, space-before-tab and final whitespace-only EOF; no original bytes normalized. Root owns actual staged Git check.",
+  "statistics": {
+    "original_source_entries": 30,
+    "unique_original_files": 29,
+    "unique_original_bytes": 135945,
+    "format_files": 1,
+    "format_issue_types": {
+      "trailing whitespace": 20
+    }
+  }
+}

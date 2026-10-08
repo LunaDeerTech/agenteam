@@ -1,0 +1,327 @@
+{
+  "kind": "formal-document-narrow-static-check",
+  "inputs": [
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d08-project-initialization-convergence.md",
+      "sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae"
+    },
+    {
+      "path": "/workspace/scratch/project-create-frontier4089/formal-rev1.freeze.json",
+      "sha256": "7246a4785adbdfa1095adccb31a3b63dcb243526d2b303db6cac08408f830c90"
+    },
+    {
+      "path": "/workspace/scratch/project-create-frontier4089/scratch-to-formal-rev1.diff",
+      "sha256": "5e1db26411b56f7abe8335df5607d89291382366ec47d9826e228ffe889bb17d"
+    },
+    {
+      "path": "/workspace/scratch/project-create-frontier4089/draft-rev1.md",
+      "sha256": "34346798c4e526bf56c08cea24c4fe0ede8f59a73cb1fc8c9bbe222479db4f7b"
+    },
+    {
+      "path": "/workspace/scratch/project-create-frontier4089/inputs01.json",
+      "sha256": "057d9f57e0e7f2786444fcc685c11cda23557587c7bb9dab7bd45f478176367e"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/rev1/result.json",
+      "sha256": "a583df8a99b3a9d492766c0a8cbbbadd6b8f75c52301d5e5ebfc1a0b503d6d61"
+    }
+  ],
+  "formal_freeze_files": 7,
+  "reversible_replacements": 13,
+  "section_1_to_6_reverse_bytes_equal": true,
+  "source_rows": 57,
+  "stopped_source_rows": 4,
+  "links": [
+    {
+      "target": "d10-skills-initialization-design.md",
+      "valid": true
+    },
+    {
+      "target": "d08-project-owner.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/d10-p1-recovery-verification.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/object-project-audit-verification.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "valid": true
+    },
+    {
+      "target": "#停止源同字节核对",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/contract/initialization.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/identity/contract/identity.go",
+      "valid": true
+    },
+    {
+      "target": "../../../db/migrations/00013_project_owner.sql",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/repository.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/creation.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/service.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/project_work.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/process.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/runtime.go",
+      "valid": true
+    },
+    {
+      "target": "../../../AGENTS.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/README.md",
+      "valid": true
+    },
+    {
+      "target": "../development-plan.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/tasks.md",
+      "valid": true
+    },
+    {
+      "target": "d08-project-owner-design.md",
+      "valid": true
+    },
+    {
+      "target": "d08-project-owner.md",
+      "valid": true
+    },
+    {
+      "target": "d10-skills-initialization-design.md",
+      "valid": true
+    },
+    {
+      "target": "d10-skills-initialization.md",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/contract/initialization.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/service.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/skill/contract/types.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/skill/contract/read.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/skill/contract/package.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/skill/builtin.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/skill/package.go",
+      "valid": true
+    },
+    {
+      "target": "../../architecture/agent-skills.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/d08-r1-verification.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/d08-r2-verification.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/d08-r3-verification.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/d10-p1-recovery-verification.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/object-project-audit-verification.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "valid": true
+    },
+    {
+      "target": "recovery-object-project-audit.md",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/contract/authority.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/project_audit.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/project_audit_witness.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/object/transfer_upload.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/authority.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/audit_authority.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/creation.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/recovery.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/participants.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_update.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/app/project_usage.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/app/account.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/repository.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/contract/commands.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/contract/types.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/contract/validation.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/authority_test.go",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/d08-b02-recovery-baseline.md",
+      "valid": true
+    },
+    {
+      "target": "../../../db/migrations/00013_project_owner.sql",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/postgres/transaction.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/identity/contract/identity.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/identity/contract/identity_test.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/contract/initialization_test.go",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/project/events.go",
+      "valid": true
+    },
+    {
+      "target": "../../../tests/project/b02_fixture_test.go",
+      "valid": true
+    },
+    {
+      "target": "../../../tests/project/b02_owner_commands_test.go",
+      "valid": true
+    },
+    {
+      "target": "../../../tests/project/b03_r3_fixture_test.go",
+      "valid": true
+    },
+    {
+      "target": "../../../tests/project/b03_r3_authority_test.go",
+      "valid": true
+    },
+    {
+      "target": "../../../tests/testsupport/postgres/fixture.go",
+      "valid": true
+    },
+    {
+      "target": "../../../tests/testsupport/postgres/cmd/fixture/main.go",
+      "valid": true
+    },
+    {
+      "target": "../../../scripts/test-postgres.sh",
+      "valid": true
+    },
+    {
+      "target": "../../../scripts/test-objects.sh",
+      "valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "valid": true
+    },
+    {
+      "target": "../../../internal/central/account/authority.go",
+      "valid": true
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "executed_go_resources_git": false
+}

@@ -1,0 +1,23 @@
+{
+  "fixed_commit": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "regression_commit": "42e3f7d59ceb65cb22cdd6b639608caa8830fae2",
+  "unchanged_critical_sources": [
+    {
+      "path": "internal/central/object/service.go",
+      "old_and_current_blob": "400131e491325bbd4f9070ef2165ba629d40631b"
+    },
+    {
+      "path": "internal/central/object/project_work.go",
+      "old_and_current_blob": "b7ef0c4030c798847daf89702cd7b7676062f076"
+    },
+    {
+      "path": "internal/central/object/process.go",
+      "old_and_current_blob": "a988d582999d6b3c6d5fba35719f6917a9e8b1b2"
+    },
+    {
+      "path": "internal/central/object/runtime.go",
+      "old_and_current_blob": "2c58a97c188f53cfef912f117eddda6437a55fc2"
+    }
+  ],
+  "read_only_no_reexecution": true
+}

@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "scope": "complete frozen scratch rev1 specification STATIC only",
+  "spec": {
+    "path": "/workspace/scratch/project-create-frontier4089/draft-rev1.md",
+    "sha256": "34346798c4e526bf56c08cea24c4fe0ede8f59a73cb1fc8c9bbe222479db4f7b"
+  },
+  "baseline": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "mandatory_findings": [],
+  "active_only": "accepted as engineering boundary; failed/accepted original active work versus separate lifecycle cause; no widening of old success gate",
+  "scope_new_technical": [
+    "internal/central/project/contract/initialization_convergence.go",
+    "internal/central/project/initialization_convergence.go",
+    "internal/central/project/initialization_convergence_test.go",
+    "tests/project/initialization_convergence_fixture_test.go",
+    "tests/project/initialization_convergence_test.go"
+  ],
+  "later_document": "docs/development/backend/README.md",
+  "runtime_implementation_verified": false,
+  "go_or_resource_execution": false,
+  "repository_writes": false,
+  "git_commands": false,
+  "delegation": false,
+  "input_index": {
+    "path": "/workspace/scratch/project-create-frontier4089/inputs01.json",
+    "sha256": "057d9f57e0e7f2786444fcc685c11cda23557587c7bb9dab7bd45f478176367e"
+  },
+  "author_freeze": {
+    "path": "/workspace/scratch/project-create-frontier4089/freeze-rev1.json",
+    "sha256": "1edf2e50ddb0e90ceca74e9ff2e21767329d54cb1f8e1f37784ef23c7e288d48"
+  },
+  "evidence": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/rev1/review.md",
+      "sha256": "54a8e0c5d4621ba10608ab7fc4a7a1530b218f8c077785232f2bd5b49d5b954c",
+      "bytes": 5970
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/rev1/checks.json",
+      "sha256": "f98cba26b4df0c26246005cd7ae56247b837260c0106e20413c41753a8ea711a",
+      "bytes": 2800
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/rev1/check.py",
+      "sha256": "cae48775ecd50e4969a18d0d57a9ff60e0a35359bdcb8750924fc9d2eb8c3017",
+      "bytes": 4160
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/rev1/check-command.json",
+      "sha256": "9b2044f4163a65efba6e8b2a5cbc462510a11d6e811430c310cb486f819ef665",
+      "bytes": 3278
+    }
+  ],
+  "write_status": "stopped after final freeze"
+}

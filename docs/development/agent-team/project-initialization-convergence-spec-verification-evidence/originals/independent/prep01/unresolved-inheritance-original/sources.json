@@ -1,0 +1,112 @@
+{
+  "accepted_product": "4089d131",
+  "accepted_runtime_input": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/full-input02.json",
+    "sha256": "6b56f9f2248aaa26393af1c1ff333b300d6a0c1e1c15f9f7df7cbc56d42163d7"
+  },
+  "files": [
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d08-project-owner-design.md",
+      "sha256": "6b4fafa43f9ea3912c72ec40c042e79ba316ae863beb13365fad2b88dafbde8b",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d08-project-owner.md",
+      "sha256": "fc06c6fd328f4cd424e141e58acf696e22b350c8c9cfa0e0a38a85937724b186",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d10-skills-initialization-design.md",
+      "sha256": "55f90e0c05549023cda132cf68ce570148909104dd3b9d75d9371f5564b671d3",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d10-skills-initialization.md",
+      "sha256": "87033b3a37d03568fa47441084d9153c3ce3d2bebf34c5949dd52150d4ea2f6b",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/authority.go",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/repository.go",
+      "sha256": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/creation.go",
+      "sha256": "0867dda75a498741ab141e356c953474a567071145df6daf4efafd3ac2bb1a25",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/recovery.go",
+      "sha256": "7149c163463416c6be4ea43351c375208b6e61278a6f170deeb302964cd29834",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/service.go",
+      "sha256": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/contract/initialization.go",
+      "sha256": "0ed3217342ee10f3f0406f0576b0c63d4cac32c060da3b6c0bb9c62ee80303ee",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/contract/lifecycle.go",
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/contract/types.go",
+      "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/contract/validation.go",
+      "sha256": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/postgres/transaction.go",
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/identity/contract/identity.go",
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/db/migrations/00013_project_owner.sql",
+      "sha256": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    },
+    {
+      "path": "/workspace/agenteam/tests/project/b02_fixture_test.go",
+      "sha256": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94",
+      "matches_accepted_audit_runtime_input": false,
+      "provenance": "Root-designated accepted 4089d131 D08/D10 formal documentation; current bytes frozen, no Git command"
+    }
+  ],
+  "scope": "Read-only preparation; no author draft or active UI Go source read"
+}
