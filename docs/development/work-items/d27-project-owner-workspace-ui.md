@@ -1,5 +1,7 @@
 # D27 Project Owner 项目入口、工作区与基本信息编辑 UI
 
+工程修订 rev2.1（2026-10-08，独立窄 STATIC PASS，root 已采纳）：仅追加 §8 第24个既有测试文件，修复既定 `/projects` 导航新增后的旧期待；当前24路径＝23技术＋1文档，新15/旧9。原 rev2 页首、§10 与附录A的23路径/65来源作为历史基线保留，不重写原指纹。产品合同、路由和UI范围不变；#24实施仍由root另授，不表示产品或真实资源接受。
+
 归档状态（2026-10-08）：rev1 全文＋rev2 B1＋正式末件完整 STATIC 已接受，规格 `8cf81b44` 已推送并核远端一致；[原始审查与可逆修订](../agent-team/project-owner-workspace-ui-spec-verification.md)已归档。仅规格接受；当前另授纯 web/JS 实施与独立准备，产品及真实浏览器/资源未接受。以下原状态保留其正式归位时点，§1 起技术原字节不变。
 
 状态：rev2 完整限定独立 STATIC PASS，root 已采纳；本次正式归位待独立末件窄核。仅规格接受，尚未授权产品实施、Go/浏览器执行或真实资源。固定接受产品 `cc850b2244cad771eb862a2c82d99887d5da7284`、配置归档 `b91cb89f0575cf7f54faa5d253b5571d7435b670`；固定来源见附录 A，23 路径白名单见 §8。不读取 Audit 活动实现，不把当前工作树等同于该接受基线。
@@ -18,7 +20,7 @@ Audit 有自己的活动生产输入，包括 `app/account.go`；本卡纯前端
 
 停止原件是[接续记录 §26](../agent-team/recovery-2026-10-06-continuation.md)：concurrent-publication 探针被平台内容安全机制终止，run 目录不存在、没有实际执行证据；stage02 竞态静态缺口未关闭，脚本返修与发布暂停，禁止重试、改写或转交该任务。本卡不以新名称重启该探针。
 
-[D28 SPA 卡](d28-central-spa-hosting.md)的停止链包括 `scripts/build-central-web.mjs` 及其测试、`internal/central/webassets/` 的 handler/bundle/build-tag/共享 bundle 文件、`internal/central/app/app.go`/webassets 两源、`tests/process/central_web_test.go`、central-spa Playwright config/spec 及 `docs/development/backend/frontend-hosting.md`。本卡 23 写路径与该 16 路径无交集；也不执行 `agenteam_web` tagged build、共享 embed 生成、`dist/agenteam` 发布、staging/锁/原子发布或并发发布探针。前端源码是未来发布的上游输入，不代表停止缺陷被修复。
+[D28 SPA 卡](d28-central-spa-hosting.md)的停止链包括 `scripts/build-central-web.mjs` 及其测试、`internal/central/webassets/` 的 handler/bundle/build-tag/共享 bundle 文件、`internal/central/app/app.go`/webassets 两源、`tests/process/central_web_test.go`、central-spa Playwright config/spec 及 `docs/development/backend/frontend-hosting.md`。本卡 24 写路径与该 16 路径无交集；也不执行 `agenteam_web` tagged build、共享 embed 生成、`dist/agenteam` 发布、staging/锁/原子发布或并发发布探针。前端源码是未来发布的上游输入，不代表停止缺陷被修复。
 
 普通 `web/package.json` 的 Vue 类型检查、Vitest 和 Vite 构建可在未来授权的任务自有 outDir 完成。真实浏览器沿[已接受 Summary harness](../../../tests/account/system_meeting_summary_web_fixture_test.go)的方式：任务自有 loopback 同源入口提供固定静态 dist、以 reverse proxy 转发到真实 no-tag Central API，并为客户端路由提供 harness index fallback。此结果只证明浏览器产品、正式 API 与当前 harness 的集成；不是 Central 生产 SPA 托管、生产直链 fallback、安装部署或发布接受。Vite 代理不能代替正式 API。
 
@@ -155,7 +157,7 @@ Project 导航离开、切换项目、系统入口、浏览器返回与 Logout �
 
 ## 8. 唯一候选白名单与兼容面
 
-23路径：22技术（#1–21及#23），README #22末件。新15/旧8；精确白名单如下，8个既有路径的基线哈希见附录 A.2，其余15路径在规格冻结时不存在。实施、返修与文档授权由 root 另发，本规格不授写。
+rev2.1 当前24路径：23技术（#1–21及#23–24），README #22末件。新15/旧9；#1–23原编号不变。附录 A.2 保留原rev2的8个既有路径指纹，新增既有#24指纹及窄修改界限见下；15个新路径仍按原规格冻结时点。实施、返修与文档授权由 root 另发，本规格不授写。
 
 | # | 路径 | 作用 |
 | --- | --- | --- |
@@ -182,6 +184,11 @@ Project 导航离开、切换项目、系统入口、浏览器返回与 Logout �
 | 21 | `tests/account-captcha-web/e2e/project-owner.spec.ts` | 五完整 UI 场景 |
 | 22 | `docs/development/frontend/README.md` | 技术接受后的最小能力与边界末件 |
 | 23 | `web/src/composables/useSession.ts` | 封闭普通 Human Project action/context，唯一 owner/私有 intent |
+| 24 | `web/src/tests/system-user-directory.spec.ts` | 仅既定 production 导航新增 `/projects` 的旧期待兼容 |
+
+rev2.1新增#24固定原文件 SHA-256 为 `0b895b48f2f79cb08f11e03d723bef2129edeed0009f12bc1c57b18f44995f65`。只允许原第437行 production `router.getRoutes().filter(meta.navigation).map(path)` 的期待由 `toEqual(['/system'])` 改为 `toEqual(['/system', '/projects'])`；其它断言、鉴权 metadata、重定向及 history 清理均保持。这里是路由枚举顺序，不更改 §3.1 的可见导航“项目在系统设置之前”规则，也不允许排序、弱化为包含检查或调整生产路由来迎合旧测试。
+
+作者 f17 全纯原结果 actual1/27.742908426s、1978 PASS/1 FAIL 保留（原 command SHA `361d67301412805f01074aa0861cb4c0252a040555a95ab9d2b5ce29cfa96c8e`，raw SHA `160218af4b95c2896dd943ae76ed5f810e55e009861303dae81af1e7f47d4b55`）；原日志唯一失败就是上述导航期待。#24仅该断言修订且其它输入未变时，其余1978通过结果可作为版本组合复用，不能把f17改称全过。修后先执行受影响单文件，再完成§9既定后续必要全量/check与独立范围核对；保留原失败、精确差量和实际命令/退出/清尾证据。
 
 不改其它旧 browser spec、公共 Ui/SettingsShell/SystemNav、System/Summary composables、schema/backend/helpers/公共 TestMain、脚本、锁或生成目录。本卡通过 existing props/meta 使用这些依赖。若实现必须新增候选或修改共享接口，先冻结具体差量报 root，不能夹带。read/Update/backend原失败与当前产物接受保持，不把本卡 UI 原恢复说成后端新能力。
 
@@ -189,15 +196,15 @@ Project 导航离开、切换项目、系统入口、浏览器返回与 Logout �
 
 ### 9.1 离线及依赖
 
-先冻结 endpoint/Session/route最小稳定子集供独审，再完成23路径与实际输入闭包。读取当前可用工具的绝对路径、版本和 hash；复用接受的 Node/Chromium/Go/MinIO/PG 来源与锁版本，不升级/安装新依赖。按 design、agenteam-vue-development、vue-testing-best-practices 对应参考执行；真实浏览器另读可用 Playwright 技能，缺失报告限制。当前只做规格，自查不运行下列命令。
+先冻结 endpoint/Session/route最小稳定子集供独审，再完成24路径与实际输入闭包。读取当前可用工具的绝对路径、版本和 hash；复用接受的 Node/Chromium/Go/MinIO/PG 来源与锁版本，不升级/安装新依赖。按 design、agenteam-vue-development、vue-testing-best-practices 对应参考执行；真实浏览器另读可用 Playwright 技能，缺失报告限制。当前只做规格，自查不运行下列命令。
 
 离线默认每条实际命令45s、Go test 内部40s；由已接受 subreaper driver监督 direct/adopted wait、实际完成与两次 owned PID 空、输入前后同。失败保存原源码/原命令/raw/退出，归因后仅重跑受影响；超预算不得后台留进程后写PASS。Go 使用 `/workspace/toolchains/go1.27.1/bin/go`、`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMODCACHE=/workspace/go/pkg/mod` 与 `-mod=readonly`，GOCACHE显式任务路径或合法既有缓存；不重设 HOME。环境剥离未授权 AGENTEAM_*，不让 graph/compile意外启动资源。
 
 | 阶段 | 精确命令形式（工具绝对路径在实际 freeze 落定） |
 | --- | --- |
 | types | `npm --prefix web run type-check` |
-| scoped format | 现有 Prettier 对 #1–17/#20–21/#23 的实际文件 `--check`；只格式化授权文件，不 `--write .` |
-| pure | `npm --prefix web run test:unit -- src/tests/project-owner-client.spec.ts src/tests/project-workspace-state.spec.ts src/tests/project-workspace.spec.ts src/tests/authentication.spec.ts src/tests/session.spec.ts`；再 `npm --prefix web run test:unit` 核全部既有 mutator兼容 |
+| scoped format | 现有 Prettier 对 #1–17/#20–21/#23–24 的实际文件 `--check`；只格式化授权文件，不 `--write .` |
+| pure | `npm --prefix web run test:unit -- src/tests/project-owner-client.spec.ts src/tests/project-workspace-state.spec.ts src/tests/project-workspace.spec.ts src/tests/authentication.spec.ts src/tests/session.spec.ts src/tests/system-user-directory.spec.ts`；再 `npm --prefix web run test:unit` 核全部既有 mutator兼容 |
 | static build | `npm --prefix web run build -- --outDir <任务自有绝对dist>`，冻结全部asset字节；不调用SPA stopped script |
 | Go actual graph | `go list -deps -test -json -tags=integration ./tests/account`，另核真实TestMain动态两cmd及fixture server的CGO0变体；与正式运行环境一致 |
 | Go compile/vet | `go test -race -tags=integration -c -o <私有account.test> ./tests/account`；`go vet -tags=integration ./tests/account`；两cmd必要受影响build，不执行server |
@@ -253,7 +260,7 @@ Playwright config `workers:1/retries:0`，每case45s；每新Go top120s包含注
 
 安全证据只保存必要原响应 bytes 与sidecar：实际status、Content-Type、实际X-Request-ID、target endpoint/Project ID、source run、input hash。成功/Problem均不重编码原body；安全DTO可逐hash去重。无Cookie/CSRF/Idempotency-Key/密码/账号token/请求正文/原payload日志；命令是否原样与key一致用私有比较及安全布尔结果，不能在闭集trace输出原材料。screenshots清除私密请求材料，不录HAR或任意网络body。schema脚本用已有依赖、固定 `$ref` 文件验证同一真实safe body，再走公开client；controlled负例与真实原件分列。
 
-作者交freeze、实际命令/env/raw/退出/actualwait/cleanup/安全body/版本组合与限制；独立负责人对23路径完整STATIC，独立受控验证三parser、合法100行cap、return闭集、原意图/Sessionowner尾部，再至少实际A读写身份/路由、B恢复与旧域回归组合，核同body schema/client及8布局。不是复看作者日志就称独立动态。最终README #22只在技术接受后写能力/命令与SPA/harness边界，独立末件核后root整合。产品全卡接受不得提前写成D26/D27模块完成、生产托管或三个停止解除。
+作者交freeze、实际命令/env/raw/退出/actualwait/cleanup/安全body/版本组合与限制；独立负责人对24路径完整STATIC，独立受控验证三parser、合法100行cap、return闭集、原意图/Sessionowner尾部，再至少实际A读写身份/路由、B恢复与旧域回归组合，核同body schema/client及8布局。不是复看作者日志就称独立动态。最终README #22只在技术接受后写能力/命令与SPA/harness边界，独立末件核后root整合。产品全卡接受不得提前写成D26/D27模块完成、生产托管或三个停止解除。
 
 ## 10. 当前交付与结束条件
 
