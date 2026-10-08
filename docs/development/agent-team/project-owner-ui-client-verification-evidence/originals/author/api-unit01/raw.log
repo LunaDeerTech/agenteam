@@ -1,0 +1,34 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-owner-client.spec.ts src/tests/authentication.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/authentication.spec.ts (52 tests | 1 failed) 751ms
+     × keeps Debug and unknown routes independent and accepts only the implemented return path 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > keeps Debug and unknown routes independent and accepts only the implemented return path
+AssertionError: expected '/projects/123' to be '/' // Object.is equality
+
+Expected: "/"
+Received: "/projects/123"
+
+ ❯ src/tests/authentication.spec.ts:228:40
+    226|       undefined,
+    227|     ])
+    228|       expect(safeReturnTarget(target)).toBe('/')
+       |                                        ^
+    229|     expect(safeReturnTarget('/')).toBe('/')
+    230|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 111 passed (112)
+   Start at  03:37:26
+   Duration  2.74s (transform 1.22s, setup 0ms, import 1.50s, tests 968ms, environment 1.08s)
+

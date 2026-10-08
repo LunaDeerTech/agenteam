@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前接续（2026-10-08）：Owner UI五源客户端／pure safe return已独立接受并推送 `7dbd42a3`（258项），[永久验收](docs/development/agent-team/project-owner-ui-client-verification.md)已归档；[固定依赖恢复](docs/development/agent-team/environment-test-dependencies-2026-10-08.md) `20d45a72` 已推送。Session/controller/App/路由/六页面与真实Go/browser仍未整卡接受，Go候选仅STATIC/离线阶段，真实资源未启；旧candidate04丢失说明及三停止保持，当前所有权和下一步见台账。
+
 本次恢复（2026-10-08）：快照 `work/2cf00e06` 干净，实际远端已有初始化收敛产品与归档，已安全快进本地 `main/ff396a4e` 并推送核一致；旧 UI candidate04/harness/scratch 未恢复，重新按已接受 rev2.1 实现及独验，不冒称保留源码或浏览器 PASS。当前四新实例已 ACK，文件/资源所有权与下一步见 [恢复记录](docs/development/agent-team/recovery-2026-10-08-environment.md)。历史接受及三停止边界保持。
 
 Current status (2026-10-08, initialization convergence accepted): Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](docs/development/agent-team/project-initialization-convergence-verification.md)。

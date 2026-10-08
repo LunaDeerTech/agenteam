@@ -1,0 +1,99 @@
+{
+  "status": "PASS_BOUNDED_FIVE_PATH_API_AND_SAFE_RETURN",
+  "base": "ff396a4efa1c44d54078e9f5dcaf9812f514d665",
+  "scope": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "matches_author_freeze": true,
+      "git_blob_sha1": "117c3e9bda8a6199f955d33f75e1d016a81cb455"
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "sha256": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "matches_author_freeze": true,
+      "git_blob_sha1": "dcbdde685f8516f2f61382a2668f01e9167b9c45"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "61b1f379e8c8f6979a1f99e27c847c320e66f65d860dea9337bc15b35f0ea87a",
+      "matches_author_freeze": true,
+      "git_blob_sha1": "9280bec2e42511580ab02d5ad7bb8e825028afe2"
+    },
+    {
+      "path": "web/src/tests/project-owner-client.spec.ts",
+      "sha256": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "matches_author_freeze": true,
+      "git_blob_sha1": "ee72dee6b24e4dcdd97f606549a72c19246bf051"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48",
+      "matches_author_freeze": true,
+      "git_blob_sha1": "f6d72d2e0780355cdde396015a4534b410355e0d"
+    }
+  ],
+  "static_review_paths": 5,
+  "must_fix_findings": [],
+  "independent_probe_tests": 183,
+  "frozen_author_client_tests_rerun": 60,
+  "existing_account_tests_rerun": 15,
+  "final_total_tests": 258,
+  "final_all_passed": true,
+  "first_run_total": 238,
+  "final_run": "run02",
+  "inputs_identical": true,
+  "direct_actual_wait_exit": 0,
+  "adopted_actual_wait_count": 0,
+  "owned_double_empty": true,
+  "source_postcheck_matches": true,
+  "controlled_schema_body": {
+    "status": "PASS_CONTROLLED_SYNTHETIC_SCHEMA_ONLY",
+    "bytes": 4934510,
+    "sha256": "f7a09e6bae259d3778f3edf8ec7b00730a1d083c865a12f88b007ab115dafd46",
+    "rows": 100,
+    "description_utf8_bytes_per_row": 8192,
+    "cursor_utf8_bytes": 8192,
+    "schema": "ProjectPage",
+    "schema_revision": "ff396a4e",
+    "same_bytes_consumed_by": "client-contract.independent.spec.ts",
+    "real_backend_response": false
+  },
+  "author_final_unit03_five_hashes_match": true,
+  "author_final_format_check02_five_hashes_match": true,
+  "limitations": [
+    "Independent runtime isolates auth.ts useSession import with a test-only throwing replacement; no Session or full Vue Router/App behavior is verified.",
+    "No independent full Vue typecheck, all-mutator suite, Go, real HTTP/PG/browser, layout, publishing or complete Owner UI acceptance.",
+    "The schema/client large body is a controlled synthetic original, not a real backend response.",
+    "JS anchor concern was investigated through 20 passing line-terminator cases; there was no product test failure.",
+    "Earlier author formatter syntax failure, format-check failure and obsolete /projects/123 expectation failure remain original evidence; earlier source bytes are not recreated from hash-only manifests.",
+    "No product source was edited by the verifier."
+  ],
+  "test_suites": [
+    {
+      "name": "client-contract.independent.spec.ts",
+      "count": 58,
+      "status": "passed"
+    },
+    {
+      "name": "line-ending.independent.spec.ts",
+      "count": 20,
+      "status": "passed"
+    },
+    {
+      "name": "return-contract.independent.spec.ts",
+      "count": 105,
+      "status": "passed"
+    },
+    {
+      "name": "account-client.spec.ts",
+      "count": 15,
+      "status": "passed"
+    },
+    {
+      "name": "project-owner-client.spec.ts",
+      "count": 60,
+      "status": "passed"
+    }
+  ]
+}

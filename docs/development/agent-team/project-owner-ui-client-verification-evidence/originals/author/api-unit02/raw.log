@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-owner-client.spec.ts src/tests/authentication.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  2 passed (2)
+      Tests  112 passed (112)
+   Start at  03:38:15
+   Duration  2.08s (transform 901ms, setup 0ms, import 1.08s, tests 862ms, environment 728ms)
+

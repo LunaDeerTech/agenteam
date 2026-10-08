@@ -1,0 +1,19 @@
+{
+  "policy": "Original evidence bytes are preserved. These exceptions are not rewritten to make formatting checks pass.",
+  "files": [
+    {
+      "path": "originals/independent/run01/vitest.json",
+      "preserved_original_sha256": "359abbb4941318ee39e18201d1bd7272f166c6fb81add7725b918bc9986a9f0e",
+      "exceptions": [
+        "original lacks final newline"
+      ]
+    },
+    {
+      "path": "originals/independent/run02/vitest.json",
+      "preserved_original_sha256": "0f9cf0a297e30fd3a7220653121b9d689eb881ff01ca5825d8392affe652196a",
+      "exceptions": [
+        "original lacks final newline"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "api-unit01": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "72d09f489be544ece0fb8101f4733fb34ccca49241a01dce8cdfc0e98fd9125b"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "72d09f489be544ece0fb8101f4733fb34ccca49241a01dce8cdfc0e98fd9125b"
+    },
+    "scope_before_matches_final": false,
+    "scope_after_matches_final": false,
+    "full_recorded_inputs_same": true
+  },
+  "api-unit02": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "85a6c12bbabb190763645d58dd12ba1747ceec85e743e8b08e79bab915573079"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "85a6c12bbabb190763645d58dd12ba1747ceec85e743e8b08e79bab915573079"
+    },
+    "scope_before_matches_final": false,
+    "scope_after_matches_final": false,
+    "full_recorded_inputs_same": true
+  },
+  "api-unit03": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "61b1f379e8c8f6979a1f99e27c847c320e66f65d860dea9337bc15b35f0ea87a",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "61b1f379e8c8f6979a1f99e27c847c320e66f65d860dea9337bc15b35f0ea87a",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    "scope_before_matches_final": true,
+    "scope_after_matches_final": true,
+    "full_recorded_inputs_same": true
+  },
+  "api-format01": {
+    "scope_before": {
+      "web/src/api/client.ts": "ea7ede686a583953a69c608d035e0846a2d0a679395fd2b65a227ac4cdb1a06b",
+      "web/src/api/project-owner.ts": "178d2ec7c92c288cca749eacb694a542d94b8fcb0bcff493d0b292bfb6199fb2",
+      "web/src/router/auth.ts": "2da3f0ca3377296d6d107372623a8c60066692695302a271da9fc61ddff30f96",
+      "web/src/tests/project-owner-client.spec.ts": "c471511ef31bc8f1a30548adb2adbc1d8fa9f645154cc51107653e10ef2a4ee1",
+      "web/src/tests/authentication.spec.ts": "92e21877fd7b245f6a1c2ecb55f666acb1e20b2215333ba5be943b15e3a15460"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "178d2ec7c92c288cca749eacb694a542d94b8fcb0bcff493d0b292bfb6199fb2",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "72d09f489be544ece0fb8101f4733fb34ccca49241a01dce8cdfc0e98fd9125b"
+    },
+    "scope_before_matches_final": false,
+    "scope_after_matches_final": false,
+    "full_recorded_inputs_same": false
+  },
+  "api-format02": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "794a975c7dabc9642531fa1524219e7b90bbb074d71fec18bf49ddf2d79cdb12",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "72d09f489be544ece0fb8101f4733fb34ccca49241a01dce8cdfc0e98fd9125b"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "72d09f489be544ece0fb8101f4733fb34ccca49241a01dce8cdfc0e98fd9125b"
+    },
+    "scope_before_matches_final": false,
+    "scope_after_matches_final": false,
+    "full_recorded_inputs_same": false
+  },
+  "api-format03": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "85a6c12bbabb190763645d58dd12ba1747ceec85e743e8b08e79bab915573079"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "61b1f379e8c8f6979a1f99e27c847c320e66f65d860dea9337bc15b35f0ea87a",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    "scope_before_matches_final": false,
+    "scope_after_matches_final": true,
+    "full_recorded_inputs_same": false
+  },
+  "api-format-check01": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "85a6c12bbabb190763645d58dd12ba1747ceec85e743e8b08e79bab915573079"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "85a6c12bbabb190763645d58dd12ba1747ceec85e743e8b08e79bab915573079"
+    },
+    "scope_before_matches_final": false,
+    "scope_after_matches_final": false,
+    "full_recorded_inputs_same": true
+  },
+  "api-format-check02": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "61b1f379e8c8f6979a1f99e27c847c320e66f65d860dea9337bc15b35f0ea87a",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "61b1f379e8c8f6979a1f99e27c847c320e66f65d860dea9337bc15b35f0ea87a",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    "scope_before_matches_final": true,
+    "scope_after_matches_final": true,
+    "full_recorded_inputs_same": true
+  },
+  "api-types01": {
+    "scope_before": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "72d09f489be544ece0fb8101f4733fb34ccca49241a01dce8cdfc0e98fd9125b"
+    },
+    "scope_after": {
+      "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "web/src/router/auth.ts": "dad238a3c10808811ba48c4f067c40f4e4ca6729388cec63d688e85be415a666",
+      "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "web/src/tests/authentication.spec.ts": "72d09f489be544ece0fb8101f4733fb34ccca49241a01dce8cdfc0e98fd9125b"
+    },
+    "scope_before_matches_final": false,
+    "scope_after_matches_final": false,
+    "full_recorded_inputs_same": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "web/node_modules/prettier/bin/prettier.cjs",
+    "--check",
+    "web/src/api/client.ts",
+    "web/src/api/project-owner.ts",
+    "web/src/router/auth.ts",
+    "web/src/tests/project-owner-client.spec.ts",
+    "web/src/tests/authentication.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

@@ -1,0 +1,9 @@
+web/src/api/client.ts 411ms
+[error] web/src/api/project-owner.ts: SyntaxError: '}' expected. (225:1)
+[error]   223 |   }
+[error]   224 | }
+[error] > 225 |
+[error]       | ^
+web/src/router/auth.ts 38ms
+web/src/tests/project-owner-client.spec.ts 144ms
+web/src/tests/authentication.spec.ts 206ms

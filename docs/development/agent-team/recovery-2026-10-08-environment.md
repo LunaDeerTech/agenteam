@@ -1,5 +1,11 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 2026-10-08：客户端小块永久独验归档
+
+[Owner UI 客户端与安全返回验收](project-owner-ui-client-verification.md)及必要小原件已冻结。root逐项复核68逻辑原件与实际source／archive SHA和字节、产品 `7dbd42a3`／固定基线的10个Git输入与链接，范围与258项限定结论一致；纯归档不重复业务测试。原格式/旧期待失败和原JSON无末换行保持。产品已推送并核远端一致，后继auth导航集成不回写api-v1输入。
+
+当前六Vue页面源码与类型/格式自测已冻结，尚待App/router/controller组合独验和实际浏览器。Go candidate03仅后继管理员项目/Summary fixture窄差量，独立STATIC已启动，离线compile/vet/build/list正在推进；未启真实PG/browser。依赖恢复 `20d45a72` 已推送核远端一致，实际路径见恢复报告。完整平台与E01未完成，E01未开始，三停止边界保持。
+
 ## 2026-10-08：固定验收依赖恢复与永久原件
 
 [依赖恢复报告](environment-test-dependencies-2026-10-08.md)与99个小证据文件已由作者自查、root 核原97项字节／JSON／当前锁输入和相对链接。精确 MinIO SHA/release/commit、PG17/PG16 固定 digest、Node 锁依赖和根 Go 31 项 Sum/GoModSum已恢复；39组实际命令保留5个原失败，backend原graph失败另列。未启动测试容器、数据库、listener或浏览器，不标记业务接受。root 实际 Git 检查仅三个原 raw 的 trailing tab／末尾空行，已逐字节核同原件并在报告精确登记，不改写历史字节。

@@ -1,0 +1,555 @@
+{
+  "status": "ACCEPTED_FIVE_PATH_API_RETURN_SUBCAPABILITY_ARCHIVE",
+  "product_commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+  "scope": [
+    {
+      "path": "web/src/api/client.ts",
+      "commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+      "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "git_blob_sha1": "117c3e9bda8a6199f955d33f75e1d016a81cb455"
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+      "sha256": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "git_blob_sha1": "dcbdde685f8516f2f61382a2668f01e9167b9c45"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+      "sha256": "61b1f379e8c8f6979a1f99e27c847c320e66f65d860dea9337bc15b35f0ea87a",
+      "git_blob_sha1": "9280bec2e42511580ab02d5ad7bb8e825028afe2"
+    },
+    {
+      "path": "web/src/tests/project-owner-client.spec.ts",
+      "commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+      "sha256": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+      "git_blob_sha1": "ee72dee6b24e4dcdd97f606549a72c19246bf051"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+      "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48",
+      "git_blob_sha1": "f6d72d2e0780355cdde396015a4534b410355e0d"
+    }
+  ],
+  "fixed_baseline_references": [
+    {
+      "path": "web/src/api/account.ts",
+      "commit": "ff396a4efa1c44d54078e9f5dcaf9812f514d665",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "git_blob_sha1": "43eb1e384093014945d3e7dcf5a87f31567bb795"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "commit": "ff396a4efa1c44d54078e9f5dcaf9812f514d665",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "git_blob_sha1": "b1126fd95c23db81300d4edb85a01076a9e4729d"
+    },
+    {
+      "path": "api/openapi/project-owner.json",
+      "commit": "ff396a4efa1c44d54078e9f5dcaf9812f514d665",
+      "sha256": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3",
+      "git_blob_sha1": "8ec4fd687720aaf146400c13cc56fbfb67504f02"
+    },
+    {
+      "path": "api/openapi/common.json",
+      "commit": "ff396a4efa1c44d54078e9f5dcaf9812f514d665",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "git_blob_sha1": "22f7d8e5f560f05380ca9c8031260f2d941ad273"
+    },
+    {
+      "path": "web/src/tests/account-client.spec.ts",
+      "commit": "ff396a4efa1c44d54078e9f5dcaf9812f514d665",
+      "sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+      "git_blob_sha1": "020cffa896b33005c4f6bb926a9f401270776342"
+    }
+  ],
+  "sources": [
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-v1/freeze.json",
+      "archive": "originals/author/api-v1/freeze.json",
+      "sha256": "05b0b96d145d38945fc95fc07ce87b4332d8dbbbdd2de4b44621acbeaab98b61",
+      "bytes": 522,
+      "category": "final-freeze"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format01/command.json",
+      "archive": "originals/author/api-format01/command.json",
+      "sha256": "1cac629e8bd7e98371256022e097187ec8cb008f7840bfb4628270e55d16ca18",
+      "bytes": 429,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format01/result.json",
+      "archive": "originals/author/api-format01/result.json",
+      "sha256": "0442ef2480374476378af5e11aadf1debce09e6d8ab6d2eb4897d03d608d8600",
+      "bytes": 249,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format01/raw.log",
+      "archive": "originals/author/api-format01/raw.log",
+      "sha256": "a3640c80c38080241c99a81f8d8acb55456656e8386515f4b9839ff7559da580",
+      "bytes": 293,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format01/inputs-before.json",
+      "archive": "originals/author/api-format01/inputs-before.json",
+      "sha256": "1c472cdbf6e116fd46d120d07938790ea0fbe1c50fe50fa766cbb39378af1194",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format01/inputs-after.json",
+      "archive": "originals/author/api-format01/inputs-after.json",
+      "sha256": "14531e35fd3c2ec514fd5ca0e0325452261511b229debd1ef6e61b73c3b74180",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format02/command.json",
+      "archive": "originals/author/api-format02/command.json",
+      "sha256": "7a168a5003765f07ac9c0cf2fda584bf2737d2c94e210b5eef2150cbbcb4a4fe",
+      "bytes": 276,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format02/result.json",
+      "archive": "originals/author/api-format02/result.json",
+      "sha256": "4e38129b36b6ac658e00c165fb0a4c8efa77295a8ec2776ea4c3aa1025456ad4",
+      "bytes": 250,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format02/raw.log",
+      "archive": "originals/author/api-format02/raw.log",
+      "sha256": "59f807d263396e32a6ef718e239d9c89acc80f41ea102dd45baba1b33a581bcc",
+      "bytes": 35,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format02/inputs-before.json",
+      "archive": "originals/author/api-format02/inputs-before.json",
+      "sha256": "089327386ca310c6b2d2049377dcd45e3f77ba82040f5bd5e2ca13000c955abd",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format02/inputs-after.json",
+      "archive": "originals/author/api-format02/inputs-after.json",
+      "sha256": "3549ec7228c620480fbbdfbbab794c4702518930d56b2006158bc1698c23f4b6",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format03/command.json",
+      "archive": "originals/author/api-format03/command.json",
+      "sha256": "5f00de2dbe10a11d881ed25a43d2af8a09d93ae09091a59ea70e0c7c1d2a8cd1",
+      "bytes": 314,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format03/result.json",
+      "archive": "originals/author/api-format03/result.json",
+      "sha256": "cb59237d6420a96574a0084cb811e0305b15acbe5744e47ddcee03ca194be38f",
+      "bytes": 249,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format03/raw.log",
+      "archive": "originals/author/api-format03/raw.log",
+      "sha256": "cc0bb267072ff16d0e67545bf72e39f1effd5706631fbc4f3058edb032accf6e",
+      "bytes": 71,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format03/inputs-before.json",
+      "archive": "originals/author/api-format03/inputs-before.json",
+      "sha256": "d683340309dd00c927287aef9e3144fb2ae23885db8029c1632faa32cc401d3c",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format03/inputs-after.json",
+      "archive": "originals/author/api-format03/inputs-after.json",
+      "sha256": "4555c0a421949c0825711af1ec72e6fcddb8abe9ecd345314178accfadb4fe79",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check01/command.json",
+      "archive": "originals/author/api-format-check01/command.json",
+      "sha256": "771a5fd942a819d699103f74de3292a2a450a94a8ccf94fa5d15d7c6bdbeeddc",
+      "bytes": 429,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check01/result.json",
+      "archive": "originals/author/api-format-check01/result.json",
+      "sha256": "e66eb6e302f6ad1c9772060071ce5d86a036e3f8a18731ee1da1995255f4d261",
+      "bytes": 248,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check01/raw.log",
+      "archive": "originals/author/api-format-check01/raw.log",
+      "sha256": "299dd2ed0bade4353b456bfc2da5a99da66206d4626e85d6543925daf51da3bd",
+      "bytes": 174,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check01/inputs-before.json",
+      "archive": "originals/author/api-format03/inputs-before.json",
+      "sha256": "d683340309dd00c927287aef9e3144fb2ae23885db8029c1632faa32cc401d3c",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check01/inputs-after.json",
+      "archive": "originals/author/api-format03/inputs-before.json",
+      "sha256": "d683340309dd00c927287aef9e3144fb2ae23885db8029c1632faa32cc401d3c",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check02/command.json",
+      "archive": "originals/author/api-format-check02/command.json",
+      "sha256": "771a5fd942a819d699103f74de3292a2a450a94a8ccf94fa5d15d7c6bdbeeddc",
+      "bytes": 429,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check02/result.json",
+      "archive": "originals/author/api-format-check02/result.json",
+      "sha256": "eab0922e2139fc2e40ef1992a172d238be4156111b867c08f26b59a270da9c0d",
+      "bytes": 248,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check02/raw.log",
+      "archive": "originals/author/api-format-check02/raw.log",
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "bytes": 66,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check02/inputs-before.json",
+      "archive": "originals/author/api-format03/inputs-after.json",
+      "sha256": "4555c0a421949c0825711af1ec72e6fcddb8abe9ecd345314178accfadb4fe79",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-format-check02/inputs-after.json",
+      "archive": "originals/author/api-format03/inputs-after.json",
+      "sha256": "4555c0a421949c0825711af1ec72e6fcddb8abe9ecd345314178accfadb4fe79",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit01/command.json",
+      "archive": "originals/author/api-unit01/command.json",
+      "sha256": "987511319cb0846bb1bbca7b868b54b3948ef8fe7297b22cc512ebad3edbcc9b",
+      "bytes": 325,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit01/result.json",
+      "archive": "originals/author/api-unit01/result.json",
+      "sha256": "b877dd25677403797dcadce409a073894bd9ca94979b10339aa351b613106361",
+      "bytes": 335,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit01/raw.log",
+      "archive": "originals/author/api-unit01/raw.log",
+      "sha256": "e0ac6b0828cb7f33fe0f919b0b04a38cc294268a62523bef726626067740e3fb",
+      "bytes": 1203,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit01/inputs-before.json",
+      "archive": "originals/author/api-format02/inputs-after.json",
+      "sha256": "3549ec7228c620480fbbdfbbab794c4702518930d56b2006158bc1698c23f4b6",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit01/inputs-after.json",
+      "archive": "originals/author/api-format02/inputs-after.json",
+      "sha256": "3549ec7228c620480fbbdfbbab794c4702518930d56b2006158bc1698c23f4b6",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit02/command.json",
+      "archive": "originals/author/api-unit02/command.json",
+      "sha256": "987511319cb0846bb1bbca7b868b54b3948ef8fe7297b22cc512ebad3edbcc9b",
+      "bytes": 325,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit02/result.json",
+      "archive": "originals/author/api-unit02/result.json",
+      "sha256": "0b0ebe16192a9c3f1d8c9aa6f03388882cd2ccb12a1278ea839904fe25c2598e",
+      "bytes": 336,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit02/raw.log",
+      "archive": "originals/author/api-unit02/raw.log",
+      "sha256": "6bc93de0a3f05b54b912bcc709c1b6e5574786c18658cebc5e4bc5b29d44d7f3",
+      "bytes": 333,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit02/inputs-before.json",
+      "archive": "originals/author/api-format03/inputs-before.json",
+      "sha256": "d683340309dd00c927287aef9e3144fb2ae23885db8029c1632faa32cc401d3c",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit02/inputs-after.json",
+      "archive": "originals/author/api-format03/inputs-before.json",
+      "sha256": "d683340309dd00c927287aef9e3144fb2ae23885db8029c1632faa32cc401d3c",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit03/command.json",
+      "archive": "originals/author/api-unit03/command.json",
+      "sha256": "987511319cb0846bb1bbca7b868b54b3948ef8fe7297b22cc512ebad3edbcc9b",
+      "bytes": 325,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit03/result.json",
+      "archive": "originals/author/api-unit03/result.json",
+      "sha256": "9407f37c6d7d492bbf889fbcfb063bf8dcd648da862e0d354ed19042038c0ed8",
+      "bytes": 336,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit03/raw.log",
+      "archive": "originals/author/api-unit03/raw.log",
+      "sha256": "26e915e9a02a02cfb669b01d566de11a36eaef9da038de51610fe52ab00aa75d",
+      "bytes": 333,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit03/inputs-before.json",
+      "archive": "originals/author/api-format03/inputs-after.json",
+      "sha256": "4555c0a421949c0825711af1ec72e6fcddb8abe9ecd345314178accfadb4fe79",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-unit03/inputs-after.json",
+      "archive": "originals/author/api-format03/inputs-after.json",
+      "sha256": "4555c0a421949c0825711af1ec72e6fcddb8abe9ecd345314178accfadb4fe79",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-types01/command.json",
+      "archive": "originals/author/api-types01/command.json",
+      "sha256": "18160832f2f3779be96090ce0ac655f5bc1ad98476d702795ac2c80272f5252a",
+      "bytes": 230,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-types01/result.json",
+      "archive": "originals/author/api-types01/result.json",
+      "sha256": "401be0dda8425a02dd280cf11680d177e85eede841a7fe3c74f483ac332f61e2",
+      "bytes": 291,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-types01/raw.log",
+      "archive": "originals/author/api-types01/raw.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "bytes": 54,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-types01/inputs-before.json",
+      "archive": "originals/author/api-format02/inputs-after.json",
+      "sha256": "3549ec7228c620480fbbdfbbab794c4702518930d56b2006158bc1698c23f4b6",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/api-types01/inputs-after.json",
+      "archive": "originals/author/api-format02/inputs-after.json",
+      "sha256": "3549ec7228c620480fbbdfbbab794c4702518930d56b2006158bc1698c23f4b6",
+      "bytes": 19141,
+      "category": "author-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run01/result.json",
+      "archive": "originals/independent/run01/result.json",
+      "sha256": "e546f5fd017c2c6fad5de7f55ba7346e8c4a418c3005f22f757807f1a608f5f5",
+      "bytes": 8225,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run01/vitest.json",
+      "archive": "originals/independent/run01/vitest.json",
+      "sha256": "359abbb4941318ee39e18201d1bd7272f166c6fb81add7725b918bc9986a9f0e",
+      "bytes": 117767,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run01/stdout.raw",
+      "archive": "originals/independent/run01/stdout.raw",
+      "sha256": "40b980e469f78a63a765601da5313d3501665adb610df5f39ecd5ca86a96eb64",
+      "bytes": 89,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run01/stderr.raw",
+      "archive": "originals/independent/run01/stderr.raw",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run02/result.json",
+      "archive": "originals/independent/run02/result.json",
+      "sha256": "3c78dacb3cab7803a36616d6438d24dcaeec267181f21a71325ec0ae4f6e4e5a",
+      "bytes": 8535,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run02/vitest.json",
+      "archive": "originals/independent/run02/vitest.json",
+      "sha256": "0f9cf0a297e30fd3a7220653121b9d689eb881ff01ca5825d8392affe652196a",
+      "bytes": 124520,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run02/stdout.raw",
+      "archive": "originals/independent/run02/stdout.raw",
+      "sha256": "24296abdff4e7727e363ba3e19f78c90bae0f3ca1e1cf114d8897a82fd13c3be",
+      "bytes": 89,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run02/stderr.raw",
+      "archive": "originals/independent/run02/stderr.raw",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "category": "independent-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/result.json",
+      "archive": "originals/independent/final/result.json",
+      "sha256": "68ec78e59c5f7fc789de46c177e1aaf0abe2985e4570b31cb78f8b54863110e7",
+      "bytes": 3715,
+      "category": "independent-original-or-explicit-derived-binding"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/review.md",
+      "archive": "originals/independent/final/review.md",
+      "sha256": "ca707badec3caadb79b459a62af490db0358817b11b24e09cdc643943b6e051c",
+      "bytes": 3247,
+      "category": "independent-original-or-explicit-derived-binding"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/input-origin.json",
+      "archive": "originals/independent/final/input-origin.json",
+      "sha256": "e2495ba2a042d5a1c02b6e9e7bf612e88fb664459667c8d4f8b8a2fd3c52a30d",
+      "bytes": 2534,
+      "category": "independent-original-or-explicit-derived-binding"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/author-version-binding.json",
+      "archive": "originals/independent/final/author-version-binding.json",
+      "sha256": "589f3938e7bdbb9bb3274a2be6fce14651c351bdb278b8424b3da0843ac614dc",
+      "bytes": 11499,
+      "category": "independent-original-or-explicit-derived-binding"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/large-page-result.json",
+      "archive": "originals/independent/final/large-page-result.json",
+      "sha256": "1bec8ce8ffe0a86edf22aadbbea62f2a6ccfa4798e311bf85067cfbdbd876b3c",
+      "bytes": 403,
+      "category": "independent-original-or-explicit-derived-binding"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/tool-inventory.json",
+      "archive": "originals/independent/final/tool-inventory.json",
+      "sha256": "501330fc151ead077e6b9ff9906b90d8b790ee59159e94f48002320ae5567d34",
+      "bytes": 1040,
+      "category": "independent-original-or-explicit-derived-binding"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/client-contract.independent.spec.ts",
+      "archive": "probes/client-contract.independent.spec.ts",
+      "sha256": "99ad144910ca175acce52dbf3f5a72fdf53e0383e141a2f7e8e0cb39bb561f01",
+      "bytes": 12774,
+      "category": "independent-probe-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/return-contract.independent.spec.ts",
+      "archive": "probes/return-contract.independent.spec.ts",
+      "sha256": "7cdaf225c8149b8495ac1ee801275510e34b784a6f55f5f7ccf07b9609e1ec44",
+      "bytes": 632,
+      "category": "independent-probe-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/line-ending.independent.spec.ts",
+      "archive": "probes/line-ending.independent.spec.ts",
+      "sha256": "86888c917c9dacf2c2771ed4236ac84551b3271cf3a6734bd9b49b8d7219dd13",
+      "bytes": 1941,
+      "category": "independent-probe-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/contract-vectors.ts",
+      "archive": "probes/contract-vectors.ts",
+      "sha256": "8e9d036b799d2867b75ce7a335df6ae60cf2f23161a1eb9e0c6cd9ea2d975018",
+      "bytes": 4536,
+      "category": "independent-probe-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/vitest.config.mjs",
+      "archive": "probes/vitest.config.mjs",
+      "sha256": "e09360b888893293a4a8f40f939a27d708691a4ab51dd1018b2ba2857665551d",
+      "bytes": 606,
+      "category": "independent-probe-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/run_checks.py",
+      "archive": "probes/run_checks.py",
+      "sha256": "f2160d79c1281d9292f8b387ef0db54fc4310b9f9d23e9d86c461590fcb653b5",
+      "bytes": 5077,
+      "category": "independent-probe-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/prepare_large_page.py",
+      "archive": "probes/prepare_large_page.py",
+      "sha256": "fe0ab682dee0e3d0f74e956d76b01b22f4bccac3541962f86a89d29b85956f24",
+      "bytes": 1669,
+      "category": "independent-probe-original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/api-v1/src/composables/useSession.ts",
+      "archive": "probes/session-test-replacement.ts",
+      "sha256": "c679ee06cf91b9dee245c2a7ae1175a0361b1e2c18380af5a504b492f969d260",
+      "bytes": 220,
+      "category": "test-only-isolation"
+    }
+  ],
+  "preservation_limits": [
+    "Five product source files are reused from product_commit; no product source tree is copied here.",
+    "Original historical author source bytes before final api-v1 are not reconstructed. Original input manifests retain their hashes.",
+    "The 4,934,510-byte controlled synthetic page is not copied; exact generator, digest, byte count and schema/client results are retained.",
+    "No node_modules, cache, binary, browser dist, large dependency graph or real runtime/private materials are archived.",
+    "Repeated author input manifests share a byte-identical archived object via the sources mapping.",
+    "The test-only Session replacement establishes no Session/Router/App behavior. Full Owner UI remains unaccepted.",
+    "Preliminary initializer review/scope-counter/inventory preparation belongs to separate scratch planning and is outside this API result."
+  ]
+}
