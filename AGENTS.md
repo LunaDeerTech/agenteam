@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前交付（2026-10-08）：Model完整九路径已c36717c20fd98135cb7df167fc2e869aae7612de推送核同。Audit完整21技术独验6f772adc/result e2f2481e/manifest2526a467已root读核接受，唯一源表bf665099为21/21、578532B；root正在提交余4JS/Go及三协调文档。作者旧10实际/退役与最终独核67dcbdd6已接受；独立4 actualPASS/fullSTOP与修正版7a7e29c2/3c83a103/45ca33c0已root读核18小refs，新Audit53EOF/schema/client与旧Owner17schema/11 response-event关联上游safe bytes的client重放分域，903b补正撤原feb及c469的过强native证据标签，原字节全保。全部Go/cache/资源reader空，root restore5b79d63d恢复原global3/109465B并保private59/794499B及原3backup，资产窗关闭。frontend现仅授已预审v2 README#21 exact5fba末件安装，最终22待；fixture仅一次append已封旧10/独4/21及恢复，不写plan/card。模型设置T3/双作者同SHA已接受，整合候选c5674d4e仅scratch完整SPEC独审中，Audit/T1/T4未满足；Image本地引用链缺四原件，ffe24552只限定BLOCKED、无网络恢复。原FAIL/三停止/Jina/生产未绑ready503/完整项目与E01未完不变。
+
 Model提交格式补正（2026-10-08）：root首次git diff --cached --check实际exit2、helper仅预期12而assert exit1，未commit；raw3c75e6d2完整保留。原6 patch/diff实际60诊断＝12尾白＋48 context空格后tab，fixture仅format695e69e9/checksbc199d48/manifest77f327db补精确line-kind，原456实体及报告/README/计划卡不改。root核三JSON与实际集合后再提交，非产品/技术重跑；当前全部资源空。
 
 当前提交窗（2026-10-08）：旧authlife01与oldauthrevoke01均实际PASS/fullSTOP，后者cc142362/manifest6046acfd、direct＋8adopted、7ID/owned-runtime/TCP双清，全部资源空。Model最终文档delivery74747876/报告56265a5a/manifest817537df已root核新增19refs接受，完整九路径39890564保持，root现交README/永久档/计划卡与三协调文档。Audit导航独审39c88f8f及8图视觉018fe8c9已root读核接受有限范围；独立final04纯gate3ff96a86实际1.371s/1185 PASS、仅direct wait/identity双absent不冒ECHILD全树。新global59/原3backup保持，旧8轮/独4/完整Audit仍待。三停止/Jina/生产/E01不变。
