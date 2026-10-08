@@ -130,6 +130,14 @@ System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 
 
 受限 Account recovery log 是独立敏感渠道，不是上述普通日志：首次管理员密码只尝试写一次；SMTP 未配置时邀请/reset 链接可写入，配置后发送失败不改渠道。不得复制其正文到 stderr、Audit、诊断或报告；部署操作者管理读取、备份与保留权限。文件/目录安全检查、written/unknown 与真实 Close/join 语义见[账号邮件说明](accountmail.md#smtp-与日志)。
 
+## Project 初始化收敛授权库
+
+[初始化收敛规格](../work-items/d08-project-initialization-convergence.md)的可选 `InitializationConvergenceAuthority` 由现有 `project.Authority` 实现，不扩展旧 `ProjectAuthority`。`ValidateInitializationConvergenceInTx` 只接受精确原 Creation/Project 的已注册 `ProjectInitialization` Service actor，核对 `CreationID`、`ProjectID` 与原 `InitializationKey`；调用方必须已按完整锁计划持有目标 Project EX，并传入该 Authority 同一 Store 的活 Tx。方法只检查已持锁并沿该 Tx 读取，不补锁、不新开事务；缺锁、foreign/ended Tx 仍沿原 Store 拒绝与 poison 语义。
+
+门禁只观察 active Project：`accepted`、`initializing`、`failed` 必须对应 version=1 的未初始化项目，原请求名称/描述与当前值相同，且无 protected Skill/revision、safe result 或生命周期操作；安全原因分别满足原状态规则。`completed` 必须对应已初始化项目、成对有效的 protected Skill/revision 与合法初始 safe result，原请求字段已清空；当前项目后续合法改名、描述或版本增长不改历史初始快照，也不使该观察失效。双向 Project/Creation、原 owner、初始化 key 与四状态事实必须一致；非 active 状态拒绝，损坏事实不能视为 ready。
+
+此口无写入、不拥有 Commit/Rollback，返回 nil 只在当前 Tx/持锁期间有效，不是 Owner grant、Skills 完成、发布许可、完成回执或 work 已 join 的证明。原 `ValidateInitializationInTx` 成功 gate 与其他写入、生命周期 gate 保持原义；新端口尚无生产 Skills/root 消费，不开放 Project 创建 HTTP，也不解除真实 Skills/初始化 Object 发布及共享 guard 依赖。Meeting Summary 继续由系统管理员统一选择 initial/update（含首轮标题）模型，项目不覆盖或复制默认值；生产 Resolution/Invocations、D24 仍未绑定，Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 ready503 保持。
+
 ## Project Owner 列表与详情只读 HTTP
 
 默认 Central 根已提供 `GET/HEAD /api/v1/projects` 与 `GET/HEAD /api/v1/projects/{id}`，精确查询和字段见 [Project Owner OpenAPI](../../../api/openapi/project-owner.json) 与[实施规格](../work-items/d08-project-owner-read-http.md)。窄 Reader 复用 Usage 的同一 Project Authority、原数据库和 cursor keyring；每次读取在真实事务与完整锁计划内重验当前 Human Session、Owner 和项目状态，管理员没有跨 Owner 豁免。列表支持 lifecycle 过滤和有签名的 keyset cursor，逐页重新授权，完整校验所有行及额外哨兵后才截取页面；deleting 仅有最小列表投影，详情拒绝返回其旧内容。version 使用无损十进制字符串，nullable 与缺席字段严格区分。
