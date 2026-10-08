@@ -1,0 +1,211 @@
+{
+  "card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+    "sha256": "19aa820564a58d4430aa9210ebc31a01667ae33f82cddbbf8d31d857d081e7fb"
+  },
+  "checks": {
+    "43_explicit_sources_same": true,
+    "actual_tail": true,
+    "all_candidate_old_exist_new_absent": true,
+    "closed_21_path_table": true,
+    "cursor_correction": true,
+    "exact_two_http_resources": true,
+    "formal_project_record_31_branches": true,
+    "http_get_head_only": true,
+    "independent_cap": true,
+    "local_link_files_exist": true,
+    "metadata_31_not_53": true,
+    "no_fixture_main_change": true,
+    "no_trailing_whitespace": true,
+    "owner24_accepted": true,
+    "root_only_resources": true,
+    "ten_old_selectors_exist": false,
+    "two_action_union": true,
+    "unknown_read_only": true,
+    "utf8_lf_final_newline": true
+  },
+  "created_utc": "2026-10-08T10:30:20.420408+00:00",
+  "details": {
+    "candidate_paths": [
+      {
+        "exists": true,
+        "new": false,
+        "number": 1,
+        "path": "web/src/api/client.ts",
+        "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c"
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 2,
+        "path": "web/src/api/project-audit.ts",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 3,
+        "path": "web/src/api/project-audit-metadata.ts",
+        "sha256": null
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 4,
+        "path": "web/src/composables/useSession.ts",
+        "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88"
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 5,
+        "path": "web/src/composables/useProjectAudit.ts",
+        "sha256": null
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 6,
+        "path": "web/src/composables/useProjectWorkspace.ts",
+        "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d"
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 7,
+        "path": "web/src/router/auth.ts",
+        "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21"
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 8,
+        "path": "web/src/router/index.ts",
+        "sha256": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415"
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 9,
+        "path": "web/src/views/projects/ProjectSettingsView.vue",
+        "sha256": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e"
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 10,
+        "path": "web/src/views/projects/ProjectAuditView.vue",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 11,
+        "path": "web/src/tests/project-audit-client.spec.ts",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 12,
+        "path": "web/src/tests/project-audit-metadata.spec.ts",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 13,
+        "path": "web/src/tests/project-audit-state.spec.ts",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 14,
+        "path": "web/src/tests/project-audit.spec.ts",
+        "sha256": null
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 15,
+        "path": "web/src/tests/authentication.spec.ts",
+        "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 16,
+        "path": "web/src/tests/project-workspace.spec.ts",
+        "sha256": "9b06021aa672002618d15e217b469534e21266ac1734db6fcf8508e05c0b63df"
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 17,
+        "path": "tests/account/project_owner_audit_web_fixture_test.go",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 18,
+        "path": "tests/account/project_owner_audit_web_test.go",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 19,
+        "path": "tests/account-captcha-web/project-owner-audit.config.js",
+        "sha256": null
+      },
+      {
+        "exists": false,
+        "new": true,
+        "number": 20,
+        "path": "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+        "sha256": null
+      },
+      {
+        "exists": true,
+        "new": false,
+        "number": 21,
+        "path": "docs/development/frontend/README.md",
+        "sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0"
+      }
+    ],
+    "card_bytes": 37508,
+    "card_lines": 213,
+    "http_resources": {
+      "/api/v1/projects/{project_id}/audit": [
+        "get",
+        "head"
+      ],
+      "/api/v1/projects/{project_id}/audit/{id}": [
+        "get",
+        "head"
+      ]
+    },
+    "local_link_count": 16,
+    "missing_links": [],
+    "old_top_names": [
+      "TestAccountAuthenticationWebLifecycle",
+      "TestAccountAuthenticationWebRevocationAndExpiry",
+      "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "TestAccountSystemAuditWebReadAndFilters",
+      "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "TestAccountSystemAuditWebNavigationAndLayouts",
+      "TestAccountProjectOwnerWebReadAndNavigation",
+      "TestAccountProjectOwnerWebIdentityAndOwnership",
+      "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+      "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+    ],
+    "schema_record_branches": 31,
+    "source_changes": [],
+    "trailing_whitespace_lines": []
+  },
+  "executed": "Python stdlib file/link/schema-shape/path/hash checks only; no product tests, Go, Node, browser, resources, Git or network",
+  "not_independent": true,
+  "status": "AUTHOR_STATIC_SELF_CHECK_FAIL"
+}

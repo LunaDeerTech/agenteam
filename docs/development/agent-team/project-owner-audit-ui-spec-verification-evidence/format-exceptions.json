@@ -1,0 +1,56 @@
+{
+  "scope": "15 fixed original entities; raw spec snapshots, review records and unified diff retain exact original bytes.",
+  "UTF8_all_pass": true,
+  "exception_files": 1,
+  "issue_file_counts": {
+    "trailing_whitespace_lines": 1
+  },
+  "trailing_whitespace_lines": 31,
+  "blank_lines_at_eof": 0,
+  "exceptions": [
+    {
+      "archive": "originals/author/rev2/rev1-to-rev2.diff",
+      "sha256": "e661b5e7641315e03667fd97b053b4ba73c506314dddb65695bbb8de93c42ff4",
+      "bytes": 17340,
+      "issues": {
+        "trailing_whitespace_lines": [
+          5,
+          8,
+          10,
+          12,
+          14,
+          19,
+          21,
+          23,
+          25,
+          28,
+          30,
+          32,
+          34,
+          37,
+          39,
+          59,
+          61,
+          63,
+          66,
+          68,
+          70,
+          72,
+          75,
+          77,
+          84,
+          86,
+          88,
+          90,
+          93,
+          95,
+          97
+        ]
+      }
+    }
+  ],
+  "normalization_performed": false,
+  "Git_diff_check_executed": false,
+  "Git_diagnostic_limit": "These are byte-level format observations, not a claimed Git execution or inferred exit code.",
+  "generated_metadata_and_report_exceptions": []
+}

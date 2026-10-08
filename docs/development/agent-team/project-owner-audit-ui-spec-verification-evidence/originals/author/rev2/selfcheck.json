@@ -1,0 +1,36 @@
+{
+  "added_readonly_source": {
+    "bytes": 1479,
+    "path": "/workspace/agenteam/web/src/components/layout/ProjectNav.vue",
+    "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a"
+  },
+  "card": {
+    "bytes": 39298,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev2/card.md",
+    "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+  },
+  "checks": {
+    "21_technical_plus_readme_22": true,
+    "http_and_session_sections_unchanged": true,
+    "navigation_rule_and_negative_assertions": true,
+    "new_and_old_real_selectors_unchanged": true,
+    "no_trailing_whitespace": true,
+    "old_21_paths_same_and_ordered": true,
+    "only_added_path_22": true,
+    "original_nav_current_logic_source": true,
+    "retirement_budget_section_unchanged": true,
+    "rev1_frozen_exact": true,
+    "review_exact": true,
+    "utf8_lf_final_newline": true
+  },
+  "created_utc": "2026-10-08T10:50:40.021676+00:00",
+  "executed": "Python stdlib pure file checks",
+  "independent": false,
+  "rev1_review": {
+    "bytes": 2652,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev1-review/review.md",
+    "sha256": "0c78f19a4f1a63817441b88fc89c934a82f7327191209ea4c313e02ab7dece23"
+  },
+  "scope": "Only D1 card delta; no Go/Node/browser/product/resource/Git or upstream document scan",
+  "status": "AUTHOR_SPEC_DELTA_STATIC_PASS"
+}

@@ -1,0 +1,222 @@
+{
+  "created_utc": "2026-10-08T10:20:55.170967+00:00",
+  "files": [
+    {
+      "bytes": 90215,
+      "path": "docs/development/development-plan.md",
+      "sha256": "42812393e89538c551633482a1933441fec85a72dc30cd0af61ec817f0468318"
+    },
+    {
+      "bytes": 63640,
+      "path": "docs/development/work-items/d04-project-owner-audit-http.md",
+      "sha256": "5ef3d416e38a39851a0c65a04bdd8cce96211f021ff5e546af4ca06af0645956"
+    },
+    {
+      "bytes": 5500,
+      "path": "docs/development/agent-team/project-owner-audit-http-verification.md",
+      "sha256": "c9cacfc53acf848c043d8b6d1949e4630777601142f38231155fc32304523f48"
+    },
+    {
+      "bytes": 2598,
+      "path": "docs/development/agent-team/project-owner-audit-http-verification-evidence/originals/independent/final16/result.json",
+      "sha256": "3b811d443370e892cfb4b099b75c0e830b4b778076fe2e2f983483219665d15f"
+    },
+    {
+      "bytes": 36025,
+      "path": "docs/development/work-items/d27-system-audit-ui.md",
+      "sha256": "f282da7f2936a5686bad31ba935a4b54669cc4fe71107d897d488f675e659a59"
+    },
+    {
+      "bytes": 55134,
+      "path": "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "sha256": "37725ca136a9fe957714c0d29ef2ab43f86d82de5b1e265598f546f2dc143828"
+    },
+    {
+      "bytes": 10518,
+      "path": "docs/frontend-design/layouts/project-settings.md",
+      "sha256": "ed5eaf1bc5c3565af29e0a262daccbdab1ce49e53e90843a74f3e0c5a66e8115"
+    },
+    {
+      "bytes": 3344,
+      "path": "docs/frontend-design/layouts/settings-shell.md",
+      "sha256": "696e85efd8a042696921b9733795d0f58d8351286200b5b9d420311e64d8f0b8"
+    },
+    {
+      "bytes": 2843,
+      "path": "docs/frontend-design/layouts/project-workspace.md",
+      "sha256": "7201d7be393cbd95a6fdea9b6b33dd0bdebb8758cdb7b48243815b4d968f092e"
+    },
+    {
+      "bytes": 6431,
+      "path": "docs/development/frontend/components.md",
+      "sha256": "0a20dc50008737e56d094e641dc2354816596553785fa4c3bf5de2d3d3784e96"
+    },
+    {
+      "bytes": 291094,
+      "path": "api/openapi/project-audit.json",
+      "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4"
+    },
+    {
+      "bytes": 11091,
+      "path": "api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    {
+      "bytes": 7496,
+      "path": "internal/central/audit/project_query.go",
+      "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456"
+    },
+    {
+      "bytes": 10885,
+      "path": "internal/central/audit/http/project.go",
+      "sha256": "dbf8dd786da702e0c0b52f7dd5a12bc703f5e03bebd88768b9aebe5e0d181d7a"
+    },
+    {
+      "bytes": 12119,
+      "path": "internal/central/audit/http/project_wire.go",
+      "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e"
+    },
+    {
+      "bytes": 918,
+      "path": "internal/central/app/project_audit.go",
+      "sha256": "92870eb558c98078fce9bb168cfdedd47925f16d49bced98be49c47ecc639d96"
+    },
+    {
+      "bytes": 16252,
+      "path": "internal/central/app/account.go",
+      "sha256": "c8afd6286fccef135f53667a66f8522553a77cc187fa9f32a2813ef1e926eb98"
+    },
+    {
+      "bytes": 21891,
+      "path": "internal/central/audit/contract/metadata.go",
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646"
+    },
+    {
+      "bytes": 9172,
+      "path": "internal/central/audit/contract/project.go",
+      "sha256": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b"
+    },
+    {
+      "bytes": 7724,
+      "path": "internal/central/audit/contract/model.go",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6"
+    },
+    {
+      "bytes": 38830,
+      "path": "web/src/api/client.ts",
+      "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c"
+    },
+    {
+      "bytes": 7022,
+      "path": "web/src/api/system-audit.ts",
+      "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f"
+    },
+    {
+      "bytes": 22727,
+      "path": "web/src/api/system-audit-metadata.ts",
+      "sha256": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630"
+    },
+    {
+      "bytes": 161445,
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88"
+    },
+    {
+      "bytes": 24943,
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d"
+    },
+    {
+      "bytes": 12904,
+      "path": "web/src/composables/useSystemAudit.ts",
+      "sha256": "a52668f54bc158374ae57a0bc9e06317d710885e8fb46d10841da181a684aa04"
+    },
+    {
+      "bytes": 10856,
+      "path": "web/src/router/auth.ts",
+      "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21"
+    },
+    {
+      "bytes": 5248,
+      "path": "web/src/router/index.ts",
+      "sha256": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415"
+    },
+    {
+      "bytes": 781,
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "sha256": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e"
+    },
+    {
+      "bytes": 14638,
+      "path": "web/src/views/system/SystemAuditView.vue",
+      "sha256": "f04bb7e1574242d2546f01c81e41b7209fc66e6a444321ced64b195e5b68aaba"
+    },
+    {
+      "bytes": 11791,
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "sha256": "9b06021aa672002618d15e217b469534e21266ac1734db6fcf8508e05c0b63df"
+    },
+    {
+      "bytes": 24186,
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    {
+      "bytes": 984,
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "bytes": 86893,
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "bytes": 47310,
+      "path": "tests/account/project_owner_web_fixture_test.go",
+      "sha256": "662e1f2edd0e4cc0d03408251de0a031e0491ca4530c042e7bfc86139070f24b"
+    },
+    {
+      "bytes": 2270,
+      "path": "tests/account/project_owner_web_test.go",
+      "sha256": "e91d920777b6bd48adae2ad96c1f2d2e1cd0f6f8c254af3a9a497a684a44e5a6"
+    },
+    {
+      "bytes": 29145,
+      "path": "tests/account/system_audit_web_fixture_test.go",
+      "sha256": "1dba89baa7a0c828ce297df1bfbafb555d7a10d8eeb576b35fc5f4f6faf4cc1f"
+    },
+    {
+      "bytes": 1737,
+      "path": "tests/account/system_audit_web_test.go",
+      "sha256": "ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f"
+    },
+    {
+      "bytes": 1424,
+      "path": "tests/account-captcha-web/project-owner.config.js",
+      "sha256": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b"
+    },
+    {
+      "bytes": 57313,
+      "path": "tests/account-captcha-web/package-lock.json",
+      "sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    },
+    {
+      "bytes": 13098,
+      "path": "tests/testsupport/postgres/cmd/fixture/main.go",
+      "sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de"
+    },
+    {
+      "bytes": 14410,
+      "path": "tests/process/process_test.go",
+      "sha256": "fcbf27e63b52b361d307ed22a0585dc0752ba471d7d1fb2348a0077b28d21b60"
+    },
+    {
+      "bytes": 1029,
+      "path": "scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87"
+    }
+  ],
+  "owner24_gate": "final24 root acceptance and commit pending; frontend README active and excluded",
+  "scope": "explicit specification sources only; not a runtime dependency graph"
+}

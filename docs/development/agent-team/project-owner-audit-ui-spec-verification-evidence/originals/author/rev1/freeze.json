@@ -1,0 +1,46 @@
+{
+  "accepted_prerequisites": {
+    "authority": "root explicit accepted/pushed notification; no Git operation performed",
+    "owner_ui_final24": "0a939a7f12a607708e40796ac0bfae61592e7099",
+    "owner_ui_independent9_archive": "f9fb58d1",
+    "project_audit_http": "4089d13128da8680955005d9507c8a7da74af1f1"
+  },
+  "author_static": {
+    "bytes": 1498,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/selfcheck02.json",
+    "sha256": "d30b6a91a8bcca510170fb98eb74813b780ac7617e3bc79f6c3781988b1b45d6"
+  },
+  "created_utc": "2026-10-08T10:34:31.649720+00:00",
+  "documentation_after_acceptance": 1,
+  "executed_product_checks": false,
+  "frozen_card": {
+    "bytes": 37515,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev1.md",
+    "sha256": "efeadf1bf77236a7d6825f901197240651baa1123e2463c4e4dbe697c5fe796e"
+  },
+  "implementation_paths": 21,
+  "next_gate": "root formal SPEC review handoff; implementation requires SPEC acceptance and explicit shared-source ownership transfer",
+  "prior_draft": {
+    "bytes": 37508,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev1-before-selector-fix.md",
+    "sha256": "19aa820564a58d4430aa9210ebc31a01667ae33f82cddbbf8d31d857d081e7fb"
+  },
+  "repository_card": {
+    "bytes": 37515,
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+    "sha256": "efeadf1bf77236a7d6825f901197240651baa1123e2463c4e4dbe697c5fe796e"
+  },
+  "resource_authorized": false,
+  "shared_sources_write_authorized": false,
+  "sources": {
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/inputs01.json",
+    "scope": "43 explicit specification references, not a runtime closure",
+    "sha256": "52fe9c706a21300cb35dd3a67fde2039bfe198bf243c5b770a4f2255b5a480dd"
+  },
+  "status": "SPEC_AUTHOR_STOP_PENDING_INDEPENDENT_REVIEW",
+  "technical_paths": 20,
+  "upstream_active_headers_not_read": [
+    "docs/development/development-plan.md",
+    "docs/development/work-items/d27-project-owner-workspace-ui.md"
+  ]
+}

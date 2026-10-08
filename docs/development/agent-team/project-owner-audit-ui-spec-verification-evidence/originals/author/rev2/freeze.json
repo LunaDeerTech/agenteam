@@ -1,0 +1,76 @@
+{
+  "author_static": {
+    "bytes": 1424,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev2/selfcheck.json",
+    "sha256": "fa4e2d733300af3b5cc7bf8d91614f1262279c130201d40b12988abb3a42ba42"
+  },
+  "contract_change": "D1 only: ProjectNav settings current state; href/default general unchanged",
+  "created_utc": "2026-10-08T10:50:40.021978+00:00",
+  "delta": {
+    "bytes": 17340,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev2/rev1-to-rev2.diff",
+    "sha256": "e661b5e7641315e03667fd97b053b4ba73c506314dddb65695bbb8de93c42ff4"
+  },
+  "frozen_card": {
+    "bytes": 39298,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev2/card.md",
+    "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+  },
+  "independent_rev1_review": {
+    "bytes": 2652,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev1-review/review.md",
+    "sha256": "0c78f19a4f1a63817441b88fc89c934a82f7327191209ea4c313e02ab7dece23"
+  },
+  "next_gate": "Root formal D1 delta plus combined final-card SPEC review; shared-source handoff remains separate",
+  "original_43_sources": {
+    "bytes": 7823,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/inputs01.json",
+    "sha256": "52fe9c706a21300cb35dd3a67fde2039bfe198bf243c5b770a4f2255b5a480dd"
+  },
+  "prior_freeze": {
+    "bytes": 2017,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/freeze.json",
+    "sha256": "144efac25182a9d8a1360cb3b125c9a170e8ec9de1fa43a1498f79769f495d4f"
+  },
+  "readme_path_number": 21,
+  "repository_card": {
+    "bytes": 39298,
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+    "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+  },
+  "resources_authorized": false,
+  "root_authorized_implementation": false,
+  "source_delta": [
+    {
+      "bytes": 1479,
+      "path": "/workspace/agenteam/web/src/components/layout/ProjectNav.vue",
+      "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a"
+    }
+  ],
+  "source_writes": "Only new Audit card; product source unmodified",
+  "status": "SPEC_REV2_AUTHOR_STOP_PENDING_INDEPENDENT_DELTA_REVIEW",
+  "technical_paths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    22
+  ],
+  "total_paths": 22
+}

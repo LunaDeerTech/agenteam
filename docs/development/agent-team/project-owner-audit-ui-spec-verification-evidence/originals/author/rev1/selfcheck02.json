@@ -1,0 +1,29 @@
+{
+  "card": {
+    "bytes": 37515,
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev1.md",
+    "sha256": "efeadf1bf77236a7d6825f901197240651baa1123e2463c4e4dbe697c5fe796e"
+  },
+  "checks": {
+    "correct_selector_exists": true,
+    "no_trailing_whitespace": true,
+    "only_delta_corrects_one_existing_regression_selector": true,
+    "prior_checks_other_than_corrected_selector_pass": true,
+    "utf8_lf_final_newline": true
+  },
+  "created_utc": "2026-10-08T10:34:31.649438+00:00",
+  "executed": "Python stdlib files only; no product tests, Go, Node, browser, resources, Git or network",
+  "independent": false,
+  "prior_failure": {
+    "only_failure": "incorrect pre-existing authentication top spelling; prior checker process exited 0 and JSON status explicitly reported FAIL",
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/selfcheck01.json",
+    "preserved": true,
+    "sha256": "fb2ddc4ae0bcd41200dde7365978bf3456f587f67441f3ded67713c8075aec7e"
+  },
+  "selector_source": {
+    "path": "/workspace/agenteam/tests/account/authentication_web_test.go",
+    "sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76"
+  },
+  "source_policy": "No re-scan: unchanged source/schema/path/link checks reuse selfcheck01; active development-plan and Owner-card headers were not read or hashed in this correction. inputs01 historical pending status is retained; Owner24 acceptance is separately recorded in freeze.json.",
+  "status": "AUTHOR_SPEC_STATIC_PASS"
+}

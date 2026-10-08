@@ -1,0 +1,99 @@
+--- rev1.md
++++ rev2.md
+@@ -1,6 +1,6 @@
+ # D27：Project Owner 项目审计只读界面
+ 
+-修订：rev1，2026-10-08。状态：工程规格候选，待独立 STATIC 和 root 采纳；本稿不授产品实施、Go/Node 检查或真实资源。只写本卡与任务自有规格证据，主线程负责 Git、台账及后续授权。
++修订：rev2，2026-10-08。状态：工程规格候选，待独立 STATIC 和 root 采纳；本稿不授产品实施、Go/Node 检查或真实资源。rev1独审唯一必修D1在本版补齐ProjectNav当前项及其授权路径，原rev1与独审原件保留。只写本卡与任务自有规格证据，主线程负责 Git、台账及后续授权。
+ 
+ 前置更新：Owner 工作区 [rev2.1](d27-project-owner-workspace-ui.md) **最终24路径已独审/root正式采纳**，#22末件已提交推送 `0a939a7f12a607708e40796ac0bfae61592e7099` 并由root核远端一致，独立九轮永久档 `f9fb58d1` 已交付。本卡仍须完整SPEC独审/root采纳及共享 client/Session/router/workspace 唯一写权移交，才可实施。当前品牌已接受的 App/导航/auth 资产必须保留，不用旧 Owner snapshot 覆盖新品牌内容。
+ 
+@@ -24,7 +24,9 @@
+ 
+ ## 2. 唯一页面、项目定位和可见交互
+ 
+-新增精确叶子 `/:username/:project_name/settings/audit`。ProjectSettingsView 保留“项目资料 → 基本信息”，在最后新增稳定 key/组“安全记录 → 项目审计”；普通 `/settings` 仍到基本信息。System 菜单、系统审计、个人设置、品牌和 ProjectNav 的首页/设置双导航不变。未实现的设置栏目不放空按钮。
++新增精确叶子 `/:username/:project_name/settings/audit`。ProjectSettingsView 保留“项目资料 → 基本信息”，在最后新增稳定 key/组“安全记录 → 项目审计”；普通 `/settings` 仍到基本信息。System 菜单、系统审计、个人设置、品牌和 ProjectNav 的首页/设置双导航结构不变。未实现的设置栏目不放空按钮。
++
++ProjectNav只扩“项目设置”的当前项识别，链接href和普通默认仍为当前项目的 `/settings/general`，首页判定、文字、品牌与样式保持。用已验 `projectRoute` 分别验证当前原始 `route.fullPath` 和既定settings目标，仅在两者canonical username/project_name相同、目标为general且当前后缀精确为 `/settings/general` 或 `/settings/audit` 时赋 `aria-current="page"`；不得用任意前缀、仅后缀或仅项目名判断。不同Owner/项目、未知后缀或不合法raw path不选中当前项目设置项，普通 `/settings` 在原redirect完成到general后选中。
+ 
+ `projectRoute` 和 `safeReturnTarget` 仅在原闭集追加 `/settings/audit`。沿 Owner rev2.1 原始路径检查，先检查再 decode/clean；username、含点项目名、保留首段、大小写标准地址及 `forgot-password`/`reset-password` 双段合法 Owner 路由规则保持。query/hash/百分号/编码分隔符/反斜线/点段/多余后缀/尾斜线/数组不进入安全 return；不新增 `/audit/:id`、URL筛选或cursor参数。登录回跳后重新走正式 Owner 读取，不复用登录前授权。
+ 
+@@ -103,7 +105,7 @@
+ 
+ ## 5. 布局、可访问性与真实fixture
+ 
+-沿原SettingsShell/ProjectNav/Ui控件与tokens，不改shared UI或全局CSS。当前项、aria-expanded/controls、手机Drawer的Tab/Escape/遮罩/关闭焦点保持；标题可本地聚焦，inline详情进入到标题、返回优先原记录按钮，失效才到列表标题。每个筛选错误由label/aria-describedby关联，加载/失败有status播报；列表和详情长UUID/MIME/计数可换行，窄屏单列/记录堆叠，无页面级横溢出。
++沿原SettingsShell/ProjectNav/Ui控件与tokens，只有ProjectNav当前项允许§2的窄差量，其余shared UI和全局CSS不改。两个设置叶子的项目导航与设置侧栏当前项均须正确；aria-expanded/controls、手机Drawer的Tab/Escape/遮罩/关闭焦点保持。标题可本地聚焦，inline详情进入到标题、返回优先原记录按钮，失效才到列表标题。每个筛选错误由label/aria-describedby关联，加载/失败有status播报；列表和详情长UUID/MIME/计数可换行，窄屏单列/记录堆叠，无页面级横溢出。
+ 
+ 八个布局状态固定 light/dark × 宽390/768/1024/1440，视口高度明确固定并记录；八张实际截图覆盖有记录/筛选和安全长值/内联详情，另实际键盘、Drawer、reduced-motion与overflow断言。不能把截图文件存在等同视觉通过，也不把不可见折叠/屏外内容判通过。Debug只开发、生产资产不含Debug；不是生产SPA发布或浏览器原生tab验收。
+ 
+@@ -117,7 +119,7 @@
+ 
+ 资源和代码准备阶段不执行业务。未来实际窗使用原完整Object→Outbound→PG fixture链，不缩链、不添SMTP；每轮4容器+3网络预期7个ID，结果逐ID实核。`tests/testsupport/postgres/cmd/fixture/main.go`已选择`./tests/account/...`，`tests/process/process_test.go`的原TestMain仍实际构建两cmd；本卡**无需改fixture main或任何TestMain**。新Go top自然在原包内被精确selector选中。
+ 
+-## 6. 候选唯一写入范围与交接（20技术＋1末件）
++## 6. 候选唯一写入范围与交接（21技术＋1末件，共22路径）
+ 
+ 下表是规格接受后待root授权的产品闭集，不是本稿实施授权。当前仅本卡文档由backend_worker写；其它作者已验源保持。
+ 
+@@ -136,22 +138,23 @@
+ | 11 | 新`web/src/tests/project-audit-client.spec.ts` | frontend：路径/query、整页/1MiB/真实stream尾部。 |
+ | 12 | 新`web/src/tests/project-audit-metadata.spec.ts` | frontend：有正式来源的31合法动作/条件安全反例和显示投影。 |
+ | 13 | 新`web/src/tests/project-audit-state.spec.ts` | frontend：真实Session/workspace factory及受控transport、身份/项目/owner竞争和显式重读。 |
+-| 14 | 新`web/src/tests/project-audit.spec.ts` | frontend：实际App/router/View组合与用户可见筛选/详情/导航行为。 |
++| 14 | 新`web/src/tests/project-audit.spec.ts` | frontend：实际App/router/View组合与用户可见筛选/详情/导航；实际ProjectNav的general/audit选中态、默认href及不同项目/非法尾部不误选。 |
+ | 15 | `web/src/tests/authentication.spec.ts` | frontend：只扩Project合法后缀代表及其拒绝反例，保旧静态/公开token语义。 |
+ | 16 | `web/src/tests/project-workspace.spec.ts` | frontend：仅现基本信息单菜单期望增项目审计（当前约245行），其它Owner写/冲突断言保持。 |
+ | 17 | 新`tests/account/project_owner_audit_web_fixture_test.go` | backend：本卡真实root/私有dist、正式producer/状态准备、安全原body及有界控制/实际join。 |
+ | 18 | 新`tests/account/project_owner_audit_web_test.go` | backend：三个新真实top与必须证据键，不改原top。 |
+ | 19 | 新`tests/account-captcha-web/project-owner-audit.config.js` | frontend：三个精确case、单worker/retries0/45s、固定Chromium、私有输出禁trace/video。 |
+ | 20 | 新`tests/account-captcha-web/e2e/project-owner-audit.spec.ts` | frontend：真实页面API/权限/读取恢复、safe同body联验及八图。 |
+-| 21 | `docs/development/frontend/README.md` | frontend：完整20技术独审及root采纳后另授末件；从Owner24与品牌接受后的最新正文增量。 |
+-
+-共享#1/#4/#6–9/#15–16须由root在前卡最终24接受后正式交回单一frontend写者；App.vue无需新provide/确认，因此保持只读。后端app/account.go/project_audit.go、业务库/handler、OpenAPI、迁移、依赖锁、脚本、全部旧Go/JS harness和shared UI均只读。若实际签名/旧断言证明需要额外路径，先给具体差量由root修订移交，不能用本表“兼容”推定权利。
++| 21 | `docs/development/frontend/README.md` | frontend：完整21技术独审及root采纳后另授末件；从Owner24与品牌接受后的最新正文增量。 |
++| 22 | `web/src/components/layout/ProjectNav.vue` | frontend：仅§2同Project general/audit闭集的设置当前项；href/default保持general，首页/品牌/样式不改。 |
++
++技术范围为#1–20及#22，#21保持原编号并仍是最后另授的README末件。共享#1/#4/#6–9/#15–16/#22须由root在前卡最终24接受后正式交回单一frontend写者；App.vue无需新provide/确认，因此保持只读。后端app/account.go/project_audit.go、业务库/handler、OpenAPI、迁移、依赖锁、脚本、全部旧Go/JS harness及#22之外的shared UI均只读。若实际签名/旧断言证明需要额外路径，先给具体差量由root修订移交，不能用本表“兼容”推定权利。
+ 
+ frontend/backend互相交冻结API/IPC与fixed dist读权，不读活动候选下结论；独立验收只消费STOP版本。root唯一持有共享web/dist交换、数据库/Docker/端口和Git窗口；通常采用任务私有dist，如受影响旧harness实际依赖global dist，root独占安装固定资产、保原目录、最后所有reader实际退役才恢复。禁止后台互相覆盖产物或把品牌新资产复用成旧53的哈希结论。
+ 
+ ## 7. 有意义的验证、精确预算与原件
+ 
+-当前规格自查只做来源/路径/链接/封闭契约核对，不运行下列实施检查。实现先固定20技术与真正消费的前置/工具/资源输入，复用已验实际Go依赖图和工具版本，仅补本卡必要源、imports/embeds/动态TestMain/两cmd/fixture变体与JS/schema/dist差量；不复制全树/cache或机械生成另一份大型索引，不能直接抄旧955/1165当新输入数。
++当前规格自查只做来源/路径/链接/封闭契约核对，不运行下列实施检查。实现先固定21技术与真正消费的前置/工具/资源输入，复用已验实际Go依赖图和工具版本，仅补本卡必要源、imports/embeds/动态TestMain/两cmd/fixture变体与JS/schema/dist差量；不复制全树/cache或机械生成另一份大型索引，不能直接抄旧955/1165当新输入数。
+ 
+ ### 7.1 离线和受控验证
+ 
+@@ -170,7 +173,7 @@
+ 
+ 生产Session/workspace/controller配受控原生Response：覆盖新域与Owner读写/原命令lookup、个人/认证、System Audit及所有原System mutator双向排他，尤其SMTP私有材料/未决intent、Selection/Summary双draft隔离。当前合法401与局部403/404、错配/迟到安全错误、同identity checking/新Session/跨Project、响应晚到和cancel尾部均要独立断言。明确证明“同实例失败只显式重读”和“新的合法页代次可一次初读”，不能只靠flushPromises当定时器或实际tail完成。
+ 
+-实际App/router组合核唯一新后缀与拒绝闭集、点名直达、普通Owner/admin自有项目、双导航/设置默认/新尾部组、14字段应用、inline focus目标、无业务写入口；onBeforeRouteUpdate在复用组件跨Project时的退休，以及后续guard取消导航后可显式恢复。不能强造busy时原App pageshow监听器已执行：真实pageshow→Session503从空闲owner开始；旧tail→新页初读用另一个合法受控屏障验证。
++实际App/router组合核唯一新后缀与拒绝闭集、点名直达、普通Owner/admin自有项目、双导航/设置默认/新尾部组、14字段应用、inline focus目标、无业务写入口；实际ProjectNav组件核general/audit两叶均有“项目设置”当前态且href仍general，首页、不同Owner或项目、未知后缀及非法raw path不得误选。另核onBeforeRouteUpdate在复用组件跨Project时的退休，以及后续guard取消导航后可显式恢复。不能强造busy时原App pageshow监听器已执行：真实pageshow→Session503从空闲owner开始；旧tail→新页初读用另一个合法受控屏障验证。
+ 
+ ### 7.2 三个新真实top
+ 
+@@ -180,7 +183,7 @@
+ | --- | --- |
+ | `TestAccountProjectOwnerAuditWebReadAndFilters` / read | 正式普通Owner和既有Project、Project/Secret/Model生产Audit；实际list/detail匹配同项目自有事实，至少三typed族；小limit真跨页、全部14控件实际query、组合过滤及System-only合法空，cursor错误显式首页；两GET safe原body/schema/公开client同bytes，页面行为零mutation。 |
+ | `TestAccountProjectOwnerAuditWebAuthorityAndRecovery` / authority | 普通Owner及admin自有项目成功、非Owner/admin他人项目拒绝；两GET当前Session/Project gate、archiving/archived可读、deleting/未初始化拒绝、详情404；正式Logout，当前与迟到响应隔离，list/detail受控截断/取消实际join→仅显式重读，零lookup/key/写命令；跨Project参数复用/旧名复用不迁移页态，旧域owner竞争另有受控真实factory证据。 |
+-| `TestAccountProjectOwnerAuditWebNavigationAndLayouts` / navigation | 直接及登录return含点名、raw拒绝零ProjectAPI、两设置叶/默认基本信息/双Nav；filter本地修改不新增确认，原Owner/System写域确认不被代同意；inline详情返回真实focus、Drawer键盘/Escape/遮罩、空闲pageshow503→同身份恢复新页默认读；八布局图、reduced-motion/overflow、冻结production资产无Debug。 |
++| `TestAccountProjectOwnerAuditWebNavigationAndLayouts` / navigation | 直接及登录return含点名、raw拒绝零ProjectAPI、两设置叶/默认基本信息/双Nav；实际断言general/audit两叶“项目设置”aria-current与href仍general、侧栏各自当前项，未知路由或跨Project不遗留旧项目误选；filter本地修改不新增确认，原Owner/System写域确认不被代同意；inline详情返回真实focus、Drawer键盘/Escape/遮罩、空闲pageshow503→同身份恢复新页默认读；八布局图、reduced-motion/overflow、冻结production资产无Debug。 |
+ 
+ read组的正式准备写和browser本人只读分开计数；setup GET、SQL旁证、控制IPC和测试客户端验证不能计作browser请求。“零mutation”指审计交互不发Project/Model/Secret写入或任何命令lookup，不将明确Login/Logout及原会话恢复误记为违规审计动作。跨权限HTTP反例若被Owner入口先挡住，另由同浏览器受控发正式GET验证API拒绝，并明确它不是页面自动越权请求。完整31动作纯覆盖与实际三族producer范围分列。
+ 
+@@ -204,10 +207,10 @@
+ 
+ 每轮PASS并actual退役、exact7/9 ID两次absent、owned进程/runtime两空、原baseline资源不变、输入前后同，TCP含TIME_WAIT差量在原75s观察预算内两清，原件齐全后才下一轮。任何FAIL/不完整先全退役保存原raw/断言/未到达范围，停止后继，不自动retry或改预算。daemon/PID1非owned shim另列未wait，不称全机零；现Object forced-root/inner-join限制不由harness正常终局抹去。
+ 
+-完整交付必须同时满足：本卡20技术STATIC/适用受控与真实组、同body安全schema/client、权限/取消恢复与八图、独立代表和root审查；之后另授README末件，核最新Owner/品牌正文及相对链接。报告分清成功/失败/未执行、固定来源/工具/原argv/实际exit、作者与独立、读端原后端语义复用与新页面行为；不因本卡完成标记完整D27/系统ready/E01或三停止完成。
++完整交付必须同时满足：本卡21技术STATIC/适用受控与真实组、同body安全schema/client、权限/取消恢复与八图、独立代表和root审查；之后另授README末件，核最新Owner/品牌正文及相对链接。报告分清成功/失败/未执行、固定来源/工具/原argv/实际exit、作者与独立、读端原后端语义复用与新页面行为；不因本卡完成标记完整D27/系统ready/E01或三停止完成。
+ 
+ ## 8. 本次规格来源与停止点
+ 
+ 本稿作者只读核对上述正式卡、当前root/HTTP/Schema、System Audit与Owner Session/router/pages、既有fixture和项目锁文件；未写产品、后端、架构/计划/台账/锁或执行Git/Go/Node/browser/资源。有限43项来源指纹存于 `/workspace/scratch/project-owner-audit-ui-spec/inputs01.json`，SHA-256 `52fe9c706a21300cb35dd3a67fde2039bfe198bf243c5b770a4f2255b5a480dd`；它是规格来源，不是未来完整运行依赖图。初读时活动Owner README未作为冻结输入消费，随后root明确通知完整24与上述提交接受，历史inputs01的pending标签不回写。
+ 
+-STATIC自查/freeze/差量及原件放同一任务scratch。作者STOP后交未参与设计的verification_runtime独审；任何修订保旧版本。前卡最终24接受门槛已满足，本卡通过后仍须共享文件唯一移交和另授实施/资源；无未决产品含义时不新增确认流程，也不从规格批准推定真实资源授权。
++rev2只消费rev1独审D1及既有ProjectNav源码，追加一条授权路径、当前态规则与其组件/真实navigation断言；原43来源、rev1冻结和首次自查失败均不回写。STATIC自查/freeze/差量及原件放同一任务scratch。作者STOP后交未参与设计的verification_runtime独审；任何修订保旧版本。前卡最终24接受门槛已满足，本卡通过后仍须共享文件唯一移交和另授实施/资源；无未决产品含义时不新增确认流程，也不从规格批准推定真实资源授权。

@@ -1,0 +1,216 @@
+{
+  "status": "SPEC_STATIC_CHANGES_REQUIRED_STOP",
+  "created_utc": "2026-10-08T10:47:28.095817+00:00",
+  "reviewer": "verification_runtime",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev1.md",
+    "sha256": "efeadf1bf77236a7d6825f901197240651baa1123e2463c4e4dbe697c5fe796e",
+    "bytes": 37515
+  },
+  "author_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/freeze.json",
+    "sha256": "144efac25182a9d8a1360cb3b125c9a170e8ec9de1fa43a1498f79769f495d4f",
+    "bytes": 2017
+  },
+  "author_sources": {
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/inputs01.json",
+    "sha256": "52fe9c706a21300cb35dd3a67fde2039bfe198bf243c5b770a4f2255b5a480dd",
+    "bytes": 7823
+  },
+  "author_selfchecks": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-spec/selfcheck01.json",
+      "sha256": "fb2ddc4ae0bcd41200dde7365978bf3456f587f67441f3ded67713c8075aec7e",
+      "bytes": 6220
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-spec/selfcheck02.json",
+      "sha256": "d30b6a91a8bcca510170fb98eb74813b780ac7617e3bc79f6c3781988b1b45d6",
+      "bytes": 1498
+    }
+  ],
+  "reused_preparation_manifest": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-preparation01/manifest.json",
+    "sha256": "c3be01c47bd4ec6f16aa49eb8c259349fa6d776ecff67ff4dd36a46c736d6a76",
+    "bytes": 509
+  },
+  "prerequisites": {
+    "owner_final24": "0a939a7f12a607708e40796ac0bfae61592e7099",
+    "audit_http": "4089d13128da8680955005d9507c8a7da74af1f1",
+    "authority": "root accepted notifications; no Git command in this review"
+  },
+  "full_card_reviewed": true,
+  "findings": [
+    {
+      "id": "D1",
+      "severity": "must_fix_spec",
+      "state": "open_in_frozen_rev1",
+      "title": "Audit leaf has no current Project settings navigation within the allowed source set",
+      "spec_lines": [
+        27,
+        106,
+        126,
+        146,
+        148,
+        183
+      ],
+      "source_evidence": [
+        {
+          "path": "web/src/components/layout/ProjectNav.vue",
+          "line": 17,
+          "fact": "settings current state is route.path === settings; aria-current drives selected styling"
+        },
+        {
+          "path": "web/src/composables/useProjectWorkspace.ts",
+          "line": 77,
+          "fact": "settings destination is canonical project home + /settings/general"
+        },
+        {
+          "path": "web/src/views/projects/ProjectWorkspaceView.vue",
+          "line": 19,
+          "fact": "ProjectNav receives unchanged paths.home and paths.settings"
+        }
+      ],
+      "consequence": "New /settings/audit never selects Project settings. ProjectNav is absent from the 20 technical paths, shared UI is read-only, and workspace exposure-only scope cannot fix this coherently.",
+      "minimum_revision": "Add only web/src/components/layout/ProjectNav.vue as the 21st technical path. Keep settings href/default /settings/general, homepage/brand/other shared UI unchanged. Compute selected state using the exact accepted same-project raw-route closed set of general/audit leaves, never a free prefix. Update path counts (21 technical + README = 22), shared write ownership/read-only exception, and actual App/browser assertions for both leaves and rejected/other-project routes.",
+      "root_response": "Root agreed minimal D1 direction; no repair read or accepted by this review"
+    }
+  ],
+  "checked_contract_facts": {
+    "schema_record_branches": 31,
+    "record_keys": 11,
+    "record_all_required_and_no_extra": true,
+    "nonempty_action_filters": 53,
+    "nonempty_resource_filters": 25,
+    "empty_filter_values_also_legal": true,
+    "actor_kinds": 3,
+    "service_names": 13,
+    "association_keys": 9,
+    "independent_project_audit_cap_bytes": 1048576,
+    "metadata_go_safe_json_cap_bytes": 4096,
+    "session_previous_dependency_count": 13,
+    "proposed_dependency_index": 14,
+    "old_exact_top_names_verified": 10,
+    "proposed_new_tops": 3,
+    "new_fixture_expected_ids_each": 7,
+    "only_old_smtp_delivery_expected_ids": 9,
+    "browser_case_seconds": 45,
+    "top_including_cleanup_seconds": 120,
+    "package_seconds": 360,
+    "tcp_observation_seconds": 75,
+    "eight_layouts": "light/dark x widths 390/768/1024/1440; fixed heights and visible-only review required",
+    "minimum_independent_actual_tops": "new read + authority; old System Audit authority + Owner identity"
+  },
+  "reviewed_without_additional_defect": [
+    "formal root/same-store current Session Owner Read gate; administrator has no bypass; initialized active/archiving/archived readable",
+    "31 safe action projections, 14 resource kinds, cross-field typed metadata, int64/time/MIME/Go JSON limits; no System parser substitution",
+    "two exact API operations with captured parameters, actual-byte 1MiB cap, EOF/cancel tails, unchanged old caps and Problem handling",
+    "ordinary Owner typed actions and separate revision; unique Cookie owner through actual finally, stale identity/local failure isolation",
+    "Resolve to stable Get context, checking/private-state retirement, route reuse and guard-cancel recovery, explicit reads without automatic retries",
+    "safe return closed suffix, canonical rename already preserves parsed suffix, dual navigation except D1, filters/page/detail/accessibility",
+    "real app.Run/same database/producers/private Skills and exact lifecycle preparation, safe original body/schema/public client binding, setup/IPC/browser separation",
+    "three new plus ten exact old tops, independent actual minimum, source closure deltas, budget/actualwait/join/double cleanup, nonowned limits",
+    "predecessor final24 dependency satisfied by root; backend/stopped work remain out of implementation scope"
+  ],
+  "selected_readonly_sources": [
+    {
+      "path": "/workspace/agenteam/web/src/components/layout/ProjectNav.vue",
+      "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a",
+      "bytes": 1479
+    },
+    {
+      "path": "/workspace/agenteam/web/src/components/layout/SystemNav.vue",
+      "sha256": "2325ef5ff4cc3e83ee3cdd992b6e3f5ea5b9782db443327dd29ea964a0638aa5",
+      "bytes": 972
+    },
+    {
+      "path": "/workspace/agenteam/web/src/views/projects/ProjectWorkspaceView.vue",
+      "sha256": "a73263a6d2e12e0d46a3cd3373ae3d54396ac3699b360855090ac47a1265712f",
+      "bytes": 2796
+    },
+    {
+      "path": "/workspace/agenteam/web/src/views/projects/ProjectSettingsView.vue",
+      "sha256": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e",
+      "bytes": 781
+    },
+    {
+      "path": "/workspace/agenteam/web/src/composables/useProjectWorkspace.ts",
+      "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d",
+      "bytes": 24943
+    },
+    {
+      "path": "/workspace/agenteam/web/src/composables/useSession.ts",
+      "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88",
+      "bytes": 161445
+    },
+    {
+      "path": "/workspace/agenteam/web/src/router/auth.ts",
+      "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21",
+      "bytes": 10856
+    },
+    {
+      "path": "/workspace/agenteam/web/src/router/index.ts",
+      "sha256": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415",
+      "bytes": 5248
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/project-audit.json",
+      "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+      "bytes": 291094
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/audit/http/project_wire.go",
+      "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e",
+      "bytes": 12119
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/app/project_audit.go",
+      "sha256": "92870eb558c98078fce9bb168cfdedd47925f16d49bced98be49c47ecc639d96",
+      "bytes": 918
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/authentication_web_test.go",
+      "sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+      "bytes": 3639
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/personal_settings_web_test.go",
+      "sha256": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b",
+      "bytes": 6059
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/system_audit_web_test.go",
+      "sha256": "ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f",
+      "bytes": 1737
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_web_test.go",
+      "sha256": "e91d920777b6bd48adae2ad96c1f2d2e1cd0f6f8c254af3a9a497a684a44e5a6",
+      "bytes": 2270
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/system_meeting_summary_web_test.go",
+      "sha256": "dbd26eab2e29128fc014209d6ba4e5f3ffa36abb61f759f15f99efe4119b0376",
+      "bytes": 1730
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/system_smtp_delivery_web_test.go",
+      "sha256": "9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52",
+      "bytes": 2084
+    }
+  ],
+  "execution_scope": {
+    "product_or_schema_tests_run": false,
+    "go_node_browser_build_run": false,
+    "resources_started": false,
+    "git_commands_run": false,
+    "source_or_repo_docs_written": false,
+    "only_scratch_report_written": true
+  },
+  "read_limitations": [
+    "Read-only guessed ProjectWorkspaceShell.vue/ProjectShell.vue paths were absent; corrected to actual ProjectWorkspaceView.vue with rg. No product check or source mutation followed these failed file reads.",
+    "Some broad text output was truncated; no acceptance rests on truncated portions; fixed card full-read from prior batches and bounded source reads/metadata used.",
+    "This is specification review, not an implementation, schema execution, browser, fixture, resource-readiness or product acceptance."
+  ],
+  "stopped": true
+}

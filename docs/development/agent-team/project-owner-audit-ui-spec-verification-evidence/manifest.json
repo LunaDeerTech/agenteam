@@ -1,0 +1,27 @@
+{
+  "status": "STOP_SPEC_REV2_ARCHIVE_COMPLETE_FOR_ROOT_REVIEW",
+  "original_files": 15,
+  "original_bytes": 133979,
+  "accepted_spec_sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb",
+  "formal_review_sha256": "dc7d9c60974ec8852982821b86c976e28ccd75a9f7969a94e257ad5409c17c86",
+  "scope": "Rev2 SPEC STATIC only; no product or resource acceptance.",
+  "files": {
+    "docs/development/agent-team/project-owner-audit-ui-spec-verification.md": {
+      "sha256": "0bc3c8eaf7e48c6cd47a5493e10398f7127d6d3bb6424b0c7e3b3be9a925d9de",
+      "bytes": 5554
+    },
+    "docs/development/agent-team/project-owner-audit-ui-spec-verification-evidence/source-map.json": {
+      "sha256": "723208b16406e2229c2e4352d62163d46f0dc1d1f5ea3f6b07c5f24e137cde95",
+      "bytes": 8389
+    },
+    "docs/development/agent-team/project-owner-audit-ui-spec-verification-evidence/archive-checks.json": {
+      "sha256": "a87d6eee839785e9a60178fbab2c1f633481542ff7afaa8e9fe285a6128cf224",
+      "bytes": 3776
+    },
+    "docs/development/agent-team/project-owner-audit-ui-spec-verification-evidence/format-exceptions.json": {
+      "sha256": "064f9d172c7250874ca72d190b759595c24e54712b01cc2d23dd386d2633f5eb",
+      "bytes": 1253
+    }
+  },
+  "no_remaining_commands_readers_or_writers": true
+}

@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：Audit UI实施交接与规格永久档
+
+规格5320a18756d1b1f552274a28e85575ef1ab71a35已push且root实核远端同。frontend已实际ACK并开始#1–16/#19–20/#22唯一19webJS源；允许必要单命令≤45s的既有Node检查及私有绝对outDir，global web/dist不写。backend已ACK，仅Go #17–18 scratch候选及与frontend闭合IPC；协议v01尚待前端确认，未安装/Go检查/业务资源。README #21后交。独审准备已封：verification plan902118c8，runtime plan9bef31fb；后者明确旧driver缺新Audit/SystemAudit selectors及ENV，未来只补必要差量，当前false不可执行。
+
+[规格永久档](project-owner-audit-ui-spec-verification.md)已STOP，report0bc3c8ea、map723208b1、manifest e204082f；root实核15原件133979B逐source/archive SHA/bytes、4manifest引用和5320a187的卡bytes/blob37007fef。原rev1唯一D1和作者selector FAIL保持，原diff31处尾空白按原line保存、无EOF空行。本档仅规格；不重复已验契约或把计划当执行。
+
+下一后端推荐分析e28547a8经root通读采纳：D09 platform.embedding current-selection Resolver库，两个purpose KnowledgeEmbedding/MemoryEmbedding，最小接缝resolution_policy，不依赖Object停工路径。architecture已ACK仅新卡d09-platform-embedding-resolution.md＋scratch规格，不写产品；维度/serving、真实consumer、Invocation及生产root未绑，D13/D14须提供受信IndexProfile事实，不能声称业务Embed。Jina来源取证旧停止沿原记录保持，Object/tools/SPA三停止也不重开。
+
 ## 2026-10-08：Project Owner Audit UI rev2规格接受
 
 用户明确继续完成项目。main恢复基线5684993d，Owner工作区24路径和官方品牌已验收；[Audit UI卡rev2](../work-items/d27-project-owner-audit-ui.md) SHA1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb，经原rev1全文独审0c78f19a与rev2差量/最终组合独审dc7d9c60正式通过。root通读报告/evidence并核卡、freeze及独审三件SHA；唯一D1关闭，原HTTP/Session契约、selectors与预算保持，原失败不改写。

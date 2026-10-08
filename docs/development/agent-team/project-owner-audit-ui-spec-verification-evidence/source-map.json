@@ -1,0 +1,189 @@
+{
+  "schema": "project-owner-audit-ui-spec-permanent-archive-v1",
+  "scope": "Accepted rev2 D1 delta plus inherited complete rev1 SPEC STATIC only. No implementation, dynamic result or resource authority granted by this report.",
+  "originals": [
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/freeze.json",
+      "archive": "originals/author/rev1/freeze.json",
+      "sha256": "144efac25182a9d8a1360cb3b125c9a170e8ec9de1fa43a1498f79769f495d4f",
+      "bytes": 2017,
+      "role": "Rev1 author STOP, resource/shared-source authority false."
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/rev1-before-selector-fix.md",
+      "archive": "originals/author/rev1/rev1-before-selector-fix.md",
+      "sha256": "19aa820564a58d4430aa9210ebc31a01667ae33f82cddbbf8d31d857d081e7fb",
+      "bytes": 37508,
+      "role": "prior_draft"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/rev1.md",
+      "archive": "originals/author/rev1/rev1.md",
+      "sha256": "efeadf1bf77236a7d6825f901197240651baa1123e2463c4e4dbe697c5fe796e",
+      "bytes": 37515,
+      "role": "frozen_card"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/selfcheck02.json",
+      "archive": "originals/author/rev1/selfcheck02.json",
+      "sha256": "d30b6a91a8bcca510170fb98eb74813b780ac7617e3bc79f6c3781988b1b45d6",
+      "bytes": 1498,
+      "role": "author_static"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/selfcheck01.json",
+      "archive": "originals/author/rev1/selfcheck01.json",
+      "sha256": "fb2ddc4ae0bcd41200dde7365978bf3456f587f67441f3ded67713c8075aec7e",
+      "bytes": 6220,
+      "role": "Original author JSON FAIL; recorder process exit0 is distinct."
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/inputs01.json",
+      "archive": "originals/author/inputs01.json",
+      "sha256": "52fe9c706a21300cb35dd3a67fde2039bfe198bf243c5b770a4f2255b5a480dd",
+      "bytes": 7823,
+      "role": "43 fixed specification-source references only, not a runtime closure or current-source rescan."
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/rev2/freeze.json",
+      "archive": "originals/author/rev2/freeze.json",
+      "sha256": "cc994a35c86b70182b2de935651c5285e3b47ca61d13213f57e0ef9a295fbb73",
+      "bytes": 2431,
+      "role": "Author rev2 STOP before independent delta acceptance."
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/rev2/rev1-to-rev2.diff",
+      "archive": "originals/author/rev2/rev1-to-rev2.diff",
+      "sha256": "e661b5e7641315e03667fd97b053b4ba73c506314dddb65695bbb8de93c42ff4",
+      "bytes": 17340,
+      "role": "delta"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-audit-ui-spec/rev2/selfcheck.json",
+      "archive": "originals/author/rev2/selfcheck.json",
+      "sha256": "fa4e2d733300af3b5cc7bf8d91614f1262279c130201d40b12988abb3a42ba42",
+      "bytes": 1424,
+      "role": "author_static"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev1-review/review.md",
+      "archive": "originals/independent/rev1/review.md",
+      "sha256": "0c78f19a4f1a63817441b88fc89c934a82f7327191209ea4c313e02ab7dece23",
+      "bytes": 2652,
+      "role": "Independent rev1 original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev1-review/evidence.json",
+      "archive": "originals/independent/rev1/evidence.json",
+      "sha256": "f4f906dc2217a879055f5958bdb7364095166e3c5fe1adcad4d08e41d87f693e",
+      "bytes": 9969,
+      "role": "Independent rev1 original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev1-review/manifest.json",
+      "archive": "originals/independent/rev1/manifest.json",
+      "sha256": "088dd8b91728885f7ffaa3dab440fea01e658095d5ceadddb5864130a82e7a96",
+      "bytes": 702,
+      "role": "Independent rev1 STOP manifest"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev2-review/review.md",
+      "archive": "originals/independent/rev2/review.md",
+      "sha256": "dc7d9c60974ec8852982821b86c976e28ccd75a9f7969a94e257ad5409c17c86",
+      "bytes": 1739,
+      "role": "Independent rev2 original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev2-review/evidence.json",
+      "archive": "originals/independent/rev2/evidence.json",
+      "sha256": "0129b62b77a1949016f38949c86e568420cbd0363c407de6f9ab5d169dc0f88c",
+      "bytes": 4451,
+      "role": "Independent rev2 original"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev2-review/manifest.json",
+      "archive": "originals/independent/rev2/manifest.json",
+      "sha256": "6d4459c9628321768d458b8f6394f04d56431119638db9946df909152b776c54",
+      "bytes": 690,
+      "role": "Independent rev2 STOP manifest"
+    }
+  ],
+  "logical_originals": 15,
+  "logical_original_bytes": 133979,
+  "distinct_content_sha256": 15,
+  "new_physical_original_files": 15,
+  "new_physical_original_bytes": 133979,
+  "repository_card_not_copied": {
+    "path": "docs/development/work-items/d27-project-owner-audit-ui.md",
+    "root_reported_accepted_commit": "5320a187",
+    "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb",
+    "bytes": 39298,
+    "git_blob_sha1_calculated_from_fixed_bytes": "37007fefbe8ef7031ea754c11aabeb81c3a4b49a",
+    "blob_basis": "Git object ID calculated locally from frozen rev2 card bytes; no Git command or current active product source read. Commit binding comes from root notification.",
+    "frozen_source": "/workspace/scratch/project-owner-audit-ui-spec/rev2/card.md",
+    "same_bytes_as_root_accepted_repository_card_reported_and_independently_checked": true
+  },
+  "prior_states_preserved": {
+    "author_selfcheck01_JSON": "FAIL",
+    "author_selfcheck01_recorder_process_exit": 0,
+    "author_selfcheck02": "AUTHOR_SPEC_STATIC_PASS",
+    "independent_rev1": "SPEC_STATIC_CHANGES_REQUIRED_STOP",
+    "rev2_author_freeze": "Pending independent delta review at its original timestamp",
+    "independent_rev2": "COMBINED_SPEC_STATIC_PASS_STOP"
+  },
+  "fixed_source_manifest": {
+    "archive": "originals/author/inputs01.json",
+    "sha256": "52fe9c706a21300cb35dd3a67fde2039bfe198bf243c5b770a4f2255b5a480dd",
+    "references": 43,
+    "copied_source_files": 0,
+    "current_source_rehashes": 0,
+    "runtime_closure_claimed": false,
+    "historical_owner24_pending_preserved": true
+  },
+  "additional_rev2_source_reference_only": [
+    {
+      "bytes": 1479,
+      "path": "/workspace/agenteam/web/src/components/layout/ProjectNav.vue",
+      "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a"
+    }
+  ],
+  "accepted_prerequisites_from_author_freeze": {
+    "authority": "root explicit accepted/pushed notification; no Git operation performed",
+    "owner_ui_final24": "0a939a7f12a607708e40796ac0bfae61592e7099",
+    "owner_ui_independent9_archive": "f9fb58d1",
+    "project_audit_http": "4089d13128da8680955005d9507c8a7da74af1f1"
+  },
+  "path_count": {
+    "total": 22,
+    "technical": 21,
+    "technical_numbers": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "README_number": 21,
+    "new_ProjectNav_number": 22
+  },
+  "final_independent_report_SHA256": "dc7d9c60974ec8852982821b86c976e28ccd75a9f7969a94e257ad5409c17c86",
+  "final_independent_manifest_SHA256": "6d4459c9628321768d458b8f6394f04d56431119638db9946df909152b776c54",
+  "copied_raw_spec_snapshots_link_context": "The two historical rev1 card snapshots preserve raw Markdown bytes and their original docs/development/work-items/ relative-link base. Generated archive documentation uses valid permanent links; original source link checks are inherited from fixed selfchecks.",
+  "actions_limit": "Only fixed specification and small evidence files. No product/Go/Node/browser/schema/client tests, resources, network, Git, whole source/runtime/dependency graph copies, or active implementation-source reads."
+}

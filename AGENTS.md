@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Audit UI已实施（2026-10-08）：规格5320a187已push核远端同；frontend已ACK19个web/JS技术路径及必要≤45s本地Node检查/private outDir，backend已ACK仅Go #17–18 scratch候选，README/业务资源未授。规格永久档0bc3c8ea/manifest e204082f已STOP，root实核15原件133979B、4metadata引用及已提交卡Gitblob；原diff31尾白保。独审API/实际计划已STOP待冻结。并行架构仅新D09 platform.embedding current-selection Resolver规格，严格Knowledge/Memory purpose；不开放真实消费者/serving/维度/Invocation/root，三停止保持。
+
 Project Owner Audit UI规格接受（2026-10-08）：rev2卡12022902经rev1全文独审0c78f19a＋D1差量/最终组合dc7d9c60，root已核关键原件接受；21技术（#1–20/#22）＋README #21，共22路径。唯一D1追加ProjectNav同项目general/audit精确当前项，href/default仍general。前卡Owner24、官方品牌已接受；下一frontend独占19个web/JS技术路径，backend独占Go #17–18，实施交接另下发，README及真实资源仍未授。原rev1必修和作者selector FAIL保留；三停止、生产未绑定、ready503与完整D08–D28/E01未完保持。
 
 final24格式终局（2026-10-08）：完整原Git诊断实数12＝10尾白＋README.patch:111和v2-to-v3.patch:7两EOF空行。root第一次helper遇首EOF提前assert，后次集合比较失败才完整枚举第二EOF，两helper exit1均未后续commit；Git本身exit2，原失败输出保持。fixture仅三JSON再补STOP manifest13d5c5cb，原bytes/report/两header不变，当前登记已完整。只按精确12原例外核后交付，其余生成文件零异常；不产品/技术重跑。
