@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 当前：两首轮原FAIL已停止，测试前提正在窄修
+
+Audit首轮auditread01原FAIL及全退休经dcc9e426/root接受，source-v02唯一spec16a3/freezea2a13a51修正联合错误首字段focus，作者format/strictTS和独审5164ee52通过，真实新read未跑。root disposition3c202afa只准新exactdriver准备，v02false骨架不可执行。Model首轮embedselect01的noSecretRead全库计数5导致topFAIL；inner原double_cleanup=false因本轮临时go-build残留，原完整wait/7ID/owned/TCP双清后另授精确恢复，runtime再双空，原件不回填。fixture仅scratch consumer=model范围修正，runtime独立归因/退休核查中，后继资源未授。全部Go/cache与业务资源窗归还；59资产与原3backup仍保持，末reader后root恢复。详细refs和原失败见最新台账，三停止/Jina/生产/E01边界不变。
+
 ## 当前：实际资源尚未启动
 
 Model作者14名list与独立A/B格式/race-c/vet/2名list都PASS/STOP，A/B最终组合82f2568f已root接受STATIC/offline。作者七轮driver v01仅G1/G2失败，fixture只新v02修入口/outer历史和Go-only retain/remove loader，等待独审；资源未授。共享Go层909/63，无web资产，Model486实际为463Go+20迁移SQL+弱密码JSON+2锁。Audit完整prepared6073/falseffc已STOP，filegate01在Popen前环境接口缺失FAIL/0child；仅runner修后02真实1.626s PASS/1176hash/66sets/355外部组/4bundles/private及global59同，独审进行。所有Go/cache窗已交回，任何body/真实资源仍未运行。原3完整backup与global59固定准备窗保持，root最终恢复；精确refs与原失败见最新台账。

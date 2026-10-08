@@ -1,5 +1,21 @@
 # 团队任务台账
 
+## 2026-10-08：首轮真实失败、退出与最小测试修正
+
+Audit完整准备独审d6760b44/resultdbae2f13已root通读核36refs接受限定，Model v02 c83dffc1/result971cc44a及40refs核同，G1/G2与专用loader关闭。为使用先就绪输入，先Audit后Model实际串行，未并发资源。独立Audit final01仅STATIC c1188022，尚未filegate；独立Model driver cb55a8cd/manifest7080cf1e已root读核44refs接受STATIC，其final0177afb5d8只false元数据，实际A/B未运行。
+
+Audit唯一auditread01/new-audit-read由root0444 grant87c71a94执行，top22.90s FAIL，browser在spec1153观察actor_id invalid=true但inactive；旧轮无activeElement/DOM/error-context/图，不回填实际kind焦点。原manifest039dc5f8/handoffc6285cce索引55件463493B，raw3f2886ac/result174d380d。独审dcc9e426/resultd06a323b及66refs已root读核：direct actualwait1/adopted4/watchdogjoin、7ID两absent、owned与两runtime双空、TCP尾37.371495s后两delta清/0forced/inputs同；4新增PID1 shim非owned未wait。19sidecar/9原body仅native proxy事实，零额外请求与finish/schema-client终段未达，其余轮未运行。
+
+联合service+actor_id由固定API同时标kind/id，View按DOM首错误定位；原test要求第二个id焦点超出既定规则。仅spec精确f6482404→16a3f734，保idinvalid、加kindinvalid、严格kindfocus，不改product/API/资产或预算。source-v02 freezea2a13a51/deltafea0465a；format0.559389s、显式strictTS1.816995s均exit0/实际wait/owned双空/15inputs保持，未重复list或build。独审5164ee52/result2ecd2c6b已root读核安装源/冻结/patch，独审28refs不冒称root重扫。原browser-v1及首FAIL保。root disposition3c202afa只接受失败及原退休、允许另代exactdriver准备，resourcefalse；backend v02仍逐bytes06cf03c3，骨架1a014196不可执行，等Model必要源差量再统一绑定。
+
+Model完整pg-inputs-v01 manifest7be48be7的22件78985B与21readiness refs经root核接受组件复用，原false92cd40cb/readiness08c089fc保；root另冻accepted readiness25242a09与falsefilegate50a357e3。root亲执行固定v02 --check-input-only，首exit0/0.497113544s，rawdc786653/receipt7da50b3f：996预期（909Go层+86runtime+规格1）、63sets/355external全部同，resources_started=false。工具只观察直接退出，没有补造资源退休或进程双扫描。
+
+root另授0444单轮embedselect01/new-selection grantd4e79401。实际11唯一RUN中10子/嵌套PASS，top5.50s FAIL于最终noSecretRead全库secret.resolve count5。原fixture actualwait exit255/52.033s（watchdog见FAIL后TERM），adopted1实际wait，outerexit1/112.548s；7ID双absent/owned双空、TCP57.453s内双delta清、996input同，4非owned PID1 shim不wait。原两runtime留下go-build907913867，inner9e918dc5保持double_cleanup=false/accepted=false，outerdfb457ae与rawc9bd4a9d不改。root仅另授精确退休恢复，81原identity两空后核单一非symlink本轮目录/inode并删除，实际exit0/0.868s、runtime与身份再次双空，原8SHA保持。恢复result5ffbf09a与原结果229ecd4f/报告8cfb2190/manifestcb072fb4已root读核七关键原件；独审进行，不把恢复补成原PASS，旧v02历史gate仍阻。
+
+正式Account三Login/两Invite投递源码可产生system consumer的secret.resolve；Model material reader写model consumer。该静态依据不确认原5行实际来源。fixture仅scratch唯一noSecretRead SQL追加正式consumer=model条件，仍要求全库所有Model材料读取为0，不减5/不按Project或当前lease缩窄，不改产品；runtime独立复核候选及原退休。后继安装、编译和单轮资源未授。所有Go/cache和真实资源当前归还；root保持59资产/原3完整backup，后续全部reader退休才恢复。
+
+本批只读辅助错误保留工具输出：误猜planned-rounds.json路径、将独审flat-map当封装结构、将source-v02 result的refs误取inputs；随后按实际结构核必要原件，均未候选或资源执行。下一Owner模型设置UI仅架构scratch草案，前置HTTP已验但共享源需Audit整卡验收移交。三停止/Jina、ready503/生产未绑定与D08–D28/E01未完保持。
+
 ## 2026-10-08：完整运行输入与原始失败收口中
 
 Model作者精确14名-list首PASS1.278915s，resultf92074e9/manifest1bb48916，冻结binary083d8839前后同/actualwait/双空，无body。独立A/B probe原117c/cd353/a2c经完整语义独审4f575104接受；私有格式348dccae仅三空格，overlay39e98025只增不存在虚拟target，race-c8.558s/vet0.999s/格式0.152s全PASS，486固定input同/actualwait/双空/0forced。最终组合独审82f2568f/evidence4fed26ae/manifestbcfa917a已root读核；后继冻结binary3c5a008c精确A/B两名首list1.230s PASS，freeze0ca80d24/result6d3c0ae9，无body或资源。准备阶段误推18迁移+3web资产已依据原observed-inputs更正为20迁移SQL+弱密码JSON，463Go加两锁共486，不读或绑定web。
