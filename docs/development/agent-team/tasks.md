@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：审计409声明补正与真实验证准备
+
+唯一额外文档维护`api/openapi/project-audit.json`已由writer精确安装并STOP：原4b6ff6b6→b51581103f4c6952787799c93450703886917cf2ce2a98be26a085c16eadc2e1，295094B。root通读报告8ecaa705、差量fb20d2ec与checks，实核freeze5917b2b3内15原件及原JSON；四项409移除后精确还原原语义/字节。两个端点各GET/HEAD声明既有PROJECT_NOT_ACTIVE；GET复用各自403的Problem和四安全headers，HEAD仅headers无body，其余状态/参数/组件/security保持。681本地/common引用自查通过，未运行整份官方OpenAPI meta或真实409 body；原生成marker断言与失败元数据转义错误留存。安装记录90de11dd；这是原Audit HTTP之后的单JSON文档补正，不扩Audit UI22业务源范围。frontend已获新固定schema，最后JS检查/冻结进行，禁common-only fallback。
+
+Audit代理D1唯一受控轮作者PASS并全STOP：overlay02 c4d20052、root true a36b5323，实际1top/5组、13时序关卡、8handler joins；Write/ErrorHandler仍阻塞时joined不提前，实际ENOTDIR和ErrAbortHandler unwind均到达。freeze284da213/raw778a303a/meta888e738c，9.537433s、direct wait1/adopted0、owned双空、911inputs前后同；root已读原raw/终局并核六引用原件。独审79e7b09c/evidence3151e40c/manifest08c6dfea已root读核，无必修，结合既有SOURCE STATIC限定接受私有D1时序，不冒真实HTTP或资源验收。旧v4常量静态首红保持。
+
+Model六PG原a442fcb8已安装，作者首race-c7.512s/vet8.975s通过；review4bb1a469/result11d2946a/manifest39c8212b均root读核17引用，486必要输入前后同，六源无编译修正、actualwait/owned双空、binary未执行。verification_runtime完整STATIC进行。backend准备Audit作者3新+10旧driver，architecture拟准备独立四轮driver，fixture准备Model new5+旧6+S3旧3；全为scratch准备，未授Go list/binary/PG/Docker/browser/监听或globaldist交换。web17已68173290推送核同；原dist3和私有59保持，三停止/Jina、生产ready503与D08–D28/E01未完不变。
+
 ## 2026-10-08：Audit web17离线阶段接受与真实前准备
 
 root通读最终离线独审280fa718/result279759df，结合原067080be/450a0898接受17 web阶段；API5已b0714899，本次只交其余12个不同文件。17安装源与三冻结/原type/privatebuild相同，root核必要build command/input原件；独审实际核59文件794400B完整目录与4品牌SVG原字节、index/public5前后同，三Debug静态标识无命中（不冒充运行时Debug结论）。原189输入type复用，privatebuild1.279s actualexit0/directwait/owned双空。API71、state18＋2、App9＋1维持版本组合；fullunit原56文件2265/2266 FAIL＋旧文件20/20 PASS闭合，不称修后全套fresh。额外品牌兼容维护单源经根读8e5fa273及精确一行diff，已f41fbee38808d32ca7e318500e10cffdad2551d2推核同；坏metadata/组件存在/私诊断/重试/零写断言保持。

@@ -545,6 +545,39 @@
               }
             }
           },
+          "409": {
+            "description": "PROJECT_NOT_ACTIVE. After current Session and Project Owner identity checks, the read gate rejects incomplete initialization or a deleting Project.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "500": {
             "description": "INTERNAL_ERROR.",
             "headers": {
@@ -1111,6 +1144,32 @@
               }
             }
           },
+          "409": {
+            "description": "PROJECT_NOT_ACTIVE. After current Session and Project Owner identity checks, the read gate rejects incomplete initialization or a deleting Project.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
           "500": {
             "description": "INTERNAL_ERROR.",
             "headers": {
@@ -1402,6 +1461,39 @@
               }
             }
           },
+          "409": {
+            "description": "PROJECT_NOT_ACTIVE. After current Session and Project Owner identity checks, the read gate rejects incomplete initialization or a deleting Project.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "500": {
             "description": "INTERNAL_ERROR.",
             "headers": {
@@ -1659,6 +1751,32 @@
               "Allow": {
                 "schema": {
                   "const": "GET, HEAD"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PROJECT_NOT_ACTIVE. After current Session and Project Owner identity checks, the read gate rejects incomplete initialization or a deleting Project.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
                 }
               }
             }
