@@ -1,5 +1,13 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新接续：v5窄修接受、edit03准备
+
+v5仅#21身份facts helper+ready一替换独审PASS，strict/id及其它行为保持，不代表真实edit完整通过。final04固定一源delta/filegate已STOP，独立prepared进行，资源未授；测试53窗口与原3完整backup original-dist-edit03保持。精确输入及失败保留见[台账](tasks.md)。
+
+## 最新接续：edit02失败退役、v5身份定位窄修
+
+edit02实际FAIL在显式重读后的ready facts strict2，独立首要归因仅测试身份scope必修；正式原件/退役报告与永久档进行。原3资产已恢复、测试53保留，无当前资源/窗口。仅#21 v5精确身份定义项filter返修已授，v04 exactdriver scratch准备，后继资源未授；精确输入/执行范围见[台账](tasks.md)，原失败与全卡/生产边界保持。
+
 ## 最新接续：edit01永久原件、edit02输入准备接受
 
 [edit01失败/窄修永久档](project-owner-ui-recovered-edit01-verification.md)原92逻辑refs/43Git核同；final03固定delta/filegate与独立PREPARED PASS已STOP，false原件保留，下一步仅root唯一edit02授权copy执行。测试53和原3 backup original-dist-edit02保持，完成reader退役后恢复；仍无真实edit02结论。精确SHA和未验范围见[台账](tasks.md)。

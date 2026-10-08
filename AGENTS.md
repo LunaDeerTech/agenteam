@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+当前限定修正（2026-10-08）：browser-v5 #21仅身份facts scope已独审PASS，其他行为/19UI/Go/#20不变，actualedit仍未完整接受。final04作者filegate/STOP通过、独立prepared进行，false原件不动，资源未授；root53测试窗口、原3 backup original-dist-edit03，实际reader退役后须恢复。原edit02 FAIL/退役/永久档与完整D27/生产/三停止边界保持，见[台账](docs/development/agent-team/tasks.md)。
+
+当前故障处置（2026-10-08）：edit02实际FAIL已完全退役并恢复原3file，固定身份dl+当前review dl合法同时出现，#21 ready唯一facts假设必修；仅v5身份scope返修已授，19UI/Go/#20不变。54原件/永久档与独立正式退役复核进行，v04 exactdriver只scratch准备，后继资源未授；完整D27/生产/三停止边界保持，见[台账](docs/development/agent-team/tasks.md)。
+
 当前准备（2026-10-08）：edit01失败与v4窄修永久档已核92逻辑原件/43Git，f09f修正已推核同；final03独立PREPARED PASS/STOP，无pending输入，原授权false不改。下一步root唯一edit02 truecopy执行，尚未开始；资产53窗口、原3 backup original-dist-edit02，退役后须恢复。完整D27与生产/三停止边界保持，见[台账](docs/development/agent-team/tasks.md)。
 
 当前限定修正（2026-10-08）：browser-v4 #21仅七处必填名称定位器修复已独审PASS，19UI/Go/#20不变，实际edit/layouts未接受。edit01失败原件/退役保持；root已复用53测试资产，原3完整backup original-dist-edit02，实际资源未授，仅final03一源delta/file-only准备。详情见[台账](docs/development/agent-team/tasks.md)；后继完整D27/生产未绑定/ready503/D08–D28/E01与三停止保持。

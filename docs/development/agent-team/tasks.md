@@ -1,5 +1,19 @@
 # 团队任务台账
 
+## 2026-10-08：browser-v5身份facts范围窄修接受
+
+独立v5窄差量PASS：仅#21新增同时含精确dt“Project ID”“Owner”的身份dl helper，ready一处改用此scope，保strict/id/form/reread及全部无内容断言。移除这两变化即与v4逐字节同，7名称/31描述定位与行为保持；19UI/Go/#20及锁无变。固定format0.731s/type1.669s/list各1五mode4.349s实际exit0、input绑定v5、actualwait/owned双空已独核。关闭edit02仅此定位器必修，不提前接受真实edit/layouts或全卡。freeze SHA `a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85`，#21 SHA `3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009`；本节与#21同批Git定位，小交付立即推送核远端。
+
+final04作者STOP/唯一filegate0/1.369秒，955源/66集合/1165指纹沿final03复用，仅v5一源/provenance/v04路径差量，driver exactBB与预算不变。root核7交接指纹；原freeze SHA `ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d`，false授权及准备时v5未接受的历史记录保留，独立prepared复核进行。root复用53测试资产，原3完整backup original-dist-edit03，exchange-edit03.json；实际资源未授，待准备PASS后唯一edit03。原两edit FAIL与各自实际退役保持，edit02永久档进行；完整D27与原生产/三停止边界保持，以下为历史。
+
+## 2026-10-08：edit02实际失败退役与身份facts定位返修
+
+edit02使用已推f09f的v4源码与final03，实际FAIL：Go top13.04秒、全链58.451秒，在#21:683显式重新读取后confirmed→ready249因`.project-facts`匹配两个dl发生strict错误。独立首要归因确认只需限定测试身份facts scope；合法身份ID/Owner dl与当前信息review dl可同时存在，controller不静默覆盖旧editor，非已证明产品缺陷。仅#21 v5 helper可按精确dt“Project ID”“Owner”两项filter，保strict/id/form/reread及其他无内容断言，禁止first或删断言；19UI/Go/#20不变。
+
+原54run原件+launch已STOP，handoff `/workspace/scratch/owner-ui-backend/edit02-handoff.json` SHA `c150baaeeb4bde32cba5f90437bd2a4d5d34854e4b6bfb6e36dcd3e47ac7b74c`，raw `10f7e26ea47a00ce22aefdaa10f18147a407c0e0376d7f4bf768ba1355f50460`。此前重名、版本冲突、改名URL/nav及命令确认/Get失败双heading断言已走过，684后无额外PATCH/facts/description/最终schema-client未执行，整轮仍FAIL。19sidecar/11body（GET20012/PATCH2005/PATCH4092）不称最终校验PASS。
+
+作者实际direct+4adopted wait/watchdogjoin，exact7ID/owned/runtime/TCP全态delta双清（39.380秒补充尾），输入同、monitor/cancel/forced0；4非owned daemon shim另列。root退役后已restore-after-edit02.json恢复原3 SHA，53测试资产保存，无当前资源/reader/asset窗口。独立正式退役报告与永久失败档进行；v04 exactBB仅scratch准备，final04/后继资源未授。独立实际A3/B6短计划已STOP但未执行，不能代作者原件复核。v5固定差量独审后小交付再准备唯一edit03；完整D27/旧16/其余新/生产及三停止边界保持，以下为历史。
+
 ## 2026-10-08：edit01失败与v4窄修永久归档，edit02输入准备通过
 
 [edit01永久失败与修正记录](project-owner-ui-recovered-edit01-verification.md)已STOP：92逻辑原件、新68物理400778 bytes/13复用，root逐source/archive原bytes/SHA、70指纹和43Git定位核同。原FAIL、未执行后段与schema/client、缺当时DOM、label01启动FAIL/晚空目录清理、label02语义PASS独立分列，原18格式例外不改字节；v4只Gitf09f定位，已关闭七定位必修，非真实edit/layouts通过。

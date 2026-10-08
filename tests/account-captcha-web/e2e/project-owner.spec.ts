@@ -59,6 +59,11 @@ const button = (page: Page | Locator, name: string) =>
   page.getByRole("button", { name, exact: true });
 const projectName = (page: Page) =>
   page.getByRole("textbox", { name: "项目名称", exact: true });
+const projectIdentityFacts = (page: Page) =>
+  page
+    .locator("dl.project-facts")
+    .filter({ has: page.locator("dt").filter({ hasText: /^Project ID$/ }) })
+    .filter({ has: page.locator("dt").filter({ hasText: /^Owner$/ }) });
 const saveButton = (page: Page) =>
   page.getByRole("button", { name: /^(保存修改|已确认保存)$/ });
 const projectLink = (page: Page) =>
@@ -246,7 +251,7 @@ async function ready(page: Page, id: string) {
   await expect(
     page.getByRole("form", { name: "项目基本信息", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".project-facts")).toContainText(id);
+  await expect(projectIdentityFacts(page)).toContainText(id);
   await expect(button(page, "重新读取当前值")).toBeEnabled();
 }
 async function enter(page: Page, data: Material, key = "main") {
