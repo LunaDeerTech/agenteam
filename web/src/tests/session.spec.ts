@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createSessionController } from '../composables/useSession'
 import { AccountFailure, type Problem } from '../api/client'
 import { createAccountAPI, type AccountAPI, type SessionView } from '../api/account'
+import { createProjectModelSettingsAPI } from '../api/project-models'
 
 const id = '01900000-0000-7000-8000-000000000001'
 const time = '2026-10-05T12:34:56.123456Z'
@@ -505,82 +506,109 @@ describe('Account Session ownership', () => {
 // The additional Owner facade shares the original Cookie owner and does not
 // weaken any existing personal/System gate.
 describe('Project facade compatibility', () => {
-  it('keeps all old mutators behind an active Project actual tail', async () => {
-    const { api } = fixture()
-    api.getSession.mockResolvedValue(view)
-    const tail = deferred<import('../api/project-owner').Project>()
-    const value: import('../api/project-owner').Project = {
-      id,
-      owner_user_id: id,
-      name: 'demo',
-      normalized_name: 'demo',
-      description: '',
-      lifecycle: 'active',
-      version: '1',
-      current_sprint_id: null,
-      created_at: time,
-      updated_at: time,
-      archived_at: null,
-    }
-    const projects: import('../api/project-owner').ProjectOwnerAPI = {
-      list: vi.fn(),
-      resolve: vi.fn(),
-      get: vi.fn(async () => tail.promise),
-      update: vi.fn(),
-      lookup: vi.fn(),
-    }
-    const auth = createSessionController(
-      api,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      projects,
-    )
-    await auth.restore()
-    const reading = auth.projects.get(id)
-    try {
-      await Promise.resolve()
-      await Promise.resolve()
-      const mutations = [
-        () => auth.personal.updateProfile({ version: '1', display_name: 'x' }),
-        () => auth.personal.setPreferences({ version: '1', theme: 'dark' }),
-        () =>
-          auth.personal.putAvatar({
-            version: '1',
-            file: new File([], 'x.png'),
-            mediaType: 'image/png',
-          }),
-        () => auth.personal.deleteAvatar({ version: '1' }),
-        () => auth.personal.changePassword({} as never),
-        () => auth.system.createInvitation({ email: 'invite@example.test' }),
-        () => auth.system.providers.start({} as never),
-        () => auth.system.models.start({} as never),
-        () => auth.system.selection.start({} as never),
-        () => auth.system.selection.meetingSummary.start({} as never),
-        () => auth.system.accountSecurity.start({} as never),
-        () => auth.system.smtp.startUpdate({} as never),
-        () => auth.system.smtpDelivery.startTest({} as never),
-        () => auth.system.outboundPolicy.startUpdate({} as never),
-      ]
-      for (const mutation of mutations)
-        await expect(mutation()).rejects.toMatchObject({ kind: 'busy' })
-      expect(api.updateProfile).not.toHaveBeenCalled()
-      expect(api.logout).not.toHaveBeenCalled()
-      expect(auth.state.busy).toBe(true)
-    } finally {
-      tail.resolve(value)
-      await reading
-      auth.leave()
-    }
-  })
+  it.each(['Owner', 'Model'] as const)(
+    'keeps all old mutators behind an active Project %s actual tail',
+    async (domain) => {
+      const { api } = fixture()
+      api.getSession.mockResolvedValue(view)
+      const tail = deferred<import('../api/project-owner').Project>()
+      const value: import('../api/project-owner').Project = {
+        id,
+        owner_user_id: id,
+        name: 'demo',
+        normalized_name: 'demo',
+        description: '',
+        lifecycle: 'active',
+        version: '1',
+        current_sprint_id: null,
+        created_at: time,
+        updated_at: time,
+        archived_at: null,
+      }
+      const projects: import('../api/project-owner').ProjectOwnerAPI = {
+        list: vi.fn(),
+        resolve: vi.fn(),
+        get: vi.fn(async () => tail.promise),
+        update: vi.fn(),
+        lookup: vi.fn(),
+      }
+      const metadataTail =
+        deferred<import('../api/project-model-credentials').ProjectCredentialMetadata>()
+      const projectModels = {
+        ...createProjectModelSettingsAPI(),
+        getCredentialMetadata: vi.fn(async () => metadataTail.promise),
+      }
+      const auth = createSessionController(
+        api,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        projects,
+        undefined,
+        projectModels,
+      )
+      await auth.restore()
+      const reading =
+        domain === 'Owner'
+          ? auth.projects.get(id)
+          : auth.projectModelSettings.getCredentialMetadata(id, id)
+      try {
+        await Promise.resolve()
+        await Promise.resolve()
+        const mutations = [
+          () => auth.personal.updateProfile({ version: '1', display_name: 'x' }),
+          () => auth.personal.setPreferences({ version: '1', theme: 'dark' }),
+          () =>
+            auth.personal.putAvatar({
+              version: '1',
+              file: new File([], 'x.png'),
+              mediaType: 'image/png',
+            }),
+          () => auth.personal.deleteAvatar({ version: '1' }),
+          () => auth.personal.changePassword({} as never),
+          () => auth.system.createInvitation({ email: 'invite@example.test' }),
+          () => auth.system.providers.start({} as never),
+          () => auth.system.models.start({} as never),
+          () => auth.system.selection.start({} as never),
+          () => auth.system.selection.meetingSummary.start({} as never),
+          () => auth.system.accountSecurity.start({} as never),
+          () => auth.system.smtp.startUpdate({} as never),
+          () => auth.system.smtpDelivery.startTest({} as never),
+          () => auth.system.outboundPolicy.startUpdate({} as never),
+          () => auth.projects.startUpdate(id, { expected_version: '1', description: 'value' }),
+          () => auth.projectModelSettings.createProvider(id, {} as never),
+          () => auth.projectModelSettings.updateProvider(id, id, '1', {} as never),
+          () => auth.projectModelSettings.deleteProvider(id, id, '1'),
+          () => auth.projectModelSettings.createModel(id, {} as never, {} as never),
+          () => auth.projectModelSettings.updateModel(id, {} as never, '1', {} as never),
+          () => auth.projectModelSettings.deleteModel(id, id, '1', null),
+          () => auth.projectModelSettings.createCredential(id, 'private'),
+          () => auth.projectModelSettings.updateCredential(id, id, '1', 'private'),
+          () => auth.projectModelSettings.deleteCredential(id, id, '1'),
+          () => auth.projectModelSettings.lookupConfiguration(),
+          () => auth.projectModelSettings.lookupCredential(),
+        ]
+        for (const mutation of mutations)
+          await expect(mutation()).rejects.toMatchObject({ kind: 'busy' })
+        expect(api.updateProfile).not.toHaveBeenCalled()
+        expect(api.logout).not.toHaveBeenCalled()
+        expect(auth.state.busy).toBe(true)
+      } finally {
+        tail.resolve(value)
+        metadataTail.resolve({ credential_id: id, purpose: 'model', version: '1' })
+        await reading
+        auth.leave()
+      }
+    },
+  )
   it('Project forbidden preserves independent admin authority and System denial preserves Owner reads', async () => {
     const { api } = fixture()
     api.getSession.mockResolvedValue({

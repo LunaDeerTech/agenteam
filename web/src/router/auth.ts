@@ -38,12 +38,18 @@ const reservedProjectRoots = new Set([
 export function projectRoute(value: unknown): {
   username: string
   project_name: string
-  suffix: '' | '/settings' | '/settings/general' | '/settings/audit'
+  suffix:
+    | ''
+    | '/settings'
+    | '/settings/general'
+    | '/settings/audit'
+    | '/settings/model-providers'
+    | '/settings/available-models'
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit))?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -51,7 +57,7 @@ export function projectRoute(value: unknown): {
     project_name = match[2]!.toLowerCase()
   if (reservedProjectRoots.has(username) || project_name === '.' || project_name === '..')
     return null
-  const suffix = (match[3] ?? '') as '' | '/settings' | '/settings/general' | '/settings/audit'
+  const suffix = (match[3] ?? '') as NonNullable<ReturnType<typeof projectRoute>>['suffix']
   return { username, project_name, suffix, path: `/${username}/${project_name}${suffix}` }
 }
 export function safeReturnTarget(value: unknown): string {
@@ -119,6 +125,26 @@ export function installProjectNavigation(
   }
 }
 
+const projectModelNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installProjectModelSettingsNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  projectModelNavigation.set(router, owner)
+  return () => {
+    if (projectModelNavigation.get(router) === owner) projectModelNavigation.delete(router)
+  }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
@@ -131,6 +157,11 @@ export function installAuthentication(router: Router, auth: SessionController = 
       from.meta.projectWorkspace &&
       to.fullPath !== from.fullPath &&
       !((await projectNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await projectModelNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
     )
       return false
     // Ask before Session revalidation can temporarily unmount the dirty page.
@@ -207,6 +238,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
   })
   router.afterEach((to, from, failure) => {
     if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+    if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)

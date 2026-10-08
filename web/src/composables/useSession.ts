@@ -142,6 +142,98 @@ import {
   captureProjectAuditID,
   type ProjectAuditAPI,
 } from '../api/project-audit'
+import {
+  createProjectModelSettingsAPI,
+  captureProjectConfigurationCommand,
+  captureProjectModelContext,
+  captureProjectModelID,
+  captureProjectModelInput,
+  captureProjectModelQuery,
+  projectConfigurationBody,
+  parseProjectConfigurationReceipt,
+  parseProjectConfigurationObservation,
+  type ProjectModelSettingsAPI,
+  type ProjectConfigurationCommand,
+  type ProjectConfigurationReceipt,
+  type ProjectConfigurationObservation,
+  type ProjectModelPageQuery,
+  type ProjectProviderWriteInput,
+  type ProjectModelWriteInput,
+  type ProjectModelWriteContext,
+  type ProjectModelWriteTarget,
+} from '../api/project-models'
+import {
+  captureProjectCredentialTarget,
+  captureProjectCredentialValue,
+  parseProjectCredentialMutation,
+  parseProjectCredentialObservation,
+  type ProjectCredentialLookupTarget,
+  type ProjectCredentialMutation,
+  type ProjectCredentialCreated,
+  type ProjectCredentialUpdated,
+  type ProjectCredentialDeleted,
+  type ProjectCredentialObservation,
+} from '../api/project-model-credentials'
+import { shape } from '../api/client'
+const projectModelReadActions = [
+  'project-model-provider-list',
+  'project-model-provider-get',
+  'project-model-list',
+  'project-model-get',
+  'project-model-available-list',
+  'project-model-credential-get',
+] as const
+const projectModelWriteActions = [
+  'project-model-provider-create',
+  'project-model-provider-update',
+  'project-model-provider-delete',
+  'project-model-create',
+  'project-model-update',
+  'project-model-delete',
+  'project-model-credential-create',
+  'project-model-credential-update',
+  'project-model-credential-delete',
+] as const
+const projectModelLookupActions = [
+  'project-model-configuration-lookup',
+  'project-model-credential-lookup',
+] as const
+type ProjectModelReadAction = (typeof projectModelReadActions)[number]
+type ProjectModelWriteAction = (typeof projectModelWriteActions)[number]
+type ProjectModelLookupAction = (typeof projectModelLookupActions)[number]
+type ProjectModelAction =
+  ProjectModelReadAction | ProjectModelWriteAction | ProjectModelLookupAction
+type ProjectModelPrivateCommand =
+  | Readonly<{ domain: 'configuration'; command: ProjectConfigurationCommand }>
+  | Readonly<{
+      domain: 'credential'
+      command: ProjectCredentialLookupTarget
+      material: string | null
+    }>
+type ProjectModelExecution = ProjectConfigurationReceipt | ProjectCredentialMutation
+type ProjectModelObservation = ProjectConfigurationObservation | ProjectCredentialObservation
+type ProjectModelIntent = {
+  projectID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  payload: { command: ProjectModelPrivateCommand | null; body: string | null }
+  uncertain: boolean
+  keyConflict: boolean
+}
+export type ProjectModelSettingsProgress = Readonly<{
+  projectID: string
+  domain: 'configuration' | 'credential'
+  kind: ProjectConfigurationCommand['kind'] | ProjectCredentialLookupTarget['kind']
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  receipt: ProjectModelExecution | null
+  observation: 'none' | 'not_observed' | 'observed' | 'failed'
+  observedResult: ProjectModelObservation | null
+  lookingUp: boolean
+  keyConflict: boolean
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
 type ProjectAction = 'project-read' | 'project-update' | 'project-lookup'
 type ProjectAuditAction = 'project-audit-list' | 'project-audit-get'
 export type ProjectProgress = Readonly<{
@@ -378,6 +470,7 @@ type Action =
   | OutboundPolicyAction
   | ProjectAction
   | ProjectAuditAction
+  | ProjectModelAction
 interface Operation {
   generation: number
   kind: Action
@@ -487,6 +580,7 @@ export function createSessionController(
   runtimeInformationAPI: SystemRuntimeInformationAPI = createSystemRuntimeInformationAPI(),
   projectAPI: ProjectOwnerAPI = createProjectOwnerAPI(),
   projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
+  projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -563,6 +657,19 @@ export function createSessionController(
   let projectIntent: ProjectIntent | null = null
   const projectState = shallowReactive<{
     progress: Omit<ProjectProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
+  const projectModelRevisions = Object.fromEntries(
+    [...projectModelReadActions, ...projectModelWriteActions, ...projectModelLookupActions].map(
+      (kind) => [kind, 0],
+    ),
+  ) as Record<ProjectModelAction, number>
+  const isProjectModelAction = (kind: Action): kind is ProjectModelAction =>
+    Object.hasOwn(projectModelRevisions, kind)
+  const isProjectModelRead = (kind: Action): kind is ProjectModelReadAction =>
+    (projectModelReadActions as readonly string[]).includes(kind)
+  let projectModelIntent: ProjectModelIntent | null = null
+  const projectModelState = shallowReactive<{
+    progress: Omit<ProjectModelSettingsProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
   const outboundRevisions: Record<OutboundPolicyAction, number> = {
     'outbound-policy-read': 0,
@@ -708,9 +815,11 @@ export function createSessionController(
   }
   function clearIdentity(invalidate = true) {
     clearProjectAuditRead()
+    clearProjectModelReads()
     state.user = null
     state.session = null
     if (invalidate) {
+      clearProjectModelState()
       clearProjectState()
       clearInvitationState()
       clearProviderState()
@@ -774,6 +883,7 @@ export function createSessionController(
       previous.sessionID === view.session.id &&
       (!sessionCSRF || sessionCSRF === view.csrf_token)
     if (!same) {
+      clearProjectModelState()
       clearProjectState()
       ++personalRevision
       personalContext.identity = Object.freeze({
@@ -1283,39 +1393,42 @@ export function createSessionController(
       | SMTPDeliveryAction
       | OutboundPolicyAction
       | ProjectAction
-      | ProjectAuditAction = 'personal',
+      | ProjectAuditAction
+      | ProjectModelAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      isProjectAuditAction(kind)
-        ? projectAuditRevision
-        : isProjectAction(kind)
-          ? projectRevisions[kind]
-          : kind === 'system'
-            ? systemRevision
-            : kind === 'audit-read'
-              ? auditRevision
-              : kind === 'runtime-information-read'
-                ? runtimeInformationRevision
-                : kind === 'invitation-read'
-                  ? invitationReadRevision
-                  : kind === 'invitation-write'
-                    ? invitationRevision
-                    : kind === 'personal'
-                      ? personalRevision
-                      : isModelAction(kind)
-                        ? modelRevisions[kind]
-                        : isSelectionAction(kind)
-                          ? selectionRevisions[kind]
-                          : isAccountSecurityAction(kind)
-                            ? accountSecurityRevisions[kind]
-                            : isSMTPAction(kind)
-                              ? smtpRevisions[kind]
-                              : isSMTPDeliveryAction(kind)
-                                ? smtpDeliveryRevisions[kind]
-                                : isOutboundPolicyAction(kind)
-                                  ? outboundRevisions[kind]
-                                  : providerRevisions[kind]
+      isProjectModelAction(kind)
+        ? projectModelRevisions[kind]
+        : isProjectAuditAction(kind)
+          ? projectAuditRevision
+          : isProjectAction(kind)
+            ? projectRevisions[kind]
+            : kind === 'system'
+              ? systemRevision
+              : kind === 'audit-read'
+                ? auditRevision
+                : kind === 'runtime-information-read'
+                  ? runtimeInformationRevision
+                  : kind === 'invitation-read'
+                    ? invitationReadRevision
+                    : kind === 'invitation-write'
+                      ? invitationRevision
+                      : kind === 'personal'
+                        ? personalRevision
+                        : isModelAction(kind)
+                          ? modelRevisions[kind]
+                          : isSelectionAction(kind)
+                            ? selectionRevisions[kind]
+                            : isAccountSecurityAction(kind)
+                              ? accountSecurityRevisions[kind]
+                              : isSMTPAction(kind)
+                                ? smtpRevisions[kind]
+                                : isSMTPDeliveryAction(kind)
+                                  ? smtpDeliveryRevisions[kind]
+                                  : isOutboundPolicyAction(kind)
+                                    ? outboundRevisions[kind]
+                                    : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1330,7 +1443,7 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isProjectAction(kind) || isProjectAuditAction(kind)
+        (isProjectAction(kind) || isProjectAuditAction(kind) || isProjectModelAction(kind)
           ? state.phase === 'authenticated' &&
             personalContext.phase === 'current' &&
             state.user?.id === identity.userID &&
@@ -1394,13 +1507,15 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isProjectAuditAction(kind)
-          ? projectAuditFailure(current, error)
-          : isProjectAction(kind)
-            ? projectFailure(identity, op, error)
-            : kind !== 'personal'
-              ? systemFailure(identity, op, current, error)
-              : personalFailure(identity, error)
+        const e = isProjectModelAction(kind)
+          ? projectModelFailure(kind, current, error)
+          : isProjectAuditAction(kind)
+            ? projectAuditFailure(current, error)
+            : isProjectAction(kind)
+              ? projectFailure(identity, op, error)
+              : kind !== 'personal'
+                ? systemFailure(identity, op, current, error)
+                : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -3887,6 +4002,630 @@ export function createSessionController(
       return performOutboundPolicy(outboundIntent)
     },
   }
+  function clearProjectModelPayload(original: ProjectModelIntent | null) {
+    if (!original) return
+    original.payload.command = null
+    original.payload.body = null
+  }
+  function clearProjectModelReads() {
+    for (const kind of projectModelReadActions) ++projectModelRevisions[kind]
+    if (owner && isProjectModelRead(owner.kind)) owner.abandon?.()
+  }
+  function clearProjectModelPending() {
+    const retiring =
+      owner && isProjectModelAction(owner.kind) && !isProjectModelRead(owner.kind) ? owner : null
+    for (const kind of [...projectModelWriteActions, ...projectModelLookupActions])
+      ++projectModelRevisions[kind]
+    clearProjectModelPayload(projectModelIntent)
+    projectModelIntent = null
+    projectModelState.progress = null
+    retiring?.abandon?.()
+  }
+  function clearProjectModelState() {
+    clearProjectModelReads()
+    clearProjectModelPending()
+  }
+  function projectModelFailure(kind: ProjectModelAction, current: () => boolean, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (
+      current() &&
+      (unavailableSession(e) ||
+        (!isProjectModelRead(kind) &&
+          e.problem?.status === 403 &&
+          e.problem.code === 'CSRF_FAILED'))
+    ) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  function projectModelBody(value: ProjectModelPrivateCommand): string {
+    if (value.domain === 'configuration')
+      return JSON.stringify(projectConfigurationBody(value.command))
+    const command = value.command
+    return JSON.stringify(
+      command.kind === 'create'
+        ? { value: value.material }
+        : command.kind === 'update'
+          ? { expected_version: command.expected_version, value: value.material }
+          : { expected_version: command.expected_version },
+    )
+  }
+  function projectModelMutationAction(value: ProjectModelPrivateCommand): ProjectModelWriteAction {
+    if (value.domain === 'credential') {
+      switch (value.command.kind) {
+        case 'create':
+          return 'project-model-credential-create'
+        case 'update':
+          return 'project-model-credential-update'
+        case 'delete':
+          return 'project-model-credential-delete'
+      }
+    }
+    switch (value.command.kind) {
+      case 'provider.create':
+        return 'project-model-provider-create'
+      case 'provider.update':
+        return 'project-model-provider-update'
+      case 'provider.delete':
+        return 'project-model-provider-delete'
+      case 'model.create':
+        return 'project-model-create'
+      case 'model.update':
+        return 'project-model-update'
+      case 'model.delete':
+        return 'project-model-delete'
+    }
+  }
+  function knownProjectModelRejection(
+    value: ProjectModelPrivateCommand,
+    e: AccountFailure,
+  ): boolean {
+    const p = e.problem
+    if (!p || (p.commit_state !== 'not_started' && p.commit_state !== 'not_committed')) return false
+    if (
+      (p.status === 400 && p.code === 'INVALID_ARGUMENT') ||
+      (p.status === 413 && p.code === 'PAYLOAD_TOO_LARGE') ||
+      (p.status === 415 && p.code === 'UNSUPPORTED_MEDIA_TYPE')
+    )
+      return true
+    if (
+      p.status === 409 &&
+      ['VERSION_CONFLICT', 'INVALID_STATE', 'RESOURCE_BUSY', 'PROJECT_NOT_ACTIVE'].includes(p.code)
+    )
+      return true
+    if (
+      value.domain === 'configuration' &&
+      ((p.status === 422 && p.code === 'CAPABILITY_UNSUPPORTED') ||
+        (p.status === 503 && p.code === 'DEPENDENCY_UNBOUND'))
+    )
+      return true
+    return (
+      (p.status === 401 && ['UNAUTHENTICATED', 'SESSION_REVOKED'].includes(p.code)) ||
+      (p.status === 403 && ['FORBIDDEN', 'CSRF_FAILED', 'ORIGIN_DENIED'].includes(p.code)) ||
+      (p.status === 404 && p.code === 'NOT_FOUND')
+    )
+  }
+  function publishProjectModel(
+    original: ProjectModelIntent,
+    command: ProjectModelPrivateCommand,
+    phase: ProjectModelSettingsProgress['phase'],
+    receipt: ProjectModelExecution | null = null,
+  ) {
+    projectModelState.progress = Object.freeze({
+      projectID: original.projectID,
+      domain: command.domain,
+      kind: command.command.kind,
+      phase,
+      receipt,
+      observation: 'none',
+      observedResult: null,
+      lookingUp: false,
+      keyConflict: original.keyConflict,
+    })
+  }
+  async function executeProjectModel(
+    original: ProjectModelIntent,
+    captured: ProjectModelPrivateCommand,
+    signal: AbortSignal,
+  ): Promise<ProjectModelExecution> {
+    const options = { csrfToken: original.csrf, key: original.key, signal },
+      project = original.projectID
+    if (captured.domain === 'credential') {
+      const command = captured.command
+      let result: ProjectCredentialMutation
+      switch (command.kind) {
+        case 'create':
+          if (captured.material === null) throw new AccountFailure('invalid-input')
+          result = await projectModelSettingsAPI.createCredential(
+            project,
+            captured.material,
+            options,
+          )
+          break
+        case 'update':
+          if (captured.material === null) throw new AccountFailure('invalid-input')
+          result = await projectModelSettingsAPI.updateCredential(
+            project,
+            command.credential_id,
+            command.expected_version,
+            captured.material,
+            options,
+          )
+          break
+        case 'delete':
+          result = await projectModelSettingsAPI.deleteCredential(
+            project,
+            command.credential_id,
+            command.expected_version,
+            options,
+          )
+          break
+      }
+      return parseProjectCredentialMutation(result, command)
+    }
+    const command = captured.command
+    let result: ProjectConfigurationReceipt
+    switch (command.kind) {
+      case 'provider.create':
+        result = await projectModelSettingsAPI.createProvider(project, command.input, options)
+        break
+      case 'provider.update':
+        result = await projectModelSettingsAPI.updateProvider(
+          project,
+          command.id,
+          command.expected_version,
+          command.input,
+          options,
+        )
+        break
+      case 'provider.delete':
+        result = await projectModelSettingsAPI.deleteProvider(
+          project,
+          command.id,
+          command.expected_version,
+          options,
+        )
+        break
+      case 'model.create':
+        result = await projectModelSettingsAPI.createModel(
+          project,
+          { provider_id: command.provider_id, protocol: command.protocol },
+          command.input,
+          options,
+        )
+        break
+      case 'model.update':
+        result = await projectModelSettingsAPI.updateModel(
+          project,
+          { id: command.id, provider_id: command.provider_id, protocol: command.protocol },
+          command.expected_version,
+          command.input,
+          options,
+        )
+        break
+      case 'model.delete':
+        result = await projectModelSettingsAPI.deleteModel(
+          project,
+          command.id,
+          command.expected_version,
+          command.replacement,
+          options,
+        )
+        break
+    }
+    return parseProjectConfigurationReceipt(result, command)
+  }
+  function performProjectModel(original: ProjectModelIntent): Promise<ProjectModelExecution> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    const captured = original.payload.command
+    if (
+      projectModelIntent !== original ||
+      !captured ||
+      !projectContext(original) ||
+      original.keyConflict
+    )
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind = projectModelMutationAction(captured),
+      revision = projectModelRevisions[kind]
+    const live = () =>
+      projectModelIntent === original &&
+      revision === projectModelRevisions[kind] &&
+      projectContext(original)
+    let dispatched = false
+    publishProjectModel(original, captured, 'submitting')
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live() || original.payload.command !== captured)
+          throw new AccountFailure('cancelled')
+        if (projectModelBody(captured) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          return await executeProjectModel(original, captured, op.abort.signal)
+        } finally {
+          if (projectModelIntent !== original) clearProjectModelPayload(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (receipt) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        // Retire this private intent before synchronous receipt consumers can start another.
+        clearProjectModelPayload(original)
+        projectModelIntent = null
+        publishProjectModel(original, captured, 'confirmed', receipt)
+        return receipt
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          projectModelIntent === original &&
+          revision === projectModelRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          original.keyConflict ||=
+            e.problem?.status === 409 && e.problem.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||=
+            original.keyConflict || (dispatched && !knownProjectModelRejection(captured, e))
+          publishProjectModel(original, captured, original.uncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  function startProjectModel(
+    projectID: string,
+    command: ProjectModelPrivateCommand,
+  ): Promise<ProjectModelExecution> {
+    try {
+      const identity = personalIdentity()
+      if (projectModelIntent || personalIntent || pending) throw new AccountFailure('busy')
+      const project = captureProjectModelID(projectID)
+      const original: ProjectModelIntent = {
+        projectID: project,
+        identity,
+        csrf: sessionCSRF,
+        key: newKey(),
+        payload: { command, body: projectModelBody(command) },
+        uncertain: false,
+        keyConflict: false,
+      }
+      projectModelIntent = original
+      return performProjectModel(original)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function startProjectConfiguration<C extends ProjectConfigurationCommand>(
+    projectID: string,
+    command: C,
+  ): Promise<ProjectConfigurationReceipt<C['kind']>> {
+    try {
+      // Availability precedes input capture, preserving the old single-owner busy boundary.
+      personalIdentity()
+      if (projectModelIntent) throw new AccountFailure('busy')
+      const captured = captureProjectConfigurationCommand(command)
+      return startProjectModel(
+        projectID,
+        Object.freeze({ domain: 'configuration', command: captured }),
+      ) as Promise<ProjectConfigurationReceipt<C['kind']>>
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function startProjectCredential(
+    projectID: string,
+    command: ProjectCredentialLookupTarget,
+    material: string | null,
+  ): Promise<ProjectCredentialMutation> {
+    try {
+      personalIdentity()
+      if (projectModelIntent) throw new AccountFailure('busy')
+      const captured = captureProjectCredentialTarget(command),
+        value = captured.kind === 'delete' ? null : captureProjectCredentialValue(material!)
+      return startProjectModel(
+        projectID,
+        Object.freeze({ domain: 'credential', command: captured, material: value }),
+      ) as Promise<ProjectCredentialMutation>
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function observeProjectModel(
+    domain: ProjectModelPrivateCommand['domain'],
+  ): Promise<ProjectModelObservation> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    const original = projectModelIntent,
+      captured = original?.payload.command
+    if (
+      !original ||
+      !captured ||
+      captured.domain !== domain ||
+      !original.uncertain ||
+      original.keyConflict ||
+      !projectContext(original)
+    )
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind =
+        domain === 'configuration'
+          ? 'project-model-configuration-lookup'
+          : 'project-model-credential-lookup',
+      revision = projectModelRevisions[kind]
+    const live = () =>
+      projectModelIntent === original &&
+      revision === projectModelRevisions[kind] &&
+      projectContext(original)
+    if (projectModelState.progress)
+      projectModelState.progress = Object.freeze({ ...projectModelState.progress, lookingUp: true })
+    return runAuthorized<ProjectModelObservation>(
+      original.identity,
+      async (op, current) => {
+        if (
+          !current() ||
+          !live() ||
+          original.payload.command !== captured ||
+          projectModelBody(captured) !== original.payload.body
+        )
+          throw new AccountFailure('cancelled')
+        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        return captured.domain === 'configuration'
+          ? parseProjectConfigurationObservation(
+              await projectModelSettingsAPI.lookupConfiguration(
+                original.projectID,
+                captured.command,
+                options,
+              ),
+              captured.command,
+            )
+          : parseProjectCredentialObservation(
+              await projectModelSettingsAPI.lookupCredential(
+                original.projectID,
+                captured.command,
+                options,
+              ),
+              captured.command,
+            )
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live() || !projectModelState.progress) throw new AccountFailure('cancelled')
+        const observed = 'found' in value ? value.found : value.observed
+        projectModelState.progress = Object.freeze({
+          ...projectModelState.progress,
+          phase: 'uncertain',
+          lookingUp: false,
+          observation: observed ? 'observed' : 'not_observed',
+          observedResult: value,
+        })
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live() && projectModelState.progress) {
+          original.keyConflict ||=
+            e.problem?.status === 409 && e.problem.code === 'IDEMPOTENCY_KEY_REUSED'
+          projectModelState.progress = Object.freeze({
+            ...projectModelState.progress,
+            lookingUp: false,
+            observation: 'failed',
+            observedResult: null,
+            keyConflict: original.keyConflict,
+          })
+        }
+        throw e
+      },
+    )
+  }
+  function readProjectModel<T>(
+    kind: ProjectModelReadAction,
+    capture: () => (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    try {
+      const identity = personalIdentity(),
+        work = capture()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, kind)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  const projectModelSettings = {
+    get progress(): ProjectModelSettingsProgress | null {
+      const value = projectModelState.progress
+      if (!value) return null
+      const contextValid = !!projectModelIntent && projectContext(projectModelIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!projectModelIntent?.payload.command &&
+          projectModelIntent.uncertain &&
+          !projectModelIntent.keyConflict &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    listProviders(projectID: string, query: ProjectModelPageQuery) {
+      return readProjectModel('project-model-provider-list', () => {
+        const project = captureProjectModelID(projectID),
+          captured = captureProjectModelQuery(query)
+        return (signal) => projectModelSettingsAPI.listProviders(project, captured, signal)
+      })
+    },
+    getProvider(projectID: string, providerID: string) {
+      return readProjectModel('project-model-provider-get', () => {
+        const project = captureProjectModelID(projectID),
+          target = captureProjectModelID(providerID)
+        return (signal) => projectModelSettingsAPI.getProvider(project, target, signal)
+      })
+    },
+    listModels(projectID: string, query: ProjectModelPageQuery) {
+      return readProjectModel('project-model-list', () => {
+        const project = captureProjectModelID(projectID),
+          captured = captureProjectModelQuery(query)
+        return (signal) => projectModelSettingsAPI.listModels(project, captured, signal)
+      })
+    },
+    getModel(projectID: string, modelID: string) {
+      return readProjectModel('project-model-get', () => {
+        const project = captureProjectModelID(projectID),
+          target = captureProjectModelID(modelID)
+        return (signal) => projectModelSettingsAPI.getModel(project, target, signal)
+      })
+    },
+    listAvailableChatModels(projectID: string, query: ProjectModelPageQuery) {
+      return readProjectModel('project-model-available-list', () => {
+        const project = captureProjectModelID(projectID),
+          captured = captureProjectModelQuery(query)
+        return (signal) =>
+          projectModelSettingsAPI.listAvailableChatModels(project, captured, signal)
+      })
+    },
+    getCredentialMetadata(projectID: string, credentialID: string) {
+      return readProjectModel('project-model-credential-get', () => {
+        const project = captureProjectModelID(projectID),
+          target = captureProjectModelID(credentialID)
+        return (signal) => projectModelSettingsAPI.getCredentialMetadata(project, target, signal)
+      })
+    },
+    createProvider(projectID: string, input: ProjectProviderWriteInput) {
+      return startProjectConfiguration(projectID, { kind: 'provider.create', input })
+    },
+    updateProvider(
+      projectID: string,
+      providerID: string,
+      expectedVersion: string,
+      input: ProjectProviderWriteInput,
+    ) {
+      return startProjectConfiguration(projectID, {
+        kind: 'provider.update',
+        id: providerID,
+        expected_version: expectedVersion,
+        input,
+      })
+    },
+    deleteProvider(projectID: string, providerID: string, expectedVersion: string) {
+      return startProjectConfiguration(projectID, {
+        kind: 'provider.delete',
+        id: providerID,
+        expected_version: expectedVersion,
+      })
+    },
+    createModel(
+      projectID: string,
+      context: ProjectModelWriteContext,
+      input: ProjectModelWriteInput,
+    ) {
+      try {
+        personalIdentity()
+        return startProjectConfiguration(projectID, {
+          kind: 'model.create',
+          ...captureProjectModelContext(context),
+          input,
+        })
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    updateModel(
+      projectID: string,
+      target: ProjectModelWriteTarget,
+      expectedVersion: string,
+      input: ProjectModelWriteInput,
+    ) {
+      try {
+        personalIdentity()
+        const captured = captureProjectModelInput(() => {
+          const value = { ...shape(target, ['id', 'provider_id', 'protocol']) }
+          return {
+            id: captureProjectModelID(value.id),
+            ...captureProjectModelContext({
+              provider_id: value.provider_id as string,
+              protocol: value.protocol as ProjectModelWriteContext['protocol'],
+            }),
+          }
+        })
+        return startProjectConfiguration(projectID, {
+          kind: 'model.update',
+          ...captured,
+          expected_version: expectedVersion,
+          input,
+        })
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    deleteModel(
+      projectID: string,
+      modelID: string,
+      expectedVersion: string,
+      replacement: string | null,
+    ) {
+      return startProjectConfiguration(projectID, {
+        kind: 'model.delete',
+        id: modelID,
+        expected_version: expectedVersion,
+        replacement,
+      })
+    },
+    createCredential(projectID: string, value: string) {
+      return startProjectCredential(
+        projectID,
+        { kind: 'create' },
+        value,
+      ) as Promise<ProjectCredentialCreated>
+    },
+    updateCredential(
+      projectID: string,
+      credentialID: string,
+      expectedVersion: string,
+      value: string,
+    ) {
+      return startProjectCredential(
+        projectID,
+        { kind: 'update', credential_id: credentialID, expected_version: expectedVersion },
+        value,
+      ) as Promise<ProjectCredentialUpdated>
+    },
+    deleteCredential(projectID: string, credentialID: string, expectedVersion: string) {
+      return startProjectCredential(
+        projectID,
+        { kind: 'delete', credential_id: credentialID, expected_version: expectedVersion },
+        null,
+      ) as Promise<ProjectCredentialDeleted>
+    },
+    lookupConfiguration() {
+      return observeProjectModel('configuration') as Promise<ProjectConfigurationObservation>
+    },
+    lookupCredential() {
+      return observeProjectModel('credential') as Promise<ProjectCredentialObservation>
+    },
+    retryOriginal() {
+      if (!projectModelIntent || !projectModelSettings.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performProjectModel(projectModelIntent)
+    },
+    abandonReads: clearProjectModelReads,
+    abandonPending: clearProjectModelPending,
+    editRejected() {
+      if (
+        owner ||
+        !projectModelIntent ||
+        projectModelIntent.uncertain ||
+        projectModelIntent.keyConflict ||
+        projectModelState.progress?.phase !== 'rejected' ||
+        !projectContext(projectModelIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearProjectModelPending()
+    },
+  }
   function clearRuntimeInformationRead() {
     ++runtimeInformationRevision
     if (owner?.kind === 'runtime-information-read') owner.abandon?.()
@@ -4520,6 +5259,7 @@ export function createSessionController(
     personalContext: readonly(personalContext),
     projects,
     projectAudit,
+    projectModelSettings,
     personal,
     system,
     entry,
