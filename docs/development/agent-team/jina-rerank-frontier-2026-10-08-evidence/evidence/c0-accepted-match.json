@@ -1,0 +1,38 @@
+[
+  {
+    "argv": [
+      "git",
+      "show",
+      "e6e94c4:internal/central/model/contract/nonchat.go"
+    ],
+    "cwd": "/workspace/agenteam",
+    "pid": 49974,
+    "started_ns": 1791432368791959816,
+    "ended_ns": 1791432368794691168,
+    "exit_code": 0,
+    "stderr": "",
+    "path": "internal/central/model/contract/nonchat.go",
+    "accepted_commit": "e6e94c4",
+    "accepted_sha256": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d",
+    "current_sha256": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d",
+    "same": true
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "e6e94c4:internal/central/model/contract/types.go"
+    ],
+    "cwd": "/workspace/agenteam",
+    "pid": 49975,
+    "started_ns": 1791432368794693311,
+    "ended_ns": 1791432368796828074,
+    "exit_code": 0,
+    "stderr": "",
+    "path": "internal/central/model/contract/types.go",
+    "accepted_commit": "e6e94c4",
+    "accepted_sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+    "current_sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+    "same": true
+  }
+]

@@ -1,0 +1,135 @@
+{
+  "source_root": "/workspace/scratch/jina-rerank-frontier",
+  "archive_root": "/workspace/agenteam/docs/development/agent-team/jina-rerank-frontier-2026-10-08-evidence",
+  "copied_files": 25,
+  "copied_bytes": 38105,
+  "copy_verified_byte_for_byte": true,
+  "files": [
+    {
+      "path": "findings.md",
+      "bytes": 4432,
+      "sha256": "27423768f9fedb6095048dc9011b1886be4ef47edea7f35357457d2ec7aeaeb6"
+    },
+    {
+      "path": "preparation.md",
+      "bytes": 4235,
+      "sha256": "16be8cc98d8d6ed3e6b19bb3a27cbcd8d3ae1beb04cda4685d323e8d7b458e92"
+    },
+    {
+      "path": "result.json",
+      "bytes": 1807,
+      "sha256": "380be05e74b258332cd5062e7ceb7fd155f924adb3697c3624dd8974324f4e0b"
+    },
+    {
+      "path": "sources-manifest.json",
+      "bytes": 6114,
+      "sha256": "9d8b755f3b423f1bf4679323355a399778adaf66b5f0c41a29db8de5ff287734"
+    },
+    {
+      "path": "fetch.py",
+      "bytes": 1754,
+      "sha256": "0deb556b3f1c9144bf2027c6f1749d2a63ce0d4c7b60983661194a38de4250e4"
+    },
+    {
+      "path": "finalize.py",
+      "bytes": 5934,
+      "sha256": "c891750aed78f4655b9585e0df9f021647285c93da5c5ea6ad59b51c6f1d028f"
+    },
+    {
+      "path": "evidence/accepted-dependency-match.json",
+      "bytes": 2138,
+      "sha256": "18be11e41b672ba1ec2caebe48be7389f2ef0a017d725491aee567cd48a02d80"
+    },
+    {
+      "path": "evidence/c0-accepted-match.json",
+      "bytes": 1143,
+      "sha256": "cddd9464934f1c57e013aa7e1b8873f1f041691d791a946dfa2d8229042aa73d"
+    },
+    {
+      "path": "evidence/github-jina-sdk-search.headers",
+      "bytes": 143,
+      "sha256": "32cf5129596399bb54745d3ebe138ba52fb4035a274a1b18c58d9acb0ec3d404"
+    },
+    {
+      "path": "evidence/github-jina-sdk-search.meta.json",
+      "bytes": 1314,
+      "sha256": "a78642e2a6534c9bebf8427766abbd57230ea10fc7bf258a50d010faad2f3acc"
+    },
+    {
+      "path": "evidence/github-jina-sdk-search.stderr",
+      "bytes": 47,
+      "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312"
+    },
+    {
+      "path": "evidence/jina-openapi.headers",
+      "bytes": 143,
+      "sha256": "c3f390586b3057c5f2877bf9fc514cafb7158240cdf9800ba02306b56c689da5"
+    },
+    {
+      "path": "evidence/jina-openapi.meta.json",
+      "bytes": 1168,
+      "sha256": "6f27d8175cd1d07fa28b768e68ecec11b7930695284fff438d312141c6fc602e"
+    },
+    {
+      "path": "evidence/jina-openapi.stderr",
+      "bytes": 47,
+      "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312"
+    },
+    {
+      "path": "evidence/jina-reranker-head.meta.json",
+      "bytes": 456,
+      "sha256": "d4ad086b535249995c488eb95684e68a9461d219449a90b8e1a209755e702aa9"
+    },
+    {
+      "path": "evidence/jina-reranker-head.raw",
+      "bytes": 109,
+      "sha256": "976db9383ba9fe58d1bbb372aa7c3fd03070a6e14879c27a5b4e9dc59095aa26"
+    },
+    {
+      "path": "evidence/jina-reranker-page.headers",
+      "bytes": 143,
+      "sha256": "dd3b7c8259344d73fe03ca630c9fdd30efdc43e9afcb8bf75e9ccd3e39b1ceb0"
+    },
+    {
+      "path": "evidence/jina-reranker-page.meta.json",
+      "bytes": 1159,
+      "sha256": "5d7eae833d72ee92af55dc928d712a27b0323ed71498e00e2d8dacd58e5542a0"
+    },
+    {
+      "path": "evidence/jina-reranker-page.stderr",
+      "bytes": 47,
+      "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312"
+    },
+    {
+      "path": "evidence/jina-reranker-readme-main.headers",
+      "bytes": 913,
+      "sha256": "d17f84a5d43b5597f8568c2c25f22bf1fc986fddf1b446a420e19ecb7d7d90d8"
+    },
+    {
+      "path": "evidence/jina-reranker-readme-main.meta.json",
+      "bytes": 1488,
+      "sha256": "170d47bb0902e24f547fd2abb2792aab03ad58dedabd99d7056b2e11fe3631cb"
+    },
+    {
+      "path": "evidence/jina-reranker-readme-main.stderr",
+      "bytes": 49,
+      "sha256": "0fb219efe96c7b0a4962325763ebbe3324456de8ca7b7d1e71142d92a6d8eab2"
+    },
+    {
+      "path": "evidence/repository-inputs-addendum.json",
+      "bytes": 653,
+      "sha256": "ba02b91ad2fe850dfc838daf7e13f605724021248e075747713801ae8e94c296"
+    },
+    {
+      "path": "evidence/repository-inputs.json",
+      "bytes": 2655,
+      "sha256": "879e435c2beb961b772996c0a7376b191ec0ea1c8c799acc06e8e43d56389e4a"
+    },
+    {
+      "path": "sources/jina-reranker-readme-main.raw",
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    }
+  ],
+  "scope": "Small bounded research records only; no repository/source/dependency tree copied."
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "git",
+    "ls-remote",
+    "https://github.com/jina-ai/jina-reranker-v3.git",
+    "HEAD"
+  ],
+  "cwd": "/workspace/scratch/jina-rerank-frontier",
+  "started_ns": 1791432239759761495,
+  "ended_ns": 1791432239974300059,
+  "pid": 48468,
+  "exit_code": 128,
+  "request": "read-only remote reference discovery; no fetch/clone/checkout and no git mutation",
+  "raw_sha256": "976db9383ba9fe58d1bbb372aa7c3fd03070a6e14879c27a5b4e9dc59095aa26"
+}

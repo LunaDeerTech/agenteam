@@ -1,0 +1,156 @@
+{
+  "scope": "Five bounded public-source requests, no authentication supplied by this task, no inference service invocation, no SDK installation/execution.",
+  "authorization": "New explicit root assignment authorized public read-only evidence collection despite the historical D09 section 6 stop of network research in its earlier stage.",
+  "network_stopped": true,
+  "stop_basis": "After three CONNECT-proxy 403 failures and the final candidate README/reference discovery failures, root explicitly confirmed no more requests or proxy changes.",
+  "requests": [
+    {
+      "name": "jina-openapi",
+      "requested_url": "https://api.jina.ai/openapi.json",
+      "started_utc": "2026-10-08T04:02:49.524860+00:00",
+      "exit_code": 56,
+      "http_observation": "000\thttps://api.jina.ai/openapi.json\t",
+      "result": "CONNECT proxy 403; no origin document acquired",
+      "official_field_evidence": false,
+      "verified_repository": null,
+      "commit": null,
+      "license": null,
+      "files": [
+        {
+          "path": "evidence/jina-openapi.headers",
+          "bytes": 143,
+          "sha256": "c3f390586b3057c5f2877bf9fc514cafb7158240cdf9800ba02306b56c689da5"
+        },
+        {
+          "path": "evidence/jina-openapi.stderr",
+          "bytes": 47,
+          "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312"
+        },
+        {
+          "path": "evidence/jina-openapi.meta.json",
+          "bytes": 1168,
+          "sha256": "6f27d8175cd1d07fa28b768e68ecec11b7930695284fff438d312141c6fc602e"
+        }
+      ]
+    },
+    {
+      "name": "jina-reranker-page",
+      "requested_url": "https://jina.ai/reranker/",
+      "started_utc": "2026-10-08T04:02:53.101501+00:00",
+      "exit_code": 56,
+      "http_observation": "000\thttps://jina.ai/reranker/\t",
+      "result": "CONNECT proxy 403; no origin document acquired",
+      "official_field_evidence": false,
+      "verified_repository": null,
+      "commit": null,
+      "license": null,
+      "files": [
+        {
+          "path": "evidence/jina-reranker-page.headers",
+          "bytes": 143,
+          "sha256": "dd3b7c8259344d73fe03ca630c9fdd30efdc43e9afcb8bf75e9ccd3e39b1ceb0"
+        },
+        {
+          "path": "evidence/jina-reranker-page.stderr",
+          "bytes": 47,
+          "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312"
+        },
+        {
+          "path": "evidence/jina-reranker-page.meta.json",
+          "bytes": 1159,
+          "sha256": "5d7eae833d72ee92af55dc928d712a27b0323ed71498e00e2d8dacd58e5542a0"
+        }
+      ]
+    },
+    {
+      "name": "github-jina-sdk-search",
+      "requested_url": "https://api.github.com/search/repositories?q=sdk+org%3Ajina-ai&per_page=10",
+      "started_utc": "2026-10-08T04:03:07.826323+00:00",
+      "exit_code": 56,
+      "http_observation": "000\thttps://api.github.com/search/repositories?q=sdk+org%3Ajina-ai&per_page=10\t",
+      "result": "CONNECT proxy 403; no origin document acquired",
+      "official_field_evidence": false,
+      "verified_repository": null,
+      "commit": null,
+      "license": null,
+      "files": [
+        {
+          "path": "evidence/github-jina-sdk-search.headers",
+          "bytes": 143,
+          "sha256": "32cf5129596399bb54745d3ebe138ba52fb4035a274a1b18c58d9acb0ec3d404"
+        },
+        {
+          "path": "evidence/github-jina-sdk-search.stderr",
+          "bytes": 47,
+          "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312"
+        },
+        {
+          "path": "evidence/github-jina-sdk-search.meta.json",
+          "bytes": 1314,
+          "sha256": "a78642e2a6534c9bebf8427766abbd57230ea10fc7bf258a50d010faad2f3acc"
+        }
+      ]
+    },
+    {
+      "name": "jina-reranker-readme-main",
+      "requested_url": "https://raw.githubusercontent.com/jina-ai/jina-reranker-v3/main/README.md",
+      "started_utc": "2026-10-08T04:03:59.751724+00:00",
+      "exit_code": 22,
+      "http_observation": "404\thttps://raw.githubusercontent.com/jina-ai/jina-reranker-v3/main/README.md\ttext/plain; charset=utf-8",
+      "result": "HTTP 404 error body only; candidate repository validity not established",
+      "official_field_evidence": false,
+      "verified_repository": null,
+      "commit": null,
+      "license": null,
+      "files": [
+        {
+          "path": "sources/jina-reranker-readme-main.raw",
+          "bytes": 14,
+          "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+        },
+        {
+          "path": "evidence/jina-reranker-readme-main.headers",
+          "bytes": 913,
+          "sha256": "d17f84a5d43b5597f8568c2c25f22bf1fc986fddf1b446a420e19ecb7d7d90d8"
+        },
+        {
+          "path": "evidence/jina-reranker-readme-main.stderr",
+          "bytes": 49,
+          "sha256": "0fb219efe96c7b0a4962325763ebbe3324456de8ca7b7d1e71142d92a6d8eab2"
+        },
+        {
+          "path": "evidence/jina-reranker-readme-main.meta.json",
+          "bytes": 1488,
+          "sha256": "170d47bb0902e24f547fd2abb2792aab03ad58dedabd99d7056b2e11fe3631cb"
+        }
+      ]
+    },
+    {
+      "name": "jina-reranker-head",
+      "requested_url": "https://github.com/jina-ai/jina-reranker-v3.git",
+      "started_utc": "2026-10-08T04:03:59.759761+00:00",
+      "exit_code": 128,
+      "http_observation": null,
+      "result": "Remote repository reference discovery failed; no commit obtained",
+      "official_field_evidence": false,
+      "verified_repository": null,
+      "commit": null,
+      "license": null,
+      "files": [
+        {
+          "path": "evidence/jina-reranker-head.raw",
+          "bytes": 109,
+          "sha256": "976db9383ba9fe58d1bbb372aa7c3fd03070a6e14879c27a5b4e9dc59095aa26"
+        },
+        {
+          "path": "evidence/jina-reranker-head.meta.json",
+          "bytes": 456,
+          "sha256": "d4ad086b535249995c488eb95684e68a9461d219449a90b8e1a209755e702aa9"
+        }
+      ]
+    }
+  ],
+  "successful_official_documents": 0,
+  "valid_official_repository_commit_license_established": false,
+  "no_third_party_compatibility_inference": true
+}

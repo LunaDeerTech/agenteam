@@ -1,0 +1,77 @@
+[
+  {
+    "path": ".agents/skills/agenteam-design/SKILL.md",
+    "bytes": 3874,
+    "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+  },
+  {
+    "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+    "bytes": 70084,
+    "sha256": "2597bcceb2f200b5143a91f74d3f0afee14468aeced5aabe53f70719052996c5"
+  },
+  {
+    "path": "docs/development/work-items/d09-openai-embeddings-wire.md",
+    "bytes": 20385,
+    "sha256": "db1ff99ef845ac5c84708c2e873d524aa78b4f2429539260a7aa96ac6303ddaa"
+  },
+  {
+    "path": "docs/development/agent-team/openai-embeddings-wire-verification.md",
+    "bytes": 11367,
+    "sha256": "14023f1ccdcbd71fe02aa6052f895a2dbf146770603c61761193d7264a837227"
+  },
+  {
+    "path": "docs/development/agent-team/d09-openai-chat-wire-verification.md",
+    "bytes": 11358,
+    "sha256": "b91c3bc3f24b42a35eecd71df9fc36264ecca29e4539f5859a212191463b4c95"
+  },
+  {
+    "path": "internal/central/model/contract/nonchat.go",
+    "bytes": 7997,
+    "sha256": "45c655ec6778279ec92aa06e045f1ca370a6306e35ae1d8e376088ad517e451d"
+  },
+  {
+    "path": "internal/central/model/contract/nonchat_test.go",
+    "bytes": 2116,
+    "sha256": "a5911b83882e81c3900dadfefc27f58f417dab2563712ab61e3c0132b98a9c99"
+  },
+  {
+    "path": "internal/central/model/contract/types.go",
+    "bytes": 19439,
+    "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+  },
+  {
+    "path": "internal/central/model/contract/configuration.go",
+    "bytes": 19103,
+    "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c"
+  },
+  {
+    "path": "internal/central/model/adapter/budget.go",
+    "bytes": 3065,
+    "sha256": "3f2c644e762601d257a11522831a6644622dd125b1c49c92b6cfdc2a743c7803"
+  },
+  {
+    "path": "internal/central/model/adapter/openai_embeddings.go",
+    "bytes": 11081,
+    "sha256": "19fdc6fd6b52f4a191b6c4b28c7e3795c4de6df9896938b18167821563db255a"
+  },
+  {
+    "path": "internal/central/model/adapter/embedding_transport.go",
+    "bytes": 10294,
+    "sha256": "ba6f8604cda9f6233d53e4c4f2b5ce3aa924639d5195950fd370b1b1d519274e"
+  },
+  {
+    "path": "internal/central/model/adapter/transport.go",
+    "bytes": 12077,
+    "sha256": "9f1d60ff48fb64ba04827368b7cf6fc4947b72c93a665ddf91276d5db2b6b29b"
+  },
+  {
+    "path": "internal/central/model/adapter/errors.go",
+    "bytes": 11274,
+    "sha256": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499"
+  },
+  {
+    "path": "internal/central/model/adapter/testdata/openai-embeddings-float-v1.json",
+    "bytes": 3355,
+    "sha256": "ad0cc43ea95ebc0416ee677b3719e6d270a7d255d7b2b7891fce8ecdd8b372cf"
+  }
+]
