@@ -124,6 +124,34 @@ function heldBody(value: unknown) {
     response: () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }),
   }
 }
+function gatedBody(value: unknown) {
+  const joined = barrier()
+  let controller!: ReadableStreamDefaultController<Uint8Array>,
+    cancelled = 0,
+    released = false
+  const stream = new ReadableStream<Uint8Array>({
+    start(current) {
+      controller = current
+      current.enqueue(new TextEncoder().encode(JSON.stringify(value)))
+    },
+    cancel() {
+      ++cancelled
+      return joined.promise
+    },
+  })
+  const release = () => {
+    if (released) return
+    released = true
+    if (!cancelled) controller.close()
+    joined.resolve()
+  }
+  releases.push(release)
+  return {
+    release,
+    cancelled: () => cancelled,
+    response: () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }),
+  }
+}
 beforeEach(() => {
   narrow = false
   vi.stubGlobal(
@@ -156,17 +184,24 @@ afterEach(async () => {
 })
 async function app(
   target = '/owner/demo/settings/audit',
-  options: { role?: 'user' | 'admin'; lifecycle?: Project['lifecycle']; name?: string } = {},
+  options: {
+    role?: 'user' | 'admin'
+    lifecycle?: Project['lifecycle']
+    name?: string
+    audit?: Fetch
+  } = {},
 ) {
   let current = view(options.role),
     currentProject = project(10, options.name ?? 'Demo', options.lifecycle)
   let session: Fetch = async () => json(current)
-  let audit: Fetch = async (path) =>
-    json(
-      path.split('?')[0]!.split('/').length === 7
-        ? { ...record(100, path.split('/')[4]!), audit_id: path.split('/').at(-1)! }
-        : page(path.split('/')[4]!),
-    )
+  let audit: Fetch =
+    options.audit ??
+    (async (path) =>
+      json(
+        path.split('?')[0]!.split('/').length === 7
+          ? { ...record(100, path.split('/')[4]!), audit_id: path.split('/').at(-1)! }
+          : page(path.split('/')[4]!),
+      ))
   let ownerRequest: Fetch | null = null
   const fetch = vi.fn<Fetch>(async (path, init) => {
     if (path === '/api/v1/session') return session(path, init)
@@ -360,6 +395,34 @@ describe('production App/Owner/Audit route composition', () => {
     expect(f.router.currentRoute.value.path).toBe('/owner/owner.dot-name/settings/general')
     expect(f.wrapper.get('#project-name').element).toHaveProperty('value', 'Owner.Dot-Name')
   })
+  it.each(['/OWNER/OWNER.Dot-Name/settings/audit', '/owner/owner.dot-name/settings/audit'])(
+    'retains one pending native Audit read through the canonical address %s',
+    async (target) => {
+      const held = gatedBody(page())
+      const f = await app(target, {
+        name: 'Owner.Dot-Name',
+        audit: async () => held.response(),
+      })
+      try {
+        expect(f.router.currentRoute.value.fullPath).toBe('/owner/owner.dot-name/settings/audit')
+        expect(f.reads()).toHaveLength(1)
+        expect(f.auth.state.busy).toBe(true)
+        expect({
+          cancelled: held.cancelled(),
+          aborted: f.reads()[0]![1].signal?.aborted,
+          stopped: f.wrapper.text().includes('本页读取已停止'),
+        }).toEqual({ cancelled: 0, aborted: false, stopped: false })
+        expect(f.wrapper.find('[aria-label="项目审计列表"]').exists()).toBe(false)
+      } finally {
+        held.release()
+        await flushPromises()
+      }
+      expect(f.auth.state.busy).toBe(false)
+      expect(f.wrapper.get('[aria-label="项目审计列表"]').text()).toContain('secret.create')
+      expect(f.reads()).toHaveLength(1)
+      expect(f.writes()).toHaveLength(0)
+    },
+  )
   it.each([
     ...['/settings/audit', '/settings/general', '/settings'].flatMap((suffix) =>
       ['?cursor=x', '?', '#fragment', '#'].map((tail) => '/owner/demo' + suffix + tail),
@@ -489,6 +552,65 @@ describe('production App/Owner/Audit route composition', () => {
     await click('重试读取')
     expect(f.wrapper.find('[aria-label="项目审计列表"]').exists()).toBe(true)
   })
+  it.each([
+    ['/owner/second/settings/audit', 'project'],
+    ['/owner/demo/settings/audit?cursor=x', 'invalid'],
+    ['/owner/demo/settings/general', 'leave'],
+  ] as const)(
+    'retires the pending native read for %s until its actual tail ends',
+    async (target, kind) => {
+      const f = await app(),
+        held = gatedBody(page()),
+        identity = [f.auth.state.user?.id, f.auth.state.session?.id],
+        expectedIdentity = kind === 'invalid' ? [undefined, undefined] : identity
+      let pending = true
+      f.setAudit(async (path) => {
+        if (pending) {
+          pending = false
+          return held.response()
+        }
+        return json(page(path.split('/')[4]!))
+      })
+      await click('重新读取')
+      expect(f.auth.state.busy).toBe(true)
+      if (kind === 'project') f.setProject(project(11, 'Second'))
+      const ownerReads = () =>
+        f.fetch.mock.calls.filter(
+          ([path]) => path.startsWith('/api/v1/projects') && !path.includes('/audit'),
+        ).length
+      const beforeOwner = ownerReads()
+      await f.router.push(target)
+      await flushPromises()
+      try {
+        expect(held.cancelled()).toBe(1)
+        expect(f.reads()[1]![1].signal?.aborted).toBe(true)
+        expect(f.auth.state.busy).toBe(true)
+        expect(f.reads()).toHaveLength(2)
+        expect(ownerReads()).toBe(beforeOwner)
+        expect(f.wrapper.find('[aria-label="项目审计列表"]').exists()).toBe(false)
+        expect([f.auth.state.user?.id, f.auth.state.session?.id]).toEqual(expectedIdentity)
+        if (kind === 'invalid') {
+          expect(f.router.currentRoute.value.name).toBe('not-found')
+          expect(f.auth.state.phase).toBe('checking')
+        }
+      } finally {
+        held.release()
+        await flushPromises()
+      }
+      expect(f.auth.state.busy).toBe(false)
+      expect([f.auth.state.user?.id, f.auth.state.session?.id]).toEqual(expectedIdentity)
+      if (kind === 'project') {
+        expect(f.reads()).toHaveLength(3)
+        expect(f.reads().at(-1)![0]).toBe(`/api/v1/projects/${id(11)}/audit?limit=50`)
+        expect(f.wrapper.get('[aria-label="项目审计列表"]').text()).toContain('secret.create')
+      } else {
+        expect(f.reads()).toHaveLength(2)
+        expect(ownerReads()).toBe(beforeOwner)
+        expect(f.wrapper.findComponent(ProjectAuditView).exists()).toBe(false)
+      }
+      expect(f.writes()).toHaveLength(0)
+    },
+  )
   it('handles Project parameter navigation while clearing old rows and filters', async () => {
     const f = await app()
     await change('Tool ID', id(7))

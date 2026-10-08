@@ -8,6 +8,7 @@ import {
   type ComponentPublicInstance,
 } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
+import { projectRoute } from '../../router/auth'
 import { UiButton, UiField, UiState } from '../../components/ui'
 import { auditFilterActions, auditFilterResourceKinds } from '../../api/project-audit'
 import {
@@ -165,7 +166,13 @@ function retireNavigation() {
   return true
 }
 onBeforeRouteLeave(retireNavigation)
-onBeforeRouteUpdate(retireNavigation)
+onBeforeRouteUpdate((to, from) => {
+  const source = projectRoute(from.fullPath)
+  // The workspace canonicalizes only after Get has granted the current scope.
+  // A case-only canonical address keeps that scope and its pending native read.
+  if (source?.suffix === '/settings/audit' && to.fullPath === source.path) return true
+  return retireNavigation()
+})
 onMounted(async () => {
   const own = focusGeneration,
     stamp = audit.focusGeneration()
