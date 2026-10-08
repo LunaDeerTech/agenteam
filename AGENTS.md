@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Platform embedding Resolver规格接受（2026-10-08）：rev2卡67d37252及完整rev1独审4b16dd82＋D1/D2差量/最终组合0badabfd已root通读核SHA接受；8技术＋README9，唯一既有产品源resolution_policy.go。原agent/tool direct与同Tx SQL/Acquire明确保留。fixture已完成只读作者准备，后继仅scratch实施，生产consumer/serving/维度/Invocation/root不扩。Audit API5源1a2bcdf4作者86/type/format与原102通过、独审进行，首3测试FAIL保；frontend继续Session/page，backend已授两新Go安装及≤45s离线编译，不运行binary/list/资源。三停止与Jina取证保持。
+
 Audit UI已实施（2026-10-08）：规格5320a187已push核远端同；frontend已ACK19个web/JS技术路径及必要≤45s本地Node检查/private outDir，backend已ACK仅Go #17–18 scratch候选，README/业务资源未授。规格永久档0bc3c8ea/manifest e204082f已STOP，root实核15原件133979B、4metadata引用及已提交卡Gitblob；原diff31尾白保。独审API/实际计划已STOP待冻结。并行架构仅新D09 platform.embedding current-selection Resolver规格，严格Knowledge/Memory purpose；不开放真实消费者/serving/维度/Invocation/root，三停止保持。
 
 Project Owner Audit UI规格接受（2026-10-08）：rev2卡12022902经rev1全文独审0c78f19a＋D1差量/最终组合dc7d9c60，root已核关键原件接受；21技术（#1–20/#22）＋README #21，共22路径。唯一D1追加ProjectNav同项目general/audit精确当前项，href/default仍general。前卡Owner24、官方品牌已接受；下一frontend独占19个web/JS技术路径，backend独占Go #17–18，实施交接另下发，README及真实资源仍未授。原rev1必修和作者selector FAIL保留；三停止、生产未绑定、ready503与完整D08–D28/E01未完保持。

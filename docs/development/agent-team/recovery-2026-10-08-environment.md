@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 12:06 UTC：第二条规格接受与Audit离线阶段
+
+Embedding rev2卡67d37252经原完整审＋D1/D2最终组合0badabfd接受，root核原件；8技术＋README9，fixture拟唯一作者，先scratch实施，Go共享源暂不变。Audit五API已冻结1a2bcdf4，作者86/type/format及原102通过，首3FAIL保持，verification正独审；frontend仅后继Session/page活跃。backend已ACK安装两新Go并跑必要≤45s offline compile/vet/build，不binary/list/业务资源；architecture独审准备STOP等可编译输入。旧全局dist原3及53stage保持，实际资源窗口无开放，未运行真实Audit新top。三停止/Jina及生产未绑/ready503/E01未开始不变。
+
 ## Audit实施与下一后端规格并行
 
 5320a187已push核同；前端19技术唯一writer实际开始，允许必要≤45s Node/private build；Go两源仅backend scratch，IPC v01未闭合，所有业务资源/全局dist窗口关闭。独立API/实际验收计划封存等候冻结，旧driver需要必要selectors/ENV差量后才能执行。规格永久档15原件133979B及卡Gitblob已root核同，31原diff尾白保持，原FAIL不改。architecture已ACK仅写新的platform.embedding Resolver规格，两个Knowledge/Memory purpose，生产consumer/serving/维度/Invocation仍未绑；不重开Jina取证或原三停止。详情与来源见同批台账。

@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：Embedding Resolver rev2规格接受；Audit实现继续
+
+root正式接受[Platform embedding Resolver rev2](../work-items/d09-platform-embedding-resolution.md)：卡67d372523d2ab94db5e60e2e85518171985e15a739e3812d564b18b6f61964d7，原rev1完整独审4b16dd82唯一D1/D2；rev2恰四处单行差量后，独审0badabfd45098b31b1e58c6ba82894f6d934efda1bff28a9bad1b68b1825c261正式组合PASS。root通读全卡/差量与报告、核卡/freeze及三件SHA；evidence7a9bfad2、manifesta11b2f16。D1完整保原agent/tool direct含ApprovalAuto，D2明确同外Tx SQL/Acquire并禁补锁/内Tx/Provider外网；9路径/top/预算不变，原FAIL与49来源保持。8技术仅既有resolution_policy加新pure1/PG6，README9后交；fixture唯一backend作者已只读准备STOP，实施写权下一步交接，不据规格称产品/资源可用。严格两个Knowledge/Memory purpose、不可变snapshot/lease/版本保持；真实consumer/serving/IndexProfile维度、Nonchat/Invocation/root待后继。
+
+Audit API阶段#1/#2/#3/#11/#12已作者STOP（freeze1a2bcdf4），root核五源与必要command/raw/result：新86 PASS、type10.333s、format1.219s，旧102在首轮通过且产品3源未改；首3新测试前提FAIL及修后组合明确，不称一次全绿。verification按902118c8正在独审API，只消费冻结五源及必要依赖，不读frontend活跃Session/workspace/controller/page。
+
+Audit Go candidate01两源fd770080已作者STOP/gofmt通过、protocol5b65f821获frontend确认，agreement3c8092b8；root通读handoff后调整工程顺序，先授两目标精确安装和≤45s离线deps/race-c/vet/两cmd编译，完整源独审放可编译STOP之后。backend已实际ACK，binary/list/业务测试/资源均未授；只两新Go内可修编译并保首红，旧helpers/app/脚本不改。architecture已准备其独立STATIC。D09产品先scratch不干扰当前Go闭包，真实PG/全局dist窗口仍关闭。三停止/Jina与完整D08–D28/E01边界保持。
+
 ## 2026-10-08：Audit UI实施交接与规格永久档
 
 规格5320a18756d1b1f552274a28e85575ef1ab71a35已push且root实核远端同。frontend已实际ACK并开始#1–16/#19–20/#22唯一19webJS源；允许必要单命令≤45s的既有Node检查及私有绝对outDir，global web/dist不写。backend已ACK，仅Go #17–18 scratch候选及与frontend闭合IPC；协议v01尚待前端确认，未安装/Go检查/业务资源。README #21后交。独审准备已封：verification plan902118c8，runtime plan9bef31fb；后者明确旧driver缺新Audit/SystemAudit selectors及ENV，未来只补必要差量，当前false不可执行。
