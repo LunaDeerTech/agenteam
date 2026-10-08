@@ -1,0 +1,61 @@
+{
+  "asset_exchange_record": {
+    "path": "/workspace/scratch/owner-ui-assets/exchange-edit03.json",
+    "sha256": "3899fb20764cfda1055c48dd93f94addea68e9ddaacb48a2623bb431f73f5bd7"
+  },
+  "browser": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+    "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+  },
+  "browser_acceptance_at_preparation": "author STOP candidate; root independent acceptance not yet provided",
+  "browser_delta": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v5/delta.patch",
+    "sha256": "19b9c8d9e3dea653a4d4a13e09db10077d83e62dc37508265e2b3db58fef7bfa"
+  },
+  "changed_repository_sources": [
+    "tests/account-captcha-web/e2e/project-owner.spec.ts"
+  ],
+  "driver": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "driver_preparation": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/preparation.json",
+    "sha256": "7aef36f8629b2bb827cbeba67e308ef4b658836bfe6f029bcc486d0bfb07e09b"
+  },
+  "globaldist_read": "one authorized source-only gate after root reported edit03 exchange ready",
+  "imports_tools_exact_previous_bytes": true,
+  "no_new_go_node_resource_execution": true,
+  "original_driver": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "permitted_groups": [
+    "new-edit"
+  ],
+  "previous_closure": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final03/closure.delta.json",
+    "sha256": "006f0a4f0c5f184c53350f27bcf6b943083f1f758954ec3d51059379cc260a5a"
+  },
+  "previous_final": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final03/freeze.final.json",
+    "sha256": "99d71e028ded80f7b7979f8ee9a32ef4fe88c1a1c21b8a415ae665faa2290232"
+  },
+  "resources_started": false,
+  "root_authorized_resources": false,
+  "unchanged_budgets": {
+    "browser_case_seconds": 45,
+    "go_top_including_cleanup_seconds": 120,
+    "package_minutes": 6,
+    "tcp_tail_seconds": 75
+  },
+  "unchanged_go_candidate": "04",
+  "unchanged_python_actual_modules": 171,
+  "unchanged_python_meta_resources": 20,
+  "unchanged_topology": {
+    "new-edit": 7,
+    "other-required-tops": 7,
+    "required-old-smtp-delivery": 9
+  },
+  "unchanged_ui": "ui-v1/19 sources"
+}

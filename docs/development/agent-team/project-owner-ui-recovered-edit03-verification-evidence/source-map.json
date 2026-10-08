@@ -1,0 +1,935 @@
+{
+  "scope": "Author actual edit03 one full edit case and independently stopped original/owned-retirement review PASS, fixed Git367/browser-v5 and UI088f. No independent actual A/B, recovery/identity/layouts/old16 or full D27 acceptance.",
+  "original_handoff_sha256": "aac7480db2454b22932b84b0a96eb463c15c88f5c6be0b2a3df9c4c1620e5892",
+  "harness_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+  "ui_commit": "088f4d3490db4d86781090f0602299901c5f3247",
+  "originals": [
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/adopted-waits.json",
+      "archive": "originals/run/adopted-waits.json",
+      "sha256": "3bfd1370b407be853b1e5c9312056e63f12c9da39bde5393c366d6c2d1aac56c",
+      "bytes": 575,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/cleanup.json",
+      "archive": "originals/run/cleanup.json",
+      "sha256": "1d89054e96dc46238118a917cc93414fe411b38ec62e1c98d41d04caea7319dd",
+      "bytes": 14945,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/command.json",
+      "archive": "originals/run/command.json",
+      "sha256": "ba831dec6f77d95649057cdcad1f892e41f7fde827dda4f036238e556b0ea39e",
+      "bytes": 2582,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/disk-before-spawn.json",
+      "archive": "originals/run/disk-before-spawn.json",
+      "sha256": "356c77284072806b77871899a0ebd1b8fb8959aca740ff3e34238021251aa50d",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/disk-preflight.json",
+      "archive": "originals/run/disk-preflight.json",
+      "sha256": "41376ac4f5a5ace2e56ee40a0ebfda2290bb64227b721690b53ec6e2525c42fa",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/frozen-input.json",
+      "archive": "originals/run/frozen-input.json",
+      "sha256": "0b724595ebc2fe77eb44e510d5161b0b256eea52f360a5ed53e93144ba91867a",
+      "bytes": 40387,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/input-after.json",
+      "archive": "originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/input-before.json",
+      "archive": "originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/observed-processes.json",
+      "archive": "originals/run/observed-processes.json",
+      "sha256": "42a72881e30a5489996818a2698d8f648127bc51ef113495aaf11bb0cb93d948",
+      "bytes": 16591,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/observed-resources.json",
+      "archive": "originals/run/observed-resources.json",
+      "sha256": "52b0453f7d58623843d72a606bf91a0acd40cf2e64615a7b253f7636b5820eec",
+      "bytes": 5023,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/process-baseline.json",
+      "archive": "originals/run/process-baseline.json",
+      "sha256": "d0306db71c1fcdb7bf3d62111eadf9b783f0272ccf58cde40eebd15a908140d4",
+      "bytes": 6681,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/raw.log",
+      "archive": "originals/run/raw.log",
+      "sha256": "dca9a41ada39935128cf24d67a1ba4038af433bfa5d500846dd3cf728a1d3b8d",
+      "bytes": 4728,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/result.json",
+      "archive": "originals/run/result.json",
+      "sha256": "982bc8961a974bd1dc32d01d4687d7434b6408a106d9180b4deb56be25cd8b2b",
+      "bytes": 7757,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-22a40d17a8e4d1f64a37eb99abb58d5e45a8fe68bd8470f222276296b6b21c1d.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-22a40d17a8e4d1f64a37eb99abb58d5e45a8fe68bd8470f222276296b6b21c1d.json",
+      "sha256": "22a40d17a8e4d1f64a37eb99abb58d5e45a8fe68bd8470f222276296b6b21c1d",
+      "bytes": 304,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-38b5c252a8e3ca6ac221ce36eb94012c6ec1541360e6a74fb4e6ac8f8aa0aee0.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-38b5c252a8e3ca6ac221ce36eb94012c6ec1541360e6a74fb4e6ac8f8aa0aee0.json",
+      "sha256": "38b5c252a8e3ca6ac221ce36eb94012c6ec1541360e6a74fb4e6ac8f8aa0aee0",
+      "bytes": 380,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-401ee88d966178ae600930777832d99897a118185630ed075414b9e9a251a933.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-401ee88d966178ae600930777832d99897a118185630ed075414b9e9a251a933.json",
+      "sha256": "401ee88d966178ae600930777832d99897a118185630ed075414b9e9a251a933",
+      "bytes": 333,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-6f86cb9d8d0100442245db0d4618b6e8bc1f241eff4cb02fb6a72e4248675c36.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-6f86cb9d8d0100442245db0d4618b6e8bc1f241eff4cb02fb6a72e4248675c36.json",
+      "sha256": "6f86cb9d8d0100442245db0d4618b6e8bc1f241eff4cb02fb6a72e4248675c36",
+      "bytes": 357,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-89849b47870c90b28da481bafa288ab56a27826abf9cdce1f8e24b343b9c5ed0.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-89849b47870c90b28da481bafa288ab56a27826abf9cdce1f8e24b343b9c5ed0.json",
+      "sha256": "89849b47870c90b28da481bafa288ab56a27826abf9cdce1f8e24b343b9c5ed0",
+      "bytes": 404,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-91bc9636a4395ce56b7894bc1f1278b8c775f9ac07096a1363e6238c1ed1a13f.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-91bc9636a4395ce56b7894bc1f1278b8c775f9ac07096a1363e6238c1ed1a13f.json",
+      "sha256": "91bc9636a4395ce56b7894bc1f1278b8c775f9ac07096a1363e6238c1ed1a13f",
+      "bytes": 368,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-b70712a110f415c7454f623ae56ca26bde245c3363409e26a3d39381e3983b13.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-b70712a110f415c7454f623ae56ca26bde245c3363409e26a3d39381e3983b13.json",
+      "sha256": "b70712a110f415c7454f623ae56ca26bde245c3363409e26a3d39381e3983b13",
+      "bytes": 351,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-bdd6410d628b3fa6290d2847234272479afef26ce18606bf478ecd51ccba8273.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-bdd6410d628b3fa6290d2847234272479afef26ce18606bf478ecd51ccba8273.json",
+      "sha256": "bdd6410d628b3fa6290d2847234272479afef26ce18606bf478ecd51ccba8273",
+      "bytes": 306,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-e50c62a0a5983f4053cfa9773d56649e1b3cc2870bd9b50d91fb69129a054a72.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-e50c62a0a5983f4053cfa9773d56649e1b3cc2870bd9b50d91fb69129a054a72.json",
+      "sha256": "e50c62a0a5983f4053cfa9773d56649e1b3cc2870bd9b50d91fb69129a054a72",
+      "bytes": 365,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-eb3f48e694d28606e362f5877f8e628232f9977e4085322613700076c9114cb1.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-eb3f48e694d28606e362f5877f8e628232f9977e4085322613700076c9114cb1.json",
+      "sha256": "eb3f48e694d28606e362f5877f8e628232f9977e4085322613700076c9114cb1",
+      "bytes": 383,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-f60cd5346b12ad98017be7a390269ec7d95a865ddd24bfea4503e5715f3f46b3.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-f60cd5346b12ad98017be7a390269ec7d95a865ddd24bfea4503e5715f3f46b3.json",
+      "sha256": "f60cd5346b12ad98017be7a390269ec7d95a865ddd24bfea4503e5715f3f46b3",
+      "bytes": 373,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json",
+      "sha256": "bcaa0a393a12e998442090243e54ade908bf57374cdf14d96262e994541aeb61",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json",
+      "sha256": "7e9e8471a73856ce75d69a920df9bb629bae41767959b4f65237444bd8c05479",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json",
+      "sha256": "232b95e8197e809dc1cdd27c4aa15ba9a0218c6ee36a582ee5c1ab6db4e819ac",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json",
+      "sha256": "3defda6d2f28663c2fc65ae164ce3452caf0eab8588aafbd7d87a0bac88de48b",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json",
+      "sha256": "293c61ce97123a61b4a7aaf7c0cfe9d561372cc627dbf9f7ab338e837ce78a74",
+      "bytes": 474,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json",
+      "sha256": "fc0409e6741255359f909f2093df4d033c4e7b769781e39fd33459968481f580",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json",
+      "sha256": "2bc1856a01b7cb996d9be56c05b095d62e60b4208cb356df854f18ad5130891e",
+      "bytes": 541,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json",
+      "sha256": "9f7702c91481b7b9435a903e1430ddb1cf50326589ac3f4bc33493d019af9677",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json",
+      "sha256": "7f9fd442cf987bba8382c9e459a2afea5072f52471f86f4982018ac193b27df8",
+      "bytes": 541,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json",
+      "sha256": "d7e0404b37fee71104bb8e9d562fb50800929fae286050151415b4f7e2594329",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-011.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-011.json",
+      "sha256": "668525c593fe927c73a8d2c4095cb9e7b733f6cd2b36ae4e6b2c4ee0869a15f7",
+      "bytes": 549,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-012.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-012.json",
+      "sha256": "53523c319724804ec437a9b8b8b8a229918ade980f8ac489859f00b523446567",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-013.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-013.json",
+      "sha256": "491f04788a7debbb1995410c5c3e305337c9873d0d606d5b39dafff02d0d7a36",
+      "bytes": 541,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-014.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-014.json",
+      "sha256": "11d6874118e60cb2a4179a914f6b37ff6a41f7c2136a750d11e68de90f12be08",
+      "bytes": 549,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-015.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-015.json",
+      "sha256": "6c6b328566c3634b8fdef355ea79e72ffb21506ed16da1425c74be00148afe2e",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-016.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-016.json",
+      "sha256": "e355d3b24f88c20d685995b4f8e7976fbf34e44c8f102e7430c3fba7eeb67f13",
+      "bytes": 541,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-017.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-017.json",
+      "sha256": "6246862b77eea68e158f6dd39560117a56704f6e91cc0bfd0cc0467e1ce4f5a3",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-018.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-018.json",
+      "sha256": "ca0e194001963e6981e1c42489f26f467348b8da31ca797748f5d76f59881e18",
+      "bytes": 541,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-019.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-019.json",
+      "sha256": "9cf7ef3f57bcd1868b039de293762c41aeea2e27715b37b6d78057bb15d6ad4f",
+      "bytes": 539,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/same-body-validation.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/same-body-validation.json",
+      "sha256": "f2e6317b82c05d51133ae86a183626b21e385628d3d8329cdbe8ea847711da09",
+      "bytes": 72,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/schema-validation.json",
+      "archive": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/schema-validation.json",
+      "sha256": "f923954e8ad40a485e55ffa09094c9be2ecbc0f76325de7842f29b2b364dbcb9",
+      "bytes": 76,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/tcp-baseline.json",
+      "archive": "originals/run/tcp-baseline.json",
+      "sha256": "b65de5d2a7b9e2d637c86615ceaa8f50cb52ba54be31c5546c1de54dd4c2778e",
+      "bytes": 1725,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/tcp-observed-delta.json",
+      "archive": "originals/run/tcp-observed-delta.json",
+      "sha256": "9b1ebf043bacc359de39ef66c7e550f564b8a44d62b7884f3f09a5128e66bac8",
+      "bytes": 9737,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/tcp-tail-observation.json",
+      "archive": "originals/run/tcp-tail-observation.json",
+      "sha256": "3ec9fe4e4c7e0b920f97be84d4c875741e568d30a6a4165e2facd37865dd0af6",
+      "bytes": 184123,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/verification-input.json",
+      "archive": "originals/run/verification-input.json",
+      "sha256": "75bb472f7080ff88a11334e464c730f291c118183d3c399aa3405cecaeb8961d",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/watchdog.json",
+      "archive": "originals/run/watchdog.json",
+      "sha256": "7582e396c4fdbdc0a21f3b778932fc970eeae8cb74fb396eafdeb6321309a136",
+      "bytes": 525,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/edit03-handoff.json",
+      "archive": "originals/author/edit03-handoff.json",
+      "sha256": "aac7480db2454b22932b84b0a96eb463c15c88f5c6be0b2a3df9c4c1620e5892",
+      "bytes": 16449,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/edit03-handoff.md",
+      "archive": "originals/author/edit03-handoff.md",
+      "sha256": "71a09dc551689111f8ae2b5da774325c2f00ff03ee0cff3b2486a046bf3788d4",
+      "bytes": 1328,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/edit03-launch.raw",
+      "archive": "originals/author/edit03-launch.raw",
+      "sha256": "7de22081bcbe3e201bcfa7f54d9238a0c64ec5a23b7d147165e57f0ee4f66ae6",
+      "bytes": 5773,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-assets/restore-after-edit03.json",
+      "archive": "originals/root/restore-after-edit03.json",
+      "sha256": "ce2ed5afc14af65f3f9798bfb408ca97bc2bc3cf2d5665ec85de19d848b82a88",
+      "bytes": 769,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/binding.json",
+      "archive": "originals/input/final04/binding.json",
+      "sha256": "1d876dddad216ea13072e20fe8086c07874ede78e267cf3607bffb42e3e4ca33",
+      "bytes": 2462,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/closure.delta.json",
+      "archive": "originals/input/final04/closure.delta.json",
+      "sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b",
+      "bytes": 550,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/delta.md",
+      "archive": "originals/input/final04/delta.md",
+      "sha256": "ccafaf3a5c60df2e1e6eda5209a6d9a2552380ab651da418f838626a7609d44b",
+      "bytes": 1083,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.final.json",
+      "archive": "originals/input/final04/freeze.final.json",
+      "sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d",
+      "bytes": 39379,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/handoff.md",
+      "archive": "originals/input/final04/handoff.md",
+      "sha256": "32d813b209b77c0c2b7a52f4d9548fbc0019f0f417a9e2acc31c5f93488cd09c",
+      "bytes": 1033,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/source-check.meta.json",
+      "archive": "originals/input/final04/source-check.meta.json",
+      "sha256": "64c0ba627b8d773a9254892214cc6080fd9dc891645b97679d29ad1ff8802ae0",
+      "bytes": 1220,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/source-check.raw",
+      "archive": "originals/input/final04/source-check.raw",
+      "sha256": "bf7adb225347d6f47fcb7a6fe0f96a1104c5a348a177b1aec782672d8fe84666",
+      "bytes": 781,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/handoff.json",
+      "archive": "originals/input/final04/handoff.json",
+      "sha256": "e86f48e2ea2894bb0c140cae244ad8290e08f7f15875d89c562944501a48bad6",
+      "bytes": 1942,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/checks.json",
+      "archive": "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/checks.json",
+      "sha256": "3ff59b5622f5fb89acbdaed0d6dabbed401b47155ca21c32e1274d028e4f503e",
+      "bytes": 1013,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+      "archive": "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/freeze.json",
+      "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85",
+      "bytes": 251,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/handoff.md",
+      "archive": "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/handoff.md",
+      "sha256": "d2865841fca971040256113e960dc97ffdf83488367e5ec8f3eee2c24bdfaed3",
+      "bytes": 1266,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/imports.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/imports.json",
+      "sha256": "c1be647023227872098b597215bf71e2239a608a1340176cba4b2501a87b40bc",
+      "bytes": 704,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/tools.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/tools.json",
+      "sha256": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c",
+      "bytes": 30827,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v01/groups.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/input/groups.json",
+      "sha256": "f925efaf256bad0461b18a6a408f352b703ce321bd27e08c59359664110b1a8c",
+      "bytes": 3265,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-assets/exchange-edit03.json",
+      "archive": "originals/root/exchange-edit03.json",
+      "sha256": "3899fb20764cfda1055c48dd93f94addea68e9ddaacb48a2623bb431f73f5bd7",
+      "bytes": 9100,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/final04-review/review.md",
+      "archive": "originals/input/final04/independent-prepared-review.md",
+      "sha256": "ef683c221094249b7a0fb9bb7108947709939b916a81a87397ae2e44de07815f",
+      "bytes": 2522,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/browser-v5-review/review.md",
+      "archive": "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/independent/review.md",
+      "sha256": "82f890192ee86f926afda73c789b55c9fed482f16c86476c1ad37979f1f931e0",
+      "bytes": 2083,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/edit03-result-review/review.md",
+      "archive": "originals/independent/review.md",
+      "sha256": "493166bdf861e450a01b05bf90227b5fc7b04b6090c37c677e0e24d10c5630ce",
+      "bytes": 3947,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/edit03-result-review/evidence.json",
+      "archive": "originals/independent/evidence.json",
+      "sha256": "a7c36740dfa3b7d41cd13a8fbeb2d84fecab31deb0864281e115fe9e4f7e426c",
+      "bytes": 28512,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/edit03-result-review/manifest.json",
+      "archive": "originals/independent/manifest.json",
+      "sha256": "9a31a0787a4a70c992252c5803184e7dbcb67d855fd7a3467fe6ffda1deeda7e",
+      "bytes": 473,
+      "reuse_prior_committed_original": false
+    }
+  ],
+  "logical_originals": 80,
+  "new_physical_original_files": 66,
+  "new_physical_original_bytes": 428344,
+  "reused_prior_physical_originals": 12,
+  "reused_prior_logical_originals": 13,
+  "reused_prior_originals": {
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/checks.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/checks.json",
+      "sha256": "3ff59b5622f5fb89acbdaed0d6dabbed401b47155ca21c32e1274d028e4f503e"
+    },
+    "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/freeze.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/freeze.json",
+      "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+    },
+    "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/handoff.md": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/handoff.md",
+      "sha256": "d2865841fca971040256113e960dc97ffdf83488367e5ec8f3eee2c24bdfaed3"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/imports.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/imports.json",
+      "sha256": "c1be647023227872098b597215bf71e2239a608a1340176cba4b2501a87b40bc"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/tools.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/tools.json",
+      "sha256": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/input/groups.json": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/input/groups.json",
+      "sha256": "f925efaf256bad0461b18a6a408f352b703ce321bd27e08c59359664110b1a8c"
+    },
+    "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/independent/review.md": {
+      "commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/independent/review.md",
+      "sha256": "82f890192ee86f926afda73c789b55c9fed482f16c86476c1ad37979f1f931e0"
+    }
+  },
+  "git_sources": [
+    {
+      "path": "api/openapi/common.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "22f7d8e5f560f05380ca9c8031260f2d941ad273",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    {
+      "path": "api/openapi/project-owner.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "8ec4fd687720aaf146400c13cc56fbfb67504f02",
+      "sha256": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3"
+    },
+    {
+      "path": "api/openapi/project-usage.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "9e9a07bb21a7d4ba95af2d36e915240cceb84f38",
+      "sha256": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4"
+    },
+    {
+      "path": "docs/development/work-items/d09-project-usage-read-http.md",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "707aa1abe88ba7092231511210a877d8154ee686",
+      "sha256": "b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0"
+    },
+    {
+      "path": "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "706ab4993b14202a0d9364e9e1a1a323b5dd0c12",
+      "sha256": "37725ca136a9fe957714c0d29ef2ab43f86d82de5b1e265598f546f2dc143828"
+    },
+    {
+      "path": "go.mod",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "2db97d5624d9575b72eb8e345b064bc4185388dc",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    {
+      "path": "go.sum",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "7f96b9efaf394930b1df6f095e0879e33cd95403",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321"
+    },
+    {
+      "path": "internal/central/project/contract/lifecycle.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "f7f0829a87bde8cfda7ed5c59f50117bd2f6fe79",
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6"
+    },
+    {
+      "path": "internal/central/usage/http/handler.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "512a485a6bd430e20d8523e7d1e7991679c5a7b1",
+      "sha256": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9"
+    },
+    {
+      "path": "scripts/test-objects.sh",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "12ab48fcf0cd9c9cb8b2e9a2f9dfff27fa2720a7",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87"
+    },
+    {
+      "path": "tests/account-captcha-web/package-lock.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "f78a2b24920e973c088d3aae414e9448cce9b3d2",
+      "sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    },
+    {
+      "path": "tests/account-captcha-web/package.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "0b55badac320dbde3a1088d804950c591df8510e",
+      "sha256": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58"
+    },
+    {
+      "path": "tests/account-captcha-web/project-owner.config.js",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "338716063324fc1f3fceb58ef1a31f3b1256f923",
+      "sha256": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b"
+    },
+    {
+      "path": "tests/account/project_owner_web_fixture_test.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "a7940803578cd8a96bac06f58b9ee48870016ae6",
+      "sha256": "662e1f2edd0e4cc0d03408251de0a031e0491ca4530c042e7bfc86139070f24b"
+    },
+    {
+      "path": "tests/account/project_owner_web_test.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "7a73493c5e2daec94f860f584c54e562c53ae797",
+      "sha256": "e91d920777b6bd48adae2ad96c1f2d2e1cd0f6f8c254af3a9a497a684a44e5a6"
+    },
+    {
+      "path": "web/src/App.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "83929ae442616623f29547d684c58a0fca7adf60",
+      "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "43eb1e384093014945d3e7dcf5a87f31567bb795",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    {
+      "path": "web/src/api/client.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "117c3e9bda8a6199f955d33f75e1d016a81cb455",
+      "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c"
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "dcbdde685f8516f2f61382a2668f01e9167b9c45",
+      "sha256": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "b1126fd95c23db81300d4edb85a01076a9e4729d",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "1f23302d20f8221cd0a59af630353858fb83d84a",
+      "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a"
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "9fa5502291766aedaaa8d3a6dc9e121b338358fe",
+      "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "30dfe558cef3b3a0355a1a3059dad4418200088f",
+      "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "6860a590ab7426b9d8e11ee90de2b876772e22a1",
+      "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "3c6bbbc08e6a93c0bc755c0a7bfd91631a7c2ac9",
+      "sha256": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "f6d72d2e0780355cdde396015a4534b410355e0d",
+      "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    {
+      "path": "web/src/tests/project-owner-client.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "ee72dee6b24e4dcdd97f606549a72c19246bf051",
+      "sha256": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e"
+    },
+    {
+      "path": "web/src/tests/project-workspace-state.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "d38cc30686e7c72bca0aef537ff8f8e696dd0c6d",
+      "sha256": "d4edd90c09149cdc92d2c1886170c78dc913b04a77e22c8cd306e499ba00381b"
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "6f569a3f23d69081c5ec52e9308017f6dd7ccfff",
+      "sha256": "9b06021aa672002618d15e217b469534e21266ac1734db6fcf8508e05c0b63df"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "62959b8cadb133ddb55af91109e7082f559720ec",
+      "sha256": "941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "1fb9054391c47a02420b92bf3826056c50d9e150",
+      "sha256": "a740bf6ef4aac400116055219e4f5e1f5cd0899a52159eb0a4e5241ec93fc896"
+    },
+    {
+      "path": "web/src/views/projects/ProjectGeneralSettings.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "7539a563f1f2188aa09e760f2228c7bb61261771",
+      "sha256": "0c5013fc4e7f022d04aa4e52caa41dec247cb6c2f20bf7d4947d505b4c2e2607"
+    },
+    {
+      "path": "web/src/views/projects/ProjectHomeView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "e5da086f75e779d6daa9388be0626737288cddc7",
+      "sha256": "cb4fec3b9bb24b05acbd85319b6ca90d694fef193d1ae9ccb48ab6997339e922"
+    },
+    {
+      "path": "web/src/views/projects/ProjectListView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "cb25493b29e854a7b0824bb9a8a83e252125c058",
+      "sha256": "aafa7b81ad789c627f83f4bca684f16441f41b72232fbfddb8df268b317b909f"
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "1436e24ab77cf977c2374524f03dbd93f9096e20",
+      "sha256": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e"
+    },
+    {
+      "path": "web/src/views/projects/ProjectWorkspaceView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "4b223544a75f00c1f8eba1b301172e436a4ef178",
+      "sha256": "a73263a6d2e12e0d46a3cd3373ae3d54396ac3699b360855090ac47a1265712f"
+    },
+    {
+      "path": "web/src/components/ui/UiField.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "28d12e4932379b0bcf858ea8a9fd494bebec7596",
+      "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1"
+    },
+    {
+      "path": "web/src/components/ui/UiInput.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "e534185ba9cc796a36da8d3ea6f6a31fc1d5716f",
+      "sha256": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf"
+    },
+    {
+      "path": "web/package-lock.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "5fada3969e90bb48ad582cb4fda659cf741e689b",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "web/package.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "f4c678be98e404989c80b8cedbc74cedc5fc3800",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "6bb43098ad6e9c673106603b330e8b639814e666",
+      "sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009"
+    }
+  ],
+  "reused_existing_manifests": [
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/ui-v1/freeze.json",
+      "existing_archive": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/ui-v1/freeze.json",
+      "commit": "83d6dd88150d0c584b3938a213e795b1cd14bb0b",
+      "sha256": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/ui-v1/assets.json",
+      "existing_archive": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/ui-v1/assets.json",
+      "commit": "83d6dd88150d0c584b3938a213e795b1cd14bb0b",
+      "sha256": "00bd636e8446c8e75690bcf07745975bd7a4f9b906172de4d3ae55ab10393752"
+    }
+  ],
+  "closure_binding": {
+    "inherited_source_map": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/source-map.json",
+    "inherited_commit": "f08c203b73fee2e9dc907b2af94137e6f19c86d7",
+    "inherited_source_map_sha256": "3c9e8f917f96970ff718a6999faaecb5ded2e447d872e8e226fb86fe0e5c0ff2",
+    "base_closure_sha256": "006f0a4f0c5f184c53350f27bcf6b943083f1f758954ec3d51059379cc260a5a",
+    "final04_closure_sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b",
+    "delta_repository_paths": [
+      "tests/account-captcha-web/e2e/project-owner.spec.ts"
+    ],
+    "delta_source_sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009",
+    "source_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+    "merged_repository_inputs_inherited": 955,
+    "new_full_graph_scan": false,
+    "unchanged_package_file_sets_in_delta": true
+  },
+  "authorization_binding": {
+    "prepared_input_sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d",
+    "prepared_authorized_resources": false,
+    "actual_frozen_input_sha256": "0b724595ebc2fe77eb44e510d5161b0b256eea52f360a5ed53e93144ba91867a",
+    "actual_authorized_resources": true,
+    "changed_top_level_keys": [
+      "root_authorization",
+      "root_authorized_resources",
+      "status"
+    ],
+    "permitted_groups": [
+      "new-edit"
+    ],
+    "prior_prepared_input_unchanged": true
+  },
+  "proof_boundary": "Original author schema status0 validates all19 safe native responses; public GET decoders resolve1/get6 exclude fixture001-004 and external update helper012GET/013PATCH. Application mutation operations are not claimed as extra public-client mutation replays. Archiver parses JSON and hashes original bytes only, never reruns schema/client, tests, probes or resources.",
+  "independent_stop_manifest_sha256": "9a31a0787a4a70c992252c5803184e7dbcb67d855fd7a3467fe6ffda1deeda7e"
+}

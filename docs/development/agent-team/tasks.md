@@ -1,5 +1,15 @@
 # 团队任务台账
 
+## 2026-10-08：edit03成功永久档、五新作者真实轮次通过
+
+[edit03成功永久档](project-owner-ui-recovered-edit03-verification.md)已STOP，root核80逻辑source/archive原bytes/SHA、68指纹与42Git定位一致；新增66原件428344 bytes/12复用，33原格式例外不改字节。作者全edit case与owned退役独核PASS，仅原schema19/client GET7，PATCH/Problem不虚增client；两次edit原FAIL继续保留。
+
+nextnew01条件串行全部作者实际PASS/退役：recovery11.63s/browser5.1/command56.354/TCP39.384，identity18.31/browser11.0/command67.830/TCP38.381，layouts14.31/browser7.0/command64.058/TCP39.385。每轮单top新nonce，三轮21不同ID、3direct+12adopted actualwait/watchdogjoin、owned/runtime/TCP双清/input同，12新增daemon/PID1 shim非owned/未wait另列。原批manifest `/workspace/scratch/owner-ui-backend/nextnew01-result.json` SHA `5a6bc16bbb0b6fedec32f6b942d52b34a189cb15d98eb0d30a49c21ecb645d43` 固定；schema19+17+16=52、native browser GET client8+11+8=27，与setup/helper/PATCH分列。root全批退役后restore-after-nextnew01.json恢复原3 SHA，测试53保留stage，无当前资源/窗口。
+
+recovery独立原件PASS报告 `a7ea37128513eaa2c608a771239115274f8ddda13adf4f5b3e621d279023d450`（真实committed，其余两态仅controlled）；identity独核PASS `0ad2cdca7bdfe3672ef4f71625f3755828917c301854cbe441f2b2c926ed5647`（Project离开dirty确认与System/Summary双draft分段，不夸三域同时保留）。layouts八实际PNG已独立逐看、root抽看2图，可见区域布局/明暗/焦点/ID换行通过；移动内部滚动区下部不在图中，控件行为按实际断言分列，正式原件/批终局复核报告进行，不提前标完整visual/fullcard。
+
+五新作者真实轮次已齐（read02 browser-v3；其余browser-v5，19产品/Go04不变）；**16旧与独立实际A/B未执行，README22/完整D27未接受**。backend仅old16小交接准备，无Go-list/filegate/资源重跑，待独立selector/预算复核后root另条件串行grant与资产窗口。source固定Git367/产品UI088f，完整D08–D28/E01与生产/三停止边界保持，以下为历史。
+
 ## 2026-10-08：edit02永久失败档，edit03作者实际PASS退役
 
 [edit02失败与v5窄修永久档](project-owner-ui-recovered-edit02-verification.md)已STOP，root核104逻辑source/archive原bytes/SHA、78证据指纹/43Git定位一致；新增76原件439029 bytes、18共同原件复用，32原格式例外保持。原FAIL与v5源码367窄修分列，不回填未到断言或schema/client。

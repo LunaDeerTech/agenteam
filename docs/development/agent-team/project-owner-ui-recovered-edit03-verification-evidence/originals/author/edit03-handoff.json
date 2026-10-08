@@ -1,0 +1,389 @@
+{
+  "boundary": "only authorized edit03 ran; no successor, retry, source/driver/asset write, or additional case. Root restores original3 assets after all readers retired; this post-round action is outside input-before/after equality. Original edit01/edit02 FAIL artifacts remain unchanged.",
+  "browser_frozen": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+    "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+  },
+  "created_utc": "2026-10-08T06:33:33.527773+00:00",
+  "driver_snapshot": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/driver.py.txt",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "frozen_input": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/frozen-input.json",
+    "sha256": "0b724595ebc2fe77eb44e510d5161b0b256eea52f360a5ed53e93144ba91867a"
+  },
+  "outer_execution": {
+    "actual_exit": 0,
+    "final_chunk_id": "48cd61",
+    "launch_stdout_stderr": {
+      "path": "/workspace/scratch/owner-ui-backend/edit03-launch.raw",
+      "sha256": "7de22081bcbe3e201bcfa7f54d9238a0c64ec5a23b7d147165e57f0ee4f66ae6"
+    },
+    "session_id": 44429
+  },
+  "passed_scope": {
+    "assertions_completed": [
+      "explicit description save with whitespace preserved",
+      "clear description",
+      "dirty navigation and cancel",
+      "duplicate-name conflict retaining draft",
+      "version conflict and explicit current-value adoption",
+      "rename canonical URL and Project navigation",
+      "confirmed write with controlled failed current Get",
+      "explicit reread, unchanged PATCH count and facts, recovered description",
+      "final same native response bytes schema/client validation"
+    ],
+    "browser_seconds": 5.7,
+    "case_count": 1,
+    "full_D27_accepted": false,
+    "other_groups_executed": false,
+    "reported_top_seconds": 12.1,
+    "top": "TestAccountProjectOwnerWebEditAndRename"
+  },
+  "raw": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/raw.log",
+    "sha256": "dca9a41ada39935128cf24d67a1ba4038af433bfa5d500846dd3cf728a1d3b8d"
+  },
+  "result": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/result.json",
+    "sha256": "982bc8961a974bd1dc32d01d4687d7434b6408a106d9180b4deb56be25cd8b2b"
+  },
+  "retirement": {
+    "actual_direct_wait_completed": true,
+    "adopted_actual_waits": 4,
+    "baseline_resources_unchanged": true,
+    "cancellation_records": 0,
+    "direct_pid": 184025,
+    "direct_seconds": 57.939,
+    "direct_starttime": "1085900",
+    "exact_resource_ids": [
+      "10903c22d2022e5b9fe520988de69ec4441296eadcf443af9ea6b92e246eb170",
+      "401da09d289483db64203017dfefa57230a1ecd30ce3eb48b7da359989079689",
+      "534eb103e0a0bfddb66c00e305544b2926567ccd24fd108012c08d021cb852ee",
+      "6743ac7091bd36553024823a7778ccfb27453c98757f60b26f40d2922d6d507e",
+      "69a8ba09cd23404f1ac1adb1877bb429b726fcb151af500663e693e39c4e2af3",
+      "705f288be51690547351db3e975a043390cb69d238b16c8808c345b61ed47092",
+      "a34b34b5fae93311bf6a637a882585fac7cb2d782e592a1c2006412e08a7da97"
+    ],
+    "exact_resource_ids_double_absent": true,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_nonowned_pid1_zombies": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 184252,
+        "ppid": 1,
+        "starttime": "1086113",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 184607,
+        "ppid": 1,
+        "starttime": "1086346",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 184973,
+        "ppid": 1,
+        "starttime": "1086538",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 185531,
+        "ppid": 1,
+        "starttime": "1086752",
+        "state": "Z"
+      }
+    ],
+    "owned_and_runtime_double_empty": true,
+    "source_input_before_after_same": true,
+    "tcp_delta_double_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 38.36864873800005,
+    "verification_input_same": true,
+    "watchdog_joined": true
+  },
+  "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03",
+  "run_file_count": 56,
+  "run_files": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "3bfd1370b407be853b1e5c9312056e63f12c9da39bde5393c366d6c2d1aac56c"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 14945,
+      "sha256": "1d89054e96dc46238118a917cc93414fe411b38ec62e1c98d41d04caea7319dd"
+    },
+    "command.json": {
+      "bytes": 2582,
+      "sha256": "ba831dec6f77d95649057cdcad1f892e41f7fde827dda4f036238e556b0ea39e"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 183,
+      "sha256": "356c77284072806b77871899a0ebd1b8fb8959aca740ff3e34238021251aa50d"
+    },
+    "disk-preflight.json": {
+      "bytes": 183,
+      "sha256": "41376ac4f5a5ace2e56ee40a0ebfda2290bb64227b721690b53ec6e2525c42fa"
+    },
+    "driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "frozen-input.json": {
+      "bytes": 40387,
+      "sha256": "0b724595ebc2fe77eb44e510d5161b0b256eea52f360a5ed53e93144ba91867a"
+    },
+    "input-after.json": {
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    "input-before.json": {
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 16591,
+      "sha256": "42a72881e30a5489996818a2698d8f648127bc51ef113495aaf11bb0cb93d948"
+    },
+    "observed-resources.json": {
+      "bytes": 5023,
+      "sha256": "52b0453f7d58623843d72a606bf91a0acd40cf2e64615a7b253f7636b5820eec"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 6681,
+      "sha256": "d0306db71c1fcdb7bf3d62111eadf9b783f0272ccf58cde40eebd15a908140d4"
+    },
+    "raw.log": {
+      "bytes": 4728,
+      "sha256": "dca9a41ada39935128cf24d67a1ba4038af433bfa5d500846dd3cf728a1d3b8d"
+    },
+    "result.json": {
+      "bytes": 7757,
+      "sha256": "982bc8961a974bd1dc32d01d4687d7434b6408a106d9180b4deb56be25cd8b2b"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-22a40d17a8e4d1f64a37eb99abb58d5e45a8fe68bd8470f222276296b6b21c1d.json": {
+      "bytes": 304,
+      "sha256": "22a40d17a8e4d1f64a37eb99abb58d5e45a8fe68bd8470f222276296b6b21c1d"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-38b5c252a8e3ca6ac221ce36eb94012c6ec1541360e6a74fb4e6ac8f8aa0aee0.json": {
+      "bytes": 380,
+      "sha256": "38b5c252a8e3ca6ac221ce36eb94012c6ec1541360e6a74fb4e6ac8f8aa0aee0"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-401ee88d966178ae600930777832d99897a118185630ed075414b9e9a251a933.json": {
+      "bytes": 333,
+      "sha256": "401ee88d966178ae600930777832d99897a118185630ed075414b9e9a251a933"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-6f86cb9d8d0100442245db0d4618b6e8bc1f241eff4cb02fb6a72e4248675c36.json": {
+      "bytes": 357,
+      "sha256": "6f86cb9d8d0100442245db0d4618b6e8bc1f241eff4cb02fb6a72e4248675c36"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-89849b47870c90b28da481bafa288ab56a27826abf9cdce1f8e24b343b9c5ed0.json": {
+      "bytes": 404,
+      "sha256": "89849b47870c90b28da481bafa288ab56a27826abf9cdce1f8e24b343b9c5ed0"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-91bc9636a4395ce56b7894bc1f1278b8c775f9ac07096a1363e6238c1ed1a13f.json": {
+      "bytes": 368,
+      "sha256": "91bc9636a4395ce56b7894bc1f1278b8c775f9ac07096a1363e6238c1ed1a13f"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-b70712a110f415c7454f623ae56ca26bde245c3363409e26a3d39381e3983b13.json": {
+      "bytes": 351,
+      "sha256": "b70712a110f415c7454f623ae56ca26bde245c3363409e26a3d39381e3983b13"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-bdd6410d628b3fa6290d2847234272479afef26ce18606bf478ecd51ccba8273.json": {
+      "bytes": 306,
+      "sha256": "bdd6410d628b3fa6290d2847234272479afef26ce18606bf478ecd51ccba8273"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-e50c62a0a5983f4053cfa9773d56649e1b3cc2870bd9b50d91fb69129a054a72.json": {
+      "bytes": 365,
+      "sha256": "e50c62a0a5983f4053cfa9773d56649e1b3cc2870bd9b50d91fb69129a054a72"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-eb3f48e694d28606e362f5877f8e628232f9977e4085322613700076c9114cb1.json": {
+      "bytes": 383,
+      "sha256": "eb3f48e694d28606e362f5877f8e628232f9977e4085322613700076c9114cb1"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-f60cd5346b12ad98017be7a390269ec7d95a865ddd24bfea4503e5715f3f46b3.json": {
+      "bytes": 373,
+      "sha256": "f60cd5346b12ad98017be7a390269ec7d95a865ddd24bfea4503e5715f3f46b3"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json": {
+      "bytes": 539,
+      "sha256": "bcaa0a393a12e998442090243e54ade908bf57374cdf14d96262e994541aeb61"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json": {
+      "bytes": 539,
+      "sha256": "7e9e8471a73856ce75d69a920df9bb629bae41767959b4f65237444bd8c05479"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json": {
+      "bytes": 539,
+      "sha256": "232b95e8197e809dc1cdd27c4aa15ba9a0218c6ee36a582ee5c1ab6db4e819ac"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json": {
+      "bytes": 539,
+      "sha256": "3defda6d2f28663c2fc65ae164ce3452caf0eab8588aafbd7d87a0bac88de48b"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json": {
+      "bytes": 474,
+      "sha256": "293c61ce97123a61b4a7aaf7c0cfe9d561372cc627dbf9f7ab338e837ce78a74"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json": {
+      "bytes": 539,
+      "sha256": "fc0409e6741255359f909f2093df4d033c4e7b769781e39fd33459968481f580"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json": {
+      "bytes": 541,
+      "sha256": "2bc1856a01b7cb996d9be56c05b095d62e60b4208cb356df854f18ad5130891e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json": {
+      "bytes": 539,
+      "sha256": "9f7702c91481b7b9435a903e1430ddb1cf50326589ac3f4bc33493d019af9677"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json": {
+      "bytes": 541,
+      "sha256": "7f9fd442cf987bba8382c9e459a2afea5072f52471f86f4982018ac193b27df8"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json": {
+      "bytes": 539,
+      "sha256": "d7e0404b37fee71104bb8e9d562fb50800929fae286050151415b4f7e2594329"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-011.json": {
+      "bytes": 549,
+      "sha256": "668525c593fe927c73a8d2c4095cb9e7b733f6cd2b36ae4e6b2c4ee0869a15f7"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-012.json": {
+      "bytes": 539,
+      "sha256": "53523c319724804ec437a9b8b8b8a229918ade980f8ac489859f00b523446567"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-013.json": {
+      "bytes": 541,
+      "sha256": "491f04788a7debbb1995410c5c3e305337c9873d0d606d5b39dafff02d0d7a36"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-014.json": {
+      "bytes": 549,
+      "sha256": "11d6874118e60cb2a4179a914f6b37ff6a41f7c2136a750d11e68de90f12be08"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-015.json": {
+      "bytes": 539,
+      "sha256": "6c6b328566c3634b8fdef355ea79e72ffb21506ed16da1425c74be00148afe2e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-016.json": {
+      "bytes": 541,
+      "sha256": "e355d3b24f88c20d685995b4f8e7976fbf34e44c8f102e7430c3fba7eeb67f13"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-017.json": {
+      "bytes": 539,
+      "sha256": "6246862b77eea68e158f6dd39560117a56704f6e91cc0bfd0cc0467e1ce4f5a3"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-018.json": {
+      "bytes": 541,
+      "sha256": "ca0e194001963e6981e1c42489f26f467348b8da31ca797748f5d76f59881e18"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-019.json": {
+      "bytes": 539,
+      "sha256": "9cf7ef3f57bcd1868b039de293762c41aeea2e27715b37b6d78057bb15d6ad4f"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/same-body-validation.json": {
+      "bytes": 72,
+      "sha256": "f2e6317b82c05d51133ae86a183626b21e385628d3d8329cdbe8ea847711da09"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/schema-validation.json": {
+      "bytes": 76,
+      "sha256": "f923954e8ad40a485e55ffa09094c9be2ecbc0f76325de7842f29b2b364dbcb9"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "b65de5d2a7b9e2d637c86615ceaa8f50cb52ba54be31c5546c1de54dd4c2778e"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 9737,
+      "sha256": "9b1ebf043bacc359de39ef66c7e550f564b8a44d62b7884f3f09a5128e66bac8"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 184123,
+      "sha256": "3ec9fe4e4c7e0b920f97be84d4c875741e568d30a6a4165e2facd37865dd0af6"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "75bb472f7080ff88a11334e464c730f291c118183d3c399aa3405cecaeb8961d"
+    },
+    "watchdog.json": {
+      "bytes": 525,
+      "sha256": "7582e396c4fdbdc0a21f3b778932fc970eeae8cb74fb396eafdeb6321309a136"
+    }
+  },
+  "safe_http": {
+    "all_recorded_body_sha256_match": true,
+    "counts_note": "schema validates all19; actual browser GET samebytes decoder counts resolve1/get6 exclude setup001-004 and IPC helper012GET/013PATCH. Successful mutation decoding is the application operation, not claimed as a new public-client mutation replay.",
+    "distinct_bodies": 11,
+    "external_update_helper_sidecars": [
+      "response-012.json",
+      "response-013.json"
+    ],
+    "fixture_setup_sidecars": [
+      "response-001.json",
+      "response-002.json",
+      "response-003.json",
+      "response-004.json"
+    ],
+    "method_status_counts": {
+      "GET 200": 12,
+      "PATCH 200": 5,
+      "PATCH 409": 2
+    },
+    "same_body_result": {
+      "client_reads": {
+        "get": 6,
+        "list": 0,
+        "problem": 0,
+        "resolve": 1
+      },
+      "schemas": 19
+    },
+    "same_body_validation": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/same-body-validation.json",
+      "sha256": "f2e6317b82c05d51133ae86a183626b21e385628d3d8329cdbe8ea847711da09"
+    },
+    "schema_result": {
+      "failed_to_run": false,
+      "signal": null,
+      "status": 0,
+      "stderr": "",
+      "stdout": "19\n"
+    },
+    "schema_validation": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/edit03/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/schema-validation.json",
+      "sha256": "f923954e8ad40a485e55ffa09094c9be2ecbc0f76325de7842f29b2b364dbcb9"
+    },
+    "screenshots": 0,
+    "sidecars": 19
+  },
+  "status": "EDIT03_AUTHOR_ACTUAL_PASS_RETIRED_STOP_PENDING_INDEPENDENT_REVIEW"
+}

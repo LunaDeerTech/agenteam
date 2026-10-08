@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+    "--name",
+    "final-input04",
+    "--group",
+    "new-edit",
+    "--frozen",
+    "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.final.json",
+    "--check-input-only"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 1.3686046190014167,
+  "budget_seconds": 45,
+  "timed_out": false,
+  "error": null,
+  "direct_process": {
+    "pid": 179394,
+    "starttime": 1044379,
+    "state": "R"
+  },
+  "actual_direct_wait_completed": true,
+  "owned_identity_tail": [
+    {
+      "identity": null,
+      "original_identity_remaining": false
+    },
+    {
+      "identity": null,
+      "original_identity_remaining": false
+    }
+  ],
+  "resource_execution": false,
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "frozen_sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d",
+  "driver_and_frozen_same_after": true,
+  "mode": "pure input file hashes/filename sets; no external command child or fixture",
+  "raw_sha256": "bf7adb225347d6f47fcb7a6fe0f96a1104c5a348a177b1aec782672d8fe84666"
+}

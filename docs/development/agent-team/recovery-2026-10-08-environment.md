@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新接续：五新作者真实PASS、旧域与独立A/B待跑
+
+[edit03成功永久档](project-owner-ui-recovered-edit03-verification.md)80逻辑原件/42Git核同。nextnew三轮全部PASS实际退役，21ID不重/ownedruntimeTCP双清/input同、12非ownedshim单列；原3已恢复，无资源窗口。recovery/identity独核PASS、layout8图可见区域已逐看但正式终局报告进行，非完整D27；旧16仅准备、独立A/B与README未验。精确输入和限制见[台账](tasks.md)。
+
 ## 最新接续：edit03作者实际PASS退役、edit02永久失败档
 
 [edit02失败/窄修永久档](project-owner-ui-recovered-edit02-verification.md)104逻辑原件/43Git核同。edit03作者整轮PASS（top12.10s/browser5.7s/command57.939s），schema19/client resolve1 get6尾验及actualwait/7IDs/owned/runtime/TCP双清完成，短manifest与独立终局复核待交。root已恢复原3 SHA，测试53保留，无当前资源/窗口；未接受完整卡，后继未授。精确范围见[台账](tasks.md)。

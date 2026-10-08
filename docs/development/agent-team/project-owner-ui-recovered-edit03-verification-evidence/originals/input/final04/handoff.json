@@ -1,0 +1,38 @@
+{
+  "browser_acceptance_at_preparation": "author STOP candidate; root independent acceptance not yet provided",
+  "changed_repository_sources": [
+    "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner.spec.ts"
+  ],
+  "driver_path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "explicit_file_hashes": 1165,
+  "files": {
+    "binding.json": "1d876dddad216ea13072e20fe8086c07874ede78e267cf3607bffb42e3e4ca33",
+    "closure.delta.json": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b",
+    "delta.md": "ccafaf3a5c60df2e1e6eda5209a6d9a2552380ab651da418f838626a7609d44b",
+    "freeze.final.json": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d",
+    "handoff.md": "32d813b209b77c0c2b7a52f4d9548fbc0019f0f417a9e2acc31c5f93488cd09c",
+    "source-check.meta.json": "64c0ba627b8d773a9254892214cc6080fd9dc891645b97679d29ad1ff8802ae0",
+    "source-check.raw": "bf7adb225347d6f47fcb7a6fe0f96a1104c5a348a177b1aec782672d8fe84666"
+  },
+  "freeze_final_sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d",
+  "merged_closure_files": 955,
+  "merged_package_file_sets": 66,
+  "permitted_groups": [
+    "new-edit"
+  ],
+  "previous_final": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final03/freeze.final.json",
+    "sha256": "99d71e028ded80f7b7979f8ee9a32ef4fe88c1a1c21b8a415ae665faa2290232"
+  },
+  "prior_edit02_manifest": {
+    "path": "/workspace/scratch/owner-ui-backend/edit02-handoff.json",
+    "sha256": "c150baaeeb4bde32cba5f90437bd2a4d5d34854e4b6bfb6e36dcd3e47ac7b74c"
+  },
+  "resources_started": false,
+  "root_authorized_resources": false,
+  "source_gate_exit": 0,
+  "source_gate_runs": 1,
+  "source_gate_seconds": 1.3686046190014167,
+  "status": "FINAL04_STOP_PREPARED_INPUTS_PENDING_BROWSER_ACCEPTANCE_AND_ROOT_RESOURCE_AUTHORIZATION"
+}

@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前增量（2026-10-08）：五新作者真实轮次PASS并全退役（read02、edit03、recovery/identity/layouts），原3资产恢复，无资源窗口。edit03成功永久档80逻辑原件/42Git已核；recovery/identity独核PASS，八layout图已逐看可见区域通过、正式终局报告进行。old16只准备/独立实际A-B未跑/README22与完整D27未接受；详[台账](docs/development/agent-team/tasks.md)，生产/三停止边界保持。
+
 当前终局（2026-10-08）：edit02永久档104逻辑原件/43Git已核；edit03作者实际整轮PASS并完全退役、原3资产已恢复，19schema/resolve1 get6尾验已产。短manifest封存与独立终局复核待交，不据作者结果接受整卡；source19/Go04/browser-v5固定，当前无资源/资产窗口。详情见[台账](docs/development/agent-team/tasks.md)，后继完整D27/生产/三停止边界保持。
 
 当前限定修正（2026-10-08）：browser-v5 #21仅身份facts scope已独审PASS，其他行为/19UI/Go/#20不变，actualedit仍未完整接受。final04作者filegate/STOP通过、独立prepared进行，false原件不动，资源未授；root53测试窗口、原3 backup original-dist-edit03，实际reader退役后须恢复。原edit02 FAIL/退役/永久档与完整D27/生产/三停止边界保持，见[台账](docs/development/agent-team/tasks.md)。
