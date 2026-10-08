@@ -61,6 +61,55 @@ const endpoints = {
   lookupOwnerProject: ['POST', '/api/v1/projects/{id}/commands/lookup', 200],
   listProjectAudit: ['GET', '/api/v1/projects/{project_id}/audit', 200],
   getProjectAudit: ['GET', '/api/v1/projects/{project_id}/audit/{audit_id}', 200],
+  listProjectModelProviders: ['GET', '/api/v1/projects/{project_id}/model-providers', 200],
+  getProjectModelProvider: ['GET', '/api/v1/projects/{project_id}/model-providers/{target}', 200],
+  listProjectModels: ['GET', '/api/v1/projects/{project_id}/models', 200],
+  getProjectModel: ['GET', '/api/v1/projects/{project_id}/models/{target}', 200],
+  listProjectAvailableChatModels: [
+    'GET',
+    '/api/v1/projects/{project_id}/available-chat-models',
+    200,
+  ],
+  createProjectModelProvider: ['POST', '/api/v1/projects/{project_id}/model-providers', 200],
+  updateProjectModelProvider: [
+    'PUT',
+    '/api/v1/projects/{project_id}/model-providers/{target}',
+    200,
+  ],
+  deleteProjectModelProvider: [
+    'DELETE',
+    '/api/v1/projects/{project_id}/model-providers/{target}',
+    200,
+  ],
+  createProjectModel: ['POST', '/api/v1/projects/{project_id}/models', 200],
+  updateProjectModel: ['PUT', '/api/v1/projects/{project_id}/models/{target}', 200],
+  deleteProjectModel: ['DELETE', '/api/v1/projects/{project_id}/models/{target}', 200],
+  lookupProjectModelConfiguration: [
+    'POST',
+    '/api/v1/projects/{project_id}/model-commands/lookup',
+    200,
+  ],
+  getProjectModelCredentialMetadata: [
+    'GET',
+    '/api/v1/projects/{project_id}/model-credentials/{target}',
+    200,
+  ],
+  createProjectModelCredential: ['POST', '/api/v1/projects/{project_id}/model-credentials', 200],
+  updateProjectModelCredential: [
+    'PUT',
+    '/api/v1/projects/{project_id}/model-credentials/{target}',
+    200,
+  ],
+  deleteProjectModelCredential: [
+    'DELETE',
+    '/api/v1/projects/{project_id}/model-credentials/{target}',
+    200,
+  ],
+  lookupProjectModelCredential: [
+    'POST',
+    '/api/v1/projects/{project_id}/model-credential-commands/lookup',
+    200,
+  ],
   bootstrap: ['GET', '/api/v1/auth/bootstrap', 200],
   session: ['GET', '/api/v1/session', 200],
   login: ['POST', '/api/v1/sessions/login', 200],
@@ -176,10 +225,134 @@ function problem(value: unknown, status: number, requestID: string | null): Prob
   return parsed
 }
 
+// Only the five Project model reads need RawMessage size provenance. Retain
+// numeric token widths as metadata, never raw bodies. Go compacts RawMessage
+// and HTML-escapes strings; those injected escapes give a necessary lower
+// bound on the original bytes, not proof of the unavailable stored spelling.
+const projectModelJSONSizes = new WeakMap<object, number>()
+function projectModelJSON(text: string): unknown {
+  const value: unknown = JSON.parse(text)
+  const encoder = new TextEncoder()
+  let position = 0
+  const whitespace = () => {
+    while (position < text.length && /[ \t\r\n]/.test(text[position]!)) position++
+  }
+  function quoted() {
+    const start = position++
+    let reduction = 0
+    while (position < text.length) {
+      const ch = text[position++]
+      if (ch === '"') break
+      if (ch === '\\') {
+        const escape = text[position++]
+        if (escape === 'u') {
+          const hex = text.slice(position, position + 4)
+          if (hex === '003c' || hex === '003e' || hex === '0026') reduction += 5
+          if (hex === '2028' || hex === '2029') reduction += 3
+          position += 4
+        }
+      }
+    }
+    return {
+      start,
+      end: position,
+      bytes: encoder.encode(text.slice(start, position)).byteLength - reduction,
+    }
+  }
+  function visit(current: unknown): number {
+    whitespace()
+    const marker = text[position]
+    if (marker === '"') return quoted().bytes
+    if (marker !== '{' && marker !== '[') {
+      const start = position
+      while (position < text.length && !/[,}\]\s]/.test(text[position]!)) position++
+      return position - start
+    }
+    const array = marker === '[',
+      close = array ? ']' : '}'
+    position++
+    whitespace()
+    let bytes = 2,
+      index = 0
+    const seen = new Set<string>()
+    while (text[position] !== close) {
+      if (index > 0) {
+        position++
+        bytes++
+        whitespace()
+      }
+      if (array) bytes += visit((current as unknown[])[index])
+      else {
+        const key = quoted(),
+          name: string = JSON.parse(text.slice(key.start, key.end))
+        if (seen.has(name)) throw new AccountFailure('invalid-response')
+        seen.add(name)
+        whitespace()
+        position++
+        bytes += key.bytes + 1 + visit((current as Record<string, unknown>)[name])
+      }
+      index++
+      whitespace()
+    }
+    position++
+    projectModelJSONSizes.set(current as object, bytes)
+    return bytes
+  }
+  visit(value)
+  return value
+}
+// Direct typed-parser users have no wire lexemes. Use a representation lower
+// bound there too; Number.toString alone is not a raw configuration budget.
+export function projectModelJSONBytes(value: unknown): number {
+  if (value !== null && typeof value === 'object') {
+    const measured = projectModelJSONSizes.get(value)
+    if (measured !== undefined) return measured
+    if (Array.isArray(value))
+      return (
+        2 +
+        Math.max(0, value.length - 1) +
+        value.reduce((sum, item) => sum + projectModelJSONBytes(item), 0)
+      )
+    const entries = Object.entries(value)
+    return (
+      2 +
+      Math.max(0, entries.length - 1) +
+      entries.reduce(
+        (sum, [key, item]) => sum + projectModelJSONBytes(key) + 1 + projectModelJSONBytes(item),
+        0,
+      )
+    )
+  }
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return Infinity
+    let minimum = String(value).length
+    const negative = value < 0 ? '-' : '',
+      [mantissa, power] = Math.abs(value).toExponential().split('e'),
+      digits = mantissa!.replace('.', ''),
+      exponent = Number(power)
+    for (let place = 1; place <= digits.length; place++) {
+      const coefficient =
+          negative +
+          digits.slice(0, place) +
+          (place === digits.length ? '' : '.' + digits.slice(place)),
+        shifted = exponent - place + 1
+      minimum = Math.min(
+        minimum,
+        coefficient.length + (shifted === 0 ? 0 : 1 + String(shifted).length),
+      )
+    }
+    return minimum
+  }
+  if (typeof value === 'string' || typeof value === 'boolean' || value === null)
+    return new TextEncoder().encode(JSON.stringify(value)).byteLength
+  return Infinity
+}
+
 async function readJSON(
   response: Response,
   signal: AbortSignal,
   maximum = 600_000,
+  preserveProjectModelJSON = false,
 ): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
@@ -203,7 +376,7 @@ async function readJSON(
       text += decoder.decode(value, { stream: true })
     }
     text += decoder.decode()
-    return JSON.parse(text) as unknown
+    return preserveProjectModelJSON ? projectModelJSON(text) : (JSON.parse(text) as unknown)
   } finally {
     signal.removeEventListener('abort', abort)
     await cancel()
@@ -596,6 +769,55 @@ type ProjectAuditOptions<E extends ProjectAuditEndpoint> = E extends 'listProjec
   ? { signal: AbortSignal; projectID: string; audit: AuditWireQuery }
   : { signal: AbortSignal; projectID: string; target: string }
 
+const projectModelReads = [
+  'listProjectModelProviders',
+  'getProjectModelProvider',
+  'listProjectModels',
+  'getProjectModel',
+  'listProjectAvailableChatModels',
+] as const
+const projectConfigurationWrites = [
+  'createProjectModelProvider',
+  'updateProjectModelProvider',
+  'deleteProjectModelProvider',
+  'createProjectModel',
+  'updateProjectModel',
+  'deleteProjectModel',
+  'lookupProjectModelConfiguration',
+] as const
+const projectModelEndpoints = [
+  ...projectModelReads,
+  ...projectConfigurationWrites,
+  'getProjectModelCredentialMetadata',
+  'createProjectModelCredential',
+  'updateProjectModelCredential',
+  'deleteProjectModelCredential',
+  'lookupProjectModelCredential',
+] as const
+type ProjectModelEndpoint = (typeof projectModelEndpoints)[number]
+type ProjectModelWireQuery = Readonly<{ cursor?: string; limit?: number }>
+type ProjectModelOptions<E extends ProjectModelEndpoint> = E extends
+  'listProjectModelProviders' | 'listProjectModels' | 'listProjectAvailableChatModels'
+  ? { signal: AbortSignal; projectID: string; projectModels: ProjectModelWireQuery }
+  : E extends 'getProjectModelProvider' | 'getProjectModel' | 'getProjectModelCredentialMetadata'
+    ? { signal: AbortSignal; projectID: string; target: string }
+    : E extends
+          | 'updateProjectModelProvider'
+          | 'deleteProjectModelProvider'
+          | 'updateProjectModel'
+          | 'deleteProjectModel'
+          | 'updateProjectModelCredential'
+          | 'deleteProjectModelCredential'
+      ? {
+          signal: AbortSignal
+          projectID: string
+          target: string
+          body: unknown
+          csrf: string
+          key: string
+        }
+      : { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
+
 type ProjectEndpoint =
   | 'listOwnerProjects'
   | 'getOwnerProject'
@@ -620,6 +842,11 @@ const projectEndpoints: readonly ProjectEndpoint[] = [
 ]
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends ProjectModelEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: ProjectModelOptions<E>,
+  ): Promise<T>
   function request<T, E extends ProjectAuditEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -696,6 +923,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       keyof typeof endpoints,
       | ProjectEndpoint
       | ProjectAuditEndpoint
+      | ProjectModelEndpoint
       | 'systemUsers'
       | 'systemInvitations'
       | InvitationTarget
@@ -723,6 +951,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       mailJobs?: Readonly<{ cursor?: string }>
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
+      projectModels?: ProjectModelWireQuery
       projectAddress?: ProjectWireAddress
       projectID?: string
       target?: string
@@ -731,7 +960,61 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if (endpoint === 'listProjectAudit' || endpoint === 'getProjectAudit') {
+    if ((projectModelEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const target = basePath.includes('{target}')
+        const list =
+          endpoint === 'listProjectModelProviders' ||
+          endpoint === 'listProjectModels' ||
+          endpoint === 'listProjectAvailableChatModels'
+        shape(options, [
+          'signal',
+          'projectID',
+          ...(target ? ['target'] : []),
+          ...(list ? ['projectModels'] : []),
+          ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+        ])
+        const projectID = string(options.projectID, 36, 36)
+        if (!uuid7.test(projectID)) throw new Error()
+        path = basePath.replace('{project_id}', projectID)
+        if (target) {
+          const id = string(options.target, 36, 36)
+          if (!uuid7.test(id)) throw new Error()
+          path = path.replace('{target}', id)
+        }
+        if (list) {
+          const query = shape(options.projectModels, [], ['cursor', 'limit'])
+          const params = new URLSearchParams()
+          if (Object.hasOwn(query, 'cursor')) {
+            const cursor = string(query.cursor, 1, 8192)
+            if (
+              cursor.includes('\0') ||
+              new TextEncoder().encode(cursor).byteLength > 8192 ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)
+            )
+              throw new Error()
+            params.set('cursor', cursor)
+          }
+          if (Object.hasOwn(query, 'limit')) {
+            const limit = query.limit
+            if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 100)
+              throw new Error()
+            params.set('limit', String(limit))
+          }
+          const encoded = params.toString()
+          if (new TextEncoder().encode(encoded).byteLength > 32768) throw new Error()
+          if (encoded) path += '?' + encoded
+        }
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (endpoint === 'listProjectAudit' || endpoint === 'getProjectAudit') {
       try {
         shape(options, [
           'signal',
@@ -940,6 +1223,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       }
     } else if (
       Object.hasOwn(options, 'projects') ||
+      Object.hasOwn(options, 'projectModels') ||
       Object.hasOwn(options, 'projectAddress') ||
       Object.hasOwn(options, 'audit') ||
       Object.hasOwn(options, 'users') ||
@@ -965,20 +1249,26 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum =
-        endpoint === 'updateOwnerProject'
-          ? 64 * 1024
-          : endpoint === 'lookupOwnerProject'
+      const maximum = (projectConfigurationWrites as readonly string[]).includes(endpoint)
+        ? 1048576
+        : endpoint === 'createProjectModelCredential' || endpoint === 'updateProjectModelCredential'
+          ? 409600
+          : endpoint === 'deleteProjectModelCredential' ||
+              endpoint === 'lookupProjectModelCredential'
             ? 1024
-            : endpoint === 'updateOutboundPolicy'
-              ? 1024 * 1024
-              : endpoint === 'createModelCredential'
-                ? 512 * 1024
-                : endpoint === 'createProvider' ||
-                    endpoint === 'updateProvider' ||
-                    endpoint === 'updateSMTPSettings'
-                  ? 32 * 1024
-                  : 16 * 1024
+            : endpoint === 'updateOwnerProject'
+              ? 64 * 1024
+              : endpoint === 'lookupOwnerProject'
+                ? 1024
+                : endpoint === 'updateOutboundPolicy'
+                  ? 1024 * 1024
+                  : endpoint === 'createModelCredential'
+                    ? 512 * 1024
+                    : endpoint === 'createProvider' ||
+                        endpoint === 'updateProvider' ||
+                        endpoint === 'updateSMTPSettings'
+                      ? 32 * 1024
+                      : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -1044,21 +1334,26 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          endpoint === 'listOwnerProjects' && success
-            ? 5 * 1024 * 1024
-            : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-              ? 64 * 1024
-              : endpoint === 'getSystemRuntimeInformation' && success
-                ? 16 * 1024
-                : endpoint === 'listProviders' && success
-                  ? 2 * 1024 * 1024
-                  : (endpoint === 'listSystemAudit' ||
-                        endpoint === 'getSystemAudit' ||
-                        endpoint === 'listProjectAudit' ||
-                        endpoint === 'getProjectAudit') &&
-                      success
-                    ? 1024 * 1024
-                    : 600_000,
+          (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+            ? (projectModelReads as readonly string[]).includes(endpoint)
+              ? 8388608
+              : 1024
+            : endpoint === 'listOwnerProjects' && success
+              ? 5 * 1024 * 1024
+              : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                ? 64 * 1024
+                : endpoint === 'getSystemRuntimeInformation' && success
+                  ? 16 * 1024
+                  : endpoint === 'listProviders' && success
+                    ? 2 * 1024 * 1024
+                    : (endpoint === 'listSystemAudit' ||
+                          endpoint === 'getSystemAudit' ||
+                          endpoint === 'listProjectAudit' ||
+                          endpoint === 'getProjectAudit') &&
+                        success
+                      ? 1024 * 1024
+                      : 600_000,
+          success && (projectModelReads as readonly string[]).includes(endpoint),
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
