@@ -1,0 +1,28 @@
+{
+  "scope": "One extra legacy test path; PATCH /api/v1/me 400 observation only; not D27 card acceptance",
+  "root_reported_main": "3ae43e9b",
+  "root_reported_baseline_git": "367",
+  "source_path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+  "baseline_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+  "references": {
+    "/workspace/scratch/owner-ui-recovery/run-browser-offline.py": "feafea01b52acec1d8ef6eae7e6a46c9c2280400035fb77eabf222f2bb735ae9",
+    "/workspace/scratch/owner-ui-recovery/browser-v5/tools.json": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c",
+    "/workspace/scratch/owner-ui-recovery/browser-v5-types01/command.json": "e783697b8fb62b2e85c48a901e9ec4ff25044392231242e2a41ad46494fd422c",
+    "/workspace/scratch/owner-ui-recovery/oldprofile01-readonly-diagnosis.md": "1a28af62fffe2cc949610e7230878185b982e87eb1384c4d381435582001d1a1",
+    "/workspace/scratch/owner-ui-backend/oldprofile01-handoff.json": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95"
+  },
+  "runner_reuse": "Existing run-browser-offline.py process supervision unchanged; snapshot replaced with affected legacy source, fixed check entries, packages and executable identities",
+  "checks_planned": [
+    "single-file Prettier --check",
+    "existing strict browser TypeScript flags applied to the affected spec only"
+  ],
+  "not_authorized": [
+    "enumeration/list",
+    "business browser",
+    "Go",
+    "build",
+    "full suite",
+    "resources",
+    "network"
+  ]
+}

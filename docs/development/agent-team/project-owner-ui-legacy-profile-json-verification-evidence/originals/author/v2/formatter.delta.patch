@@ -1,0 +1,12 @@
+--- preformat/personal-settings.spec.ts
++++ formatter-output/personal-settings.spec.ts
+@@ -169,7 +169,8 @@
+       ),
+     ).toBe(1);
+     expect(observed.result.ok).toBe(true);
+-    if (!observed.result.ok) throw new Error("settings JSON observation failed");
++    if (!observed.result.ok)
++      throw new Error("settings JSON observation failed");
+     expect(observed.result.status).toBe(target.status);
+     const value = observed.result.value;
+     expect(

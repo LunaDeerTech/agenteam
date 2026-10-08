@@ -1,0 +1,25 @@
+{
+  "policy": "Original bytes preserved, including failure diagnostics, snapshots and original patch context. No Prettier/typecheck rerun. Archive Git whitespace checks are separate from the explicitly inherited source formatter exception. Empty v4 raw is an actual zero-byte diagnostic original, not a missing record.",
+  "physical_originals_checked": 41,
+  "git_no_index_exit_counts": {
+    "1": 41
+  },
+  "crlf_files": [],
+  "standalone_cr_files": [],
+  "files": [],
+  "inherited_prettier_exception": {
+    "baseline_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+    "final_commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd",
+    "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+    "baseline_line": 171,
+    "final_line": 172,
+    "formatter_patch_hunk_start": 169,
+    "original_statement": "    if (!observed.result.ok) throw new Error(\"settings JSON observation failed\");",
+    "root_explicitly_accepted_unchanged_baseline_statement": true,
+    "v1_format_check_exit": 1,
+    "v2_formatter_exit": 0,
+    "v2_output_retained_then_restored_to_candidate": true,
+    "new_full_format_PASS_claimed": false,
+    "unchanged_helper_sha256": "08ef788bb6814e5a52e5103d2ae1080406a0f1cf3108ec31e2804a34c8d4b4b4"
+  }
+}

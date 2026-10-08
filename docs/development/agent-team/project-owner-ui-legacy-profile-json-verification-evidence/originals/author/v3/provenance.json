@@ -1,0 +1,40 @@
+{
+  "revision": "legacy-profile-json-v3",
+  "source_path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+  "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+  "base_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+  "authorization": "One explicit affected personal-settings.spec.ts strict TypeScript check; source and formatter unchanged; root accepts preexisting formatting exception",
+  "preexisting_format_exception": {
+    "exact_line": "    if (!observed.result.ok) throw new Error(\"settings JSON observation failed\");",
+    "base_line": 171,
+    "current_line": 172,
+    "status": "Original one-line helper bytes preserved by root instruction; format-check01 FAIL remains history; no new Prettier execution"
+  },
+  "reused_artifacts": {
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/freeze.json": "005c930a31e5313f3d5f2de8feb02f5ea8f050399dfcb6f572505748a7b2ad32",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/personal-settings.base.ts": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/personal-settings.after.ts": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/delta.patch": "3fc53c1e37ba1f42a6c458f3e96f00d51e111b3a51044199ca3ed1e894b62dc8",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/tools-reuse.json": "a2ba631effdae922fa4a9be60616ea819d349e4ec0d7b35649eb65116759a209",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/run-offline.py": "ed63b1376366859cc5874931b8d5c0060f62b2b1d41cde34713414ba9d4d8ba6",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/raw.log": "ca08debe5f253335d4223ef87c6d9333a674ac8e218c04952caa9c7656c932d7",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/result.json": "f6dff644cd7f51df02a4f298491be1e903871aa74044bf07eeb4328b7a6f846d",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/freeze.json": "ea7bf6d6297c0a2d6a9adcc4e2bf9bf2baa3c983fecb89a47c9ce1a5d15c7a33",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/formatter.delta.patch": "86ba4adcce437acbd59dad8dc82c8b97f1047d9067f543fcca0d028abda1616c",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/formatter-vs-base.delta.patch": "6d447858fb9d0c7aa5ef47ddcff8525d4ac4c6ecdce02a14dff8ad3c265d9540",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/personal-settings.formatter-output.ts": "dab4013cb76c4514f231df0d7b1334e4670a36893b334ccf3f65e34f708a8081",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/personal-settings.restored.ts": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/raw.log": "776c58818acd743657fbb617ec7bbb6bb03d55bca71f4aba1a5a93c6b14344ca",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/result.json": "1c371392891e7926cc68a7d59480f78c5d2930aa4b1d50dea9dc865b7f2846ee"
+  },
+  "out_of_scope": [
+    "source edits",
+    "format check",
+    "enumeration/list",
+    "build",
+    "Go",
+    "browser business",
+    "resources",
+    "network"
+  ]
+}

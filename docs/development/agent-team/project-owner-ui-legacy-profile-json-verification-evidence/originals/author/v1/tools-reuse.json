@@ -1,0 +1,14 @@
+{
+  "reference": "/workspace/scratch/owner-ui-recovery/browser-v5/tools.json",
+  "reference_sha256": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c",
+  "executables_and_packages_same": true,
+  "executables_and_packages": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "tests/account-captcha-web/node_modules/@playwright/test/cli.js": "79e23e6a249176295b8490567daa7717448a75866d6ea6f6b296ff3d23305c69",
+    "tests/account-captcha-web/node_modules/@playwright/test/package.json": "9074bc81ed5850b15ba1d99ccaa1a391476f8c552f57f564ddc8afad7049d662",
+    "web/node_modules/typescript/package.json": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6",
+    "web/node_modules/prettier/package.json": "8453a79e60e5437ccfe0722475ba80593373885c578f85604a562ebdfb621c30"
+  },
+  "note": "Existing fixed tool graph reused. No installs, dependency changes, Go, browser, schema execution or enumeration."
+}

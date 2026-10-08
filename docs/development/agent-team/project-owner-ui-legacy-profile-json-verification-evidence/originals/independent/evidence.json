@@ -1,0 +1,376 @@
+{
+  "status": "LIMITED_STATIC_AND_AUTHOR_TYPE_EVIDENCE_PASS_STOP",
+  "reviewer": "verification_runtime",
+  "recorded_utc": "2026-10-08T07:47:21.030570+00:00",
+  "scope": "Only authorized extra legacy path delta and frozen v1-v4 offline artifacts; no independent business, browser, Node, Go, filegate, resource or host scan executed.",
+  "source": {
+    "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+    "baseline_git": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+    "baseline_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+    "candidate_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+    "candidate_bytes": 38762,
+    "baseline_snapshot_matches_git_show": true,
+    "repo_source_matches_frozen_snapshot": true,
+    "exact_two_replacements_reconstruct_candidate": true,
+    "changes": [
+      "Closed SettingsJSONTarget gains PATCH /api/v1/me status 400.",
+      "Duplicate submission uses settingsJSONFor and reads duplicate.field_errors; existing 400 and field-error assertions retained."
+    ],
+    "unchanged_helper": {
+      "range": "function installSettingsJSONObservation through before let observationSequence = 0",
+      "bytes": 4694,
+      "sha256": "08ef788bb6814e5a52e5103d2ae1080406a0f1cf3108ec31e2804a34c8d4b4b4",
+      "baseline_candidate_byte_equal": true
+    },
+    "all_other_baseline_bytes_preserved": true
+  },
+  "native_observer_semantics": {
+    "same_original_native_fetch_promise_and_response_returned": true,
+    "additional_request_or_retry_added": false,
+    "matching": "same-origin pathname/method; exactly one matching fetch; header status and native clone status both asserted 400",
+    "body": "native Response clone; fatal UTF-8; 600000-byte existing cap; JSON object required; failed observation asserts failure",
+    "lifecycle": "finally restores original fetch, joins actual clone read/cancel/release; implementation bytes unchanged",
+    "limitation": "Clone tees the stream; this observation is not proof of an unobserved stream/owner tail or of successful future profile UI/facts."
+  },
+  "format_exception": {
+    "root_explicitly_accepted_inherited_baseline_format": true,
+    "baseline_line": 171,
+    "candidate_line": 172,
+    "hunk_start": 169,
+    "statement": "if (!observed.result.ok) throw new Error(\"settings JSON observation failed\");",
+    "only_formatter_change": "Single existing if/throw line split into two lines",
+    "formatter_output_sha256": "dab4013cb76c4514f231df0d7b1334e4670a36893b334ccf3f65e34f708a8081",
+    "formatter_delta_sha256": "86ba4adcce437acbd59dad8dc82c8b97f1047d9067f543fcca0d028abda1616c",
+    "restored_snapshot_equals_candidate": true,
+    "new_format_pass_claimed": false
+  },
+  "type_command_delta": {
+    "only_argv_difference": {
+      "index": 12,
+      "before": "ES2022,DOM",
+      "after": "ES2022,DOM,DOM.Iterable"
+    },
+    "strict_noEmit_Bundler_and_explicit_source_preserved": true,
+    "tsconfig_path": "/workspace/agenteam/web/tsconfig.json",
+    "tsconfig_sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "tsconfig_lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "v3_diagnostics_current_lines": [
+      385,
+      1038
+    ],
+    "v3_old_source_lines_preserved": true,
+    "v4_diagnostic_bytes": 0
+  },
+  "frozen_versions": [
+    {
+      "version": "v1",
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/freeze.json",
+      "sha256": "005c930a31e5313f3d5f2de8feb02f5ea8f050399dfcb6f572505748a7b2ad32",
+      "verified_artifacts": 13,
+      "verified_artifact_bytes": 95587,
+      "all_declared_sha256_and_bytes_matched": true
+    },
+    {
+      "version": "v2",
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/freeze.json",
+      "sha256": "ea7bf6d6297c0a2d6a9adcc4e2bf9bf2baa3c983fecb89a47c9ce1a5d15c7a33",
+      "verified_artifacts": 12,
+      "verified_artifact_bytes": 90156,
+      "all_declared_sha256_and_bytes_matched": true
+    },
+    {
+      "version": "v3",
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/freeze.json",
+      "sha256": "3354f1197bad84e08d2569f32bc6c418bb73d2842d4ef910b7ba25fe8e60e0df",
+      "verified_artifacts": 8,
+      "verified_artifact_bytes": 14260,
+      "all_declared_sha256_and_bytes_matched": true
+    },
+    {
+      "version": "v4",
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/freeze.json",
+      "sha256": "76058b575eb4d8efb3233b450b7b2b49530f1f9b9f7e9ce115e134ae0648fc20",
+      "verified_artifacts": 8,
+      "verified_artifact_bytes": 13285,
+      "all_declared_sha256_and_bytes_matched": true
+    }
+  ],
+  "original_offline_checks": [
+    {
+      "version": "v1",
+      "case": "format-check01",
+      "refs": {
+        "command.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/command.json",
+          "sha256": "e789da90ce4ada5e13cc6fd8096f7915c7b08332d0c78064f3df0f67d6476d15",
+          "bytes": 303
+        },
+        "result.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/result.json",
+          "sha256": "f6dff644cd7f51df02a4f298491be1e903871aa74044bf07eeb4328b7a6f846d",
+          "bytes": 252
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/raw.log",
+          "sha256": "ca08debe5f253335d4223ef87c6d9333a674ac8e218c04952caa9c7656c932d7",
+          "bytes": 170
+        },
+        "inputs-before.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/inputs-before.json",
+          "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+          "bytes": 3314
+        },
+        "inputs-after.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/inputs-after.json",
+          "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+          "bytes": 3314
+        }
+      },
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "web/node_modules/prettier/bin/prettier.cjs",
+          "--check",
+          "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "result": {
+        "exit": 1,
+        "timeout": false,
+        "elapsed_seconds": 0.6112404049999896,
+        "direct_actual_wait": 277612,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "277612": "1466027"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "input_snapshot_path_count": 24
+    },
+    {
+      "version": "v2",
+      "case": "format-write01",
+      "refs": {
+        "command.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/command.json",
+          "sha256": "afec2ce445dbaa40e8597c90257a0b403edc08c2c8443d667fb20d1f0c0205c2",
+          "bytes": 303
+        },
+        "result.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/result.json",
+          "sha256": "1c371392891e7926cc68a7d59480f78c5d2930aa4b1d50dea9dc865b7f2846ee",
+          "bytes": 253
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/raw.log",
+          "sha256": "776c58818acd743657fbb617ec7bbb6bb03d55bca71f4aba1a5a93c6b14344ca",
+          "bytes": 62
+        },
+        "inputs-before.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/inputs-before.json",
+          "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+          "bytes": 3314
+        },
+        "inputs-after.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/inputs-after.json",
+          "sha256": "d8e85540a25d14f68dfc7354d1fee287de35f22a9f0e15ca5b4428c8e07f6cbe",
+          "bytes": 3314
+        }
+      },
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "web/node_modules/prettier/bin/prettier.cjs",
+          "--write",
+          "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 0.6185337959996104,
+        "direct_actual_wait": 279358,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "279358": "1482710"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": false
+      },
+      "input_snapshot_path_count": 24
+    },
+    {
+      "version": "v3",
+      "case": "types01",
+      "refs": {
+        "command.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/command.json",
+          "sha256": "53e8bfaf2d377fd741e57597f4d761130b30c925adf32c0659815409f87467f6",
+          "bytes": 578
+        },
+        "result.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/result.json",
+          "sha256": "b3e4cec56a5b07f39df2d1716359091ae485454102a46227b4452459e6b66e9e",
+          "bytes": 252
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/raw.log",
+          "sha256": "dcc9a2ab1878b7c989fbe3bfaa620e9a97612b6e1e8a6ad20a108fce211375c7",
+          "bytes": 347
+        },
+        "inputs-before.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/inputs-before.json",
+          "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+          "bytes": 3314
+        },
+        "inputs-after.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/inputs-after.json",
+          "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+          "bytes": 3314
+        }
+      },
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "web/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--allowJs",
+          "--checkJs",
+          "--target",
+          "ES2022",
+          "--module",
+          "ESNext",
+          "--moduleResolution",
+          "Bundler",
+          "--lib",
+          "ES2022,DOM",
+          "--strict",
+          "--skipLibCheck",
+          "--types",
+          "node",
+          "--typeRoots",
+          "web/node_modules/@types",
+          "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "result": {
+        "exit": 2,
+        "timeout": false,
+        "elapsed_seconds": 1.2188639140003943,
+        "direct_actual_wait": 281656,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "281656": "1501182"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "input_snapshot_path_count": 24
+    },
+    {
+      "version": "v4",
+      "case": "types01",
+      "refs": {
+        "command.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/command.json",
+          "sha256": "f5130ef2e412c41e702b34b3b024f8a5e080c637f31e83b4f6103d9330bf9f44",
+          "bytes": 591
+        },
+        "result.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/result.json",
+          "sha256": "22a3037285637acf1732328d9c4ad9193b1794528b661a428bb1ad13cbdd7c73",
+          "bytes": 252
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/raw.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "inputs-before.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/inputs-before.json",
+          "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+          "bytes": 3314
+        },
+        "inputs-after.json": {
+          "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/inputs-after.json",
+          "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+          "bytes": 3314
+        }
+      },
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "web/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--allowJs",
+          "--checkJs",
+          "--target",
+          "ES2022",
+          "--module",
+          "ESNext",
+          "--moduleResolution",
+          "Bundler",
+          "--lib",
+          "ES2022,DOM,DOM.Iterable",
+          "--strict",
+          "--skipLibCheck",
+          "--types",
+          "node",
+          "--typeRoots",
+          "web/node_modules/@types",
+          "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 1.4736057310001343,
+        "direct_actual_wait": 283343,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "283343": "1517411"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "input_snapshot_path_count": 24
+    }
+  ],
+  "retirement_scope": "Original supervisor uses process.wait, watcher.join and recorded owned identity scans; v4 direct PID283343/start1517411 waited, adopted=[], two recorded owned scans empty. No claim of whole-host cleanup; no verifier host scan.",
+  "input_scope": "24-path offline before/after snapshots: v1/v3/v4 equal; v2 only target file changes to preserved formatter output then separately restores exact candidate. Existing accepted UI/Go/tool closure reused; no new 955-input validation or final05 readiness claimed.",
+  "history_refs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/oldprofile01-result-review/review.md",
+      "sha256": "707d99ab78e94aca6d48843061fb92ddbb9da4f2c1283923af1c06dd7044fca2"
+    }
+  ],
+  "pending": [
+    "New real profile 400-body/field_errors/UI/current-read/avatar/final-facts execution",
+    "Final05 changed-input binding and independent preparation review",
+    "Remaining old domains, independent actual A/B, README22 and full D27 acceptance"
+  ],
+  "resources_authorized_by_this_review": false,
+  "must_fix_in_reviewed_delta": [],
+  "stop": true
+}

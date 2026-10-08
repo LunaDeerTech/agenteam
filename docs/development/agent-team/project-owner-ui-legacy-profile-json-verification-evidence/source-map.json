@@ -1,0 +1,408 @@
+{
+  "scope": "Limited static acceptance of one extra legacy personal spec evidence-acquisition change and independent audit of original v4 explicit strict typecheck; no new type/format/business/schema/client/browser/resource execution and no successful real profile claim.",
+  "baseline_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+  "final_source_commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd",
+  "originals": [
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/freeze.json",
+      "archive": "originals/author/v1/freeze.json",
+      "sha256": "005c930a31e5313f3d5f2de8feb02f5ea8f050399dfcb6f572505748a7b2ad32",
+      "bytes": 2429
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/checks.json",
+      "archive": "originals/author/v1/checks.json",
+      "sha256": "03aa355174d1145aa6c6d87e710ab36601f5f636359dc22be5e0459d080a5c9d",
+      "bytes": 1337
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/delta.patch",
+      "archive": "originals/author/v1/delta.patch",
+      "sha256": "3fc53c1e37ba1f42a6c458f3e96f00d51e111b3a51044199ca3ed1e894b62dc8",
+      "bytes": 1041
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/command.json",
+      "archive": "originals/author/v1/format-check01/command.json",
+      "sha256": "e789da90ce4ada5e13cc6fd8096f7915c7b08332d0c78064f3df0f67d6476d15",
+      "bytes": 303
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/inputs-after.json",
+      "archive": "originals/author/v1/format-check01/inputs-after.json",
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/inputs-before.json",
+      "archive": "originals/author/v1/format-check01/inputs-after.json",
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/raw.log",
+      "archive": "originals/author/v1/format-check01/raw.log",
+      "sha256": "ca08debe5f253335d4223ef87c6d9333a674ac8e218c04952caa9c7656c932d7",
+      "bytes": 170
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/result.json",
+      "archive": "originals/author/v1/format-check01/result.json",
+      "sha256": "f6dff644cd7f51df02a4f298491be1e903871aa74044bf07eeb4328b7a6f846d",
+      "bytes": 252
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/handoff.md",
+      "archive": "originals/author/v1/handoff.md",
+      "sha256": "c0858820618bedd175dee8b0f91be612c7b1bf4c8a392a18dedeb71ec431a9d7",
+      "bytes": 1501
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/personal-settings.after.ts",
+      "archive": "originals/author/v1/personal-settings.after.ts",
+      "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+      "bytes": 38762
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/personal-settings.base.ts",
+      "archive": "originals/author/v1/personal-settings.base.ts",
+      "sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+      "bytes": 38698
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/provenance.json",
+      "archive": "originals/author/v1/provenance.json",
+      "sha256": "d5455568eb5ff152cd83d043d74237c72f849b9016942792874861977d6d1cac",
+      "bytes": 1545
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/run-offline.py",
+      "archive": "originals/author/v1/run-offline.py",
+      "sha256": "ed63b1376366859cc5874931b8d5c0060f62b2b1d41cde34713414ba9d4d8ba6",
+      "bytes": 4169
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/tools-reuse.json",
+      "archive": "originals/author/v1/tools-reuse.json",
+      "sha256": "a2ba631effdae922fa4a9be60616ea819d349e4ec0d7b35649eb65116759a209",
+      "bytes": 1181
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/freeze.json",
+      "archive": "originals/author/v2/freeze.json",
+      "sha256": "ea7bf6d6297c0a2d6a9adcc4e2bf9bf2baa3c983fecb89a47c9ce1a5d15c7a33",
+      "bytes": 2588
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/checks.json",
+      "archive": "originals/author/v2/checks.json",
+      "sha256": "e3c97d75d77d19aee8cda5c4c5a6f6cbcc2d279a8946b04afbe8d137519d04ec",
+      "bytes": 1292
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/command.json",
+      "archive": "originals/author/v2/format-write01/command.json",
+      "sha256": "afec2ce445dbaa40e8597c90257a0b403edc08c2c8443d667fb20d1f0c0205c2",
+      "bytes": 303
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/inputs-after.json",
+      "archive": "originals/author/v2/format-write01/inputs-after.json",
+      "sha256": "d8e85540a25d14f68dfc7354d1fee287de35f22a9f0e15ca5b4428c8e07f6cbe",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/inputs-before.json",
+      "archive": "originals/author/v1/format-check01/inputs-after.json",
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/raw.log",
+      "archive": "originals/author/v2/format-write01/raw.log",
+      "sha256": "776c58818acd743657fbb617ec7bbb6bb03d55bca71f4aba1a5a93c6b14344ca",
+      "bytes": 62
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/format-write01/result.json",
+      "archive": "originals/author/v2/format-write01/result.json",
+      "sha256": "1c371392891e7926cc68a7d59480f78c5d2930aa4b1d50dea9dc865b7f2846ee",
+      "bytes": 253
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/formatter-vs-base.delta.patch",
+      "archive": "originals/author/v2/formatter-vs-base.delta.patch",
+      "sha256": "6d447858fb9d0c7aa5ef47ddcff8525d4ac4c6ecdce02a14dff8ad3c265d9540",
+      "bytes": 1378
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/formatter.delta.patch",
+      "archive": "originals/author/v2/formatter.delta.patch",
+      "sha256": "86ba4adcce437acbd59dad8dc82c8b97f1047d9067f543fcca0d028abda1616c",
+      "bytes": 462
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/handoff.md",
+      "archive": "originals/author/v2/handoff.md",
+      "sha256": "dd717f16fdb2e0e5c61ece9e496fd86f42eb67d21bfe670b96fd39b13f395205",
+      "bytes": 1364
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/personal-settings.formatter-output.ts",
+      "archive": "originals/author/v2/personal-settings.formatter-output.ts",
+      "sha256": "dab4013cb76c4514f231df0d7b1334e4670a36893b334ccf3f65e34f708a8081",
+      "bytes": 38768
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/personal-settings.restored.ts",
+      "archive": "originals/author/v1/personal-settings.after.ts",
+      "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+      "bytes": 38762
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/provenance.json",
+      "archive": "originals/author/v2/provenance.json",
+      "sha256": "93c7bb3a8ad9216e0d09df930c50fab6ad5997d7dd11359f718773a8e48ec180",
+      "bytes": 884
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/freeze.json",
+      "archive": "originals/author/v3/freeze.json",
+      "sha256": "3354f1197bad84e08d2569f32bc6c418bb73d2842d4ef910b7ba25fe8e60e0df",
+      "bytes": 1862
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/checks.json",
+      "archive": "originals/author/v3/checks.json",
+      "sha256": "0e0e096a290b30b11e67a05cfd058d8368cdf7b56e1562bfaaad0727514f50df",
+      "bytes": 1547
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/handoff.md",
+      "archive": "originals/author/v3/handoff.md",
+      "sha256": "8428838e015a3b65282b93bbca81b692ec79af18b88c2f20a6d6448824bd9ea3",
+      "bytes": 1549
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/provenance.json",
+      "archive": "originals/author/v3/provenance.json",
+      "sha256": "6dd581314ab2d62b284b585474742f1042d4d8dedca8218843e9973ffdce3883",
+      "bytes": 3359
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/command.json",
+      "archive": "originals/author/v3/types01/command.json",
+      "sha256": "53e8bfaf2d377fd741e57597f4d761130b30c925adf32c0659815409f87467f6",
+      "bytes": 578
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/inputs-after.json",
+      "archive": "originals/author/v1/format-check01/inputs-after.json",
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/inputs-before.json",
+      "archive": "originals/author/v1/format-check01/inputs-after.json",
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/raw.log",
+      "archive": "originals/author/v3/types01/raw.log",
+      "sha256": "dcc9a2ab1878b7c989fbe3bfaa620e9a97612b6e1e8a6ad20a108fce211375c7",
+      "bytes": 347
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/result.json",
+      "archive": "originals/author/v3/types01/result.json",
+      "sha256": "b3e4cec56a5b07f39df2d1716359091ae485454102a46227b4452459e6b66e9e",
+      "bytes": 252
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/freeze.json",
+      "archive": "originals/author/v4/freeze.json",
+      "sha256": "76058b575eb4d8efb3233b450b7b2b49530f1f9b9f7e9ce115e134ae0648fc20",
+      "bytes": 2557
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/checks.json",
+      "archive": "originals/author/v4/checks.json",
+      "sha256": "e39ac241e46d376012407ba49cd40b9e755831fa37fa7778efc3aba94574d517",
+      "bytes": 1894
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/handoff.md",
+      "archive": "originals/author/v4/handoff.md",
+      "sha256": "4594a6e8dcb08c540e52ed38c5b7f0ff92b06a8385070bb981b28717bbc16729",
+      "bytes": 1797
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/provenance.json",
+      "archive": "originals/author/v4/provenance.json",
+      "sha256": "bf8e820874b9edf073e95e509bb112838c143813a02d2f0a6d6b10ffcd1230dd",
+      "bytes": 2123
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/command.json",
+      "archive": "originals/author/v4/types01/command.json",
+      "sha256": "f5130ef2e412c41e702b34b3b024f8a5e080c637f31e83b4f6103d9330bf9f44",
+      "bytes": 591
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/inputs-after.json",
+      "archive": "originals/author/v1/format-check01/inputs-after.json",
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/inputs-before.json",
+      "archive": "originals/author/v1/format-check01/inputs-after.json",
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f",
+      "bytes": 3314
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/raw.log",
+      "archive": "originals/author/v4/types01/raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/types01/result.json",
+      "archive": "originals/author/v4/types01/result.json",
+      "sha256": "22a3037285637acf1732328d9c4ad9193b1794528b661a428bb1ad13cbdd7c73",
+      "bytes": 252
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/review.md",
+      "archive": "originals/independent/review.md",
+      "sha256": "096892daf6b09d72168638e2c848b24a8f895e3fdfe79680f72e716333eba1a5",
+      "bytes": 3081
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/evidence.json",
+      "archive": "originals/independent/evidence.json",
+      "sha256": "7ff2b6feef90dc305f264e949daa3fc0aaf9d213e61d69f0deb4067f707c3039",
+      "bytes": 15120
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/manifest.json",
+      "archive": "originals/independent/manifest.json",
+      "sha256": "75350c5ea5fda899c0e12d56ca07d38eedfc5506d4e579db3e457533cf0df563",
+      "bytes": 529
+    }
+  ],
+  "logical_originals": 48,
+  "logical_original_bytes": 241454,
+  "listed_author_artifacts": 41,
+  "listed_author_artifact_bytes": 213288,
+  "author_freezes": 4,
+  "independent_originals": 3,
+  "new_physical_original_files": 41,
+  "new_physical_original_bytes": 182808,
+  "reused_prior_physical_originals": 0,
+  "reused_prior_physical_bytes": 0,
+  "sha_deduplicated_logical_references": 7,
+  "versions": [
+    {
+      "version": 1,
+      "freeze_sha256": "005c930a31e5313f3d5f2de8feb02f5ea8f050399dfcb6f572505748a7b2ad32",
+      "status": "FORMAT_FAILED_STOP",
+      "artifacts": 13,
+      "artifact_bytes": 95587,
+      "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+    },
+    {
+      "version": 2,
+      "freeze_sha256": "ea7bf6d6297c0a2d6a9adcc4e2bf9bf2baa3c983fecb89a47c9ce1a5d15c7a33",
+      "status": "UNRELATED_FORMATTING_RESTORED_STOP",
+      "artifacts": 12,
+      "artifact_bytes": 90156,
+      "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+    },
+    {
+      "version": 3,
+      "freeze_sha256": "3354f1197bad84e08d2569f32bc6c418bb73d2842d4ef910b7ba25fe8e60e0df",
+      "status": "TYPECHECK_FAILED_STOP",
+      "artifacts": 8,
+      "artifact_bytes": 14260,
+      "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+    },
+    {
+      "version": 4,
+      "freeze_sha256": "76058b575eb4d8efb3233b450b7b2b49530f1f9b9f7e9ce115e134ae0648fc20",
+      "status": "LIMITED_TYPES_PASS_WITH_PREEXISTING_FORMAT_EXCEPTION_STOP",
+      "artifacts": 8,
+      "artifact_bytes": 13285,
+      "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+    }
+  ],
+  "git_sources": [
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "654d70bc2102adad918e7e47f9adf37b5113d465",
+      "sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+      "bytes": 38698
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd",
+      "git_blob": "65c6bb36c524f14a093015ef8b19a55cbbe17971",
+      "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+      "bytes": 38762
+    },
+    {
+      "path": "web/tsconfig.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "0aa1b9504de5b09008303e1aad9b767df88ea5c4",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+      "bytes": 390
+    }
+  ],
+  "source_snapshots": {
+    "logical_originals": 4,
+    "distinct_physical_originals": 3,
+    "baseline_snapshot_matches_Git367": true,
+    "final_and_restored_snapshots_match_Git80ec": true,
+    "formatter_output_uncommitted_original_sha256": "dab4013cb76c4514f231df0d7b1334e4670a36893b334ccf3f65e34f708a8081",
+    "scope": "Only the four explicitly declared v1/v2 snapshot originals; final/restored share one entity. No other source/tree copied."
+  },
+  "unchanged_helper": {
+    "bytes": 4694,
+    "sha256": "08ef788bb6814e5a52e5103d2ae1080406a0f1cf3108ec31e2804a34c8d4b4b4",
+    "slice": "function installSettingsJSONObservation through before let observationSequence = 0"
+  },
+  "Git_diff_summary": {
+    "hunks": 2,
+    "insertions": 4,
+    "deletions": 5,
+    "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+  },
+  "reused_existing_evidence": [
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/oldprofile01-result-review/review.md",
+      "existing_archive": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/independent/review.md",
+      "commit": "f8e548a701217280d89c825b67b46656fc74365d",
+      "sha256": "707d99ab78e94aca6d48843061fb92ddbb9da4f2c1283923af1c06dd7044fca2",
+      "bytes": 7333,
+      "disposition": "reference only; do not recopy existing accepted evidence"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/tools.json",
+      "existing_archive": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/tools.json",
+      "commit": "f8e548a701217280d89c825b67b46656fc74365d",
+      "sha256": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c",
+      "bytes": 30827,
+      "disposition": "reference only; do not recopy existing accepted evidence"
+    }
+  ],
+  "prior_acceptance_source_map": {
+    "path": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+    "commit": "f8e548a701217280d89c825b67b46656fc74365d",
+    "sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71",
+    "scope": "Reuse accepted history/tool references only; no full955 graph scan and no final05 closure claim."
+  },
+  "independent_stop_manifest_sha256": "75350c5ea5fda899c0e12d56ca07d38eedfc5506d4e579db3e457533cf0df563",
+  "proof_boundary": "Oldprofile01 CDP response-body FAIL and absent original body/DOM/trace remain. Original400 body/field_errors/UI/currentGet/avatar/finalfacts require a new authorized real run. Final05/old14, independent actual A/B, README22 and full D27 are not accepted here."
+}

@@ -1,0 +1,14 @@
+{
+  "revision": "legacy-profile-json-v2",
+  "base_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+  "preformat_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+  "v1_freeze": {
+    "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/freeze.json",
+    "sha256": "005c930a31e5313f3d5f2de8feb02f5ea8f050399dfcb6f572505748a7b2ad32"
+  },
+  "runner_reused": {
+    "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/run-offline.py",
+    "sha256": "ed63b1376366859cc5874931b8d5c0060f62b2b1d41cde34713414ba9d4d8ba6"
+  },
+  "authorization": "Single-file Prettier --write; retain any formatter delta outside two authorized hunks, restore those unrelated bytes, then STOP. Only if within scope proceed with check and affected spec strict TS. No list, business, browser, Go, build, resources, network."
+}

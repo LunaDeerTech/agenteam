@@ -1,0 +1,43 @@
+{
+  "prior_format_check": {
+    "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/format-check01/result.json",
+    "sha256": "f6dff644cd7f51df02a4f298491be1e903871aa74044bf07eeb4328b7a6f846d",
+    "status": "FAIL_ORIGINAL_UNCHANGED"
+  },
+  "format-write01": {
+    "command": {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "web/node_modules/prettier/bin/prettier.cjs",
+        "--write",
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam",
+      "budget_seconds": 40,
+      "cleanup_seconds": 4
+    },
+    "result": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 0.6185337959996104,
+      "direct_actual_wait": 279358,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "279358": "1482710"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": false
+    },
+    "input_changed_paths": [
+      "/workspace/agenteam/tests/account-captcha-web/e2e/personal-settings.spec.ts"
+    ],
+    "scope_result": "UNRELATED_OLD_HELPER_FORMATTING_RESTORED"
+  },
+  "format-check02": {
+    "status": "NOT_RUN_AFTER_UNRELATED_FORMATTING"
+  },
+  "types01": {
+    "status": "NOT_RUN_AFTER_UNRELATED_FORMATTING"
+  }
+}

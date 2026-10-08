@@ -1,0 +1,66 @@
+{
+  "revision": "legacy-profile-json-v1",
+  "status": "FORMAT_FAILED_STOP",
+  "source_path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+  "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+  "base_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+  "root_reported_main": "3ae43e9b",
+  "scope": "Explicit extra legacy test path, two authorized replacements only; no product/D27 acceptance",
+  "artifacts": {
+    "checks.json": {
+      "bytes": 1337,
+      "sha256": "03aa355174d1145aa6c6d87e710ab36601f5f636359dc22be5e0459d080a5c9d"
+    },
+    "delta.patch": {
+      "bytes": 1041,
+      "sha256": "3fc53c1e37ba1f42a6c458f3e96f00d51e111b3a51044199ca3ed1e894b62dc8"
+    },
+    "format-check01/command.json": {
+      "bytes": 303,
+      "sha256": "e789da90ce4ada5e13cc6fd8096f7915c7b08332d0c78064f3df0f67d6476d15"
+    },
+    "format-check01/inputs-after.json": {
+      "bytes": 3314,
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f"
+    },
+    "format-check01/inputs-before.json": {
+      "bytes": 3314,
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f"
+    },
+    "format-check01/raw.log": {
+      "bytes": 170,
+      "sha256": "ca08debe5f253335d4223ef87c6d9333a674ac8e218c04952caa9c7656c932d7"
+    },
+    "format-check01/result.json": {
+      "bytes": 252,
+      "sha256": "f6dff644cd7f51df02a4f298491be1e903871aa74044bf07eeb4328b7a6f846d"
+    },
+    "handoff.md": {
+      "bytes": 1501,
+      "sha256": "c0858820618bedd175dee8b0f91be612c7b1bf4c8a392a18dedeb71ec431a9d7"
+    },
+    "personal-settings.after.ts": {
+      "bytes": 38762,
+      "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+    },
+    "personal-settings.base.ts": {
+      "bytes": 38698,
+      "sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba"
+    },
+    "provenance.json": {
+      "bytes": 1545,
+      "sha256": "d5455568eb5ff152cd83d043d74237c72f849b9016942792874861977d6d1cac"
+    },
+    "run-offline.py": {
+      "bytes": 4169,
+      "sha256": "ed63b1376366859cc5874931b8d5c0060f62b2b1d41cde34713414ba9d4d8ba6"
+    },
+    "tools-reuse.json": {
+      "bytes": 1181,
+      "sha256": "a2ba631effdae922fa4a9be60616ea819d349e4ec0d7b35649eb65116759a209"
+    }
+  },
+  "typecheck_executed": false,
+  "business_or_resources_executed": false,
+  "writer_stopped": true
+}

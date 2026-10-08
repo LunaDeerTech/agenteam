@@ -1,0 +1,68 @@
+{
+  "revision": "legacy-profile-json-v2",
+  "status": "UNRELATED_FORMATTING_RESTORED_STOP",
+  "source_path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+  "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+  "base_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+  "v1_freeze": {
+    "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/freeze.json",
+    "sha256": "005c930a31e5313f3d5f2de8feb02f5ea8f050399dfcb6f572505748a7b2ad32"
+  },
+  "effective_delta": {
+    "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/delta.patch",
+    "sha256": "3fc53c1e37ba1f42a6c458f3e96f00d51e111b3a51044199ca3ed1e894b62dc8"
+  },
+  "artifacts": {
+    "checks.json": {
+      "bytes": 1292,
+      "sha256": "e3c97d75d77d19aee8cda5c4c5a6f6cbcc2d279a8946b04afbe8d137519d04ec"
+    },
+    "format-write01/command.json": {
+      "bytes": 303,
+      "sha256": "afec2ce445dbaa40e8597c90257a0b403edc08c2c8443d667fb20d1f0c0205c2"
+    },
+    "format-write01/inputs-after.json": {
+      "bytes": 3314,
+      "sha256": "d8e85540a25d14f68dfc7354d1fee287de35f22a9f0e15ca5b4428c8e07f6cbe"
+    },
+    "format-write01/inputs-before.json": {
+      "bytes": 3314,
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f"
+    },
+    "format-write01/raw.log": {
+      "bytes": 62,
+      "sha256": "776c58818acd743657fbb617ec7bbb6bb03d55bca71f4aba1a5a93c6b14344ca"
+    },
+    "format-write01/result.json": {
+      "bytes": 253,
+      "sha256": "1c371392891e7926cc68a7d59480f78c5d2930aa4b1d50dea9dc865b7f2846ee"
+    },
+    "formatter-vs-base.delta.patch": {
+      "bytes": 1378,
+      "sha256": "6d447858fb9d0c7aa5ef47ddcff8525d4ac4c6ecdce02a14dff8ad3c265d9540"
+    },
+    "formatter.delta.patch": {
+      "bytes": 462,
+      "sha256": "86ba4adcce437acbd59dad8dc82c8b97f1047d9067f543fcca0d028abda1616c"
+    },
+    "handoff.md": {
+      "bytes": 1364,
+      "sha256": "dd717f16fdb2e0e5c61ece9e496fd86f42eb67d21bfe670b96fd39b13f395205"
+    },
+    "personal-settings.formatter-output.ts": {
+      "bytes": 38768,
+      "sha256": "dab4013cb76c4514f231df0d7b1334e4670a36893b334ccf3f65e34f708a8081"
+    },
+    "personal-settings.restored.ts": {
+      "bytes": 38762,
+      "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+    },
+    "provenance.json": {
+      "bytes": 884,
+      "sha256": "93c7bb3a8ad9216e0d09df930c50fab6ad5997d7dd11359f718773a8e48ec180"
+    }
+  },
+  "typecheck_executed": false,
+  "business_or_resources_executed": false,
+  "writer_stopped": true
+}

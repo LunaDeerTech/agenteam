@@ -1,0 +1,46 @@
+{
+  "revision": "legacy-profile-json-v3",
+  "status": "TYPECHECK_FAILED_STOP",
+  "source_path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+  "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+  "base_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+  "source_snapshot": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/personal-settings.after.ts",
+  "effective_delta": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/delta.patch",
+  "artifacts": {
+    "checks.json": {
+      "bytes": 1547,
+      "sha256": "0e0e096a290b30b11e67a05cfd058d8368cdf7b56e1562bfaaad0727514f50df"
+    },
+    "handoff.md": {
+      "bytes": 1549,
+      "sha256": "8428838e015a3b65282b93bbca81b692ec79af18b88c2f20a6d6448824bd9ea3"
+    },
+    "provenance.json": {
+      "bytes": 3359,
+      "sha256": "6dd581314ab2d62b284b585474742f1042d4d8dedca8218843e9973ffdce3883"
+    },
+    "types01/command.json": {
+      "bytes": 578,
+      "sha256": "53e8bfaf2d377fd741e57597f4d761130b30c925adf32c0659815409f87467f6"
+    },
+    "types01/inputs-after.json": {
+      "bytes": 3314,
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f"
+    },
+    "types01/inputs-before.json": {
+      "bytes": 3314,
+      "sha256": "208276329f10ab8a34456b9c4a70373c304376d6d44b63b0301b20e272761a7f"
+    },
+    "types01/raw.log": {
+      "bytes": 347,
+      "sha256": "dcc9a2ab1878b7c989fbe3bfaa620e9a97612b6e1e8a6ad20a108fce211375c7"
+    },
+    "types01/result.json": {
+      "bytes": 252,
+      "sha256": "b3e4cec56a5b07f39df2d1716359091ae485454102a46227b4452459e6b66e9e"
+    }
+  },
+  "format_exception": "Explicit root acceptance of unchanged baseline helper single-line if/throw; original format FAIL retained",
+  "business_or_resources_executed": false,
+  "writer_stopped": true
+}

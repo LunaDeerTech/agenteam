@@ -1,0 +1,29 @@
+{
+  "revision": "legacy-profile-json-v4",
+  "source_path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+  "source_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+  "authorization": "One explicit affected spec strict TypeScript command; only lib changes from ES2022,DOM to ES2022,DOM,DOM.Iterable; no source changes or further retries",
+  "command_delta": {
+    "option": "--lib",
+    "before": "ES2022,DOM",
+    "after": "ES2022,DOM,DOM.Iterable",
+    "basis": "/workspace/agenteam/web/tsconfig.json",
+    "basis_lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  },
+  "historical_results": "v1 format failure; v2 unrelated baseline formatting retained/restored; v3 missing DOM.Iterable TS2488 failure all preserved",
+  "reused_artifacts": {
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/freeze.json": "005c930a31e5313f3d5f2de8feb02f5ea8f050399dfcb6f572505748a7b2ad32",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v2/freeze.json": "ea7bf6d6297c0a2d6a9adcc4e2bf9bf2baa3c983fecb89a47c9ce1a5d15c7a33",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/freeze.json": "3354f1197bad84e08d2569f32bc6c418bb73d2842d4ef910b7ba25fe8e60e0df",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/command.json": "53e8bfaf2d377fd741e57597f4d761130b30c925adf32c0659815409f87467f6",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/raw.log": "dcc9a2ab1878b7c989fbe3bfaa620e9a97612b6e1e8a6ad20a108fce211375c7",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v3/types01/result.json": "b3e4cec56a5b07f39df2d1716359091ae485454102a46227b4452459e6b66e9e",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/run-offline.py": "ed63b1376366859cc5874931b8d5c0060f62b2b1d41cde34713414ba9d4d8ba6",
+    "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/tools-reuse.json": "a2ba631effdae922fa4a9be60616ea819d349e4ec0d7b35649eb65116759a209",
+    "/workspace/agenteam/web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18"
+  }
+}
