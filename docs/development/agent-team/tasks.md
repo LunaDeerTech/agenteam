@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：read02成功永久归档与edit01失败待独审
+
+[read02限定验收与永久原件](project-owner-ui-recovered-read02-verification.md)已冻结：124逻辑原件、新114物理581189 bytes，复用read01已提交8物理；root逐source/archive字节与SHA、116证据指纹和38Git定位核同。原schema46/client16来自实际读取轮，不重复执行；原失败保持，88原格式例外不改字节。四harness产品be34ff99已推送核同，不等于完整D27。
+
+随后唯一new-edit/edit01实际FAIL：45秒browser预算在#21:627精确标签“项目名称”fill超时，Go top52.78秒、全链96.558秒。前段保存描述/空描述、no-op与脏导航取消已执行，重名/冲突/改名/当前Get失败后段未执行；没有schema/client尾验或截图。交接原件40项 `/workspace/scratch/owner-ui-backend/edit01-handoff.json` SHA `b82defa1f9b8b051d5d4b4e646da7089754d422e545d838abdc96fbbdacf7238`，raw `ff96885c679f00369e6b31e18161717ed3d65330bff24e90cd4803a9772860fc`。作者实际direct/4adopted wait、watchdog join、7资源逐两absent、owned/runtime与TCP双清、输入同；4非owned daemon shim另列。根线程已恢复原3file dist与SHA，53file测试资产保留；当前资源/reader/asset窗口为空。
+
+独立负责人已续派核原件、标签语义及退役，尚无归因接受或后继资源授权；不以超时推断产品缺陷。19UI/Go04/browser-v3仍固定。下一步限于故障独审与必要返修，失败不覆盖、不自动重试；其余新3/旧16、独立实际A-B、README22/完整D27未接受，D08–D28/E01与生产未绑定/ready503及三停止保持。以下为历史。
+
 ## 2026-10-08：Owner 读取浏览器harness四路径限定接受
 
 Go candidate04 #18–19 与 browser-v3 #20–21 四路径已正式独立限定接受，原STATIC/离线和read02实际读取/owned退役证据全同，无未关闭必修；本批仅四新测试源及协调记录，19前端产品源不改。独验负责人正式冻结 `/workspace/scratch/owner-ui-runtime-verification/read02-result-review/review.md` SHA `9274ffee79b67ca6a962f7caf27c5d2623ad2ce06c2e109b99ed6b91d2ac2a00`，111固定原件、46sidecar/39body逐SHA同，实际schema46和公开client list6/resolve3/get3/problem4按原X-Request-ID/真实URL参数复核；setup001–028及IPC042GET/043PATCH不计browser。dot036→037、settings038→039实际HTML/DOM/同稳定ID与原body通过。

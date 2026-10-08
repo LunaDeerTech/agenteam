@@ -1,5 +1,10 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新接续：read02永久成功档、edit01失败全停
+
+read02永久档见[限定验收](project-owner-ui-recovered-read02-verification.md)，root核124原件/116指纹/38Git一致，原字节不改。edit01唯一new-edit实际FAIL，45秒预算在精确“项目名称”标签fill超时；作者已STOP并交40原件，独立负责人续派归因与实际退役复核。实际全链96.558秒、7ID/owned/runtime/TCP双清与input一致；root已恢复原3file，测试53保存test-dist-ui-v1，无活动reader或资产窗口。原失败不重写，不提前归因或重试；本次状态和精确SHA见[台账](tasks.md)。完整D27及后继未接受，原三停止和生产未绑定保持。
+
+
 ## 2026-10-08：Owner 读取浏览器harness四路径限定接受
 
 Go candidate04 #18–19 与 browser-v3 #20–21 四路径已正式独立限定接受，原STATIC/离线和read02实际读取/owned退役证据全同，无未关闭必修；本批仅四新测试源及协调记录，19前端产品源不改。独验负责人正式冻结 `/workspace/scratch/owner-ui-runtime-verification/read02-result-review/review.md` SHA `9274ffee79b67ca6a962f7caf27c5d2623ad2ce06c2e109b99ed6b91d2ac2a00`，111固定原件、46sidecar/39body逐SHA同，实际schema46和公开client list6/resolve3/get3/problem4按原X-Request-ID/真实URL参数复核；setup001–028及IPC042GET/043PATCH不计browser。dot036→037、settings038→039实际HTML/DOM/同稳定ID与原body通过。

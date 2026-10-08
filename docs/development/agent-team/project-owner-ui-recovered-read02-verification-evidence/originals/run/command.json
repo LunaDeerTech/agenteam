@@ -1,0 +1,50 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestAccountProjectOwnerWebReadAndNavigation)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-08T05:16:00.830157+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/screenshots",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/owui/read02",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MEETING_SUMMARY_WEB_DIST": "/workspace/scratch/owner-ui-recovery/dist-ui01",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery-new/bin/minio",
+    "AGENTEAM_PROJECT_OWNER_WEB_DIST": "/workspace/scratch/owner-ui-recovery/dist-ui01",
+    "AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/safe-http-evidence",
+    "AGENTEAM_PROJECT_OWNER_WEB_INPUT_HASH": "b3f7cc6153c15a84995bc864d21549e8926de54b3508e9d8c76d6efb06968eed",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/owner-ui-backend/resource-driver-v02/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOTMPDIR": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 108861,
+  "pid_starttime": "637583",
+  "pid_stat": "108861 (sh) S 108771 108861 108861 0 -1 4194560 227 239 0 0 0 0 0 0 20 0 1 0 637583 2744320 160 18446744073709551615 94208709775360 94208709856353 140727820922608 0 0 0 0 0 65538 1 0 0 17 3 0 0 0 0 0 94208709885488 94208709890624 94209219059712 140727820929610 140727820929690 140727820929690 140727820931052 0\n",
+  "seconds": 59.722,
+  "started_utc": "2026-10-08T05:15:01.108071+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

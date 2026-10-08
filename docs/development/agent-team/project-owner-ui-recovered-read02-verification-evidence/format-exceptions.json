@@ -1,0 +1,892 @@
+{
+  "policy": "Original bytes remain unchanged, including prior shared files. Only new file additions are in this doc delivery. Plain JSON syntax/hash checks are not reexecution of schema/public client. Git no-index exit1 without diagnostics is ordinary differing content.",
+  "physical_originals_checked_including_reused": 122,
+  "git_no_index_exit_counts": {
+    "1": 121,
+    "3": 1
+  },
+  "crlf_files": [],
+  "standalone_cr_files": [],
+  "files": [
+    {
+      "path": "originals/run/raw.log",
+      "reused_prior": false,
+      "preserved_original_sha256": "bd8ed5c8b376800bd52d44091397bdce3ec46dcc0332bc0c94e7a9e012c3de8d",
+      "exceptions": [
+        "original trailing whitespace at lines 32,34,37"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read02-verification-evidence/originals/run/raw.log:32: trailing whitespace.\n+    project_owner_web_test.go:43: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read02-verification-evidence/originals/run/raw.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read02-verification-evidence/originals/run/raw.log:37: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-02fbf19ec39760041ccb881537ae44cfabe028f6a8bfcaec3a183dda45cfb24a.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "02fbf19ec39760041ccb881537ae44cfabe028f6a8bfcaec3a183dda45cfb24a",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-08eca6e19320c4eb5b615dee44f77429c801a732fb78c2569965531e07f5f782.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "08eca6e19320c4eb5b615dee44f77429c801a732fb78c2569965531e07f5f782",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-0a242db0496853b71e08fe9869cae89928ef3800877f8593e21e6bed13ea7e2a.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "0a242db0496853b71e08fe9869cae89928ef3800877f8593e21e6bed13ea7e2a",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-10cb5792cc73248ffef3d8fd3bb6c356dd39135dc458a00ffa39e11b8246bb14.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "10cb5792cc73248ffef3d8fd3bb6c356dd39135dc458a00ffa39e11b8246bb14",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-169b4bb1e34843dfe4c2c2fc1fcedf939dcdfd17c2f67736f9b31acc854c94d8.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "169b4bb1e34843dfe4c2c2fc1fcedf939dcdfd17c2f67736f9b31acc854c94d8",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-1b860fef65c429d3d6708935a04e3b086796ffa5d9f47ca413c142b62158f7de.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "1b860fef65c429d3d6708935a04e3b086796ffa5d9f47ca413c142b62158f7de",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-20ec22a127c0a880929afb5e6eb2f05b981c309a6f1007119d7c52c779520987.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "20ec22a127c0a880929afb5e6eb2f05b981c309a6f1007119d7c52c779520987",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-314e82a4f215b80fbb219b408dd4ff9725d9ba45730971c386e2c00af74bc47b.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "314e82a4f215b80fbb219b408dd4ff9725d9ba45730971c386e2c00af74bc47b",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-334e9b96cb97e034764d2eb3f92123300b9d9df00d2f3c82c3d0c7408122413a.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "334e9b96cb97e034764d2eb3f92123300b9d9df00d2f3c82c3d0c7408122413a",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-3594b18a4b8cc6146608beb49c71a4580651b43d7b95a0df192cc5c0bba1250e.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "3594b18a4b8cc6146608beb49c71a4580651b43d7b95a0df192cc5c0bba1250e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-3ce42850fcf02354f761b9ba6b6a80fe46d99216048c6d50876146d31be1ba2d.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "3ce42850fcf02354f761b9ba6b6a80fe46d99216048c6d50876146d31be1ba2d",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-471d5bdf073b19fc4b0d62569e13b2686110855de400e2b7cf54a9cc2cb9dc04.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "471d5bdf073b19fc4b0d62569e13b2686110855de400e2b7cf54a9cc2cb9dc04",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-4d0dc891050fe658653e5bfbac58707352f58f6f3bdd7ccba7967dce60e09363.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "4d0dc891050fe658653e5bfbac58707352f58f6f3bdd7ccba7967dce60e09363",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-4d208284d31e5ec66e372f8dec71e12f8a227e501816b2cf68b3fbc2e359c07a.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "4d208284d31e5ec66e372f8dec71e12f8a227e501816b2cf68b3fbc2e359c07a",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-4f03d3dfcb03b8cf3e42b545192b456bc66fcb623a32b0bbc11e725cf5d1cf4e.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "4f03d3dfcb03b8cf3e42b545192b456bc66fcb623a32b0bbc11e725cf5d1cf4e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-5e0d56fbc256e2d700d2c69f818f213501f66f533d9154f93c5aa888cc5b722f.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "5e0d56fbc256e2d700d2c69f818f213501f66f533d9154f93c5aa888cc5b722f",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-6f3fb1348acc5d1d12f447e4634d0ef8895b3bec6c73131bafcc3ac38d86f1cd.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "6f3fb1348acc5d1d12f447e4634d0ef8895b3bec6c73131bafcc3ac38d86f1cd",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-7693e894f67b432b713773422c33ccab4fac8576dafc54449b1e81f891cfeacf.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "7693e894f67b432b713773422c33ccab4fac8576dafc54449b1e81f891cfeacf",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-7f28ca035c51d7d45ecc1991b9c52d232f7555a35fc7f451c534ed307dd1baad.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "7f28ca035c51d7d45ecc1991b9c52d232f7555a35fc7f451c534ed307dd1baad",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-80109352d3e5c637c2646ed5dc15d44a444d64351b3becd81c5177beac72839f.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "80109352d3e5c637c2646ed5dc15d44a444d64351b3becd81c5177beac72839f",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-8b7d34c25001e5d07bb77153c0e3d8389f93bf0908c3dd70b33b04fa940116ae.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "8b7d34c25001e5d07bb77153c0e3d8389f93bf0908c3dd70b33b04fa940116ae",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-912ff4ed02ff4a5b21fe01150ed720c8b32825c6074565280aedbaab7dcdeea7.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "912ff4ed02ff4a5b21fe01150ed720c8b32825c6074565280aedbaab7dcdeea7",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-9ac9e71d58393f5d55ba6be1d72ed76a01fdade979ec80c738533c6b9e70d0e9.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "9ac9e71d58393f5d55ba6be1d72ed76a01fdade979ec80c738533c6b9e70d0e9",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-a094a26af4a34fa9ec365cac0a0719be4e2096a8e227c1f2a029ca66dd237332.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a094a26af4a34fa9ec365cac0a0719be4e2096a8e227c1f2a029ca66dd237332",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-a3d2e1a50ec5b930f03298229c9b674179cd6d2c82d76c48a9de36977d595734.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a3d2e1a50ec5b930f03298229c9b674179cd6d2c82d76c48a9de36977d595734",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-a66df1e1c6f16b0acc91ffc9e4b7cbb2b282feb5f7289af593b86abd9f565c5e.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a66df1e1c6f16b0acc91ffc9e4b7cbb2b282feb5f7289af593b86abd9f565c5e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-b4bd355a367a91aee849399320ce842e066c3f5005953123efaeb2492b830eb4.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "b4bd355a367a91aee849399320ce842e066c3f5005953123efaeb2492b830eb4",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-b9331d9db0a673eaefc57336c831a40e44db79eed9eaa617d0026ef923f068fb.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "b9331d9db0a673eaefc57336c831a40e44db79eed9eaa617d0026ef923f068fb",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-c08402a16f6ca36cbdbd843d4c2ec7855b4c51531cd6abe65cb3be8e05449ce1.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "c08402a16f6ca36cbdbd843d4c2ec7855b4c51531cd6abe65cb3be8e05449ce1",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-c319da5e7a70623e6db671302de275f8c873f7b1fbe354ae8cc1923dae632d9e.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "c319da5e7a70623e6db671302de275f8c873f7b1fbe354ae8cc1923dae632d9e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-c7e06046bba2b3612d9ca39d79b5169cf992f92935b78f8e1a76d52e84ec32e3.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "c7e06046bba2b3612d9ca39d79b5169cf992f92935b78f8e1a76d52e84ec32e3",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-c821be289bb6f368aac2ae6680429da470f15994f101e9f47dff1c82290c6ea6.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "c821be289bb6f368aac2ae6680429da470f15994f101e9f47dff1c82290c6ea6",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-d02d86845aaa663101ed265da250943321f1e1b5a28a59a11c58e60acead3052.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "d02d86845aaa663101ed265da250943321f1e1b5a28a59a11c58e60acead3052",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-d1eb9ac7354bca9bb166697321ed389ede8d9e2e0a13d78f673e56e3ec58e392.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "d1eb9ac7354bca9bb166697321ed389ede8d9e2e0a13d78f673e56e3ec58e392",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-ece3410a6fa37e600bddfc1cf049c753caa6f8d719ae5236c80dbf07178c57a0.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "ece3410a6fa37e600bddfc1cf049c753caa6f8d719ae5236c80dbf07178c57a0",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-f43d7535035c61b98525c83206c26f7c471209f6129967d2283683325ebea356.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "f43d7535035c61b98525c83206c26f7c471209f6129967d2283683325ebea356",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-fa7a533556e1618ce81a39199b465c3867189fd90e18e42fbda73f8742af2979.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "fa7a533556e1618ce81a39199b465c3867189fd90e18e42fbda73f8742af2979",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/body-fd2fc10e7582ad8df07079576bcf63ecc963956f891472650fd36e2291292d20.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "fd2fc10e7582ad8df07079576bcf63ecc963956f891472650fd36e2291292d20",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-001.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "57c7cdaa2f7bdf929b4e4ea0b2b99b6a1c0e1ce68145f5f8e87bd797aa5e8bc6",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-002.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "69157bee19a0317f430c894f50d2a578be3566eb5e43ff687fd39c5fea5ecdec",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-003.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "bc52e16489ce99dbb2795c39ca4f82cb7102f6f7e9020cf88111ee2cb2900f40",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-004.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "9cb5354cd7f846d5c8f263c5c0c9045a439ab99ff6f9a5b323ba9c42df34be3d",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-005.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "2d12f484dcf24f4fab7b1a5f0247db90d68985a6de56ad81b4215cd562083f45",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-006.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "502725b4e10f749e83581d3ab51e4962e1c980c1ede0ebb61ed2264f2999820f",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-007.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "76cdd165fb7ef8f9b086edd6c0a67accdb29469e0c27320f90b16115d8c256c3",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-008.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "ec6655e031e8392a5ec1cc4938fbaa17c77909f89103da78ccb3cbccf168dc8e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-009.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "37b846f7d01d79190bbe139b3d0eca283ff02e7c0873235eff599af16818c46e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-010.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "e7a04473e9bcb25e9416d554b48d84cb766e00e48de2fd259d738d657c18b23b",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-011.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "1a430129dd14f492f28a82c946073b50ca170c30764d81adf3edf576893fdfed",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-012.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "2382488c514401aed2128bd3f1337301b35989da451a8476124ec3ed53254092",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-013.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a0bfc00d1014194346e0f68933a0e3ebce6dcd5b27d9eadeb34a334e31e62ba5",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-014.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "531d6bf384eac57396117007ffb99777b188861aa58622823161efc3bbe3ebe7",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-015.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "33cf4864b106fbe030eab0641b54aff81c7c88136ee41fcf1728182f58287388",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-016.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "3aa785c3f1910addd800cd65207d2e3f9f2b793b15d5d320aa45727bc37a35f8",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-017.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "724c7d641f4e34034ae1f47d0c57aa7497fe9ef8131ea476444df3c2944fbab7",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-018.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "5862aea4d96f46b145e83caa8489cdda0b922cba70126746a20601cff23f120e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-019.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a170381220129814d322fec991e246375c5886794ce03308cdc5a0fa0aab646d",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-020.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "6825e946eaea0f5f4366cc510e5339b5c7f953291e374e613eb74a95d80da1de",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-021.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a44a53f7fbfdcd6dc416abbb915dfc53eb9c5a61a1895c48992b268d519f5f34",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-022.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "f6c3f6b52fe5284750b2fc6818c204fbf447ff4c403bc169596fe84bb8ca9bb7",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-023.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "4570e4e75e90e03c865e886d883fd63e163b109534cde78af86a61d334d70154",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-024.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "6f487375d9649b39cf5aab819197e641892a9e54b004c898b80fdf0516e12e34",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-025.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "b02fd1fcc1a7812c1d1d63dccaf6f285058ea43a6f84b458ed7b7e693ab9929d",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-026.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "f1c20bb9980f9f4d14de671d0e664ad6fbf986b1a359d536ade3903fbd303199",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-027.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "994bad9a33c626370c0f644918834a1ed5e1b1b7d3087f674a3af4103855ad3c",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-028.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "c1a8df5d30293ad4ee4765b003c2d5cab7f8f76c012b73457d03f19c86e828ed",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-029.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "fd09964b59277556cc32137fe320eeb48360a1601b6a2f52ad1121380ea97906",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-030.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "ca4833a0a54cbad34c9d30c08a526ba0321e7524595aa35ac0fd3af58474a714",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-031.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "6eb43f820bd37587e5392e62476dfc3485ee47671f7fcdb6bec936e96ba25572",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-032.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "4b027e439ae249de6c60db8339b9895aaf7b1ebcfa21166d843a2b4762df77e6",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-033.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "1db0d687a6ab7a0af3dd9f9d3018ea85976af7e52a2f620d3a1a48e9db85c799",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-034.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "179b46a7759268c0c3f9cd43328c0ec1dcd95a6329d611c9101a0d7ca81f06e6",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-035.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "9c8ffb6a178ebdf7a00763cc59194ee31fcc575d93d1333c2823966c12f7f07e",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-036.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "9c40d5139603581423e8c98b801c0d0d37a9765cc36807f4be9f508f92d2eee5",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-037.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "249a16261e2f7439426c5789610fedc4a3c9fa82dd1b71de5c56c1da85943f47",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-038.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "c5d7bd3fb633a3e219249a346c54bc9f209f1f54019a4fe896daebbdc89e3162",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-039.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "1ea55260945a07e25245dea8b27509f356acfe16b548f8953eb0beb22026959b",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-040.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "e4f457dc624c12eb0b96ee234a6320ae6a0b5f9a2d5610830f13a0d202560c98",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-041.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "e253bc14767b61e8ef80cbcef71d5abce3541b73745bb5945a52bf9bb9ef85b3",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-042.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "c18252133d04ebfae29e50b4c34841fce37cbbd9b6e09f93f8e2a348870197fe",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-043.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "0e4203838f3ea0c1c582d52171f704b951ca773b22c8bf6d595b1bd668495e07",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-044.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "7fdf04522175ea1f587c78c2c13e3a1bf26e82b8d856b7aaea61521282aba100",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-045.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "3bedcc70e0281803f335a21929363f899c9f405ad63669a7b20c4178a44c82b1",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/response-046.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "be8b13d501fef8a204e33de6b83ca3f709289b8211d82ab624c88cab88c014d2",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/same-body-validation.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "0c3a42165afc1b9fc4944c9c5899209dc2a7a36f743738b3b307ccaa1f213440",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/schema-validation.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "934895975b13a9b827b50445d0c03206561865218569bfbc4c8f3a08b45fb997",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    }
+  ]
+}

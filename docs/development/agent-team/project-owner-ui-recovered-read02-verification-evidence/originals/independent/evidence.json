@@ -1,0 +1,906 @@
+{
+  "status": "AUTHOR_ACTUAL_READ02_AND_OWNED_RETIREMENT_INDEPENDENT_REVIEW_PASS_STOP",
+  "reviewer": "/root/verification_runtime",
+  "recorded_utc": "2026-10-08T05:29:27.484575+00:00",
+  "review_method": "read-only frozen source/raw/result/manifest audit and standard-library integrity assertions; no new Go/Node/schema/client/resource execution",
+  "scope": "Only TestAccountProjectOwnerWebReadAndNavigation from root-authorized read02; four harness paths have no must-fix within this handoff",
+  "references": {
+    "author_handoff": {
+      "path": "/workspace/scratch/owner-ui-backend/read02-handoff.json",
+      "sha256": "7c1613351fcbff44fe2fb835413b738f366e55bf41d966f292afe43b525f288c"
+    },
+    "author_handoff_md": {
+      "path": "/workspace/scratch/owner-ui-backend/read02-handoff.md",
+      "sha256": "8a8bbea0fcd24ad45b18ef6af5a1591c3cf8d409dcd71ea2914dad44d248c82f"
+    },
+    "launch_raw": {
+      "path": "/workspace/scratch/owner-ui-backend/read02-launch.raw",
+      "sha256": "8497467c04f51103f352fa8c14b30f47b81b2dfd4edd9231a25568ba2fba028b"
+    },
+    "raw": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/raw.log",
+      "sha256": "bd8ed5c8b376800bd52d44091397bdce3ec46dcc0332bc0c94e7a9e012c3de8d"
+    },
+    "result": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/result.json",
+      "sha256": "f3dccd94e94af3ea82d25235811a423245b32cdd687dc63f3aff162d135e79ef"
+    },
+    "authorized_frozen_input": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/frozen-input.json",
+      "sha256": "b3f7cc6153c15a84995bc864d21549e8926de54b3508e9d8c76d6efb06968eed"
+    },
+    "driver": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "input_before": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/input-before.json",
+      "sha256": "8179d5e9264a18b0ff92c72f133a3a143c83d2dbc2a5eb580db40613ac3a913c"
+    },
+    "input_after": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/read02/input-after.json",
+      "sha256": "8179d5e9264a18b0ff92c72f133a3a143c83d2dbc2a5eb580db40613ac3a913c"
+    },
+    "final02_freeze": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final02/freeze.final.json",
+      "sha256": "b57d4748467246611e8d58138c0da6208acc6a3c2e7bbc0c9ba503465b101e28"
+    },
+    "browser_v3_freeze": {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v3/freeze.json",
+      "sha256": "55f8ebe064a27558bbf3c822c825d4b35cc4fa5433dd3a71258343da5f97c3d8"
+    },
+    "prior_read01_handoff": {
+      "path": "/workspace/scratch/owner-ui-backend/read01-handoff.json",
+      "sha256": "21085e942b887d083b3b9e0e88e3766e4d03245fad8c211acb116f50b27b2200"
+    },
+    "root_asset_restore": {
+      "path": "/workspace/scratch/owner-ui-assets/restore-after-read02.json",
+      "sha256": "d95b39988b77761a300a3d552cc6f7de1276832d85844e61cccf4626bb6d785e"
+    },
+    "prior_static_readiness": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/read02-review/review.md",
+      "sha256": "91bac0cefb614708d567bb5c9696f986bd5f1bbc2183e9247ae17e37c6cb5f52"
+    },
+    "prior_static_evidence": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/read02-review/final02-evidence.json",
+      "sha256": "e208ce8a2745db49c931f30da168512bcee0103a2a40cafe2886113df50d9139"
+    }
+  },
+  "four_frozen_harness_sources": {
+    "tests/account/project_owner_web_fixture_test.go": {
+      "sha256": "662e1f2edd0e4cc0d03408251de0a031e0491ca4530c042e7bfc86139070f24b",
+      "fixed_copy": "/workspace/scratch/owner-ui-backend/candidate04/project_owner_web_fixture_test.go",
+      "fixed_copy_and_current_source_match": true
+    },
+    "tests/account/project_owner_web_test.go": {
+      "sha256": "e91d920777b6bd48adae2ad96c1f2d2e1cd0f6f8c254af3a9a497a684a44e5a6",
+      "fixed_copy": "/workspace/scratch/owner-ui-backend/candidate04/project_owner_web_test.go",
+      "fixed_copy_and_current_source_match": true
+    },
+    "tests/account-captcha-web/project-owner.config.js": {
+      "sha256": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b",
+      "fixed_copy": "/workspace/scratch/owner-ui-recovery/browser-v3/tests/account-captcha-web/project-owner.config.js",
+      "fixed_copy_and_current_source_match": true
+    },
+    "tests/account-captcha-web/e2e/project-owner.spec.ts": {
+      "sha256": "96d7d3715c757f0fcd354bd3b58bb9b61cb17409b33cac61c3a6f8d23dbb2f98",
+      "fixed_copy": "/workspace/scratch/owner-ui-recovery/browser-v3/tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "fixed_copy_and_current_source_match": true
+    }
+  },
+  "original_integrity": {
+    "manifest_count": 111,
+    "actual_count": 111,
+    "all_sizes_and_sha256_match": true,
+    "missing": [],
+    "extra": [],
+    "safe_sidecars": 46,
+    "unique_original_bodies": 39,
+    "all_sidecar_body_hashes_match": true,
+    "closed_sidecar_keys_match": true,
+    "all_input_hashes_and_source_run_match": true,
+    "unique_native_request_ids": 46
+  },
+  "actual_result": {
+    "direct_exit": 0,
+    "direct_seconds": 59.722,
+    "browser_seconds": 8.0,
+    "go_top_seconds": 15.36,
+    "only_top": [
+      [
+        "PASS",
+        "TestAccountProjectOwnerWebReadAndNavigation"
+      ]
+    ],
+    "schema_checker": {
+      "status": 0,
+      "signal": null,
+      "stdout": "46\n",
+      "stderr": "",
+      "failed_to_run": false
+    },
+    "same_body_result": {
+      "schemas": 46,
+      "client_reads": {
+        "list": 6,
+        "resolve": 3,
+        "get": 3,
+        "problem": 4
+      }
+    }
+  },
+  "browser_body_binding": {
+    "source": "browser-v3 spec observe lines 195-228 and verifyBodies lines 317-420",
+    "method": "Match native browser X-Request-ID; assert actual endpoint/status and original body SHA; Response contains original bytes/status/Content-Type/X-Request-ID; public client uses actual URL list limit/cursor/lifecycle, Resolve username/project_name, and context owner ID; Get uses matching sidecar project_id and context owner ID",
+    "executed_by": "author real browser run; independently audited fixed implementation, byte originals and successful raw/results",
+    "browser_reads": 16,
+    "excluded_sidecars": [
+      "001-028: fixture setup GET",
+      "042: IPC external rename GET",
+      "043: IPC external rename PATCH"
+    ],
+    "parameter_evidence_limit": "actual URL and captured owner live only in in-memory readFacts; no separate persisted full browser URL/owner trace claimed",
+    "raw_response_table": [
+      {
+        "sidecar": "response-001.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2115-7eeb-aa07-a8b61dea273f",
+        "status": 200,
+        "request_id": "01a119f0-26af-7c1c-ab3e-b9797e5471d2",
+        "body_sha256": "10cb5792cc73248ffef3d8fd3bb6c356dd39135dc458a00ffa39e11b8246bb14",
+        "body_id": "01a119f0-2115-7eeb-aa07-a8b61dea273f",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-002.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-22f6-7684-833c-7e8a2ebf36a3",
+        "status": 200,
+        "request_id": "01a119f0-26b6-7f5a-9b69-b729df41f94a",
+        "body_sha256": "02fbf19ec39760041ccb881537ae44cfabe028f6a8bfcaec3a183dda45cfb24a",
+        "body_id": "01a119f0-22f6-7684-833c-7e8a2ebf36a3",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-003.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2324-7cd6-aeb5-a111579b7f69",
+        "status": 200,
+        "request_id": "01a119f0-26bb-753d-bb34-33c02a7c5a3e",
+        "body_sha256": "314e82a4f215b80fbb219b408dd4ff9725d9ba45730971c386e2c00af74bc47b",
+        "body_id": "01a119f0-2324-7cd6-aeb5-a111579b7f69",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-004.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-22cd-7996-a8d8-1c9c96ea204c",
+        "status": 200,
+        "request_id": "01a119f0-26bf-7b5a-9915-1b8602f87683",
+        "body_sha256": "0a242db0496853b71e08fe9869cae89928ef3800877f8593e21e6bed13ea7e2a",
+        "body_id": "01a119f0-22cd-7996-a8d8-1c9c96ea204c",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-005.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-24d6-71ab-8996-df398f6c7803",
+        "status": 200,
+        "request_id": "01a119f0-26c4-7d7d-943b-f725e1c97bf5",
+        "body_sha256": "1b860fef65c429d3d6708935a04e3b086796ffa5d9f47ca413c142b62158f7de",
+        "body_id": "01a119f0-24d6-71ab-8996-df398f6c7803",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-006.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2222-7448-bb89-e69f61aef9d5",
+        "status": 200,
+        "request_id": "01a119f0-26c8-746b-a707-c6af14794af8",
+        "body_sha256": "fd2fc10e7582ad8df07079576bcf63ecc963956f891472650fd36e2291292d20",
+        "body_id": "01a119f0-2222-7448-bb89-e69f61aef9d5",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-007.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2276-7d5b-9b6b-9f4bcd164654",
+        "status": 200,
+        "request_id": "01a119f0-26cc-7bde-8f52-1d29e0c89e21",
+        "body_sha256": "3594b18a4b8cc6146608beb49c71a4580651b43d7b95a0df192cc5c0bba1250e",
+        "body_id": "01a119f0-2276-7d5b-9b6b-9f4bcd164654",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-008.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-25af-757c-99f2-1ae80754bc57",
+        "status": 200,
+        "request_id": "01a119f0-26d0-7490-89e1-77b951b6c2d1",
+        "body_sha256": "6f3fb1348acc5d1d12f447e4634d0ef8895b3bec6c73131bafcc3ac38d86f1cd",
+        "body_id": "01a119f0-25af-757c-99f2-1ae80754bc57",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-009.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-25df-7b3e-954e-9d69551cb53c",
+        "status": 200,
+        "request_id": "01a119f0-26d4-717d-9523-06a732d5e78e",
+        "body_sha256": "d02d86845aaa663101ed265da250943321f1e1b5a28a59a11c58e60acead3052",
+        "body_id": "01a119f0-25df-7b3e-954e-9d69551cb53c",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-010.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2168-7cb1-ba62-991ef90c7346",
+        "status": 200,
+        "request_id": "01a119f0-26d8-70ed-bce7-aa909859907a",
+        "body_sha256": "8b7d34c25001e5d07bb77153c0e3d8389f93bf0908c3dd70b33b04fa940116ae",
+        "body_id": "01a119f0-2168-7cb1-ba62-991ef90c7346",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-011.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-237f-74d3-a8d8-6f1b4376730b",
+        "status": 200,
+        "request_id": "01a119f0-26dc-7dfa-93ce-d829245e4f7b",
+        "body_sha256": "3ce42850fcf02354f761b9ba6b6a80fe46d99216048c6d50876146d31be1ba2d",
+        "body_id": "01a119f0-237f-74d3-a8d8-6f1b4376730b",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-012.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2554-78de-8e34-bc33a251a24c",
+        "status": 200,
+        "request_id": "01a119f0-26e0-7bd8-a9d2-6e3e55d99afb",
+        "body_sha256": "c319da5e7a70623e6db671302de275f8c873f7b1fbe354ae8cc1923dae632d9e",
+        "body_id": "01a119f0-2554-78de-8e34-bc33a251a24c",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-013.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "status": 200,
+        "request_id": "01a119f0-26e4-765c-8b5a-c1fb256c3771",
+        "body_sha256": "00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce",
+        "body_id": "01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-014.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-23d5-7b42-9fc8-cf8e49fb411b",
+        "status": 200,
+        "request_id": "01a119f0-26e8-7787-abd9-cd2a9f3da318",
+        "body_sha256": "c08402a16f6ca36cbdbd843d4c2ec7855b4c51531cd6abe65cb3be8e05449ce1",
+        "body_id": "01a119f0-23d5-7b42-9fc8-cf8e49fb411b",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-015.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-23fd-77fd-941d-5bf9ce9632de",
+        "status": 200,
+        "request_id": "01a119f0-26ec-7cc8-a1b9-45c2ceac69a9",
+        "body_sha256": "4d0dc891050fe658653e5bfbac58707352f58f6f3bdd7ccba7967dce60e09363",
+        "body_id": "01a119f0-23fd-77fd-941d-5bf9ce9632de",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-016.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2480-7d47-beda-221f9e2a20c4",
+        "status": 200,
+        "request_id": "01a119f0-26ef-710a-9374-7850b9b00034",
+        "body_sha256": "80109352d3e5c637c2646ed5dc15d44a444d64351b3becd81c5177beac72839f",
+        "body_id": "01a119f0-2480-7d47-beda-221f9e2a20c4",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-017.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-24ab-7aea-8dbd-1906b9f256ba",
+        "status": 200,
+        "request_id": "01a119f0-26f3-72e8-87ac-765fa783b97f",
+        "body_sha256": "4f03d3dfcb03b8cf3e42b545192b456bc66fcb623a32b0bbc11e725cf5d1cf4e",
+        "body_id": "01a119f0-24ab-7aea-8dbd-1906b9f256ba",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-018.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2505-79e7-80be-fcd33083fdf1",
+        "status": 200,
+        "request_id": "01a119f0-26f7-75fc-9f21-f29903ee6111",
+        "body_sha256": "c7e06046bba2b3612d9ca39d79b5169cf992f92935b78f8e1a76d52e84ec32e3",
+        "body_id": "01a119f0-2505-79e7-80be-fcd33083fdf1",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-019.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2141-7c04-9d16-e7f71d943f28",
+        "status": 200,
+        "request_id": "01a119f0-26fb-70e7-9d64-6b46f1d97cef",
+        "body_sha256": "471d5bdf073b19fc4b0d62569e13b2686110855de400e2b7cf54a9cc2cb9dc04",
+        "body_id": "01a119f0-2141-7c04-9d16-e7f71d943f28",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-020.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-224c-7a98-831a-8b22c4c8d1e3",
+        "status": 200,
+        "request_id": "01a119f0-2700-7aff-9b4b-ae5736ca83f6",
+        "body_sha256": "08eca6e19320c4eb5b615dee44f77429c801a732fb78c2569965531e07f5f782",
+        "body_id": "01a119f0-224c-7a98-831a-8b22c4c8d1e3",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-021.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2530-7072-8a67-8d165d9b2d07",
+        "status": 200,
+        "request_id": "01a119f0-2704-712e-9c64-130b3693e769",
+        "body_sha256": "169b4bb1e34843dfe4c2c2fc1fcedf939dcdfd17c2f67736f9b31acc854c94d8",
+        "body_id": "01a119f0-2530-7072-8a67-8d165d9b2d07",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-022.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-20dd-7962-9b7d-efaed708ac00",
+        "status": 200,
+        "request_id": "01a119f0-2708-7342-b7e4-111934938e6b",
+        "body_sha256": "a3d2e1a50ec5b930f03298229c9b674179cd6d2c82d76c48a9de36977d595734",
+        "body_id": "01a119f0-20dd-7962-9b7d-efaed708ac00",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-023.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2356-7d92-8ae4-503e6f9ca108",
+        "status": 200,
+        "request_id": "01a119f0-270d-7140-8278-4e84daebc5bd",
+        "body_sha256": "334e9b96cb97e034764d2eb3f92123300b9d9df00d2f3c82c3d0c7408122413a",
+        "body_id": "01a119f0-2356-7d92-8ae4-503e6f9ca108",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-024.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-23af-7855-b59b-dfd773265d68",
+        "status": 200,
+        "request_id": "01a119f0-2712-73bb-a9bd-6a4b4619900b",
+        "body_sha256": "4d208284d31e5ec66e372f8dec71e12f8a227e501816b2cf68b3fbc2e359c07a",
+        "body_id": "01a119f0-23af-7855-b59b-dfd773265d68",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-025.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-2457-7344-9ed4-6049b2eb6f39",
+        "status": 200,
+        "request_id": "01a119f0-2717-73e9-ba5b-3f38c724f8a0",
+        "body_sha256": "b4bd355a367a91aee849399320ce842e066c3f5005953123efaeb2492b830eb4",
+        "body_id": "01a119f0-2457-7344-9ed4-6049b2eb6f39",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-026.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-229f-70c1-afc0-ebc4d133868e",
+        "status": 200,
+        "request_id": "01a119f0-271b-73be-ab61-a8b7bec5a052",
+        "body_sha256": "f43d7535035c61b98525c83206c26f7c471209f6129967d2283683325ebea356",
+        "body_id": "01a119f0-229f-70c1-afc0-ebc4d133868e",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-027.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-242d-7555-b3dc-65c2b58e8fa3",
+        "status": 200,
+        "request_id": "01a119f0-2721-73e2-849a-75eaea2bc1e3",
+        "body_sha256": "20ec22a127c0a880929afb5e6eb2f05b981c309a6f1007119d7c52c779520987",
+        "body_id": "01a119f0-242d-7555-b3dc-65c2b58e8fa3",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-028.json",
+        "role": "fixture preparation",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-257a-7d6b-99b1-00e23bd5d64e",
+        "status": 200,
+        "request_id": "01a119f0-272b-756e-aac1-87665c6445ac",
+        "body_sha256": "a094a26af4a34fa9ec365cac0a0719be4e2096a8e227c1f2a029ca66dd237332",
+        "body_id": "01a119f0-257a-7d6b-99b1-00e23bd5d64e",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-029.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects",
+        "status": 200,
+        "request_id": "01a119f0-3352-7a21-90fb-e6a3a48c1c1a",
+        "body_sha256": "ece3410a6fa37e600bddfc1cf049c753caa6f8d719ae5236c80dbf07178c57a0",
+        "body_id": null,
+        "problem_code": null,
+        "item_count": 25
+      },
+      {
+        "sidecar": "response-030.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects",
+        "status": 200,
+        "request_id": "01a119f0-354d-7956-8959-ad1e1426a02f",
+        "body_sha256": "a66df1e1c6f16b0acc91ffc9e4b7cbb2b282feb5f7289af593b86abd9f565c5e",
+        "body_id": null,
+        "problem_code": null,
+        "item_count": 4
+      },
+      {
+        "sidecar": "response-031.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects",
+        "status": 200,
+        "request_id": "01a119f0-35ef-7f24-a131-054f4f8d1932",
+        "body_sha256": "ece3410a6fa37e600bddfc1cf049c753caa6f8d719ae5236c80dbf07178c57a0",
+        "body_id": null,
+        "problem_code": null,
+        "item_count": 25
+      },
+      {
+        "sidecar": "response-032.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects",
+        "status": 200,
+        "request_id": "01a119f0-3785-715d-a829-7fff4396f352",
+        "body_sha256": "7f28ca035c51d7d45ecc1991b9c52d232f7555a35fc7f451c534ed307dd1baad",
+        "body_id": null,
+        "problem_code": null,
+        "item_count": 29
+      },
+      {
+        "sidecar": "response-033.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects",
+        "status": 200,
+        "request_id": "01a119f0-384e-79d0-91e7-4c4fd4c85082",
+        "body_sha256": "9ac9e71d58393f5d55ba6be1d72ed76a01fdade979ec80c738533c6b9e70d0e9",
+        "body_id": null,
+        "problem_code": null,
+        "item_count": 1
+      },
+      {
+        "sidecar": "response-034.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects",
+        "status": 200,
+        "request_id": "01a119f0-3988-7bcd-a921-e67c3a41da5f",
+        "body_sha256": "b9331d9db0a673eaefc57336c831a40e44db79eed9eaa617d0026ef923f068fb",
+        "body_id": null,
+        "problem_code": null,
+        "item_count": 1
+      },
+      {
+        "sidecar": "response-035.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/resolve",
+        "status": 409,
+        "request_id": "01a119f0-39f9-7d23-bce0-1f6f93ef7a8e",
+        "body_sha256": "fa7a533556e1618ce81a39199b465c3867189fd90e18e42fbda73f8742af2979",
+        "body_id": null,
+        "problem_code": "PROJECT_NOT_ACTIVE",
+        "item_count": null
+      },
+      {
+        "sidecar": "response-036.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/resolve",
+        "status": 200,
+        "request_id": "01a119f0-3a65-700d-94a6-d350edc34fec",
+        "body_sha256": "00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce",
+        "body_id": "01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-037.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "status": 200,
+        "request_id": "01a119f0-3a74-7781-b5d3-0aaa30408b9c",
+        "body_sha256": "00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce",
+        "body_id": "01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-038.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/resolve",
+        "status": 200,
+        "request_id": "01a119f0-3b28-75e1-ae5e-d204a7a8bb12",
+        "body_sha256": "00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce",
+        "body_id": "01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-039.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "status": 200,
+        "request_id": "01a119f0-3b3b-7abb-81dd-b3ba669db704",
+        "body_sha256": "00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce",
+        "body_id": "01a119f0-21f5-71d3-bee4-e32d16adc961",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-040.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/resolve",
+        "status": 404,
+        "request_id": "01a119f0-3ee8-7184-baa1-190461290227",
+        "body_sha256": "c821be289bb6f368aac2ae6680429da470f15994f101e9f47dff1c82290c6ea6",
+        "body_id": null,
+        "problem_code": "NOT_FOUND",
+        "item_count": null
+      },
+      {
+        "sidecar": "response-041.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/resolve",
+        "status": 404,
+        "request_id": "01a119f0-4420-79d6-879e-502e96bd9dfa",
+        "body_sha256": "7693e894f67b432b713773422c33ccab4fac8576dafc54449b1e81f891cfeacf",
+        "body_id": null,
+        "problem_code": "NOT_FOUND",
+        "item_count": null
+      },
+      {
+        "sidecar": "response-042.json",
+        "role": "IPC external rename helper",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-20dd-7962-9b7d-efaed708ac00",
+        "status": 200,
+        "request_id": "01a119f0-45c1-7fa8-b8da-56e4fd36590e",
+        "body_sha256": "a3d2e1a50ec5b930f03298229c9b674179cd6d2c82d76c48a9de36977d595734",
+        "body_id": "01a119f0-20dd-7962-9b7d-efaed708ac00",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-043.json",
+        "role": "IPC external rename helper",
+        "method": "PATCH",
+        "endpoint": "/api/v1/projects/01a119f0-20dd-7962-9b7d-efaed708ac00",
+        "status": 200,
+        "request_id": "01a119f0-45c9-7a7c-9b08-3628727678ef",
+        "body_sha256": "5e0d56fbc256e2d700d2c69f818f213501f66f533d9154f93c5aa888cc5b722f",
+        "body_id": "01a119f0-20dd-7962-9b7d-efaed708ac00",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-044.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/resolve",
+        "status": 404,
+        "request_id": "01a119f0-4684-70c6-9e7f-a9909b399c6c",
+        "body_sha256": "d1eb9ac7354bca9bb166697321ed389ede8d9e2e0a13d78f673e56e3ec58e392",
+        "body_id": null,
+        "problem_code": "NOT_FOUND",
+        "item_count": null
+      },
+      {
+        "sidecar": "response-045.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/resolve",
+        "status": 200,
+        "request_id": "01a119f0-4762-7dff-92a4-a8755d5010f6",
+        "body_sha256": "912ff4ed02ff4a5b21fe01150ed720c8b32825c6074565280aedbaab7dcdeea7",
+        "body_id": "01a119f0-4700-785b-9044-6aff26b9f45c",
+        "problem_code": null,
+        "item_count": null
+      },
+      {
+        "sidecar": "response-046.json",
+        "role": "browser matched native X-Request-ID (frozen assertions and counters)",
+        "method": "GET",
+        "endpoint": "/api/v1/projects/01a119f0-4700-785b-9044-6aff26b9f45c",
+        "status": 200,
+        "request_id": "01a119f0-476f-710a-863a-e2298fc79f1e",
+        "body_sha256": "912ff4ed02ff4a5b21fe01150ed720c8b32825c6074565280aedbaab7dcdeea7",
+        "body_id": "01a119f0-4700-785b-9044-6aff26b9f45c",
+        "problem_code": null,
+        "item_count": null
+      }
+    ]
+  },
+  "read_behaviors": {
+    "actual_assertions_pass": [
+      "ordinary owner login return /projects",
+      "25+4 pages with no overlap and 50-item option",
+      "archived/deleting filters; deleting row has no content link/description",
+      "deleting Resolve409 PROJECT_NOT_ACTIVE, only one Project Resolve/no other Project GET or writes in navigation window; read-error heading, retry enabled, no form/nav/content/facts",
+      "uppercase dotted direct HTML200 and canonical lower-case path",
+      "dotted /settings HTML200 then /settings/general and ready stable ID",
+      "other-owner and admin denied with no Project form",
+      "old name unavailable after external rename; reused name resolves/Get distinct stable ID"
+    ],
+    "dotted_browser_pairs": [
+      [
+        36,
+        37
+      ],
+      [
+        38,
+        39
+      ]
+    ],
+    "dotted_project_id": "01a119f0-21f5-71d3-bee4-e32d16adc961",
+    "dotted_body_sha256": "00455333c2808d3584094021af93386d3e01578d69679c2118ccf83062d3f2ce",
+    "excluded_dotted_setup": 13,
+    "html_dom_evidence": "Completed frozen assertions in actual passing browser case; no separate HTML/DOM snapshot",
+    "screenshots": 0
+  },
+  "retirement": {
+    "direct_identity": {
+      "pid": 108861,
+      "starttime": "637583"
+    },
+    "direct_actual_wait": true,
+    "watchdog_actual_join": true,
+    "adopted_actual_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 113264,
+        "starttime": "640790",
+        "time": "2026-10-08T05:15:40.204360+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 113266,
+        "starttime": "640790",
+        "time": "2026-10-08T05:15:40.204387+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 113269,
+        "starttime": "640791",
+        "time": "2026-10-08T05:15:40.204407+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 113270,
+        "starttime": "640791",
+        "time": "2026-10-08T05:15:40.204425+00:00"
+      }
+    ],
+    "all_wait_identities_match_observed_pid_starttime": true,
+    "resource_topology": {
+      "network": 3,
+      "container": 4
+    },
+    "exact_resources": {
+      "416b0d0539008d33fd04b2606af9bf59041ca754e38ff5be8146af45e47cf3f1": {
+        "kind": "network",
+        "name": "agenteam-d04-net-9caa07347502861bc46687e6b7d1ba7b",
+        "labels": {
+          "agenteam.d04.networkfixture": "9caa07347502861bc46687e6b7d1ba7b"
+        }
+      },
+      "5b72c8dd75e4acdbc70ca88523a9044b32d9f9f46db17057dc5116d38427e490": {
+        "kind": "container",
+        "name": "/agenteam-d03-243eef219d04cccbad11d7548cbfc5b2",
+        "labels": {
+          "agenteam.d03.fixture": "243eef219d04cccbad11d7548cbfc5b2"
+        }
+      },
+      "6ddf5ec9914fc1de049b765e76cdbb3c2c2f9301813b45df9e36a140fe71891d": {
+        "kind": "container",
+        "name": "/agenteam-d03-243eef219d04cccbad11d7548cbfc5b2-pg16",
+        "labels": {
+          "agenteam.d03.fixture": "243eef219d04cccbad11d7548cbfc5b2"
+        }
+      },
+      "dc46d0b5e28b2a35c73a2fd3d61114d35a133df3df8410e51587a754ee4aedac": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-9caa07347502861bc46687e6b7d1ba7b",
+        "labels": {
+          "agenteam.d04.networkfixture": "9caa07347502861bc46687e6b7d1ba7b"
+        }
+      },
+      "e450a2e88e92fb2dfe7c8f51b0059a819e318c679fd1c22721b12e8750b54a3c": {
+        "kind": "network",
+        "name": "agenteam-d03-243eef219d04cccbad11d7548cbfc5b2",
+        "labels": {
+          "agenteam.d03.fixture": "243eef219d04cccbad11d7548cbfc5b2"
+        }
+      },
+      "eaf13f2006c4bde97539010d84cd2c4186c41c5809304ed4eb15abf42e5ec17b": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-2c8d940d7ed9b92be7f23de3c8d5bcfa",
+        "labels": {
+          "agenteam.d05.objectfixture": "2c8d940d7ed9b92be7f23de3c8d5bcfa"
+        }
+      },
+      "ff7bf4743181b72c304af95463328a6c5c33404f98f407c203f7269022ac399a": {
+        "kind": "network",
+        "name": "agenteam-d05-object-2c8d940d7ed9b92be7f23de3c8d5bcfa",
+        "labels": {
+          "agenteam.d05.objectfixture": "2c8d940d7ed9b92be7f23de3c8d5bcfa"
+        }
+      }
+    },
+    "each_exact_id_absent_twice": true,
+    "owned_processes_runtime_entries_and_new_resources_empty_twice": true,
+    "unrelated_docker_baseline_unchanged_twice": true,
+    "monitor_errors": 0,
+    "cancellations": 0,
+    "forced_tail_actions": 0,
+    "tcp_seconds": 40.37744866899993,
+    "tcp_last_two_scans": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T05:16:42.307084+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T05:16:42.511202+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_signal_sent": false,
+    "nonowned_new_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 109089,
+        "ppid": 1,
+        "starttime": "637779",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 109443,
+        "ppid": 1,
+        "starttime": "637995",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 109713,
+        "ppid": 1,
+        "starttime": "638181",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 110342,
+        "ppid": 1,
+        "starttime": "638388",
+        "state": "Z"
+      }
+    ],
+    "nonowned_limit": "Not children of this driver; not signaled or claimed joined. No global-machine-empty claim.",
+    "source_tools_dist_input_before_after_identical": true,
+    "input_files_count": 1165,
+    "go_raw_join_order": "Node waited; proxy Serve and body handlers joined; preparation Project service joined before ProcessGuard release; production root joined; selected Go top PASS; outer fixtures cleaned"
+  },
+  "asset_restore": {
+    "root_record_sha256": "d95b39988b77761a300a3d552cc6f7de1276832d85844e61cccf4626bb6d785e",
+    "recorded_utc": "2026-10-08T05:20:38.440363+00:00",
+    "after_last_tcp_scan": true,
+    "original_restored_exactly_reported": true,
+    "test_assets_preserved_at": "/workspace/scratch/owner-ui-assets/test-dist-ui-v1",
+    "current_3_files_are_post_round_restore_not_input_drift": true
+  },
+  "must_fix": [],
+  "not_accepted_by_this_review": [
+    "Independent real A/B execution",
+    "Other four new browser/Go tops",
+    "Sixteen old regression tops",
+    "Layouts/screenshots/visual review",
+    "Real recovery response loss or in_progress/not_observed/committed acceptance",
+    "D10 Skills runtime or lifecycle participant execution",
+    "Arbitrary Python exception/cancellation injection",
+    "Full SPA release chain or stopped Object/lifecycle work"
+  ],
+  "prior_failure": "read01 original FAIL remains preserved; read02 is separately authorized versioned successor after browser expectation correction",
+  "review_own_commands": {
+    "resource_commands": 0,
+    "source_or_repository_writes": 0,
+    "git_writes": 0,
+    "integrity_command_exit1": "One read-only source-copy lookup used repo-relative subdirectories for flattened candidate04 copies and ended FileNotFoundError after retirement checks; corrected basename lookup then matched all four sources. No product/test failure or mutation."
+  }
+}
