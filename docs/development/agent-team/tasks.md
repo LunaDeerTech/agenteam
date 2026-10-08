@@ -1,5 +1,17 @@
 # 团队任务台账
 
+## 2026-10-08：真实read01失败退役与限定测试返修
+
+重建的真实read01实际FAIL（全链114.299s，新top17.21s，browser exit1），原93件固定交接 `/workspace/scratch/owner-ui-backend/read01-handoff.json` SHA `21085e942b887d083b3b9e0e88e3766e4d03245fad8c211acb116f50b27b2200`。独立正式FAIL/退役审查 `/workspace/scratch/owner-ui-runtime-verification/read01-review/review.md` SHA `91bd78d6763577fc1d6626bd737b634900ac9b2c822b7f9aacc74cd3232e995c`：实际direct wait、4 adopted wait、watchdog join、7资源逐ID两次absent、owned/runtime双空、TCP全态delta双清及输入同；4新增daemon PID1 shim非owned、未wait另列，历史僵尸未碰。
+
+失败是browser-v2 #21:465对deleting要求固定“项目不可用”标题过强；正式Owner Resolve返回409/PROJECT_NOT_ACTIVE零候选符合D09原typed error及D27§56。产品read-error分支为源码推导，没有本轮DOM原件；第466零form断言、dot/nonowner/name reuse、schema/client与截图均未执行，不能标PASS。35sidecar/34safe body原件保留。仅浏览器read断言返修到v3，匹配既有read-error并绑定真实409/body/requestID及零Project Get/写/内容入口；19产品源、Go04/API/协议不变，旧v1/v2完整保留。
+
+read01全部reader退役后，root实际恢复原web/dist3file及SHA，`restore-after-read01.json`固定。第二次临时测试交换再安装同ui-v1的53file，原3file完整保留 `/workspace/scratch/owner-ui-assets/original-dist-read02`，记录 `exchange-read02.json`，root仍须在后继reader全部退役后恢复。当前真实read02未启动。
+
+新scratch driver-v02 exact复用已验bb666f55字节，不改代码且保留v01失败；final02仅browser-v3差量，955repo/66sets/1165固定hash、171Python/20schema闭包同，filegate0/1.238s通过。独立read02 readiness STATIC/PREPARED PASS，报告SHA `91bac0cefb614708d567bb5c9696f986bd5f1bbc2183e9247ae17e37c6cb5f52`，final freeze仍false、只允许root另授new-read一轮，任何失败先完全退役再停，不自动retry。必要read01永久失败小档由独验负责人另冻，不混入v3/v02。
+
+前端子能力产品088f4d34/归档83d6dd88已推远端一致，完整D27/真实新5旧16及视觉未接受。Go18–19与browser20–21仍未提交，固定Go04及browser-v3副本保留。完整D08–D28/E01未完成、E01未开始、生产未绑定/ready503与三停止保持；以下条目为历史时点。
+
 ## 2026-10-08：ui-v1 产品推送与真实浏览器前置修订
 
 前端产品 `088f4d3490db4d86781090f0602299901c5f3247` 已提交推送，root实际核远端main同；独立STATIC/受控29项与作者2077/type/build/format接受保持，完整D27及真实动态尚未接受。[永久controlled验收及小原件](project-owner-workspace-ui-controlled-verification.md)已冻结；root逐项核55逻辑原件source/archive SHA/字节、37固定Gitblob、48证据指纹及JSON/链接均一致，7原格式例外明确登记并保留。产品19源没有后继变更；本批纯归档不重跑业务。

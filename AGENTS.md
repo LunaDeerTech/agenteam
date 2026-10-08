@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前最新（2026-10-08）：重建真实read01 FAIL仅browser-v2标题期待过强，实际409 typed error正确；7资源/actualwait/owned双清独核，4非owned daemon shims另列。只返修JS→v3，产品19/Go/API不变；read02准备STATIC/PREPARED接受、尚未实际启动。原资产已在read01退役后恢复，第二轮测试再换53，原3完整备份original-dist-read02，后继退役后root须恢复。当前Go18–19/browser20–21未提交，完整卡未接受；[台账](docs/development/agent-team/tasks.md)记录原件与下一步。
+
 当前增量（2026-10-08）：ui-v1产品 `088f4d34` 已推送核同，[永久controlled验收](docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md)55逻辑原件/37Git源已核归档。测试资产53file已临时替换，原3file目录完整备份，真实reader全部退役后root须恢复；资源尚未启动。JS browser-v1独审J1为ack字段不匹配，已续派仅JS→v2，Go协议不变；driver/最终TS-Python输入待独审。详情与原件见[恢复记录](docs/development/agent-team/recovery-2026-10-08-environment.md)，不称真实browser/PG或完整D27接受。
 
 当前接续（2026-10-08）：Owner UI `ui-v1` 19源已通过独立STATIC＋Session/workspace受控29项，作者2077/type/build/format固定证据复核；本批15源交付，4源复用客户端。真实browser/PG、新5旧16及完整D27未接受；Go candidate04限定STATIC与68路由通过，资源driver清理异常修复、JS准备中，资源未启、资产未换。详情见[台账](docs/development/agent-team/tasks.md)。三停止及生产未绑定/ready503/D08–D28/E01边界保持。
