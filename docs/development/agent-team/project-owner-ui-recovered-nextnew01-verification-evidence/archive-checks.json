@@ -1,0 +1,658 @@
+{
+  "status": "ARCHIVE_INTEGRITY_PASS_STOP",
+  "scope": "Fixed nextnew01 originals and their accepted read-only independent result/visible-image reviews only. Archive integrity checks do not rerun schema/client, test, browser, build/list, probe or any resource; no current host/globaldist or later runtime inputs consumed.",
+  "archival_check_attempts": [
+    {
+      "attempt": 1,
+      "tool_output_chunk": "c035f8",
+      "exit": 1,
+      "diagnostic": "AttributeError: 'str' object has no attribute 'read_bytes'",
+      "disposition": "Archive helper accepted Path only but root restore was passed as a string; failed before any archive-checks.json was written. This is a local documentation checker error, not a product or author-run failure."
+    },
+    {
+      "attempt": 2,
+      "disposition": "Normalize the helper argument with Path(p), then repeat bounded archive integrity reconciliation. All checks complete; no original byte, product or resource changed."
+    }
+  ],
+  "source_map_sha256": "8ffcdcd0e866e86ec141db818cce3b6c6a8f63fca523393ba67a9b0f4441bf42",
+  "report_sha256": "f841c7b6027106817a9eede46eac42122ad3df2b75275f8590a80544860fce95",
+  "format_exceptions_sha256": "2e7356c453f407f1eebc1f3b42798b7e21b306805183a784a3823dbb6f6a5fa5",
+  "logical_originals_verified": 207,
+  "logical_original_bytes": 2222066,
+  "physical_originals_verified_including_reused": 182,
+  "new_physical_original_files": 161,
+  "new_physical_original_bytes": 1759266,
+  "reused_prior_physical_originals": 21,
+  "reused_prior_physical_bytes": 150436,
+  "reused_prior_logical_originals": 40,
+  "fixed_product_Git_blob_SHA_bindings": 42,
+  "prior_committed_original_Git_bindings": 21,
+  "reused_UI_manifest_Git_bindings": 2,
+  "inherited_source_map_Git_binding_verified": true,
+  "new_full_source_graph_scan": false,
+  "run_original_files": 166,
+  "run_original_bytes": 1838418,
+  "run_record_reconciliation": [
+    {
+      "run": "recovery01",
+      "run_files": 55,
+      "run_bytes": 415806,
+      "launch_sha256": "a419cb5082653877f4d74aa8f8029a5e66f0ae7b356f2f6c02d0cb84927bc4ea",
+      "raw_sha256": "dd7f469a6de3797a7ab4ab3d67817966c15095d25fbd81f7214c66aff07d4e18",
+      "result_sha256": "5183f0bcb9aa9d8d3809be49005447f4ffcd9154a565528ce0d401fde86874aa",
+      "direct_actual_wait": {
+        "pid": 199986,
+        "starttime": "1164762",
+        "exit": 0,
+        "seconds": 56.354,
+        "started_utc": "2026-10-08T06:42:52.906367+00:00",
+        "ended_utc": "2026-10-08T06:43:49.261071+00:00"
+      },
+      "adopted_actual_waits": 4,
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "246b0bec240d31a322171e8dcab170ab4e66d0e928427f6b1a4d77708499e40c",
+        "5b78c9f1f63c312910018b44abc0d484839c661170b4d04895caf884ff59d668",
+        "8abe805b162dc905dce53379c9aded6965eaa35b8d82a62e761b118637a2eb22",
+        "8b785dea620951c94644bae7bfb5926cb9acf41ec9c6f1184d9a698241925428",
+        "8f6d4bfed60ae44ee2738d545f123f6970b7c663395883ebbc9f884354d461f4",
+        "b238c4a109f968b8c189768c5d79de7f1871ca8876bab223d5428b241e20d71b",
+        "e1e705e2b63232ba8709b8b9db47ce8e53f63f23060f9e5f28925b4fa5a44b85"
+      ],
+      "owned_and_exact_resource_double_empty": true,
+      "tcp_last_two_scans": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T06:44:29.781191+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T06:44:29.985196+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "tcp_tail_seconds": 39.38415276200067,
+      "nonowned_unwaited_PID1_shims": [
+        {
+          "pid": 200214,
+          "starttime": "1164999"
+        },
+        {
+          "pid": 200562,
+          "starttime": "1165237"
+        },
+        {
+          "pid": 200927,
+          "starttime": "1165433"
+        },
+        {
+          "pid": 201498,
+          "starttime": "1165615"
+        }
+      ],
+      "safe_sidecars": 19,
+      "distinct_bodies": 10,
+      "schema_original_count": 19,
+      "native_browser_GET_client_reads": {
+        "list": 0,
+        "resolve": 2,
+        "get": 6,
+        "problem": 0
+      },
+      "response_partition_by_original_sequence": {
+        "setup": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ipc": [
+          11,
+          12
+        ],
+        "browser_GET": [
+          5,
+          6,
+          9,
+          13,
+          15,
+          16,
+          17,
+          19
+        ],
+        "browser_POST_PATCH": [
+          7,
+          8,
+          10,
+          14,
+          18
+        ],
+        "cancelled_browser_GET": []
+      },
+      "method_status_counts": [
+        {
+          "method": "GET",
+          "status": 200,
+          "count": 13
+        },
+        {
+          "method": "PATCH",
+          "status": 200,
+          "count": 5
+        },
+        {
+          "method": "POST",
+          "status": 200,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "run": "identity01",
+      "run_files": 52,
+      "run_bytes": 427099,
+      "launch_sha256": "e03093e388ae7f10c2e013c19e024a943b77f4bda7000cf80d9da5ee8c3157cf",
+      "raw_sha256": "e7c17116602c6d7e5abd60fcc39a2c5441b93551c946130880536559a9d296e0",
+      "result_sha256": "82e6fbb154f2c42bafbfabd00a4406574959fe1f41f86ea8da51153cb3377767",
+      "direct_actual_wait": {
+        "pid": 209305,
+        "starttime": "1183419",
+        "exit": 0,
+        "seconds": 67.83,
+        "started_utc": "2026-10-08T06:45:59.468637+00:00",
+        "ended_utc": "2026-10-08T06:47:07.299372+00:00"
+      },
+      "adopted_actual_waits": 4,
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "a8ac64160258481b829ecc42c6bc2d39abb0c1b00fec0740b0f3e0514d13330e",
+        "ab5bfb772277170bc9d24b83464c8a7cf52a633c22fafa430588799a9e952527",
+        "b6e69da1cb3e8f959350d6da9e40b1da83417a1338109d47b72496b4570fffee",
+        "b732d4925b09b7536a9603e71b124140ab78f41e28261dad7988bf089c729bba",
+        "bd5492f0f82aca9adafe0cb49602c07600a97d7d4866af2147f5ef14dfce16ad",
+        "d9ee68cfdfc363e5611a9836b7ac38be3a5d94b937df21d4d4ac0ea05d307b23",
+        "e319d55f441c386b6fa78d69b71b507780672ec7fb3054034c8fc6c241bcacf2"
+      ],
+      "owned_and_exact_resource_double_empty": true,
+      "tcp_last_two_scans": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T06:47:46.850414+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T06:47:47.055041+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "tcp_tail_seconds": 38.381247253000765,
+      "nonowned_unwaited_PID1_shims": [
+        {
+          "pid": 209677,
+          "starttime": "1183866"
+        },
+        {
+          "pid": 210150,
+          "starttime": "1184247"
+        },
+        {
+          "pid": 210460,
+          "starttime": "1184425"
+        },
+        {
+          "pid": 210956,
+          "starttime": "1184595"
+        }
+      ],
+      "safe_sidecars": 17,
+      "distinct_bodies": 9,
+      "schema_original_count": 17,
+      "native_browser_GET_client_reads": {
+        "list": 2,
+        "resolve": 4,
+        "get": 4,
+        "problem": 1
+      },
+      "response_partition_by_original_sequence": {
+        "setup": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ipc": [],
+        "browser_GET": [
+          6,
+          7,
+          8,
+          9,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "browser_POST_PATCH": [],
+        "cancelled_browser_GET": [
+          10
+        ]
+      },
+      "method_status_counts": [
+        {
+          "method": "GET",
+          "status": 200,
+          "count": 16
+        },
+        {
+          "method": "GET",
+          "status": 404,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "run": "layouts01",
+      "run_files": 59,
+      "run_bytes": 995513,
+      "launch_sha256": "db682d05e9d2f9a27e20dda53a7d8efe736fbc27218d77d5cebb1b4412c0b4d9",
+      "raw_sha256": "e877d1a137ccafb7770f9498adadbc07c3482411ee3bf161fa17ed79f00a5907",
+      "result_sha256": "1d2ed944a926fb70d32f58a2873d243863162adb2f18c6d305f3f7fb26f21108",
+      "direct_actual_wait": {
+        "pid": 219440,
+        "starttime": "1203932",
+        "exit": 0,
+        "seconds": 64.058,
+        "started_utc": "2026-10-08T06:49:24.604784+00:00",
+        "ended_utc": "2026-10-08T06:50:28.663191+00:00"
+      },
+      "adopted_actual_waits": 4,
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "3102691ef58e870d877adbd219603d09be253aeda97909f309929c656d58d27f",
+        "4ba8d83b035848425a6335e3841fe955382d7a7df1b992ae4d8bb2c296415245",
+        "afd7b6831c70c0875805d65b83ae428a429ea3ebca695f4eb74657abc57f93af",
+        "b2da5bf5d9ac7167e11f8f8689e8f3d559fc475a2a8d0033fadf0eb50e7ea17a",
+        "d392be9fc6438337ca568871b0020a07b18be7348e54e0e2f913751945bf42b3",
+        "ed2e21d50e63a88a460c10334767c5fc423cffed415a7c812eac779b91ab6d42",
+        "ef0b15011eee68527e71409cf2f27eb50b2d10e7c1fa190b979cd21243f00368"
+      ],
+      "owned_and_exact_resource_double_empty": true,
+      "tcp_last_two_scans": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T06:51:09.201887+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T06:51:09.406069+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "tcp_tail_seconds": 39.384670239000116,
+      "nonowned_unwaited_PID1_shims": [
+        {
+          "pid": 219815,
+          "starttime": "1204383"
+        },
+        {
+          "pid": 220298,
+          "starttime": "1204740"
+        },
+        {
+          "pid": 220622,
+          "starttime": "1204913"
+        },
+        {
+          "pid": 221223,
+          "starttime": "1205109"
+        }
+      ],
+      "safe_sidecars": 16,
+      "distinct_bodies": 9,
+      "schema_original_count": 16,
+      "native_browser_GET_client_reads": {
+        "list": 2,
+        "resolve": 2,
+        "get": 4,
+        "problem": 0
+      },
+      "response_partition_by_original_sequence": {
+        "setup": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ipc": [
+          10,
+          11
+        ],
+        "browser_GET": [
+          5,
+          6,
+          7,
+          9,
+          13,
+          14,
+          15,
+          16
+        ],
+        "browser_POST_PATCH": [
+          8,
+          12
+        ],
+        "cancelled_browser_GET": []
+      },
+      "method_status_counts": [
+        {
+          "method": "GET",
+          "status": 200,
+          "count": 13
+        },
+        {
+          "method": "PATCH",
+          "status": 200,
+          "count": 2
+        },
+        {
+          "method": "PATCH",
+          "status": 409,
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "resource_ids_distinct": 21,
+    "direct_actual_waits": 3,
+    "adopted_actual_waits": 12,
+    "watchdogs_joined": 3,
+    "nonowned_unwaited_PID1_shims": 12,
+    "schema_responses": 52,
+    "native_browser_GET_client_responses": 27,
+    "safe_sidecars": 52,
+    "distinct_body_files": 28,
+    "logical_PNG_originals": 8,
+    "unique_PNG_entities": 7
+  },
+  "all_six_input_hashes": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+  "all_three_Docker_baselines_equal": true,
+  "sequential_start_after_prior_TCP_clear": true,
+  "root_original3_restore_matches_exchange": true,
+  "root_restore_after_last_TCP_clear": true,
+  "restore_record_sha256": "196dd979a92efdb6fd1fa20e0e4342b0daa8dc53194c2e104e245b1e069d0827",
+  "screenshots": [
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-dark-1440-no-preference.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-dark-1440-no-preference.png",
+      "bytes": 82868,
+      "width": 1440,
+      "height": 900,
+      "sha256": "f9ec12ce7553c3747cd4d376be90a67925cda88f5a5885db206b74ba5d8f90ac"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-dark-1440-reduce.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-dark-1440-reduce.png",
+      "bytes": 82876,
+      "width": 1440,
+      "height": 900,
+      "sha256": "8b468dae3b408bef5a1663ad62c02a365c1e50ea19344a82ab907a1831b6380b"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-dark-390-no-preference.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-dark-390-no-preference.png",
+      "bytes": 59056,
+      "width": 390,
+      "height": 844,
+      "sha256": "961fcabdf8b347ce55283a5d9e8b9daae15ce79a66b671d1f165809bb2d6339f"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-dark-390-reduce.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-dark-390-no-preference.png",
+      "bytes": 59056,
+      "width": 390,
+      "height": 844,
+      "sha256": "961fcabdf8b347ce55283a5d9e8b9daae15ce79a66b671d1f165809bb2d6339f"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-light-1440-no-preference.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-light-1440-no-preference.png",
+      "bytes": 82278,
+      "width": 1440,
+      "height": 900,
+      "sha256": "beb0874dd609f27d1d14c8c4e8ffd4b8b4d899b937dea1309ce4dbaf8c4a7abd"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-light-1440-reduce.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-light-1440-reduce.png",
+      "bytes": 82283,
+      "width": 1440,
+      "height": 900,
+      "sha256": "42b05638336ec39fad43663c149d422ba713053d766d193efcfcd83fd692030d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-light-390-no-preference.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-light-390-no-preference.png",
+      "bytes": 58484,
+      "width": 390,
+      "height": 844,
+      "sha256": "7c308eccb819e4a16dfed77302865407a3f5519229e7cd46bcb84bb9892618d3"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots/project-owner-light-390-reduce.png",
+      "archive": "originals/runs/layouts01/screenshots/project-owner-light-390-reduce.png",
+      "bytes": 58484,
+      "width": 390,
+      "height": 844,
+      "sha256": "eb7af11b9ee79a1b43b2e8612ecd2119e8b0e14cae288099fc8aa4b820a148da"
+    }
+  ],
+  "new_archive_json_parsed_including_this_result": 144,
+  "reused_original_json_parsed": 16,
+  "report_local_links_checked": 33,
+  "all_report_local_links_exist": true,
+  "new_text_files_no_index_checked_excluding_this_result": 157,
+  "git_no_index_exit_counts_excluding_this_result": {
+    "1": 154,
+    "3": 3
+  },
+  "registered_original_whitespace_diagnostics": [
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/raw.log",
+      "sha256": "e7c17116602c6d7e5abd60fcc39a2c5441b93551c946130880536559a9d296e0",
+      "stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/raw.log:32: trailing whitespace.\n+    project_owner_web_test.go:55: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/raw.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/raw.log:37: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/raw.log",
+      "sha256": "e877d1a137ccafb7770f9498adadbc07c3482411ee3bf161fa17ed79f00a5907",
+      "stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/raw.log:32: trailing whitespace.\n+    project_owner_web_test.go:59: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/raw.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/raw.log:37: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/raw.log",
+      "sha256": "dd7f469a6de3797a7ab4ab3d67817966c15095d25fbd81f7214c66aff07d4e18",
+      "stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/raw.log:33: trailing whitespace.\n+    project_owner_web_test.go:51: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/raw.log:35: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/raw.log:38: trailing whitespace.\n+        \n"
+    }
+  ],
+  "registered_original_missing_EOF_files": 86,
+  "format_exception_original_files": 89,
+  "scoped_tracked_diff_check_exit": 0,
+  "new_evidence_directory_files_including_this_result": 164,
+  "files_sha256_excluding_this_result": {
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification.md": "f841c7b6027106817a9eede46eac42122ad3df2b75275f8590a80544860fce95",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/format-exceptions.json": "2e7356c453f407f1eebc1f3b42798b7e21b306805183a784a3823dbb6f6a5fa5",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/identity01-handoff.json": "167ecca289b9039cde4cd147efc7bd6163f742402b1f4935c371a1be88b00fa2",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/identity01-launch.raw": "e03093e388ae7f10c2e013c19e024a943b77f4bda7000cf80d9da5ee8c3157cf",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/layouts01-handoff.json": "fd7130557d2d86ec10997b81ae3b906cd54a0c852d5e9b60019f2c64f89b59d6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/layouts01-launch.raw": "db682d05e9d2f9a27e20dda53a7d8efe736fbc27218d77d5cebb1b4412c0b4d9",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/nextnew01-result.json": "5a6bc16bbb0b6fedec32f6b942d52b34a189cb15d98eb0d30a49c21ecb645d43",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/nextnew01-result.md": "6246aeed5beb9437ccec71f6621543fd4e7de927b4b5895a4c980f5331840793",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/recovery01-handoff.json": "20bdc1a45da15400e8e41c8c86870845ee284d607bde2c75bf3d6f30a23d160c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/author/recovery01-launch.raw": "a419cb5082653877f4d74aa8f8029a5e66f0ae7b356f2f6c02d0cb84927bc4ea",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/identity01/evidence.json": "40f91850ea0978f6270723c8fb4821f7eaee364125a57d55cdfd3181de07d8a9",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/identity01/manifest.json": "2b0707a0ffa9c1f27b64d1c0c7093515f85fe7b2efd0c0b8e66778e407570288",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/identity01/review.md": "0ad2cdca7bdfe3672ef4f71625f3755828917c301854cbe441f2b2c926ed5647",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/layouts01/evidence.json": "5a342a5252212b5faf8c4c7e8820bfe4a36bae6153c51b4f401d780d58d2c887",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/layouts01/manifest.json": "a027b28021c466f16fc11507361978d42a9ebb694f213a0082fe8bb114ddcc8c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/layouts01/review.md": "440a4d45bc855b9b40136bd49b13e840e05520318542e34923dbceb3e021b211",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/nextnew01/evidence.json": "e2d9ead9d88d592fba5fa1d78178cba4c06d9799155e3e5f2aa0ee7560045883",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/nextnew01/manifest.json": "9a789a7944aa6628e27e2261bc34ca024b97e838cef1a7e241fc1814834e61a6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/nextnew01/review.md": "29faeacc03636bc7ce8b56e9ae23303d22d04889416b7ae584879c83163fea2e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/recovery01/evidence.json": "ad0fd3f5d3c621fe3098a61a4c4657d1ce75aa6c10bdf708f98372ff88bc2706",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/recovery01/manifest.json": "b562b87de44c7df14b3b47e74e8f9ac42f71050d9b38409d58dca1daa56f5dd7",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/independent/recovery01/review.md": "a7ea37128513eaa2c608a771239115274f8ddda13adf4f5b3e621d279023d450",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/preparation/handoff.json": "92422d254b0b797db192f6d1df0063543b3c14ebe33f38082591882e548be93c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/preparation/handoff.md": "e66d6175284bcc834228349f683d808a760c550cbbf66263fbc43ae0b3618e39",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/preparation/independent-review.md": "69e891f8cfac2e14e43f81c8777db045debbe7bc9ad3911ccced9444d86447c6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/root/exchange-nextnew01.json": "e0b6036dccef428d6ca2e522eace190c4d0e5b714db033e6340661f17fbb1ff5",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/root/restore-after-nextnew01.json": "196dd979a92efdb6fd1fa20e0e4342b0daa8dc53194c2e104e245b1e069d0827",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/adopted-waits.json": "285452034f8816ca9e8e7616c96145582493a27a9a933d5278e2d68627497aff",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/cleanup.json": "003a3c7d74c8f05b14af7df65266f323bba69cb7ae852a8c1656772f43c5d690",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/command.json": "4106616703ede52bb9002ab49480b0d8c2d6de42d810dffb57737842677e0e7d",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/disk-before-spawn.json": "856cbc383a46ebdaeac310674e3a7649bea9d4799bea86075820095eab01c108",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/disk-preflight.json": "5f8fac5c0180b199a863b7e6e8d0f4214f3ffbef59004ba0a5733bf63c3a7e17",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/observed-processes.json": "3e0ee8334591553287be5eee627735da1c8dabca2368578a60500789ef036518",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/observed-resources.json": "c2db4d066baf0a80477ddae8efe0c18b899f1eb29af8c87c6210b173231c08e4",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/process-baseline.json": "5a206fe295c6c6068ddaa56e824407667366b3953cde86303f763d28da29830e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/raw.log": "e7c17116602c6d7e5abd60fcc39a2c5441b93551c946130880536559a9d296e0",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/result.json": "82e6fbb154f2c42bafbfabd00a4406574959fe1f41f86ea8da51153cb3377767",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-05813216e22fce4943be99d6f2c7189c9ce1e8622a889b15621ddcd0ef8e469e.json": "05813216e22fce4943be99d6f2c7189c9ce1e8622a889b15621ddcd0ef8e469e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-072c987f3280c036bfc76d631859eaabb334406220d084261fe209a182b31995.json": "072c987f3280c036bfc76d631859eaabb334406220d084261fe209a182b31995",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-2b735a648e9828d80949bafe4dfd62755a6f2189ee467cf48a0240df09828e17.json": "2b735a648e9828d80949bafe4dfd62755a6f2189ee467cf48a0240df09828e17",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-3c130dc2660e2e01d692744ad2a395947b2820bbd1fee7bf4478d5e98278a6a0.json": "3c130dc2660e2e01d692744ad2a395947b2820bbd1fee7bf4478d5e98278a6a0",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f.json": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-70897ea37a488014777c002675cf64d45dac10c66139440c6c65086b37aa1fec.json": "70897ea37a488014777c002675cf64d45dac10c66139440c6c65086b37aa1fec",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-7ab4b9a3bfc82dda9827bd6c8375ad60b8e8d3e32a1eebcae02b7cebe99cfbc6.json": "7ab4b9a3bfc82dda9827bd6c8375ad60b8e8d3e32a1eebcae02b7cebe99cfbc6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-a2512cebd5d4da12dd5e544de9a5f74b0e37ea2d60c9107b0975b28a4d4b893f.json": "a2512cebd5d4da12dd5e544de9a5f74b0e37ea2d60c9107b0975b28a4d4b893f",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-eb15f707c03ea753e516a040351a2e858ce8f727239145ad07bf0f98188d20d7.json": "eb15f707c03ea753e516a040351a2e858ce8f727239145ad07bf0f98188d20d7",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-001.json": "62b52258603042cbeb391cb8e3dd4dcaddac7e6936bffebcd30b5e373e488f91",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-002.json": "80fdb0da75d060b839d0d6b3dab4d72436c49cddec63cdb0ddd03f75d52272b2",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-003.json": "de51cf67b31f68deac84a7045fc57a5f979849006b352ede4bfe05a25bfe864c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-004.json": "9354096b9448643c09dc726777cc7bd5c0620512bcd046a09e30da0e7d5e0c62",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-005.json": "bfeea3ad09c3fbcfa50ee774507167bb2e22e2b6226dd4abda96c0b8cb7d6d63",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-006.json": "292df2b0c6a0b201efe0b23a2d8d479e670acd2892f326f586c1d4791042e31d",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-007.json": "62e103bdb49af86bafd40410dd556629690bba304d4330973f5272317fdb6c9e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-008.json": "095bbe61bc25cb58b144503236d213497de5cfdc0a4af788a1f285804bbf900e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-009.json": "d93a4bf28dd88b6fbd9da2b20db13e108ff62e3e067de5c5f54a58a5e5d979b7",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-010.json": "6493b1d9e1e0b1692d3c7e1a25cab50e5241e9b02752a5ea716f637d9a62b375",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-011.json": "018361eec529bb4cb4f421f013c03b4bddd32b4a94c0aac58e2ec4d8779352de",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-012.json": "fa4971fe6dd8e1eb35c49c56f1a0697549be46c32e6b1f5d1e96f53f58a09dee",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-013.json": "9bebda541d8df863ef18106da426c4f3ac16c97d01b9f5d1b7c79979f6a941fc",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-014.json": "b2d022fdede34a27e910cece191fae12407a851b2fe0a04d83f5c08f05adfbcd",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-015.json": "77e666f994c8ba4089f7e784c843f425c4d9010ec7cbe9f55f3e060677046e63",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-016.json": "17cde2ae5aa61ca8406d9851f84361a8673c72338c0b8874ae64f378de59795c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-017.json": "fdbdb59e2442ce53739969189ccf27b36ae1e9c478472d24c4cb220a8e617108",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/same-body-validation.json": "5099da4533cf73a557fe75c9a758b82a0670ecc837776a8f4750d2bb8d96898e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/schema-validation.json": "352f2a9d184c3b0268d550539c042fe572302c0c10a1cc63efdfe0c8bc256803",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/tcp-baseline.json": "8fbbb1afae57745eee41394d08d8bd1842eec48cd4d35520026d0fc08058c080",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/tcp-observed-delta.json": "ce06d8f50ab309ecdf7a0d271c659da7256a34da8b161b99bff398d125ab370f",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/tcp-tail-observation.json": "ae0c4263956004be960bcc0d5a0b350ddaf0b08f76f0fcf9fe238090a0eda749",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/identity01/watchdog.json": "db705d18413e6fc232cf5e8cd29ebfc8704b1f1fbb3e795a444da0762457bdd9",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/adopted-waits.json": "340b7bdf484ea761114735246edc77e78bd7d2a5da6466975e57061455b751f7",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/cleanup.json": "c9b61713be433569ba442bf47a8a687ccee08a5afb501745a54490876f3e62da",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/command.json": "6b86cfa4c6904fb89ca44f490efdf7e8b7dd103837bdd5f99117fc32b6054b8c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/disk-before-spawn.json": "4ec33d69c0ad930962ce18561235a95b5ce1e0b533fc386b0a0aedc13353b9fb",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/disk-preflight.json": "fa699bbc103fa81c803b407a5b686924db08e7695020e0adb10468d0528e7bec",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/observed-processes.json": "9b6f719c2b59702551ccc48649801c0cf5c1fda30d838a155ad31de381031044",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/observed-resources.json": "74ca05efcfc04ac4091e348d0212b0b04386b084a652a49e8b3e44c55319cdf6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/process-baseline.json": "d6a464c6861de03c06ed045fb0b41e594b1fdd0f94b7ca6c16abe16b8bba2884",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/raw.log": "e877d1a137ccafb7770f9498adadbc07c3482411ee3bf161fa17ed79f00a5907",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/result.json": "1d2ed944a926fb70d32f58a2873d243863162adb2f18c6d305f3f7fb26f21108",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-133b90f82b37fb6962fd345d77c89eb93b411461ae486d5b6202ea3ec9dd4b44.json": "133b90f82b37fb6962fd345d77c89eb93b411461ae486d5b6202ea3ec9dd4b44",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-179dd68fc84a2f23ad5402f5354410bd6f249262db1ea65b06e9563ff4ab5f26.json": "179dd68fc84a2f23ad5402f5354410bd6f249262db1ea65b06e9563ff4ab5f26",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-39096b9e1661dd8b6ce009f1ae28b24324c7641fe816d579855888a8039b2503.json": "39096b9e1661dd8b6ce009f1ae28b24324c7641fe816d579855888a8039b2503",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-47c2b488f9005801085b01a51dc291ce45490705143d9df3092ca9cfd5897895.json": "47c2b488f9005801085b01a51dc291ce45490705143d9df3092ca9cfd5897895",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-70ae187f439069ac467aa103738d485c44def5387b9afe565e525321784077e8.json": "70ae187f439069ac467aa103738d485c44def5387b9afe565e525321784077e8",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-a624b615ae97b6c4116a4cdd7e57498b421810e0cb262dd4a1307abc6af02442.json": "a624b615ae97b6c4116a4cdd7e57498b421810e0cb262dd4a1307abc6af02442",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-d2599b0d1abac18664fb6d472e9d703e0358a887f78283cdff9dc592783505f8.json": "d2599b0d1abac18664fb6d472e9d703e0358a887f78283cdff9dc592783505f8",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/body-d2ed8b2d8c70c2e05b6b309c2bd0fbf653d35707765b503f4305cc74dbbde7e4.json": "d2ed8b2d8c70c2e05b6b309c2bd0fbf653d35707765b503f4305cc74dbbde7e4",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-001.json": "262bcbc998cbd19463782817db8de6f030671b27076fd0b87676fb6d2d711f3d",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-002.json": "087dade3e03d949c39373624d6fbea44c3df8f989d4e10b84fdadd8b51fe5a86",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-003.json": "5c3a52d259170b55637c4a1011f920bb6242fa052e61bbde410a14ff3461886b",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-004.json": "f46381cd0a363b10af836c2b6d4161c78fe741eefec9e234c7fa5f18a0dc489f",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-005.json": "8b634c5c15da99a6d67fb57c5ca3b6be35271dcb95213d16d39dfd452b4c2d74",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-006.json": "a6f15fd1bdd4ec9047d502217e8b0ef8c9157b944caa145771a8b688c0dc7127",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-007.json": "939600d2c5be93ceafc1e7d9d4e7364fcdb8ce8f9e1371d711cc90b212d22bb6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-008.json": "b50c422a497d8e20854519886f031baa7c04fbbb2570a91997a327ded8c759a5",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-009.json": "15acb004de32eefc511f0b6eb99f0f30647b721565f613276b56d9deaac02a05",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-010.json": "9e45025c2a7110e2271b0c9148d74af2a2591d716c7631e136381b5bce17b158",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-011.json": "f6fba4075f8ddd08bc9e7e7036bab57897c74082b6b8d9766c1fe9807e6137a7",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-012.json": "78334b41da652231dfc396eb754743b33111d9e30187303806b3fdb1b0f2d332",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-013.json": "95726bc36cc5d4475f75055453c0f1088c866fb5a46afbc6bc80af600d9ce403",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-014.json": "ac5f4b1685b777e94265dcf982d83aa1916e50172b6bc71eed786326077b5e1a",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-015.json": "0524de2b39615cc716f49b16d039f5214fb2e61651d89725473fb4ea5cc13769",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/response-016.json": "c31f619dd9cc13074415d3aa64ebd1a42e203984a0861fdafead72323cf950c8",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/same-body-validation.json": "beb1eab68fdf20057f317748dad7aa9738d25a10ecfc84d83534cfee4e3d4d12",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/safe-http-evidence/TestAccountProjectOwnerWebLayouts/schema-validation.json": "1c013a29162de6134e566eafaa69395caff5029a429a50a63c9203e0d21444f4",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/screenshots/project-owner-dark-1440-no-preference.png": "f9ec12ce7553c3747cd4d376be90a67925cda88f5a5885db206b74ba5d8f90ac",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/screenshots/project-owner-dark-1440-reduce.png": "8b468dae3b408bef5a1663ad62c02a365c1e50ea19344a82ab907a1831b6380b",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/screenshots/project-owner-dark-390-no-preference.png": "961fcabdf8b347ce55283a5d9e8b9daae15ce79a66b671d1f165809bb2d6339f",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/screenshots/project-owner-light-1440-no-preference.png": "beb0874dd609f27d1d14c8c4e8ffd4b8b4d899b937dea1309ce4dbaf8c4a7abd",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/screenshots/project-owner-light-1440-reduce.png": "42b05638336ec39fad43663c149d422ba713053d766d193efcfcd83fd692030d",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/screenshots/project-owner-light-390-no-preference.png": "7c308eccb819e4a16dfed77302865407a3f5519229e7cd46bcb84bb9892618d3",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/screenshots/project-owner-light-390-reduce.png": "eb7af11b9ee79a1b43b2e8612ecd2119e8b0e14cae288099fc8aa4b820a148da",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/tcp-baseline.json": "ff79ca84ce060ca9437078a93ef5f3fcb1d446084d6d68b8235e66bde726b803",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/tcp-observed-delta.json": "9f1090e87ad1876c4d709e60d3563976659a16efed2e774b21823d1370b81b80",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/tcp-tail-observation.json": "5bdfc38752172f062e7b90a4ab5de57fecdad71318e0877ea91da13e71327608",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/layouts01/watchdog.json": "69e33846d9784beb8f3222841111170c83d7bbf46d6e5f830a6db92d248b4e73",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/adopted-waits.json": "881803f62db107ff43d71666c1196b8703565ab729799bb125ad5b3c51f249b2",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/cleanup.json": "85809df5878562d51529b8510ce28f2ccf8dc9225f7eebe910aad65dea4f312c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/command.json": "4a8efbb53fa27981f24163bd029860edd7da684c320026442e78c8c2115098f6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/disk-before-spawn.json": "55415648d906b46b51bb2ef3bdf23df36df6588c338235e94de7ccb8a57cd6e5",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/disk-preflight.json": "8b424f5913cc8b36977f191b17d1181ea9341e6887169a467cccff8817588d24",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/frozen-input.json": "43a01651a84d3bde69f6b5be732056e13d4925df0924c1f443257580a8a62e2e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/observed-processes.json": "661c72bd88831cca7b0fd9693604c9d73baf0e12aa34d6de30c9972893fd8090",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/observed-resources.json": "f23dbb127eb1bd8908260cf32eaeaa42429ff2a2c511411b4f2d05abc5e7d8e3",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/process-baseline.json": "77eb084f0e180da98f290c321751525e1eb4d3e2c79ab4b3f162a5896f687e70",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/raw.log": "dd7f469a6de3797a7ab4ab3d67817966c15095d25fbd81f7214c66aff07d4e18",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/result.json": "5183f0bcb9aa9d8d3809be49005447f4ffcd9154a565528ce0d401fde86874aa",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-16ac53cc54cb023f6f71096e94f3e8b027803f104b8dfd532e7645b9055402bf.json": "16ac53cc54cb023f6f71096e94f3e8b027803f104b8dfd532e7645b9055402bf",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-1ec5e4f9da0a195444962a3087ef41fc995686862e3f7d0df9db5e95bf18fe17.json": "1ec5e4f9da0a195444962a3087ef41fc995686862e3f7d0df9db5e95bf18fe17",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-37c155df0596c500fb476022f802f18f2b3a7cd82dcb1df55918606cbcefae75.json": "37c155df0596c500fb476022f802f18f2b3a7cd82dcb1df55918606cbcefae75",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-4420121aadb0cef77c4bacd5a7a3d91f9c7bc8cd3b1c5cd221e729dd98603c75.json": "4420121aadb0cef77c4bacd5a7a3d91f9c7bc8cd3b1c5cd221e729dd98603c75",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-57bc99dc39b3da408cfd0d386f48838be906f00b756107df957e7557946f3031.json": "57bc99dc39b3da408cfd0d386f48838be906f00b756107df957e7557946f3031",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-6173cb605ebc16fcce0ae8071c8142e0b23f6a8812baacc518584380beef2c66.json": "6173cb605ebc16fcce0ae8071c8142e0b23f6a8812baacc518584380beef2c66",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-9e374a028dc612b4eb2253ca94b2cf49d3e5fb28f0abb74b8923d966bc317d9c.json": "9e374a028dc612b4eb2253ca94b2cf49d3e5fb28f0abb74b8923d966bc317d9c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-aef464a83d36164087a928ce6f6aad874f44a4bbb735892a8f939c5179de26c3.json": "aef464a83d36164087a928ce6f6aad874f44a4bbb735892a8f939c5179de26c3",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-d363b3afb674d668177e12a373d89ca81f533b679e098ce9c7bf3386ce8a059f.json": "d363b3afb674d668177e12a373d89ca81f533b679e098ce9c7bf3386ce8a059f",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/body-eab63306689835a9170132247b0161295aa4d3cb896ce288c34ec55a6fa9f535.json": "eab63306689835a9170132247b0161295aa4d3cb896ce288c34ec55a6fa9f535",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-001.json": "fec8ea17727fbba03710eef5497c8f4655546f283e41c50017a758eb462240e8",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-002.json": "4869bab442087c3f8b7674a8f33a3972dd5e1365b398d3d809e3fb9a02cc9a68",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-003.json": "f376edb30e0d1bfb15286f775edf42ccf13343fe202c4bfccc257d49e20a128a",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-004.json": "45ed024804010722086adf23326b5b3fe2c1671c04d890d1562522b53bd08e4e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-005.json": "84e05da9a9acab9bcd2de12fc05026552da4673e595e559d85b6fad2c148c86d",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-006.json": "3478dd208e1b3616253235ca99ebe6c551486502889e12d0ce8538c3030ef94d",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-007.json": "63e6af803a4a5884e3fda7c795112144d3c9f85901537617f0e5d225d7eeca88",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-008.json": "d8df13745e01b115e0271eb15d7a11455128c788351d50233436c37427e5d004",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-009.json": "451b01b150ac887a7e26144c9bed3aab75dd81c3a0d6d00b7b84e567afdce193",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-010.json": "0a922033161a7417645bcc54b5a78a330fea68355c1d98b0d792c5112ed044b5",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-011.json": "603ae48bcc6ca0a94e075302481dff1fbbb2a408ff02b5a8ecf9c592b5f17aa1",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-012.json": "bf8698954e94dfcb512fc5f173a5a5c4941a4e04e98e83f92c2a9e0d50ff94cb",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-013.json": "09cd8344e5539b98c64126d23716f525bda0fe20d00bc0f01c163e2c75e77875",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-014.json": "3083ccc2c56a83f19ef2dc3f14536f3ece7ee10a6041217ce79c8c22d122d830",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-015.json": "d84e786639e7f9f55c629fe40c2a1090a2e2cac618d9cf5b5fa9e70c39a6414b",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-016.json": "c0ed1b427e8bcf1907f5a485485def72cabd3a4319e3c210ee8b892cb54d8ddd",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-017.json": "cd4a6f380193d3f27a91f173ea39ac169bc4dae434fdb71bafda8e77ff6f4fc6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-018.json": "9b03575ed97e8f0f3083e153d52164bb549639e2f06d3fc81abd2e6cd4732657",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/response-019.json": "c2ff82170633f66e3e70c197ac9be7b171671d8ac6fa8252f15905d6aeecb62c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/same-body-validation.json": "e3c79b25fa7eb046b1f29a355576f8d46d15d35ae00c353158efcc20aaea297c",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/tcp-baseline.json": "4b9b8592989bff34663a2e56230162ba8daadb178b11f60107d9545521f37cb6",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/tcp-observed-delta.json": "d362234bdfdfd8a92a665484c00d945a0fe3a96fad33b247c100c45f497b3ef3",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/tcp-tail-observation.json": "c3e5cf8de596738c703db4e3be907ee4280c7605c7b28b6d2b7f945628acc3d9",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/verification-input.json": "1938964cd7fa1d2446bc30d3ba583e334cdd98c03c4c67628aba4604724e2302",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/originals/runs/recovery01/watchdog.json": "ed444aa2ff64519951e1f4d62b6363e0a7238f784dec64044076cab506dea57e",
+    "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/source-map.json": "8ffcdcd0e866e86ec141db818cce3b6c6a8f63fca523393ba67a9b0f4441bf42"
+  }
+}

@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新归档：三新成功原件永久核验
+
+[nextnew01永久报告](project-owner-ui-recovered-nextnew01-verification.md)207逻辑原件/164指纹/42Git已root核合，8图逐映射7原PNG实体，schema52/client27及视觉/退役范围明确。旧16第3FAIL/后13未跑待归因，原3恢复无资源；独立实际A/B/README22/完整D27未接受。精确计数/原格式例外见[台账](tasks.md)，生产与三停止保持。
+
 ## 最新终局：旧16第三轮FAIL，原资产恢复
 
 旧域首批2PASS/1FAIL/13NOT_RUN，第3个人资料测试在读取400正文时Protocol error，待固定原件独核归因。三轮actualwait/21ID/ownedruntimeTCP双清完成，root原3已精确恢复，53回stage，无当前资源。独立A/B仅自有false准备，01记录器技术FAIL保留/02有限文件准备PASS待封；完整D27/README22未接受。精确原件/限制见[台账](tasks.md)，生产与三停止保持。

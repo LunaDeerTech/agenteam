@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：nextnew01三成功轮永久原件接受
+
+[nextnew01永久报告](project-owner-ui-recovered-nextnew01-verification.md)及有限证据档已STOP，root核207逻辑原件（2222066 bytes）source/archive原字节/SHA同、164指纹/42产品Git定位同；新增161原件实体1759266 bytes，复用21已提交实体150436 bytes（40逻辑）。166 run原件1838418 bytes+3 launch冻结，8原图路径/尺寸/bytes/SHA逐映射为7未改PNG实体。checks SHAce7ee43d4e53765e77ea01f3fceb084203b27f427b5e8f79e3b154f41ab21cba，报告SHAf841c7b6027106817a9eede46eac42122ad3df2b75275f8590a80544860fce95。
+
+3direct+12adopted实际wait/3watchdog、21不同IDs/ownedruntimeTCP双清/input同、12非owned未waitshims实核；schema52/client27、52sidecar/28独立body按源分列。86原JSON缺EOF与3raw的9trailing字节保留登记，不规范化。归档器首辅助readj(str)类型错误exit1与窄修后本地完整核exit0均保留，不算产品红或业务重跑。只接受作者recovery/identity/layouts及独立原件/8图可见区域视觉/退役有限PASS，不替代真正独立实际A/B；移动scroll下部、motion静图/nativezoom限制保持。
+
+旧16仍2PASS/1FAIL/13NOT_RUN，失败固定原件独审归因与前端作者只读诊断进行，未授源码/legacytest修改或资源重试；原3恢复无当前窗口。README22/完整D27/生产未绑定/ready503/D08–D28/E01与三停止保持。以下为历史。
+
 ## 2026-10-08：旧16第3失败，整批退役并恢复
 
 oldauthlife01整轮PASS（top7.60s/browser5.0/direct53.563/TCP39.394，4adopted）；oldauthrevoke01整轮PASS（top12.42s/browser4.4+3.1/direct64.721/TCP37.385，8adopted）。第3oldprofile01唯一top FAIL8.54s，personal-settings.spec.ts:441 duplicate.json()在重复username400 field_errors读取处报Network.getResponseBody No data found for resource；不预先定性产品/旧test根因，后13NOT_RUN。失败handoff SHA765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95，原24run文件保持，未到avatar矩阵/最终facts不能补称通过。

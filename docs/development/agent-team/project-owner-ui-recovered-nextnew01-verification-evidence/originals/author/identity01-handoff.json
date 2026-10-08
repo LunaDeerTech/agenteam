@@ -1,0 +1,314 @@
+{
+  "actual_direct_wait": true,
+  "adopted_actual_waits": 4,
+  "batch": "nextnew01",
+  "body_files": 9,
+  "browser_seconds": 11.0,
+  "cancellation_records": 0,
+  "conditional_batch_advance_gate_satisfied": true,
+  "direct_command_seconds": 67.83,
+  "direct_identity": {
+    "pid": 209305,
+    "starttime": "1183419"
+  },
+  "exact_ids": [
+    "a8ac64160258481b829ecc42c6bc2d39abb0c1b00fec0740b0f3e0514d13330e",
+    "ab5bfb772277170bc9d24b83464c8a7cf52a633c22fafa430588799a9e952527",
+    "b6e69da1cb3e8f959350d6da9e40b1da83417a1338109d47b72496b4570fffee",
+    "b732d4925b09b7536a9603e71b124140ab78f41e28261dad7988bf089c729bba",
+    "bd5492f0f82aca9adafe0cb49602c07600a97d7d4866af2147f5ef14dfce16ad",
+    "d9ee68cfdfc363e5611a9836b7ac38be3a5d94b937df21d4d4ac0ea05d307b23",
+    "e319d55f441c386b6fa78d69b71b507780672ec7fb3054034c8fc6c241bcacf2"
+  ],
+  "exact_ids_double_absent": true,
+  "forced_actions": 0,
+  "group": "new-identity",
+  "images": [],
+  "input_before_after_same": true,
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-backend/identity01-launch.raw",
+    "sha256": "e03093e388ae7f10c2e013c19e024a943b77f4bda7000cf80d9da5ee8c3157cf"
+  },
+  "monitor_errors": 0,
+  "new_nonowned_unwaited_pid1_shims": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 209677,
+      "ppid": 1,
+      "starttime": "1183866",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 210150,
+      "ppid": 1,
+      "starttime": "1184247",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 210460,
+      "ppid": 1,
+      "starttime": "1184425",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 210956,
+      "ppid": 1,
+      "starttime": "1184595",
+      "state": "Z"
+    }
+  ],
+  "outer_actual_exit": 0,
+  "outer_final_chunk": "879015",
+  "outer_session": 81313,
+  "owned_runtime_double_empty": true,
+  "raw_sha256": "e7c17116602c6d7e5abd60fcc39a2c5441b93551c946130880536559a9d296e0",
+  "reported_top_seconds": 18.31,
+  "resource_ids_disjoint_previous_round": true,
+  "result_sha256": "82e6fbb154f2c42bafbfabd00a4406574959fe1f41f86ea8da51153cb3377767",
+  "round": "identity01",
+  "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01",
+  "run_file_count": 52,
+  "run_files": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "285452034f8816ca9e8e7616c96145582493a27a9a933d5278e2d68627497aff"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 18035,
+      "sha256": "003a3c7d74c8f05b14af7df65266f323bba69cb7ae852a8c1656772f43c5d690"
+    },
+    "command.json": {
+      "bytes": 2608,
+      "sha256": "4106616703ede52bb9002ab49480b0d8c2d6de42d810dffb57737842677e0e7d"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 183,
+      "sha256": "856cbc383a46ebdaeac310674e3a7649bea9d4799bea86075820095eab01c108"
+    },
+    "disk-preflight.json": {
+      "bytes": 183,
+      "sha256": "5f8fac5c0180b199a863b7e6e8d0f4214f3ffbef59004ba0a5733bf63c3a7e17"
+    },
+    "driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "frozen-input.json": {
+      "bytes": 40748,
+      "sha256": "43a01651a84d3bde69f6b5be732056e13d4925df0924c1f443257580a8a62e2e"
+    },
+    "input-after.json": {
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    "input-before.json": {
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 16132,
+      "sha256": "3e0ee8334591553287be5eee627735da1c8dabca2368578a60500789ef036518"
+    },
+    "observed-resources.json": {
+      "bytes": 5041,
+      "sha256": "c2db4d066baf0a80477ddae8efe0c18b899f1eb29af8c87c6210b173231c08e4"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 7857,
+      "sha256": "5a206fe295c6c6068ddaa56e824407667366b3953cde86303f763d28da29830e"
+    },
+    "raw.log": {
+      "bytes": 4751,
+      "sha256": "e7c17116602c6d7e5abd60fcc39a2c5441b93551c946130880536559a9d296e0"
+    },
+    "result.json": {
+      "bytes": 9185,
+      "sha256": "82e6fbb154f2c42bafbfabd00a4406574959fe1f41f86ea8da51153cb3377767"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-05813216e22fce4943be99d6f2c7189c9ce1e8622a889b15621ddcd0ef8e469e.json": {
+      "bytes": 878,
+      "sha256": "05813216e22fce4943be99d6f2c7189c9ce1e8622a889b15621ddcd0ef8e469e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-072c987f3280c036bfc76d631859eaabb334406220d084261fe209a182b31995.json": {
+      "bytes": 246,
+      "sha256": "072c987f3280c036bfc76d631859eaabb334406220d084261fe209a182b31995"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-2b735a648e9828d80949bafe4dfd62755a6f2189ee467cf48a0240df09828e17.json": {
+      "bytes": 374,
+      "sha256": "2b735a648e9828d80949bafe4dfd62755a6f2189ee467cf48a0240df09828e17"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-3c130dc2660e2e01d692744ad2a395947b2820bbd1fee7bf4478d5e98278a6a0.json": {
+      "bytes": 404,
+      "sha256": "3c130dc2660e2e01d692744ad2a395947b2820bbd1fee7bf4478d5e98278a6a0"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f.json": {
+      "bytes": 365,
+      "sha256": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-70897ea37a488014777c002675cf64d45dac10c66139440c6c65086b37aa1fec.json": {
+      "bytes": 380,
+      "sha256": "70897ea37a488014777c002675cf64d45dac10c66139440c6c65086b37aa1fec"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-7ab4b9a3bfc82dda9827bd6c8375ad60b8e8d3e32a1eebcae02b7cebe99cfbc6.json": {
+      "bytes": 383,
+      "sha256": "7ab4b9a3bfc82dda9827bd6c8375ad60b8e8d3e32a1eebcae02b7cebe99cfbc6"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-a2512cebd5d4da12dd5e544de9a5f74b0e37ea2d60c9107b0975b28a4d4b893f.json": {
+      "bytes": 198,
+      "sha256": "a2512cebd5d4da12dd5e544de9a5f74b0e37ea2d60c9107b0975b28a4d4b893f"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/body-eb15f707c03ea753e516a040351a2e858ce8f727239145ad07bf0f98188d20d7.json": {
+      "bytes": 392,
+      "sha256": "eb15f707c03ea753e516a040351a2e858ce8f727239145ad07bf0f98188d20d7"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-001.json": {
+      "bytes": 546,
+      "sha256": "62b52258603042cbeb391cb8e3dd4dcaddac7e6936bffebcd30b5e373e488f91"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-002.json": {
+      "bytes": 546,
+      "sha256": "80fdb0da75d060b839d0d6b3dab4d72436c49cddec63cdb0ddd03f75d52272b2"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-003.json": {
+      "bytes": 546,
+      "sha256": "de51cf67b31f68deac84a7045fc57a5f979849006b352ede4bfe05a25bfe864c"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-004.json": {
+      "bytes": 546,
+      "sha256": "9354096b9448643c09dc726777cc7bd5c0620512bcd046a09e30da0e7d5e0c62"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-005.json": {
+      "bytes": 546,
+      "sha256": "bfeea3ad09c3fbcfa50ee774507167bb2e22e2b6226dd4abda96c0b8cb7d6d63"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-006.json": {
+      "bytes": 481,
+      "sha256": "292df2b0c6a0b201efe0b23a2d8d479e670acd2892f326f586c1d4791042e31d"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-007.json": {
+      "bytes": 546,
+      "sha256": "62e103bdb49af86bafd40410dd556629690bba304d4330973f5272317fdb6c9e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-008.json": {
+      "bytes": 481,
+      "sha256": "095bbe61bc25cb58b144503236d213497de5cfdc0a4af788a1f285804bbf900e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-009.json": {
+      "bytes": 546,
+      "sha256": "d93a4bf28dd88b6fbd9da2b20db13e108ff62e3e067de5c5f54a58a5e5d979b7"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-010.json": {
+      "bytes": 546,
+      "sha256": "6493b1d9e1e0b1692d3c7e1a25cab50e5241e9b02752a5ea716f637d9a62b375"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-011.json": {
+      "bytes": 473,
+      "sha256": "018361eec529bb4cb4f421f013c03b4bddd32b4a94c0aac58e2ec4d8779352de"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-012.json": {
+      "bytes": 489,
+      "sha256": "fa4971fe6dd8e1eb35c49c56f1a0697549be46c32e6b1f5d1e96f53f58a09dee"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-013.json": {
+      "bytes": 481,
+      "sha256": "9bebda541d8df863ef18106da426c4f3ac16c97d01b9f5d1b7c79979f6a941fc"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-014.json": {
+      "bytes": 546,
+      "sha256": "b2d022fdede34a27e910cece191fae12407a851b2fe0a04d83f5c08f05adfbcd"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-015.json": {
+      "bytes": 481,
+      "sha256": "77e666f994c8ba4089f7e784c843f425c4d9010ec7cbe9f55f3e060677046e63"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-016.json": {
+      "bytes": 546,
+      "sha256": "17cde2ae5aa61ca8406d9851f84361a8673c72338c0b8874ae64f378de59795c"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/response-017.json": {
+      "bytes": 473,
+      "sha256": "fdbdb59e2442ce53739969189ccf27b36ae1e9c478472d24c4cb220a8e617108"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/same-body-validation.json": {
+      "bytes": 72,
+      "sha256": "5099da4533cf73a557fe75c9a758b82a0670ecc837776a8f4750d2bb8d96898e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/schema-validation.json": {
+      "bytes": 76,
+      "sha256": "352f2a9d184c3b0268d550539c042fe572302c0c10a1cc63efdfe0c8bc256803"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "8fbbb1afae57745eee41394d08d8bd1842eec48cd4d35520026d0fc08058c080"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 12892,
+      "sha256": "ce06d8f50ab309ecdf7a0d271c659da7256a34da8b161b99bff398d125ab370f"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 248300,
+      "sha256": "ae0c4263956004be960bcc0d5a0b350ddaf0b08f76f0fcf9fe238090a0eda749"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "1938964cd7fa1d2446bc30d3ba583e334cdd98c03c4c67628aba4604724e2302"
+    },
+    "watchdog.json": {
+      "bytes": 546,
+      "sha256": "db705d18413e6fc232cf5e8cd29ebfc8704b1f1fbb3e795a444da0762457bdd9"
+    }
+  },
+  "safe_body_sha_all_match": true,
+  "same_body_validation": {
+    "client_reads": {
+      "get": 4,
+      "list": 2,
+      "problem": 1,
+      "resolve": 4
+    },
+    "schemas": 17
+  },
+  "same_input_as_previous_round": true,
+  "schema_validation": {
+    "failed_to_run": false,
+    "signal": null,
+    "status": 0,
+    "stderr": "",
+    "stdout": "17\n"
+  },
+  "scope": "only this exact identity case author PASS; schema includes fixture/helper responses, client_reads counts browser-correlated native GETs; independent review pending",
+  "sidecars": 17,
+  "status": "AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+  "tcp_double_clear": true,
+  "tcp_tail_seconds": 38.381247253000765,
+  "top": "TestAccountProjectOwnerWebIdentityAndOwnership",
+  "verification_inputs_same": true,
+  "watchdog_joined": true
+}

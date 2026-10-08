@@ -1,0 +1,565 @@
+{
+  "verdict": "PASS author actual identity01 + owned retirement evidence audit only",
+  "new_execution": false,
+  "active_layouts_or_global_resources_read": false,
+  "verified_run_files": 52,
+  "verified_run_bytes": 427099,
+  "launch_verified": true,
+  "actual_assertion_scope": [
+    "same Session checking recovery preserves draft",
+    "logout confirmation continue preserves draft",
+    "formal logout204 and login new Session ID clears old draft",
+    "proxy held backend-complete response locks logout; navigation and finished transport tail does not republish editor; subsequent requests GET only",
+    "other Cookie context denied original Owner project then opens own project",
+    "main context switches to admin and opens admin-owned Project",
+    "Project-to-System dirty confirmation, explicit Project discard",
+    "four-purpose and Summary simultaneous drafts aggregate history navigation; continue preserves both; explicit discard leaves"
+  ],
+  "proof_limits": [
+    "Session values/private IPC flags not persisted",
+    "Held tail is browser transport, not backend transaction",
+    "No simultaneous three-domain Project+System+Summary draft claim",
+    "No full DOM/screenshot",
+    "No new global Cookie-mutator concurrency matrix"
+  ],
+  "safe_http": {
+    "sidecars": 17,
+    "bodies": 9,
+    "closed_sidecar_fields": 10,
+    "all_body_hash_input_source_bindings_verified": true,
+    "schema_original": {
+      "status": 0,
+      "signal": null,
+      "stdout": "17\n",
+      "stderr": "",
+      "failed_to_run": false
+    },
+    "native_client_original": {
+      "schemas": 17,
+      "client_reads": {
+        "list": 2,
+        "resolve": 4,
+        "get": 4,
+        "problem": 1
+      }
+    },
+    "response_classification": [
+      {
+        "sidecar": "response-001.json",
+        "role": "fixture setup",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7b84-7556-93f1-3098fcd23a11",
+        "request_id": "01a11a43-7fc9-7968-871f-0237ec651e00",
+        "body_sha256": "70897ea37a488014777c002675cf64d45dac10c66139440c6c65086b37aa1fec",
+        "project_id": "01a11a43-7b84-7556-93f1-3098fcd23a11",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-002.json",
+        "role": "fixture setup",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7bb5-7f42-ba8a-263836c9fda9",
+        "request_id": "01a11a43-7fcf-7454-9736-19d47c3d38c3",
+        "body_sha256": "3c130dc2660e2e01d692744ad2a395947b2820bbd1fee7bf4478d5e98278a6a0",
+        "project_id": "01a11a43-7bb5-7f42-ba8a-263836c9fda9",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-003.json",
+        "role": "fixture setup",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7bf0-7847-bdbb-f4d5032b5aab",
+        "request_id": "01a11a43-7fd4-7373-a8a5-d1fbbd1a7f1e",
+        "body_sha256": "7ab4b9a3bfc82dda9827bd6c8375ad60b8e8d3e32a1eebcae02b7cebe99cfbc6",
+        "project_id": "01a11a43-7bf0-7847-bdbb-f4d5032b5aab",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-004.json",
+        "role": "fixture setup",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7d24-765a-82ec-6e2a27d31f48",
+        "request_id": "01a11a43-7fd8-73ce-9498-4bca4b24c23f",
+        "body_sha256": "eb15f707c03ea753e516a040351a2e858ce8f727239145ad07bf0f98188d20d7",
+        "project_id": "01a11a43-7d24-765a-82ec-6e2a27d31f48",
+        "body_owner_user_id": "01a11a43-6d0b-7f06-bb03-4cf1715d0759",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-005.json",
+        "role": "fixture setup",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "request_id": "01a11a43-7fdc-7717-9c8c-2461ef92178e",
+        "body_sha256": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f",
+        "project_id": "01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-006.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/resolve",
+        "request_id": "01a11a43-8db1-7d34-9fd2-b2a8f549db7a",
+        "body_sha256": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f",
+        "project_id": "",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-007.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "request_id": "01a11a43-8dc7-78ac-be92-89c99e6cd413",
+        "body_sha256": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f",
+        "project_id": "01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-008.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/resolve",
+        "request_id": "01a11a43-961b-7cb8-9e64-dfcf7b81ffc6",
+        "body_sha256": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f",
+        "project_id": "",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-009.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "request_id": "01a11a43-9633-7689-9592-f7bfeba485de",
+        "body_sha256": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f",
+        "project_id": "01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-010.json",
+        "role": "held/cancelled backend-complete response, not native client count",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "request_id": "01a11a43-9707-7568-83e3-6bedf640236f",
+        "body_sha256": "46ed2702393bf6298d303ee6e9c31c9f8d8b08e18a4b6b491c1f9a0d9fee788f",
+        "project_id": "01a11a43-7b4b-713b-b3cc-34a5908cba3d",
+        "body_owner_user_id": "01a11a43-72c2-75a1-9803-5695ecd7686f",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-011.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects",
+        "request_id": "01a11a43-97a4-7057-9609-072ba2f87d29",
+        "body_sha256": "05813216e22fce4943be99d6f2c7189c9ce1e8622a889b15621ddcd0ef8e469e",
+        "project_id": "",
+        "body_owner_user_id": null,
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-012.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 404,
+        "endpoint": "/api/v1/projects/resolve",
+        "request_id": "01a11a43-9b78-776f-8183-21266e77fefa",
+        "body_sha256": "072c987f3280c036bfc76d631859eaabb334406220d084261fe209a182b31995",
+        "project_id": "",
+        "body_owner_user_id": null,
+        "problem_code": "NOT_FOUND"
+      },
+      {
+        "sidecar": "response-013.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/resolve",
+        "request_id": "01a11a43-9d32-7571-a091-0fb62750134f",
+        "body_sha256": "2b735a648e9828d80949bafe4dfd62755a6f2189ee467cf48a0240df09828e17",
+        "project_id": "",
+        "body_owner_user_id": "01a11a43-7666-7def-9abe-59a860a30b94",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-014.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7c48-7510-b711-4d7e5ad4e883",
+        "request_id": "01a11a43-9d3e-7750-9137-5925149c0f1b",
+        "body_sha256": "2b735a648e9828d80949bafe4dfd62755a6f2189ee467cf48a0240df09828e17",
+        "project_id": "01a11a43-7c48-7510-b711-4d7e5ad4e883",
+        "body_owner_user_id": "01a11a43-7666-7def-9abe-59a860a30b94",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-015.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/resolve",
+        "request_id": "01a11a43-a25a-73d7-8264-7a1f77841b6d",
+        "body_sha256": "eb15f707c03ea753e516a040351a2e858ce8f727239145ad07bf0f98188d20d7",
+        "project_id": "",
+        "body_owner_user_id": "01a11a43-6d0b-7f06-bb03-4cf1715d0759",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-016.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects/01a11a43-7d24-765a-82ec-6e2a27d31f48",
+        "request_id": "01a11a43-a269-736d-8205-08862957fb87",
+        "body_sha256": "eb15f707c03ea753e516a040351a2e858ce8f727239145ad07bf0f98188d20d7",
+        "project_id": "01a11a43-7d24-765a-82ec-6e2a27d31f48",
+        "body_owner_user_id": "01a11a43-6d0b-7f06-bb03-4cf1715d0759",
+        "problem_code": null
+      },
+      {
+        "sidecar": "response-017.json",
+        "role": "native browser GET client",
+        "method": "GET",
+        "status": 200,
+        "endpoint": "/api/v1/projects",
+        "request_id": "01a11a43-a558-7107-a175-47116994268f",
+        "body_sha256": "a2512cebd5d4da12dd5e544de9a5f74b0e37ea2d60c9107b0975b28a4d4b893f",
+        "project_id": "",
+        "body_owner_user_id": null,
+        "problem_code": null
+      }
+    ],
+    "no_Project_mutation_or_IPC_update_helper": true,
+    "Session_and_System_requests_excluded_from_Project_evidence": true,
+    "native_URL_owner_binding": "runtime XID-to-URL-owner-status map and frozen decoder actual complete path; map not separately persisted"
+  },
+  "retirement": {
+    "direct": {
+      "pid": 209305,
+      "pid_starttime": "1183419",
+      "started_utc": "2026-10-08T06:45:59.468637+00:00",
+      "ended_utc": "2026-10-08T06:47:07.299372+00:00",
+      "exit": 0,
+      "seconds": 67.83,
+      "actual_wait_completed": true,
+      "watchdog_thread_joined": true
+    },
+    "adopted": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 214061,
+        "starttime": "1187026",
+        "time": "2026-10-08T06:46:45.563438+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 214064,
+        "starttime": "1187027",
+        "time": "2026-10-08T06:46:45.563460+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 214068,
+        "starttime": "1187027",
+        "time": "2026-10-08T06:46:45.563476+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 214069,
+        "starttime": "1187027",
+        "time": "2026-10-08T06:46:45.563491+00:00"
+      }
+    ],
+    "resource_ids": [
+      "a8ac64160258481b829ecc42c6bc2d39abb0c1b00fec0740b0f3e0514d13330e",
+      "ab5bfb772277170bc9d24b83464c8a7cf52a633c22fafa430588799a9e952527",
+      "b6e69da1cb3e8f959350d6da9e40b1da83417a1338109d47b72496b4570fffee",
+      "b732d4925b09b7536a9603e71b124140ab78f41e28261dad7988bf089c729bba",
+      "bd5492f0f82aca9adafe0cb49602c07600a97d7d4866af2147f5ef14dfce16ad",
+      "d9ee68cfdfc363e5611a9836b7ac38be3a5d94b937df21d4d4ac0ea05d307b23",
+      "e319d55f441c386b6fa78d69b71b507780672ec7fb3054034c8fc6c241bcacf2"
+    ],
+    "ids_disjoint_recovery": true,
+    "start_after_recovery_last_tcp_scan": true,
+    "cleanup": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_absent": {
+          "a8ac64160258481b829ecc42c6bc2d39abb0c1b00fec0740b0f3e0514d13330e": {
+            "absent": true
+          },
+          "ab5bfb772277170bc9d24b83464c8a7cf52a633c22fafa430588799a9e952527": {
+            "absent": true
+          },
+          "b6e69da1cb3e8f959350d6da9e40b1da83417a1338109d47b72496b4570fffee": {
+            "absent": true
+          },
+          "b732d4925b09b7536a9603e71b124140ab78f41e28261dad7988bf089c729bba": {
+            "absent": true
+          },
+          "bd5492f0f82aca9adafe0cb49602c07600a97d7d4866af2147f5ef14dfce16ad": {
+            "absent": true
+          },
+          "d9ee68cfdfc363e5611a9836b7ac38be3a5d94b937df21d4d4ac0ea05d307b23": {
+            "absent": true
+          },
+          "e319d55f441c386b6fa78d69b71b507780672ec7fb3054034c8fc6c241bcacf2": {
+            "absent": true
+          }
+        },
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T06:47:07.483254+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_absent": {
+          "a8ac64160258481b829ecc42c6bc2d39abb0c1b00fec0740b0f3e0514d13330e": {
+            "absent": true
+          },
+          "ab5bfb772277170bc9d24b83464c8a7cf52a633c22fafa430588799a9e952527": {
+            "absent": true
+          },
+          "b6e69da1cb3e8f959350d6da9e40b1da83417a1338109d47b72496b4570fffee": {
+            "absent": true
+          },
+          "b732d4925b09b7536a9603e71b124140ab78f41e28261dad7988bf089c729bba": {
+            "absent": true
+          },
+          "bd5492f0f82aca9adafe0cb49602c07600a97d7d4866af2147f5ef14dfce16ad": {
+            "absent": true
+          },
+          "d9ee68cfdfc363e5611a9836b7ac38be3a5d94b937df21d4d4ac0ea05d307b23": {
+            "absent": true
+          },
+          "e319d55f441c386b6fa78d69b71b507780672ec7fb3054034c8fc6c241bcacf2": {
+            "absent": true
+          }
+        },
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T06:47:08.171452+00:00"
+      }
+    ],
+    "tcp_seconds": 38.381247253000765,
+    "tcp_final_two": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T06:47:46.850414+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T06:47:47.055041+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "nonowned_not_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 209677,
+        "ppid": 1,
+        "starttime": "1183866",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 210150,
+        "ppid": 1,
+        "starttime": "1184247",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 210460,
+        "ppid": 1,
+        "starttime": "1184425",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 210956,
+        "ppid": 1,
+        "starttime": "1184595",
+        "state": "Z"
+      }
+    ],
+    "monitor_cancel_forced_zero": true,
+    "round_and_previous_inputs_same": true
+  },
+  "asset_scope": "batch remains authorized with fixed53 until all readers retire; no current global asset read",
+  "not_accepted": [
+    "active layout visuals",
+    "old regression groups",
+    "independent actual A/B",
+    "whole D27",
+    "production or lifecycle-runtime binding"
+  ],
+  "required_repairs": [],
+  "references": [
+    {
+      "path": "/workspace/scratch/owner-ui-backend/identity01-handoff.json",
+      "bytes": 12721,
+      "sha256": "167ecca289b9039cde4cd147efc7bd6163f742402b1f4935c371a1be88b00fa2"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/identity01-launch.raw",
+      "bytes": 6798,
+      "sha256": "e03093e388ae7f10c2e013c19e024a943b77f4bda7000cf80d9da5ee8c3157cf"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/frozen-input.json",
+      "bytes": 40748,
+      "sha256": "43a01651a84d3bde69f6b5be732056e13d4925df0924c1f443257580a8a62e2e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/driver.py.txt",
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/raw.log",
+      "bytes": 4751,
+      "sha256": "e7c17116602c6d7e5abd60fcc39a2c5441b93551c946130880536559a9d296e0"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/result.json",
+      "bytes": 9185,
+      "sha256": "82e6fbb154f2c42bafbfabd00a4406574959fe1f41f86ea8da51153cb3377767"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/command.json",
+      "bytes": 2608,
+      "sha256": "4106616703ede52bb9002ab49480b0d8c2d6de42d810dffb57737842677e0e7d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/input-before.json",
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/input-after.json",
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/verification-input.json",
+      "bytes": 183,
+      "sha256": "1938964cd7fa1d2446bc30d3ba583e334cdd98c03c4c67628aba4604724e2302"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/adopted-waits.json",
+      "bytes": 575,
+      "sha256": "285452034f8816ca9e8e7616c96145582493a27a9a933d5278e2d68627497aff"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/watchdog.json",
+      "bytes": 546,
+      "sha256": "db705d18413e6fc232cf5e8cd29ebfc8704b1f1fbb3e795a444da0762457bdd9"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/cleanup.json",
+      "bytes": 18035,
+      "sha256": "003a3c7d74c8f05b14af7df65266f323bba69cb7ae852a8c1656772f43c5d690"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/observed-resources.json",
+      "bytes": 5041,
+      "sha256": "c2db4d066baf0a80477ddae8efe0c18b899f1eb29af8c87c6210b173231c08e4"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/observed-processes.json",
+      "bytes": 16132,
+      "sha256": "3e0ee8334591553287be5eee627735da1c8dabca2368578a60500789ef036518"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/process-baseline.json",
+      "bytes": 7857,
+      "sha256": "5a206fe295c6c6068ddaa56e824407667366b3953cde86303f763d28da29830e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/tcp-tail-observation.json",
+      "bytes": 248300,
+      "sha256": "ae0c4263956004be960bcc0d5a0b350ddaf0b08f76f0fcf9fe238090a0eda749"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/schema-validation.json",
+      "bytes": 76,
+      "sha256": "352f2a9d184c3b0268d550539c042fe572302c0c10a1cc63efdfe0c8bc256803"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/safe-http-evidence/TestAccountProjectOwnerWebIdentityAndOwnership/same-body-validation.json",
+      "bytes": 72,
+      "sha256": "5099da4533cf73a557fe75c9a758b82a0670ecc837776a8f4750d2bb8d96898e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/recovery01-handoff.json",
+      "bytes": 13174,
+      "sha256": "20bdc1a45da15400e8e41c8c86870845ee284d607bde2c75bf3d6f30a23d160c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/tcp-tail-observation.json",
+      "bytes": 240725,
+      "sha256": "c3e5cf8de596738c703db4e3be907ee4280c7605c7b28b6d2b7f945628acc3d9"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "bytes": 44418,
+      "sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/recovery01-result-review/review.md",
+      "bytes": 4131,
+      "sha256": "a7ea37128513eaa2c608a771239115274f8ddda13adf4f5b3e621d279023d450"
+    }
+  ]
+}

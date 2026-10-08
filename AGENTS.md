@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前归档（2026-10-08）：nextnew01三成功轮永久档已root核207逻辑原件/164指纹/42Git，新增161实体1759266 bytes、21共同实体复用；8图逻辑映射7PNG原实体，schema52/client27与有限视觉/退役独核接受。旧16原2PASS/第3FAIL/13未跑待独审，原3已恢复，无当前资源；实际A/B/README22/完整D27未接受，详台账，生产与三停止保持。
+
 当前故障终局（2026-10-08）：旧16首批前2 PASS，第3oldprofile01在旧browser duplicate.json()读取400正文时Protocol error FAIL，后13未跑。三轮已完全退役，21ID/3direct16adopted/ownedruntimeTCP双清/input同，root恢复原3；无当前窗口。原FAIL待独审归因，不预定产品/测试原因，不重试/改预算。独立A/B仅false准备，完整D27/README22未接受；生产与三停止保持，详台账。
 
 当前资源窗口（2026-10-08）：old16准备独审PASS/STOP后root已授条件串行16原top，唯一truecopy332a391e、53测试资产已安装，原3完整backup original-dist-old16batch01。backend唯一真实资源owner，FAIL先全退役STOP；root活跃轮不push/network/换资产，末尾全reader退役后恢复。独审仅准备自有A/B false执行输入，实际A/B/README22/完整D27仍未接受，详台账；生产与三停止保持。

@@ -1,0 +1,164 @@
+{
+  "advance_only_if": [
+    "previous round selected exact top PASS and outer driver actual exit0/accepted=true",
+    "previous round direct and adopted actual waits and watchdog join complete",
+    "previous round all7 exact resource IDs doubly absent; owned/process/runtime twice empty and unrelated baseline unchanged",
+    "previous round TCP baseline delta doubly clear within fixed tail budget",
+    "previous round source input-before/after and verification inputs same; original artifacts complete",
+    "no source,driver,tool,asset or budget change; no simultaneous round or background reader"
+  ],
+  "asset_ownership": "root currently holds restored original3 and staged53; no globaldist read in this preparation. Future root batch window retains fixed53 through sequential retired rounds; root restores original3 only after all readers retire.",
+  "created_utc": "2026-10-08T06:37:46.492460+00:00",
+  "current_edit03_status": "author actual PASS and fully retired; independent terminal review still pending at this preparation",
+  "executable_now": false,
+  "failure_policy": "any FAIL or incomplete round must retire all its owned work, preserve original raw/result/evidence and STOP the batch; never launch subsequent group or retry automatically",
+  "fixed_references": {
+    "browser_v5": {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+      "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+    },
+    "driver_v04": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "edit03_author_result_handoff": {
+      "path": "/workspace/scratch/owner-ui-backend/edit03-handoff.json",
+      "sha256": "aac7480db2454b22932b84b0a96eb463c15c88f5c6be0b2a3df9c4c1620e5892"
+    },
+    "groups": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/groups.json",
+      "sha256": "f925efaf256bad0461b18a6a408f352b703ce321bd27e08c59359664110b1a8c"
+    },
+    "original_final04": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.final.json",
+      "sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d"
+    },
+    "original_final04_handoff": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/handoff.json",
+      "sha256": "e86f48e2ea2894bb0c140cae244ad8290e08f7f15875d89c562944501a48bad6"
+    }
+  },
+  "gates_before_any_execution": [
+    "root accepts edit03 independent terminal review",
+    "root accepts this selector preparation review",
+    "root opens one exclusive batch asset/resource window with fixed53 assets installed and original3 retained",
+    "root creates a separate immutable truecopy allowing exactly new-recovery,new-identity,new-layouts; this document grants no execution"
+  ],
+  "history": "all read01/edit01/edit02 FAIL originals and edit03 originals remain unchanged; no rerun or whole-freeze/index copy",
+  "layout_evidence": "unchanged driver provides explicit absolute AGENTEAM_AUTH_WEB_IMAGES per-run screenshots directory; actual layout/images and visual review remain pending until separately authorized run",
+  "ordered_rounds": [
+    {
+      "browser_mode": "recovery",
+      "driver_run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01",
+      "exact_top": "TestAccountProjectOwnerWebOriginalRecovery",
+      "execute_argv_after_root_authorization": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+        "--name",
+        "recovery01",
+        "--group",
+        "new-recovery",
+        "--frozen",
+        "<ROOT_AUTHORIZED_TRUECOPY>",
+        "--execute-authorized"
+      ],
+      "fixture_selector": "^(TestAccountProjectOwnerWebOriginalRecovery)$",
+      "group": "new-recovery",
+      "order": 1,
+      "resource_count": 7,
+      "run_name": "recovery01",
+      "screenshots_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/screenshots",
+      "short_browser_runtime": "/workspace/scratch/owui/recovery01"
+    },
+    {
+      "browser_mode": "identity",
+      "driver_run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01",
+      "exact_top": "TestAccountProjectOwnerWebIdentityAndOwnership",
+      "execute_argv_after_root_authorization": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+        "--name",
+        "identity01",
+        "--group",
+        "new-identity",
+        "--frozen",
+        "<ROOT_AUTHORIZED_TRUECOPY>",
+        "--execute-authorized"
+      ],
+      "fixture_selector": "^(TestAccountProjectOwnerWebIdentityAndOwnership)$",
+      "group": "new-identity",
+      "order": 2,
+      "resource_count": 7,
+      "run_name": "identity01",
+      "screenshots_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/screenshots",
+      "short_browser_runtime": "/workspace/scratch/owui/identity01"
+    },
+    {
+      "browser_mode": "layouts",
+      "driver_run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01",
+      "exact_top": "TestAccountProjectOwnerWebLayouts",
+      "execute_argv_after_root_authorization": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+        "--name",
+        "layouts01",
+        "--group",
+        "new-layouts",
+        "--frozen",
+        "<ROOT_AUTHORIZED_TRUECOPY>",
+        "--execute-authorized"
+      ],
+      "fixture_selector": "^(TestAccountProjectOwnerWebLayouts)$",
+      "group": "new-layouts",
+      "order": 3,
+      "resource_count": 7,
+      "run_name": "layouts01",
+      "screenshots_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/screenshots",
+      "short_browser_runtime": "/workspace/scratch/owui/layouts01"
+    }
+  ],
+  "performed": "only read stopped final04/groups metadata and write this small JSON/MD handoff; no acceptance check, source gate, Go, Node, browser, listener, fixture, or globaldist read performed",
+  "reused_closure": {
+    "explicit_file_hashes": 1165,
+    "package_file_sets": 66,
+    "python_actual_modules": 171,
+    "python_schema_resources": 20,
+    "repository_files": 955,
+    "tools_and_external_actual_graph": "reuse original final04 exact bindings without rerunning checks or copying indexes"
+  },
+  "root_authorized_resources": false,
+  "schema": "owner-ui-next-new-batch-preparation-v1",
+  "source_version": {
+    "browser": "v5",
+    "go_candidate": "04",
+    "root_reported_product_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+    "sha_authority": "unchanged original final04 closure and bound manifests; no new closure generated",
+    "ui": "ui-v1/19 sources"
+  },
+  "status": "STOP_PREPARED_SELECTOR_HANDOFF_ONLY",
+  "topology_each_round": {
+    "extra_smtp_resources": false,
+    "fresh_nonce_ids_each_round": true,
+    "object": {
+      "containers": 1,
+      "networks": 1
+    },
+    "outbound": {
+      "containers": 1,
+      "networks": 1
+    },
+    "postgres": {
+      "containers": 2,
+      "networks": 1
+    },
+    "resources_reused_between_rounds": false,
+    "total_exact_resource_ids": 7
+  },
+  "unchanged_budgets": {
+    "browser_case_seconds": 45,
+    "fresh_minimum_free_bytes_per_round": 5368709120,
+    "go_top_including_cleanup_seconds": 120,
+    "package_minutes": 6,
+    "tcp_tail_seconds": 75
+  }
+}

@@ -1,0 +1,623 @@
+{
+  "verdict": "PASS author actual recovery01 + owned retirement evidence audit only",
+  "no_new_execution": true,
+  "active_identity_and_global_resources_not_read": true,
+  "verified_run_files": 55,
+  "verified_run_bytes": 415806,
+  "launch_verified": true,
+  "raw_recovery_proofs": {
+    "007_equals_008_result_project": true,
+    "010_014_same_complete_original_receipt_bytes": true,
+    "013_015_current_archived_bytes_unchanged": true,
+    "018_019_committed_abandon_bytes_same": true,
+    "private_same_key_body_csrf_path_check": "actual asserted boolean + frozen Go implementation; private key/request bytes/ack not persisted",
+    "unique_facts": "actual case checks completed update command, success audit and outbox event counts; private numeric IPC records retired",
+    "actual_lookup_states": [
+      "committed"
+    ],
+    "in_progress_not_observed": "controlled evidence only; not actual this round",
+    "loss_stage": "after formal successful full response and completed-command SQL fact; deliberate HTTP response truncation, not database COMMIT ACK loss",
+    "archive_scope": "auxiliary terminal fact preparation; lifecycle participants not accepted"
+  },
+  "schema_original": {
+    "status": 0,
+    "signal": null,
+    "stdout": "19\n",
+    "stderr": "",
+    "failed_to_run": false
+  },
+  "client_original": {
+    "schemas": 19,
+    "client_reads": {
+      "list": 0,
+      "resolve": 2,
+      "get": 6,
+      "problem": 0
+    }
+  },
+  "safe_responses": [
+    {
+      "sidecar": "response-001.json",
+      "role": "fixture setup",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-95f3-70e6-834d-30998ba4c74e",
+      "project_id": "01a11a40-949f-739f-bc23-0a39fb9e37b8",
+      "body_sha256": "eab63306689835a9170132247b0161295aa4d3cb896ce288c34ec55a6fa9f535",
+      "version": "3",
+      "lifecycle": "archived",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-002.json",
+      "role": "fixture setup",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-95fa-79a0-ad58-5cf5d7cb7672",
+      "project_id": "01a11a40-94ce-7f16-ba5a-20c15305260f",
+      "body_sha256": "1ec5e4f9da0a195444962a3087ef41fc995686862e3f7d0df9db5e95bf18fe17",
+      "version": "2",
+      "lifecycle": "archiving",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-003.json",
+      "role": "fixture setup",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-95ff-702f-9d93-60897197f9c8",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "4420121aadb0cef77c4bacd5a7a3d91f9c7bc8cd3b1c5cd221e729dd98603c75",
+      "version": "1",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-004.json",
+      "role": "fixture setup",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-9603-7d33-a430-b954b9d70c1f",
+      "project_id": "01a11a40-946e-7a08-90a4-69870a4b138f",
+      "body_sha256": "57bc99dc39b3da408cfd0d386f48838be906f00b756107df957e7557946f3031",
+      "version": "1",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-005.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a238-74e8-a17e-1498ccb95ee1",
+      "project_id": "",
+      "body_sha256": "4420121aadb0cef77c4bacd5a7a3d91f9c7bc8cd3b1c5cd221e729dd98603c75",
+      "version": "1",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-006.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a24c-7ea8-8615-93d03c8ee7f4",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "4420121aadb0cef77c4bacd5a7a3d91f9c7bc8cd3b1c5cd221e729dd98603c75",
+      "version": "1",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-007.json",
+      "role": "browser real mutation or lookup",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "01a11a40-a446-7395-a975-8981ff8d71a1",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "37c155df0596c500fb476022f802f18f2b3a7cd82dcb1df55918606cbcefae75",
+      "version": "2",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-008.json",
+      "role": "browser real mutation or lookup",
+      "method": "POST",
+      "status": 200,
+      "request_id": "01a11a40-a51e-73af-b7b5-ade03dceef93",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "d363b3afb674d668177e12a373d89ca81f533b679e098ce9c7bf3386ce8a059f",
+      "version": null,
+      "lifecycle": null,
+      "lookup_state": "committed"
+    },
+    {
+      "sidecar": "response-009.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a535-75ab-aa7f-b8ca94173882",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "37c155df0596c500fb476022f802f18f2b3a7cd82dcb1df55918606cbcefae75",
+      "version": "2",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-010.json",
+      "role": "browser real mutation or lookup",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "01a11a40-a60c-7a16-a00c-6adaca55c2eb",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "6173cb605ebc16fcce0ae8071c8142e0b23f6a8812baacc518584380beef2c66",
+      "version": "3",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-011.json",
+      "role": "IPC external update",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a685-79a5-9b92-97aec2158cb4",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "6173cb605ebc16fcce0ae8071c8142e0b23f6a8812baacc518584380beef2c66",
+      "version": "3",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-012.json",
+      "role": "IPC external update",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "01a11a40-a68a-70bb-a331-74d86de87ba8",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "aef464a83d36164087a928ce6f6aad874f44a4bbb735892a8f939c5179de26c3",
+      "version": "4",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-013.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a720-75ae-8af8-363cbddd6a61",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "16ac53cc54cb023f6f71096e94f3e8b027803f104b8dfd532e7645b9055402bf",
+      "version": "6",
+      "lifecycle": "archived",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-014.json",
+      "role": "browser real mutation or lookup",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "01a11a40-a7da-7fc7-9209-86fae82533ea",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "6173cb605ebc16fcce0ae8071c8142e0b23f6a8812baacc518584380beef2c66",
+      "version": "3",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-015.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a7ec-7c02-a862-3aeb593f4340",
+      "project_id": "01a11a40-9431-760b-9b09-fd0c284e65e9",
+      "body_sha256": "16ac53cc54cb023f6f71096e94f3e8b027803f104b8dfd532e7645b9055402bf",
+      "version": "6",
+      "lifecycle": "archived",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-016.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a8a9-73f0-a5e5-ef4a06e12bdb",
+      "project_id": "",
+      "body_sha256": "57bc99dc39b3da408cfd0d386f48838be906f00b756107df957e7557946f3031",
+      "version": "1",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-017.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-a8b7-7d4b-8987-bce458e25aed",
+      "project_id": "01a11a40-946e-7a08-90a4-69870a4b138f",
+      "body_sha256": "57bc99dc39b3da408cfd0d386f48838be906f00b756107df957e7557946f3031",
+      "version": "1",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-018.json",
+      "role": "browser real mutation or lookup",
+      "method": "PATCH",
+      "status": 200,
+      "request_id": "01a11a40-a98d-7d1f-a287-303638bc991c",
+      "project_id": "01a11a40-946e-7a08-90a4-69870a4b138f",
+      "body_sha256": "9e374a028dc612b4eb2253ca94b2cf49d3e5fb28f0abb74b8923d966bc317d9c",
+      "version": "2",
+      "lifecycle": "active",
+      "lookup_state": null
+    },
+    {
+      "sidecar": "response-019.json",
+      "role": "browser native GET",
+      "method": "GET",
+      "status": 200,
+      "request_id": "01a11a40-ab8c-784e-a481-76bde091a25a",
+      "project_id": "01a11a40-946e-7a08-90a4-69870a4b138f",
+      "body_sha256": "9e374a028dc612b4eb2253ca94b2cf49d3e5fb28f0abb74b8923d966bc317d9c",
+      "version": "2",
+      "lifecycle": "active",
+      "lookup_state": null
+    }
+  ],
+  "native_binding_limit": "runtime native GET XID joins captured URL-owner-status; fixed complete-body replay; URL-owner map and received truncated transport not independently persisted",
+  "retirement": {
+    "direct": {
+      "pid": 199986,
+      "pid_starttime": "1164762",
+      "exit": 0,
+      "seconds": 56.354,
+      "actual_wait_completed": true,
+      "watchdog_thread_joined": true
+    },
+    "adopted": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 204416,
+        "starttime": "1167924",
+        "time": "2026-10-08T06:43:28.686011+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 204418,
+        "starttime": "1167924",
+        "time": "2026-10-08T06:43:28.686042+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 204419,
+        "starttime": "1167924",
+        "time": "2026-10-08T06:43:28.686060+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 204413,
+        "starttime": "1167924",
+        "time": "2026-10-08T06:43:28.686066+00:00"
+      }
+    ],
+    "resources": [
+      {
+        "id": "246b0bec240d31a322171e8dcab170ab4e66d0e928427f6b1a4d77708499e40c",
+        "kind": "container",
+        "labels": {
+          "agenteam.d03.fixture": "5480f09e5cd4a358a01b30269f5309cc"
+        },
+        "name": "/agenteam-d03-5480f09e5cd4a358a01b30269f5309cc-pg16"
+      },
+      {
+        "id": "5b78c9f1f63c312910018b44abc0d484839c661170b4d04895caf884ff59d668",
+        "kind": "network",
+        "labels": {
+          "agenteam.d03.fixture": "5480f09e5cd4a358a01b30269f5309cc"
+        },
+        "name": "agenteam-d03-5480f09e5cd4a358a01b30269f5309cc"
+      },
+      {
+        "id": "8abe805b162dc905dce53379c9aded6965eaa35b8d82a62e761b118637a2eb22",
+        "kind": "container",
+        "labels": {
+          "agenteam.d03.fixture": "5480f09e5cd4a358a01b30269f5309cc"
+        },
+        "name": "/agenteam-d03-5480f09e5cd4a358a01b30269f5309cc"
+      },
+      {
+        "id": "8b785dea620951c94644bae7bfb5926cb9acf41ec9c6f1184d9a698241925428",
+        "kind": "network",
+        "labels": {
+          "agenteam.d05.objectfixture": "bf4041d8ba5c1e3fddd07d773624f496"
+        },
+        "name": "agenteam-d05-object-bf4041d8ba5c1e3fddd07d773624f496"
+      },
+      {
+        "id": "8f6d4bfed60ae44ee2738d545f123f6970b7c663395883ebbc9f884354d461f4",
+        "kind": "container",
+        "labels": {
+          "agenteam.d05.objectfixture": "bf4041d8ba5c1e3fddd07d773624f496"
+        },
+        "name": "/agenteam-d05-object-bf4041d8ba5c1e3fddd07d773624f496"
+      },
+      {
+        "id": "b238c4a109f968b8c189768c5d79de7f1871ca8876bab223d5428b241e20d71b",
+        "kind": "container",
+        "labels": {
+          "agenteam.d04.networkfixture": "171958c076daeb33f3f225df6e3015ad"
+        },
+        "name": "/agenteam-d04-net-171958c076daeb33f3f225df6e3015ad"
+      },
+      {
+        "id": "e1e705e2b63232ba8709b8b9db47ce8e53f63f23060f9e5f28925b4fa5a44b85",
+        "kind": "network",
+        "labels": {
+          "agenteam.d04.networkfixture": "171958c076daeb33f3f225df6e3015ad"
+        },
+        "name": "agenteam-d04-net-171958c076daeb33f3f225df6e3015ad"
+      }
+    ],
+    "double_cleanup": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_absent": {
+          "246b0bec240d31a322171e8dcab170ab4e66d0e928427f6b1a4d77708499e40c": {
+            "absent": true
+          },
+          "5b78c9f1f63c312910018b44abc0d484839c661170b4d04895caf884ff59d668": {
+            "absent": true
+          },
+          "8abe805b162dc905dce53379c9aded6965eaa35b8d82a62e761b118637a2eb22": {
+            "absent": true
+          },
+          "8b785dea620951c94644bae7bfb5926cb9acf41ec9c6f1184d9a698241925428": {
+            "absent": true
+          },
+          "8f6d4bfed60ae44ee2738d545f123f6970b7c663395883ebbc9f884354d461f4": {
+            "absent": true
+          },
+          "b238c4a109f968b8c189768c5d79de7f1871ca8876bab223d5428b241e20d71b": {
+            "absent": true
+          },
+          "e1e705e2b63232ba8709b8b9db47ce8e53f63f23060f9e5f28925b4fa5a44b85": {
+            "absent": true
+          }
+        },
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T06:43:49.430341+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_absent": {
+          "246b0bec240d31a322171e8dcab170ab4e66d0e928427f6b1a4d77708499e40c": {
+            "absent": true
+          },
+          "5b78c9f1f63c312910018b44abc0d484839c661170b4d04895caf884ff59d668": {
+            "absent": true
+          },
+          "8abe805b162dc905dce53379c9aded6965eaa35b8d82a62e761b118637a2eb22": {
+            "absent": true
+          },
+          "8b785dea620951c94644bae7bfb5926cb9acf41ec9c6f1184d9a698241925428": {
+            "absent": true
+          },
+          "8f6d4bfed60ae44ee2738d545f123f6970b7c663395883ebbc9f884354d461f4": {
+            "absent": true
+          },
+          "b238c4a109f968b8c189768c5d79de7f1871ca8876bab223d5428b241e20d71b": {
+            "absent": true
+          },
+          "e1e705e2b63232ba8709b8b9db47ce8e53f63f23060f9e5f28925b4fa5a44b85": {
+            "absent": true
+          }
+        },
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T06:43:50.099014+00:00"
+      }
+    ],
+    "tcp_tail_seconds": 39.38415276200067,
+    "tcp_last_two": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T06:44:29.781191+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T06:44:29.985196+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "nonowned_not_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 200214,
+        "ppid": 1,
+        "starttime": "1164999",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 200562,
+        "ppid": 1,
+        "starttime": "1165237",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 200927,
+        "ppid": 1,
+        "starttime": "1165433",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 201498,
+        "ppid": 1,
+        "starttime": "1165615",
+        "state": "Z"
+      }
+    ],
+    "monitor_cancel_forced_zero": true,
+    "round_inputs_same": true
+  },
+  "asset_boundary": "root batch retains fixed53 until all readers retire; no current asset scan or restore claim",
+  "unverified": [
+    "independent actual A/B",
+    "actual in_progress/not_observed PG lookup states",
+    "whole D27",
+    "identity/layout results",
+    "full DOM/visual capture",
+    "lifecycle runtime"
+  ],
+  "references": [
+    {
+      "path": "/workspace/scratch/owner-ui-backend/recovery01-handoff.json",
+      "bytes": 13174,
+      "sha256": "20bdc1a45da15400e8e41c8c86870845ee284d607bde2c75bf3d6f30a23d160c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/recovery01-launch.raw",
+      "bytes": 6346,
+      "sha256": "a419cb5082653877f4d74aa8f8029a5e66f0ae7b356f2f6c02d0cb84927bc4ea"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/frozen-input.json",
+      "bytes": 40748,
+      "sha256": "43a01651a84d3bde69f6b5be732056e13d4925df0924c1f443257580a8a62e2e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/driver.py.txt",
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/raw.log",
+      "bytes": 4886,
+      "sha256": "dd7f469a6de3797a7ab4ab3d67817966c15095d25fbd81f7214c66aff07d4e18"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/result.json",
+      "bytes": 8553,
+      "sha256": "5183f0bcb9aa9d8d3809be49005447f4ffcd9154a565528ce0d401fde86874aa"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/command.json",
+      "bytes": 2605,
+      "sha256": "4a8efbb53fa27981f24163bd029860edd7da684c320026442e78c8c2115098f6"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/input-before.json",
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/input-after.json",
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/verification-input.json",
+      "bytes": 183,
+      "sha256": "1938964cd7fa1d2446bc30d3ba583e334cdd98c03c4c67628aba4604724e2302"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/adopted-waits.json",
+      "bytes": 575,
+      "sha256": "881803f62db107ff43d71666c1196b8703565ab729799bb125ad5b3c51f249b2"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/watchdog.json",
+      "bytes": 535,
+      "sha256": "ed444aa2ff64519951e1f4d62b6363e0a7238f784dec64044076cab506dea57e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/cleanup.json",
+      "bytes": 16651,
+      "sha256": "85809df5878562d51529b8510ce28f2ccf8dc9225f7eebe910aad65dea4f312c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/observed-resources.json",
+      "bytes": 5040,
+      "sha256": "f23dbb127eb1bd8908260cf32eaeaa42429ff2a2c511411b4f2d05abc5e7d8e3"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/observed-processes.json",
+      "bytes": 16599,
+      "sha256": "661c72bd88831cca7b0fd9693604c9d73baf0e12aa34d6de30c9972893fd8090"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/process-baseline.json",
+      "bytes": 7329,
+      "sha256": "77eb084f0e180da98f290c321751525e1eb4d3e2c79ab4b3f162a5896f687e70"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/tcp-tail-observation.json",
+      "bytes": 240725,
+      "sha256": "c3e5cf8de596738c703db4e3be907ee4280c7605c7b28b6d2b7f945628acc3d9"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/schema-validation.json",
+      "bytes": 76,
+      "sha256": "f923954e8ad40a485e55ffa09094c9be2ecbc0f76325de7842f29b2b364dbcb9"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/same-body-validation.json",
+      "bytes": 72,
+      "sha256": "e3c79b25fa7eb046b1f29a355576f8d46d15d35ae00c353158efcc20aaea297c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "bytes": 44418,
+      "sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/candidate04/project_owner_web_fixture_test.go",
+      "bytes": 47310,
+      "sha256": "662e1f2edd0e4cc0d03408251de0a031e0491ca4530c042e7bfc86139070f24b"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/candidate04/project_owner_web_test.go",
+      "bytes": 2270,
+      "sha256": "e91d920777b6bd48adae2ad96c1f2d2e1cd0f6f8c254af3a9a497a684a44e5a6"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/next-new-batch01-review/review.md",
+      "bytes": 2275,
+      "sha256": "69e891f8cfac2e14e43f81c8777db045debbe7bc9ad3911ccced9444d86447c6"
+    }
+  ]
+}

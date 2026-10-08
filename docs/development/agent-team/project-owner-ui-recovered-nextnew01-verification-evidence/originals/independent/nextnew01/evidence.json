@@ -1,0 +1,379 @@
+{
+  "status": "INDEPENDENT_FROZEN_BATCH_RESULT_REVIEW_PASS_STOP",
+  "scope": "Three author actual rounds; no independent runtime A/B or old16 execution.",
+  "rounds": [
+    {
+      "round": "recovery01",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/recovery01-handoff.json",
+        "sha256": "20bdc1a45da15400e8e41c8c86870845ee284d607bde2c75bf3d6f30a23d160c"
+      },
+      "top": "TestAccountProjectOwnerWebOriginalRecovery",
+      "resource_ids": [
+        "246b0bec240d31a322171e8dcab170ab4e66d0e928427f6b1a4d77708499e40c",
+        "5b78c9f1f63c312910018b44abc0d484839c661170b4d04895caf884ff59d668",
+        "8abe805b162dc905dce53379c9aded6965eaa35b8d82a62e761b118637a2eb22",
+        "8b785dea620951c94644bae7bfb5926cb9acf41ec9c6f1184d9a698241925428",
+        "8f6d4bfed60ae44ee2738d545f123f6970b7c663395883ebbc9f884354d461f4",
+        "b238c4a109f968b8c189768c5d79de7f1871ca8876bab223d5428b241e20d71b",
+        "e1e705e2b63232ba8709b8b9db47ce8e53f63f23060f9e5f28925b4fa5a44b85"
+      ],
+      "direct": {
+        "pid": 199986,
+        "pid_starttime": "1164762",
+        "started_utc": "2026-10-08T06:42:52.906367+00:00",
+        "ended_utc": "2026-10-08T06:43:49.261071+00:00",
+        "actual_wait_completed": true,
+        "watchdog_thread_joined": true,
+        "exit": 0
+      },
+      "adopted": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 204416,
+          "starttime": "1167924",
+          "time": "2026-10-08T06:43:28.686011+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 204418,
+          "starttime": "1167924",
+          "time": "2026-10-08T06:43:28.686042+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 204419,
+          "starttime": "1167924",
+          "time": "2026-10-08T06:43:28.686060+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 204413,
+          "starttime": "1167924",
+          "time": "2026-10-08T06:43:28.686066+00:00"
+        }
+      ],
+      "last_tcp_clear": "2026-10-08T06:44:29.985196+00:00",
+      "input_before": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/input-before.json",
+        "bytes": 815,
+        "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/recovery01/input-after.json",
+        "bytes": 815,
+        "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+      },
+      "nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 200214,
+          "ppid": 1,
+          "starttime": "1164999",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 200562,
+          "ppid": 1,
+          "starttime": "1165237",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 200927,
+          "ppid": 1,
+          "starttime": "1165433",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 201498,
+          "ppid": 1,
+          "starttime": "1165615",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "round": "identity01",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/identity01-handoff.json",
+        "sha256": "167ecca289b9039cde4cd147efc7bd6163f742402b1f4935c371a1be88b00fa2"
+      },
+      "top": "TestAccountProjectOwnerWebIdentityAndOwnership",
+      "resource_ids": [
+        "a8ac64160258481b829ecc42c6bc2d39abb0c1b00fec0740b0f3e0514d13330e",
+        "ab5bfb772277170bc9d24b83464c8a7cf52a633c22fafa430588799a9e952527",
+        "b6e69da1cb3e8f959350d6da9e40b1da83417a1338109d47b72496b4570fffee",
+        "b732d4925b09b7536a9603e71b124140ab78f41e28261dad7988bf089c729bba",
+        "bd5492f0f82aca9adafe0cb49602c07600a97d7d4866af2147f5ef14dfce16ad",
+        "d9ee68cfdfc363e5611a9836b7ac38be3a5d94b937df21d4d4ac0ea05d307b23",
+        "e319d55f441c386b6fa78d69b71b507780672ec7fb3054034c8fc6c241bcacf2"
+      ],
+      "direct": {
+        "pid": 209305,
+        "pid_starttime": "1183419",
+        "started_utc": "2026-10-08T06:45:59.468637+00:00",
+        "ended_utc": "2026-10-08T06:47:07.299372+00:00",
+        "actual_wait_completed": true,
+        "watchdog_thread_joined": true,
+        "exit": 0
+      },
+      "adopted": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 214061,
+          "starttime": "1187026",
+          "time": "2026-10-08T06:46:45.563438+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 214064,
+          "starttime": "1187027",
+          "time": "2026-10-08T06:46:45.563460+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 214068,
+          "starttime": "1187027",
+          "time": "2026-10-08T06:46:45.563476+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 214069,
+          "starttime": "1187027",
+          "time": "2026-10-08T06:46:45.563491+00:00"
+        }
+      ],
+      "last_tcp_clear": "2026-10-08T06:47:47.055041+00:00",
+      "input_before": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/input-before.json",
+        "bytes": 815,
+        "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/identity01/input-after.json",
+        "bytes": 815,
+        "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+      },
+      "nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 209677,
+          "ppid": 1,
+          "starttime": "1183866",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 210150,
+          "ppid": 1,
+          "starttime": "1184247",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 210460,
+          "ppid": 1,
+          "starttime": "1184425",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 210956,
+          "ppid": 1,
+          "starttime": "1184595",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "round": "layouts01",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/layouts01-handoff.json",
+        "sha256": "fd7130557d2d86ec10997b81ae3b906cd54a0c852d5e9b60019f2c64f89b59d6"
+      },
+      "top": "TestAccountProjectOwnerWebLayouts",
+      "resource_ids": [
+        "3102691ef58e870d877adbd219603d09be253aeda97909f309929c656d58d27f",
+        "4ba8d83b035848425a6335e3841fe955382d7a7df1b992ae4d8bb2c296415245",
+        "afd7b6831c70c0875805d65b83ae428a429ea3ebca695f4eb74657abc57f93af",
+        "b2da5bf5d9ac7167e11f8f8689e8f3d559fc475a2a8d0033fadf0eb50e7ea17a",
+        "d392be9fc6438337ca568871b0020a07b18be7348e54e0e2f913751945bf42b3",
+        "ed2e21d50e63a88a460c10334767c5fc423cffed415a7c812eac779b91ab6d42",
+        "ef0b15011eee68527e71409cf2f27eb50b2d10e7c1fa190b979cd21243f00368"
+      ],
+      "direct": {
+        "pid": 219440,
+        "pid_starttime": "1203932",
+        "started_utc": "2026-10-08T06:49:24.604784+00:00",
+        "ended_utc": "2026-10-08T06:50:28.663191+00:00",
+        "actual_wait_completed": true,
+        "watchdog_thread_joined": true,
+        "exit": 0
+      },
+      "adopted": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 224287,
+          "starttime": "1207591",
+          "time": "2026-10-08T06:50:07.165222+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 224291,
+          "starttime": "1207591",
+          "time": "2026-10-08T06:50:07.165244+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 224290,
+          "starttime": "1207591",
+          "time": "2026-10-08T06:50:07.165260+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 224292,
+          "starttime": "1207591",
+          "time": "2026-10-08T06:50:07.165275+00:00"
+        }
+      ],
+      "last_tcp_clear": "2026-10-08T06:51:09.406069+00:00",
+      "input_before": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/input-before.json",
+        "bytes": 815,
+        "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+      },
+      "input_after": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/layouts01/input-after.json",
+        "bytes": 815,
+        "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+      },
+      "nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 219815,
+          "ppid": 1,
+          "starttime": "1204383",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 220298,
+          "ppid": 1,
+          "starttime": "1204740",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 220622,
+          "ppid": 1,
+          "starttime": "1204913",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 221223,
+          "ppid": 1,
+          "starttime": "1205109",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "resource_ids_unique": 21,
+    "direct_actual_waits": 3,
+    "adopted_actual_waits": 12,
+    "nonowned_unwaited_pid1_shims": 12,
+    "schema_responses": 52,
+    "native_browser_GET_client_responses_including_one_problem": 27,
+    "images_individually_viewed": 8
+  },
+  "verified": {
+    "all_handoff_references_match": true,
+    "all_resource_ids_disjoint": true,
+    "all_rounds_7_ID_double_absent_owned_runtime_double_empty": true,
+    "all_watchdog_joined": true,
+    "all_tcp_delta_double_clear": true,
+    "each_successor_start_after_predecessor_last_tcp_scan": true,
+    "three_Docker_baselines_equal": true,
+    "all_six_input_hashes_equal": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+    "all_three_frozen_inputs_equal": "43a01651a84d3bde69f6b5be732056e13d4925df0924c1f443257580a8a62e2e",
+    "all_three_driver_hashes_equal": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+    "restore_original3_equal_exchange_and_after_last_tcp_scan": true
+  },
+  "limitations": [
+    "Author historical visual-pending status left unchanged.",
+    "Only captured mobile inner scroll portion visually accepted; later controls not in PNG.",
+    "No complete host process/connection cleanup claim;12 nonowned PID1 shims not waited.",
+    "Old16 and independent actual A/B remain pending."
+  ],
+  "references": [
+    {
+      "path": "/workspace/scratch/owner-ui-backend/nextnew01-result.json",
+      "bytes": 9272,
+      "sha256": "5a6bc16bbb0b6fedec32f6b942d52b34a189cb15d98eb0d30a49c21ecb645d43"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/next-new-batch01/handoff.json",
+      "bytes": 7718,
+      "sha256": "92422d254b0b797db192f6d1df0063543b3c14ebe33f38082591882e548be93c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.root-nextnew01.json",
+      "bytes": 40748,
+      "sha256": "43a01651a84d3bde69f6b5be732056e13d4925df0924c1f443257580a8a62e2e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-assets/exchange-nextnew01.json",
+      "bytes": 9073,
+      "sha256": "e0b6036dccef428d6ca2e522eace190c4d0e5b714db033e6340661f17fbb1ff5"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-assets/restore-after-nextnew01.json",
+      "bytes": 806,
+      "sha256": "196dd979a92efdb6fd1fa20e0e4342b0daa8dc53194c2e104e245b1e069d0827"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/recovery01-result-review/review.md",
+      "bytes": 4131,
+      "sha256": "a7ea37128513eaa2c608a771239115274f8ddda13adf4f5b3e621d279023d450"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/identity01-result-review/review.md",
+      "bytes": 4017,
+      "sha256": "0ad2cdca7bdfe3672ef4f71625f3755828917c301854cbe441f2b2c926ed5647"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/layouts01-result-review/review.md",
+      "bytes": 5633,
+      "sha256": "440a4d45bc855b9b40136bd49b13e840e05520318542e34923dbceb3e021b211"
+    }
+  ]
+}
