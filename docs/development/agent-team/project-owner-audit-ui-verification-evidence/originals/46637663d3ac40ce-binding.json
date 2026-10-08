@@ -1,0 +1,79 @@
+{
+  "accepted_repair_freeze": {
+    "bytes": 14693,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+    "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+  },
+  "activity": "Only fixed metadata and the two accepted source files were read. No asset directories, driver import/execution, filegate or resources were accessed.",
+  "browser_source_unchanged": {
+    "bytes": 4267,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/freeze.json",
+    "sha256": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df"
+  },
+  "browser_spec_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+  "build_stop": {
+    "bytes": 5516,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/freeze.json",
+    "sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+  },
+  "current_assets": {
+    "bytes": 8827,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/assets.json",
+    "sha256": "a3c6cac14e07261fde429801c087e2f4287dec85ac2c7a70caa1739ab53a93e5"
+  },
+  "current_source17": {
+    "bytes": 3769,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/source17.json",
+    "sha256": "092b5e98746adea56a5bccd8aa5c4aba7ba7152421aa36f649f19580d85a60e4"
+  },
+  "independent_repair_review": {
+    "bytes": 2581,
+    "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/review.md",
+    "sha256": "9b0453ea78e87ac921aa34ff5b603be93023c27684ebf85f1f9c47ba0f629e3c"
+  },
+  "model_shared_go_closure": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/closure.delta.json",
+    "sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922"
+  },
+  "previous_falsefreeze": {
+    "bytes": 47092,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v03/freeze.json",
+    "sha256": "1dafcb2f6c7ed019cd9d6bcaf30cd7fff3744fd2d9bd35c19d945473c8767d82"
+  },
+  "previous_source_binding": {
+    "bytes": 4404,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v03/binding.json",
+    "sha256": "35553eab77bcb075689b21308e8195a9117e3c8094f2929093adc6677eed18e5"
+  },
+  "prior_failures": "All v01/v02/v03 original failure results, guards and snapshots remain unchanged and transitively bound through the stopped v03 false freeze and current root disposition.",
+  "prior_pass_version_boundary": "Read02 actually used 16a3/build-v1; authority02 actually used a91d/build-v1. Preserve those versioned results; neither is relabeled as executing repaired build-v02.",
+  "root_asset_exchange": {
+    "bytes": 1741,
+    "path": "/workspace/scratch/project-audit-ui-assets/exchange02/exchange.json",
+    "sha256": "4f2e3fef5c8a47fb744dbc61ae5d0c634965b3c2c2d5f03b6821c506db4f46cf"
+  },
+  "root_authorized_resources": false,
+  "root_failure_disposition": {
+    "bytes": 2584,
+    "path": "/workspace/scratch/project-audit-ui-root-grants/auditnav01-disposition.json",
+    "sha256": "0006fb3ec20b530b6d35d07289b16e8402404c6c5c2dfcf1a8a87447ca5c41b2"
+  },
+  "source_acceptance": "Root accepted two-source repair and independent affected-file results, then accepted build-v02 and exchange02. Source17 differs in exactly the two accepted paths.",
+  "source_binding_boundary": "The two changed web sources were covered by immutable build provenance in v03, not the 942 direct Go/browser source files. Bind both exact current source bytes explicitly as two added closure rows. This is not a new Go graph, import or filename set.",
+  "source_changes": {
+    "web/src/tests/project-audit.spec.ts": {
+      "after": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5",
+      "before": "0ba34fdf3b020d9e5ad72a53b17f7c7b8b93b6dea730fb84f81aba6d35a35a37",
+      "bytes": 26397,
+      "kind": "accepted affected unit test repair"
+    },
+    "web/src/views/projects/ProjectAuditView.vue": {
+      "after": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+      "before": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "bytes": 21200,
+      "kind": "accepted canonical-read product repair"
+    }
+  },
+  "status": "STOP_SOURCE_ASSET_BOUND_FILEGATE_NOT_RUN",
+  "unchanged": "909 Go / 63 sets, 33 browser direct source files / 3 sets, all Go, Model c433, API/schema409, browser spec/config, groups, protocol, locks and runtime tools remain inherited. No compile/list/build/graph was run."
+}

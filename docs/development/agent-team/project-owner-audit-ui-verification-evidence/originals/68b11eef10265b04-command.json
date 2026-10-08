@@ -1,0 +1,53 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestAccountSystemSMTPDeliveryWebTestAndRetry)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-08T16:36:28.287330+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/screenshots",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/paui/oldsmtpdelivery01",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MEETING_SUMMARY_WEB_DIST": "/workspace/scratch/project-audit-ui/dist-ui02",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery-new/bin/minio",
+    "AGENTEAM_PROJECT_AUDIT_WEB_DIST": "/workspace/scratch/project-audit-ui/dist-ui02",
+    "AGENTEAM_PROJECT_AUDIT_WEB_EVIDENCE": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/safe-http-evidence",
+    "AGENTEAM_PROJECT_AUDIT_WEB_INPUT_HASH": "2ec591db8577e82c50ed4d3b7cefe7dfbf4bd4dd40965a3125cb41060dbd712e",
+    "AGENTEAM_PROJECT_OWNER_WEB_DIST": "/workspace/scratch/project-audit-ui/dist-ui02",
+    "AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/safe-http-evidence",
+    "AGENTEAM_PROJECT_OWNER_WEB_INPUT_HASH": "2ec591db8577e82c50ed4d3b7cefe7dfbf4bd4dd40965a3125cb41060dbd712e",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOTMPDIR": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 1001164,
+  "pid_starttime": "4719058",
+  "pid_stat": "1001164 (sh) S 1001090 1001164 1001164 0 -1 4194560 246 1835 0 0 0 0 0 0 20 0 1 0 4719058 2744320 160 18446744073709551615 94157034184704 94157034265697 140735186552176 0 0 0 0 0 81922 1 0 0 17 0 0 0 0 0 0 94157034294832 94157034299968 94157956390912 140735186557097 140735186557178 140735186557178 140735186558956 0\n",
+  "seconds": 72.426,
+  "started_utc": "2026-10-08T16:35:15.860641+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

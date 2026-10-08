@@ -1,0 +1,6 @@
+{
+  "run01": "9 PASS / 1 FAIL, original10 test probe/raw retained",
+  "run02": "Same original count assertion FAIL / 9 skipped with recording only; original fixed input and trace retained",
+  "finding": "Third Audit request is a new default old-A page read, while router still names A and currentReadContext is a complete same-identity A Get. It occurs after navigation Session checking/restoration and before B Resolve/Get. B Audit count is zero while its Get is held. Total Audit count equality was an overstrong probe premise, not an observed cross-project request.",
+  "correction": "Parent explicitly authorized per-Project/path/current-context assertions; require exactly one added valid old-A default read, zero B before B Get, exactly one B default read after completion. No product changes; only this test reruns."
+}

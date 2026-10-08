@@ -1,0 +1,6 @@
+{
+  "source": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-http-verification-evidence/originals/independent/real-prep03/parse-real-body.py",
+  "sha256": "02d277a4941396664e71c2d67ed36d7837510eeaa3a49aedecc981eb13d4ba9d",
+  "usage": "Reuse accepted UTC date-time FormatChecker calendar extension, including year 0000. Response schema enforces 6 microsecond precision. Standard library calendar avoids any dependency install or reliance on missing optional rfc3339_validator.",
+  "original_draft": "browser-pre-schema-fix/project-owner-audit.spec.ts retains the unexecuted checker draft relying on optional date-time registration. Static package/source inspection found that dependency absent; not a real browser/schema failure."
+}

@@ -1,0 +1,37 @@
+{
+  "state": "ROOT_REVIEWED_FAILURE_RETIREMENT_AND_CONTROLLED_PRODUCT_REPAIR",
+  "original_accepted_remains": false,
+  "original_run": "auditnav01",
+  "original_result": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/result.json",
+    "bytes": 37598,
+    "sha256": "bd3f5d783434fbd91397b73af2ee58d08a4a24ab1f746d9caaad4ccea3f490a5"
+  },
+  "independent_failure_review": {
+    "path": "/workspace/scratch/architecture-audit-nav01-review/review.md",
+    "bytes": 2718,
+    "sha256": "cb849ce6daa5d4f9cd726153eb411fda315cc38a4a166ad81f5e572f1c02b4d8"
+  },
+  "independent_repair_review": {
+    "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/review.md",
+    "bytes": 2581,
+    "sha256": "9b0453ea78e87ac921aa34ff5b603be93023c27684ebf85f1f9c47ba0f629e3c"
+  },
+  "accepted_repair_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+    "bytes": 14693,
+    "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+  },
+  "finding": "Original second uppercase direct navigation failed native EOF readiness. Two upstream complete 200 responses do not prove browser EOF; no original DOM or PNG retained. Separate actual App/router controlled RED proves canonical update retires active audit read; exact same-project same-audit canonical target now preserves read. Independent final affected file 49/49 PASS. Do not backfill original failure or claim original race uniquely established.",
+  "retirement": "Original direct and adopted waits, seven resource IDs absent twice, owned/runtime empty twice and TCP delta cleared twice independently reviewed; nonowned shims remain nonowned.",
+  "source_deltas": {
+    "web/src/views/projects/ProjectAuditView.vue": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+    "web/src/tests/project-audit.spec.ts": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5"
+  },
+  "browser_spec_unchanged_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+  "successor_preparation_permitted": "Separate v04 generation with exact original driver 06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d, precise two-source and newly accepted build/asset binding deltas. Old v01/v02/v03 guards and FAIL results immutable. No Go recompile/list/full graph requested.",
+  "private_build_required": true,
+  "global_asset_exchange_required_by_root": true,
+  "resource_execution_authorized": false,
+  "next_round_requires_separate_single_grant": true
+}

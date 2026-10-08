@@ -1,0 +1,41 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/project-audit.spec.ts (49 tests | 1 failed) 2025ms
+     × retires the pending native read for /owner/demo/settings/audit?cursor=x until its actual tail ends 59ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/project-audit.spec.ts > production App/Owner/Audit route composition > retires the pending native read for /owner/demo/settings/audit?cursor=x until its actual tail ends
+AssertionError: expected [ undefined, undefined ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "01970000-0000-7000-8000-000000000001",
+-   "01970000-0000-7000-8000-000000000002",
++   undefined,
++   undefined,
+  ]
+
+ ❯ src/tests/project-audit.spec.ts:590:67
+    588|         expect(ownerReads()).toBe(beforeOwner)
+    589|         expect(f.wrapper.find('[aria-label="项目审计列表"]').exists()).toBe(…
+    590|         expect([f.auth.state.user?.id, f.auth.state.session?.id]).toEq…
+       |                                                                   ^
+    591|       } finally {
+    592|         held.release()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 48 passed (49)
+   Start at  15:23:34
+   Duration  4.40s (transform 1.72s, setup 0ms, import 1.74s, tests 2.03s, environment 462ms)
+

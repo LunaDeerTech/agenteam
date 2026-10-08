@@ -1,0 +1,118 @@
+{
+  "state": "AUDIT_UI_REV2_FULL22_VERSIONED_COMBINATION_FINITE_PASS_STOP",
+  "created_utc": "2026-10-08T17:14:12.143538+00:00",
+  "no_open_required_fixes": true,
+  "scope": "Exact 22 paths of Project Owner Audit UI rev2 card; full D27/production/E01 excluded.",
+  "source_binding": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/audit22-final01/source-binding.json",
+    "bytes": 1922,
+    "sha256": "6f29aefeb525d757709f12b5df4d718f7d46af5dd7aef37ced0cc58efe918e69"
+  },
+  "README_checks": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/audit22-final01/readme-check.json",
+    "bytes": 6050,
+    "sha256": "1fcabec5a86237d5d3359b13db31aa30f02d4a6c1814bce825d88a0294358d96"
+  },
+  "README_pre_review": {
+    "review.md": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-readme21-v2-review/review.md",
+      "bytes": 1740,
+      "sha256": "dca4c67cf03368537d90cadae666073d10bb4d1c04ac6cc51ce473073a46ef17"
+    },
+    "evidence.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-readme21-v2-review/evidence.json",
+      "bytes": 6975,
+      "sha256": "b6ad8b62e0013c779fb6550f733682b248eb3341ecfdee31d3afa561cb0e04a4"
+    },
+    "manifest.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-readme21-v2-review/manifest.json",
+      "bytes": 585,
+      "sha256": "f3e15e5465fe3fd78eb2cb5dda3006768c71acdf69c3441b8091bf805c197103"
+    }
+  },
+  "README_patch": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/README.patch",
+    "bytes": 21056,
+    "sha256": "cade6b80aa466fb32a4a8c2db3fe8b71a2bd0ea48156ab66f5203bc4e4c0a3a8"
+  },
+  "technical21_accepted_report": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/audit21-technical-final01/review.md",
+    "bytes": 4270,
+    "sha256": "6f772adceed61671e18b1b6f6ac2808443b3d70d0efdc40d37a7b0ee014e831b"
+  },
+  "technical21_manifest": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/audit21-technical-final01/manifest.json",
+    "bytes": 1231,
+    "sha256": "2526a46728476c0f2898e20ae300fd240036a2206600499e0bfd6f148a548330"
+  },
+  "permanent_link_closure": {
+    "relative_target": "../agent-team/project-owner-audit-ui-verification.md",
+    "resolved_report": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification.md",
+      "bytes": 15848,
+      "sha256": "d817426b3eeef6922e43611710458662e7f59ab778be92406ae3d5e741abb9d0"
+    },
+    "manifest": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/manifest.json",
+      "bytes": 346475,
+      "sha256": "4821bfb976f6fa66f26d44140bf3c877a933890bc00bedcb34fb17322dec248a"
+    },
+    "permanent_original_technical_report": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/6f772adceed61671-review.md",
+      "bytes": 4270,
+      "sha256": "6f772adceed61671e18b1b6f6ac2808443b3d70d0efdc40d37a7b0ee014e831b"
+    },
+    "permanent_original_once_only_source_table": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes": 14192,
+      "sha256": "bf66509901d83abd2e69dc6b609baa6fb4278ce3a5fbaaebdef0d7c8d3ea6707"
+    },
+    "permanent_Owner_boundary_correction": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/903b2af96c68ff2d-correction.md",
+      "bytes": 1678,
+      "sha256": "903b2af96c68ff2db634444ca0a9128d27fe10d53354e806258c2d08a85fab51"
+    },
+    "exact_original_technical_bytes_preserved": true,
+    "source_table_bytes_preserved": true,
+    "latest_header_vs_historical_body_distinguished": true,
+    "technical21_old10_independent4_scopes_match_accepted_reports": true,
+    "old_Owner_replays_not_native_EOF": true,
+    "README_full22_pending_before_this_review_is_accurate_stage_not_defect": true,
+    "old_c59_body_explicitly_preserved_historical_not_current_gate": true,
+    "no_archive_original_set_scan": true
+  },
+  "acceptance_combination": {
+    "technical_paths": 21,
+    "documentation_last_member": 1,
+    "README_byte_count": 84744,
+    "README_SHA256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e",
+    "patch_hunks": 6,
+    "net_document_bytes_added": 7124,
+    "personal_and_later_historical_tail_bytes": 60821,
+    "personal_tail_SHA256": "06330824c983489dcbae2cbc7b1b1b949b3bbc945bd3b4ec12db2566a68382cc",
+    "local_document_links_checked_before_final": 19,
+    "author_new_successes_with_original_FAILs_preserved": 3,
+    "author_old_regression_rounds": 10,
+    "independent_personally_executed_representatives": 4,
+    "visual_eight_originals_author_review_only_visible900px": true
+  },
+  "runtime_evidence_domains_inherited": {
+    "Project_Audit_independent_EOF_schema_public_client": 53,
+    "Project_Audit_independent_incomplete_excluded": 13,
+    "legacy_Owner_independent_schema": 17,
+    "legacy_Owner_independent_response_event_public_client_replays": 11,
+    "legacy_Owner_native_EOF_or_full_bytes_proof": false
+  },
+  "limits": [
+    "Versioned card acceptance; not all sources exercised together in one latest-HEAD fresh full suite.",
+    "README commands are reproduction entries, not claims this final review reran them.",
+    "Original actual read01/authority01/nav01 FAILs, missing activeElement/DOM/EOF evidence and all controlled/offline failures remain immutable.",
+    "Old Owner response-event matched safe-upstream replay does not prove native browser complete bytes/EOF; original feb/c469 and correction903b remain separate.",
+    "Eight Project images limited to actual900px visible areas; no fullpage/WCAG/native zoom/all-state or extra independent layout claim.",
+    "Full D27,31 real producers, production hosting/unbound Invocation/Resolution/lifecycle/D24/ready503/E01 and existing three hard stops remain outside this card acceptance.",
+    "Object runtime join/OpenAI tools/SPA concurrent publication and Jina boundaries unchanged.",
+    "No Go/Node/test/type/format/build/browser/schema-client/business/resources/network/Git or repository write; no technical source/large graph/original entity/host/currentdist rescan.",
+    "Root may update coordination and permanent stage headers using this final22 report; this verifier did not modify those documents."
+  ],
+  "STOP": true
+}

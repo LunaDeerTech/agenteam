@@ -1,0 +1,168 @@
+{
+  "calls": [
+    {
+      "path": "/api/v1/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/projects/resolve?username=owner&project_name=demo",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a/audit?limit=50",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a/audit/01970000-0000-7000-8000-000000000050",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a/audit?limit=50",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/projects/resolve?username=owner&project_name=second",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000b",
+      "method": "GET"
+    }
+  ],
+  "observations": [
+    {
+      "event": "fetch",
+      "path": "/api/v1/session",
+      "sessionPhase": "checking",
+      "busy": true,
+      "context": null
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/session",
+      "route": "/",
+      "sessionPhase": "checking",
+      "busy": true,
+      "context": null
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/projects/resolve?username=owner&project_name=demo",
+      "route": "/owner/demo/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "loading",
+      "context": null
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a",
+      "route": "/owner/demo/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "loading",
+      "context": null
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a/audit?limit=50",
+      "route": "/owner/demo/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "current",
+      "context": {
+        "identity": {
+          "userID": "01970000-0000-7000-8000-000000000001",
+          "sessionID": "01970000-0000-7000-8000-000000000002",
+          "epoch": 1
+        },
+        "projectID": "01970000-0000-7000-8000-00000000000a",
+        "generation": 1,
+        "readGeneration": 2
+      }
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a/audit/01970000-0000-7000-8000-000000000050",
+      "route": "/owner/demo/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "current",
+      "context": {
+        "identity": {
+          "userID": "01970000-0000-7000-8000-000000000001",
+          "sessionID": "01970000-0000-7000-8000-000000000002",
+          "epoch": 1
+        },
+        "projectID": "01970000-0000-7000-8000-00000000000a",
+        "generation": 1,
+        "readGeneration": 2
+      }
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/session",
+      "route": "/owner/demo/settings/audit",
+      "sessionPhase": "checking",
+      "busy": true,
+      "detailPhase": "checking",
+      "context": null
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000a/audit?limit=50",
+      "route": "/owner/demo/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "current",
+      "context": {
+        "identity": {
+          "userID": "01970000-0000-7000-8000-000000000001",
+          "sessionID": "01970000-0000-7000-8000-000000000002",
+          "epoch": 1
+        },
+        "projectID": "01970000-0000-7000-8000-00000000000a",
+        "generation": 1,
+        "readGeneration": 2
+      }
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/projects/resolve?username=owner&project_name=second",
+      "route": "/owner/second/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "loading",
+      "context": null
+    },
+    {
+      "event": "fetch",
+      "path": "/api/v1/projects/01970000-0000-7000-8000-00000000000b",
+      "route": "/owner/second/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "loading",
+      "context": null
+    },
+    {
+      "event": "after-navigation-new-get-still-held",
+      "route": "/owner/second/settings/audit",
+      "sessionPhase": "authenticated",
+      "busy": true,
+      "detailPhase": "loading",
+      "context": null
+    }
+  ]
+}

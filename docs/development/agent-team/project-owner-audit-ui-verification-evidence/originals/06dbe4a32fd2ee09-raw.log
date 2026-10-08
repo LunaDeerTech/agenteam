@@ -1,0 +1,37 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit-state.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/project-audit-state.spec.ts (50 tests | 1 failed) 217ms
+     × accepts current admin Human without an admin shortcut or System-denied gate 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > accepts current admin Human without an admin shortcut or System-denied gate
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/project-audit-state.spec.ts:353:38
+    351|         f.setOther(async () => problem('PERMISSION_DENIED', 403))
+    352|         await resultOf(f.auth.system.listUsers({}))
+    353|         expect(f.auth.system.denied).toBe(true)
+       |                                      ^
+    354|         expect((await f.auth.projectAudit.list(projectID, {})).items).…
+    355|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 49 passed (50)
+   Start at  12:08:01
+   Duration  1.42s (transform 444ms, setup 0ms, import 605ms, tests 217ms, environment 447ms)
+

@@ -1,0 +1,13 @@
+--- d1-overlay01/project_owner_audit_completion_overlay_test.go
++++ d1-overlay02/project_owner_audit_completion_overlay_test.go
+@@ -24,8 +24,8 @@
+ // Scratch overlay only. This exercises the real private proxy completion
+ // boundary with an in-memory transport. It does not prove API/schema/producer
+ // behavior, open a listener, or construct any business fixture.
+-const auditD1Project = "00000000-0000-4000-8000-000000000001"
+-const auditD1Record = "00000000-0000-4000-8000-000000000002"
++const auditD1Project = "00000000-0000-7000-8000-000000000001"
++const auditD1Record = "00000000-0000-7000-8000-000000000002"
+ const auditD1List = "/api/v1/projects/" + auditD1Project + "/audit"
+ const auditD1Detail = auditD1List + "/" + auditD1Record
+ const auditD1BodyText = `{"probe":"private-handler-completion-only"}`

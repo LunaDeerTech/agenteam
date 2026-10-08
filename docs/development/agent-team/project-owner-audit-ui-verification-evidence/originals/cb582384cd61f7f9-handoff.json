@@ -1,0 +1,315 @@
+{
+  "state": "INDEPENDENT_REAL_AUD_READ01_PASS_FULLY_RETIRED_STOP",
+  "grant": {
+    "path": "/workspace/scratch/project-audit-ui-root-grants/aud-read01.json",
+    "bytes": 51675,
+    "sha256": "241ed5c1bd96515fa95e3ac01b9a283ced7e1390bf0e0972c82e990f5a1f390c"
+  },
+  "tool_terminal": {
+    "session_id": 1237,
+    "initial_chunk": "0d09b0",
+    "terminal_chunk": "b50f35",
+    "actual_exit": 0,
+    "stdout_truncated_by_tool_only": true,
+    "full_driver_result_retained": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-read01/result.json",
+      "bytes": 48277,
+      "sha256": "040324e68dbe96c0955b1db085d0e408e7aca71d23649e7f63d614d81b363288"
+    }
+  },
+  "timing": {
+    "browser_seconds": 11.4,
+    "top_seconds": 20.0,
+    "package_seconds": 21.052,
+    "fixture_command_seconds": 71.13,
+    "TCP_tail_seconds": 38.379618853003194
+  },
+  "observations": {
+    "browser_attempts": 19,
+    "complete_EOF": 19,
+    "classification": {
+      "incomplete": 0,
+      "controlled_failure": 0,
+      "success": 18,
+      "problem": 1
+    },
+    "sidecars": 19,
+    "unique_safe_body_files": 9,
+    "source": {
+      "browser": 19
+    },
+    "statuses": {
+      "200": 18,
+      "400": 1
+    },
+    "list": 16,
+    "detail": 3,
+    "schema": 19,
+    "public_client": 19,
+    "native_body_persisted_separately": false,
+    "native_proof": "Frozen checker actually compared native bytes in memory; persisted native chunk lengths/digests bind the original admitted safe upstream body.",
+    "wire_overrides": [
+      {
+        "path": "/api/v1/projects/01a11c62-3850-7b96-951f-b65151ae4681/audit",
+        "query": "limit=2&cursor=invalid_cursor",
+        "reason": "one real outgoing cursor corrupted for CURSOR_INVALID recovery"
+      }
+    ],
+    "query_differences": [
+      {
+        "sidecar": "response-008.json",
+        "sidecar_query": "limit=2&cursor=invalid_cursor",
+        "native_query": "limit=2&cursor=eyJraWQiOiJ0ZXN0Iiwic2lnbmF0dXJlX3ZlcnNpb24iOjF9.eyJmb3JtYXQiOjEsIm9yZGVyIjoiY3JlYXRlZF9hdDpkZXNjLGlkOmRlc2MiLCJwb3NpdGlvbiI6W3sidHlwZSI6Imluc3RhbnQiLCJ2YWx1ZSI6IjIwMjYtMTAtMDhUMTY6Mzk6MjIuMDgwMjAxWiJ9LHsidHlwZSI6InV1aWQiLCJ2YWx1ZSI6IjAxYTExYzYyLTNhZGYtNzY5Yi1iMDc0LTY5OWY3NTRiMTk4YiJ9XSwicXVlcnlfZGlnZXN0Ijoic2hhMjU2OmFlZDZiMzllZTQxOTQxZjgxZjI5ZjNiMGM4MGIzOTI2MGJkNTk0N2IzM2ZkZmE0Y2U3NWQyYTkyZGM3OTQwMzIiLCJzY29wZSI6eyJraW5kIjoicHJvamVjdCIsInByb2plY3RfaWQiOiIwMWExMWM2Mi0zODUwLTdiOTYtOTUxZi1iNjUxNTFhZTQ2ODEifX0.lG78NMYTzAStRseeDodR5sm_WT1hrqsAOvlkv4V7b6A",
+        "declared_controlled_wire": "one real outgoing cursor corrupted for CURSOR_INVALID recovery"
+      }
+    ],
+    "setup_audit_GETs": 0,
+    "control_audit_GETs": 0,
+    "browser_project_mutations": 0,
+    "browser_command_lookups": 0,
+    "server_started": 57,
+    "server_finished": 57,
+    "holds": 0,
+    "cuts": 0,
+    "failures": 0,
+    "layouts": 0
+  },
+  "retirement": {
+    "actual_direct_wait": true,
+    "adopted_actual_waits": 4,
+    "observed_processes_only": 97,
+    "watchdog_joined": true,
+    "exact_resource_ids": [
+      "108712c686800eb0c3664aeeb76ba1d2e32bda4a1e8cec66e27e37d2a46df3f0",
+      "53dbbd7988f79dcfb01154639653d3c080258d0be442aa8d4df47154826e510b",
+      "61d15865ea45159cfeee53999542ff900937d33f09d106e8ce19f66fdba02b96",
+      "9178cb52e496cd5ab12f1c6b60085e4c803babbe19443bfd97769e6c8f54561a",
+      "c63ad87fae9efe76acc6b5339182fd4e8bb565aa6c3ee961f9153b08cda8445d",
+      "ea7d4d33270e581fe384b6a12c1e72bf70eb60476a54e18ea0a66f22c82af5ba",
+      "f2e164b087e406c62e52fd0fc3cb28a5476db3c0c8ef707544104da23964c1b2"
+    ],
+    "resource_kinds": {
+      "container": 4,
+      "network": 3
+    },
+    "cleanup_times": [
+      "2026-10-08T16:39:56.603207+00:00",
+      "2026-10-08T16:39:57.316054+00:00"
+    ],
+    "owned_runtime_browser_double_empty": true,
+    "baseline_unchanged": true,
+    "TCP_double_clear_times": [
+      "2026-10-08T16:40:35.996690+00:00",
+      "2026-10-08T16:40:36.201106+00:00"
+    ],
+    "TCP_role": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "nonowned_new_PID1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1012402,
+        "ppid": 1,
+        "starttime": "4740485",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1012815,
+        "ppid": 1,
+        "starttime": "4740768",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1013115,
+        "ppid": 1,
+        "starttime": "4740995",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1013711,
+        "ppid": 1,
+        "starttime": "4741209",
+        "state": "Z"
+      }
+    ],
+    "monitor_errors": 0,
+    "forced_tail_actions": 0
+  },
+  "inputs": {
+    "count": 1185,
+    "before_after_same": true,
+    "digest": "397114bec3d7de41c9b6682fad355ca7b902ca655b385a9cdd3a205615e233c1",
+    "private_global_59_match": true,
+    "driver_sha256": "e893600b3e8fbeb832169b0705544b9977a6f6f6f08d4f49e89b6f0877df3d37",
+    "view_sha256": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+    "browser_spec_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+    "build_freeze_sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+  },
+  "safe_bindings": [
+    {
+      "sidecar": "response-001.json",
+      "body": "body-decb5e85019b57f88a7fea5561a1043763d055d3f8f09da02716f9c9ec9b2821.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "decb5e85019b57f88a7fea5561a1043763d055d3f8f09da02716f9c9ec9b2821",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-002.json",
+      "body": "body-da5aa4167351a6f03f04b47e120813632f20be16eb6aa814a8bd577ab2bccf1b.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "da5aa4167351a6f03f04b47e120813632f20be16eb6aa814a8bd577ab2bccf1b",
+      "bytes": 569
+    },
+    {
+      "sidecar": "response-003.json",
+      "body": "body-fbb6ac37e86994770728fcd93c9cbc2aab2aef78b6f84d48b86ff5816d1b009e.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "fbb6ac37e86994770728fcd93c9cbc2aab2aef78b6f84d48b86ff5816d1b009e",
+      "bytes": 450
+    },
+    {
+      "sidecar": "response-004.json",
+      "body": "body-b298b766401f86214461d5dc4e3388c3db87cae26867fc533da8f75bebbca211.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "b298b766401f86214461d5dc4e3388c3db87cae26867fc533da8f75bebbca211",
+      "bytes": 557
+    },
+    {
+      "sidecar": "response-005.json",
+      "body": "body-9b249c45f9d30e03442877c92ab706803ad9817928603428a736ef3b87166482.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "9b249c45f9d30e03442877c92ab706803ad9817928603428a736ef3b87166482",
+      "bytes": 1655
+    },
+    {
+      "sidecar": "response-006.json",
+      "body": "body-8b4db5c133358a0815a0ccb3b52bd6e8efc2fb929fab2a70d05cccb1d6cf068b.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "8b4db5c133358a0815a0ccb3b52bd6e8efc2fb929fab2a70d05cccb1d6cf068b",
+      "bytes": 1496
+    },
+    {
+      "sidecar": "response-007.json",
+      "body": "body-9b249c45f9d30e03442877c92ab706803ad9817928603428a736ef3b87166482.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "9b249c45f9d30e03442877c92ab706803ad9817928603428a736ef3b87166482",
+      "bytes": 1655
+    },
+    {
+      "sidecar": "response-008.json",
+      "body": "body-0e3ce59172d1fb4d375f52e816041bea869226a5f7047aa0827149846238f7ea.json",
+      "status": 400,
+      "browser_eof": true,
+      "sha256": "0e3ce59172d1fb4d375f52e816041bea869226a5f7047aa0827149846238f7ea",
+      "bytes": 262
+    },
+    {
+      "sidecar": "response-009.json",
+      "body": "body-9b249c45f9d30e03442877c92ab706803ad9817928603428a736ef3b87166482.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "9b249c45f9d30e03442877c92ab706803ad9817928603428a736ef3b87166482",
+      "bytes": 1655
+    },
+    {
+      "sidecar": "response-010.json",
+      "body": "body-decb5e85019b57f88a7fea5561a1043763d055d3f8f09da02716f9c9ec9b2821.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "decb5e85019b57f88a7fea5561a1043763d055d3f8f09da02716f9c9ec9b2821",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-011.json",
+      "body": "body-f1312f97e2e2f291a3493a10059c447c7d058b425bd1505b3b8b9e2332d3b698.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "f1312f97e2e2f291a3493a10059c447c7d058b425bd1505b3b8b9e2332d3b698",
+      "bytes": 1724
+    },
+    {
+      "sidecar": "response-012.json",
+      "body": "body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "bytes": 31
+    },
+    {
+      "sidecar": "response-013.json",
+      "body": "body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "bytes": 31
+    },
+    {
+      "sidecar": "response-014.json",
+      "body": "body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "bytes": 31
+    },
+    {
+      "sidecar": "response-015.json",
+      "body": "body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "bytes": 31
+    },
+    {
+      "sidecar": "response-016.json",
+      "body": "body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "bytes": 31
+    },
+    {
+      "sidecar": "response-017.json",
+      "body": "body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "bytes": 31
+    },
+    {
+      "sidecar": "response-018.json",
+      "body": "body-decb5e85019b57f88a7fea5561a1043763d055d3f8f09da02716f9c9ec9b2821.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "decb5e85019b57f88a7fea5561a1043763d055d3f8f09da02716f9c9ec9b2821",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-019.json",
+      "body": "body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082",
+      "bytes": 31
+    }
+  ],
+  "limits": [
+    "This is independently executed frozen read top, not log-only author review.",
+    "Actual formal Project/Secret/Model producer rows only; not all31 producers or production Skills/lifecycle/invocation.",
+    "One declared outgoing cursor corruption obtains actual CURSOR_INVALID; not fabricated response.",
+    "No screenshot/authority/legacy representative/full-card acceptance here.",
+    "No separate persisted native-byte transcript or full DOM; do not enlarge the actual frozen assertions.",
+    "Only this round authorized; resources and all readers retired; later round requires separate root grant."
+  ]
+}

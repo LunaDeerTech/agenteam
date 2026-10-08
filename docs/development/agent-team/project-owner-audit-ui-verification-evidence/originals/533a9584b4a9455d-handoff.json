@@ -1,0 +1,208 @@
+{
+  "actual_grant_sha256": "280f92185ecd1e288a38a2da54d1827ce8ac04b2f49995c0a81d90b664d8bf99",
+  "browser_reported_seconds": 11.8,
+  "driver_exit": 0,
+  "fixture_process_seconds": 64.881,
+  "group": "old-personal-theme",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_authorized": true,
+    "legacy_global_dist_match": true,
+    "legacy_global_dist_required": true,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "original_artifact_count": 24,
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/adopted-waits.json",
+      "sha256": "7d6da3f9082a7479d4cffca6aadd38f6d12c4723ab8a88e4323141b664e9ad93"
+    },
+    "cleanup.json": {
+      "bytes": 92695,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/cleanup.json",
+      "sha256": "560cc33d733bea815ef5119d487a741b14d533d4da79f75853e105e23ea824a7"
+    },
+    "command.json": {
+      "bytes": 3044,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/command.json",
+      "sha256": "3bf0ec0d9d84eb81d49367331e820157f2d17be2e677061712ac725755b4e22b"
+    },
+    "input-after.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/input-after.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "input-before.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/input-before.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "observed-resources.json": {
+      "bytes": 5120,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/observed-resources.json",
+      "sha256": "eb21a1069bf28ca4bf639e4841d12cc2bd9183f644d7253f8c77e76f2c94cb23"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "raw.log": {
+      "bytes": 4950,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/raw.log",
+      "sha256": "9064a4c94c45045634e1c8bf70a837968ae354b0788eb15b3ccd80b7b98079e4"
+    },
+    "result.json": {
+      "bytes": 43092,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/result.json",
+      "sha256": "85d43ed9cd839c470dc1d33a427c3beab9ee904cc1744cd30a6d47d342c27902"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 182443,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/tcp-tail-observation.json",
+      "sha256": "ade6f1af1d2d6073fee5d31ed97cd649c9124bc0ab13db10014a138ca0c4f081"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/verification-input.json",
+      "sha256": "88f67746da002149aa9c4b1579a54fee7128a1e4cda78cd47bae3e83dfa5a0d1"
+    },
+    "watchdog.json": {
+      "bytes": 552,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldpersonaltheme01/watchdog.json",
+      "sha256": "b55b8816739c3bf89ac7b3a01a4ad61b7c9dd6ec1935d4c56fc7c723ecfb1966"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 15,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:05:36.301743+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:05:37.130242+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "2652bac5a57065d7aab1f5cee375ccb1977e77fefc241ca39a657cbae4ccc352": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-fdb77e6b100d01b79af0b9a504116892"
+      },
+      "286b5748db00137be54ff2b3d75aa1ca2edbce043cbf693a8def337cf34e0f19": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-af009cbb995374316504f5767e2ceaa3"
+      },
+      "38bad7022b8a9de8ed289c6738166b7265397017bec1b11d50bd072c1a9ab2b1": {
+        "kind": "container",
+        "name": "/agenteam-d03-f34ef15d4623a765d2e5c624e2461317-pg16"
+      },
+      "4752016457e70bdee5def1eb178986f5d5eb76d0f6c4185aa23757043c29a6bb": {
+        "kind": "network",
+        "name": "agenteam-d04-net-af009cbb995374316504f5767e2ceaa3"
+      },
+      "5c864af7123aabec489f051b9bd12f9448a014ce3f53e67f272713793a0fc45a": {
+        "kind": "network",
+        "name": "agenteam-d03-f34ef15d4623a765d2e5c624e2461317"
+      },
+      "618012b2d1c37d5300231b114a477d706d2e786cfb19014c4288287669ce4638": {
+        "kind": "container",
+        "name": "/agenteam-d03-f34ef15d4623a765d2e5c624e2461317"
+      },
+      "e8cd2d4a08435a0f238a88f1c273fe22046eebeec3c95c5e9399ba1bf21dab9f": {
+        "kind": "network",
+        "name": "agenteam-d05-object-fdb77e6b100d01b79af0b9a504116892"
+      }
+    },
+    "fixture_pid": 927455,
+    "fixture_pid_starttime": "4534592",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 927679,
+        "ppid": 1,
+        "starttime": "4534808",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 928030,
+        "ppid": 1,
+        "starttime": "4535056",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 928400,
+        "ppid": 1,
+        "starttime": "4535272",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 928893,
+        "ppid": 1,
+        "starttime": "4535453",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 98,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 38.37968004099821,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "oldpersonaltheme01",
+  "scope": {
+    "current_global_assets": "exchange02/build-v02, 59 files/794499 bytes; actual before/after legacy gate required/authorized/matched",
+    "exact_one_original_personal_theme_top": true,
+    "independent_result_review_not_claimed": true,
+    "native_evidence_boundary": "This legacy personal theme/navigation fixture has no retained Project Audit sidecar/schema/client artifacts. Do not transfer its browser PASS into new Audit DTO validation or screenshots.",
+    "other_old_groups_not_run_in_this_round": true,
+    "project_audit_schema_client_counts_not_claimed": true
+  },
+  "screenshots": {
+    "actual_png_count": 0,
+    "paths": [],
+    "visual_review_claimed": false
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_prior_failures_unchanged": true,
+    "no_rerun_or_next_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+  "top_seconds": 17.5
+}

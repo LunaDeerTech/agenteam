@@ -1,0 +1,203 @@
+{
+  "status": "CONTROLLED_PASS_INTEGRATION_BLOCKED_STOP",
+  "scope": "Audit UI rev2 state stage #4/#5/#6/#7/#13/#15 only, fixed six sources c730a2e8; independent STATIC plus bounded controlled tests",
+  "mandatory_fixes": [
+    {
+      "id": "raw-route-query-loss-at-app-mount",
+      "origin": "Root-transferred author actual App/component43/46 result and root source-chain review; original App failure bytes not independently consumed in this state-only run",
+      "symptom": "Invalid /owner/demo/settings/audit?cursor=x loses query in named not-found redirect; App.onMounted calls Workspace afterNavigation with a now-valid fullPath and dispatches Resolve/Get, no Audit",
+      "acceptance": "Six-source acceptance paused pending frozen state-v2 auth delta plus actual App controlled regression; original20 controlled composition remains valid for its narrower scope"
+    }
+  ],
+  "freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/freeze.json",
+    "sha256": "c730a2e83a59f35971d4bfd81d74fa4c6cfcd5f3132d6c7aa510cfe7c9039f0c",
+    "bytes": 23972
+  },
+  "api_reused": {
+    "review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/review.md",
+      "sha256": "5669b67d4c3bf8286137b03f712df48d101bc3b3dc07864a37e8f489561dc4e1",
+      "bytes": 4130
+    },
+    "independent71_not_rerun": true
+  },
+  "independent_composition": "20 distinct controlled cases accepted as unchanged18 PASS in run01 plus revised-premise2 PASS in run02; original run01 exit1/two FAIL retained; not a fresh full20 pass.",
+  "runs": {
+    "run01": {
+      "command_result": {
+        "exit": 1,
+        "timeout": false,
+        "command_elapsed_seconds": 1.3258863689989084,
+        "total_elapsed_seconds": 1.5994263639986457,
+        "direct_actual_wait": 637599,
+        "adopted_actual_wait": [],
+        "observed_owned": {
+          "637599": "3189130",
+          "637625": "3189157"
+        },
+        "forced_cleanup": [],
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "tests": {
+        "total": 20,
+        "passed": 18,
+        "failed": 2,
+        "pending": 0
+      },
+      "input_count": 69,
+      "pre_post_same": true,
+      "preserved_inputs_current_or_original_same": true
+    },
+    "run02": {
+      "command_result": {
+        "exit": 0,
+        "timeout": false,
+        "command_elapsed_seconds": 1.4785597289992438,
+        "total_elapsed_seconds": 1.7313169869994454,
+        "direct_actual_wait": 638506,
+        "adopted_actual_wait": [],
+        "observed_owned": {
+          "638506": "3196925",
+          "638550": "3196959"
+        },
+        "forced_cleanup": [],
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "tests": {
+        "total": 20,
+        "passed": 2,
+        "failed": 0,
+        "pending": 18
+      },
+      "input_count": 69,
+      "pre_post_same": true,
+      "preserved_inputs_current_or_original_same": true
+    }
+  },
+  "author_reused": {
+    "state_unit03": "5 files / 285 PASS = new52 + old233, 5.678306922s; Session/Workspace/SystemAudit/Selection/Auth limited regression",
+    "state_types03": "Historical fixed187-file full type PASS, 11.513846641s; not an active full-app type claim",
+    "state_format_check02": "Final six format PASS, 1.232195809s; exact one test-format-only delta after unit/type",
+    "state_atomic_regression01": "1 PASS / 50 skipped, 1.610050506s before alleged General publication product change; no semantic repair needed",
+    "original_failures": "state-unit01 50 FAIL + 1 unhandled cleanup rejection while audit route missing; state-unit02 49 PASS / 1 System FORBIDDEN test-premise FAIL; original raw/source retained. state-format-check01 FAIL and pure formatting correction retained."
+  },
+  "not_verified": [
+    "Active Views, router-index, ProjectNav, App pageshow/focus/guard integration",
+    "Real browser Cookie/CSS/events, HTTP/Go/Postgres or schema-client replay",
+    "Current whole-app type/unit/build, full Audit UI22 or full D27/production"
+  ],
+  "no_product_changes": true,
+  "no_git_network_install_server_browser_go": true,
+  "evidence": {
+    "input-binding.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/input-binding.json",
+      "sha256": "c4b5ed43664621b187c170512335e553ebc6f5ee01acdbb4d632e310138fb441",
+      "bytes": 34367
+    },
+    "final-input-check.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/final-input-check.json",
+      "sha256": "6f297dcdefca16032da246837eb1586f49125aced8015ebb38897b2868edf817",
+      "bytes": 4282
+    },
+    "probe-failures.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/probe-failures.json",
+      "sha256": "885bd8d346efb192fce516d59a395c2958355268b13848112f35aed80c625030",
+      "bytes": 1120
+    },
+    "probe-correction.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/probe-correction.patch",
+      "sha256": "d738439022e12c7241fb9e29a6da22d0ba4760fb05e8c462ecda2913759f4e75",
+      "bytes": 5210
+    },
+    "useSession.delta.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/useSession.delta.patch",
+      "sha256": "47756bc03dd3cce438e1962be09c556188d55c8d6385ba9d6fdd846f71e5525a",
+      "bytes": 8279
+    },
+    "useProjectWorkspace.delta.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/useProjectWorkspace.delta.patch",
+      "sha256": "367c9ef4757aade09ef1ddebcc8c8fe729624fbe759b192e33d1069166f45022",
+      "bytes": 1614
+    },
+    "auth.delta.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/auth.delta.patch",
+      "sha256": "a3699dcae6062394e5fb4e4afd15d1d8de932509bcf4cce319af69a838c4c087",
+      "bytes": 1201
+    },
+    "authentication.spec.delta.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/authentication.spec.delta.patch",
+      "sha256": "a6a576ed96de676482990fea7ae9865df996029a881414d881a1a3b9af0b92e3",
+      "bytes": 1478
+    },
+    "run01/raw.log": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run01/raw.log",
+      "sha256": "a760fcbbd5b16560cbcd260df84313460fb3647188c92f703bddde9cd5618205",
+      "bytes": 5337
+    },
+    "run01/result.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run01/result.json",
+      "sha256": "035c95bc5767571df5670177e36c078e47863d1913fabf233fc269d291542d99",
+      "bytes": 360
+    },
+    "run01/vitest.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run01/vitest.json",
+      "sha256": "2af596e54c5d40a7f5b328076f90be0e5a7e834ba4badf57b0f2f3ba4d87e9fd",
+      "bytes": 8929
+    },
+    "run01/command.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run01/command.json",
+      "sha256": "90cef8ddb9509a126788b5fae24d94b8ced3ff593e274dc201bc21901b9e8f3c",
+      "bytes": 603
+    },
+    "run01/independent.spec.ts": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run01/independent.spec.ts",
+      "sha256": "6eb7063a3cc954996a1348b6ba0d786a99864dc3cd0b3fb6751c372b2e025c29",
+      "bytes": 17765
+    },
+    "run01/run-checks.py": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run01/run-checks.py",
+      "sha256": "9a10f827c51785b472e0f6da7f933227570d394c4b94d83ef296aa4022ed4825",
+      "bytes": 5372
+    },
+    "run02/raw.log": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run02/raw.log",
+      "sha256": "353509a7139193c10a22423334381260db2940ba349d08364124413fe5d6e1fa",
+      "bytes": 3469
+    },
+    "run02/result.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run02/result.json",
+      "sha256": "e3795b7f5e92f9479975ada7ac76fdf7106382801e7ca3d1e5fccc8fc5baa952",
+      "bytes": 360
+    },
+    "run02/vitest.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run02/vitest.json",
+      "sha256": "3bb0e4a7f2baf4230c65812f9e315d67b417a26415b6a54ba7a91eb17e9f9ef7",
+      "bytes": 7910
+    },
+    "run02/command.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run02/command.json",
+      "sha256": "5a02fb403db95d5f1bd7926a6fe5154de60e9efd1d648ddeacd9e71070b69c37",
+      "bytes": 688
+    },
+    "run02/independent.spec.ts": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run02/independent.spec.ts",
+      "sha256": "cec3091c0e831cd6810541efe1f254317174f7ae3d84aa5c76ee524f75aa8714",
+      "bytes": 18267
+    },
+    "run02/run-checks.py": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/run02/run-checks.py",
+      "sha256": "78bcbe0e694f9cf586952fcf84fe3072ed8750e8c2dde8b37cb897f57b37f4ed",
+      "bytes": 5447
+    }
+  },
+  "input_time_note": "Final-input-check refers to original frozen state-v1 run/review time. Root subsequently released auth.ts only for state-v2; do not treat installed HEAD as still identical without the next formal freeze.",
+  "supersedes_drafts": [
+    "draft-before-ui-finding.md",
+    "draft-before-ui-finding.json"
+  ]
+}

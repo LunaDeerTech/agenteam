@@ -1,0 +1,163 @@
+{
+  "status": "SOURCE_STATIC_PASS_PLAN_PREREQUISITES_PENDING_DYNAMIC_NOT_RUN_STOP",
+  "reviewer": "architecture_worker",
+  "created_utc": "2026-10-08T12:35:21.198162+00:00",
+  "independent_of_implementation": true,
+  "candidate_freeze": {
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+    "bytes": 3732,
+    "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+  },
+  "sources": [
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+      "bytes": 51317,
+      "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f"
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+      "bytes": 6289,
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+    }
+  ],
+  "frozen_references": {
+    "D1_independent_review": {
+      "path": "/workspace/scratch/architecture-audit-go-candidate02-review/review.md",
+      "bytes": 4012,
+      "sha256": "313a16f8b7233212302b55636debc97c1458df3dbe09243466d7e6cd8146a8aa"
+    },
+    "controlled_timing_plan": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate03/D1-validation-plan.md",
+      "bytes": 2599,
+      "sha256": "e52120ab7d04e9b48e704d94cfe274fbc5ab689dc5f07e27928aba9678b57fed"
+    },
+    "historical_checks_not_candidate03_validation": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate02/checks.json",
+      "bytes": 6142,
+      "sha256": "80403b2be52c5a6622b2637bd4593ca6b255fc0731b55a5bcedf46e414f494ba"
+    },
+    "parent_candidate02": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate02/freeze.json",
+      "bytes": 3683,
+      "sha256": "bda6ba898cf8643ee2fdef464bf5320905baa10094b120c0d37d362d469dbc33"
+    },
+    "patch": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate03/candidate02-to-candidate03.patch",
+      "bytes": 2852,
+      "sha256": "7ce92ac88421ab4a6a9c13ca568534a34892783b163e6b50858912787be164bf"
+    },
+    "protocol": {
+      "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+      "bytes": 10909,
+      "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+    },
+    "protocol_agreement": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/protocol-agreement.json",
+      "bytes": 769,
+      "sha256": "3c8092b89748cbcfc7fc6a039111a5ecb71b6fa34d99514bd1ed12087677c3f8"
+    },
+    "static_check": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate03/static-check.json",
+      "bytes": 2428,
+      "sha256": "db780b2614066b71a9b634abda470995e5d1f56c280b95a26aa504612eca16ee"
+    }
+  },
+  "stdlib_sources": [
+    {
+      "path": "/workspace/toolchains/go1.27.1/src/net/http/httputil/reverseproxy.go",
+      "bytes": 29264,
+      "sha256": "89d121257c4b301c7a4d1075e17bd660cf841e0f4b0fa6f967095e71e3555a4c"
+    },
+    {
+      "path": "/workspace/toolchains/go1.27.1/src/net/http/transport.go",
+      "bytes": 106326,
+      "sha256": "b3c0ef6ea21d8bfa3d8ee4d6f53e3f5e5982c5d6bfcd14536437adeb214a6933"
+    }
+  ],
+  "delta_checks": {
+    "patch_is_exact_full_source_delta": true,
+    "prior_source_and_top_hashes_preserved": true,
+    "protocol_and_agreement_unchanged": true,
+    "old_full_review_unchanged": true,
+    "one_joined_increment_in_api_handler_exit_defer": true,
+    "actual_api_branch_uses_wrapper": true,
+    "unique_context_token_per_request": true,
+    "held_and_completion_under_same_mutex": true,
+    "defer_registered_before_ReverseProxy": true,
+    "no_release_cancel_or_save_error_direct_completion": true,
+    "original_arm_predicate_unchanged": true,
+    "no_new_import_init_TestMain_or_public_API": true
+  },
+  "D1": {
+    "source_status": "FIXED_STATIC",
+    "file": "tests/account/project_owner_audit_web_fixture_test.go",
+    "lines": {
+      "wrapper_actual_use": 248,
+      "token_and_final_defer": [
+        304,
+        305,
+        307,
+        314,
+        318
+      ],
+      "hold_token_mark": [
+        712,
+        718,
+        719
+      ],
+      "hold_wait_no_completion": [
+        731,
+        734,
+        739
+      ],
+      "arm_gate": 1000,
+      "final_total_join": [
+        286,
+        289
+      ]
+    },
+    "scope": "Corresponding private API handler after ReverseProxy response/body/write/ErrorHandler return/unwind, not browser EOF or outer resource terminal state"
+  },
+  "controlled_plan": {
+    "reviewed_frozen_plan": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate03/D1-validation-plan.md",
+      "bytes": 2599,
+      "sha256": "e52120ab7d04e9b48e704d94cfe274fbc5ab689dc5f07e27928aba9678b57fed"
+    },
+    "status": "ADEQUATE_COVERAGE_WITH_REQUIRED_EXECUTION_PREREQUISITES_TO_BE_INCORPORATED",
+    "not_executed": true,
+    "prerequisites": [
+      {
+        "plan_line": 8,
+        "source_reference": "Go1.27.1 httputil/reverseproxy.go:596–600 and 631–643",
+        "requirement": "For actual ErrAbortHandler unwind under direct no-listener invocation, use a nonnil http.ServerContextKey and assert actual recover; absent this only ordinary error return is covered."
+      },
+      {
+        "plan_line": 9,
+        "source_reference": "fixture releaseRead and unchanged targetless IPC release",
+        "requirement": "Repeated release may release current C. Keep C body/write/ErrorHandler blocked and prove joined remains pending until actual C completion; do not assert old release cannot affect C hold."
+      }
+    ],
+    "root_disposition": "Root communicated both prerequisites to backend overlay; frozen plan preserved; no active overlay read"
+  },
+  "current_compilation": {
+    "status": "PENDING_REBIND_AND_RECOMPILE",
+    "candidate02_checks": "Historical only, not validation of candidate03/current Model combination",
+    "root_reported_changed_Model_hash_prefixes": [
+      "c8ccd095",
+      "a5fbc31e"
+    ],
+    "Model_source_read_by_this_review": false,
+    "generated_testmain_or_list": "Old fixed evidence only; current artifact must be rebound after STOP source freeze"
+  },
+  "limits": {
+    "go_node_binary_list_sql_network_resources_git_run": false,
+    "repository_or_candidate_written": false,
+    "only_independent_scratch_written": true,
+    "active_frontend_JS_PG_or_overlay_read": false,
+    "dynamic_timing_or_business_integration_pass": false,
+    "browser_EOF_schema_client_visual_resource_terminal": "NOT VERIFIED",
+    "hard_stops_changed": false
+  },
+  "stopped": true
+}

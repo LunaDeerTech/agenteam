@@ -1,0 +1,319 @@
+{
+  "status": "PROTOCOL_PROPOSAL_STOP_PENDING_FRONTEND_CONFIRMATION",
+  "version": 1,
+  "implementation_authorized_scratch_only": true,
+  "resource_authorized": false,
+  "spec": {
+    "path": "/workspace/scratch/project-owner-audit-ui-spec/rev2/card.md",
+    "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb",
+    "root_accepted_commit": "5320a18756d1b1f552274a28e85575ef1ab71a35"
+  },
+  "paths": {
+    "go_fixture": "tests/account/project_owner_audit_web_fixture_test.go",
+    "go_tops": "tests/account/project_owner_audit_web_test.go",
+    "config": "tests/account-captcha-web/project-owner-audit.config.js",
+    "spec": "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "private_dist_proposed": "/workspace/scratch/project-audit-ui/dist-ui01"
+  },
+  "tops": {
+    "read": "TestAccountProjectOwnerAuditWebReadAndFilters",
+    "authority": "TestAccountProjectOwnerAuditWebAuthorityAndRecovery",
+    "navigation": "TestAccountProjectOwnerAuditWebNavigationAndLayouts"
+  },
+  "files": {
+    "material": "project-audit-material.json",
+    "request": "project-audit-ipc.json",
+    "ack": "project-audit-ack-{sequence}.json",
+    "result": "project-audit-result.json"
+  },
+  "go_env_required": [
+    "AGENTEAM_AUTH_WEB_RUNTIME",
+    "AGENTEAM_PROJECT_AUDIT_WEB_DIST",
+    "AGENTEAM_PROJECT_AUDIT_WEB_EVIDENCE",
+    "AGENTEAM_PROJECT_AUDIT_WEB_INPUT_HASH"
+  ],
+  "node_env_explicit": [
+    "AGENTEAM_AUTH_WEB_ORIGIN",
+    "AGENTEAM_AUTH_WEB_PRIVATE",
+    "AGENTEAM_AUTH_WEB_CHROMIUM",
+    "AGENTEAM_PROJECT_AUDIT_WEB_CASE",
+    "AGENTEAM_PROJECT_AUDIT_WEB_DIST",
+    "AGENTEAM_PROJECT_AUDIT_WEB_EVIDENCE"
+  ],
+  "node_env_navigation_required": "AGENTEAM_AUTH_WEB_IMAGES absolute path; explicit append, not inherited AGENTEAM env",
+  "material": {
+    "exact_keys": [
+      "admin",
+      "owner",
+      "other",
+      "projects",
+      "missing_id",
+      "expected",
+      "system"
+    ],
+    "credential_exact_keys": [
+      "email",
+      "password",
+      "user_id",
+      "username"
+    ],
+    "project_keys": [
+      "main",
+      "second",
+      "other",
+      "admin",
+      "dotted",
+      "archiving",
+      "archived",
+      "deleting",
+      "pending"
+    ],
+    "project_locator_exact_keys": [
+      "id",
+      "username",
+      "name",
+      "normalized_name",
+      "owner_user_id",
+      "initialized",
+      "lifecycle"
+    ],
+    "project_locator_note": "private formal creation/current Get fact locator, not public Project DTO; pending has initialized=false and exact creation name/owner, never fabricated ready Get",
+    "expected_exact_keys": [
+      "main_record_ids",
+      "main_actions",
+      "main_producer_families"
+    ],
+    "expected_note": "actual SQL-owned IDs after formal producers; families project/secret/model, no Audit writes; browser reads must independently match",
+    "system": "null outside navigation; navigation exact existing prepareSystemDrafts output {ids,names,selector_id,summary_id,selection,summary}, private full formal safe responses; no credential values"
+  },
+  "ipc": {
+    "request_exact_base": [
+      "sequence",
+      "action"
+    ],
+    "ack_exact_keys": [
+      "sequence",
+      "result"
+    ],
+    "ok_field": "forbidden",
+    "sequence": "integer 1..128, strict +1; already processed file ignored, no execution twice",
+    "publication": "0700 directory; 0600 tmp+atomic rename; max request 32768 bytes; EOF and no unknown/duplicate/null arguments; action-specific exact keys",
+    "actions": {
+      "counts": {
+        "required": [],
+        "optional": [],
+        "result": {
+          "browser_list_gets": "nonnegative safe integer",
+          "browser_detail_gets": "nonnegative safe integer",
+          "setup_audit_gets": "nonnegative safe integer",
+          "control_audit_gets": "nonnegative safe integer",
+          "browser_project_mutations": "nonnegative safe integer",
+          "browser_command_lookups": "nonnegative safe integer",
+          "held": "nonnegative safe integer",
+          "joined": "nonnegative safe integer",
+          "cuts": "nonnegative safe integer",
+          "failures": "nonnegative safe integer",
+          "session_failures": "nonnegative safe integer",
+          "server_started": "nonnegative safe integer",
+          "server_finished": "nonnegative safe integer"
+        }
+      },
+      "snapshot": {
+        "required": [
+          "project",
+          "ids"
+        ],
+        "optional": [],
+        "result": {
+          "records": "ProjectAuditRecord[0..200]; same input ID order, each exact 11 safe fields; SQL read-only own project/id plus formal typed metadata projection"
+        }
+      },
+      "arm-hold": {
+        "required": [
+          "project"
+        ],
+        "optional": [
+          "audit_id"
+        ],
+        "result": {},
+        "target": "known Project key; audit_id absent means list; present means canonical UUIDv7 detail; exact pathname, next successful formal response only, one arm at a time"
+      },
+      "arm-cut": {
+        "required": [
+          "project"
+        ],
+        "optional": [
+          "audit_id"
+        ],
+        "result": {},
+        "target": "known Project key; audit_id absent means list; present means canonical UUIDv7 detail; exact pathname, next successful formal response only, one arm at a time"
+      },
+      "arm-failure": {
+        "required": [
+          "project"
+        ],
+        "optional": [
+          "audit_id"
+        ],
+        "result": {},
+        "target": "known Project key; audit_id absent means list; present means canonical UUIDv7 detail; exact pathname, next successful formal response only, one arm at a time"
+      },
+      "release": {
+        "required": [],
+        "optional": [],
+        "result": {}
+      },
+      "session-fail": {
+        "required": [],
+        "optional": [],
+        "result": {}
+      },
+      "logout": {
+        "required": [
+          "session_id"
+        ],
+        "optional": [],
+        "result": {
+          "revoked": true,
+          "logout_audit": true
+        }
+      },
+      "rename-reuse": {
+        "required": [
+          "project"
+        ],
+        "optional": [],
+        "result": {
+          "renamed": "ProjectLocator",
+          "replacement": "ProjectLocator"
+        },
+        "target": "main only, once; fixed owned new name then formal CreateProject with the previous name; no caller name/body/URL"
+      }
+    },
+    "snapshot_record_exact_keys": [
+      "audit_id",
+      "created_at",
+      "scope",
+      "project_id",
+      "actor",
+      "action",
+      "outcome",
+      "resource",
+      "metadata",
+      "associations",
+      "summary"
+    ],
+    "control_semantics": "hold/cut/failure consume a complete real upstream 200 then operate; never synthetic 200; hold waits explicit release or real request cancellation and records actual handler completion; cut forwards a prefix with original length; failure is a labeled transport 503, not fake transactional Problem; session-fail is one private GET /api/v1/session failure; controls never mutate authorization/role",
+    "logout_semantics": "exact known browser Session only; retained Cookie/CSRF never leave private Go memory; formal HTTP logout and owned SQL revoked/audit proof; not counted as Project mutation",
+    "counts_semantics": "browser list/detail attempts separate from setup (pre-browser) and known private Go control Session reads; same-body public-client check replays immutable captured bytes with controlled fetch and causes no network request. Browser completed/EOF evidence comes from Node, not server counters; no setup/control/client count as browser GET"
+  },
+  "result": {
+    "exact_keys": [
+      "completed",
+      "mode",
+      "checks",
+      "browser_audit_gets",
+      "schema_bodies",
+      "client_bodies",
+      "layouts"
+    ],
+    "completed": true,
+    "mode": [
+      "read",
+      "authority",
+      "navigation"
+    ],
+    "checks_exact_keys_by_mode": {
+      "read": [
+        "complete_projection",
+        "typed_families",
+        "explicit_pagination",
+        "all_filters",
+        "valid_empty",
+        "cursor_recovery",
+        "same_body_schema",
+        "same_body_client",
+        "zero_mutations"
+      ],
+      "authority": [
+        "owner_and_admin_owned",
+        "non_owner_hidden",
+        "both_gets",
+        "life_gates",
+        "detail_missing",
+        "cut_reread",
+        "failure_reread",
+        "list_cancel_join",
+        "detail_cancel_join",
+        "formal_logout",
+        "late_isolated",
+        "cross_project",
+        "cross_domain",
+        "zero_mutations"
+      ],
+      "navigation": [
+        "dotted_return",
+        "raw_rejection",
+        "settings_current",
+        "default_general",
+        "local_dirty_leave",
+        "existing_draft_guards",
+        "inline_focus",
+        "checking_new_page",
+        "drawer",
+        "reduced_motion",
+        "no_overflow",
+        "no_debug",
+        "zero_mutations"
+      ]
+    },
+    "counts": "nonnegative safe integers; browser_audit_gets actual completed browser safe Audit GET count; schema/client counts only actual checker success and classified original bytes; read requires >0 all three, never setup count as browser",
+    "layouts": "navigation exactly 8; other modes 0",
+    "images": "project-audit-{light|dark}-{390|768|1024|1440}.png under explicit IMAGES; actual view height fixed by frontend and recorded"
+  },
+  "sidecar": {
+    "filenames": "response-{sequence:03}.json, body-{sha256}.json 0600",
+    "exact_keys": [
+      "sequence",
+      "source_run",
+      "input_hash",
+      "source",
+      "method",
+      "endpoint",
+      "query",
+      "status",
+      "content_type",
+      "content_length",
+      "request_id",
+      "project_id",
+      "audit_id",
+      "body_file",
+      "body_sha256",
+      "body_bytes",
+      "transfer_kind",
+      "body_stage"
+    ],
+    "source": [
+      "setup",
+      "browser",
+      "control"
+    ],
+    "transfer_kind": [
+      "forwarded",
+      "hold",
+      "cut",
+      "failure"
+    ],
+    "body_stage": "complete_formal_upstream; full held/cut upstream bytes are not browser EOF success",
+    "safe_scope": "only exact own Project Audit GET list/detail and safe Problem; whitelist query/headers; no Cookie/CSRF/keys/request body/Session response. Correlate browser actual method/rawquery/status/content-type/X-Request-ID plus EOF with same original body; future checker excludes incomplete/controlled success claims"
+  },
+  "budgets": {
+    "browser_seconds": 45,
+    "top_including_cleanup_seconds": 120,
+    "package_minutes": 6,
+    "tcp_tail_seconds": 75,
+    "fresh_disk_GiB": 5,
+    "expected_resources_each": 7
+  },
+  "runtime_driver_note": "Old BB GROUPS/ENV has no new Audit tops or prefix; future separately reviewed minimal groups+ENV delta required, not executable by exact old BB. No driver or runtime prepared/executed here."
+}

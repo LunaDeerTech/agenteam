@@ -1,0 +1,24 @@
+{
+  "status": "STOP_METADATA_ONLY_REV02",
+  "files": [
+    {
+      "path": "/workspace/scratch/architecture-audit21-version-map01/rev02/review.md",
+      "bytes": 1908,
+      "sha256": "499fd48530cdc5e0a2f6c3477618d9601ee50a8395fc143ef98a4f4bb961a893"
+    },
+    {
+      "path": "/workspace/scratch/architecture-audit21-version-map01/rev02/source-map.json",
+      "bytes": 27961,
+      "sha256": "bba14d28a3b506067dabc23cd580d37e0862cb8f2eb90f6a141655b9c05ed879"
+    }
+  ],
+  "previous": {
+    "path": "/workspace/scratch/architecture-audit21-version-map01/manifest.json",
+    "bytes": 563,
+    "sha256": "6ea581f260c8af3eed4179ff12f423896a3e300f21b12eea162afc0f127ddce3"
+  },
+  "delta": "Accepted new private build metadata only",
+  "technical_sources_scanned": false,
+  "checks_or_resources_run": false,
+  "whole_card_accepted": false
+}

@@ -1,0 +1,94 @@
+
+ RUN  v4.1.11 /workspace/scratch/owner-audit-ui-verification/state-v1
+
+ ✓ independent.spec.ts > independent domain isolation and private intent > preserves exact Owner intent through 403/FORBIDDEN without read recovery writes 35ms
+ ✓ independent.spec.ts > independent domain isolation and private intent > preserves exact Owner intent through 404/NOT_FOUND without read recovery writes 4ms
+ ✓ independent.spec.ts > independent domain isolation and private intent > preserves exact Owner intent through 503/COMMIT_UNKNOWN without read recovery writes 4ms
+ ✓ independent.spec.ts > independent domain isolation and private intent > current 401 UNAUTHENTICATED clears Audit authority synchronously at failure publication 5ms
+ ✓ independent.spec.ts > independent domain isolation and private intent > current 401 SESSION_REVOKED clears Audit authority synchronously at failure publication 3ms
+ ✓ independent.spec.ts > independent domain isolation and private intent > retired actual fetch late-success cannot publish or invalidate the same identity 3ms
+ ✓ independent.spec.ts > independent domain isolation and private intent > retired actual fetch late-401 cannot publish or invalidate the same identity 9ms
+ ✓ independent.spec.ts > independent domain isolation and private intent > ordinary Human is independent of existing System denial 4ms
+ ✓ independent.spec.ts > actual rejected tail and bounded initial eligibility > list cancel rejection retains owner then only explicit retry in this page 6ms
+ ✓ independent.spec.ts > actual rejected tail and bounded initial eligibility > detail cancel rejection retains owner then only explicit retry in this page 4ms
+ ✓ independent.spec.ts > actual rejected tail and bounded initial eligibility > new page waits through rejected old native tail and consumes exactly one default initial read 3ms
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > Resolve and failed Get never grant authority; explicit complete Get creates it once 3ms
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > deleting current project cannot grant read context 2ms
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > foreign-owner current project cannot grant read context 1ms
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > unrelated same-identity profile publication preserves context generation and never reloads Audit 9ms
+ × independent.spec.ts > complete Get context, privacy and recovery > same-Session checking clears Audit immediately while a General draft survives; new page alone restarts 8ms
+   → expected [ { …(11) } ] to deeply equal []
+ × independent.spec.ts > complete Get context, privacy and recovery > same Session with changed CSRF is a new identity epoch and requires fresh Owner Get before Audit 5ms
+   → expected { identity: { …(3) }, …(3) } to be null
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > parameter reuse clears old scope synchronously and waits for the new stable-ID Get 3ms
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > invalid cursor retains no usable history and only explicit first-page action can resume 3ms
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > audit route extension remains exact and raw before decoding 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  independent.spec.ts > complete Get context, privacy and recovery > same-Session checking clears Audit immediately while a General draft survives; new page alone restarts
+AssertionError: expected [ { …(11) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "action": "secret.delete",
++     "actor": {
++       "id": "01970000-0000-7000-8000-000000000001",
++       "kind": "human",
++     },
++     "associations": {},
++     "audit_id": "01970000-0000-7000-8000-000000000050",
++     "created_at": "2026-10-08T12:34:56.123456Z",
++     "metadata": {
++       "version": "1",
++     },
++     "outcome": "success",
++     "project_id": "01970000-0000-7000-8000-00000000000a",
++     "resource": {
++       "id": "01970000-0000-7000-8000-00000000001e",
++       "kind": "secret",
++     },
++     "scope": "project",
++     "summary": "Secret deleted",
++   },
++ ]
+
+ ❯ independent.spec.ts:99:339
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  independent.spec.ts > complete Get context, privacy and recovery > same Session with changed CSRF is a new identity epoch and requires fresh Owner Get before Audit
+AssertionError: expected { identity: { …(3) }, …(3) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "generation": 2,
+  "identity": {
+    "epoch": 2,
+    "sessionID": "01970000-0000-7000-8000-000000000002",
+    "userID": "01970000-0000-7000-8000-000000000001",
+  },
+  "projectID": "01970000-0000-7000-8000-00000000000a",
+  "readGeneration": 4,
+}
+
+ ❯ independent.spec.ts:102:373
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 passed (20)
+   Start at  12:20:16
+   Duration  1.02s (transform 324ms, setup 0ms, import 411ms, tests 117ms, environment 377ms)
+
+JSON report written to /workspace/scratch/owner-audit-ui-verification/state-v1/run01/vitest.json

@@ -1,0 +1,379 @@
+{
+  "status": "ORIGINAL_READ_FAIL_PRESERVED_OWNED_RETIREMENT_PASS_FOCUS_PROPOSAL_STATIC_PASS_STOP",
+  "run_manifest": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/manifest.json",
+    "sha256": "039dc5f8fbe2d81ba2864fd1e2f035749ecf918e0ffaeb07c7e02441668a988f"
+  },
+  "original_artifacts": {
+    "count": 55,
+    "bytes": 463493,
+    "all_hashes_match": true
+  },
+  "failure": {
+    "top": "TestAccountProjectOwnerAuditWebReadAndFilters",
+    "top_seconds": 22.9,
+    "command_seconds": 83.363,
+    "exit": 1,
+    "source_line": 1153,
+    "observed": "actor_id aria-invalid=true and inactive",
+    "active_element_observed": false,
+    "old_actor_kind_focus_is_source_inference_only": true
+  },
+  "retirement": {
+    "direct_waits": 1,
+    "adopted_waits": 4,
+    "watchdog_join": true,
+    "resource_ids": [
+      "14a16448c93396996c760182ce2a5cfeb528baf6633a8de6ace610f0700cf999",
+      "3002eb6018c6fc27930a9fd5805fb6053a36086ec342b59d09e07432ffc913de",
+      "46c8434b492efac583534a6662f7c64e25c0c203a002d00583b5e5ad311ea7a2",
+      "75b4d3f7d4e52de32c836fbda415ec2854f0aa200ebf2dbd223a8574afb45243",
+      "981f526517aa0f7d1a58c8b03ea84f535266602140c745fcaefc563e955c0bf6",
+      "bddecf3601d04ed648ab0c5489551ec9cda71c85e69057757918ea3294ea9b4e",
+      "d1bda4cccd19c1cb91b4f4da68df46fb6a39e445053a13a2899024a479f8e1fe"
+    ],
+    "owned_runtime_double_clear": true,
+    "tcp_tail_seconds": 37.371494746999815,
+    "tcp_last_two_times": [
+      "2026-10-08T14:01:58.969437+00:00",
+      "2026-10-08T14:01:59.173219+00:00"
+    ],
+    "nonowned_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 711162,
+        "ppid": 1,
+        "starttime": "3787474",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 711717,
+        "ppid": 1,
+        "starttime": "3788040",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 712282,
+        "ppid": 1,
+        "starttime": "3788516",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 713053,
+        "ppid": 1,
+        "starttime": "3788882",
+        "state": "Z"
+      }
+    ],
+    "nonowned_waited": false,
+    "driver_grant_and_input_same": true,
+    "input_count": 1176,
+    "current_host_scanned": false
+  },
+  "native_prefix": {
+    "sidecars": 19,
+    "bodies": 9,
+    "browser_list_gets": 16,
+    "browser_detail_gets": 3,
+    "status_counts": {
+      "200": 18,
+      "400": 1
+    },
+    "schema_client_finish_executed": false,
+    "screenshots": 0
+  },
+  "proposal": {
+    "provenance": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/provenance.json",
+      "sha256": "96707fcc2304b31e51e64218c949b88accaf8e314a88f1014e7bed6beae1017b"
+    },
+    "base_sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2",
+    "proposed_sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f",
+    "exact_minimal_patch": true,
+    "id_invalid_preserved": true,
+    "kind_invalid_added": true,
+    "focus_kind_strict": true,
+    "product_modified": false,
+    "installed_or_executed_by_reviewer": false
+  },
+  "not_reached": [
+    "post-focus zero extra request assertion",
+    "finish final protocol checks/result publication",
+    "native sidecar-to-browser EOF/request-id matching finish step",
+    "actual schema subprocess and public client same-byte replay",
+    "authority/navigation and all ten old tops"
+  ],
+  "inputs": {
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/manifest.json": {
+      "bytes": 1309,
+      "sha256": "039dc5f8fbe2d81ba2864fd1e2f035749ecf918e0ffaeb07c7e02441668a988f"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/handoff.json": {
+      "bytes": 24688,
+      "sha256": "c6285cce2367277ab251fb9df9c1b4ad823f80c8d9244cb303ec668a19138164"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/raw.log": {
+      "bytes": 6315,
+      "sha256": "3f2886ac7f75d0693c5d3c37d8b0b2c0582795f5fc2e0e7d94f500fa2c16bfb5"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/result.json": {
+      "bytes": 31029,
+      "sha256": "174d380d6f8255da16f8414832c0a4c949763db08c9cdf3e21324227981bd22f"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/cleanup.json": {
+      "bytes": 66173,
+      "sha256": "1078f9eec213d8dc954ea3b3f21c12c20c32b61c9bb7ebadd49d12223e6a37d5"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/tcp-tail-observation.json": {
+      "bytes": 173554,
+      "sha256": "c996d3ab287231b4e2c039bb4613adb1f3b40b86855fdecf4c79b9c160717630"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "02aecb8193ddf1961f7aff0f26062d5e154a63e03e1bdd0c42df0de8cb8ff234"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/command.json": {
+      "bytes": 2999,
+      "sha256": "9960a758845b262bdb260ef560e20ec38900d7bce25f4bdfebfccdc4bba74d24"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/disk-before-spawn.json": {
+      "bytes": 191,
+      "sha256": "eedff98973d794fe75e74cc00a1b876c3cb2dbd261d5a3bcf28bfdfe5f368e6a"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/disk-preflight.json": {
+      "bytes": 191,
+      "sha256": "eb1c5faf11d57d1931de1ce07581cbfddb3a60385d31a9ebf212e1a85eb78c7a"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/driver.py.txt": {
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/frozen-input.json": {
+      "bytes": 44773,
+      "sha256": "87c71a94fda9459d27f58d88c184a0c34ff240987c4bd1bc9afd952c3d87f91f"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/input-after.json": {
+      "bytes": 893,
+      "sha256": "27447942f90a2504f51cee169523cc2a398c16fde18eaa5605ffbe0e6047dd83"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/input-before.json": {
+      "bytes": 893,
+      "sha256": "27447942f90a2504f51cee169523cc2a398c16fde18eaa5605ffbe0e6047dd83"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/observed-processes.json": {
+      "bytes": 16264,
+      "sha256": "651fd8c7beafcd68395806dd53f07324c3ffe60ab9996e4b5cf2909199eca440"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/observed-resources.json": {
+      "bytes": 5086,
+      "sha256": "14f9b836869e2b7735192bff0d08f6e586727c8e22eddbcb4817b4cd61538630"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/process-baseline.json": {
+      "bytes": 26015,
+      "sha256": "d0c155001668d0a4ea6da5bfe42e07a8fe85cfb38790209d91e5a385b733b423"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/auxiliary-facts.json": {
+      "bytes": 1327,
+      "sha256": "87270724842278cf329ff390518da553de088379a1f03df7b9e4034cc3b5fe61"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-2bd49f2e6da4d6a0d703ebf388a55130d55b8a5dab2e18550f2ea118f77773c6.json": {
+      "bytes": 557,
+      "sha256": "2bd49f2e6da4d6a0d703ebf388a55130d55b8a5dab2e18550f2ea118f77773c6"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-3c6d3eee0c20c3d1e660002887ed4943cb2d43c2d520f23dc769f57110b33e5e.json": {
+      "bytes": 1496,
+      "sha256": "3c6d3eee0c20c3d1e660002887ed4943cb2d43c2d520f23dc769f57110b33e5e"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-4077d1d8b84ab52afa87015205116da1cbf9d5ec9a52c7c52ea03ec03cd6bc8e.json": {
+      "bytes": 1655,
+      "sha256": "4077d1d8b84ab52afa87015205116da1cbf9d5ec9a52c7c52ea03ec03cd6bc8e"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-5a9a8fcbceba3182a13c854a6be327dc205b4ebab9738abf37604832599b76e8.json": {
+      "bytes": 5082,
+      "sha256": "5a9a8fcbceba3182a13c854a6be327dc205b4ebab9738abf37604832599b76e8"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-66102675e7c926a3d600c9cd49ee3d171b8efcb53e42f9b213d9569a1c379d5e.json": {
+      "bytes": 450,
+      "sha256": "66102675e7c926a3d600c9cd49ee3d171b8efcb53e42f9b213d9569a1c379d5e"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-75dbf1b07219f53ed8896ad9c40fdd62fe336f35311aa9f22d1cc488513aa41c.json": {
+      "bytes": 569,
+      "sha256": "75dbf1b07219f53ed8896ad9c40fdd62fe336f35311aa9f22d1cc488513aa41c"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-78800ba372fdce2caa48ecd35cd30b99da3839bd0afdd035da57e61cbc9f9cd4.json": {
+      "bytes": 262,
+      "sha256": "78800ba372fdce2caa48ecd35cd30b99da3839bd0afdd035da57e61cbc9f9cd4"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-96f04d91615902966fcf81a8659c9d55e3438bb4b0b7822487cc51cbd418cbd3.json": {
+      "bytes": 1724,
+      "sha256": "96f04d91615902966fcf81a8659c9d55e3438bb4b0b7822487cc51cbd418cbd3"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/body-ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082.json": {
+      "bytes": 31,
+      "sha256": "ae8ea6a4df2e849709e194e6a6d81f6d381b7b33cee972a4aa892b6837b56082"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/proxy-retirement-facts.json": {
+      "bytes": 582,
+      "sha256": "3861cca81f5cd78b5e8f62af2f307ac3d6ebf12f6e3d2441828d192618911f48"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-001.json": {
+      "bytes": 726,
+      "sha256": "66326c4e3f001c045726608c2205ed53ccd333a859f50653ec9fbc863c23f0d7"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-002.json": {
+      "bytes": 789,
+      "sha256": "86877f0d80d950aaa404f418adad2aba06cb316f87e5c8feba022e5353262463"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-003.json": {
+      "bytes": 789,
+      "sha256": "a4893bf010424ccdb59f0f3d54aa9d4748fa41a1705c667fb1a90eb9d0220152"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-004.json": {
+      "bytes": 789,
+      "sha256": "bc1f517db925237198041efab9bb02b0300bda3671fb5ac67479f1573887770f"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-005.json": {
+      "bytes": 725,
+      "sha256": "11c0a6f10e52200efdb58596b032f3823a0db24aa32bec0bc16969a22f7381a5"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-006.json": {
+      "bytes": 1294,
+      "sha256": "6e6894968ee2d7c2d1bb869fb76040e85afda30bf54e51551e0f8893b7a446f0"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-007.json": {
+      "bytes": 725,
+      "sha256": "676ba9043fc7a99e65f29a8490f3b8d62eb00ba7e016f827be064706860c874d"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-008.json": {
+      "bytes": 758,
+      "sha256": "66954e657034de5b00707ecb2e87ef63883af685231a62262d88cf64791e2e44"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-009.json": {
+      "bytes": 725,
+      "sha256": "7140446cc683181a7e530fa457a4c35fb3cd5718d07052f2a072922760d869e7"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-010.json": {
+      "bytes": 727,
+      "sha256": "77716bbea8e98cd25dfe49c52335ef6f6a058103bc626430792950e692bc9922"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-011.json": {
+      "bytes": 1010,
+      "sha256": "777dabdb1bf3055589c7462b9d1b0d42fb8e7a90867a17e892b233c51f94974e"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-012.json": {
+      "bytes": 1056,
+      "sha256": "74eb04c48d2e544376e5967a468622e9055f636ebd90f9cb6397e619e263779b"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-013.json": {
+      "bytes": 1061,
+      "sha256": "9a9f4a854856c9bd6f400a2500143e5f3a868724e2871485a907b41243351bb4"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-014.json": {
+      "bytes": 1061,
+      "sha256": "976d2199084c9099d599c2f68393f5450f0ec92f7a135e12ec55da35111c7d79"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-015.json": {
+      "bytes": 1060,
+      "sha256": "36d2227f8b41ff8591a9be88064fb8bf7a4c44025a6efd567596d2d91473a688"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-016.json": {
+      "bytes": 1058,
+      "sha256": "c3e02718a9ead48b1ddd81662b5fb00e740c1c535adaae7b3c4f5072e1fa78fe"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-017.json": {
+      "bytes": 1057,
+      "sha256": "829aca79463009934fb67a4e2a8ad2e72712db20e59adc2adb03c75250921373"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-018.json": {
+      "bytes": 727,
+      "sha256": "428c716105178fbd8cd21ec7780845d4b4fa97fe6ffe18a55d4792f35233b113"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/response-019.json": {
+      "bytes": 749,
+      "sha256": "997ea83b8efd401da53aef6f09be24c948b4b59cd1beb1cc0338bcd872f63b6d"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/seed-facts.json": {
+      "bytes": 844,
+      "sha256": "d7487b1df70cc988869c97768d4296d3b1c74a951db639742999b4dbf9b13aa6"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "24b01e4769a7c86c07d7e71f6158bbd963678fae2b36d9be52fe2daa4722fd57"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/tcp-observed-delta.json": {
+      "bytes": 9351,
+      "sha256": "8363bb0476ad7511d289411cc76492e49e397f6e07bb4f62ad8a0ecb83289986"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/verification-input.json": {
+      "bytes": 183,
+      "sha256": "b355ab8dc90cb3a438009865fd84b8bf17bd8d2d7343db9bf93e9b502beffd04"
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/watchdog.json": {
+      "bytes": 543,
+      "sha256": "4ba2a26749a7ded40c6ee8816a83b779567ec173f904c9f0654ecc18f6f34415"
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/provenance.json": {
+      "bytes": 2666,
+      "sha256": "96707fcc2304b31e51e64218c949b88accaf8e314a88f1014e7bed6beae1017b"
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/proposed.patch": {
+      "bytes": 520,
+      "sha256": "fea0465a2467f6ff317bdf1d706023d36789da50bbd2b04482b4e7426a53d9bb"
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/analysis.md": {
+      "bytes": 2028,
+      "sha256": "b806a30f87ef8574ab65043c5ff47381aa35f734414cf52be8f56a6a8be8adab"
+    },
+    "/workspace/agenteam/web/src/api/system-audit.ts": {
+      "bytes": 7022,
+      "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f"
+    },
+    "/workspace/agenteam/web/src/composables/useProjectAudit.ts": {
+      "bytes": 14945,
+      "sha256": "092c81000bf27d77d5a756372436f978316ee9c9499fe2abfccc96d06e271c4e"
+    },
+    "/workspace/agenteam/web/src/views/projects/ProjectAuditView.vue": {
+      "bytes": 20830,
+      "sha256": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5"
+    },
+    "/workspace/agenteam/web/src/components/ui/UiField.vue": {
+      "bytes": 747,
+      "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1"
+    },
+    "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md": {
+      "bytes": 39298,
+      "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/e2e/project-owner-audit.spec.ts": {
+      "bytes": 67793,
+      "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+    }
+  }
+}

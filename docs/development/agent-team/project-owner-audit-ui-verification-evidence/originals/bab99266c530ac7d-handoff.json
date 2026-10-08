@@ -1,0 +1,203 @@
+{
+  "actual_grant_sha256": "385ca388f7213c65690aabcff910d28e7573b6fec41a2462228bfb35402acf4b",
+  "browser_reported_seconds": 3.6,
+  "driver_exit": 0,
+  "fixture_process_seconds": 58.996,
+  "group": "old-auth-lifecycle",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_authorized": true,
+    "legacy_global_dist_match": true,
+    "legacy_global_dist_required": true,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "original_artifact_count": 24,
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/adopted-waits.json",
+      "sha256": "ac47eaf6cc7d3633fe7450c3ac44359ba79f325ff7f552ac23e60d81f2111903"
+    },
+    "cleanup.json": {
+      "bytes": 89605,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/cleanup.json",
+      "sha256": "d235a769c5f7578456c20a1c3405f5f914bfe757d7ff008d09dd8577cae290dd"
+    },
+    "command.json": {
+      "bytes": 3010,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/command.json",
+      "sha256": "b57ee6b1b99a2a6ef5bb12702d1e91b50cc0c672f765ce3d46be3673829d02ff"
+    },
+    "input-after.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/input-after.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "input-before.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/input-before.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "observed-resources.json": {
+      "bytes": 5095,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/observed-resources.json",
+      "sha256": "04a65ac97df9ef922d500ea80dc3892e6f6f2838b0ee3ae87c49bdbb44f63f1c"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "raw.log": {
+      "bytes": 4109,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/raw.log",
+      "sha256": "13c34104fbd4478b6b6edda637133ff8fea5a6114d11ece353fd14ecfcf984e9"
+    },
+    "result.json": {
+      "bytes": 41663,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/result.json",
+      "sha256": "978f798204f05fdd18d98f265c25d0bcb6caa2d25e61256a985900635d21441d"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 71900,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-tail-observation.json",
+      "sha256": "d97f1ed5ba6183b577e5732f14e0d80adfd409e5b1b935a477e68a09d260c2ee"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/verification-input.json",
+      "sha256": "6b2f9cecdba3f0162cd4a33a5ead33bd9b45d6ab50f4d25f0e17c0ea2bfc26ea"
+    },
+    "watchdog.json": {
+      "bytes": 540,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/watchdog.json",
+      "sha256": "53f3885272ba0ff39d2cc5b7e71aaedf68315c1a6174d796951b093b111615c5"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 11,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:54:45.394201+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:54:46.093337+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "02a289b98aeba02a3df4b7c49f11627ce4676e9634c06717f6940eb82e58a56b": {
+        "kind": "network",
+        "name": "agenteam-d04-net-1817a0670f59d964537b5a5c8cd81bab"
+      },
+      "1b1cc95cac1eaae09a44792f96e8a93be820e6abf950006f7ce65f3838bd21c2": {
+        "kind": "network",
+        "name": "agenteam-d03-8f2eb49dd8e8432b26205ad4c5f0dec5"
+      },
+      "35680d898a1568ea155c802cd09086f4b73a472f410d15c013ca54e6926ade33": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-1817a0670f59d964537b5a5c8cd81bab"
+      },
+      "5c7b5e2df2c8b4ffebbc14353a43448288900cdf3d17e0a7f4eba83ca15186d5": {
+        "kind": "network",
+        "name": "agenteam-d05-object-e95d9a05ba10853e54d0a7daa7bf668e"
+      },
+      "a7ddf6e63868d8fc2361990c86e9fd78deb47f8f5f1956236f8acb627739af19": {
+        "kind": "container",
+        "name": "/agenteam-d03-8f2eb49dd8e8432b26205ad4c5f0dec5"
+      },
+      "b65cc429b9ba423399d2afe452084d1cb50a8eb5910c20e4dcb4306a5f2f29a3": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-e95d9a05ba10853e54d0a7daa7bf668e"
+      },
+      "cfd46284a82b2b8e0d5d5ff11b20bebb1309dbae2c53edb234fa89332f5d2583": {
+        "kind": "container",
+        "name": "/agenteam-d03-8f2eb49dd8e8432b26205ad4c5f0dec5-pg16"
+      }
+    },
+    "fixture_pid": 905460,
+    "fixture_pid_starttime": "4470089",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 905830,
+        "ppid": 1,
+        "starttime": "4470541",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 906380,
+        "ppid": 1,
+        "starttime": "4471019",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 906878,
+        "ppid": 1,
+        "starttime": "4471292",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 907391,
+        "ppid": 1,
+        "starttime": "4471470",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 95,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 38.381051896001736,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "oldauthlife01",
+  "scope": {
+    "current_global_assets": "exchange02/build-v02, 59 files/794499 bytes; actual before/after legacy gate required/authorized/matched",
+    "exact_one_original_auth_top": true,
+    "independent_result_review_not_claimed": true,
+    "native_evidence_boundary": "Existing legacy authentication fixture has no retained Project Audit sidecar/schema/client artifacts. Do not transfer this browser PASS into new Audit DTO validation counts.",
+    "other_old_groups_not_run_in_this_round": true,
+    "project_audit_schema_client_counts_not_claimed": true
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_prior_failures_unchanged": true,
+    "no_rerun_or_next_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "top": "TestAccountAuthenticationWebSessionLifecycle",
+  "top_seconds": 6.68
+}

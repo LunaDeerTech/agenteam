@@ -1,0 +1,44 @@
+{
+  "status": "AUTHOR_REAL_READ_PASS_FULLY_RETIRED_STOP",
+  "handoff": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/handoff.json",
+    "bytes": 25455,
+    "sha256": "12a08a7313bdf23a16b3b3ed6aef7bad97f3e3509ecd897f38d58a50311c71f2"
+  },
+  "raw": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/raw.log",
+    "bytes": 4863,
+    "sha256": "2025edf643165b8ed17ba68e9e88a0481e89554f1f5709af314e317dc54641fe"
+  },
+  "result": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/result.json",
+    "bytes": 33055,
+    "sha256": "7a59020cb0104eb2ffb668ee8098fd5d104a847f0038d64320df74de52a3ecd4"
+  },
+  "cleanup": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/cleanup.json",
+    "bytes": 70647,
+    "sha256": "8867e0203e6f1a217f4456a5b2f0d1e6f58a35b218dea062c1849b21acf563a6"
+  },
+  "browser_result": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/browser-result.json",
+    "bytes": 324,
+    "sha256": "219f732099062f6975242bebc23258e98e82ec19bc5cd38e4becae09ee0bf427"
+  },
+  "schema_result": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/schema-validation.json",
+    "bytes": 76,
+    "sha256": "f923954e8ad40a485e55ffa09094c9be2ecbc0f76325de7842f29b2b364dbcb9"
+  },
+  "same_body_input": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/same-body-input.json",
+    "bytes": 3426,
+    "sha256": "d52f6482f410229efddc79fbb6f76de853376a75ba39c79e7549f4301aeaef09"
+  },
+  "browser_observations": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/safe-http-evidence/TestAccountProjectOwnerAuditWebReadAndFilters/browser-observations.json",
+    "bytes": 11094,
+    "sha256": "27c0f5d00db01bfcf03ebbf0e43917d1cbf74c4956acdee1f498e6852745e657"
+  },
+  "original_artifact_count": 60
+}

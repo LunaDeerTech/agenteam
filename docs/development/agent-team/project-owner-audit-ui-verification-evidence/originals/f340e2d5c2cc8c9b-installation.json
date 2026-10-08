@@ -1,0 +1,26 @@
+{
+  "installed": [
+    {
+      "source": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_fixture_test.go",
+      "target": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+      "sha256": "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb",
+      "bytes": 50095
+    },
+    {
+      "source": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go",
+      "target": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19",
+      "bytes": 6289
+    }
+  ],
+  "baseline_inputs": "/workspace/scratch/owner-ui-backend/inputs.json",
+  "added_repository_sources": [
+    "tests/account/project_owner_audit_web_fixture_test.go",
+    "tests/account/project_owner_audit_web_test.go"
+  ],
+  "GOMODCACHE": "/workspace/go/pkg/mod",
+  "GOCACHE": "/workspace/.cache/go-build",
+  "TMPDIR": "/workspace/scratch/project-audit-ui-backend/offline01/tmp",
+  "cache_owner": "backend_worker sole Go writer for this round; reused in place, not copied",
+  "resources_started": false
+}

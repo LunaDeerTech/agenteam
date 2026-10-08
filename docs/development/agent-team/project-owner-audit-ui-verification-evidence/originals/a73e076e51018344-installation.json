@@ -1,0 +1,41 @@
+{
+  "baseline_inputs": "/workspace/scratch/owner-ui-backend/inputs.json",
+  "added_repository_sources": [
+    "tests/account/project_owner_audit_web_fixture_test.go",
+    "tests/account/project_owner_audit_web_test.go",
+    "internal/central/model/platform_embedding_resolution_test.go"
+  ],
+  "bound_source_refs": [
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+      "bytes": 51317,
+      "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f"
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+      "bytes": 6289,
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "bytes": 5611,
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/platform_embedding_resolution_test.go",
+      "bytes": 16692,
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    }
+  ],
+  "prior_candidate03": {
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+    "bytes": 3732,
+    "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+  },
+  "GOMODCACHE": "/workspace/go/pkg/mod",
+  "GOCACHE": "/workspace/.cache/go-build",
+  "TMPDIR": "/workspace/scratch/project-audit-ui-backend/offline02/tmp",
+  "cache_owner": "backend_worker sole authorized Go/cache user; reuse in place",
+  "resources_started": false,
+  "repository_writes": false
+}

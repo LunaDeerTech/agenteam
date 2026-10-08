@@ -1,0 +1,68 @@
+{
+  "status": "SCRATCH_PROPOSAL_STOP_NOT_INSTALLED",
+  "base": {
+    "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "bytes": 67793,
+    "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+  },
+  "proposed_sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f",
+  "proposed_bytes": 67892,
+  "patch": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/proposed.patch",
+    "bytes": 520,
+    "sha256": "fea0465a2467f6ff317bdf1d706023d36789da50bbd2b04482b4e7426a53d9bb"
+  },
+  "analysis": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/analysis.md",
+    "bytes": 2028,
+    "sha256": "b806a30f87ef8574ab65043c5ff47381aa35f734414cf52be8f56a6a8be8adab"
+  },
+  "actual_originals": [
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/raw.log",
+      "bytes": 6315,
+      "sha256": "3f2886ac7f75d0693c5d3c37d8b0b2c0582795f5fc2e0e7d94f500fa2c16bfb5"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/result.json",
+      "bytes": 31029,
+      "sha256": "174d380d6f8255da16f8414832c0a4c949763db08c9cdf3e21324227981bd22f"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/cleanup.json",
+      "bytes": 66173,
+      "sha256": "1078f9eec213d8dc954ea3b3f21c12c20c32b61c9bb7ebadd49d12223e6a37d5"
+    }
+  ],
+  "static_sources": [
+    {
+      "path": "/workspace/agenteam/web/src/api/system-audit.ts",
+      "bytes": 7022,
+      "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/composables/useProjectAudit.ts",
+      "bytes": 14945,
+      "sha256": "092c81000bf27d77d5a756372436f978316ee9c9499fe2abfccc96d06e271c4e"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/views/projects/ProjectAuditView.vue",
+      "bytes": 20830,
+      "sha256": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/components/ui/UiField.vue",
+      "bytes": 747,
+      "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+      "bytes": 39298,
+      "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+    }
+  ],
+  "actual_active_element_observed": false,
+  "source_installed": false,
+  "checks_run": false,
+  "resources_run": false
+}

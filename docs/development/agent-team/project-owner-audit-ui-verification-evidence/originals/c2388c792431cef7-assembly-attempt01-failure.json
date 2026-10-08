@@ -1,0 +1,15 @@
+{
+  "state": "ORIGINAL_ARCHIVE_PREPARATION_HELPER_FAILURE_PRESERVED",
+  "tool_chunk": "63cdfb",
+  "exit_code": 1,
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/project-owner-audit-ui-archive01/append01.py"
+  ],
+  "raw": "Traceback (most recent call last):\n  File \"/workspace/scratch/project-owner-audit-ui-archive01/append01.py\", line 112, in <module>\n    assert len(m['run_originals'])==row['original_files']\n               ~^^^^^^^^^^^^^^^^^\nKeyError: 'run_originals'\n",
+  "cause": "The archival helper assumed all four independent round manifests use the same key; inspect the fixed schemas and bind each explicitly.",
+  "repository_archive_writes_started": false,
+  "business_Git_Go_resource_execution": false
+}

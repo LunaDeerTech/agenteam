@@ -1,0 +1,235 @@
+{
+  "state": "STOP_SOURCE_V03_INSTALLED_SINGLE_HUNK_AND_OFFLINE_ACCEPTED",
+  "sealed_utc": "2026-10-08T15:00:54.628367+00:00",
+  "reviewer": "/root/verification_runtime",
+  "source_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/freeze.json",
+    "bytes": 4267,
+    "sha256": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df"
+  },
+  "inherited_complete_proposal_review": {
+    "path": "/workspace/scratch/architecture-audit-authority01-review/review.md",
+    "bytes": 2227,
+    "sha256": "52eb76b51eb73303b9b4b8f35d49dc9ad22ba9e1c33a586dbd3bdf78a8114468"
+  },
+  "accepted_proposal_provenance": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/authority01-session-proposal01/provenance.json",
+    "bytes": 3564,
+    "sha256": "a7e360c8f4585e2e1583066cc2ddc3628b95a487d2e71241cda57ab22160dbe1"
+  },
+  "fixed_primary_refs": {
+    "before.spec.ts": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/before.spec.ts",
+      "bytes": 67892,
+      "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f"
+    },
+    "after.spec.ts": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/after.spec.ts",
+      "bytes": 68077,
+      "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193"
+    },
+    "delta.patch": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/delta.patch",
+      "bytes": 837,
+      "sha256": "dc5087790186d5aec9569fc91950f57617f12cced77273f79616cbaf9ae98a8b"
+    },
+    "checks.json": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/checks.json",
+      "bytes": 3011,
+      "sha256": "16b13ff739dbd59aef51367258585e6b50bc5352c04ed0c47f2a1dd4b44673ef"
+    },
+    "inputs.json": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/inputs.json",
+      "bytes": 1596,
+      "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+    },
+    "handoff.md": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/handoff.md",
+      "bytes": 1259,
+      "sha256": "8ca9729caabef0758f5b75cdd7f148a533e414012b38d2f08ff423f41fd554d8"
+    }
+  },
+  "installed_source": {
+    "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "bytes": 68077,
+    "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193"
+  },
+  "delta_checks": {
+    "proposal_patch": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/authority01-session-proposal01/proposed.patch",
+      "bytes": 837,
+      "sha256": "dc5087790186d5aec9569fc91950f57617f12cced77273f79616cbaf9ae98a8b"
+    },
+    "exact_patch_same": true,
+    "hunk_count": 1,
+    "byte_delta": 185,
+    "forward_whole_bytes_exact": true,
+    "reverse_whole_bytes_exact": true,
+    "installed_equals_frozen_after": true,
+    "other_source_bytes_unchanged": true,
+    "full_semantic_review_repeated": false
+  },
+  "offline": {
+    "source-v03-format01": {
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+          "--check",
+          "tests/account-captcha-web/e2e/project-owner-audit.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "actual_result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 0.603069796001364,
+        "direct_actual_wait": 799896,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "799896": "4126649"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "originals": [
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-format01/command.json",
+          "bytes": 325,
+          "sha256": "41b777db4dbd2737590a7950e5b8cfc6c69bc6fbb3ab60f562b2f219ce750ff2"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-format01/inputs-before.json",
+          "bytes": 1596,
+          "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-format01/inputs-after.json",
+          "bytes": 1596,
+          "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-format01/raw.log",
+          "bytes": 66,
+          "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-format01/result.json",
+          "bytes": 251,
+          "sha256": "2e6636fa2fc95f4cff12dcf6c063470e0305dcb77edcf2ba5b600a4d392b8047"
+        }
+      ],
+      "all_original_fingerprints_match": true
+    },
+    "source-v03-types01": {
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "web/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--allowJs",
+          "--checkJs",
+          "--target",
+          "ES2022",
+          "--module",
+          "ESNext",
+          "--moduleResolution",
+          "Bundler",
+          "--lib",
+          "ES2022,DOM,DOM.Iterable",
+          "--strict",
+          "--skipLibCheck",
+          "--types",
+          "node",
+          "--typeRoots",
+          "web/node_modules/@types",
+          "tests/account-captcha-web/e2e/project-owner-audit.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "actual_result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 1.8941962299941224,
+        "direct_actual_wait": 800207,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "800207": "4127244"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "originals": [
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-types01/command.json",
+          "bytes": 593,
+          "sha256": "281fdc479d672bc41c9e29564014d35fd43a503214c133b729ef9d938edd3430"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-types01/inputs-before.json",
+          "bytes": 1596,
+          "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-types01/inputs-after.json",
+          "bytes": 1596,
+          "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-types01/raw.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03-types01/result.json",
+          "bytes": 252,
+          "sha256": "8410e9e5f734effa65df0ca735fd32c6d9d3abc6fae60bf91e88934780af9bfd"
+        }
+      ],
+      "all_original_fingerprints_match": true
+    }
+  },
+  "input_binding": {
+    "input_count": 15,
+    "v02": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/inputs.json",
+      "bytes": 1596,
+      "sha256": "8efc399ba08f763b84b55b977338f3e1347a574b0d46d1b54da438fdc942af3f"
+    },
+    "v03": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/inputs.json",
+      "bytes": 1596,
+      "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+    },
+    "before_after_exact_both_commands": true,
+    "only_changed_path": "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "other14_equal_to_v02": true,
+    "current_all15_rehash_or_big_closure": false
+  },
+  "integrity": {
+    "freeze_primary_source_and_six_small_refs_matched": true,
+    "two_checks_ten_listed_refs_matched": true
+  },
+  "no_own_dynamic_execution": true,
+  "no_repository_write": true,
+  "original_failure": {
+    "scope": "Reused accepted 52eb76b5 review, not rescanned92 originals",
+    "actual_old_dom_saved": false,
+    "original_failure_preserved": true,
+    "original_final_schema_client_not_reached": true
+  },
+  "conclusion": "Accept installed a91d3ab7 plus existing proposal STATIC and author fixed offline receipts only; no mandatory change in this delta.",
+  "limits": [
+    "No new actual authority/browser recovery PASS",
+    "No schema/client business validation",
+    "No list/build/resource/Go/Node execution by reviewer",
+    "No Audit full-card or independent final02 acceptance",
+    "No read of active Model artifacts"
+  ]
+}

@@ -1,0 +1,722 @@
+{
+  "status": "PASS_AUTHOR_ACTUAL_AUTHORITY_AND_INDEPENDENT_SEALED_EVIDENCE_REVIEW",
+  "stop": true,
+  "reviewer": "verification_runtime",
+  "scope": "Only auditauthority02; no active navigation, old-group, complete-card or independent-four-round acceptance",
+  "fixed_refs": [
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/manifest.json",
+      "bytes": 24049,
+      "sha256": "0a344ac6472ddd09477db21a97344a1625826b61b65ee564cc01159e12fc2541"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/handoff.json",
+      "bytes": 14256,
+      "sha256": "315d5890bcf962ec4d5b90ebd421e67b049406deb54c02b9cf41cfb36c3fa8ab"
+    },
+    {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/adopted-waits.json",
+      "sha256": "20a40c7c66220456618eff25fd7cba436686605867f240c554f0c35e7106b052"
+    },
+    {
+      "bytes": 1327,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/auxiliary-facts.json",
+      "sha256": "a982d96df1c19be6cbfcd8ba7c946013fbd3648a2c9ccce9a85cedfbde666719"
+    },
+    {
+      "bytes": 19201,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/browser-observations.json",
+      "sha256": "67d45f4e09f70cc226f60ff3dfdb66090305579f233cbea353af1a1b5db0c3fa"
+    },
+    {
+      "bytes": 427,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/browser-result.json",
+      "sha256": "9a3200d050b867d347884526089f03a57b87fbb50490f127f18afa838cfce539"
+    },
+    {
+      "bytes": 79273,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/cleanup.json",
+      "sha256": "ec35ec0c9ccfd21d87cad98dfd1de22a10d9ecebbe797aa625f3c2426cc02eab"
+    },
+    {
+      "bytes": 3035,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/command.json",
+      "sha256": "9ce46a8c93c6882ece36dd88b82602d83420e8e396933bc776a9b25da513552a"
+    },
+    {
+      "bytes": 1103,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/explicit-browser-probes.json",
+      "sha256": "84831b0f12b9d4157ac0885ab582fac9de5bccd323fae352216746de2b6c6ae9"
+    },
+    {
+      "bytes": 785,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/go-facts.json",
+      "sha256": "b86f472f7e8493b1c63a9b25fbab5a696c9934343a1ca953f42b41bed8dfd82f"
+    },
+    {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/input-after.json",
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/input-before.json",
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    {
+      "bytes": 5113,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/observed-resources.json",
+      "sha256": "a365abf9505be1b48d84ae8893a75cbb514a24785cc3f42e43c8feccba21e3a9"
+    },
+    {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "bytes": 591,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/proxy-retirement-facts.json",
+      "sha256": "f21d00792652d25541b9d7509d33082baaa65b57934f84e68914dff226eb8357"
+    },
+    {
+      "bytes": 4866,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/raw.log",
+      "sha256": "8609935568eb1c4ad12c07ee0e8043b0ef6488f1e8eebce74d1b791bd0621c42"
+    },
+    {
+      "bytes": 36999,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/result.json",
+      "sha256": "2b26772c4ed8b1ed2fd7610ccf4a1a0914c009848725e549a99a33a3d47cc047"
+    },
+    {
+      "bytes": 6095,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/same-body-input.json",
+      "sha256": "3fcefbaedc7d4ba22017727aeaeb251ea1aada0c35ce81cc8aba26483b9bd401"
+    },
+    {
+      "bytes": 76,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/schema-validation.json",
+      "sha256": "74b9faf50a4a76fcba8e7d758ce0c6062459ce41e20cecfbbea54b6e8a4ad3fc"
+    },
+    {
+      "bytes": 844,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/seed-facts.json",
+      "sha256": "07f6ef8f935c93f154e8d8da5407df0bd6b7e02007b57e73d5c4fbc0ed0947c3"
+    },
+    {
+      "bytes": 254347,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/tcp-tail-observation.json",
+      "sha256": "d5df04a1c9f121f649f392c5d5452e1f31a5af0f814d7ba4f111078e7530150d"
+    },
+    {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/verification-input.json",
+      "sha256": "26c96e213f4765b08cab5bfdd8d5355d8a90828ab4eb4595fec141fe722c4c88"
+    },
+    {
+      "bytes": 561,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/watchdog.json",
+      "sha256": "1a3bd429468c7f105895f45aefe92684a15bf2f209fa050e48ab6817f8eb38cb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/frozen-input.json",
+      "bytes": 48084,
+      "sha256": "7a4591f9ce0c1cc2b3441090c1b8e39f7e3275d50f6c3e0efb6660837342700c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/freeze.json",
+      "bytes": 4267,
+      "sha256": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/after.spec.ts",
+      "bytes": 68077,
+      "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193"
+    }
+  ],
+  "sealed_integrity": {
+    "original_artifacts": 103,
+    "bytes": 634642,
+    "mismatches": [],
+    "copy_of_originals_created": false
+  },
+  "execution": {
+    "top": "TestAccountProjectOwnerAuditWebAuthorityAndRecovery",
+    "top_seconds": 28.44,
+    "browser_seconds": 21.4,
+    "package_seconds": 29.478,
+    "fixture_command_seconds": 79.398,
+    "fixture_direct_pid": 820084,
+    "fixture_direct_starttime": "4176169",
+    "actual_direct_wait": true,
+    "fixture_exit": 0,
+    "driver_exit": 0,
+    "author_tool_exit_receipt": "Root reported session 87282 exit0; reviewer did not execute or poll it",
+    "adopted_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 824992,
+        "starttime": "4179912",
+        "time": "2026-10-08T15:05:44.932180+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 824995,
+        "starttime": "4179912",
+        "time": "2026-10-08T15:05:44.932205+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 824996,
+        "starttime": "4179912",
+        "time": "2026-10-08T15:05:44.932222+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 824997,
+        "starttime": "4179912",
+        "time": "2026-10-08T15:05:44.932239+00:00"
+      }
+    ],
+    "observed_processes": 100,
+    "observed_browser_processes": 15,
+    "observed_node_processes": 2,
+    "observation_counts_are_not_wait_counts": true,
+    "watchdog_joined": true,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0
+  },
+  "native_evidence": {
+    "attempts": 47,
+    "sidecars": 47,
+    "unique_body_files": 23,
+    "complete_eof": 34,
+    "classification": {
+      "incomplete": 13,
+      "controlled_failure": 0,
+      "success": 22,
+      "problem": 12
+    },
+    "status_counts": {
+      "200": 22,
+      "401": 3,
+      "404": 5,
+      "409": 4
+    },
+    "complete_list": 19,
+    "complete_detail": 15,
+    "explicit_native_gate_probes": 10,
+    "complete_page_requests": 24,
+    "setup_audit_gets": 0,
+    "control_audit_gets": 0,
+    "transfer_kinds": {
+      "forwarded": 38,
+      "hold": 5,
+      "cut": 2,
+      "failure": 2
+    },
+    "schema_actual_result": {
+      "status": 0,
+      "signal": null,
+      "stdout": "34\n",
+      "stderr": "",
+      "failed_to_run": false
+    },
+    "public_client_completed_same_byte_replays": 34,
+    "original_body_sidecar_bindings": [
+      {
+        "sidecar": "response-001.json",
+        "body_sha256": "632372c3dee6fba103c48958fc185994449754f25509739f04e1fe43b4bc845b",
+        "bytes": 5082,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:10"
+      },
+      {
+        "sidecar": "response-002.json",
+        "body_sha256": "ed594a798e565ac00ecef57c0876849ece3d8bfdf3ef716c8bd4a4274cab9b57",
+        "bytes": 557,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:11"
+      },
+      {
+        "sidecar": "response-003.json",
+        "body_sha256": "d89d01764b8986f6595146ad1bd8bda162d3d262722014d5e9b074a5cda5409b",
+        "bytes": 246,
+        "status": 404,
+        "operation": "detail",
+        "controlled_wire": "one real detail GET directed to a missing Audit ID",
+        "problem_code": "NOT_FOUND",
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:12"
+      },
+      {
+        "sidecar": "response-004.json",
+        "body_sha256": "ed594a798e565ac00ecef57c0876849ece3d8bfdf3ef716c8bd4a4274cab9b57",
+        "bytes": 557,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:13"
+      },
+      {
+        "sidecar": "response-006.json",
+        "body_sha256": "632372c3dee6fba103c48958fc185994449754f25509739f04e1fe43b4bc845b",
+        "bytes": 5082,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:15"
+      },
+      {
+        "sidecar": "response-008.json",
+        "body_sha256": "ed594a798e565ac00ecef57c0876849ece3d8bfdf3ef716c8bd4a4274cab9b57",
+        "bytes": 557,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:17"
+      },
+      {
+        "sidecar": "response-010.json",
+        "body_sha256": "632372c3dee6fba103c48958fc185994449754f25509739f04e1fe43b4bc845b",
+        "bytes": 5082,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:19"
+      },
+      {
+        "sidecar": "response-012.json",
+        "body_sha256": "ed594a798e565ac00ecef57c0876849ece3d8bfdf3ef716c8bd4a4274cab9b57",
+        "bytes": 557,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:21"
+      },
+      {
+        "sidecar": "response-014.json",
+        "body_sha256": "632372c3dee6fba103c48958fc185994449754f25509739f04e1fe43b4bc845b",
+        "bytes": 5082,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:23"
+      },
+      {
+        "sidecar": "response-016.json",
+        "body_sha256": "ed594a798e565ac00ecef57c0876849ece3d8bfdf3ef716c8bd4a4274cab9b57",
+        "bytes": 557,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:25"
+      },
+      {
+        "sidecar": "response-018.json",
+        "body_sha256": "e0880b6a575bef71c8ef779c75a59a0433f43df6f5101a8187f4fdb7467553a1",
+        "bytes": 1389,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:29"
+      },
+      {
+        "sidecar": "response-020.json",
+        "body_sha256": "632372c3dee6fba103c48958fc185994449754f25509739f04e1fe43b4bc845b",
+        "bytes": 5082,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:34"
+      },
+      {
+        "sidecar": "response-022.json",
+        "body_sha256": "632372c3dee6fba103c48958fc185994449754f25509739f04e1fe43b4bc845b",
+        "bytes": 5082,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "b62e0d5f-26be-4139-956b-3aef9f164928:37"
+      },
+      {
+        "sidecar": "response-023.json",
+        "body_sha256": "e689efc34e222ccbc36792c880a5f83111353cfdc93e26ed3024fc3ea08cf770",
+        "bytes": 2076,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "53492b91-f022-47c4-a18c-eb23fbed3a8f:4"
+      },
+      {
+        "sidecar": "response-024.json",
+        "body_sha256": "3ac6211100ea4584adda3dea17f276624fb4f4dedf557faa7744d32b3ab998b1",
+        "bytes": 686,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "53492b91-f022-47c4-a18c-eb23fbed3a8f:5"
+      },
+      {
+        "sidecar": "response-025.json",
+        "body_sha256": "9dc3f7f3d89d3b88932f311df88d89e1a4745d0366ef0444c4434beb3a514a9c",
+        "bytes": 2076,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "7c27857b-68ad-4e8b-a60b-20a08a46ee9b:4"
+      },
+      {
+        "sidecar": "response-026.json",
+        "body_sha256": "bbb327a4582e40cd9854b0df07ccd54548f6cb00f037e444fd339f2dfac6536a",
+        "bytes": 686,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "7c27857b-68ad-4e8b-a60b-20a08a46ee9b:5"
+      },
+      {
+        "sidecar": "response-027.json",
+        "body_sha256": "5e237f00899f1ca218426b55b51b97599312ae36cd83e9fb5caed95f475e58fb",
+        "bytes": 262,
+        "status": 409,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": "PROJECT_NOT_ACTIVE",
+        "native_document_sequence": "a77281c9-40af-489c-bb94-42715d1c2aea:3"
+      },
+      {
+        "sidecar": "response-028.json",
+        "body_sha256": "51a72259e95367283a51eb815556246925504ab45bf12ccd229b796e94e9cd7a",
+        "bytes": 262,
+        "status": 409,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": "PROJECT_NOT_ACTIVE",
+        "native_document_sequence": "a77281c9-40af-489c-bb94-42715d1c2aea:4"
+      },
+      {
+        "sidecar": "response-029.json",
+        "body_sha256": "8fc548c202ced6214d4f16cd36f350a4d3dd64fc95ea88caaa8dbc7508f717b3",
+        "bytes": 262,
+        "status": 409,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": "PROJECT_NOT_ACTIVE",
+        "native_document_sequence": "2379cc2d-8c59-41ab-bf82-fc757ee0b63f:3"
+      },
+      {
+        "sidecar": "response-030.json",
+        "body_sha256": "90401c21476ecded4bb7c6b62711359220bb79c642390956edc3bb9e963085ef",
+        "bytes": 262,
+        "status": 409,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": "PROJECT_NOT_ACTIVE",
+        "native_document_sequence": "2379cc2d-8c59-41ab-bf82-fc757ee0b63f:4"
+      },
+      {
+        "sidecar": "response-031.json",
+        "body_sha256": "98b793e170ec7094f8d446aa259d45cce7a32fd778a6a98595ee15cd7209d852",
+        "bytes": 246,
+        "status": 404,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": "NOT_FOUND",
+        "native_document_sequence": "56d67193-690f-4cf8-8bb6-4b00f90e7a14:3"
+      },
+      {
+        "sidecar": "response-032.json",
+        "body_sha256": "2978b4b4fb5b42c33779ab781f74070e0a18bdd83703d5b144336791fe8c46e9",
+        "bytes": 246,
+        "status": 404,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": "NOT_FOUND",
+        "native_document_sequence": "56d67193-690f-4cf8-8bb6-4b00f90e7a14:4"
+      },
+      {
+        "sidecar": "response-033.json",
+        "body_sha256": "cfeebb3593d7753e068a8abc22c3e3b159aaacf21cb4b9c8ecb6f599bb0ea2eb",
+        "bytes": 1389,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "52a2fae7-eecb-4f48-84b4-b707c0d75bb3:10"
+      },
+      {
+        "sidecar": "response-034.json",
+        "body_sha256": "678ca4f16461f42f4783bd6af8499af2c688a6286c1db9d2f0e806f6ac043ec1",
+        "bytes": 727,
+        "status": 200,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "52a2fae7-eecb-4f48-84b4-b707c0d75bb3:11"
+      },
+      {
+        "sidecar": "response-035.json",
+        "body_sha256": "e20373ceb8d13d1d819d9a151b0e0acd24afc4e10904650e14b9cb9a09b13f4a",
+        "bytes": 246,
+        "status": 404,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": "NOT_FOUND",
+        "native_document_sequence": "790d88ac-2a54-42ca-b4df-f2f97867390f:3"
+      },
+      {
+        "sidecar": "response-036.json",
+        "body_sha256": "2c805509545203f0b9c0466e53720e09b18aece28411929b6990f27365215de2",
+        "bytes": 246,
+        "status": 404,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": "NOT_FOUND",
+        "native_document_sequence": "790d88ac-2a54-42ca-b4df-f2f97867390f:4"
+      },
+      {
+        "sidecar": "response-037.json",
+        "body_sha256": "632372c3dee6fba103c48958fc185994449754f25509739f04e1fe43b4bc845b",
+        "bytes": 5082,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "2dac6253-6016-4061-9c24-b18080eaca87:4"
+      },
+      {
+        "sidecar": "response-039.json",
+        "body_sha256": "e0880b6a575bef71c8ef779c75a59a0433f43df6f5101a8187f4fdb7467553a1",
+        "bytes": 1389,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "2dac6253-6016-4061-9c24-b18080eaca87:9"
+      },
+      {
+        "sidecar": "response-041.json",
+        "body_sha256": "cac9b9636f3b25542f075dd981e5705ebf693b069f261a5c55565e712ec9cb99",
+        "bytes": 1389,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "2dac6253-6016-4061-9c24-b18080eaca87:14"
+      },
+      {
+        "sidecar": "response-043.json",
+        "body_sha256": "89e6717bbc9f71afcd735a981f1928ed7574ca2ffafa4632e2f2c8740e8b3964",
+        "bytes": 5645,
+        "status": 200,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": null,
+        "native_document_sequence": "2dac6253-6016-4061-9c24-b18080eaca87:19"
+      },
+      {
+        "sidecar": "response-045.json",
+        "body_sha256": "fa2bc7bbaa5775c3f9d295307c2a6fc0193727fffb6cfa0cd16500cde3c50053",
+        "bytes": 241,
+        "status": 401,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": "SESSION_REVOKED",
+        "native_document_sequence": "2dac6253-6016-4061-9c24-b18080eaca87:21"
+      },
+      {
+        "sidecar": "response-046.json",
+        "body_sha256": "cf76ea939c9e63b6923fa54969d98b8c3765b3a0ed5d10ff6f9f4c03375e6322",
+        "bytes": 260,
+        "status": 401,
+        "operation": "list",
+        "controlled_wire": null,
+        "problem_code": "UNAUTHENTICATED",
+        "native_document_sequence": "2dac6253-6016-4061-9c24-b18080eaca87:26"
+      },
+      {
+        "sidecar": "response-047.json",
+        "body_sha256": "30bdfe571eece6980782d1f2daf84a06eda5e1a942596ea3637c0811706553f6",
+        "bytes": 260,
+        "status": 401,
+        "operation": "detail",
+        "controlled_wire": null,
+        "problem_code": "UNAUTHENTICATED",
+        "native_document_sequence": "2dac6253-6016-4061-9c24-b18080eaca87:27"
+      }
+    ],
+    "binding_review": "34 distinct matched sidecars map uniquely by native X-Request-ID; endpoint/query/status/media/content length, original body SHA and byte length and stored chunk lengths agree. Sole missing-ID wire override uses the actual recorded wire path/query. Incomplete 13 excluded. Reviewer parsed/hash-compared files only; did not rerun schema or client.",
+    "persistence_limit": "Native raw chunk byte arrays were compared to persisted safe upstream bodies inside the executed frozen test; persisted observations retain chunk lengths and matching SHA via same-body-input, not a second native byte capture. No full DOM or Session/Cookie-owner timeline artifact is claimed.",
+    "client_scope": "Executed createProjectAuditAPI list/get receives recorded original chunks in an in-memory Response, exact endpoint/query and GET/no body/no mutation headers assertions. Non-200 requires AccountFailure kind=problem. No extra validation HTTP requests.",
+    "schema_scope": "Recorded Python result status0 stdout34; frozen code resolves exact GET route /{project_id}/audit or /{id}, actual status/media and project-audit/common references with formal date-time checker; no common-only fallback. 409 source b5158110 is inherited from the fixed source-v03 freeze."
+  },
+  "behaviors": [
+    "Both list and detail recover only after explicit retry from controlled cut and controlled failure; missing detail is a declared target override followed by actual formal NOT_FOUND, then explicit retry.",
+    "Five actual holds are released and joined; release IPC acknowledgement itself is not a join receipt. joined() also asserts server_finished equals server_started.",
+    "Same-document Project change resets local filters and excludes old Audit identity; rename/reuse resolves the replacement stable Project ID. Cross-domain profile request starts after old Audit promise end as an executed assertion; this temporal value is not separately persisted outside the test.",
+    "Archiving/archived rows remain readable; deleting/pending deny page child access and explicit list/detail native probes return PROJECT_NOT_ACTIVE. Ordinary non-owner and Admin on another Owner project are NOT_FOUND; Admin on its own project reads successfully.",
+    "Formal Logout targets the exact original browser Session; cancelled earlier detail is retired, explicit new read observes SESSION_REVOKED 401. Session becomes unavailable with heading 会话尚未确认; Audit and ProjectNav are removed. Only clicking 检查当前会话 triggers restore/checking, followed by visible login. Final explicit GET probes are UNAUTHENTICATED.",
+    "All fourteen authority checks plus final complete/schema/client are reached; no browser Project/System mutation or command lookup. This is the actual rerun beyond authority01 failure, not a new interpretation of its missing DOM."
+  ],
+  "retirement": {
+    "proxy": {
+      "counts": {
+        "browser_command_lookups": 0,
+        "browser_detail_gets": 19,
+        "browser_list_gets": 28,
+        "browser_project_mutations": 0,
+        "control_audit_gets": 0,
+        "cuts": 2,
+        "failures": 2,
+        "held": 5,
+        "joined": 5,
+        "server_finished": 134,
+        "server_started": 134,
+        "session_failures": 0,
+        "setup_audit_gets": 0
+      },
+      "input_hash": "7a4591f9ce0c1cc2b3441090c1b8e39f7e3275d50f6c3e0efb6660837342700c",
+      "mode": "authority",
+      "observer_errors": 0,
+      "proxy_actual_join": true,
+      "scope": "proxy Serve/handlers only; root/preparation Store/guard remain owned by later LIFO cleanups and outer actual retirement evidence",
+      "test_failed_at_proxy_retirement": false
+    },
+    "exact_ids": [
+      "0c89ef8f0a4e4011ce237f60e313731617b3b1be714f3032a0317895986fbbd2",
+      "268e8c51807e396c332e9f0cd4a0dafcfed0754aa2b218bb0d07688881589010",
+      "4c6a52285c4a473ed46633a99cf7bfa1d25740402f9aa988e52e362ea73a03a8",
+      "6cbb20e4a22652cec175378ef086a355f680797e690e270bb20629062c50f1c4",
+      "75b05f5e20791dc163bc6b91faf12e8e92864cca4a63a2556af0c3a494043a4d",
+      "820ecfe09da968a26644be61f19496ab9ca459a3317fe315e48d02d668aa1288",
+      "c9178ca66fc08352ac9c6e45027b6cf8ffb3da1578b67cd370f5065ddca67f08"
+    ],
+    "resource_kinds": {
+      "container": 4,
+      "network": 3
+    },
+    "double_scans": [
+      {
+        "time": "2026-10-08T15:06:06.567862+00:00",
+        "exact7absent": true,
+        "baseline_unchanged": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "browser_runtime_entries": []
+      },
+      {
+        "time": "2026-10-08T15:06:07.268857+00:00",
+        "exact7absent": true,
+        "baseline_unchanged": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "browser_runtime_entries": []
+      }
+    ],
+    "tcp_seconds": 38.37813997100602,
+    "tcp_budget": 75,
+    "tcp_final_two": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T15:06:45.946006+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T15:06:46.150790+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_signals": false,
+    "nonowned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 820520,
+        "ppid": 1,
+        "starttime": "4176679",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 820986,
+        "ppid": 1,
+        "starttime": "4177059",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 821396,
+        "ppid": 1,
+        "starttime": "4177261",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 821896,
+        "ppid": 1,
+        "starttime": "4177451",
+        "state": "Z"
+      }
+    ],
+    "nonowned_shims_waited": false,
+    "raw_join_evidence": "Node direct Wait, proxy Serve/body handlers joined, Project preparation join before ProcessGuard release, default root actual join are present in raw. Proxy receipt alone does not claim later Store/root cleanup; outer actual retirement records supply that separate scope."
+  },
+  "inputs": {
+    "files": 1179,
+    "before_after_same": true,
+    "digest": "cc9030e9e9c0530126d76c48fa37ff8fe66c6e00ec22b83af6a0432d8c11ef43",
+    "source_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+    "source_freeze": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df",
+    "grant": "7a4591f9ce0c1cc2b3441090c1b8e39f7e3275d50f6c3e0efb6660837342700c",
+    "private_dist_match": true,
+    "legacy_global_dist_required": false,
+    "no_current_dist_read": true
+  },
+  "limits": [
+    "Original authority01 FAIL and absent old DOM remain unchanged.",
+    "No new native schema/client execution by reviewer.",
+    "Lifecycle/Skills auxiliary facts are not production lifecycle participants or runtime acceptance.",
+    "Native EOF/reader observation is not by itself Cookie-owner or server handler completion proof.",
+    "No navigation/layouts (layouts=0), old regressions, full-card, independent four-round or independent Model A/B acceptance.",
+    "No active nav run, current host/dist, resources or network read/started."
+  ],
+  "reviewer_file_navigation_attempt": {
+    "first_checksum_loop": "tool a43adc exit1: local read-only loop expected per-entry path but manifest stores relative-name keys; no product/check execution or output mutation",
+    "corrected_loop": "tool a25eb1 exit0: relative keys under fixed original_root; 103 originals /634642bytes all hashes match",
+    "business_retries": 0
+  }
+}

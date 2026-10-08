@@ -1,0 +1,32 @@
+--- green01/test.ts
++++ final/test.ts
+@@ -561,7 +561,8 @@
+     async (target, kind) => {
+       const f = await app(),
+         held = gatedBody(page()),
+-        identity = [f.auth.state.user?.id, f.auth.state.session?.id]
++        identity = [f.auth.state.user?.id, f.auth.state.session?.id],
++        expectedIdentity = kind === 'invalid' ? [undefined, undefined] : identity
+       let pending = true
+       f.setAudit(async (path) => {
+         if (pending) {
+@@ -587,13 +588,17 @@
+         expect(f.reads()).toHaveLength(2)
+         expect(ownerReads()).toBe(beforeOwner)
+         expect(f.wrapper.find('[aria-label="项目审计列表"]').exists()).toBe(false)
+-        expect([f.auth.state.user?.id, f.auth.state.session?.id]).toEqual(identity)
++        expect([f.auth.state.user?.id, f.auth.state.session?.id]).toEqual(expectedIdentity)
++        if (kind === 'invalid') {
++          expect(f.router.currentRoute.value.name).toBe('not-found')
++          expect(f.auth.state.phase).toBe('checking')
++        }
+       } finally {
+         held.release()
+         await flushPromises()
+       }
+       expect(f.auth.state.busy).toBe(false)
+-      expect([f.auth.state.user?.id, f.auth.state.session?.id]).toEqual(identity)
++      expect([f.auth.state.user?.id, f.auth.state.session?.id]).toEqual(expectedIdentity)
+       if (kind === 'project') {
+         expect(f.reads()).toHaveLength(3)
+         expect(f.reads().at(-1)![0]).toBe(`/api/v1/projects/${id(11)}/audit?limit=50`)

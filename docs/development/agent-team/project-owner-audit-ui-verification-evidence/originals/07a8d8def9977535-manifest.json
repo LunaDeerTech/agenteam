@@ -1,0 +1,31 @@
+{
+  "state": "AUTHOR_VISUAL_STOP",
+  "conclusion": "8/8 visible-area limited PASS; no must-fix observed",
+  "images_viewed": 8,
+  "view_tool": "view_image original",
+  "images": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditnav02-visual01/images.json",
+    "bytes": 4517,
+    "sha256": "b0c8747d1cc41961073ff6e8e17370d9f15180f03a90eef546daa49dab23f3fe"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditnav02-visual01/review.md",
+    "bytes": 3646,
+    "sha256": "018fe8c99778a01e11a431b52c0201d19b5c89369d443b00bf98c37ccbc7b5e5"
+  },
+  "run_result": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/result.json",
+    "bytes": 41028,
+    "sha256": "0d2e063e38a5963966e0a3c5e850817e41a7cc2c683e1018bf03eef095a4a8a0"
+  },
+  "producer_images": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/images.json",
+    "bytes": 3147,
+    "sha256": "72273a38f54efa487f92ac014bb4eb41bd261ef2b0203a865079b9f4d3ecc534"
+  },
+  "pixels_unchanged_before_after": true,
+  "real_browser_executed_by_this_review": false,
+  "product_modified": false,
+  "resources_started": false,
+  "limits": "Partial 900px viewports; author visual review only, not full-page, interaction, accessibility measurement or independent business acceptance."
+}

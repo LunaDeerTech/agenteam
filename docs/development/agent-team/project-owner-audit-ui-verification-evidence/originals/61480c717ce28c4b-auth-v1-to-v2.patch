@@ -1,0 +1,11 @@
+--- state-v1/web/src/router/auth.ts
++++ auth-v2/web/src/router/auth.ts
+@@ -124,7 +124,7 @@
+     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
+       return {
+         name: 'not-found',
+-        params: { pathMatch: to.path.slice(1).split('/') },
++        params: { pathMatch: to.fullPath.slice(1).split('/') },
+         replace: true,
+       }
+     if (

@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit-client.spec.ts src/tests/project-audit-metadata.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  2 passed (2)
+      Tests  86 passed (86)
+   Start at  11:56:43
+   Duration  1.48s (transform 347ms, setup 0ms, import 534ms, tests 320ms, environment 1.32s)
+

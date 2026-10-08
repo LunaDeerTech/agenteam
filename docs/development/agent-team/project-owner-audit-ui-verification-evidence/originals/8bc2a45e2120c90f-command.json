@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+    "--config",
+    "/workspace/agenteam/web/.prettierrc.json",
+    "--check",
+    "web/src/router/auth.ts",
+    "web/src/router/index.ts",
+    "web/src/components/layout/ProjectNav.vue",
+    "web/src/views/projects/ProjectSettingsView.vue",
+    "web/src/views/projects/ProjectAuditView.vue",
+    "web/src/tests/project-audit.spec.ts",
+    "web/src/tests/project-workspace.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

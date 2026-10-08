@@ -1,0 +1,123 @@
+{
+  "status": "FINAL_FIXED_INPUT_CHECK_PASS",
+  "freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/freeze.json",
+    "sha256": "c730a2e83a59f35971d4bfd81d74fa4c6cfcd5f3132d6c7aa510cfe7c9039f0c",
+    "bytes": 23972
+  },
+  "six_sources": {
+    "web/src/composables/useSession.ts": {
+      "path": "/workspace/agenteam/web/src/composables/useSession.ts",
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7",
+      "bytes": 163959
+    },
+    "web/src/composables/useProjectWorkspace.ts": {
+      "path": "/workspace/agenteam/web/src/composables/useProjectWorkspace.ts",
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943",
+      "bytes": 26022
+    },
+    "web/src/composables/useProjectAudit.ts": {
+      "path": "/workspace/agenteam/web/src/composables/useProjectAudit.ts",
+      "sha256": "092c81000bf27d77d5a756372436f978316ee9c9499fe2abfccc96d06e271c4e",
+      "bytes": 14945
+    },
+    "web/src/router/auth.ts": {
+      "path": "/workspace/agenteam/web/src/router/auth.ts",
+      "sha256": "db307bd0a3c7085f95c4618d8d3a6cd7f342c79949c7c465d326745cf9a66fef",
+      "bytes": 10906
+    },
+    "web/src/tests/project-audit-state.spec.ts": {
+      "path": "/workspace/agenteam/web/src/tests/project-audit-state.spec.ts",
+      "sha256": "f5f0ddafd782745f45148b1d8a2bbf3bb01e649ca7a645bdb53eda0eae64b539",
+      "bytes": 32745
+    },
+    "web/src/tests/authentication.spec.ts": {
+      "path": "/workspace/agenteam/web/src/tests/authentication.spec.ts",
+      "sha256": "1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f",
+      "bytes": 24670
+    }
+  },
+  "minimal_closure_count": 24,
+  "minimal_closure_bytes": 445116,
+  "closure_same": true,
+  "author_artifact_count": 76,
+  "baseline_four": [
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/ui-v1/web/src/composables/useSession.ts",
+      "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88",
+      "bytes": 161445
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/ui-v1/web/src/composables/useProjectWorkspace.ts",
+      "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d",
+      "bytes": 24943
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/ui-v1/web/src/router/auth.ts",
+      "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21",
+      "bytes": 10856
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/ui-v1/web/src/tests/authentication.spec.ts",
+      "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48",
+      "bytes": 24186
+    }
+  ],
+  "author_unit_type_final_difference": "Only project-audit-state.spec.ts formatting patch; exact diff checked against author 0451cf16. Four production sources unchanged.",
+  "runs": {
+    "run01": {
+      "command_result": {
+        "exit": 1,
+        "timeout": false,
+        "command_elapsed_seconds": 1.3258863689989084,
+        "total_elapsed_seconds": 1.5994263639986457,
+        "direct_actual_wait": 637599,
+        "adopted_actual_wait": [],
+        "observed_owned": {
+          "637599": "3189130",
+          "637625": "3189157"
+        },
+        "forced_cleanup": [],
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "tests": {
+        "total": 20,
+        "passed": 18,
+        "failed": 2,
+        "pending": 0
+      },
+      "input_count": 69,
+      "pre_post_same": true,
+      "preserved_inputs_current_or_original_same": true
+    },
+    "run02": {
+      "command_result": {
+        "exit": 0,
+        "timeout": false,
+        "command_elapsed_seconds": 1.4785597289992438,
+        "total_elapsed_seconds": 1.7313169869994454,
+        "direct_actual_wait": 638506,
+        "adopted_actual_wait": [],
+        "observed_owned": {
+          "638506": "3196925",
+          "638550": "3196959"
+        },
+        "forced_cleanup": [],
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "tests": {
+        "total": 20,
+        "passed": 2,
+        "failed": 0,
+        "pending": 18
+      },
+      "input_count": 69,
+      "pre_post_same": true,
+      "preserved_inputs_current_or_original_same": true
+    }
+  }
+}

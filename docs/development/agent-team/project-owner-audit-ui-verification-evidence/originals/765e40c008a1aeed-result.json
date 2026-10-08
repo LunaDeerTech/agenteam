@@ -1,0 +1,105 @@
+{
+  "status": "PASS_STOP",
+  "scope": "Audit UI rev2 API stage only: card #1/#2/#3/#11/#12; independent STATIC plus bounded controlled offline verification",
+  "mandatory_fixes": [],
+  "frozen_input": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/freeze.json",
+    "sha256": "1a2bcdf414409962155789b4732fa039bdfeaf8873f1afcd9b525f6df06f1264",
+    "bytes": 19832
+  },
+  "independent": {
+    "total": 71,
+    "passed": 71,
+    "failed": 0,
+    "groups": {
+      "formal_outputs": 32,
+      "conditional_metadata_and_go_json_accounting": 25,
+      "queries_pages_target_binding": 4,
+      "streams_and_cap_classification": 10
+    },
+    "command_elapsed_seconds": 0.8227515489998041,
+    "total_elapsed_seconds": 1.0855968850009958,
+    "direct_actual_wait": 630749,
+    "observed_owned_count": 2,
+    "adopted_actual_wait": [],
+    "owned_scan_1": {},
+    "owned_scan_2": {},
+    "forced_cleanup": [],
+    "inputs_same": true
+  },
+  "author_reused": {
+    "api_unit01": "Original exit1, 185 PASS / 3 test-premise FAIL retained. The unchanged System Audit + Owner client102 PASS are contained in that run.",
+    "api_unit02": "New API86 PASS, actual exit0 2.477929386s; product3 unchanged since unit01.",
+    "api_types02": "Historical API-time fixed185-file full type PASS 10.333294414s only; no live-app type assertion.",
+    "api_format_check01": "Final five-source formatting check PASS 1.218960294s. input-binding.json author_reuse.format01 is an abbreviated label for this final check, not a claim that the earlier formatting write preserved inputs."
+  },
+  "not_verified": [
+    "Active Session/controller/pages/navigation and same-Cookie shared ownership",
+    "Actual browser/server/Go/Postgres/schema-client replay/producer emission",
+    "Full Audit UI22 or complete D27/production",
+    "A current full-app type/unit result; only author historical fixed input results reused"
+  ],
+  "writes": "own scratch only; no product/repository tests changes; no Git/network/install/server/browser/Go",
+  "artifacts": {
+    "input-binding.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/input-binding.json",
+      "sha256": "cecefa91eb22a0b2aedec90a56e4da2fe020d06c08fb59458eb2c4188f8e9f91",
+      "bytes": 16702
+    },
+    "final-input-check.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/final-input-check.json",
+      "sha256": "3050eec03da49d4a66954ed62003d792f58c5b2a72c50e04c3271c8086583e04",
+      "bytes": 1651
+    },
+    "client.delta.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/client.delta.patch",
+      "sha256": "12e6b64b8ec2a837d29fea20aefbedb53cdaaa5755e0018a25b2903c4a847583",
+      "bytes": 3737
+    },
+    "independent.spec.ts": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/independent.spec.ts",
+      "sha256": "455adca6ca6759275c7b904bd6db943eeba703ee17ad7c6473274a0f251edb53",
+      "bytes": 20243
+    },
+    "vitest.config.mjs": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/vitest.config.mjs",
+      "sha256": "cac5b6c5649e6e41fff4d1ae85f59027dff8695f6da654919d94f9891163d456",
+      "bytes": 294
+    },
+    "run-checks.py": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/run-checks.py",
+      "sha256": "7750d1383aecd56810f63efebc9ff77743cf722f0bd00b3cbf190688ac0c6119",
+      "bytes": 5254
+    },
+    "run01/command.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/run01/command.json",
+      "sha256": "a0078efcdbe60c6c9d793f66c469a797133a0eda992de2a1c286a6e7edfd44ef",
+      "bytes": 597
+    },
+    "run01/raw.log": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/run01/raw.log",
+      "sha256": "21e933fabf6d779c6b26ada316a943bfccbb525f57f715b36c671f6c928a5df1",
+      "bytes": 8766
+    },
+    "run01/result.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/run01/result.json",
+      "sha256": "6d37e89b9dbb4f9c6802c793432ca8f93925b323a1dbae3bc84afd468436e037",
+      "bytes": 360
+    },
+    "run01/vitest.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/run01/vitest.json",
+      "sha256": "faa9d2059ce0e013c3816016090d15c899cac1cf37ad7029b438c9cba0fc0743",
+      "bytes": 22432
+    },
+    "run01/inputs-before.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/run01/inputs-before.json",
+      "sha256": "1ace4a38a12e84936511425c3393bb285d2ad3abb3587d7e5fc0f2b69106de35",
+      "bytes": 5766
+    },
+    "run01/inputs-after.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/run01/inputs-after.json",
+      "sha256": "1ace4a38a12e84936511425c3393bb285d2ad3abb3587d7e5fc0f2b69106de35",
+      "bytes": 5766
+    }
+  }
+}

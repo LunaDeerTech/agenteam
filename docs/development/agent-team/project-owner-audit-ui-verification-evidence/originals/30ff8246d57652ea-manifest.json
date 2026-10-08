@@ -1,0 +1,132 @@
+{
+  "core_refs": {
+    "cleanup.json": {
+      "bytes": 100999,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/cleanup.json",
+      "sha256": "68910bdac0de637378a8ca6eb3e93bf7cde63445bde072fa791fc272992654da"
+    },
+    "raw.log": {
+      "bytes": 4501,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/raw.log",
+      "sha256": "fafb0c9bbebf79659a7c39302c184cd430dd616d8fa7f225fa13592dd9029701"
+    },
+    "result.json": {
+      "bytes": 46855,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/result.json",
+      "sha256": "64d3bc02daba84f00e25f17a13342e2d908c264172d6b8ea6be730a218763ef2"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 142795,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/tcp-tail-observation.json",
+      "sha256": "a49789900eb16e24088294f0e58a3fe3df5802554905b96b4b3e163b371afecf"
+    }
+  },
+  "group": "old-summary-authority",
+  "handoff": {
+    "bytes": 8431,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/handoff.json",
+    "sha256": "596b2e14e986be360d543122aef13b747121b5d27d3af5bcd6f9e474b8c1adb2"
+  },
+  "original_artifact_count": 24,
+  "original_artifacts": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "e199645b2726bbd6c43807e7fbc7fa1cf02eceeb375aadacd7a73e5dfa3b5f3e"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 100999,
+      "sha256": "68910bdac0de637378a8ca6eb3e93bf7cde63445bde072fa791fc272992654da"
+    },
+    "command.json": {
+      "bytes": 3037,
+      "sha256": "099bac430325c506b3e901d41a09129afe3820b70eeb35ba1faff99584ad6601"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 191,
+      "sha256": "473b3bb927b246b2650dbba41b6567d6a947716372508211cad9593fe23f39b4"
+    },
+    "disk-preflight.json": {
+      "bytes": 191,
+      "sha256": "48d9672bf520f6654c35f02ecca6da48a0327f7d41a4545d8c3fcf2f0c4759f4"
+    },
+    "driver.py.txt": {
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    "frozen-input.json": {
+      "bytes": 47798,
+      "sha256": "84bfa70bec4fb13c6bf5299a623c33763e74963034e346098c039e459d3f3efe"
+    },
+    "input-after.json": {
+      "bytes": 894,
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "input-before.json": {
+      "bytes": 894,
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 15783,
+      "sha256": "f1d654b13c1fcc7fd98b49ebfff48079492c49d99c7335fa8ec2b2652cb0fdee"
+    },
+    "observed-resources.json": {
+      "bytes": 5113,
+      "sha256": "eba24ac44768f357b8ce8e9b33f0000616a44360eecc8b34fcfb2a95afe3ca60"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 39545,
+      "sha256": "6336fd903b354ccb320ccd5e628b59a0a9b77b0450fb131c8a0b50c5bf7c584d"
+    },
+    "raw.log": {
+      "bytes": 4501,
+      "sha256": "fafb0c9bbebf79659a7c39302c184cd430dd616d8fa7f225fa13592dd9029701"
+    },
+    "result.json": {
+      "bytes": 46855,
+      "sha256": "64d3bc02daba84f00e25f17a13342e2d908c264172d6b8ea6be730a218763ef2"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "eb1eca246061eeaf2d628e4db08627ea3ad3f5d8c2b13e4b9d2ab6ba9c0ff4b0"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 10537,
+      "sha256": "5da67bfc7e2a850e42565eb49851694a3c5cc0337d47669a5ebd4b44078505c4"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 142795,
+      "sha256": "a49789900eb16e24088294f0e58a3fe3df5802554905b96b4b3e163b371afecf"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "6c4e6a6ccef490473e9570e8ed96db0cc854eb8b1eeb738b482b2780471c992f"
+    },
+    "watchdog.json": {
+      "bytes": 568,
+      "sha256": "3760a1de1109f73bef98e5e89ce3b9679fea0e69ccfee8a8393d7a7f2c0735e4"
+    }
+  },
+  "run": "oldsummaryauth01",
+  "scope": "Immutable original artifacts are indexed, not copied. Old Summary authority/navigation only; no Project Audit schema/client or independent acceptance claim.",
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP"
+}

@@ -1,0 +1,17 @@
+{
+  "run01": "18 PASS / 2 FAIL, original raw and original probe preserved; product unchanged",
+  "causes": [
+    {
+      "test": "same-Session checking",
+      "classification": "probe timing premise",
+      "reason": "Existing run schedules restore work on a microtask. Original assertion was before phase checking began. Revised check holds actual Session fetch, observes its entry and asserts synchronous page clearing in the actual checking phase."
+    },
+    {
+      "test": "same Session changed CSRF",
+      "classification": "probe fixture premise",
+      "reason": "Workspace invalidate sets needsInitial and automatically runs a fresh Resolve/Get. Original response was immediate and the new Get had already granted a new context. Revised probe holds that Get and verifies authority stays absent until actual completion."
+    }
+  ],
+  "preparation": "An earlier Python closure helper had a regex string SyntaxError before execution; corrected quoting only. No Node/product work occurred from that failed helper.",
+  "rerun": "Only the two affected tests; original passing18 retained by version composition."
+}

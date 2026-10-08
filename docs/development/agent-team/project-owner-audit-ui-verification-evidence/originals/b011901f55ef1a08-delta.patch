@@ -1,0 +1,13 @@
+--- browser-source01/tests/account-captcha-web/e2e/project-owner-audit.spec.ts
++++ tests/account-captcha-web/e2e/project-owner-audit.spec.ts
+@@ -1628,7 +1628,9 @@
+   });
+   await expect(page.getByRole("link", { name: /Debug/i })).toHaveCount(0);
+   const publicURLs = await page
+-    .locator('script[src^="/assets/"],link[href^="/assets/"],link[rel="icon"],img[src^="/assets/brand/"]')
++    .locator(
++      'script[src^="/assets/"],link[href^="/assets/"],link[rel="icon"],img[src^="/assets/brand/"]',
++    )
+     .evaluateAll((nodes) =>
+       nodes.map((node) =>
+         node instanceof HTMLScriptElement || node instanceof HTMLImageElement

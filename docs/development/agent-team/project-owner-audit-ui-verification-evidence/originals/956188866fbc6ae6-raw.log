@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit-state.spec.ts -t allows initial Owner Get
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 50 skipped (51)
+   Start at  12:09:31
+   Duration  959ms (transform 310ms, setup 0ms, import 413ms, tests 39ms, environment 389ms)
+

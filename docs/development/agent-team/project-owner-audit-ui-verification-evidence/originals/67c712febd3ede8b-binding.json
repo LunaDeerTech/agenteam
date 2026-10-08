@@ -1,0 +1,124 @@
+{
+  "accepted_repair_freeze": {
+    "bytes": 14693,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+    "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+  },
+  "accepted_repair_review": {
+    "bytes": 2581,
+    "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/review.md",
+    "sha256": "9b0453ea78e87ac921aa34ff5b603be93023c27684ebf85f1f9c47ba0f629e3c"
+  },
+  "assets": {
+    "bytes": 8827,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/assets.json",
+    "sha256": "a3c6cac14e07261fde429801c087e2f4287dec85ac2c7a70caa1739ab53a93e5"
+  },
+  "author_closure": {
+    "bytes": 2054,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v04/closure.delta.json",
+    "sha256": "e4fcc821b6cbeef00e0e2fad6f568101a68186eab0c0cd086fed6021942b70f7"
+  },
+  "author_prepared_manifest": {
+    "bytes": 6573,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v04/manifest.json",
+    "sha256": "dc253da003c52ec92ac47bd45dda982d0ec314cb3a29974109dfe96d36307f62"
+  },
+  "author_prepared_stop": {
+    "bytes": 951,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v04/stop.json",
+    "sha256": "d2c6a4fc26a45d03339de9b92ce1f732280ae76ff7330c97c0ec80bba6f6edeb"
+  },
+  "author_source_binding": {
+    "bytes": 4527,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v04/binding.json",
+    "sha256": "46637663d3ac40ce6df845e1ff6cdbc666af4b4e6a9204acc8ba2dc55522f66e"
+  },
+  "browser_inputs_unchanged": {
+    "bytes": 1596,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/inputs.json",
+    "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+  },
+  "browser_source_unchanged": {
+    "bytes": 4267,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/freeze.json",
+    "sha256": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df"
+  },
+  "browser_spec_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+  "build": {
+    "bytes": 5516,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/freeze.json",
+    "sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+  },
+  "counts": {
+    "added_explicit_web_source_files": 2,
+    "browser_filename_sets": 3,
+    "browser_repository_files": 33,
+    "combined_explicit_file_hashes": 1185,
+    "count_basis": "Own accepted final03 942 repository/66 sets plus exactly two explicit repaired web source rows; own 241-entry runtime map has eight one-for-one replacements and233 unchanged. Sum1185 is metadata-only, not an executed input gate; no full-map digest recomputed.",
+    "effective_filename_sets": 66,
+    "effective_repository_files": 944,
+    "external_go_groups": 355,
+    "go_filename_sets": 63,
+    "go_repository_files": 909,
+    "private_dist_bytes": 794499,
+    "private_dist_files": 59,
+    "python_module_files": 171,
+    "python_schema_resources": 20,
+    "runtime_bundles": 4,
+    "runtime_explicit_files": 241
+  },
+  "independent_four_groups": {
+    "bytes": 1314,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/groups.json",
+    "sha256": "b4dd75e07df90079021c61bd928b9e32e9e8ff16a1db1170b1633cc90ded9605"
+  },
+  "normalized_assets": {
+    "bytes": 6530,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/dist-assets.json",
+    "sha256": "4ffa2977645070274c319dfd1bcff0bc04453165c96aa5af045de2ff2d33ed3c"
+  },
+  "previous_independent_stop": {
+    "bytes": 1558,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final03/stop.json",
+    "sha256": "76af8aa80f5add59d00865800c971f2fe5c8e00baf30ef07f9b432d935bff616"
+  },
+  "previous_preparation": {
+    "bytes": 49938,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final03/freeze.prepared.json",
+    "sha256": "5dc536f77aec845c14c36e83f46b4a13089749bde1c62c7bb10dc563a848ba82"
+  },
+  "root_authorized_resources": false,
+  "root_exchange": {
+    "bytes": 1741,
+    "path": "/workspace/scratch/project-audit-ui-assets/exchange02/exchange.json",
+    "sha256": "4f2e3fef5c8a47fb744dbc61ae5d0c634965b3c2c2d5f03b6821c506db4f46cf"
+  },
+  "root_failure_disposition": {
+    "bytes": 2584,
+    "path": "/workspace/scratch/project-audit-ui-root-grants/auditnav01-disposition.json",
+    "sha256": "0006fb3ec20b530b6d35d07289b16e8402404c6c5c2dfcf1a8a87447ca5c41b2"
+  },
+  "scope": "Only metadata binding. Exact independent driver/wrapper/groups unchanged; four groups remain NOT_RUN and each retains private+global59 gate. Author nav-only/legacy=false permission is not copied. Existing final01/02/03, original failures and prior actual version labels remain untouched.",
+  "source17": {
+    "bytes": 3769,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/source17.json",
+    "sha256": "092b5e98746adea56a5bccd8aa5c4aba7ba7152421aa36f649f19580d85a60e4"
+  },
+  "source_changes": {
+    "web/src/tests/project-audit.spec.ts": {
+      "after": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5",
+      "before": "0ba34fdf3b020d9e5ad72a53b17f7c7b8b93b6dea730fb84f81aba6d35a35a37",
+      "bytes": 26397,
+      "kind": "accepted affected unit test repair"
+    },
+    "web/src/views/projects/ProjectAuditView.vue": {
+      "after": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+      "before": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "bytes": 21200,
+      "kind": "accepted canonical-read product repair"
+    }
+  },
+  "source_row_boundary": "The two changed web sources were covered by immutable build provenance in v03, not the 942 direct Go/browser source files. Bind both exact current source bytes explicitly as two added closure rows. This is not a new Go graph, import or filename set.",
+  "status": "STOP_FALSE_FINAL04_TWO_WEB_SOURCES_BUILD_ASSET_METADATA_NO_GATE"
+}

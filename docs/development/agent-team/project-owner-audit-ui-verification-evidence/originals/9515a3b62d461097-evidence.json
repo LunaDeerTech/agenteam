@@ -1,0 +1,787 @@
+{
+  "status": "PASS_STOP_LEGACY_SYSTEM_AUDIT_AUTHORITY_AND_NAVIGATION_ORIGINALS",
+  "rounds": [
+    {
+      "run": "oldauditauthority01",
+      "status": "PASS_STOP_BOUNDED_ORIGINAL_REVIEW",
+      "top": "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "top_seconds": 15.2,
+      "browser_seconds": 10.1,
+      "package_seconds": 16.228,
+      "fixture_seconds": 66.11,
+      "raw_fact": "real Audit UI group=authority complete; only formal Account/Profile/Outbound producers, no Project/Tools/external target or production hosting claim",
+      "root_ref_hashes": {
+        "result": "b49a1ea20e1ae2fb49ecd1f4a0157d0629a6811a8e7d7031931cb2ee6370ff50",
+        "manifest": "0c45713b65ee0fe1906de194888960c1452f3ea4079702752efa48d52fa10ce0",
+        "handoff": "d0b53d4ad62d80545970ef1611af06eef719b8b9e2d067c3e7105a201c87cb14"
+      },
+      "original_files": 24,
+      "original_bytes": 520770,
+      "input_count": 1181,
+      "input_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+      "input_before_after_sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c",
+      "grant_sha256": "4968ab08260ec401519794485869c93aaa8e45dceef05d482f62d0aef4f4e7ba",
+      "legacy_asset_gate_required_authorized_matched": true,
+      "direct_fixture_actual_wait": 1,
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 951316,
+          "starttime": "4578163",
+          "time": "2026-10-08T16:11:56.209480+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 951319,
+          "starttime": "4578163",
+          "time": "2026-10-08T16:11:56.209501+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 951320,
+          "starttime": "4578163",
+          "time": "2026-10-08T16:11:56.209521+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 951321,
+          "starttime": "4578163",
+          "time": "2026-10-08T16:11:56.209537+00:00"
+        }
+      ],
+      "observed_processes_not_wait_count": 99,
+      "resource_ids": [
+        "22721801def4814c4dcf52993f8fd51376c0a6e8f6dfbb4d09314a0a2aa46b56",
+        "35cd9ecade6a0f1562dc8db2607c3ed269ab3174a99546ccbfba34f7301afdc6",
+        "6531c94eba955596ed7b569768bb2893fd24ac99ddd49f99e971a67565cb4c38",
+        "85fcc7a70293775de2cd5801ce097c41593ab10e3b56d30c7dc8fb21cfaa5009",
+        "8af47d0934f20d101600523b31871c24aef58fd8ebc1a5437119255a54ce7309",
+        "c38eba57dd859e23da1ee657d851d778bcab69549be3d46cd6994206ccdaf0ae",
+        "fa93fd9b361f11eeafbf2caf78a0028fa5643ac64d5a33978d66457950207230"
+      ],
+      "cleanup_times": [
+        "2026-10-08T16:12:17.957651+00:00",
+        "2026-10-08T16:12:18.648283+00:00"
+      ],
+      "owned_fixture_browser_runtime_double_empty": true,
+      "tcp_seconds": 38.378515876000165,
+      "tcp_last_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:12:57.326350+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:12:57.530746+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "nonowned_originals": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 947155,
+          "ppid": 1,
+          "starttime": "4575148",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 947608,
+          "ppid": 1,
+          "starttime": "4575546",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 947897,
+          "ppid": 1,
+          "starttime": "4575743",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 948467,
+          "ppid": 1,
+          "starttime": "4575960",
+          "state": "Z"
+        }
+      ],
+      "new_pid1_shims_originals": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 947155,
+          "ppid": 1,
+          "starttime": "4575148",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 947608,
+          "ppid": 1,
+          "starttime": "4575546",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 947897,
+          "ppid": 1,
+          "starttime": "4575743",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 948467,
+          "ppid": 1,
+          "starttime": "4575960",
+          "state": "Z"
+        }
+      ],
+      "root_reported_tool_receipt": {
+        "session": 70126,
+        "exit": 0,
+        "not_verifier_personal_wait": true
+      },
+      "new_project_schema_client": 0,
+      "safe_http_files": 0,
+      "old_systemaudit_png_count": 0,
+      "visual_review_performed": false
+    },
+    {
+      "run": "oldauditnav01",
+      "status": "PASS_STOP_BOUNDED_ORIGINAL_REVIEW",
+      "top": "TestAccountSystemAuditWebNavigationAndLayouts",
+      "top_seconds": 22.6,
+      "browser_seconds": 17.2,
+      "package_seconds": 23.627,
+      "fixture_seconds": 74.151,
+      "raw_fact": "real Audit UI group=navigation complete; only formal Account/Profile/Outbound producers, no Project/Tools/external target or production hosting claim",
+      "root_ref_hashes": {
+        "result": "024f38d14efcab331e0aacd3beb360e46f3480c6e8c7c884dce77edf85536952",
+        "manifest": "dab62f857ec5f02e0ee030b06ddbccbd734ce05934ae98c3ca6a068da6eb12d2",
+        "handoff": "0c1dab63173e36b57d20468ea74f30e8ebe2d10cb46acfe82407e00c7dca7893"
+      },
+      "original_files": 32,
+      "original_bytes": 1157187,
+      "input_count": 1181,
+      "input_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+      "input_before_after_sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c",
+      "grant_sha256": "e834873c25cee13e6ee8a25cd948c240b9ba3829af943292a2d1bc9806ba370c",
+      "legacy_asset_gate_required_authorized_matched": true,
+      "direct_fixture_actual_wait": 1,
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 961158,
+          "starttime": "4598584",
+          "time": "2026-10-08T16:15:27.579009+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 961161,
+          "starttime": "4598584",
+          "time": "2026-10-08T16:15:27.579033+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 961162,
+          "starttime": "4598584",
+          "time": "2026-10-08T16:15:27.579049+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 961164,
+          "starttime": "4598584",
+          "time": "2026-10-08T16:15:27.579065+00:00"
+        }
+      ],
+      "observed_processes_not_wait_count": 98,
+      "resource_ids": [
+        "03bdea66df95277dbe4bbf7f20146cad7eb63b52659a5347034451e2e5a26fa8",
+        "0c2c80018cd5781d00a98390043f6b2a17287f0e3db4382900850a638b3ec161",
+        "6804efe16940b501b1cc55a696ba8a9baee1be7ebea7137331485e34ea7703f0",
+        "94eec6e1d490d6017ec818d9aca422f72bd8702265d1aa88bbe9cf270f8dcede",
+        "9e876c183a4948c616b1df006fa02932624c647923393060eb8855ad6ee478ec",
+        "be9cb08524c5d013e91806331fb416e1fe7a725620fca4f464ac8f60fb0ce20b",
+        "cd4903d9ede7b59087b3a1746a08026039abb573cb0fb170e66a0f15fa966262"
+      ],
+      "cleanup_times": [
+        "2026-10-08T16:15:50.181986+00:00",
+        "2026-10-08T16:15:50.895265+00:00"
+      ],
+      "owned_fixture_browser_runtime_double_empty": true,
+      "tcp_seconds": 37.387604702002136,
+      "tcp_last_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:16:28.587830+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:16:28.791902+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "nonowned_originals": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 957026,
+          "ppid": 1,
+          "starttime": "4595562",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 957462,
+          "ppid": 1,
+          "starttime": "4595946",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 957802,
+          "ppid": 1,
+          "starttime": "4596149",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 958355,
+          "ppid": 1,
+          "starttime": "4596342",
+          "state": "Z"
+        }
+      ],
+      "new_pid1_shims_originals": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 957026,
+          "ppid": 1,
+          "starttime": "4595562",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 957462,
+          "ppid": 1,
+          "starttime": "4595946",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 957802,
+          "ppid": 1,
+          "starttime": "4596149",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 958355,
+          "ppid": 1,
+          "starttime": "4596342",
+          "state": "Z"
+        }
+      ],
+      "root_reported_tool_receipt": {
+        "session": 5372,
+        "exit": 0,
+        "not_verifier_personal_wait": true
+      },
+      "new_project_schema_client": 0,
+      "safe_http_files": 0,
+      "old_systemaudit_png_count": 8,
+      "visual_review_performed": false
+    }
+  ],
+  "combined": {
+    "tops": 2,
+    "run_pass": 2,
+    "browser_tests": 2,
+    "original_files": 56,
+    "original_bytes": 1677957,
+    "fixture_direct_waits": 2,
+    "adopted_waits": 8,
+    "current_resource_ids": 14,
+    "new_nonowned": 8,
+    "old_systemaudit_pngs": 8,
+    "png_bytes": 692161,
+    "visual_review_count": 0,
+    "new_project_schema_client": 0
+  },
+  "six_named_round_resource_rows": [
+    {
+      "run": "oldauthlife01",
+      "resource_ids": [
+        "02a289b98aeba02a3df4b7c49f11627ce4676e9634c06717f6940eb82e58a56b",
+        "1b1cc95cac1eaae09a44792f96e8a93be820e6abf950006f7ce65f3838bd21c2",
+        "35680d898a1568ea155c802cd09086f4b73a472f410d15c013ca54e6926ade33",
+        "5c7b5e2df2c8b4ffebbc14353a43448288900cdf3d17e0a7f4eba83ca15186d5",
+        "a7ddf6e63868d8fc2361990c86e9fd78deb47f8f5f1956236f8acb627739af19",
+        "b65cc429b9ba423399d2afe452084d1cb50a8eb5910c20e4dcb4306a5f2f29a3",
+        "cfd46284a82b2b8e0d5d5ff11b20bebb1309dbae2c53edb234fa89332f5d2583"
+      ]
+    },
+    {
+      "run": "oldauthrevoke01",
+      "resource_ids": [
+        "173534fc6554d7f875e26a41907daabbddae5e1b3da14bce6f2a549c84e3cdae",
+        "498dc1d1e8c6a6b252d007e6a415c383c57df361c1ff79baf4558b403508e72b",
+        "6881e1196ecd44d7294be5107bdc084b83c46c66768c3e6c2760f94e7b33bf2e",
+        "74cb21cbab6c1bc41c3248a0df10da9c26711cd75a0d8c0bd6f3cbcccbeb853c",
+        "8e46b8e803b4014858922aa3fbfbbcdd6ef080d99afbce86692e306b1e410e20",
+        "93be36f4cb9920a8d431023fe42b804afb6bcbe92818a4f1eca77bec5abc5441",
+        "ae8ab970df9ea268425b700bb6f029de0f480faad5be7142bd3fc3d061a29d52"
+      ]
+    },
+    {
+      "run": "oldpersonaltheme01",
+      "resource_ids": [
+        "2652bac5a57065d7aab1f5cee375ccb1977e77fefc241ca39a657cbae4ccc352",
+        "286b5748db00137be54ff2b3d75aa1ca2edbce043cbf693a8def337cf34e0f19",
+        "38bad7022b8a9de8ed289c6738166b7265397017bec1b11d50bd072c1a9ab2b1",
+        "4752016457e70bdee5def1eb178986f5d5eb76d0f6c4185aa23757043c29a6bb",
+        "5c864af7123aabec489f051b9bd12f9448a014ce3f53e67f272713793a0fc45a",
+        "618012b2d1c37d5300231b114a477d706d2e786cfb19014c4288287669ce4638",
+        "e8cd2d4a08435a0f238a88f1c273fe22046eebeec3c95c5e9399ba1bf21dab9f"
+      ]
+    },
+    {
+      "run": "oldauditread01",
+      "resource_ids": [
+        "1155d5979785a92b668c8718e8371ddc9cf1ccebd2a69c229eddfa5f55ea9f52",
+        "140b709bc3ef54a2fa568e6f92fd7f573ac19afaa82daceff7810a1752e51994",
+        "37bb7ce16db1d076588a243b15fd5040b744148823bbb63b1fe49eeb2e1bd127",
+        "3ea04774b22f1708270db6bfdb3a6f40fd6658eff41cde7796d26588fe452608",
+        "6ce270bfbb1e735f7962c8adef573cc9984fde938bc50f73b555af1739063bbe",
+        "b1f9d8dea13102bfde7cbb64485e340a0bc8b2f641515c75a1ecef6d0436532e",
+        "c0f46c95848f7ed58e99ea868c196f9450e5ca16d14acf1ea742910b885e01ba"
+      ]
+    },
+    {
+      "run": "oldauditauthority01",
+      "resource_ids": [
+        "22721801def4814c4dcf52993f8fd51376c0a6e8f6dfbb4d09314a0a2aa46b56",
+        "35cd9ecade6a0f1562dc8db2607c3ed269ab3174a99546ccbfba34f7301afdc6",
+        "6531c94eba955596ed7b569768bb2893fd24ac99ddd49f99e971a67565cb4c38",
+        "85fcc7a70293775de2cd5801ce097c41593ab10e3b56d30c7dc8fb21cfaa5009",
+        "8af47d0934f20d101600523b31871c24aef58fd8ebc1a5437119255a54ce7309",
+        "c38eba57dd859e23da1ee657d851d778bcab69549be3d46cd6994206ccdaf0ae",
+        "fa93fd9b361f11eeafbf2caf78a0028fa5643ac64d5a33978d66457950207230"
+      ]
+    },
+    {
+      "run": "oldauditnav01",
+      "resource_ids": [
+        "03bdea66df95277dbe4bbf7f20146cad7eb63b52659a5347034451e2e5a26fa8",
+        "0c2c80018cd5781d00a98390043f6b2a17287f0e3db4382900850a638b3ec161",
+        "6804efe16940b501b1cc55a696ba8a9baee1be7ebea7137331485e34ea7703f0",
+        "94eec6e1d490d6017ec818d9aca422f72bd8702265d1aa88bbe9cf270f8dcede",
+        "9e876c183a4948c616b1df006fa02932624c647923393060eb8855ad6ee478ec",
+        "be9cb08524c5d013e91806331fb416e1fe7a725620fca4f464ac8f60fb0ce20b",
+        "cd4903d9ede7b59087b3a1746a08026039abb573cb0fb170e66a0f15fa966262"
+      ]
+    }
+  ],
+  "six_named_resource_union": 42,
+  "shared_asset_metadata_reused_from": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch01/evidence.json",
+  "file_fingerprints": [
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch01/evidence.json",
+      "bytes": 25950,
+      "sha256": "a8143f688cd9e264689faa7021d352025ac5743f6b04a13faf5ea3b68852e9f8"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch02/evidence.json",
+      "bytes": 25163,
+      "sha256": "82950b451806cf6bdf44b20961ae32e14b6e9c7e3c6bc1612edec579a2c8b9df"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/adopted-waits.json",
+      "bytes": 575,
+      "sha256": "9de8667b6d8743a186dd7eb5959d103dce04114e2189082df45ae4237b3efd3d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/cleanup.json",
+      "bytes": 95463,
+      "sha256": "5b3ccd6e0e278c2d7bec353616020424f2c4894e156cbad810a686cfe2a3d9f6"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/command.json",
+      "bytes": 3047,
+      "sha256": "519e5aa90241f70805f6a7360f108e38e7b54d8ac5093568d7cf7496fba6c3b4"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/disk-before-spawn.json",
+      "bytes": 191,
+      "sha256": "a3d0b0eedbc9a8626584767cfaaead1e0db58755430c169f91cdc39711d80485"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/disk-preflight.json",
+      "bytes": 191,
+      "sha256": "4715136b0a03e75b4c82221e77d82073525f99940c3c5099cf721d0b7d395850"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/driver.py.txt",
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/frozen-input.json",
+      "bytes": 47806,
+      "sha256": "4968ab08260ec401519794485869c93aaa8e45dceef05d482f62d0aef4f4e7ba"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/input-after.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/input-before.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/observed-processes.json",
+      "bytes": 16123,
+      "sha256": "228ad00d3bcd691d6ab8b9f356b9b5955db6ac8a19e0144cc14914e3eb095c65"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/observed-resources.json",
+      "bytes": 5128,
+      "sha256": "d4958375bd637499b66f704c0155a4d520c6ddc329a7c7aeb0860f15ebf888ee"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/process-baseline.json",
+      "bytes": 37175,
+      "sha256": "c5cf4d8208613eb4af618d018e854ef7a3651542a8dd048f0f9a3deb5afb744c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/raw.log",
+      "bytes": 4144,
+      "sha256": "2aa7700f153fb422cd201784ea0d3e59679e9e34cd48f20091cf3e4d8911c1c2"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/result.json",
+      "bytes": 44352,
+      "sha256": "b49a1ea20e1ae2fb49ecd1f4a0157d0629a6811a8e7d7031931cb2ee6370ff50"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "9fdd5626b1f0a54b06d91de9a216b8a9d67fc7990de092e6c1376a300e2f55e6"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/tcp-observed-delta.json",
+      "bytes": 12107,
+      "sha256": "6856bb6f6e1582093a4d6f9c56cf267e90ba3434ff457e7319c5540e5218d409"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/tcp-tail-observation.json",
+      "bytes": 204956,
+      "sha256": "f6777a8d56d2f851fd0054c80ea8ab326f1853067503418b500bcf3cfd429a17"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/verification-input.json",
+      "bytes": 183,
+      "sha256": "131481ac656bec710c8754e7f14f5c24e03d93ed4e15bdaaff0fa256b9417e39"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/watchdog.json",
+      "bytes": 545,
+      "sha256": "e2186f0629326c2d813bade366203c9fc49b7508e4a2f352848eefa9a7929374"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/manifest.json",
+      "bytes": 4922,
+      "sha256": "0c45713b65ee0fe1906de194888960c1452f3ea4079702752efa48d52fa10ce0"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/handoff.json",
+      "bytes": 8157,
+      "sha256": "d0b53d4ad62d80545970ef1611af06eef719b8b9e2d067c3e7105a201c87cb14"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/adopted-waits.json",
+      "bytes": 575,
+      "sha256": "41e6bf14274168e544d1715192d01726af330b8c0884dcf55911e0755fb5bede"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/cleanup.json",
+      "bytes": 96847,
+      "sha256": "02fa2ae454d364a662f9635f501c25ec5599c1ccd5c403910c8b6428a88be42a"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/command.json",
+      "bytes": 3011,
+      "sha256": "372081cf79e695084fc43446237c050bf7da7676e8d32945483706c366607026"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/disk-before-spawn.json",
+      "bytes": 191,
+      "sha256": "f0b92c25f897a6d5e4c7088ecfef7a84261d2ab24e0104749b9ed5b1a87ca967"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/disk-preflight.json",
+      "bytes": 191,
+      "sha256": "c667611a1c2fccd14ec031bb2558f4279eadbc552c8cc18fddedf51f065623e9"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/driver.py.txt",
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/frozen-input.json",
+      "bytes": 47807,
+      "sha256": "e834873c25cee13e6ee8a25cd948c240b9ba3829af943292a2d1bc9806ba370c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/input-after.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/input-before.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/observed-processes.json",
+      "bytes": 15950,
+      "sha256": "3b7c74ef5575d7d1004d6e11052791d7d3509ed53011a7c8d253ba7eb7ea43d3"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/observed-resources.json",
+      "bytes": 5096,
+      "sha256": "04173c937b81d055bc5f3ed24f530781dd52028522ccc6e2cc7cccdc00e6ba30"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/process-baseline.json",
+      "bytes": 37703,
+      "sha256": "69e4dc53d664c7dda9e89eb3fcb1b361fd40a898bdce05a7774c941dcfa073b8"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/raw.log",
+      "bytes": 4129,
+      "sha256": "e1cb0a7bac1312f787284f86f8080fcea04594250d1f1307a72902952b95569d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/result.json",
+      "bytes": 44949,
+      "sha256": "024f38d14efcab331e0aacd3beb360e46f3480c6e8c7c884dce77edf85536952"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-1024.png",
+      "bytes": 108785,
+      "sha256": "c6ba15e2ae5c2370184bc9d0eea0f5f71d2b73e519be42355b32ad4ec03fe78f"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-1440.png",
+      "bytes": 111818,
+      "sha256": "b7bc3a9bad253eccbfd517901d53b7f0a8a304f3c284d95103c54cfcfadb00b9"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-390.png",
+      "bytes": 54795,
+      "sha256": "6eef4fdfc5a96143b5b511d363832e3da6635cbe672e9b0f709d82e27d18fead"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-768.png",
+      "bytes": 106167,
+      "sha256": "b6addee7c2e989e0c770529d985be8818e65238fb29bc24f059134c352c3d5a5"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-1024.png",
+      "bytes": 89288,
+      "sha256": "fa4d389c766734a00ba0c16df860a3684ac083bd38b628af92adec11929acad1"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-1440.png",
+      "bytes": 92268,
+      "sha256": "58e2f802581a07163ce345c9276a418b0949bcadb13f0cbadf13ba96654979ba"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-390.png",
+      "bytes": 46795,
+      "sha256": "59e31998ddbdaa74fdde0b969c6bea582015dab078cd3521c2181af6b0890215"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-768.png",
+      "bytes": 82245,
+      "sha256": "54dfcd667422f7478e87fdd2a861c6cc7418fea2fc0aabd192f50020cef64d7d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "4930bef8cea859fe25e189a6334723e497dde511a6e3b3783ad83c585ebf69e8"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/tcp-observed-delta.json",
+      "bytes": 10379,
+      "sha256": "79b0dc6afe52354fe9482347edf4c668bc21fa0db6a0d762cd493c627e472f9f"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/tcp-tail-observation.json",
+      "bytes": 148690,
+      "sha256": "3c724eee29bdafe024933fb2bb6d6f0313b1b6b29cff6e1adcd2403bb990d2c9"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/verification-input.json",
+      "bytes": 183,
+      "sha256": "a4f82fbb92620b333c4b78da4a90c774413c38ef18abb330fec8c6fec50705ec"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/watchdog.json",
+      "bytes": 541,
+      "sha256": "cdd35537852f18742daf233981ae3129b8ec2ae0ee3bdfa43626ad121aff060a"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/manifest.json",
+      "bytes": 6336,
+      "sha256": "dab62f857ec5f02e0ee030b06ddbccbd734ce05934ae98c3ca6a068da6eb12d2"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/handoff.json",
+      "bytes": 8563,
+      "sha256": "0c1dab63173e36b57d20468ea74f30e8ebe2d10cb46acfe82407e00c7dca7893"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/images.json",
+      "bytes": 2605,
+      "sha256": "93b9b109c5334417a62295762878443600cf4979d3bd277ba960b7049b4fc286"
+    }
+  ],
+  "old_png_fingerprints": [
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-1024.png",
+      "bytes": 108785,
+      "sha256": "c6ba15e2ae5c2370184bc9d0eea0f5f71d2b73e519be42355b32ad4ec03fe78f"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-1440.png",
+      "bytes": 111818,
+      "sha256": "b7bc3a9bad253eccbfd517901d53b7f0a8a304f3c284d95103c54cfcfadb00b9"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-390.png",
+      "bytes": 54795,
+      "sha256": "6eef4fdfc5a96143b5b511d363832e3da6635cbe672e9b0f709d82e27d18fead"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-dark-768.png",
+      "bytes": 106167,
+      "sha256": "b6addee7c2e989e0c770529d985be8818e65238fb29bc24f059134c352c3d5a5"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-1024.png",
+      "bytes": 89288,
+      "sha256": "fa4d389c766734a00ba0c16df860a3684ac083bd38b628af92adec11929acad1"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-1440.png",
+      "bytes": 92268,
+      "sha256": "58e2f802581a07163ce345c9276a418b0949bcadb13f0cbadf13ba96654979ba"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-390.png",
+      "bytes": 46795,
+      "sha256": "59e31998ddbdaa74fdde0b969c6bea582015dab078cd3521c2181af6b0890215"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditnav01/screenshots/audit-light-768.png",
+      "bytes": 82245,
+      "sha256": "54dfcd667422f7478e87fdd2a861c6cc7418fea2fc0aabd192f50020cef64d7d"
+    }
+  ],
+  "limits": [
+    "Only named old System Audit authority/navigation actual top and original/asset/retirement review.",
+    "Eight old System Audit PNG files checked for existence/bytes/hash and images index mapping only; no visual inspection or Project screenshot claim.",
+    "Actual original browser assertions and explicit formal Account/Profile/Outbound Go completion, not new Project DTO/body/client validation.",
+    "No tests-to-run packages add behavior coverage.",
+    "Current batch 14 IDs disjoint from prior four named runs; 42 IDs only those six named v04 runs, not global history.",
+    "Nonowned identities remain outside claimed wait/kill; recorded TCP host polling is supplementary, not complete short-connection tracing.",
+    "Root tool receipts are reported original exit0, not this verifier personally waiting original tool cells.",
+    "No current dist/host/source-tree scan, driver import, Go/Node/business/schema/browser/resources/network/Git execution or repository write.",
+    "All original failures, fixed-version and production/complete-card limitations remain; other four old runs and independent actual Audit acceptance not included."
+  ],
+  "stop": true
+}

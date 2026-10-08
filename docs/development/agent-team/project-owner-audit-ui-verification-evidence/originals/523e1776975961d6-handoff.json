@@ -1,0 +1,234 @@
+{
+  "actual_grant_sha256": "2ec591db8577e82c50ed4d3b7cefe7dfbf4bd4dd40965a3125cb41060dbd712e",
+  "browser_reported_seconds": 15.3,
+  "driver_exit": 0,
+  "fixture_process_seconds": 72.426,
+  "group": "old-smtp-delivery",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_authorized": true,
+    "legacy_global_dist_match": true,
+    "legacy_global_dist_required": true,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "original_artifact_count": 24,
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 579,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/adopted-waits.json",
+      "sha256": "75c72ba254fe5e45c0e9c2376b55b364a6c843db81fcd4bac291d879841a5bd8"
+    },
+    "cleanup.json": {
+      "bytes": 103171,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/cleanup.json",
+      "sha256": "c697ea7a721e4102da9840f966fb202d18525e67f4358ced04b2dfde859e6492"
+    },
+    "command.json": {
+      "bytes": 3039,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/command.json",
+      "sha256": "68b11eef10265b0443959eea1367de8012cd696aea7bad7dc939c8de7623f5f6"
+    },
+    "input-after.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/input-after.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "input-before.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/input-before.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "observed-resources.json": {
+      "bytes": 6699,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/observed-resources.json",
+      "sha256": "e1a02c87bd544bfdc7d8033def67d53e69f63545f6ca83f13add91eed6bd85fb"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "raw.log": {
+      "bytes": 4339,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/raw.log",
+      "sha256": "bb6323c5d5c2c2ba71721050480ce6e9de7d33df1381a60c5bdd82968ca47dec"
+    },
+    "result.json": {
+      "bytes": 47805,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/result.json",
+      "sha256": "8ede7b21c3d521e8087f163e2af3b3b844c42dd2b3b4bd072c4dc1b0cd961258"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 370380,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/tcp-tail-observation.json",
+      "sha256": "0043f325d3e592cb5663d4dc355de8c545f3e661446dd20465d8fb80a0ba4534"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/verification-input.json",
+      "sha256": "5840db8ad0b4165aba33179965924b159b7bb26cc8beda2232a3cff8b596479e"
+    },
+    "watchdog.json": {
+      "bytes": 539,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/watchdog.json",
+      "sha256": "cd5f31979aab6f89129d4b59bb9f1629702ea052863c721248d3a0a85993e0c7"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 11,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 9,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:36:28.536938+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 9,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:36:29.262136+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "49e5092d8672f93bff20a8d7dc8a484bc486a4a1ea4c4bcfb61666ae57e233d1": {
+        "kind": "container",
+        "name": "/agenteam-d03-1ba647531c1a176a5fa981562f9c4bd4"
+      },
+      "5ab1ed7153b906960464fd0966b23858b4e6ac6fae260331cae56dedfa4bbf4b": {
+        "kind": "network",
+        "name": "agenteam-d04-net-afc13e8e41a6d2e6b54cda1c88fe2d70"
+      },
+      "62c803233683618b56d0d77d98f7a36bdbeac6db75dd8c7420536a99cd28a6ca": {
+        "kind": "network",
+        "name": "agenteam-d07-smtp-2f0c2650a0f55867798a1018144f129e"
+      },
+      "71faa5478e63c9bc3bf2d36642faa3a97572f8cb6d842b74ea92a277d080b57f": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-6bbf405b639e06f92724d2a478f014d9"
+      },
+      "81de84b0bb7240a0e24bc97374a612949bd7b01b9171130d1cf5804ff812abce": {
+        "kind": "container",
+        "name": "/agenteam-d07-smtp-2f0c2650a0f55867798a1018144f129e"
+      },
+      "8ff0b4a1ce40fd8092c4844aaa114383cb4411299e337710a47918cdcdd54508": {
+        "kind": "container",
+        "name": "/agenteam-d03-1ba647531c1a176a5fa981562f9c4bd4-pg16"
+      },
+      "d8987451402b0edeb6d8a4bdb85bdaad8899b6325b84307ed4298f3638a03321": {
+        "kind": "network",
+        "name": "agenteam-d03-1ba647531c1a176a5fa981562f9c4bd4"
+      },
+      "eff87ca4a91eb425620fc42f3c7c31c24db9dab8febd258d665eda0e8b07c572": {
+        "kind": "network",
+        "name": "agenteam-d05-object-6bbf405b639e06f92724d2a478f014d9"
+      },
+      "f1a5c562ce259b2944fa56122e18bb36fa22e3c4ee68aa22596a21331db8bd80": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-afc13e8e41a6d2e6b54cda1c88fe2d70"
+      }
+    },
+    "fixture_pid": 1001164,
+    "fixture_pid_starttime": "4719058",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1001539,
+        "ppid": 1,
+        "starttime": "4719466",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1001914,
+        "ppid": 1,
+        "starttime": "4719741",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1002281,
+        "ppid": 1,
+        "starttime": "4719941",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1002804,
+        "ppid": 1,
+        "starttime": "4720141",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1005225,
+        "ppid": 1,
+        "starttime": "4722005",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 102,
+    "observed_resources": 9,
+    "resource_topology_matches": true,
+    "shim_boundary": "5 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 54.456613538000965,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "oldsmtpdelivery01",
+  "safe_http_artifacts": {
+    "actual_file_count": 0,
+    "boundary": "This legacy SMTP delivery test produced no safe-body/sidecar/schema/client receipt files. Its top/browser PASS remains within the existing SMTP outcome and explicitly reviewed retry assertions, not Project Audit validation.",
+    "paths": [],
+    "project_audit_schema_client_counts_not_claimed": true
+  },
+  "scope": {
+    "assets": "Root-authorized exchange02 global 59 files/794499 bytes; legacy required/authorized/match true. Private build-v02 binding remains unchanged.",
+    "exact_one_original_smtp_delivery_top": true,
+    "independent_result_review_not_claimed": true,
+    "independent_rounds_not_run": true,
+    "original_go_log_boundary": "Real owned SMTP delivery browser group=test; owned protocol acceptance is not external mailbox delivery. D07 exact cleanup for its distinct nonce is in raw.log.",
+    "other_groups_not_run_in_this_round": true
+  },
+  "screenshots": {
+    "actual_png_count": 0,
+    "paths": []
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_prior_failures_unchanged": true,
+    "no_rerun_or_next_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "tool_terminal": {
+    "actual_exit": 0,
+    "session_id": 52296
+  },
+  "top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+  "top_seconds": 21.92
+}

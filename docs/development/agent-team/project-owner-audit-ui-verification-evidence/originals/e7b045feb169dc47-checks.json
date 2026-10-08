@@ -1,0 +1,173 @@
+{
+  "browser-format03": {
+    "result": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 0.6064563270047074,
+      "direct_actual_wait": 676697,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676697": "3471335"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": false
+    },
+    "files": [
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/command.json",
+        "bytes": 388,
+        "sha256": "38df95da48f281bfa66b2e7e5f6bd735458d2389bbc16aa641503a785dfc34d8"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/inputs-before.json",
+        "bytes": 1596,
+        "sha256": "33ef1f59ee60f593a946f63cabde2428f1059e0780ceacf18d901633f5f06162"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/inputs-after.json",
+        "bytes": 1596,
+        "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/raw.log",
+        "bytes": 137,
+        "sha256": "b683c0b6e13805faed18cd074f87dda2e284165fa5f637d50b1f2ccb0740ea48"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/result.json",
+        "bytes": 253,
+        "sha256": "0b714f0c55d4bb1803068dcabac1cb54bbef4e00464ed7e16347c41282eba0af"
+      }
+    ]
+  },
+  "browser-types03": {
+    "result": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 2.1270591499996954,
+      "direct_actual_wait": 676875,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676875": "3472560"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": true
+    },
+    "files": [
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/command.json",
+        "bytes": 656,
+        "sha256": "cb5dc822f6aeef766a5746dfa89bb82747b109544d32dcc076fdb56dea4b0fcd"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/inputs-before.json",
+        "bytes": 1596,
+        "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/inputs-after.json",
+        "bytes": 1596,
+        "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/raw.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/result.json",
+        "bytes": 252,
+        "sha256": "17f52133dc2e0f306bdce9d722282ceacf0a93c5d679830a538d4b7692c65647"
+      }
+    ]
+  },
+  "browser-format-check03": {
+    "result": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 0.9473599089978961,
+      "direct_actual_wait": 676882,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676882": "3472561"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": true
+    },
+    "files": [
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/command.json",
+        "bytes": 388,
+        "sha256": "0d207e130a251506362e7a8a86b28063424158ca8fff9d737d55bfcd63b469fa"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/inputs-before.json",
+        "bytes": 1596,
+        "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/inputs-after.json",
+        "bytes": 1596,
+        "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/raw.log",
+        "bytes": 66,
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/result.json",
+        "bytes": 252,
+        "sha256": "214b5b2de904e2c504e943101f842341f055f5612a921f819e8d0a35ed975b76"
+      }
+    ]
+  },
+  "browser-list03": {
+    "result": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 3.3904937879997306,
+      "direct_actual_wait": 676873,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676873": "3472559",
+        "676885": "3472561",
+        "676929": "3472732",
+        "676942": "3472807"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": true
+    },
+    "files": [
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/command.json",
+        "bytes": 188,
+        "sha256": "8516e96b87c7abfc95fbffc8f528a11d132089313a59ccadd0c9f47501c327fe"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/inputs-before.json",
+        "bytes": 1596,
+        "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/inputs-after.json",
+        "bytes": 1596,
+        "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/raw.log",
+        "bytes": 523,
+        "sha256": "8463505f9b9456658de6e5508dc962c1db0515da7552ac3118921f18b8eb4b0a"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/result.json",
+        "bytes": 327,
+        "sha256": "b94edd9d755f9cce7f5233e63b6b1309985ef96cc08320a023d28694cbe3b1b6"
+      }
+    ]
+  }
+}

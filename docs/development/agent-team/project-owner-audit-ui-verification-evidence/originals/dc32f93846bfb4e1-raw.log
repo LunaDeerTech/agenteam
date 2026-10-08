@@ -1,0 +1,486 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit-state.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/project-audit-state.spec.ts (50 tests | 50 failed) 130ms
+     × accepts current user Human without an admin shortcut or System-denied gate 35ms
+     × accepts current admin Human without an admin shortcut or System-denied gate 3ms
+     × keeps local 403/PERMISSION_DENIED out of global identity and write recovery 4ms
+     × keeps local 404/NOT_FOUND out of global identity and write recovery 2ms
+     × keeps local 403/CSRF_FAILED out of global identity and write recovery 2ms
+     × keeps local 401/PERMISSION_DENIED out of global identity and write recovery 2ms
+     × keeps local 403/UNAUTHENTICATED out of global identity and write recovery 2ms
+     × keeps local 503/SESSION_REVOKED out of global identity and write recovery 2ms
+     × keeps local 503/COMMIT_UNKNOWN out of global identity and write recovery 2ms
+     × keeps local 500/INTERNAL out of global identity and write recovery 2ms
+     × only current 401/UNAUTHENTICATED invalidates the Session 2ms
+     × only current 401/SESSION_REVOKED invalidates the Session 1ms
+     × ignores a retired domain revision late 401 even while full identity is unchanged 2ms
+     × captures invalid input before scheduling work and never sends lookup despite an unknown read 1ms
+     × does not cross the actual 'personal' tail or abandon its owner 1ms
+     × does not cross the actual 'directory' tail or abandon its owner 2ms
+     × does not cross the actual 'invitation' tail or abandon its owner 1ms
+     × does not cross the actual 'provider' tail or abandon its owner 1ms
+     × does not cross the actual 'model' tail or abandon its owner 1ms
+     × does not cross the actual 'selection' tail or abandon its owner 1ms
+     × does not cross the actual 'summary' tail or abandon its owner 1ms
+     × does not cross the actual 'account-security' tail or abandon its owner 2ms
+     × does not cross the actual 'smtp' tail or abandon its owner 1ms
+     × does not cross the actual 'delivery' tail or abandon its owner 1ms
+     × does not cross the actual 'outbound' tail or abandon its owner 1ms
+     × does not cross the actual 'system-audit' tail or abandon its owner 1ms
+     × does not cross the actual 'runtime' tail or abandon its owner 1ms
+     × does not cross the actual 'owner' tail or abandon its owner 1ms
+     × holds every old Cookie domain through a cancelled list native tail 1ms
+     × holds every old Cookie domain through a cancelled detail native tail 1ms
+     × keeps the 30s visible bound separate from actual cancellation completion 1ms
+     × does not destroy pending Owner Update material through Audit failure or abandon 1ms
+     × preserves exact pending SMTP credential material and excludes Audit during its actual tail 1ms
+     × binds only complete current Get, while active remains readable 1ms
+     × binds only complete current Get, while archiving remains readable 2ms
+     × binds only complete current Get, while archived remains readable 1ms
+     × never treats Resolve alone or a failed current Get as Audit authority 4ms
+     × keeps filter drafts inert, applies all query fields explicitly, and preserves bad input 2ms
+     × uses explicit cursor history, rejects a cursor failure locally and offers only a fresh first page 1ms
+     × details always GET independently; 404 is not an empty list and back performs no list GET 7ms
+     × clears list candidates on cancel, retains only explicit retry and waits for native tail 2ms
+     × clears detail candidates on cancel, retains only explicit retry and waits for native tail 1ms
+     × spends initial eligibility exactly once for new-page waiting behind a previous tail 6ms
+     × spends initial eligibility exactly once for cancelled-wait waiting behind a previous tail 1ms
+     × spends initial eligibility exactly once for disposed waiting behind a previous tail 1ms
+     × spends initial eligibility exactly once for left waiting behind a previous tail 2ms
+     × does not resurrect a cancelled initial wait when Owner Get subsequently grants the first context 4ms
+     × clears all private page state through checking/503 and only a new same-Session instance can restart 2ms
+     × invalidates old project scope/filters/cursor on parameter reuse and waits for stable new Get 1ms
+     × makes a cancelled navigation explicitly recoverable while retiring late publication and focus 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 50 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > accepts current user Human without an admin shortcut or System-denied gate
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > accepts current admin Human without an admin shortcut or System-denied gate
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:346:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 403/PERMISSION_DENIED out of global identity and write recovery
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 404/NOT_FOUND out of global identity and write recovery
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 403/CSRF_FAILED out of global identity and write recovery
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 401/PERMISSION_DENIED out of global identity and write recovery
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 403/UNAUTHENTICATED out of global identity and write recovery
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 503/SESSION_REVOKED out of global identity and write recovery
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 503/COMMIT_UNKNOWN out of global identity and write recovery
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps local 500/INTERNAL out of global identity and write recovery
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:368:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > only current 401/UNAUTHENTICATED invalidates the Session
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > only current 401/SESSION_REVOKED invalidates the Session
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:381:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > ignores a retired domain revision late 401 even while full identity is unchanged
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:392:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > captures invalid input before scheduling work and never sends lookup despite an unknown read
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:404:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'personal' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'directory' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'invitation' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'provider' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'model' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'selection' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'summary' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'account-security' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'smtp' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'delivery' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'outbound' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'system-audit' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'runtime' tail or abandon its owner
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not cross the actual 'owner' tail or abandon its owner
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:421:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > holds every old Cookie domain through a cancelled list native tail
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > holds every old Cookie domain through a cancelled detail native tail
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:444:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > keeps the 30s visible bound separate from actual cancellation completion
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:471:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > does not destroy pending Owner Update material through Audit failure or abandon
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:487:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > independent Human Project Audit Session domain > preserves exact pending SMTP credential material and excludes Audit during its actual tail
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:508:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > binds only complete current Get, while active remains readable
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > binds only complete current Get, while archiving remains readable
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > binds only complete current Get, while archived remains readable
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:557:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > never treats Resolve alone or a failed current Get as Audit authority
+AssertionError: expected 'inactive' to be 'read-error' // Object.is equality
+
+Expected: "read-error"
+Received: "inactive"
+
+ ❯ src/tests/project-audit-state.spec.ts:579:38
+    577|     gate.resolve(problem('DEPENDENCY_UNAVAILABLE', 503))
+    578|     await flushPromises()
+    579|     expect(f.workspace.detail.phase).toBe('read-error')
+       |                                      ^
+    580|     expect(f.workspace.currentReadContext.value).toBeNull()
+    581|     expect(p.state.list.phase).toBe('waiting')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > keeps filter drafts inert, applies all query fields explicitly, and preserves bad input
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:588:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > uses explicit cursor history, rejects a cursor failure locally and offers only a fresh first page
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:625:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > details always GET independently; 404 is not an empty list and back performs no list GET
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:651:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > clears list candidates on cancel, retains only explicit retry and waits for native tail
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > clears detail candidates on cancel, retains only explicit retry and waits for native tail
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:667:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > spends initial eligibility exactly once for new-page waiting behind a previous tail
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > spends initial eligibility exactly once for cancelled-wait waiting behind a previous tail
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > spends initial eligibility exactly once for disposed waiting behind a previous tail
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > spends initial eligibility exactly once for left waiting behind a previous tail
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:692:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > does not resurrect a cancelled initial wait when Owner Get subsequently grants the first context
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/tests/project-audit-state.spec.ts:723:23
+    721|     expect(p.state.list.phase).toBe('error')
+    722|     await p.retry()
+    723|     expect(f.reads()).toHaveLength(1)
+       |                       ^
+    724|   })
+    725|   it('clears all private page state through checking/503 and only a ne…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > clears all private page state through checking/503 and only a new same-Session instance can restart
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:726:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > invalidates old project scope/filters/cursor on parameter reuse and waits for stable new Get
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:753:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/50]⎯
+
+ FAIL  src/tests/project-audit-state.spec.ts > workspace-bound Project Audit page lifetime > makes a cancelled navigation explicitly recoverable while retiring late publication and focus
+AssertionError: expected 'inactive' to be 'current' // Object.is equality
+
+Expected: "current"
+Received: "inactive"
+
+ ❯ fixture src/tests/project-audit-state.spec.ts:217:36
+    215|     workspace.afterNavigation('/owner/main/settings/audit')
+    216|     await flushPromises()
+    217|     expect(workspace.detail.phase).toBe('current')
+       |                                    ^
+    218|   }
+    219|   return {
+ ❯ src/tests/project-audit-state.spec.ts:776:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/50]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AccountFailure: cancelled
+ ❯ src/tests/project-audit-state.spec.ts:390:37
+    388|   it('ignores a retired domain revision late 401 even while full ident…
+    389|     const gate = barrier<never>()
+    390|     releases.push(() => gate.reject(new AccountFailure('cancelled')))
+       |                                     ^
+    391|     const api: ProjectAuditAPI = { list: () => gate.promise, get: () =…
+    392|     const f = await fixture({ audit: api })
+ ❯ src/tests/project-audit-state.spec.ts:260:45
+ ❯ node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+ ❯ wrapper node_modules/@vitest/runner/dist/chunk-artifact.js:750:10
+ ❯ node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+ ❯ runWithTimeout node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10
+ ❯ node_modules/@vitest/runner/dist/chunk-artifact.js:2622:52
+ ❯ run node_modules/@vitest/runner/dist/chunk-artifact.js:1150:20
+ ❯ limiterFn node_modules/@vitest/runner/dist/chunk-artifact.js:1162:59
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { kind: 'cancelled', problem: undefined }
+This error originated in "src/tests/project-audit-state.spec.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "ignores a retired domain revision late 401 even while full identity is unchanged". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed (1)
+      Tests  50 failed (50)
+     Errors  1 error
+   Start at  12:06:48
+   Duration  1.60s (transform 539ms, setup 0ms, import 707ms, tests 130ms, environment 556ms)
+

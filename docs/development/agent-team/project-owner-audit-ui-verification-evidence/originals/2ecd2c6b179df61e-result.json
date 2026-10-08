@@ -1,0 +1,170 @@
+{
+  "status": "SOURCE_V02_INSTALLED_AND_OFFLINE_ORIGINALS_PASS_STOP_ACTUAL_READ_PENDING",
+  "freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/freeze.json",
+    "sha256": "a2a13a51d676d241c563d778d690fc0e73b87fb781fa3e46cf4f15f8b27a0027"
+  },
+  "spec_sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f",
+  "bytes": 67892,
+  "patch_sha256": "fea0465a2467f6ff317bdf1d706023d36789da50bbd2b04482b4e7426a53d9bb",
+  "inverse_restores_f648": true,
+  "other_input_count_unchanged": 14,
+  "author_actual_checks": {
+    "source-v02-format01": {
+      "actual_exit": 0,
+      "seconds": 0.5593889300071169,
+      "direct_wait_pid": 733287,
+      "owned_pid_starttime": {
+        "733287": "3850540"
+      },
+      "owned_empty_twice": true,
+      "inputs_same": true
+    },
+    "source-v02-types01": {
+      "actual_exit": 0,
+      "seconds": 1.8169945720001124,
+      "direct_wait_pid": 733367,
+      "owned_pid_starttime": {
+        "733367": "3851146"
+      },
+      "owned_empty_twice": true,
+      "inputs_same": true
+    }
+  },
+  "original_failure_preserved": {
+    "manifest": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/manifest.json",
+      "bytes": 1309,
+      "sha256": "039dc5f8fbe2d81ba2864fd1e2f035749ecf918e0ffaeb07c7e02441668a988f"
+    },
+    "raw": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/raw.log",
+      "bytes": 6315,
+      "sha256": "3f2886ac7f75d0693c5d3c37d8b0b2c0582795f5fc2e0e7d94f500fa2c16bfb5"
+    },
+    "result": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/result.json",
+      "bytes": 31029,
+      "sha256": "174d380d6f8255da16f8414832c0a4c949763db08c9cdf3e21324227981bd22f"
+    }
+  },
+  "limitations": [
+    "No checks rerun by reviewer; no --list, browser or resources.",
+    "Original auditread01 remains FAIL with no observed activeElement; no new actual focus/zero-request/schema/client result.",
+    "Config/schema/protocol/product/assets unchanged by this single test correction; final runtime input manifests must bind source-v02 separately."
+  ],
+  "refs": {
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/freeze.json": {
+      "sha256": "a2a13a51d676d241c563d778d690fc0e73b87fb781fa3e46cf4f15f8b27a0027",
+      "bytes": 3766
+    },
+    "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts": {
+      "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f",
+      "bytes": 67892
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/before.spec.ts": {
+      "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2",
+      "bytes": 67793
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/after.spec.ts": {
+      "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f",
+      "bytes": 67892
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/delta.patch": {
+      "sha256": "fea0465a2467f6ff317bdf1d706023d36789da50bbd2b04482b4e7426a53d9bb",
+      "bytes": 520
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/checks.json": {
+      "sha256": "b2823fbaaf0b762c78210ffc8b0534703d1cae4a2ac6e7e7c3fb8517a605f694",
+      "bytes": 3012
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/inputs.json": {
+      "sha256": "8efc399ba08f763b84b55b977338f3e1347a574b0d46d1b54da438fdc942af3f",
+      "bytes": 1596
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/handoff.md": {
+      "sha256": "44c7ed98ff4c1ac6ff032d245b68c657a92150efa4d6cafa9abf680c11413b62",
+      "bytes": 1044
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/freeze.json": {
+      "sha256": "1a1a35b4f1f4b39a5fb26b3e3b30d56f639d36b3eb96086d3382ea537984d3f8",
+      "bytes": 6515
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/provenance.json": {
+      "sha256": "96707fcc2304b31e51e64218c949b88accaf8e314a88f1014e7bed6beae1017b",
+      "bytes": 2666
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/browser-tools.json": {
+      "sha256": "f4e33640408959d148b2fa7960249dbc0545ea5ed29bafc566348ce880dcf8f2",
+      "bytes": 36382
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/run-browser-offline.py": {
+      "sha256": "0217f8a4b4d73fac740b5f060da10840ee9e5dd1ffdc7fd0551bd7f3898cf0f9",
+      "bytes": 3816
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/freeze.json": {
+      "sha256": "ee7eb7aa4a01863c47176d78e8455e37f349809147256c0de86e65a9900d476c",
+      "bytes": 3153
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/manifest.json": {
+      "sha256": "039dc5f8fbe2d81ba2864fd1e2f035749ecf918e0ffaeb07c7e02441668a988f",
+      "bytes": 1309
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/raw.log": {
+      "sha256": "3f2886ac7f75d0693c5d3c37d8b0b2c0582795f5fc2e0e7d94f500fa2c16bfb5",
+      "bytes": 6315
+    },
+    "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/result.json": {
+      "sha256": "174d380d6f8255da16f8414832c0a4c949763db08c9cdf3e21324227981bd22f",
+      "bytes": 31029
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/proposed.patch": {
+      "sha256": "fea0465a2467f6ff317bdf1d706023d36789da50bbd2b04482b4e7426a53d9bb",
+      "bytes": 520
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/inputs.json": {
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843",
+      "bytes": 1596
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-format01/command.json": {
+      "sha256": "41b777db4dbd2737590a7950e5b8cfc6c69bc6fbb3ab60f562b2f219ce750ff2",
+      "bytes": 325
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-format01/inputs-before.json": {
+      "sha256": "8efc399ba08f763b84b55b977338f3e1347a574b0d46d1b54da438fdc942af3f",
+      "bytes": 1596
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-format01/inputs-after.json": {
+      "sha256": "8efc399ba08f763b84b55b977338f3e1347a574b0d46d1b54da438fdc942af3f",
+      "bytes": 1596
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-format01/raw.log": {
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "bytes": 66
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-format01/result.json": {
+      "sha256": "8f5f1ddcc01902f18b566be69e7b3c36aac898cd6ac430a06a747ea93b407fbb",
+      "bytes": 252
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-types01/command.json": {
+      "sha256": "281fdc479d672bc41c9e29564014d35fd43a503214c133b729ef9d938edd3430",
+      "bytes": 593
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-types01/inputs-before.json": {
+      "sha256": "8efc399ba08f763b84b55b977338f3e1347a574b0d46d1b54da438fdc942af3f",
+      "bytes": 1596
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-types01/inputs-after.json": {
+      "sha256": "8efc399ba08f763b84b55b977338f3e1347a574b0d46d1b54da438fdc942af3f",
+      "bytes": 1596
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-types01/raw.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/workspace/scratch/project-owner-audit-ui-frontend/source-v02-types01/result.json": {
+      "sha256": "428d722c2f7ce9398eb23566a8537b61f37698f46213303a38917c1293dacead",
+      "bytes": 252
+    }
+  }
+}

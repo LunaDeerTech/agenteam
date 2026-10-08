@@ -1,0 +1,236 @@
+{
+  "state": "INDEPENDENT_REAL_LEGACY_SYSTEM_AUDIT_PASS_FULLY_OWNED_RETIRED_STOP",
+  "report": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/aud-system01-result/report.md",
+    "bytes": 1372,
+    "sha256": "ffbabc98b7713169bb7ca9dd265cc5ff78e1146bdda8ec62ed71df5ea02ae136"
+  },
+  "grant": {
+    "path": "/workspace/scratch/project-audit-ui-root-grants/aud-system01.json",
+    "bytes": 51698,
+    "sha256": "979d4388b085d0c368ca6d4e657871f1af6cd36b9c019e11ba8d442c0ad10481"
+  },
+  "tool_terminal": {
+    "session_id": 79299,
+    "initial_chunk": "a256cf",
+    "terminal_chunk": "bb789c",
+    "actual_exit": 0,
+    "tool_stdout_truncated_only": true
+  },
+  "summary": {
+    "top_seconds": 16.34,
+    "browser_seconds": 11.3,
+    "fixture_command_seconds": 67.2,
+    "actual_direct_wait": true,
+    "adopted_actual_waits": 4,
+    "observed_processes": 99,
+    "resources": [
+      "164942cdf6bc8d2626e23e71068e2fea0967156242e8ff5323dbfaf5bd5e9400",
+      "65056d48da02bd2cd35cbb558639fe8fe10936986ab71ddc28019a7d276fb46e",
+      "72e2d581e3adf9b2134c1bb01af15e5fc0b18f0f27bab4c31b05705b381cdc92",
+      "8a8b9072d96208622492d77c53c2a3b2b17a09dd955d4640780847b77ec87cbf",
+      "ebd9aed06e13aaffea4595c0125f42cf5b2dd1fa31ad5ef8b186ff54adcd452e",
+      "f0d740c117fcbaa8997bca5065a37894e3ca00117782bd3d91bdb5681991eb01",
+      "f8c43dc08c01a0fe1705270f014a1f972a5e33922513ffa9d2190509af8b8d6e"
+    ],
+    "kinds": {
+      "container": 4,
+      "network": 3
+    },
+    "double_cleanup": true,
+    "watchdog_joined": true,
+    "input_count": 1185,
+    "input_digest": "397114bec3d7de41c9b6682fad355ca7b902ca655b385a9cdd3a205615e233c1",
+    "inputs_same": true,
+    "TCP_seconds": 39.369654841997544,
+    "TCP_last_two": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T16:49:46.937942+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T16:49:47.141953+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "new_nonowned_not_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1034958,
+        "ppid": 1,
+        "starttime": "4795866",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1035482,
+        "ppid": 1,
+        "starttime": "4796275",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1035753,
+        "ppid": 1,
+        "starttime": "4796470",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1036351,
+        "ppid": 1,
+        "starttime": "4796648",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "runc",
+        "pid": 1042862,
+        "ppid": 608,
+        "starttime": "4802186",
+        "state": "R"
+      },
+      {
+        "executable": "",
+        "name": "runc:[2:INIT]",
+        "pid": 1042880,
+        "ppid": 1042862,
+        "starttime": "4802187",
+        "state": "R"
+      }
+    ],
+    "Project_Audit_schema_client_counts": "not produced by this legacy top",
+    "monitor_errors": 0,
+    "forced_tail_actions": 0
+  },
+  "originals": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/adopted-waits.json",
+      "bytes": 579,
+      "sha256": "131b93c4e8718a4f6d16e019dbbb71236e1581ff797758bb503c60384a55ac85"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/cleanup.json",
+      "bytes": 106915,
+      "sha256": "123ae93864663e9475c3cda53db398bf67cec3d9a6fdb87fbaa9887a99c6ac12"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/command.json",
+      "bytes": 3072,
+      "sha256": "79aa13cf247ca35243e002d399c5d405dd65c7358dccc56c8bf13b5e373863d8"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/disk-before-spawn.json",
+      "bytes": 201,
+      "sha256": "ec627d094227ac4ce2a3a4cac6f37d5c215303922b4be8bf22f66b1782335acc"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/disk-preflight.json",
+      "bytes": 201,
+      "sha256": "7c6d5e969ac607174b01cf240fd367c5c54153d552b337dc1922461e95572885"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/driver.py.txt",
+      "bytes": 38324,
+      "sha256": "e893600b3e8fbeb832169b0705544b9977a6f6f6f08d4f49e89b6f0877df3d37"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/frozen-input.json",
+      "bytes": 51698,
+      "sha256": "979d4388b085d0c368ca6d4e657871f1af6cd36b9c019e11ba8d442c0ad10481"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/input-after.json",
+      "bytes": 815,
+      "sha256": "058b2a3fedbb9354e1586da9d3d1ba598bfbf58653f1f4d01c3c4705d6b4809a"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/input-before.json",
+      "bytes": 815,
+      "sha256": "058b2a3fedbb9354e1586da9d3d1ba598bfbf58653f1f4d01c3c4705d6b4809a"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/observed-processes.json",
+      "bytes": 16420,
+      "sha256": "f7b69ddb7de3b318ff6b3f0b7c23469aaaa1ba361771d32ca39ce3acf272fb8b"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/observed-resources.json",
+      "bytes": 5143,
+      "sha256": "996edda073e51d6ca42e21aa95c4197443466e246d08da5874df5210c7ee9156"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/process-baseline.json",
+      "bytes": 41545,
+      "sha256": "f3f2cd3eb8500552d823965700a64b41fc7808540a272a332ce939bb018bd1a9"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/raw.log",
+      "bytes": 4144,
+      "sha256": "2daa1afd52a069a7d739d8460dda918351d30d01f17a2c5bf98a48fa0c5c95df"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/result.json",
+      "bytes": 49863,
+      "sha256": "d2fd4e054f1a733d3c0eb87fe39f172d2ef4993265d2430c9f180d1cc4bc1cd5"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/tcp-baseline.json",
+      "bytes": 1731,
+      "sha256": "c640d212cfc942e74a91835cc2551fc1bae39810e37d95820aa44bc62c0e004f"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/tcp-observed-delta.json",
+      "bytes": 12253,
+      "sha256": "ca5c0ed1a0eb83c716e101de33606a8b41d5fd45ecf79b249809afeee7ddabf8"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/tcp-tail-observation.json",
+      "bytes": 202758,
+      "sha256": "ec74016fcdc3d84e007618b629825d6ea05bf76f28730a17af7438c7aa507afc"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/verification-input.json",
+      "bytes": 183,
+      "sha256": "01f376b6a76cbb5e69b7430433206a161733e514a7bb66eb24a2af5013d9eff7"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/watchdog.json",
+      "bytes": 547,
+      "sha256": "b59a296cc439f4e3253fdc2d41ea390a98f239c9d69536193117cc72017d8b88"
+    }
+  ]
+}

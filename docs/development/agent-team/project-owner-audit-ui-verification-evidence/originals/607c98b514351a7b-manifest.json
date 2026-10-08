@@ -1,0 +1,132 @@
+{
+  "core_refs": {
+    "cleanup.json": {
+      "bytes": 89605,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/cleanup.json",
+      "sha256": "d235a769c5f7578456c20a1c3405f5f914bfe757d7ff008d09dd8577cae290dd"
+    },
+    "raw.log": {
+      "bytes": 4109,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/raw.log",
+      "sha256": "13c34104fbd4478b6b6edda637133ff8fea5a6114d11ece353fd14ecfcf984e9"
+    },
+    "result.json": {
+      "bytes": 41663,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/result.json",
+      "sha256": "978f798204f05fdd18d98f265c25d0bcb6caa2d25e61256a985900635d21441d"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 71900,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-tail-observation.json",
+      "sha256": "d97f1ed5ba6183b577e5732f14e0d80adfd409e5b1b935a477e68a09d260c2ee"
+    }
+  },
+  "handoff": {
+    "bytes": 8026,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/handoff.json",
+    "sha256": "bab99266c530ac7d5e5d1ef50701329d5e1a935426f45174aa4917418414f47e"
+  },
+  "original_artifact_count": 24,
+  "original_artifacts": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "ac47eaf6cc7d3633fe7450c3ac44359ba79f325ff7f552ac23e60d81f2111903"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 89605,
+      "sha256": "d235a769c5f7578456c20a1c3405f5f914bfe757d7ff008d09dd8577cae290dd"
+    },
+    "command.json": {
+      "bytes": 3010,
+      "sha256": "b57ee6b1b99a2a6ef5bb12702d1e91b50cc0c672f765ce3d46be3673829d02ff"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 191,
+      "sha256": "b1128127500463aadbd56c4e443e6fb581b3faf8cebfdc9a0af0baaaec57759b"
+    },
+    "disk-preflight.json": {
+      "bytes": 191,
+      "sha256": "cdf2916d10f37b7b5a16cbfa06b063958c1bb874393afb28e83bf15b8c1c184a"
+    },
+    "driver.py.txt": {
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    "frozen-input.json": {
+      "bytes": 47710,
+      "sha256": "385ca388f7213c65690aabcff910d28e7573b6fec41a2462228bfb35402acf4b"
+    },
+    "input-after.json": {
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "input-before.json": {
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 15461,
+      "sha256": "baed53b4a91e12d3648ab6580e940d5920421a51e9ce6180477c6166008cf1b8"
+    },
+    "observed-resources.json": {
+      "bytes": 5095,
+      "sha256": "04a65ac97df9ef922d500ea80dc3892e6f6f2838b0ee3ae87c49bdbb44f63f1c"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 34943,
+      "sha256": "3473acdee908efca99f73e10f8fbd19ebb3787202ed636f78622b63aa8637802"
+    },
+    "raw.log": {
+      "bytes": 4109,
+      "sha256": "13c34104fbd4478b6b6edda637133ff8fea5a6114d11ece353fd14ecfcf984e9"
+    },
+    "result.json": {
+      "bytes": 41663,
+      "sha256": "978f798204f05fdd18d98f265c25d0bcb6caa2d25e61256a985900635d21441d"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "bfbfc7febc9d7b56535a785171a8067e9ebd642af67701c8fda9963cd240c286"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 5755,
+      "sha256": "c5fd4d6b795bf963ac85f207ea87a7134f6313f1a457a1389bf8e207d19ee9e9"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 71900,
+      "sha256": "d97f1ed5ba6183b577e5732f14e0d80adfd409e5b1b935a477e68a09d260c2ee"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "6b2f9cecdba3f0162cd4a33a5ead33bd9b45d6ab50f4d25f0e17c0ea2bfc26ea"
+    },
+    "watchdog.json": {
+      "bytes": 540,
+      "sha256": "53f3885272ba0ff39d2cc5b7e71aaedf68315c1a6174d796951b093b111615c5"
+    }
+  },
+  "original_root": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01",
+  "resources_or_checks_started_during_sealing": false,
+  "run": "oldauthlife01",
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP"
+}

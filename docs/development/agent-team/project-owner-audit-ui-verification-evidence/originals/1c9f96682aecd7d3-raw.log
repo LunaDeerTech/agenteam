@@ -1,0 +1,71 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit.spec.ts src/tests/project-workspace.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/project-audit.spec.ts (30 tests | 3 failed) 2037ms
+     × rejects raw route /owner/demo/settings/audit?cursor=x before Owner or Audit fetching 16ms
+     × enters detail with an independent GET, safe fixed labels and focus, then restores the original row without refetch 99ms
+     × handles Project parameter navigation while clearing old rows and filters 186ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/project-audit.spec.ts > production App/Owner/Audit route composition > rejects raw route /owner/demo/settings/audit?cursor=x before Owner or Audit fetching
+AssertionError: expected [ [ …(2) ], [ …(2) ] ] to have a length of +0 but got 2
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ src/tests/project-audit.spec.ts:370:86
+    368|     const f = await app(path)
+    369|     expect(f.wrapper.findComponent(ProjectAuditView).exists()).toBe(fa…
+    370|     expect(f.fetch.mock.calls.filter(([url]) => url.startsWith('/api/v…
+       |                                                                                      ^
+    371|   })
+    372|   it.each(['archiving', 'archived'] as const)(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/tests/project-audit.spec.ts > production App/Owner/Audit route composition > enters detail with an independent GET, safe fixed labels and focus, then restores the original row without refetch
+AssertionError: expected '审计详情返回列表处理中已完成重新读取详情处理中已完成!审计详情读取失败审计…' to contain '9007199254740993'
+
+Expected: "9007199254740993"
+Received: "审计详情返回列表处理中已完成重新读取详情处理中已完成!审计详情读取失败审计响应无法确认，请重新读取。"
+
+ ❯ src/tests/project-audit.spec.ts:437:86
+    435|     expect(f.wrapper.find('form[aria-label="项目审计筛选"]').exists()).toBe(…
+    436|     expect(document.activeElement).toBe(document.getElementById('proje…
+    437|     expect(f.wrapper.get('[aria-labelledby="project-audit-detail-headi…
+       |                                                                                      ^
+    438|       '9007199254740993',
+    439|     )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/tests/project-audit.spec.ts > production App/Owner/Audit route composition > handles Project parameter navigation while clearing old rows and filters
+AssertionError: expected '审计详情返回列表处理中已完成重新读取详情处理中已完成!审计详情读取失败审计…' to contain '01970000-0000-7000-8000-00000000000b'
+
+Expected: "01970000-0000-7000-8000-00000000000b"
+Received: "审计详情返回列表处理中已完成重新读取详情处理中已完成!审计详情读取失败审计响应无法确认，请重新读取。"
+
+ ❯ src/tests/project-audit.spec.ts:497:86
+    495|     expect(f.reads().at(-1)![0]).toBe(`/api/v1/projects/${id(11)}/audi…
+    496|     await click(detailButton())
+    497|     expect(f.wrapper.get('[aria-labelledby="project-audit-detail-headi…
+       |                                                                                      ^
+    498|       id(11),
+    499|     )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  3 failed | 43 passed (46)
+   Start at  12:18:57
+   Duration  4.99s (transform 3.52s, setup 0ms, import 3.63s, tests 3.63s, environment 1.23s)
+

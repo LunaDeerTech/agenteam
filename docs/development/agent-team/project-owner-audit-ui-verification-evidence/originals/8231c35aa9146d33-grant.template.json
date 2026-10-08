@@ -1,0 +1,19 @@
+{
+  "model_sources": [
+    {
+      "bytes": 5611,
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "bytes": 16692,
+      "path": "/workspace/agenteam/internal/central/model/platform_embedding_resolution_test.go",
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    }
+  ],
+  "name": "d1-probe01",
+  "permitted_case": "D1_PROXY_COMPLETION_ONLY",
+  "prepared_freeze_sha256": null,
+  "root_authorized": false,
+  "status": "PREPARED_FINAL_MODEL_BOUND_BUT_ROOT_EXECUTION_NOT_GRANTED"
+}

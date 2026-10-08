@@ -1,0 +1,249 @@
+{
+  "status": "D1_CONTROLLED_RESULT_INDEPENDENT_PASS_STOP",
+  "reviewed_at_utc": "2026-10-08T13:07:52.468485+00:00",
+  "scope": "Independent frozen-result review only; no test/runner/resource rerun or repeated source review",
+  "result_freeze": {
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/freeze.result.json",
+    "bytes": 1463,
+    "sha256": "284da213a9425eee85c73c6ccd2ae2c135003598c27c2e1a47a1ee56a81b962c"
+  },
+  "verified_result_references": {
+    "handoff": {
+      "bytes": 1035,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/handoff.md",
+      "sha256": "0e94f23a1aefc1e99350436e408eabfd1086de83fbd4340cdf742b8e3978e450"
+    },
+    "meta": {
+      "bytes": 26846,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/meta.json",
+      "sha256": "888e738c2c2d6a80ef61b6a7836f563702762538cb9cc9f49f5aa330b195d3f0"
+    },
+    "prepared_overlay02": {
+      "bytes": 4109,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/freeze.json",
+      "sha256": "c4d20052ea85753cac53496e8db9a865292a1404f923f14d74c0eeaa9887f128"
+    },
+    "raw": {
+      "bytes": 4587,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/raw",
+      "sha256": "778a303a8f8bdfbd22733a7dae74c9f4c1e5a0ec0fee45f1e07b12acccd17ce3"
+    },
+    "result": {
+      "bytes": 4908,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/handoff.json",
+      "sha256": "18f6670e01e39f61c3d6d51fbfdb38c127ff75a5bcf755ea488d76475628cf25"
+    },
+    "root_grant": {
+      "bytes": 695,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/grant.root-d1-probe01.json",
+      "sha256": "a36b53234894db62ee3d8ab61542b4affd6d6ad6e78dd6cc1e5135b0cbdc77a2"
+    }
+  },
+  "prepared_independent_review": {
+    "path": "/workspace/scratch/architecture-audit-d1-overlay02-review/review.md",
+    "bytes": 1443,
+    "sha256": "6baaecb42bcd55f246c27325a9bb6bed6305aa3bece6366d04704091ad669a0f"
+  },
+  "candidate03_independent_source_review": {
+    "path": "/workspace/scratch/architecture-audit-go-candidate03-review/review.md",
+    "bytes": 2168,
+    "sha256": "b9f2d99fc5fc5575c0a9c354120e864b17852d5ac3bd77069ba3b75c6ef06630"
+  },
+  "binding_checks": {
+    "result_freeze_sha_matches_root_handoff": true,
+    "all_six_result_freeze_references_hash_and_size_match": true,
+    "prepared_freeze_exactly_matches_accepted_overlay02": true,
+    "all_nine_prepared_files_hash_and_size_match": true,
+    "root_true_grant_binds_only_d1_probe01_and_exact_prepared_freeze": true,
+    "final_model_refs_identical_in_grant_prepared_meta_and_handoff": true,
+    "fixed_race_offline_argv_one_top_and_inner_timeout_30s": true,
+    "meta_raw_digest_and_handoff_digests_match_originals": true
+  },
+  "actual_raw_checks": {
+    "one_expected_top_exactly_once": true,
+    "five_expected_subtests_each_RUN_and_PASS_exactly_once": true,
+    "all_13_phase_values_independently_parsed_and_match_expected_and_handoff": true,
+    "request_handler_join_count": 8,
+    "seven_normal_returns_one_actual_ErrAbortHandler_unwind": true,
+    "every_join_upstream_eof_true": true,
+    "real_evidence_path_ENOTDIR_recorded": true,
+    "no_SKIP_FAIL_or_race_warning": true,
+    "package_PASS_seconds": 1.059
+  },
+  "phases": [
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "hold_consumed"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "callback_returned_write_blocked"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "actual_handler_returned"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "ctx_done_error_handler_blocked"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "cancelled_handler_returned"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        2,
+        1
+      ],
+      "phase": "unheld_B_cannot_complete_A"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "phase": "A_joined_before_next_arm"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        2,
+        1,
+        4,
+        3
+      ],
+      "phase": "old_context_and_D_cannot_complete_C_write"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "phase": "C_actual_join"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "hold_marked_save_failed_outlet_blocked"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "evidence_failure_actual_join"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "write_error_not_returned_yet"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "abort_handler_unwind_joined"
+    }
+  ],
+  "retirement_and_budget": {
+    "elapsed_seconds_including_driver_retirement": 9.53743332799786,
+    "command_budget_seconds": 45,
+    "execution_deadline_seconds": 42,
+    "direct_pid_starttime": [
+      673005,
+      3438243
+    ],
+    "actual_wait": [
+      {
+        "pid": 673005,
+        "status": 0,
+        "exit": 0,
+        "direct": true
+      }
+    ],
+    "observed_owned_identity_count": 6,
+    "observed_owned_identities_disjoint_from_baseline": true,
+    "owned_empty": [
+      [],
+      []
+    ],
+    "tmp_entries": [],
+    "watchdog": "synchronous owner loop returned; no watcher thread/process",
+    "direct_exit": 0,
+    "timed_out": false,
+    "error": null,
+    "interruption": null
+  },
+  "inputs_before": {
+    "count": 911,
+    "sha256": "c3806a07e3ed234cb9fd36e1175178050da2a34d2c5552fd1fce9ae5887c149b"
+  },
+  "inputs_after": {
+    "count": 911,
+    "sha256": "c3806a07e3ed234cb9fd36e1175178050da2a34d2c5552fd1fce9ae5887c149b"
+  },
+  "changed_inputs": [],
+  "input_evidence_boundary": "Accepted immutable runner fingerprints 911 fixed inputs before/after. This review verifies frozen equality and exact reviewed-source/grant bindings; it does not reread all live repository inputs.",
+  "further_execution_authorized": false,
+  "reviewer_executed_go_runner_binary_list_resources_or_git": false,
+  "reviewer_repository_or_candidate_writes": false,
+  "defects": [],
+  "acceptance_boundary": "D1 private in-memory proxy completion and arm boundary only. No listener, business fixture, API/schema/client/permission/producer, browser/dist, or resource acceptance."
+}

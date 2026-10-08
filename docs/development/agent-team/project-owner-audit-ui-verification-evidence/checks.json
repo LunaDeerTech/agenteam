@@ -1,0 +1,214 @@
+{
+  "state": "FINAL22_DOCUMENT_INCREMENT_PASS",
+  "created_utc": "2026-10-08T16:12:39.132188+00:00",
+  "scope": {
+    "logical_original_files": 1505,
+    "logical_original_bytes": 16602083,
+    "new_original_entities": 1239,
+    "new_original_bytes": 14334475,
+    "prior_permanent_entities_reused": 5,
+    "prior_permanent_bytes_reused": 5191,
+    "six_actual_run_originals": 420,
+    "six_actual_run_original_bytes": 4006463,
+    "PNG_originals": 16,
+    "fourteen_added_manifest_bound_run_originals": 602,
+    "fourteen_added_manifest_bound_run_bytes": 8317651,
+    "old_ten_originals": 363,
+    "old_ten_original_bytes": 5926307,
+    "independent_four_originals": 239,
+    "independent_four_original_bytes": 2391344,
+    "new_Project_Audit_navigation_PNGs": 8,
+    "old_System_Audit_PNGs_no_visual_review": 8
+  },
+  "selected_source_archive_bytes_and_SHA256_equal": true,
+  "original_JSON_items_parsed": 1321,
+  "PNG_headers_checked": 8,
+  "new_visual_inspection": false,
+  "six_run_directory_file_counts": [
+    {
+      "name": "auditread01",
+      "directory": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01",
+      "files": 57,
+      "bytes": 489490,
+      "manifest_sha256": "039dc5f8fbe2d81ba2864fd1e2f035749ecf918e0ffaeb07c7e02441668a988f",
+      "separate_launch_directory": false,
+      "launch_boundary": "Author driver was directly launched through the tool; no synthetic outer launch evidence."
+    },
+    {
+      "name": "auditread02",
+      "directory": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02",
+      "files": 62,
+      "bytes": 521993,
+      "manifest_sha256": "4133d4e2161c8259862a40e3b5478593f81403ca3c0040dd25e7f1eec593e2a0",
+      "separate_launch_directory": false,
+      "launch_boundary": "Author driver was directly launched through the tool; no synthetic outer launch evidence."
+    },
+    {
+      "name": "auditauthority01",
+      "directory": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01",
+      "files": 94,
+      "bytes": 630861,
+      "manifest_sha256": "975b3b344856c15f1058b04cadb64d77df83643d61e471f03ca17cd199a7f964",
+      "separate_launch_directory": false,
+      "launch_boundary": "Author driver was directly launched through the tool; no synthetic outer launch evidence."
+    },
+    {
+      "name": "auditauthority02",
+      "directory": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02",
+      "files": 105,
+      "bytes": 672947,
+      "manifest_sha256": "0a344ac6472ddd09477db21a97344a1625826b61b65ee564cc01159e12fc2541",
+      "separate_launch_directory": false,
+      "launch_boundary": "Author driver was directly launched through the tool; no synthetic outer launch evidence."
+    },
+    {
+      "name": "auditnav01",
+      "directory": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01",
+      "files": 32,
+      "bytes": 497838,
+      "manifest_sha256": "0d98d13aabc4e495ee9322dcb3bda14d254d7519f1c14a1ec6e100dc5f09ee6c",
+      "separate_launch_directory": false,
+      "launch_boundary": "Author driver was directly launched through the tool; no synthetic outer launch evidence."
+    },
+    {
+      "name": "auditnav02",
+      "directory": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02",
+      "files": 70,
+      "bytes": 1193334,
+      "manifest_sha256": "b36b349973262b4da07e10d88e19f45af2d9f9c217978dda209468e70dd38d29",
+      "separate_launch_directory": false,
+      "launch_boundary": "Author driver was directly launched through the tool; no synthetic outer launch evidence."
+    }
+  ],
+  "source_tree_or_source_graph_scan": false,
+  "technical_sources_reread": 0,
+  "active_old_rounds_or_independent_four_read": false,
+  "new_dynamic_Go_Node_Git_or_resource_execution": false,
+  "original_reports_not_rewritten": true,
+  "generated_UTF8_LF_no_trailing_space": true,
+  "pending": [],
+  "generated_report_local_links_checked": 48,
+  "updated_utc": "2026-10-08T17:20:25.658451+00:00",
+  "prior_base_checks": {
+    "checks_sha256": "e4fc0fd4a50c4cb49fa1991e712e20ff87b9b77d429870f00ac9d670b2c4877f",
+    "scope": {
+      "logical_original_files": 806,
+      "logical_original_bytes": 6313821,
+      "new_original_entities": 673,
+      "new_original_bytes": 5344482,
+      "prior_permanent_entities_reused": 5,
+      "prior_permanent_bytes_reused": 5191,
+      "six_actual_run_originals": 420,
+      "six_actual_run_original_bytes": 4006463,
+      "PNG_originals": 8
+    },
+    "old_673_entities_not_reread": true,
+    "old_checks_inherited_from_root_acceptance": true
+  },
+  "append_only": {
+    "new_logical_originals": 686,
+    "new_copied_entities": 553,
+    "new_copied_bytes": 8570665,
+    "new_JSON_originals_parsed": 635,
+    "new_copy_source_archive_bytes_SHA256_equal": true,
+    "same_SHA_prior_entity_reuse_without_rescan": 14,
+    "old_ten_manifest_files": 363,
+    "old_ten_manifest_bytes": 5926307,
+    "independent_manifest_files": 239,
+    "independent_manifest_bytes": 2391344,
+    "legacy_SystemAudit_PNG_IHDR_checked": 8,
+    "visual_reviews": 0,
+    "prior_8_ProjectAudit_PNG_not_reread": true,
+    "root_grant_bytes_equal_corresponding_frozen_input": 14,
+    "source_rows_reused_without_source_scan": 21,
+    "report_only_inserted_after_H1": true,
+    "removing_insert_restores_c59ca559_exact_bytes": true,
+    "old_manifest_original_rows_unchanged": true,
+    "no_new_Git_technical_or_resource_check": true
+  },
+  "append_preparation_failure_preserved": {
+    "logical_id": "project-owner-audit-ui-archive01/append01/assembly-attempt01-failure.json",
+    "source_path": "/workspace/scratch/project-owner-audit-ui-archive01/append01/assembly-attempt01-failure.json",
+    "archive_path": "docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/c2388c792431cef7-assembly-attempt01-failure.json",
+    "sha256": "c2388c792431cef7f19955e2f27e9240cbc8ab72741fdb0dcc52e9669b84a688",
+    "bytes": 814,
+    "categories": [
+      "archive_preparation_original_failure"
+    ],
+    "handling": "original_bytes_preserved"
+  },
+  "final22_increment": {
+    "new_logical_originals": 13,
+    "new_entities": 13,
+    "new_original_bytes": 419328,
+    "all_new_source_archive_bytes_SHA256_equal": true,
+    "new_original_JSON_items_parsed": 9,
+    "old_1226_entities_and_old_source_tree_not_read": true,
+    "prior_1226_manifest_entries_and_1492_map_entries_unchanged": true,
+    "top_document_insertions": [
+      {
+        "before": {
+          "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification.md",
+          "bytes": 15848,
+          "sha256": "d817426b3eeef6922e43611710458662e7f59ab778be92406ae3d5e741abb9d0"
+        },
+        "after": {
+          "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification.md",
+          "bytes": 16943,
+          "sha256": "9b87d13473fe868fbacdf04aaaa08607558b7ecb64e274895783476a7aa367b0"
+        },
+        "change": "one insertion after original H1 and blank line",
+        "inserted_bytes": 1095,
+        "inserted_sha256": "0791efa296f9d02e6fd5d4ff54d3bb9b7b2ea76d47370ba6dc1af096fea22e04",
+        "exact_original_bytes_after_removing_insert": true
+      },
+      {
+        "before": {
+          "path": "/workspace/agenteam/docs/development/development-plan.md",
+          "bytes": 92069,
+          "sha256": "9e4bc45e6e0ee6d09bedc68e00ebea4e270adcce60c17e011de61f820d796e7c"
+        },
+        "after": {
+          "path": "/workspace/agenteam/docs/development/development-plan.md",
+          "bytes": 92715,
+          "sha256": "b9c767dd6a6d53672163e902a817e694f6e9410ab39a8b968fa0d89be4909ac9"
+        },
+        "change": "one insertion after original H1 and blank line",
+        "inserted_bytes": 646,
+        "inserted_sha256": "e7dd1f3fd549903f03f49a55ca4df486a628f08c85c40d7903fdf68d97558302",
+        "exact_original_bytes_after_removing_insert": true
+      },
+      {
+        "before": {
+          "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+          "bytes": 39298,
+          "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+        },
+        "after": {
+          "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+          "bytes": 39938,
+          "sha256": "9e7077a575d270b58ec43c217344a3781ef1b715be9a456ae594a457f9b3a6c1"
+        },
+        "change": "one insertion after original H1 and blank line",
+        "inserted_bytes": 640,
+        "inserted_sha256": "8abcb6c5cb3fee1fd5d2a849a3d7b8546e2a05d17ca57ecde757ebe7df192fcb",
+        "exact_original_bytes_after_removing_insert": true
+      }
+    ],
+    "added_plan_local_links": [
+      "work-items/d27-project-owner-audit-ui.md",
+      "agent-team/project-owner-audit-ui-verification.md"
+    ],
+    "added_card_local_links": [
+      "../agent-team/project-owner-audit-ui-verification.md"
+    ],
+    "README_unchanged": {
+      "path": "/workspace/agenteam/docs/development/frontend/README.md",
+      "bytes": 84744,
+      "sha256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e"
+    },
+    "original_report_inverse_d817_and_card_inverse12022902": true,
+    "original_patch_EOF_space_line_108_both_trailing_and_blank_at_EOF_registered": true,
+    "new_Git_technical_dynamic_or_resource_execution": false
+  }
+}

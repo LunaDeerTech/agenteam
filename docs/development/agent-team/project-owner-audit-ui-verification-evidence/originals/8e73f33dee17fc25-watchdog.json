@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 48198.915574312,
+      "top": "TestAccountProjectOwnerWebIdentityAndOwnership"
+    },
+    {
+      "event": "result",
+      "monotonic": 48217.594449352,
+      "observed_seconds": 18.678875040001003,
+      "reported_seconds": 18.66,
+      "state": "PASS",
+      "top": "TestAccountProjectOwnerWebIdentityAndOwnership"
+    }
+  ],
+  "expected": [
+    "TestAccountProjectOwnerWebIdentityAndOwnership"
+  ],
+  "failures": []
+}

@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit.spec.ts -t retires the pending native read for /owner/demo/settings/audit
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 48 skipped (49)
+   Start at  15:24:44
+   Duration  2.27s (transform 1.25s, setup 0ms, import 1.30s, tests 404ms, environment 434ms)
+

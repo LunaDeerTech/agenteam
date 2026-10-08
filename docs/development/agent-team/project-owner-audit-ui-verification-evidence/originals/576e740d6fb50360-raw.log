@@ -1,0 +1,38 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+audit-current403-navigation [{"method":"GET","path":"/api/v1/session","phase":"checking","personalPhase":"checking","route":"/system/audit"},{"method":"GET","path":"/api/v1/system/audit?limit=50","phase":"authenticated","personalPhase":"current","role":"admin","route":"/system/audit"}]
+ ❯ src/tests/system-audit.spec.ts (20 tests | 1 failed) 2205ms
+     × publishes no partial table for an invalid final row and explicitly retries a failed read without exposing Problem details 47ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-audit.spec.ts > Audit visible filters, complete inline observations and local focus > publishes no partial table for an invalid final row and explicitly retries a failed read without exposing Problem details
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/system-audit.spec.ts:697:44
+    695|     expect(f.wrapper.text()).toContain('系统审计读取失败')
+    696|     expect(f.wrapper.find('[aria-label="系统审计列表"]').exists()).toBe(fals…
+    697|     expect(f.wrapper.find('img').exists()).toBe(false)
+       |                                            ^
+    698|     f.setAudit(async () => problem())
+    699|     await click('重试读取')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 55 passed (56)
+      Tests  1 failed | 2265 passed (2266)
+   Start at  12:41:50
+   Duration  31.95s (transform 7.74s, setup 0ms, import 15.59s, tests 43.54s, environment 26.79s)
+

@@ -1,0 +1,353 @@
+{
+  "actual_grant_sha256": "7a4591f9ce0c1cc2b3441090c1b8e39f7e3275d50f6c3e0efb6660837342700c",
+  "browser_reported_seconds": 21.4,
+  "browser_result": {
+    "browser_audit_gets": 34,
+    "checks": {
+      "both_gets": true,
+      "cross_domain": true,
+      "cross_project": true,
+      "cut_reread": true,
+      "detail_cancel_join": true,
+      "detail_missing": true,
+      "failure_reread": true,
+      "formal_logout": true,
+      "late_isolated": true,
+      "life_gates": true,
+      "list_cancel_join": true,
+      "non_owner_hidden": true,
+      "owner_and_admin_owned": true,
+      "zero_mutations": true
+    },
+    "client_bodies": 34,
+    "completed": true,
+    "layouts": 0,
+    "mode": "authority",
+    "schema_bodies": 34
+  },
+  "driver_exit": 0,
+  "fixture_process_seconds": 79.398,
+  "group": "new-audit-authority",
+  "inputs_same": {
+    "actual_digest": "cc9030e9e9c0530126d76c48fa37ff8fe66c6e00ec22b83af6a0432d8c11ef43",
+    "captured_before_after_equal": true,
+    "files_count": 1179,
+    "legacy_global_dist_required": false,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "native_evidence": {
+    "body_hash_bytes_match_selected_original_sidecars": true,
+    "browser_classification": {
+      "controlled_failure": 0,
+      "incomplete": 13,
+      "problem": 12,
+      "success": 22
+    },
+    "browser_observation_count": 47,
+    "complete_explicit_formal_gate_probes": 10,
+    "complete_page_request_observations": 24,
+    "completed_detail_gets": 15,
+    "completed_list_gets": 19,
+    "completed_native_same_body_count": 34,
+    "completed_status_counts": {
+      "200": 22,
+      "401": 3,
+      "404": 5,
+      "409": 4
+    },
+    "controlled_wire": [
+      {
+        "path": "/api/v1/projects/01a11c0c-29ae-77f0-87b3-f3a7ef11ef79/audit/01a11c0c-2d27-7460-9a74-e2b6f928a827",
+        "query": "",
+        "reason": "one real detail GET directed to a missing Audit ID"
+      }
+    ],
+    "explicit_probe_boundary": "10 direct browser formal gate probes after the Owner page denies child access are separate from the 24 completed page request observations; preparation/control GETs are both zero. All 34 are actual browser EOF observations, not extra validation network calls.",
+    "method_counts": {
+      "GET": 47
+    },
+    "native_sidecars": 47,
+    "proxy_browser_dispatches": 47,
+    "same_body_boundary": "34 original bodies are validated by the recorded schema subprocess and replayed by the public client with no extra HTTP requests. 13 incomplete observations are excluded. Controlled wire detail target uses its actual recorded path/query.",
+    "source_counts": {
+      "browser": 47
+    },
+    "transfer_kind_counts": {
+      "cut": 2,
+      "failure": 2,
+      "forwarded": 38,
+      "hold": 5
+    },
+    "unique_complete_body_files": 23,
+    "unique_native_body_files": 23,
+    "upstream_status_counts": {
+      "200": 35,
+      "401": 3,
+      "404": 5,
+      "409": 4
+    }
+  },
+  "original_artifact_count": 103,
+  "proxy_retirement": {
+    "counts": {
+      "browser_command_lookups": 0,
+      "browser_detail_gets": 19,
+      "browser_list_gets": 28,
+      "browser_project_mutations": 0,
+      "control_audit_gets": 0,
+      "cuts": 2,
+      "failures": 2,
+      "held": 5,
+      "joined": 5,
+      "server_finished": 134,
+      "server_started": 134,
+      "session_failures": 0,
+      "setup_audit_gets": 0
+    },
+    "input_hash": "7a4591f9ce0c1cc2b3441090c1b8e39f7e3275d50f6c3e0efb6660837342700c",
+    "mode": "authority",
+    "observer_errors": 0,
+    "proxy_actual_join": true,
+    "scope": "proxy Serve/handlers only; root/preparation Store/guard remain owned by later LIFO cleanups and outer actual retirement evidence",
+    "test_failed_at_proxy_retirement": false
+  },
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/adopted-waits.json",
+      "sha256": "20a40c7c66220456618eff25fd7cba436686605867f240c554f0c35e7106b052"
+    },
+    "auxiliary-facts.json": {
+      "bytes": 1327,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/auxiliary-facts.json",
+      "sha256": "a982d96df1c19be6cbfcd8ba7c946013fbd3648a2c9ccce9a85cedfbde666719"
+    },
+    "browser-observations.json": {
+      "bytes": 19201,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/browser-observations.json",
+      "sha256": "67d45f4e09f70cc226f60ff3dfdb66090305579f233cbea353af1a1b5db0c3fa"
+    },
+    "browser-result.json": {
+      "bytes": 427,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/browser-result.json",
+      "sha256": "9a3200d050b867d347884526089f03a57b87fbb50490f127f18afa838cfce539"
+    },
+    "cleanup.json": {
+      "bytes": 79273,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/cleanup.json",
+      "sha256": "ec35ec0c9ccfd21d87cad98dfd1de22a10d9ecebbe797aa625f3c2426cc02eab"
+    },
+    "command.json": {
+      "bytes": 3035,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/command.json",
+      "sha256": "9ce46a8c93c6882ece36dd88b82602d83420e8e396933bc776a9b25da513552a"
+    },
+    "explicit-browser-probes.json": {
+      "bytes": 1103,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/explicit-browser-probes.json",
+      "sha256": "84831b0f12b9d4157ac0885ab582fac9de5bccd323fae352216746de2b6c6ae9"
+    },
+    "go-facts.json": {
+      "bytes": 785,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/go-facts.json",
+      "sha256": "b86f472f7e8493b1c63a9b25fbab5a696c9934343a1ca953f42b41bed8dfd82f"
+    },
+    "input-after.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/input-after.json",
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    "input-before.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/input-before.json",
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    "observed-resources.json": {
+      "bytes": 5113,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/observed-resources.json",
+      "sha256": "a365abf9505be1b48d84ae8893a75cbb514a24785cc3f42e43c8feccba21e3a9"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "proxy-retirement-facts.json": {
+      "bytes": 591,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/proxy-retirement-facts.json",
+      "sha256": "f21d00792652d25541b9d7509d33082baaa65b57934f84e68914dff226eb8357"
+    },
+    "raw.log": {
+      "bytes": 4866,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/raw.log",
+      "sha256": "8609935568eb1c4ad12c07ee0e8043b0ef6488f1e8eebce74d1b791bd0621c42"
+    },
+    "result.json": {
+      "bytes": 36999,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/result.json",
+      "sha256": "2b26772c4ed8b1ed2fd7610ccf4a1a0914c009848725e549a99a33a3d47cc047"
+    },
+    "same-body-input.json": {
+      "bytes": 6095,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/same-body-input.json",
+      "sha256": "3fcefbaedc7d4ba22017727aeaeb251ea1aada0c35ce81cc8aba26483b9bd401"
+    },
+    "schema-validation.json": {
+      "bytes": 76,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/schema-validation.json",
+      "sha256": "74b9faf50a4a76fcba8e7d758ce0c6062459ce41e20cecfbbea54b6e8a4ad3fc"
+    },
+    "seed-facts.json": {
+      "bytes": 844,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/seed-facts.json",
+      "sha256": "07f6ef8f935c93f154e8d8da5407df0bd6b7e02007b57e73d5c4fbc0ed0947c3"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 254347,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/tcp-tail-observation.json",
+      "sha256": "d5df04a1c9f121f649f392c5d5452e1f31a5af0f814d7ba4f111078e7530150d"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/verification-input.json",
+      "sha256": "26c96e213f4765b08cab5bfdd8d5355d8a90828ab4eb4595fec141fe722c4c88"
+    },
+    "watchdog.json": {
+      "bytes": 561,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/watchdog.json",
+      "sha256": "1a3bd429468c7f105895f45aefe92684a15bf2f209fa050e48ab6817f8eb38cb"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 15,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:06:06.567862+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:06:07.268857+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "0c89ef8f0a4e4011ce237f60e313731617b3b1be714f3032a0317895986fbbd2": {
+        "kind": "container",
+        "name": "/agenteam-d03-3dc07653750ac95ca388cef8e700d5d3"
+      },
+      "268e8c51807e396c332e9f0cd4a0dafcfed0754aa2b218bb0d07688881589010": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-1d7f6664ab8bf4bd92ddbd11351c2cf7"
+      },
+      "4c6a52285c4a473ed46633a99cf7bfa1d25740402f9aa988e52e362ea73a03a8": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-2e5b9dcbdd9e1c084874851c6b967aa0"
+      },
+      "6cbb20e4a22652cec175378ef086a355f680797e690e270bb20629062c50f1c4": {
+        "kind": "network",
+        "name": "agenteam-d03-3dc07653750ac95ca388cef8e700d5d3"
+      },
+      "75b05f5e20791dc163bc6b91faf12e8e92864cca4a63a2556af0c3a494043a4d": {
+        "kind": "network",
+        "name": "agenteam-d05-object-2e5b9dcbdd9e1c084874851c6b967aa0"
+      },
+      "820ecfe09da968a26644be61f19496ab9ca459a3317fe315e48d02d668aa1288": {
+        "kind": "network",
+        "name": "agenteam-d04-net-1d7f6664ab8bf4bd92ddbd11351c2cf7"
+      },
+      "c9178ca66fc08352ac9c6e45027b6cf8ffb3da1578b67cd370f5065ddca67f08": {
+        "kind": "container",
+        "name": "/agenteam-d03-3dc07653750ac95ca388cef8e700d5d3-pg16"
+      }
+    },
+    "fixture_pid": 820084,
+    "fixture_pid_starttime": "4176169",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 820520,
+        "ppid": 1,
+        "starttime": "4176679",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 820986,
+        "ppid": 1,
+        "starttime": "4177059",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 821396,
+        "ppid": 1,
+        "starttime": "4177261",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 821896,
+        "ppid": 1,
+        "starttime": "4177451",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 100,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited. Historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 38.37813997100602,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "auditauthority02",
+  "schema_process_result": {
+    "failed_to_run": false,
+    "signal": null,
+    "status": 0,
+    "stderr": "",
+    "stdout": "34\n"
+  },
+  "scope": {
+    "actual_authority_source_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+    "independent_result_review_not_claimed": true,
+    "lifecycle_auxiliary_facts_do_not_bind_production_runtime": true,
+    "navigation_old_groups_in_this_round": false,
+    "old_read01_authority01_failures_unchanged": true,
+    "only_authority_case_in_this_round": true,
+    "read02_not_rerun": true
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_originals_retained": true,
+    "no_rerun_or_following_group_in_this_round": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "top": "TestAccountProjectOwnerAuditWebAuthorityAndRecovery",
+  "top_seconds": 28.44
+}

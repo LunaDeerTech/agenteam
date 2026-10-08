@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 45371.069664891,
+      "top": "TestAccountPersonalSettingsWebThemeAndNavigation"
+    },
+    {
+      "event": "result",
+      "monotonic": 45388.548118994,
+      "observed_seconds": 17.478454102994874,
+      "reported_seconds": 17.5,
+      "state": "PASS",
+      "top": "TestAccountPersonalSettingsWebThemeAndNavigation"
+    }
+  ],
+  "expected": [
+    "TestAccountPersonalSettingsWebThemeAndNavigation"
+  ],
+  "failures": []
+}

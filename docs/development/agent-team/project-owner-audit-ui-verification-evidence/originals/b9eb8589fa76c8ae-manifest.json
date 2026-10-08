@@ -1,0 +1,13 @@
+{
+  "source": {
+    "web/src/components/layout/ProjectNav.vue": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55",
+    "web/src/views/projects/ProjectSettingsView.vue": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069",
+    "web/src/router/index.ts": "f7069da17fe3f261c6dc82104f7c4330c43d35099b245449f50cc4aaacc88949",
+    "web/src/views/projects/ProjectAuditView.vue": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+    "web/src/tests/project-audit.spec.ts": "55790a06988273b9c7a40ff28e867b16f83ec15a2fd6bb6aaba3df2b0746842a",
+    "web/src/tests/project-workspace.spec.ts": "89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd"
+  },
+  "unit": "../view-unit01/result.json",
+  "types": "../view-types01/result.json",
+  "actual": "43/46 PASS; three failures retained: detail fixture wrongly parses full UUID as hex (2); named not-found drops raw query then App calls Owner Resolve/Get (1)."
+}

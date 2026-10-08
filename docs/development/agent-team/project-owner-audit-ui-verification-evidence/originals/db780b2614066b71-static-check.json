@@ -1,0 +1,55 @@
+{
+  "agreement": {
+    "bytes": 769,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/protocol-agreement.json",
+    "sha256": "3c8092b89748cbcfc7fc6a039111a5ecb71b6fa34d99514bd1ed12087677c3f8"
+  },
+  "changed_repository_paths": [
+    "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go"
+  ],
+  "defer_registered_before_reverse_proxy_call_and_hold_selection": true,
+  "freeze_metadata_first_attempt_failure": {
+    "bytes": 498,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze-attempt01.txt",
+    "sha256": "cfe655faf9dde58a3f10af460d1bd4e4c874be3a4a3b3d915160624eafceceda"
+  },
+  "go_compile_test_list_or_binary_run": false,
+  "gofmt_run": false,
+  "imports_unchanged": true,
+  "ipc_browser_snapshot_sidecar_auxiliary_and_prepare_service_seed_lifecycle_bytes_unchanged": true,
+  "model_dependency_rebind": "PENDING_FINAL_STOP; candidate02 PASS is historical",
+  "node_or_resources_or_network_or_git_run": false,
+  "only_joined_increment_in_per_request_api_handler_exit_defer": true,
+  "preserved_historical_artifacts": [
+    {
+      "bytes": 3683,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate02/freeze.json",
+      "sha256": "bda6ba898cf8643ee2fdef464bf5320905baa10094b120c0d37d362d469dbc33"
+    },
+    {
+      "bytes": 6142,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate02/checks.json",
+      "sha256": "80403b2be52c5a6622b2637bd4593ca6b255fc0731b55a5bcedf46e414f494ba"
+    },
+    {
+      "bytes": 4012,
+      "path": "/workspace/scratch/architecture-audit-go-candidate02-review/review.md",
+      "sha256": "313a16f8b7233212302b55636debc97c1458df3dbe09243466d7e6cd8146a8aa"
+    }
+  ],
+  "protocol": {
+    "bytes": 10909,
+    "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+    "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+  },
+  "release_or_ctx_done_does_not_increment_joined": true,
+  "status": "AUTHOR_FILE_ONLY_STATIC_PASS_NOT_GO_OR_DYNAMIC_VALIDATION",
+  "timing_validation": "PLANNED_ONLY",
+  "tops_budgets_and_control_arming_unchanged": true,
+  "unchanged_top_source": {
+    "bytes": 6289,
+    "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+    "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+  },
+  "unique_request_token_and_same_mutex_for_held_joined_server_finished": true
+}

@@ -1,0 +1,913 @@
+{
+  "status": "PASS_STOP_AUTHOR_LEGACY_TEN_ROUND_FINITE_COMBINATION",
+  "new_fifth_batch_details": [
+    {
+      "run": "oldsummaryauth01",
+      "status": "PASS_STOP_BOUNDED_ORIGINAL_REVIEW",
+      "root_hashes": {
+        "result": "64d3bc02daba84f00e25f17a13342e2d908c264172d6b8ea6be730a218763ef2",
+        "manifest": "30ff8246d57652ea9465d0ef5aad59e975d47a5551659eff87f05b4d54559713",
+        "handoff": "596b2e14e986be360d543122aef13b747121b5d27d3af5bcd6f9e474b8c1adb2"
+      },
+      "grant_sha256": "84bfa70bec4fb13c6bf5299a623c33763e74963034e346098c039e459d3f3efe",
+      "input_count": 1181,
+      "before_after_sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d",
+      "input_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+      "private59_matched": true,
+      "global_gate_required_authorized": false,
+      "raw_facts": {
+        "role_sql": "Owned auxiliary admin->user and user->admin fact preparation; not production role-management API",
+        "formal_flow": "bootstrap/invite/redeem/login/Logout",
+        "exclusions": "No generation/Invocation/production SPA claim"
+      },
+      "direct_fixture_actual_wait": {
+        "pid": 991320,
+        "starttime": "4700138",
+        "exit": 0
+      },
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 995986,
+          "starttime": "4703779",
+          "time": "2026-10-08T16:32:53.017527+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 995989,
+          "starttime": "4703779",
+          "time": "2026-10-08T16:32:53.017548+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 995990,
+          "starttime": "4703779",
+          "time": "2026-10-08T16:32:53.017566+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 995992,
+          "starttime": "4703779",
+          "time": "2026-10-08T16:32:53.017629+00:00"
+        }
+      ],
+      "observed_not_wait_count": 97,
+      "cleanup_times": [
+        "2026-10-08T16:33:15.074941+00:00",
+        "2026-10-08T16:33:15.768883+00:00"
+      ],
+      "owned_fixture_browser_runtime_double_empty": true,
+      "tcp_last_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:33:54.456145+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:33:54.660013+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "nonowned_originals": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 991745,
+          "ppid": 1,
+          "starttime": "4700615",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 992223,
+          "ppid": 1,
+          "starttime": "4701058",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 992589,
+          "ppid": 1,
+          "starttime": "4701289",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 993146,
+          "ppid": 1,
+          "starttime": "4701507",
+          "state": "Z"
+        }
+      ],
+      "root_tool_receipt": {
+        "session": 70335,
+        "exit": 0,
+        "scope": "Original root report, not this verifier personally waiting"
+      },
+      "safe_http_files": 0,
+      "screenshots": 0,
+      "new_project_audit_schema_client": 0
+    },
+    {
+      "run": "oldsmtpdelivery01",
+      "status": "PASS_STOP_BOUNDED_ORIGINAL_REVIEW",
+      "root_hashes": {
+        "result": "8ede7b21c3d521e8087f163e2af3b3b844c42dd2b3b4bd072c4dc1b0cd961258",
+        "manifest": "954794e926aa5312fa55c65e9e0e1b42ca53d636e7d69cf49f3c0d49536cd446",
+        "handoff": "523e1776975961d603393afe047d9216dfdce0c0828dda5f6d48dc03cfc68082"
+      },
+      "grant_sha256": "2ec591db8577e82c50ed4d3b7cefe7dfbf4bd4dd40965a3125cb41060dbd712e",
+      "input_count": 1181,
+      "before_after_sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c",
+      "input_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+      "private59_matched": true,
+      "global_gate_required_authorized": true,
+      "raw_facts": {
+        "smtp_nonce": "2f0c2650a0f55867798a1018144f129e",
+        "smtp_owned_extra_ids": [
+          "62c803233683618b56d0d77d98f7a36bdbeac6db75dd8c7420536a99cd28a6ca",
+          "81de84b0bb7240a0e24bc97374a612949bd7b01b9171130d1cf5804ff812abce"
+        ],
+        "completion": "Owned protocol acceptance only, not external mailbox delivery",
+        "original_d07_exact_cleanup_line_present": true
+      },
+      "direct_fixture_actual_wait": {
+        "pid": 1001164,
+        "starttime": "4719058",
+        "exit": 0
+      },
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 1005989,
+          "starttime": "4722518",
+          "time": "2026-10-08T16:36:04.908326+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 1005992,
+          "starttime": "4722519",
+          "time": "2026-10-08T16:36:04.908351+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 1005993,
+          "starttime": "4722519",
+          "time": "2026-10-08T16:36:04.908360+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 1005994,
+          "starttime": "4722519",
+          "time": "2026-10-08T16:36:04.908370+00:00"
+        }
+      ],
+      "observed_not_wait_count": 102,
+      "cleanup_times": [
+        "2026-10-08T16:36:28.536938+00:00",
+        "2026-10-08T16:36:29.262136+00:00"
+      ],
+      "owned_fixture_browser_runtime_double_empty": true,
+      "tcp_last_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:37:24.019819+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T16:37:24.224631+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "nonowned_originals": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1001539,
+          "ppid": 1,
+          "starttime": "4719466",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1001914,
+          "ppid": 1,
+          "starttime": "4719741",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1002281,
+          "ppid": 1,
+          "starttime": "4719941",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1002804,
+          "ppid": 1,
+          "starttime": "4720141",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1005225,
+          "ppid": 1,
+          "starttime": "4722005",
+          "state": "Z"
+        }
+      ],
+      "root_tool_receipt": {
+        "session": 52296,
+        "exit": 0,
+        "scope": "Original root report, not this verifier personally waiting"
+      },
+      "safe_http_files": 0,
+      "screenshots": 0,
+      "new_project_audit_schema_client": 0
+    }
+  ],
+  "all_ten_named_rows": [
+    {
+      "run": "oldauthlife01",
+      "top": "TestAccountAuthenticationWebSessionLifecycle",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": [
+        3.6
+      ],
+      "top_seconds": 6.68,
+      "package_seconds": 7.711,
+      "fixture_seconds": 58.996,
+      "original_files": 24,
+      "original_bytes": 369715,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "02a289b98aeba02a3df4b7c49f11627ce4676e9634c06717f6940eb82e58a56b",
+        "1b1cc95cac1eaae09a44792f96e8a93be820e6abf950006f7ce65f3838bd21c2",
+        "35680d898a1568ea155c802cd09086f4b73a472f410d15c013ca54e6926ade33",
+        "5c7b5e2df2c8b4ffebbc14353a43448288900cdf3d17e0a7f4eba83ca15186d5",
+        "a7ddf6e63868d8fc2361990c86e9fd78deb47f8f5f1956236f8acb627739af19",
+        "b65cc429b9ba423399d2afe452084d1cb50a8eb5910c20e4dcb4306a5f2f29a3",
+        "cfd46284a82b2b8e0d5d5ff11b20bebb1309dbae2c53edb234fa89332f5d2583"
+      ],
+      "tcp_seconds": 38.381051896001736,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": true,
+      "prior_batch": "01"
+    },
+    {
+      "run": "oldauthrevoke01",
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry",
+      "go_run_entries": 3,
+      "browser_tests": 2,
+      "browser_seconds": [
+        5.0,
+        3.2
+      ],
+      "top_seconds": 13.6,
+      "package_seconds": 14.631,
+      "fixture_seconds": 64.599,
+      "original_files": 24,
+      "original_bytes": 464998,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 8,
+      "resource_ids": [
+        "173534fc6554d7f875e26a41907daabbddae5e1b3da14bce6f2a549c84e3cdae",
+        "498dc1d1e8c6a6b252d007e6a415c383c57df361c1ff79baf4558b403508e72b",
+        "6881e1196ecd44d7294be5107bdc084b83c46c66768c3e6c2760f94e7b33bf2e",
+        "74cb21cbab6c1bc41c3248a0df10da9c26711cd75a0d8c0bd6f3cbcccbeb853c",
+        "8e46b8e803b4014858922aa3fbfbbcdd6ef080d99afbce86692e306b1e410e20",
+        "93be36f4cb9920a8d431023fe42b804afb6bcbe92818a4f1eca77bec5abc5441",
+        "ae8ab970df9ea268425b700bb6f029de0f480faad5be7142bd3fc3d061a29d52"
+      ],
+      "tcp_seconds": 38.37128105100419,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": true,
+      "prior_batch": "01"
+    },
+    {
+      "run": "oldpersonaltheme01",
+      "top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 11.8,
+      "top_seconds": 17.5,
+      "package_seconds": 18.539,
+      "fixture_seconds": 64.881,
+      "original_files": 24,
+      "original_bytes": 492635,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "2652bac5a57065d7aab1f5cee375ccb1977e77fefc241ca39a657cbae4ccc352",
+        "286b5748db00137be54ff2b3d75aa1ca2edbce043cbf693a8def337cf34e0f19",
+        "38bad7022b8a9de8ed289c6738166b7265397017bec1b11d50bd072c1a9ab2b1",
+        "4752016457e70bdee5def1eb178986f5d5eb76d0f6c4185aa23757043c29a6bb",
+        "5c864af7123aabec489f051b9bd12f9448a014ce3f53e67f272713793a0fc45a",
+        "618012b2d1c37d5300231b114a477d706d2e786cfb19014c4288287669ce4638",
+        "e8cd2d4a08435a0f238a88f1c273fe22046eebeec3c95c5e9399ba1bf21dab9f"
+      ],
+      "tcp_seconds": 38.37968004099821,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": true,
+      "prior_batch": "02"
+    },
+    {
+      "run": "oldauditread01",
+      "top": "TestAccountSystemAuditWebReadAndFilters",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 7.9,
+      "top_seconds": 13.11,
+      "package_seconds": 14.147,
+      "fixture_seconds": 63.759,
+      "original_files": 24,
+      "original_bytes": 458622,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "1155d5979785a92b668c8718e8371ddc9cf1ccebd2a69c229eddfa5f55ea9f52",
+        "140b709bc3ef54a2fa568e6f92fd7f573ac19afaa82daceff7810a1752e51994",
+        "37bb7ce16db1d076588a243b15fd5040b744148823bbb63b1fe49eeb2e1bd127",
+        "3ea04774b22f1708270db6bfdb3a6f40fd6658eff41cde7796d26588fe452608",
+        "6ce270bfbb1e735f7962c8adef573cc9984fde938bc50f73b555af1739063bbe",
+        "b1f9d8dea13102bfde7cbb64485e340a0bc8b2f641515c75a1ecef6d0436532e",
+        "c0f46c95848f7ed58e99ea868c196f9450e5ca16d14acf1ea742910b885e01ba"
+      ],
+      "tcp_seconds": 39.37577987500117,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": true,
+      "prior_batch": "02"
+    },
+    {
+      "run": "oldauditauthority01",
+      "top": "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 10.1,
+      "top_seconds": 15.2,
+      "package_seconds": 16.228,
+      "fixture_seconds": 66.11,
+      "original_files": 24,
+      "original_bytes": 520770,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "22721801def4814c4dcf52993f8fd51376c0a6e8f6dfbb4d09314a0a2aa46b56",
+        "35cd9ecade6a0f1562dc8db2607c3ed269ab3174a99546ccbfba34f7301afdc6",
+        "6531c94eba955596ed7b569768bb2893fd24ac99ddd49f99e971a67565cb4c38",
+        "85fcc7a70293775de2cd5801ce097c41593ab10e3b56d30c7dc8fb21cfaa5009",
+        "8af47d0934f20d101600523b31871c24aef58fd8ebc1a5437119255a54ce7309",
+        "c38eba57dd859e23da1ee657d851d778bcab69549be3d46cd6994206ccdaf0ae",
+        "fa93fd9b361f11eeafbf2caf78a0028fa5643ac64d5a33978d66457950207230"
+      ],
+      "tcp_seconds": 38.378515876000165,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": true,
+      "prior_batch": "03"
+    },
+    {
+      "run": "oldauditnav01",
+      "top": "TestAccountSystemAuditWebNavigationAndLayouts",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 17.2,
+      "top_seconds": 22.6,
+      "package_seconds": 23.627,
+      "fixture_seconds": 74.151,
+      "original_files": 32,
+      "original_bytes": 1157187,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "03bdea66df95277dbe4bbf7f20146cad7eb63b52659a5347034451e2e5a26fa8",
+        "0c2c80018cd5781d00a98390043f6b2a17287f0e3db4382900850a638b3ec161",
+        "6804efe16940b501b1cc55a696ba8a9baee1be7ebea7137331485e34ea7703f0",
+        "94eec6e1d490d6017ec818d9aca422f72bd8702265d1aa88bbe9cf270f8dcede",
+        "9e876c183a4948c616b1df006fa02932624c647923393060eb8855ad6ee478ec",
+        "be9cb08524c5d013e91806331fb416e1fe7a725620fca4f464ac8f60fb0ce20b",
+        "cd4903d9ede7b59087b3a1746a08026039abb573cb0fb170e66a0f15fa966262"
+      ],
+      "tcp_seconds": 37.387604702002136,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": true,
+      "prior_batch": "03"
+    },
+    {
+      "run": "oldownerread01",
+      "top": "TestAccountProjectOwnerWebReadAndNavigation",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 8.5,
+      "top_seconds": 17.02,
+      "package_seconds": 18.053,
+      "fixture_seconds": 69.176,
+      "original_files": 111,
+      "original_bytes": 701677,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "018ea9ac1579419586ee3bdcad81134d2011bb391b40efc57d9cc5075230f5e4",
+        "1099231b7bad7337c2d05bc40df6a33f5bc0be8c692230f05962f99b71d3eeaa",
+        "1498aa1b126e29535c8fe9b5944abe885b0133b4fffe9c03753fb65d35e2724b",
+        "284018d97931a6fedacf7380b414d02a9bd4f6653f843bc42ad840e438a729e5",
+        "718b085159ceba510d703c62dd270403a81698f226364a4a0d38864e30326eaa",
+        "f041dd0bf1cd7fd9073667c35c6bbff5945a93401c9d9ed6fe3241d005e34547",
+        "f0430c8da99340097d232c21d0bf89b4cba3175bf6a256b2a2600879780acc28"
+      ],
+      "tcp_seconds": 39.4013550210002,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": false,
+      "prior_batch": "04"
+    },
+    {
+      "run": "oldowneridentity01",
+      "top": "TestAccountProjectOwnerWebIdentityAndOwnership",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 10.8,
+      "top_seconds": 18.46,
+      "package_seconds": 19.487,
+      "fixture_seconds": 66.839,
+      "original_files": 52,
+      "original_bytes": 584801,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "22983564a949e4e3c277e74828f7bb636c4c0afb2ad4eeb6642abfd7484bf751",
+        "30ad6ce8f5850a87b8c3b4cd225f4739170e1f9211bfce48d0038532bee0f2f6",
+        "4a00aa13c5a26f68b7e4a7c2f8eb66d39f4aa19515f11c2c4f5ed3f75a0aa96b",
+        "8f9a90d453cf3a6967630342bb1e3106f46afdce4806551b8b3e49581c86ced2",
+        "aa2099fa4f08efd1e41cb0b470579a9b1e3ba0e8fbf53e2efe31f2133e67c9c0",
+        "bf5de919a4d54257f10e9c246f6774a49cd858a664a6bc4019d42ee70529735d",
+        "c11b68e4471869200452d5f61fd1fef42f4b0f355def986b083089682c8fbb5e"
+      ],
+      "tcp_seconds": 38.39142249100405,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": false,
+      "prior_batch": "04"
+    },
+    {
+      "run": "oldsummaryauth01",
+      "top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 10.6,
+      "top_seconds": 15.58,
+      "package_seconds": 16.619,
+      "fixture_seconds": 68.183,
+      "original_files": 24,
+      "original_bytes": 467459,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "13e4fdf7abe7c612abf77aa0d3df3e505a8649d43f286428b653f45355e13e4b",
+        "1ef292e6526357df8a295e55e325f7ae7c8a307b19a808614320d3e779ff77cb",
+        "361285498bb193fbb633ab729169eb38736fd51e4d3731da36693c222649db41",
+        "39b58fe336e59dd6255f893170d2df569cf9cabc51903214dc8d9d804f0bc0b7",
+        "3dd170ce4730686032a072be7432999cc4d8c21d25393ebc9c1faeffad8068e1",
+        "a48140daca958f9ea24cb1957fbde72912697294668f0bdac66534e2f94b4a98",
+        "b59fe1b628577b5d91695ed6f4843b602e0b6253726ec81ea764a476502a0f21"
+      ],
+      "tcp_seconds": 38.38593405300344,
+      "nonowned_count": 4,
+      "legacy_global_gate_required": false,
+      "prior_batch": "fifth-current-review"
+    },
+    {
+      "run": "oldsmtpdelivery01",
+      "top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+      "go_run_entries": 1,
+      "browser_tests": 1,
+      "browser_seconds": 15.3,
+      "top_seconds": 21.92,
+      "package_seconds": 22.964,
+      "fixture_seconds": 72.426,
+      "original_files": 24,
+      "original_bytes": 708443,
+      "direct_fixture_waits": 1,
+      "adopted_waits": 4,
+      "resource_ids": [
+        "49e5092d8672f93bff20a8d7dc8a484bc486a4a1ea4c4bcfb61666ae57e233d1",
+        "5ab1ed7153b906960464fd0966b23858b4e6ac6fae260331cae56dedfa4bbf4b",
+        "62c803233683618b56d0d77d98f7a36bdbeac6db75dd8c7420536a99cd28a6ca",
+        "71faa5478e63c9bc3bf2d36642faa3a97572f8cb6d842b74ea92a277d080b57f",
+        "81de84b0bb7240a0e24bc97374a612949bd7b01b9171130d1cf5804ff812abce",
+        "8ff0b4a1ce40fd8092c4844aaa114383cb4411299e337710a47918cdcdd54508",
+        "d8987451402b0edeb6d8a4bdb85bdaad8899b6325b84307ed4298f3638a03321",
+        "eff87ca4a91eb425620fc42f3c7c31c24db9dab8febd258d665eda0e8b07c572",
+        "f1a5c562ce259b2944fa56122e18bb36fa22e3c4ee68aa22596a21331db8bd80"
+      ],
+      "tcp_seconds": 54.456613538000965,
+      "nonowned_count": 5,
+      "legacy_global_gate_required": true,
+      "prior_batch": "fifth-current-review"
+    }
+  ],
+  "combined": {
+    "top_count": 10,
+    "go_run_pass_entries_including_revocation_parent": 12,
+    "browser_tests": 11,
+    "original_files": 363,
+    "original_bytes": 5926307,
+    "fixture_direct_actual_waits": 10,
+    "adopted_actual_waits": 44,
+    "watchdog_joins": 10,
+    "resource_id_count": 72,
+    "new_nonowned_shims": 41,
+    "legacy_global_asset_gate_rounds": 7,
+    "private_only_gate_rounds": 3,
+    "private_assets_files": 59,
+    "private_assets_bytes": 794499,
+    "old_owner_sidecars_schemas": 63,
+    "old_owner_client_replays": 27,
+    "old_systemaudit_pngs": 8,
+    "old_systemaudit_png_bytes": 692161,
+    "visual_reviews_performed": 0,
+    "new_project_audit_schema_client": 0
+  },
+  "fifth_batch_originals": {
+    "files": 48,
+    "bytes": 1175902
+  },
+  "previous_four_batch_reports_reused": {
+    "01": {
+      "review_sha256": "66f137abf22de2d5519d4881b49fd354d42ea628981ea4ea40b4f15c72a5795c",
+      "evidence_sha256": "a8143f688cd9e264689faa7021d352025ac5743f6b04a13faf5ea3b68852e9f8",
+      "manifest_sha256": "ae697eec0109639f282deb75aa0aff948bc0053166895ab4c3f97896a6ad58b0"
+    },
+    "02": {
+      "review_sha256": "c64c215a2b730200d9d24b7991cbcb658e137f15dfa5950baa1125c1cce2b331",
+      "evidence_sha256": "82950b451806cf6bdf44b20961ae32e14b6e9c7e3c6bc1612edec579a2c8b9df",
+      "manifest_sha256": "74e428c8de571e97f4445196a7cd1c595da12670a0c6ea7d4e3f73544336bf19"
+    },
+    "03": {
+      "review_sha256": "cf0aefdcdeb88950900279bc4e2ca51b23dc02d5d80216ea5997540e33da68d3",
+      "evidence_sha256": "9515a3b62d461097eb4f43fb730abb1db8e639fd843881cb894d90b49d483eba",
+      "manifest_sha256": "821c35b34301736c9a2afdebb4eb6447993a499f3b0d72abe1c5d9459ae4d5a1"
+    },
+    "04": {
+      "review_sha256": "421cc699729d515bd081fe444d31b40e6410bbb3b24877517c187fdc70e37f91",
+      "evidence_sha256": "76f94fbc8ac4742d8728609c31be959d049b0d0790916b6964a2b1e9d94c4c6c",
+      "manifest_sha256": "83a868dc41ede288a4a8d45070d5a047c320ee3ddc8119d372c0624e7b3ce725"
+    }
+  },
+  "necessary_fingerprints": [
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch01/review.md",
+      "bytes": 3094,
+      "sha256": "66f137abf22de2d5519d4881b49fd354d42ea628981ea4ea40b4f15c72a5795c"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch01/evidence.json",
+      "bytes": 25950,
+      "sha256": "a8143f688cd9e264689faa7021d352025ac5743f6b04a13faf5ea3b68852e9f8"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch01/manifest.json",
+      "bytes": 858,
+      "sha256": "ae697eec0109639f282deb75aa0aff948bc0053166895ab4c3f97896a6ad58b0"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch02/review.md",
+      "bytes": 3139,
+      "sha256": "c64c215a2b730200d9d24b7991cbcb658e137f15dfa5950baa1125c1cce2b331"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch02/evidence.json",
+      "bytes": 25163,
+      "sha256": "82950b451806cf6bdf44b20961ae32e14b6e9c7e3c6bc1612edec579a2c8b9df"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch02/manifest.json",
+      "bytes": 844,
+      "sha256": "74e428c8de571e97f4445196a7cd1c595da12670a0c6ea7d4e3f73544336bf19"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch03/review.md",
+      "bytes": 3133,
+      "sha256": "cf0aefdcdeb88950900279bc4e2ca51b23dc02d5d80216ea5997540e33da68d3"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch03/evidence.json",
+      "bytes": 32785,
+      "sha256": "9515a3b62d461097eb4f43fb730abb1db8e639fd843881cb894d90b49d483eba"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch03/manifest.json",
+      "bytes": 931,
+      "sha256": "821c35b34301736c9a2afdebb4eb6447993a499f3b0d72abe1c5d9459ae4d5a1"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch04/review.md",
+      "bytes": 4158,
+      "sha256": "421cc699729d515bd081fe444d31b40e6410bbb3b24877517c187fdc70e37f91"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch04/evidence.json",
+      "bytes": 97345,
+      "sha256": "76f94fbc8ac4742d8728609c31be959d049b0d0790916b6964a2b1e9d94c4c6c"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-old-regression-batch04/manifest.json",
+      "bytes": 957,
+      "sha256": "83a868dc41ede288a4a8d45070d5a047c320ee3ddc8119d372c0624e7b3ce725"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/adopted-waits.json",
+      "bytes": 575,
+      "sha256": "e199645b2726bbd6c43807e7fbc7fa1cf02eceeb375aadacd7a73e5dfa3b5f3e"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/cleanup.json",
+      "bytes": 100999,
+      "sha256": "68910bdac0de637378a8ca6eb3e93bf7cde63445bde072fa791fc272992654da"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/command.json",
+      "bytes": 3037,
+      "sha256": "099bac430325c506b3e901d41a09129afe3820b70eeb35ba1faff99584ad6601"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/disk-before-spawn.json",
+      "bytes": 191,
+      "sha256": "473b3bb927b246b2650dbba41b6567d6a947716372508211cad9593fe23f39b4"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/disk-preflight.json",
+      "bytes": 191,
+      "sha256": "48d9672bf520f6654c35f02ecca6da48a0327f7d41a4545d8c3fcf2f0c4759f4"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/driver.py.txt",
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/frozen-input.json",
+      "bytes": 47798,
+      "sha256": "84bfa70bec4fb13c6bf5299a623c33763e74963034e346098c039e459d3f3efe"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/input-after.json",
+      "bytes": 894,
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/input-before.json",
+      "bytes": 894,
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/observed-processes.json",
+      "bytes": 15783,
+      "sha256": "f1d654b13c1fcc7fd98b49ebfff48079492c49d99c7335fa8ec2b2652cb0fdee"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/observed-resources.json",
+      "bytes": 5113,
+      "sha256": "eba24ac44768f357b8ce8e9b33f0000616a44360eecc8b34fcfb2a95afe3ca60"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/process-baseline.json",
+      "bytes": 39545,
+      "sha256": "6336fd903b354ccb320ccd5e628b59a0a9b77b0450fb131c8a0b50c5bf7c584d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/raw.log",
+      "bytes": 4501,
+      "sha256": "fafb0c9bbebf79659a7c39302c184cd430dd616d8fa7f225fa13592dd9029701"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/result.json",
+      "bytes": 46855,
+      "sha256": "64d3bc02daba84f00e25f17a13342e2d908c264172d6b8ea6be730a218763ef2"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "eb1eca246061eeaf2d628e4db08627ea3ad3f5d8c2b13e4b9d2ab6ba9c0ff4b0"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/tcp-observed-delta.json",
+      "bytes": 10537,
+      "sha256": "5da67bfc7e2a850e42565eb49851694a3c5cc0337d47669a5ebd4b44078505c4"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/tcp-tail-observation.json",
+      "bytes": 142795,
+      "sha256": "a49789900eb16e24088294f0e58a3fe3df5802554905b96b4b3e163b371afecf"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/verification-input.json",
+      "bytes": 183,
+      "sha256": "6c4e6a6ccef490473e9570e8ed96db0cc854eb8b1eeb738b482b2780471c992f"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/watchdog.json",
+      "bytes": 568,
+      "sha256": "3760a1de1109f73bef98e5e89ce3b9679fea0e69ccfee8a8393d7a7f2c0735e4"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/manifest.json",
+      "bytes": 4947,
+      "sha256": "30ff8246d57652ea9465d0ef5aad59e975d47a5551659eff87f05b4d54559713"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/handoff.json",
+      "bytes": 8431,
+      "sha256": "596b2e14e986be360d543122aef13b747121b5d27d3af5bcd6f9e474b8c1adb2"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/adopted-waits.json",
+      "bytes": 579,
+      "sha256": "75c72ba254fe5e45c0e9c2376b55b364a6c843db81fcd4bac291d879841a5bd8"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/cleanup.json",
+      "bytes": 103171,
+      "sha256": "c697ea7a721e4102da9840f966fb202d18525e67f4358ced04b2dfde859e6492"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/command.json",
+      "bytes": 3039,
+      "sha256": "68b11eef10265b0443959eea1367de8012cd696aea7bad7dc939c8de7623f5f6"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/disk-before-spawn.json",
+      "bytes": 191,
+      "sha256": "45258b1388c750a46cfd2b23a0ca72a1ef19cc045e066b632427ea8ec54fd5fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/disk-preflight.json",
+      "bytes": 191,
+      "sha256": "7942e4805deefa265f532e8d54c462fd0716916907e8b07e44b27b7f01516389"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/driver.py.txt",
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/frozen-input.json",
+      "bytes": 47788,
+      "sha256": "2ec591db8577e82c50ed4d3b7cefe7dfbf4bd4dd40965a3125cb41060dbd712e"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/input-after.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/input-before.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/observed-processes.json",
+      "bytes": 16888,
+      "sha256": "b957862923ae0bb6b04167f9962274abba7d9e33100dbe7de649ec76e537c3f8"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/observed-resources.json",
+      "bytes": 6699,
+      "sha256": "e1a02c87bd544bfdc7d8033def67d53e69f63545f6ca83f13add91eed6bd85fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/process-baseline.json",
+      "bytes": 39816,
+      "sha256": "5d53de5eb3b386298e4928df9e30348035cb053ca903c1c6f4cd09d04130e1b1"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/raw.log",
+      "bytes": 4339,
+      "sha256": "bb6323c5d5c2c2ba71721050480ce6e9de7d33df1381a60c5bdd82968ca47dec"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/result.json",
+      "bytes": 47805,
+      "sha256": "8ede7b21c3d521e8087f163e2af3b3b844c42dd2b3b4bd072c4dc1b0cd961258"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/tcp-baseline.json",
+      "bytes": 2667,
+      "sha256": "70bdd59e2f36e3f9749d67429d9982a553bd01414de6609caa1d3aace7f0f570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/tcp-observed-delta.json",
+      "bytes": 17109,
+      "sha256": "9882db7542eae480038ed6eeba7933071b292f4c056f078afd48859d07bcf92d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/tcp-tail-observation.json",
+      "bytes": 370380,
+      "sha256": "0043f325d3e592cb5663d4dc355de8c545f3e661446dd20465d8fb80a0ba4534"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/verification-input.json",
+      "bytes": 183,
+      "sha256": "5840db8ad0b4165aba33179965924b159b7bb26cc8beda2232a3cff8b596479e"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/watchdog.json",
+      "bytes": 539,
+      "sha256": "cd5f31979aab6f89129d4b59bb9f1629702ea052863c721248d3a0a85993e0c7"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/manifest.json",
+      "bytes": 4966,
+      "sha256": "954794e926aa5312fa55c65e9e0e1b42ca53d636e7d69cf49f3c0d49536cd446"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/handoff.json",
+      "bytes": 9166,
+      "sha256": "523e1776975961d603393afe047d9216dfdce0c0828dda5f6d48dc03cfc68082"
+    }
+  ],
+  "method": "First four accepted batch metadata/report refs reused; only final two stopped run original sets independently read/hashed here. No reread of earlier original sets, source graph or current assets.",
+  "limits": [
+    "All counts concern ten named author legacy rounds. Independent actual Audit four-round work and final21-source technical combination/README22 remain outside this acceptance.",
+    "Whole-ten combination of fixed inputs and inherited protocol evidence, not an additional fresh current-HEAD suite or production acceptance.",
+    "All 1181 input file digests same; per-round input-record hashes differ by authorized global/private gate role. Seven global-required and three private-only rounds stay distinct.",
+    "Owner sidecars have source_run only; 63 schema/27 client legacy counts keep protocol/order/aggregate receipt classification. Setup, IPC and held10 exclusions remain; no new Project Audit source/EOF/schema/client proof.",
+    "Eight PNG files are old System Audit, existence/hash only; zero independent visual review in these batches.",
+    "Summary role SQL is owned fixture fact preparation; SMTP owned protocol acceptance is not external mailbox delivery. No generation/Invocation/production SPA claim.",
+    "Only these ten named v04 runs have72 disjoint resource IDs; no global historical uniqueness or host clearance.41 nonowned shims unclaimed for wait/kill.",
+    "Original failures, cleanup/version limits, earlier metadata-display errors and production boundaries stay intact.",
+    "No business/Go/Node/browser/schema/client/driver/resource/network/Git execution or repository writes; in-flight independent aud-read01 directory not read."
+  ],
+  "stop": true
+}

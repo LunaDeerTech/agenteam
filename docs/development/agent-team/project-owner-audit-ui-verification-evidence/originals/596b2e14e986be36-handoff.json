@@ -1,0 +1,215 @@
+{
+  "actual_grant_sha256": "84bfa70bec4fb13c6bf5299a623c33763e74963034e346098c039e459d3f3efe",
+  "browser_reported_seconds": 10.6,
+  "driver_exit": 0,
+  "fixture_process_seconds": 68.183,
+  "group": "old-summary-authority",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_authorized": false,
+    "legacy_global_dist_required": false,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "original_artifact_count": 24,
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/adopted-waits.json",
+      "sha256": "e199645b2726bbd6c43807e7fbc7fa1cf02eceeb375aadacd7a73e5dfa3b5f3e"
+    },
+    "cleanup.json": {
+      "bytes": 100999,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/cleanup.json",
+      "sha256": "68910bdac0de637378a8ca6eb3e93bf7cde63445bde072fa791fc272992654da"
+    },
+    "command.json": {
+      "bytes": 3037,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/command.json",
+      "sha256": "099bac430325c506b3e901d41a09129afe3820b70eeb35ba1faff99584ad6601"
+    },
+    "input-after.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/input-after.json",
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "input-before.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/input-before.json",
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "observed-resources.json": {
+      "bytes": 5113,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/observed-resources.json",
+      "sha256": "eba24ac44768f357b8ce8e9b33f0000616a44360eecc8b34fcfb2a95afe3ca60"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "raw.log": {
+      "bytes": 4501,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/raw.log",
+      "sha256": "fafb0c9bbebf79659a7c39302c184cd430dd616d8fa7f225fa13592dd9029701"
+    },
+    "result.json": {
+      "bytes": 46855,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/result.json",
+      "sha256": "64d3bc02daba84f00e25f17a13342e2d908c264172d6b8ea6be730a218763ef2"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 142795,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/tcp-tail-observation.json",
+      "sha256": "a49789900eb16e24088294f0e58a3fe3df5802554905b96b4b3e163b371afecf"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/verification-input.json",
+      "sha256": "6c4e6a6ccef490473e9570e8ed96db0cc854eb8b1eeb738b482b2780471c992f"
+    },
+    "watchdog.json": {
+      "bytes": 568,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsummaryauth01/watchdog.json",
+      "sha256": "3760a1de1109f73bef98e5e89ce3b9679fea0e69ccfee8a8393d7a7f2c0735e4"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 11,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:33:15.074941+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:33:15.768883+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "13e4fdf7abe7c612abf77aa0d3df3e505a8649d43f286428b653f45355e13e4b": {
+        "kind": "container",
+        "name": "/agenteam-d03-0011ac970b4143edea9c4718f377d8d7-pg16"
+      },
+      "1ef292e6526357df8a295e55e325f7ae7c8a307b19a808614320d3e779ff77cb": {
+        "kind": "network",
+        "name": "agenteam-d03-0011ac970b4143edea9c4718f377d8d7"
+      },
+      "361285498bb193fbb633ab729169eb38736fd51e4d3731da36693c222649db41": {
+        "kind": "network",
+        "name": "agenteam-d05-object-e0eabc04106e608673f9e5c65d9784bc"
+      },
+      "39b58fe336e59dd6255f893170d2df569cf9cabc51903214dc8d9d804f0bc0b7": {
+        "kind": "container",
+        "name": "/agenteam-d03-0011ac970b4143edea9c4718f377d8d7"
+      },
+      "3dd170ce4730686032a072be7432999cc4d8c21d25393ebc9c1faeffad8068e1": {
+        "kind": "network",
+        "name": "agenteam-d04-net-25ec5a8739f5b83497696a42d1da57e1"
+      },
+      "a48140daca958f9ea24cb1957fbde72912697294668f0bdac66534e2f94b4a98": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-25ec5a8739f5b83497696a42d1da57e1"
+      },
+      "b59fe1b628577b5d91695ed6f4843b602e0b6253726ec81ea764a476502a0f21": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-e0eabc04106e608673f9e5c65d9784bc"
+      }
+    },
+    "fixture_pid": 991320,
+    "fixture_pid_starttime": "4700138",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 991745,
+        "ppid": 1,
+        "starttime": "4700615",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 992223,
+        "ppid": 1,
+        "starttime": "4701058",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 992589,
+        "ppid": 1,
+        "starttime": "4701289",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 993146,
+        "ppid": 1,
+        "starttime": "4701507",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 97,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 38.38593405300344,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "oldsummaryauth01",
+  "safe_http_artifacts": {
+    "actual_file_count": 0,
+    "boundary": "This legacy Summary test produced no safe-body/sidecar/schema/client receipt files. Its top/browser PASS remains within the existing Summary authority/navigation assertions, not Project Audit validation.",
+    "paths": [],
+    "project_audit_schema_client_counts_not_claimed": true
+  },
+  "scope": {
+    "exact_one_original_summary_authority_top": true,
+    "independent_result_review_not_claimed": true,
+    "original_go_log_boundary": "Formal bootstrap/invite/redeem/login/Logout; authority role SQL is owned fact preparation only; no generation/Invocation/production SPA claim.",
+    "other_groups_not_run_in_this_round": true,
+    "private_assets": "build-v02/dist-ui02, 59 files/794499 bytes; no global legacy reader for this group"
+  },
+  "screenshots": {
+    "actual_png_count": 0,
+    "paths": []
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_prior_failures_unchanged": true,
+    "no_rerun_or_next_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "tool_terminal": {
+    "actual_exit": 0,
+    "session_id": 70335
+  },
+  "top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+  "top_seconds": 15.58
+}

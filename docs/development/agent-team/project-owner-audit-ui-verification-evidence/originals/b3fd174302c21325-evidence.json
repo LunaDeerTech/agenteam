@@ -1,0 +1,214 @@
+{
+  "state": "ORIGINAL_FAIL_RETAINED_RETIREMENT_PASS_PROPOSAL_STATIC_PASS_STOP",
+  "mandatory_changes": [],
+  "refs": {
+    "manifest": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/manifest.json",
+      "bytes": 20593,
+      "sha256": "975b3b344856c15f1058b04cadb64d77df83643d61e471f03ca17cd199a7f964"
+    },
+    "handoff": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/handoff.json",
+      "bytes": 13120,
+      "sha256": "78ff08384b0410895d30c434392cfa4fd2c29aee2d37cbb09d148bfcbb2741f1"
+    },
+    "result": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/result.json",
+      "bytes": 33716,
+      "sha256": "e2c5078a4ebe4f253195127f4f2ca42f127fa79fef51960413e857d266da8cc4"
+    },
+    "raw": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/raw.log",
+      "bytes": 6015,
+      "sha256": "1fcd5f238c308dd85958ff2151a0d33686c551084ade71c3f2faa32579fce22d"
+    },
+    "provenance": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/authority01-session-proposal01/provenance.json",
+      "bytes": 3564,
+      "sha256": "a7e360c8f4585e2e1583066cc2ddc3628b95a487d2e71241cda57ab22160dbe1"
+    },
+    "patch": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/authority01-session-proposal01/proposed.patch",
+      "bytes": 837,
+      "sha256": "dc5087790186d5aec9569fc91950f57617f12cced77273f79616cbaf9ae98a8b"
+    },
+    "base": {
+      "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+      "bytes": 67892,
+      "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f"
+    },
+    "static_sources": [
+      {
+        "path": "/workspace/agenteam/web/src/composables/useSession.ts",
+        "bytes": 163959,
+        "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7"
+      },
+      {
+        "path": "/workspace/agenteam/web/src/App.vue",
+        "bytes": 10338,
+        "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5"
+      },
+      {
+        "path": "/workspace/agenteam/web/src/router/auth.ts",
+        "bytes": 10910,
+        "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562"
+      },
+      {
+        "path": "/workspace/agenteam/web/src/views/auth/LoginView.vue",
+        "bytes": 10372,
+        "sha256": "be5e23755d0129f35fc690ca3597d21d5275345637cb40da079c5177a79eda12"
+      },
+      {
+        "path": "/workspace/agenteam/web/src/tests/project-audit-state.spec.ts",
+        "bytes": 32745,
+        "sha256": "f5f0ddafd782745f45148b1d8a2bbf3bb01e649ca7a645bdb53eda0eae64b539"
+      },
+      {
+        "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+        "bytes": 39298,
+        "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+      }
+    ],
+    "proxy_retirement": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/proxy-retirement-facts.json",
+      "bytes": 590,
+      "sha256": "3d23f78f167abb92e3c44d8e71a469fb86482717253ee1f5ec5bdb1b19d1e363"
+    },
+    "last_401": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/response-044.json",
+      "bytes": 804,
+      "sha256": "4c87cbd2b9138ed2c8e7c5f8a818bb554c55a9d7475a49be9b2a5266595cc775"
+    },
+    "last_401_body": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/body-bbaf3a8ac87580a87fe59f57148e31c04d502399d11496d8f110c83996e93231.json",
+      "bytes": 241,
+      "sha256": "bbaf3a8ac87580a87fe59f57148e31c04d502399d11496d8f110c83996e93231"
+    }
+  },
+  "verified_originals": {
+    "count": 92,
+    "bytes": 597148,
+    "index_reused_from_original_manifest": true
+  },
+  "proxy_dispatch_gets": 45,
+  "complete_formal_upstream_sidecars": 44,
+  "sidecar_status_counts": {
+    "200": 34,
+    "404": 5,
+    "409": 4,
+    "401": 1
+  },
+  "sidecar_transfer_kinds": {
+    "forwarded": 35,
+    "cut": 2,
+    "failure": 2,
+    "hold": 5
+  },
+  "unique_bodies": 21,
+  "actual_old_post401_dom_retained": false,
+  "final_finish_schema_client_reached": false,
+  "proposal": {
+    "hunks": 1,
+    "proposed_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+    "bytes": 68077,
+    "inverse_whole_bytes_equal": true,
+    "installed": false,
+    "checks_executed": false
+  },
+  "cleanup": {
+    "direct_wait_seconds": 81.797,
+    "direct_wait_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 771072,
+        "starttime": "4025169",
+        "time": "2026-10-08T14:39:59.238168+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 771075,
+        "starttime": "4025170",
+        "time": "2026-10-08T14:39:59.238189+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 771077,
+        "starttime": "4025170",
+        "time": "2026-10-08T14:39:59.238198+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 771078,
+        "starttime": "4025170",
+        "time": "2026-10-08T14:39:59.238204+00:00"
+      }
+    ],
+    "exact_ids": [
+      "52d0d1a5946d75d6970b106ea11df516aea874174168d59dfb689c11cce41639",
+      "9365d57e99b33c5d4d60c50049a0ae55191a911b826fd52f32fb5441081b456b",
+      "ccc9e51b062af162bf4646735c0a6a098c7e52d48cfe0107dc071a5ded0de281",
+      "d22da5b91db648b51fe7eab8cc357b173d43053d05db7e1fcc78731e3c945c7c",
+      "e568e10546c6c929b3139a8ba1602a7013d2fa157522408d2c4c5c01cbe4b627",
+      "ebe5bf6b21d6964177ef140c0f0fa852b16c61e71f8ab660e27e069a30eff23c",
+      "efe632d07017d5f5c3ba9eae9c5248123fd7d1e5139c4ddd74c93baf3195eb43"
+    ],
+    "double_owned_runtime_browser_empty": true,
+    "tcp_seconds": 38.39993509899796,
+    "tcp_final_two": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T14:40:59.790640+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T14:40:59.994737+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "inputs_same_count": 1179,
+    "new_nonowned_pid1_shims_not_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 766612,
+        "ppid": 1,
+        "starttime": "4021819",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 767066,
+        "ppid": 1,
+        "starttime": "4022260",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 767430,
+        "ppid": 1,
+        "starttime": "4022502",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 768058,
+        "ppid": 1,
+        "starttime": "4022701",
+        "state": "Z"
+      }
+    ]
+  },
+  "inspection_note": "An initial read-only parser expected the Model driver exact_absent exit_code field; Audit 06cf records only absent. Corrected against stopped driver:667-670 (nonzero inspect, absent inventory, missing diagnostic). No original, candidate or executed check changed.",
+  "scope": "Only stopped evidence and narrow source reads plus own scratch report. No resources, Go/Node, installation, current filegate, assets, Git, source edits or successor authorization."
+}

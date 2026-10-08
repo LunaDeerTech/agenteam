@@ -1,0 +1,176 @@
+{
+  "actual_adopted_waits": 0,
+  "actual_direct_waits": 6,
+  "binary_executed": false,
+  "commands": [
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 905,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 24747,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps01/meta.json",
+        "sha256": "5f2b1fa5019750b95c46f78986df6badf1b5ea51b16c782be96a47163748e614"
+      },
+      "name": "deps01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 1260506,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps01/raw",
+        "sha256": "3f558065b41ac21fe44625a017db67bd9fa947c1f4a03407d40cc052ad777130"
+      },
+      "seconds": 0.40150788000028115,
+      "tmp_entries": []
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 905,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 25212,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/race-compile01/meta.json",
+        "sha256": "29cc2f4be18a0e30e4fb1cda007d5bb928e7a6be5ae9bf3ca8d0234850b99bb6"
+      },
+      "name": "race-compile01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/race-compile01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 8.315314685998601,
+      "tmp_entries": []
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 905,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 24706,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/vet01/meta.json",
+        "sha256": "ec6514172183e84d15b7c026bf13266fd7c5a154325d2d2056679f29f30c8022"
+      },
+      "name": "vet01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/vet01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 0.7721096249988477,
+      "tmp_entries": []
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 905,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 25015,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-central01/meta.json",
+        "sha256": "30d5b54a14dcaf03748688ea99386eeee6c294e2f77c0f435ddacd074f0eb746"
+      },
+      "name": "build-central01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-central01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 1.291788987997279,
+      "tmp_entries": []
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 905,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 25401,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-runner01/meta.json",
+        "sha256": "a7b40d1c5b2a2e27c84b644cfc9fbb1904bcc5418c20e5ce0b6da544ae257de8"
+      },
+      "name": "build-runner01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-runner01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 0.527461970999866,
+      "tmp_entries": []
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 905,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 24760,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps-race02/meta.json",
+        "sha256": "a9fa630204c281dc99535b3312e9cc7141d4e4d570da6fc068d457955409d33f"
+      },
+      "name": "deps-race02",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 1263637,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps-race02/raw",
+        "sha256": "9cc038a666af947649cffb992022299ff3e3d1fac4beb4e59b4d6aab4b3f259c"
+      },
+      "seconds": 0.34291947100064135,
+      "tmp_entries": []
+    }
+  ],
+  "compile_or_vet_failures_this_round": 0,
+  "dependency_delta": {
+    "bytes": 1740,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/dependency-race-delta.json",
+    "sha256": "0038d4dec2a97027d65875e05a88f0a610607757d55216d8f05570b75904542b"
+  },
+  "list_executed": false,
+  "list_preflight": {
+    "bytes": 1705,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/list-preflight-static-v2.json",
+    "sha256": "91ecd66a589d10e1f154f7e1741338c57d3e2f5896ac6194fbcf338410737203"
+  },
+  "node_executed": false,
+  "old_failures_preserved": true,
+  "resources_executed": false,
+  "sources": [
+    {
+      "immutable_source": {
+        "bytes": 50095,
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_fixture_test.go",
+        "sha256": "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb"
+      },
+      "repository": {
+        "bytes": 50095,
+        "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+        "sha256": "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb"
+      }
+    },
+    {
+      "immutable_source": {
+        "bytes": 6289,
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go",
+        "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+      },
+      "repository": {
+        "bytes": 6289,
+        "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+        "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+      }
+    }
+  ],
+  "sources_unchanged_from_candidate01": true,
+  "status": "COMPILED_CANDIDATE02_AUTHOR_STOP"
+}

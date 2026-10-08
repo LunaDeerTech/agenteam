@@ -1,0 +1,96 @@
+{
+  "artifacts": [
+    {
+      "bytes": 52918016,
+      "path": "/workspace/scratch/project-audit-ui-backend/offline01/bin/account.test",
+      "sha256": "0199643ec6190e2b3ac43900f03df9ce60ce2507b546b2336aeae2bbc722852b"
+    },
+    {
+      "bytes": 33483066,
+      "path": "/workspace/scratch/project-audit-ui-backend/offline01/bin/agenteam",
+      "sha256": "cd920d6888379c59fcca112c25b465a3ca05562edbe105642d0ac4c3d7048323"
+    },
+    {
+      "bytes": 4631991,
+      "path": "/workspace/scratch/project-audit-ui-backend/offline01/bin/agenteam-runner",
+      "sha256": "d19b5e829ef1b6acb12c2e2307e864fe46f684b8dea8c3219a580056522e719b"
+    }
+  ],
+  "checks": {
+    "bytes": 6142,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate02/checks.json",
+    "sha256": "80403b2be52c5a6622b2637bd4593ca6b255fc0731b55a5bcedf46e414f494ba"
+  },
+  "go_mod": {
+    "bytes": 1468,
+    "path": "/workspace/agenteam/go.mod",
+    "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+  },
+  "go_sum": {
+    "bytes": 8391,
+    "path": "/workspace/agenteam/go.sum",
+    "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "go_tool": {
+    "bytes": 17142188,
+    "path": "/workspace/toolchains/go1.27.1/bin/go",
+    "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624"
+  },
+  "handoff": {
+    "bytes": 1826,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate02/handoff.md",
+    "sha256": "6adb25a5b32ab444ade755bc156e793dd9a678057fbc754a979654126316acec"
+  },
+  "installation": {
+    "bytes": 1162,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/installation.json",
+    "sha256": "f340e2d5c2cc8c9b22144452e8675bcf851d14ea7cb91bdde2d0c34534612cad"
+  },
+  "offline_driver": {
+    "bytes": 4917,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/run.py",
+    "sha256": "7760c97d373fb26ebad83c0c157ea760948cde17942e172ff325434258f013d3"
+  },
+  "protocol_agreement": {
+    "bytes": 769,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/protocol-agreement.json",
+    "sha256": "3c8092b89748cbcfc7fc6a039111a5ecb71b6fa34d99514bd1ed12087677c3f8"
+  },
+  "repo_installed": true,
+  "resources_authorized": false,
+  "resources_run": false,
+  "semantic_independent_review": "PENDING_ROOT_HANDOFF",
+  "source_candidate01_freeze": {
+    "bytes": 3164,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/freeze.json",
+    "sha256": "fd7700807490c175685c6994418aa594142aee4fe51405a6bdb1590854c3966f"
+  },
+  "source_writer_stopped": true,
+  "sources": [
+    {
+      "immutable_source": {
+        "bytes": 50095,
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_fixture_test.go",
+        "sha256": "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb"
+      },
+      "repository": {
+        "bytes": 50095,
+        "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+        "sha256": "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb"
+      }
+    },
+    {
+      "immutable_source": {
+        "bytes": 6289,
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go",
+        "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+      },
+      "repository": {
+        "bytes": 6289,
+        "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+        "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+      }
+    }
+  ],
+  "status": "COMPILED_CANDIDATE02_AUTHOR_STOP_PENDING_INDEPENDENT_SOURCE_REVIEW"
+}

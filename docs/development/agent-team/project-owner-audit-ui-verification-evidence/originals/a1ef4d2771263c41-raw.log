@@ -1,0 +1,38 @@
+
+ RUN  v4.1.11 /workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2
+
+ ✓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/audit?x=1 sends zero Project requests after guard and onMounted 184ms
+ ✓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/audit? sends zero Project requests after guard and onMounted 21ms
+ ✓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/general#fragment sends zero Project requests after guard and onMounted 12ms
+ ✓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings# sends zero Project requests after guard and onMounted 10ms
+ ✓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/%73ettings/audit sends zero Project requests after guard and onMounted 9ms
+ ✓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/%61udit sends zero Project requests after guard and onMounted 8ms
+ ✓ independent.spec.ts > independent production App raw rejection > warm invalid query retires the real page without reauthorizing its sanitized address 156ms
+ ✓ independent.spec.ts > independent App lifetime and explicit recovery > a late detail completion after a later guard cancels navigation cannot republish or steal focus 128ms
+ ✓ independent.spec.ts > independent App lifetime and explicit recovery > idle actual App pageshow503 removes private DOM and a manual Session check creates one fresh default read 135ms
+ × independent.spec.ts > independent App lifetime and explicit recovery > parameter reuse removes the old detail and filter before its new Get completes 97ms
+   → expected [ { …(2) }, { …(2) }, { …(2) } ] to have a length of 2 but got 3
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  independent.spec.ts > independent App lifetime and explicit recovery > parameter reuse removes the old detail and filter before its new Get completes
+AssertionError: expected [ { …(2) }, { …(2) }, { …(2) } ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ independent.spec.ts:64:584
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  12:32:32
+   Duration  2.58s (transform 1.21s, setup 0ms, import 1.25s, tests 764ms, environment 431ms)
+
+JSON report written to /workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run01/vitest.json

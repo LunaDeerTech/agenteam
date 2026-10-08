@@ -1,0 +1,22 @@
+{
+  "status": "SOURCE_STATIC_PASS_PLAN_PREREQUISITES_PENDING_DYNAMIC_NOT_RUN_STOP",
+  "candidate_freeze_sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee",
+  "source_hashes": [
+    "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f",
+    "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+  ],
+  "files": [
+    {
+      "path": "/workspace/scratch/architecture-audit-go-candidate03-review/review.md",
+      "bytes": 2168,
+      "sha256": "b9f2d99fc5fc5575c0a9c354120e864b17852d5ac3bd77069ba3b75c6ef06630"
+    },
+    {
+      "path": "/workspace/scratch/architecture-audit-go-candidate03-review/evidence.json",
+      "bytes": 6535,
+      "sha256": "dd8b85ad65cee427d1150884d8c6b80ae73d438da257dcee9a18456cedf918b6"
+    }
+  ],
+  "stopped": true,
+  "implementation_or_execution_authorized": false
+}

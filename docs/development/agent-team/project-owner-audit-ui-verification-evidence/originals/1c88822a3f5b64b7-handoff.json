@@ -1,0 +1,454 @@
+{
+  "state": "INDEPENDENT_REAL_AUD_AUTHORITY01_PASS_FULLY_RETIRED_STOP",
+  "grant": {
+    "path": "/workspace/scratch/project-audit-ui-root-grants/aud-authority01.json",
+    "bytes": 51682,
+    "sha256": "6eabe14dfec3ae17f9e459b6d76956ae55959575b3a3fa7d76c95641905d772d"
+  },
+  "tool_terminal": {
+    "session_id": 3003,
+    "initial_chunk": "f9f59b",
+    "interim_result_chunk_not_terminal": "be3ee7",
+    "actual_terminal_chunk": "e1fd3c",
+    "actual_exit": 0,
+    "stdout_tool_truncated_only": true,
+    "full_driver_result_retained": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-authority01/result.json",
+      "bytes": 48939,
+      "sha256": "42e09b69662deb846f119e0841b2f59a3b0f08e3f2fc3bee82725916ea4e5ce1"
+    }
+  },
+  "timing": {
+    "browser_seconds": 21.7,
+    "top_seconds": 28.95,
+    "fixture_command_seconds": 80.189,
+    "TCP_tail_seconds": 38.36802464599896
+  },
+  "observations": {
+    "browser_attempts": 47,
+    "complete_EOF": 34,
+    "classification": {
+      "incomplete": 13,
+      "controlled_failure": 0,
+      "success": 22,
+      "problem": 12
+    },
+    "sidecars": 47,
+    "safe_body_files": 23,
+    "complete_sources": {
+      "browser": 34
+    },
+    "complete_statuses": {
+      "200": 22,
+      "404": 5,
+      "409": 4,
+      "401": 3
+    },
+    "complete_kinds": {
+      "list": 19,
+      "detail": 15
+    },
+    "complete_problem_codes": {
+      "NOT_FOUND": 5,
+      "PROJECT_NOT_ACTIVE": 4,
+      "SESSION_REVOKED": 1,
+      "UNAUTHENTICATED": 2
+    },
+    "schema": 34,
+    "public_client": 34,
+    "native_gate_probes": 10,
+    "page_complete_requests": 24,
+    "probe_classification_basis": "Frozen accepted explicit browser-call sites; not a separately persisted source annotation on each native fact.",
+    "native_body_persisted_separately": false,
+    "native_proof": "Actual frozen checker compares native bytes in memory; persisted chunk lengths/digests bind safe upstream bodies. Incomplete13 excluded.",
+    "wire_overrides": [
+      {
+        "path": "/api/v1/projects/01a11c66-8758-7376-8a4a-13374b9f7cbe/audit/01a11c66-8ae5-7eb4-81b9-1e5384836853",
+        "query": "",
+        "reason": "one real detail GET directed to a missing Audit ID"
+      }
+    ],
+    "endpoint_differences": [
+      {
+        "sidecar": "response-003.json",
+        "upstream_endpoint": "/api/v1/projects/01a11c66-8758-7376-8a4a-13374b9f7cbe/audit/01a11c66-8ae5-7eb4-81b9-1e5384836853",
+        "native_endpoint": "/api/v1/projects/01a11c66-8758-7376-8a4a-13374b9f7cbe/audit/01a11c66-8a21-7127-b00e-f1123dad0ef1",
+        "declared_controlled_wire": "one real detail GET directed to a missing Audit ID"
+      }
+    ],
+    "go_counts": {
+      "browser_command_lookups": 0,
+      "browser_detail_gets": 19,
+      "browser_list_gets": 28,
+      "browser_project_mutations": 0,
+      "control_audit_gets": 0,
+      "cuts": 2,
+      "failures": 2,
+      "held": 5,
+      "joined": 5,
+      "server_finished": 134,
+      "server_started": 134,
+      "session_failures": 0,
+      "setup_audit_gets": 0
+    },
+    "proxy_actual_join": true,
+    "layouts": 0
+  },
+  "retirement": {
+    "actual_direct_wait": true,
+    "adopted_actual_waits": 4,
+    "observed_processes_only": 99,
+    "watchdog_joined": true,
+    "exact_resource_ids": [
+      "04d43f89dd6d8d576fb7bdc709117aa941b46d714dbb139809aaa593279053d4",
+      "0e6c898660d0e5b88c052ff5a5df437a6039dc40c3ee9e8d14c528d1a460605b",
+      "6a1864ee2157129a7d8ea084fd46439b5c2a70bd98ef8e060b24e4541921886f",
+      "7c4f4d99fc760d5b24e97ef4b8ac9700888251fe22f5ed4399231151a9cfe554",
+      "8684760509bbc7fad67c2be166f4a3be6ce08fff3251431b468cb53dbb52b3c2",
+      "8f99056715459077785e0750ba9c875b593fca23ac893797f1b3f7a0c3daebb0",
+      "b68141767c77dd85350d1ac3f7ab1205e1aaa63106b7bc9356fbcdd0027c246f"
+    ],
+    "resource_kinds": {
+      "container": 4,
+      "network": 3
+    },
+    "cleanup_times": [
+      "2026-10-08T16:44:49.499691+00:00",
+      "2026-10-08T16:44:50.205459+00:00"
+    ],
+    "owned_runtime_browser_double_empty": true,
+    "baseline_unchanged": true,
+    "TCP_double_clear_times": [
+      "2026-10-08T16:45:28.874621+00:00",
+      "2026-10-08T16:45:29.078274+00:00"
+    ],
+    "TCP_role": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "nonowned_new_PID1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1023388,
+        "ppid": 1,
+        "starttime": "4768844",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1023838,
+        "ppid": 1,
+        "starttime": "4769220",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1024209,
+        "ppid": 1,
+        "starttime": "4769414",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1024712,
+        "ppid": 1,
+        "starttime": "4769607",
+        "state": "Z"
+      }
+    ],
+    "monitor_errors": 0,
+    "forced_tail_actions": 0
+  },
+  "inputs": {
+    "count": 1185,
+    "before_after_same": true,
+    "digest": "397114bec3d7de41c9b6682fad355ca7b902ca655b385a9cdd3a205615e233c1",
+    "private_global59_match": true,
+    "driver_sha256": "e893600b3e8fbeb832169b0705544b9977a6f6f6f08d4f49e89b6f0877df3d37",
+    "view_sha256": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+    "browser_spec_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193"
+  },
+  "safe_bindings": [
+    {
+      "sidecar": "response-001.json",
+      "body": "body-1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-002.json",
+      "body": "body-bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c",
+      "bytes": 557
+    },
+    {
+      "sidecar": "response-003.json",
+      "body": "body-30c3ed9138cfd7109e94c4ebdf9f4cd8db444ab70247441642f7e90a499a0105.json",
+      "status": 404,
+      "browser_eof": true,
+      "sha256": "30c3ed9138cfd7109e94c4ebdf9f4cd8db444ab70247441642f7e90a499a0105",
+      "bytes": 246
+    },
+    {
+      "sidecar": "response-004.json",
+      "body": "body-bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c",
+      "bytes": 557
+    },
+    {
+      "sidecar": "response-006.json",
+      "body": "body-1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-008.json",
+      "body": "body-bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c",
+      "bytes": 557
+    },
+    {
+      "sidecar": "response-010.json",
+      "body": "body-1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-012.json",
+      "body": "body-bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c",
+      "bytes": 557
+    },
+    {
+      "sidecar": "response-014.json",
+      "body": "body-1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-016.json",
+      "body": "body-bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "bc19a15319a3c2da4d78aa7933b91c380e082c29ec1c4d08643c0bb0ba3d232c",
+      "bytes": 557
+    },
+    {
+      "sidecar": "response-018.json",
+      "body": "body-89d4255cdd0431a4d484a9836f16de5aec3596fa8c7bcdcb0b11b94778c2a45b.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "89d4255cdd0431a4d484a9836f16de5aec3596fa8c7bcdcb0b11b94778c2a45b",
+      "bytes": 1389
+    },
+    {
+      "sidecar": "response-020.json",
+      "body": "body-1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-022.json",
+      "body": "body-1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-023.json",
+      "body": "body-995ef1904e11234aa71df8585b0afb253e4c732e0c94b5f2839cf069016d6ac6.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "995ef1904e11234aa71df8585b0afb253e4c732e0c94b5f2839cf069016d6ac6",
+      "bytes": 2076
+    },
+    {
+      "sidecar": "response-024.json",
+      "body": "body-ac93d62dd78e72f313ef3eecc472cc5757216c362647f28229ca8ba903ed62bc.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "ac93d62dd78e72f313ef3eecc472cc5757216c362647f28229ca8ba903ed62bc",
+      "bytes": 686
+    },
+    {
+      "sidecar": "response-025.json",
+      "body": "body-812923b2ef17cedee967c0b9888d74b8fa1fde8a950f2f10a77a056200e72ec1.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "812923b2ef17cedee967c0b9888d74b8fa1fde8a950f2f10a77a056200e72ec1",
+      "bytes": 2076
+    },
+    {
+      "sidecar": "response-026.json",
+      "body": "body-36f491908fa20f39e1a1992a318405fb36f5c3934311570639406af06c0cb38e.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "36f491908fa20f39e1a1992a318405fb36f5c3934311570639406af06c0cb38e",
+      "bytes": 686
+    },
+    {
+      "sidecar": "response-027.json",
+      "body": "body-4c0d00bd07ddd6bdd03d54af09c3c0eeca02bd27e622d237bef6a0d2cf26785c.json",
+      "status": 409,
+      "browser_eof": true,
+      "sha256": "4c0d00bd07ddd6bdd03d54af09c3c0eeca02bd27e622d237bef6a0d2cf26785c",
+      "bytes": 262
+    },
+    {
+      "sidecar": "response-028.json",
+      "body": "body-4b2749dd5a242ab4b35ddec62fe76ea83e4dc5ecc4b68a046e4ee4019006f153.json",
+      "status": 409,
+      "browser_eof": true,
+      "sha256": "4b2749dd5a242ab4b35ddec62fe76ea83e4dc5ecc4b68a046e4ee4019006f153",
+      "bytes": 262
+    },
+    {
+      "sidecar": "response-029.json",
+      "body": "body-75897920d20235afae87c13a4f4e73869a8c0face40553b410385c504c1d3c7c.json",
+      "status": 409,
+      "browser_eof": true,
+      "sha256": "75897920d20235afae87c13a4f4e73869a8c0face40553b410385c504c1d3c7c",
+      "bytes": 262
+    },
+    {
+      "sidecar": "response-030.json",
+      "body": "body-0f3d0f199f44f8ef7144c7ab35073eea65eb862adadc25f6173592312af3152e.json",
+      "status": 409,
+      "browser_eof": true,
+      "sha256": "0f3d0f199f44f8ef7144c7ab35073eea65eb862adadc25f6173592312af3152e",
+      "bytes": 262
+    },
+    {
+      "sidecar": "response-031.json",
+      "body": "body-e878cf7069994f2b8ab6d77be4f91b4b3318677cd5469fe1d295659e2e8efc43.json",
+      "status": 404,
+      "browser_eof": true,
+      "sha256": "e878cf7069994f2b8ab6d77be4f91b4b3318677cd5469fe1d295659e2e8efc43",
+      "bytes": 246
+    },
+    {
+      "sidecar": "response-032.json",
+      "body": "body-e0903e3f7fde3bf779e073b3a398bd58f9f5999f91cad7fcb69ea4b8c04eb16c.json",
+      "status": 404,
+      "browser_eof": true,
+      "sha256": "e0903e3f7fde3bf779e073b3a398bd58f9f5999f91cad7fcb69ea4b8c04eb16c",
+      "bytes": 246
+    },
+    {
+      "sidecar": "response-033.json",
+      "body": "body-c17a875c6a4ac0de048359c3cf58e97442a131b91bf02ef3de40527b5182fd79.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "c17a875c6a4ac0de048359c3cf58e97442a131b91bf02ef3de40527b5182fd79",
+      "bytes": 1389
+    },
+    {
+      "sidecar": "response-034.json",
+      "body": "body-b1ca567d89821264f4f8d5f7fd7e040a4ed8bf9432a5b6997b058406b9d390ec.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "b1ca567d89821264f4f8d5f7fd7e040a4ed8bf9432a5b6997b058406b9d390ec",
+      "bytes": 727
+    },
+    {
+      "sidecar": "response-035.json",
+      "body": "body-87c422d5c6cac59338de5d160930a04da6b2b211ec6b298e0ffa27d97518c3c1.json",
+      "status": 404,
+      "browser_eof": true,
+      "sha256": "87c422d5c6cac59338de5d160930a04da6b2b211ec6b298e0ffa27d97518c3c1",
+      "bytes": 246
+    },
+    {
+      "sidecar": "response-036.json",
+      "body": "body-8f0cf2ec2c0ced62112f57b3205f6a28aeecba4dc7a64a1d8faa0968d1ee784e.json",
+      "status": 404,
+      "browser_eof": true,
+      "sha256": "8f0cf2ec2c0ced62112f57b3205f6a28aeecba4dc7a64a1d8faa0968d1ee784e",
+      "bytes": 246
+    },
+    {
+      "sidecar": "response-037.json",
+      "body": "body-1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "1df6aac5817d5a0728f0034f85ab0b1284e42572fb8ebddb827a3d6f2212d439",
+      "bytes": 5082
+    },
+    {
+      "sidecar": "response-039.json",
+      "body": "body-89d4255cdd0431a4d484a9836f16de5aec3596fa8c7bcdcb0b11b94778c2a45b.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "89d4255cdd0431a4d484a9836f16de5aec3596fa8c7bcdcb0b11b94778c2a45b",
+      "bytes": 1389
+    },
+    {
+      "sidecar": "response-041.json",
+      "body": "body-215bd41be6a42c6c181cd94d71e340e7c091debef36f600ba34a16a1e9c5e7d6.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "215bd41be6a42c6c181cd94d71e340e7c091debef36f600ba34a16a1e9c5e7d6",
+      "bytes": 1389
+    },
+    {
+      "sidecar": "response-043.json",
+      "body": "body-36b98168072d6cfef5cf58cbb2259870226c9123836eda321268cc593d099edd.json",
+      "status": 200,
+      "browser_eof": true,
+      "sha256": "36b98168072d6cfef5cf58cbb2259870226c9123836eda321268cc593d099edd",
+      "bytes": 5645
+    },
+    {
+      "sidecar": "response-045.json",
+      "body": "body-54fde8ef5872b00d1d6f41731ba185b9e8cf1ead23399746e1624e98ebddb470.json",
+      "status": 401,
+      "browser_eof": true,
+      "sha256": "54fde8ef5872b00d1d6f41731ba185b9e8cf1ead23399746e1624e98ebddb470",
+      "bytes": 241
+    },
+    {
+      "sidecar": "response-046.json",
+      "body": "body-fd2aed5f2c6c52fe805b205d2e2f2304631f32023ecf0532dca17e85f62f06a2.json",
+      "status": 401,
+      "browser_eof": true,
+      "sha256": "fd2aed5f2c6c52fe805b205d2e2f2304631f32023ecf0532dca17e85f62f06a2",
+      "bytes": 260
+    },
+    {
+      "sidecar": "response-047.json",
+      "body": "body-c3b721362241f3c383a73cb06c6077ba4e3af545dfef53ec8459bde6735d3661.json",
+      "status": 401,
+      "browser_eof": true,
+      "sha256": "c3b721362241f3c383a73cb06c6077ba4e3af545dfef53ec8459bde6735d3661",
+      "bytes": 260
+    }
+  ],
+  "limits": [
+    "Independently executed authority top, not author-log-only review.",
+    "current401 results in unavailable/session-unconfirmed UI; explicit restore button subsequently starts checking. Do not collapse these states.",
+    "Current Owner/non-owner/Admin-owned, actual Logout/new checks, project switch/name reuse/cancel tails and cross-domain release accepted only as frozen case assertions.",
+    "No persisted full DOM or complete Session/Cookie-owner chronology.",
+    "Aux lifecycle facts do not accept production lifecycle/Skills.",
+    "Historical authority01 FAIL remains; no full-card/visual/other independent round acceptance."
+  ]
+}

@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /workspace/scratch/owner-audit-ui-verification/state-v1
+
+ ↓ independent.spec.ts > independent domain isolation and private intent > preserves exact Owner intent through 403/FORBIDDEN without read recovery writes
+ ↓ independent.spec.ts > independent domain isolation and private intent > preserves exact Owner intent through 404/NOT_FOUND without read recovery writes
+ ↓ independent.spec.ts > independent domain isolation and private intent > preserves exact Owner intent through 503/COMMIT_UNKNOWN without read recovery writes
+ ↓ independent.spec.ts > independent domain isolation and private intent > current 401 UNAUTHENTICATED clears Audit authority synchronously at failure publication
+ ↓ independent.spec.ts > independent domain isolation and private intent > current 401 SESSION_REVOKED clears Audit authority synchronously at failure publication
+ ↓ independent.spec.ts > independent domain isolation and private intent > retired actual fetch late-success cannot publish or invalidate the same identity
+ ↓ independent.spec.ts > independent domain isolation and private intent > retired actual fetch late-401 cannot publish or invalidate the same identity
+ ↓ independent.spec.ts > independent domain isolation and private intent > ordinary Human is independent of existing System denial
+ ↓ independent.spec.ts > actual rejected tail and bounded initial eligibility > list cancel rejection retains owner then only explicit retry in this page
+ ↓ independent.spec.ts > actual rejected tail and bounded initial eligibility > detail cancel rejection retains owner then only explicit retry in this page
+ ↓ independent.spec.ts > actual rejected tail and bounded initial eligibility > new page waits through rejected old native tail and consumes exactly one default initial read
+ ↓ independent.spec.ts > complete Get context, privacy and recovery > Resolve and failed Get never grant authority; explicit complete Get creates it once
+ ↓ independent.spec.ts > complete Get context, privacy and recovery > deleting current project cannot grant read context
+ ↓ independent.spec.ts > complete Get context, privacy and recovery > foreign-owner current project cannot grant read context
+ ↓ independent.spec.ts > complete Get context, privacy and recovery > unrelated same-identity profile publication preserves context generation and never reloads Audit
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > same-Session checking clears Audit immediately while a General draft survives; new page alone restarts 40ms
+ ✓ independent.spec.ts > complete Get context, privacy and recovery > same Session with changed CSRF is a new identity epoch and requires fresh Owner Get before Audit 7ms
+ ↓ independent.spec.ts > complete Get context, privacy and recovery > parameter reuse clears old scope synchronously and waits for the new stable-ID Get
+ ↓ independent.spec.ts > complete Get context, privacy and recovery > invalid cursor retains no usable history and only explicit first-page action can resume
+ ↓ independent.spec.ts > complete Get context, privacy and recovery > audit route extension remains exact and raw before decoding
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 18 skipped (20)
+   Start at  12:21:34
+   Duration  1.08s (transform 320ms, setup 0ms, import 418ms, tests 50ms, environment 441ms)
+
+JSON report written to /workspace/scratch/owner-audit-ui-verification/state-v1/run02/vitest.json

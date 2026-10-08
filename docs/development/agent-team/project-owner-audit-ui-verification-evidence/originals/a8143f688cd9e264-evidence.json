@@ -1,0 +1,653 @@
+{
+  "status": "PASS_STOP_FIRST_TWO_LEGACY_AUTH_ROUNDS_ONLY",
+  "rounds": [
+    {
+      "run": "oldauthlife01",
+      "status": "PASS_STOP_BOUNDED_ORIGINAL_REVIEW",
+      "root_refs": {
+        "result": "978f798204f05fdd18d98f265c25d0bcb6caa2d25e61256a985900635d21441d",
+        "manifest": "607c98b514351a7bb9b3abdea4ea82912dbe7e561249d1ff58b69c36d85072b6",
+        "handoff": "bab99266c530ac7d5e5d1ef50701329d5e1a935426f45174aa4917418414f47e"
+      },
+      "group": "old-auth-lifecycle",
+      "top": "TestAccountAuthenticationWebSessionLifecycle",
+      "runs": [
+        "TestAccountAuthenticationWebSessionLifecycle"
+      ],
+      "passes": [
+        [
+          "TestAccountAuthenticationWebSessionLifecycle",
+          "6.68"
+        ]
+      ],
+      "browser_seconds": [
+        3.6
+      ],
+      "package_seconds": 7.711,
+      "fixture_seconds": 58.996,
+      "input_signature": {
+        "files": 1181,
+        "before_after_sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c",
+        "digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6"
+      },
+      "grant_sha256": "385ca388f7213c65690aabcff910d28e7573b6fec41a2462228bfb35402acf4b",
+      "original_files": 24,
+      "original_bytes": 369715,
+      "waits": {
+        "direct_fixture": 1,
+        "fixture_pid": 905460,
+        "fixture_starttime": "4470089",
+        "adopted_actual": [
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 909985,
+            "starttime": "4473551",
+            "time": "2026-10-08T15:54:23.769242+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 909988,
+            "starttime": "4473551",
+            "time": "2026-10-08T15:54:23.769266+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 909989,
+            "starttime": "4473551",
+            "time": "2026-10-08T15:54:23.769285+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 909991,
+            "starttime": "4473551",
+            "time": "2026-10-08T15:54:23.769305+00:00"
+          }
+        ],
+        "observed_not_waited_count": 95,
+        "driver_exit_recorded": 0
+      },
+      "resource_ids": [
+        "02a289b98aeba02a3df4b7c49f11627ce4676e9634c06717f6940eb82e58a56b",
+        "1b1cc95cac1eaae09a44792f96e8a93be820e6abf950006f7ce65f3838bd21c2",
+        "35680d898a1568ea155c802cd09086f4b73a472f410d15c013ca54e6926ade33",
+        "5c7b5e2df2c8b4ffebbc14353a43448288900cdf3d17e0a7f4eba83ca15186d5",
+        "a7ddf6e63868d8fc2361990c86e9fd78deb47f8f5f1956236f8acb627739af19",
+        "b65cc429b9ba423399d2afe452084d1cb50a8eb5910c20e4dcb4306a5f2f29a3",
+        "cfd46284a82b2b8e0d5d5ff11b20bebb1309dbae2c53edb234fa89332f5d2583"
+      ],
+      "cleanup_times": [
+        "2026-10-08T15:54:45.394201+00:00",
+        "2026-10-08T15:54:46.093337+00:00"
+      ],
+      "owned_fixture_browser_runtime_double_empty": true,
+      "tcp_seconds": 38.381051896001736,
+      "tcp_scan_count": 40,
+      "tcp_last_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T15:55:24.774774+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T15:55:24.978986+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "new_nonowned_shims": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 905830,
+          "ppid": 1,
+          "starttime": "4470541",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 906380,
+          "ppid": 1,
+          "starttime": "4471019",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 906878,
+          "ppid": 1,
+          "starttime": "4471292",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 907391,
+          "ppid": 1,
+          "starttime": "4471470",
+          "state": "Z"
+        }
+      ],
+      "project_schema_client_cases": 0,
+      "safe_http_files": 0,
+      "screenshots": 0
+    },
+    {
+      "run": "oldauthrevoke01",
+      "status": "PASS_STOP_BOUNDED_ORIGINAL_REVIEW",
+      "root_refs": {
+        "result": "cc1423628473358db99a87783cd506416f2d5c169757ea7bf068516aaad0ad46",
+        "manifest": "6046acfd17189657a9fd81ebf4e33b8bb341415b856a39162a94b5bed69439a9",
+        "handoff": "5c16a51ab89d616b9ecdc0a2388927c031046956156600312fcc7eda9778db65"
+      },
+      "group": "old-auth-revocation",
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry",
+      "runs": [
+        "TestAccountAuthenticationWebRevocationAndExpiry",
+        "TestAccountAuthenticationWebRevocationAndExpiry/revocation",
+        "TestAccountAuthenticationWebRevocationAndExpiry/expiry"
+      ],
+      "passes": [
+        [
+          "TestAccountAuthenticationWebRevocationAndExpiry",
+          "13.60"
+        ],
+        [
+          "TestAccountAuthenticationWebRevocationAndExpiry/revocation",
+          "7.97"
+        ],
+        [
+          "TestAccountAuthenticationWebRevocationAndExpiry/expiry",
+          "5.63"
+        ]
+      ],
+      "browser_seconds": [
+        5.0,
+        3.2
+      ],
+      "package_seconds": 14.631,
+      "fixture_seconds": 64.599,
+      "input_signature": {
+        "files": 1181,
+        "before_after_sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c",
+        "digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6"
+      },
+      "grant_sha256": "c4ba6ff1d661b9c5bcaa883fbb7a05e13c809251303670278e73c478696c0da3",
+      "original_files": 24,
+      "original_bytes": 464998,
+      "waits": {
+        "direct_fixture": 1,
+        "fixture_pid": 914638,
+        "fixture_starttime": "4489986",
+        "adopted_actual": [
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919014,
+            "starttime": "4493293",
+            "time": "2026-10-08T15:57:42.614486+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919017,
+            "starttime": "4493293",
+            "time": "2026-10-08T15:57:42.614510+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919019,
+            "starttime": "4493293",
+            "time": "2026-10-08T15:57:42.614528+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919020,
+            "starttime": "4493293",
+            "time": "2026-10-08T15:57:42.614544+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919987,
+            "starttime": "4494039",
+            "time": "2026-10-08T15:57:48.056106+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919989,
+            "starttime": "4494039",
+            "time": "2026-10-08T15:57:48.185824+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919991,
+            "starttime": "4494039",
+            "time": "2026-10-08T15:57:48.185846+00:00"
+          },
+          {
+            "actual_wait": true,
+            "exit": 0,
+            "pid": 919992,
+            "starttime": "4494039",
+            "time": "2026-10-08T15:57:48.185863+00:00"
+          }
+        ],
+        "observed_not_waited_count": 110,
+        "driver_exit_recorded": 0
+      },
+      "resource_ids": [
+        "173534fc6554d7f875e26a41907daabbddae5e1b3da14bce6f2a549c84e3cdae",
+        "498dc1d1e8c6a6b252d007e6a415c383c57df361c1ff79baf4558b403508e72b",
+        "6881e1196ecd44d7294be5107bdc084b83c46c66768c3e6c2760f94e7b33bf2e",
+        "74cb21cbab6c1bc41c3248a0df10da9c26711cd75a0d8c0bd6f3cbcccbeb853c",
+        "8e46b8e803b4014858922aa3fbfbbcdd6ef080d99afbce86692e306b1e410e20",
+        "93be36f4cb9920a8d431023fe42b804afb6bcbe92818a4f1eca77bec5abc5441",
+        "ae8ab970df9ea268425b700bb6f029de0f480faad5be7142bd3fc3d061a29d52"
+      ],
+      "cleanup_times": [
+        "2026-10-08T15:58:09.936748+00:00",
+        "2026-10-08T15:58:10.629811+00:00"
+      ],
+      "owned_fixture_browser_runtime_double_empty": true,
+      "tcp_seconds": 38.37128105100419,
+      "tcp_scan_count": 40,
+      "tcp_last_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T15:58:49.302366+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T15:58:49.506350+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "new_nonowned_shims": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 915013,
+          "ppid": 1,
+          "starttime": "4490451",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 915538,
+          "ppid": 1,
+          "starttime": "4490835",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 915818,
+          "ppid": 1,
+          "starttime": "4491043",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 916443,
+          "ppid": 1,
+          "starttime": "4491251",
+          "state": "Z"
+        }
+      ],
+      "project_schema_client_cases": 0,
+      "safe_http_files": 0,
+      "screenshots": 0
+    }
+  ],
+  "shared_asset_binding": {
+    "source_binding": {
+      "bytes": 4527,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v04/binding.json",
+      "sha256": "46637663d3ac40ce6df845e1ff6cdbc666af4b4e6a9204acc8ba2dc55522f66e"
+    },
+    "asset_window": {
+      "bytes": 1741,
+      "path": "/workspace/scratch/project-audit-ui-assets/exchange02/exchange.json",
+      "sha256": "4f2e3fef5c8a47fb744dbc61ae5d0c634965b3c2c2d5f03b6821c506db4f46cf"
+    },
+    "dist_assets": {
+      "bytes": 8827,
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/assets.json",
+      "sha256": "a3c6cac14e07261fde429801c087e2f4287dec85ac2c7a70caa1739ab53a93e5"
+    }
+  },
+  "combined": {
+    "top_count": 2,
+    "run_pass_entries_including_parent": 4,
+    "browser_tests": 3,
+    "original_files": 48,
+    "original_bytes": 834713,
+    "fixture_direct_waits": 2,
+    "adopted_waits": 12,
+    "resource_ids": 14,
+    "new_nonowned_shims": 8,
+    "project_schema_client_cases": 0
+  },
+  "method": "Fixed original byte/hash/JSON/raw/retirement review only. First 24 original hashes and three asset/binding refs already checked in preceding local metadata commands; second 24 checked here. No original/source/body tree copied.",
+  "file_fingerprints": [
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/adopted-waits.json",
+      "bytes": 575,
+      "sha256": "ac47eaf6cc7d3633fe7450c3ac44359ba79f325ff7f552ac23e60d81f2111903"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/cleanup.json",
+      "bytes": 89605,
+      "sha256": "d235a769c5f7578456c20a1c3405f5f914bfe757d7ff008d09dd8577cae290dd"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/command.json",
+      "bytes": 3010,
+      "sha256": "b57ee6b1b99a2a6ef5bb12702d1e91b50cc0c672f765ce3d46be3673829d02ff"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/disk-before-spawn.json",
+      "bytes": 191,
+      "sha256": "b1128127500463aadbd56c4e443e6fb581b3faf8cebfdc9a0af0baaaec57759b"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/disk-preflight.json",
+      "bytes": 191,
+      "sha256": "cdf2916d10f37b7b5a16cbfa06b063958c1bb874393afb28e83bf15b8c1c184a"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/driver.py.txt",
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/frozen-input.json",
+      "bytes": 47710,
+      "sha256": "385ca388f7213c65690aabcff910d28e7573b6fec41a2462228bfb35402acf4b"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/input-after.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/input-before.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/observed-processes.json",
+      "bytes": 15461,
+      "sha256": "baed53b4a91e12d3648ab6580e940d5920421a51e9ce6180477c6166008cf1b8"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/observed-resources.json",
+      "bytes": 5095,
+      "sha256": "04a65ac97df9ef922d500ea80dc3892e6f6f2838b0ee3ae87c49bdbb44f63f1c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/process-baseline.json",
+      "bytes": 34943,
+      "sha256": "3473acdee908efca99f73e10f8fbd19ebb3787202ed636f78622b63aa8637802"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/raw.log",
+      "bytes": 4109,
+      "sha256": "13c34104fbd4478b6b6edda637133ff8fea5a6114d11ece353fd14ecfcf984e9"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/result.json",
+      "bytes": 41663,
+      "sha256": "978f798204f05fdd18d98f265c25d0bcb6caa2d25e61256a985900635d21441d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "bfbfc7febc9d7b56535a785171a8067e9ebd642af67701c8fda9963cd240c286"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-observed-delta.json",
+      "bytes": 5755,
+      "sha256": "c5fd4d6b795bf963ac85f207ea87a7134f6313f1a457a1389bf8e207d19ee9e9"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-tail-observation.json",
+      "bytes": 71900,
+      "sha256": "d97f1ed5ba6183b577e5732f14e0d80adfd409e5b1b935a477e68a09d260c2ee"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/verification-input.json",
+      "bytes": 183,
+      "sha256": "6b2f9cecdba3f0162cd4a33a5ead33bd9b45d6ab50f4d25f0e17c0ea2bfc26ea"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/watchdog.json",
+      "bytes": 540,
+      "sha256": "53f3885272ba0ff39d2cc5b7e71aaedf68315c1a6174d796951b093b111615c5"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/manifest.json",
+      "bytes": 4877,
+      "sha256": "607c98b514351a7bb9b3abdea4ea82912dbe7e561249d1ff58b69c36d85072b6"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthlife01/handoff.json",
+      "bytes": 8026,
+      "sha256": "bab99266c530ac7d5e5d1ef50701329d5e1a935426f45174aa4917418414f47e"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v04/binding.json",
+      "bytes": 4527,
+      "sha256": "46637663d3ac40ce6df845e1ff6cdbc666af4b4e6a9204acc8ba2dc55522f66e"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-assets/exchange02/exchange.json",
+      "bytes": 1741,
+      "sha256": "4f2e3fef5c8a47fb744dbc61ae5d0c634965b3c2c2d5f03b6821c506db4f46cf"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/assets.json",
+      "bytes": 8827,
+      "sha256": "a3c6cac14e07261fde429801c087e2f4287dec85ac2c7a70caa1739ab53a93e5"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/adopted-waits.json",
+      "bytes": 1147,
+      "sha256": "896d186b06e60a391e680ca1e643553af23910bd583815773910307c36365e2c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/cleanup.json",
+      "bytes": 90989,
+      "sha256": "e8ae335af796a6cedbdbb8fb78149d6e253ae65cee734dc49dadc47fa9464d75"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/command.json",
+      "bytes": 3025,
+      "sha256": "6f4886871f50908c7f4259d763c2d65b486491302eb42b3228464bc5b7b99c0d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/disk-before-spawn.json",
+      "bytes": 191,
+      "sha256": "00bf5a58240da477bb26d99fc7ad7f5e0b5ced7ab6dec907fa2e15518795019e"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/disk-preflight.json",
+      "bytes": 191,
+      "sha256": "94b2c9c37ac5cd919a010bf0a65b6e4d027664c3dfe436613333b727dccc3b7f"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/driver.py.txt",
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/frozen-input.json",
+      "bytes": 47698,
+      "sha256": "c4ba6ff1d661b9c5bcaa883fbb7a05e13c809251303670278e73c478696c0da3"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/input-after.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/input-before.json",
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/observed-processes.json",
+      "bytes": 17986,
+      "sha256": "9d8db6fb9ecf02fbfc7039600e18b13461b41ef06e76d16909067b9445ffd07f"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/observed-resources.json",
+      "bytes": 5102,
+      "sha256": "d4a345652498c5bc5376ea314921fb1250c5fe912a24ceaea648c3b0597f54c1"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/process-baseline.json",
+      "bytes": 35471,
+      "sha256": "782bba4ecc0a20f45a2126fb7879bc4ce525d6e141501db573c08d2aa6021d35"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/raw.log",
+      "bytes": 5028,
+      "sha256": "4bd52bc86e3065c0e5c46e9d351dcbc3804447d59eeb47de4d83dc44c1caba82"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/result.json",
+      "bytes": 42304,
+      "sha256": "cc1423628473358db99a87783cd506416f2d5c169757ea7bf068516aaad0ad46"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "2dd87480865bf9c142013376cebd1cd6905316be1ed34ba8677c670f2a2893a3"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/tcp-observed-delta.json",
+      "bytes": 12131,
+      "sha256": "34b7d171fdfdec5f60e0f9b8f70f3e7e3323a4d719d8ddc5ab01b208e0649cde"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/tcp-tail-observation.json",
+      "bytes": 154219,
+      "sha256": "3efb02e2a0207f639ff46272c893c6353338181ee6cace7133f775b3cd2a2403"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/verification-input.json",
+      "bytes": 183,
+      "sha256": "d4f1b0fb779cf6d33f063e8004346432943b854de94d604ccb654b71368e6d28"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/watchdog.json",
+      "bytes": 549,
+      "sha256": "fc63514892be96087f2f58f5e3a9f4adcb04e968c28a9db26883c7ee1cd63bd0"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/manifest.json",
+      "bytes": 4895,
+      "sha256": "6046acfd17189657a9fd81ebf4e33b8bb341415b856a39162a94b5bed69439a9"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauthrevoke01/handoff.json",
+      "bytes": 8424,
+      "sha256": "5c16a51ab89d616b9ecdc0a2388927c031046956156600312fcc7eda9778db65"
+    }
+  ],
+  "verifier_metadata_helper_errors_preserved": [
+    {
+      "tool_chunk": "4811ef",
+      "failure": "AssertionError at inline metadata comparison line 34",
+      "cause": "Verifier compared result.top_levels to list[str]; actual format is list[[PASS,name]].",
+      "resolution": "Compared exact [[PASS,top]] and independently matched raw RUN/PASS and watchdog; original product/test records unchanged.",
+      "scope": "Metadata checker premise, not a product or browser failure; no business rerun."
+    },
+    {
+      "tool_chunk": "1091cc",
+      "failure": "KeyError: browser_reported_seconds",
+      "cause": "Display helper assumed lifecycle handoff scalar also exists on two-subcase revoke handoff.",
+      "resolution": "Read its actual_subcases/raw and retained both browser results; no source or original change.",
+      "scope": "Read-only display helper error, not a runtime test failure."
+    }
+  ],
+  "limits": [
+    "Only two named author legacy authentication tops; remaining eight legacy rounds are not included.",
+    "Existing actual browser assertions and Go Session facts; no retained DOM/body/trace or screenshots added.",
+    "Expiry case moves one owned Session row into the past; not a wall-clock elapsed-expiry experiment.",
+    "Both fixed input asset gates require and match exchange02/build-v02 global/private59 (794499B); current dist/host not inspected.",
+    "No new Project Audit schema/client/sidecar counts.",
+    "Observed process counts 95/110 are not wait counts; 8 nonowned PID1 shims are neither waited nor killed.",
+    "14 IDs unique only within these two rounds; no cross-generation/global clearance assertion.",
+    "Original driver result and author STOP supply driver exit; this verifier did not personally wait original tool sessions.",
+    "No business/Go/Node/browser/resource/network/Git action or repository write; existing Audit failures/versions remain."
+  ],
+  "stop": true
+}

@@ -1,0 +1,43 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit.spec.ts -t retains one pending native Audit read through the canonical address
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/project-audit.spec.ts (46 tests | 1 failed | 44 skipped) 386ms
+     × retains one pending native Audit read through the canonical address /OWNER/OWNER.Dot-Name/settings/audit 313ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/project-audit.spec.ts > production App/Owner/Audit route composition > retains one pending native Audit read through the canonical address /OWNER/OWNER.Dot-Name/settings/audit
+AssertionError: expected { cancelled: 1, aborted: true, …(1) } to deeply equal { cancelled: +0, aborted: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "aborted": false,
+-   "cancelled": 0,
+-   "stopped": false,
++   "aborted": true,
++   "cancelled": 1,
++   "stopped": true,
+  }
+
+ ❯ src/tests/project-audit.spec.ts:414:12
+    412|           aborted: f.reads()[0]![1].signal?.aborted,
+    413|           stopped: f.wrapper.text().includes('本页读取已停止'),
+    414|         }).toEqual({ cancelled: 0, aborted: false, stopped: false })
+       |            ^
+    415|         expect(f.wrapper.find('[aria-label="项目审计列表"]').exists()).toBe(…
+    416|       } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed | 44 skipped (46)
+   Start at  15:21:26
+   Duration  2.18s (transform 1.18s, setup 0ms, import 1.23s, tests 386ms, environment 445ms)
+

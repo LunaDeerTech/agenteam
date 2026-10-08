@@ -1,0 +1,203 @@
+{
+  "actual_grant_sha256": "4968ab08260ec401519794485869c93aaa8e45dceef05d482f62d0aef4f4e7ba",
+  "browser_reported_seconds": 10.1,
+  "driver_exit": 0,
+  "fixture_process_seconds": 66.11,
+  "group": "old-system-audit-authority",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_authorized": true,
+    "legacy_global_dist_match": true,
+    "legacy_global_dist_required": true,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "original_artifact_count": 24,
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/adopted-waits.json",
+      "sha256": "9de8667b6d8743a186dd7eb5959d103dce04114e2189082df45ae4237b3efd3d"
+    },
+    "cleanup.json": {
+      "bytes": 95463,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/cleanup.json",
+      "sha256": "5b3ccd6e0e278c2d7bec353616020424f2c4894e156cbad810a686cfe2a3d9f6"
+    },
+    "command.json": {
+      "bytes": 3047,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/command.json",
+      "sha256": "519e5aa90241f70805f6a7360f108e38e7b54d8ac5093568d7cf7496fba6c3b4"
+    },
+    "input-after.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/input-after.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "input-before.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/input-before.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "observed-resources.json": {
+      "bytes": 5128,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/observed-resources.json",
+      "sha256": "d4958375bd637499b66f704c0155a4d520c6ddc329a7c7aeb0860f15ebf888ee"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "raw.log": {
+      "bytes": 4144,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/raw.log",
+      "sha256": "2aa7700f153fb422cd201784ea0d3e59679e9e34cd48f20091cf3e4d8911c1c2"
+    },
+    "result.json": {
+      "bytes": 44352,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/result.json",
+      "sha256": "b49a1ea20e1ae2fb49ecd1f4a0157d0629a6811a8e7d7031931cb2ee6370ff50"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 204956,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/tcp-tail-observation.json",
+      "sha256": "f6777a8d56d2f851fd0054c80ea8ab326f1853067503418b500bcf3cfd429a17"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/verification-input.json",
+      "sha256": "131481ac656bec710c8754e7f14f5c24e03d93ed4e15bdaaff0fa256b9417e39"
+    },
+    "watchdog.json": {
+      "bytes": 545,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditauthority01/watchdog.json",
+      "sha256": "e2186f0629326c2d813bade366203c9fc49b7508e4a2f352848eefa9a7929374"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 14,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:12:17.957651+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:12:18.648283+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "22721801def4814c4dcf52993f8fd51376c0a6e8f6dfbb4d09314a0a2aa46b56": {
+        "kind": "container",
+        "name": "/agenteam-d03-59d3ecd0a2790a4b4f07443f3bd7ab5e"
+      },
+      "35cd9ecade6a0f1562dc8db2607c3ed269ab3174a99546ccbfba34f7301afdc6": {
+        "kind": "container",
+        "name": "/agenteam-d03-59d3ecd0a2790a4b4f07443f3bd7ab5e-pg16"
+      },
+      "6531c94eba955596ed7b569768bb2893fd24ac99ddd49f99e971a67565cb4c38": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-b687f76b45740e06ead6fda653a02c95"
+      },
+      "85fcc7a70293775de2cd5801ce097c41593ab10e3b56d30c7dc8fb21cfaa5009": {
+        "kind": "network",
+        "name": "agenteam-d05-object-0cc52e159c8fd23ab730ae60d0ea6c6a"
+      },
+      "8af47d0934f20d101600523b31871c24aef58fd8ebc1a5437119255a54ce7309": {
+        "kind": "network",
+        "name": "agenteam-d04-net-b687f76b45740e06ead6fda653a02c95"
+      },
+      "c38eba57dd859e23da1ee657d851d778bcab69549be3d46cd6994206ccdaf0ae": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-0cc52e159c8fd23ab730ae60d0ea6c6a"
+      },
+      "fa93fd9b361f11eeafbf2caf78a0028fa5643ac64d5a33978d66457950207230": {
+        "kind": "network",
+        "name": "agenteam-d03-59d3ecd0a2790a4b4f07443f3bd7ab5e"
+      }
+    },
+    "fixture_pid": 946709,
+    "fixture_pid_starttime": "4574639",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 947155,
+        "ppid": 1,
+        "starttime": "4575148",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 947608,
+        "ppid": 1,
+        "starttime": "4575546",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 947897,
+        "ppid": 1,
+        "starttime": "4575743",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 948467,
+        "ppid": 1,
+        "starttime": "4575960",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 99,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 38.378515876000165,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "oldauditauthority01",
+  "scope": {
+    "current_global_assets": "exchange02/build-v02, 59 files/794499 bytes; actual before/after legacy gate required/authorized/matched",
+    "exact_one_original_system_audit_authority_top": true,
+    "independent_result_review_not_claimed": true,
+    "native_evidence_boundary": "Legacy System Audit authority/ownership behavior is a separate contract from Project Audit. No retained new Project Audit native sidecar/schema/client evidence is produced or claimed in this round.",
+    "other_old_groups_not_run_in_this_round": true,
+    "project_audit_schema_client_counts_not_claimed": true
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_prior_failures_unchanged": true,
+    "no_rerun_or_next_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "top": "TestAccountSystemAuditWebAuthorityAndOwnership",
+  "top_seconds": 15.2
+}

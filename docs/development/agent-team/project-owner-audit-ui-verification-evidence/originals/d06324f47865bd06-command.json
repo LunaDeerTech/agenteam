@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+    "--config",
+    "/workspace/agenteam/web/.prettierrc.json",
+    "--check",
+    "web/src/composables/useSession.ts",
+    "web/src/composables/useProjectWorkspace.ts",
+    "web/src/composables/useProjectAudit.ts",
+    "web/src/router/auth.ts",
+    "web/src/tests/project-audit-state.spec.ts",
+    "web/src/tests/authentication.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

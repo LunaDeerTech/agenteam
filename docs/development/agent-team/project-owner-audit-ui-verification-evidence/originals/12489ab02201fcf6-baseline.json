@@ -1,0 +1,15 @@
+{
+  "scope": "two authorized sources only; original product before controlled reproduction",
+  "sources": {
+    "web/src/views/projects/ProjectAuditView.vue": {
+      "sha256": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "bytes": 20830,
+      "snapshot": "view.before.vue"
+    },
+    "web/src/tests/project-audit.spec.ts": {
+      "sha256": "0ba34fdf3b020d9e5ad72a53b17f7c7b8b93b6dea730fb84f81aba6d35a35a37",
+      "bytes": 21962,
+      "snapshot": "test.before.ts"
+    }
+  }
+}

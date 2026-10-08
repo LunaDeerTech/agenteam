@@ -1,0 +1,44 @@
+{
+  "audit_resource_driver_prepared": false,
+  "audit_resource_execution_authorized": false,
+  "current_audit_preparation": [
+    {
+      "bytes": 10909,
+      "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+      "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+    },
+    {
+      "bytes": 769,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/protocol-agreement.json",
+      "sha256": "3c8092b89748cbcfc7fc6a039111a5ecb71b6fa34d99514bd1ed12087677c3f8"
+    },
+    {
+      "bytes": 3683,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate02/freeze.json",
+      "sha256": "bda6ba898cf8643ee2fdef464bf5320905baa10094b120c0d37d362d469dbc33"
+    }
+  ],
+  "no_resource_driver_or_group_or_env_file_written_this_round": true,
+  "old_driver_not_directly_executable_for_audit": true,
+  "old_owner_reference_only": [
+    {
+      "bytes": 38744,
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    {
+      "exists": false,
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.json"
+    },
+    {
+      "exists": false,
+      "path": "/workspace/scratch/owner-ui-backend/old14-batch01/handoff.json"
+    }
+  ],
+  "required_future_delta": [
+    "three new Audit tops and ten old card tops",
+    "Project Audit CASE/DIST/EVIDENCE/INPUT_HASH and private dist",
+    "final STOP frontend/Model input and body/client/schema artifacts",
+    "original per-top budgets/full fixture seven resources; SMTP delivery nine"
+  ]
+}

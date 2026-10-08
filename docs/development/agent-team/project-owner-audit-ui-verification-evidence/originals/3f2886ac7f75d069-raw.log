@@ -1,0 +1,109 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.138.54.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=171e377c47cfeaa8edbdff4aad31f149
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=904a10c9c381e031b1be4a05e4726c97
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.040s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.828s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.028s [no tests to run]
+=== RUN   TestAccountProjectOwnerAuditWebReadAndFilters
+    project_owner_web_fixture_test.go:606: auxiliary archived fact prepared after real acceptance; lifecycle participants were not executed
+    project_owner_audit_web_fixture_test.go:1179: 
+        Running 1 test using 1 worker
+        
+        [1A[2K[1/1] e2e/project-owner-audit.spec.ts:589:1 › [read] actual Owner Project/Secret/Model audit, explicit filters and original response bytes
+        [1A[2K  1) e2e/project-owner-audit.spec.ts:589:1 › [read] actual Owner Project/Secret/Model audit, explicit filters and original response bytes 
+        
+            Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+        
+            Locator:  locator('#project-audit-filter-actor_id')
+            Expected: focused
+            Received: inactive
+            Timeout:  5000ms
+        
+            Call log:
+            [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+            [2m  - waiting for locator('#project-audit-filter-actor_id')[22m
+            [2m    9 × locator resolved to <input type="text" class="ui-input" data-v-4ca0433c="" autocomplete="off" spellcheck="false" aria-invalid="true" id="project-audit-filter-actor_id" value="01a11bd0-eb28-79fe-82e3-dba11378947e" aria-describedby="project-audit-filter-actor_id-note"/>[22m
+            [2m      - unexpected value "inactive"[22m
+        
+        
+              1151 |     "true",
+              1152 |   );
+            > 1153 |   await expect(filter(page, "actor_id")).toBeFocused();
+                   |                                          ^
+              1154 |   expect(await auditCount(page)).toBe(start);
+              1155 |   checks.valid_empty = true;
+              1156 |   checks.same_body_schema = true;
+                at /workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts:1153:42
+        
+        
+        [1A[2K  1 failed
+            e2e/project-owner-audit.spec.ts:589:1 › [read] actual Owner Project/Secret/Model audit, explicit filters and original response bytes 
+        
+    project_owner_audit_web_fixture_test.go:1181: actual Project Audit browser failed: exit status 1
+    project_owner_audit_web_fixture_test.go:1130: Project Audit Node direct child actually waited; adopted descendants remain owned by outer subreaper
+    project_owner_audit_web_fixture_test.go:291: Project proxy Serve and all body handlers actually joined
+    project_owner_audit_web_fixture_test.go:406: Project preparation service actually joined before ProcessGuard release
+    project_owner_audit_web_fixture_test.go:188: Project default root actual join
+--- FAIL: TestAccountProjectOwnerAuditWebReadAndFilters (22.90s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/account	22.934s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.024s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce bc8f609fdb135f48a6636a6fb642ac3e
+D04 outbound fixture cleanup checked for nonce 904a10c9c381e031b1be4a05e4726c97
+D05 object fixture exact resource cleanup checked nonce=171e377c47cfeaa8edbdff4aad31f149

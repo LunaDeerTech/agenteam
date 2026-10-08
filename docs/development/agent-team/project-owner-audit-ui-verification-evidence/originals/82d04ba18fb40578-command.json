@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js",
+    "--offline",
+    "--prefix",
+    "web",
+    "run",
+    "test:unit",
+    "--",
+    "src/tests/project-audit-state.spec.ts",
+    "src/tests/system-audit-state.spec.ts",
+    "src/tests/project-workspace-state.spec.ts",
+    "src/tests/system-model-selection-state.spec.ts",
+    "src/tests/authentication.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

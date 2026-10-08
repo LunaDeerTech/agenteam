@@ -1,0 +1,89 @@
+--- candidate02/tests/account/project_owner_audit_web_fixture_test.go
++++ candidate03/tests/account/project_owner_audit_web_fixture_test.go
+@@ -70,6 +70,14 @@
+ 	length int
+ }
+ 
++type projectOwnerAuditWebCompletionKey struct{}
++
++// One token belongs to one outer API handler. held is protected by f.mu;
++// ModifyResponse may mark it, but only that handler's exit can complete it.
++type projectOwnerAuditWebCompletion struct {
++	held bool
++}
++
+ func (*projectOwnerAuditWebCut) Error() string {
+ 	return "owned Project Audit response intentionally truncated"
+ }
+@@ -231,17 +239,13 @@
+ 		}
+ 	}
+ 	assets := http.FileServer(http.Dir(dist))
++	api := f.apiHandler(proxy)
+ 	var handlers sync.WaitGroup
+ 	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+ 		handlers.Add(1)
+ 		defer handlers.Done()
+ 		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+-			if !f.observeRequest(w, r) {
+-				return
+-			}
+-			f.count("server_started")
+-			defer f.count("server_finished")
+-			proxy.ServeHTTP(w, r)
++			api.ServeHTTP(w, r)
+ 			return
+ 		}
+ 		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+@@ -290,6 +294,29 @@
+ 	t.Cleanup(f.stopProxy)
+ 	go func() { serverDone <- server.Serve(listener) }()
+ 	return cfg
++}
++
++func (f *projectOwnerAuditWebFixture) apiHandler(proxy http.Handler) http.Handler {
++	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if !f.observeRequest(w, r) {
++			return
++		}
++		completion := &projectOwnerAuditWebCompletion{}
++		r = r.WithContext(context.WithValue(r.Context(), projectOwnerAuditWebCompletionKey{}, completion))
++		f.count("server_started")
++		defer func() {
++			// ReverseProxy has returned or unwound, including its response body,
++			// downstream writes and ErrorHandler. Neither release nor ctx.Done
++			// can publish completion while any of that request still runs.
++			f.mu.Lock()
++			f.counts["server_finished"]++
++			if completion.held {
++				f.counts["joined"]++
++			}
++			f.mu.Unlock()
++		}()
++		proxy.ServeHTTP(w, r)
++	})
+ }
+ 
+ func (f *projectOwnerAuditWebFixture) prepareService(ctx context.Context, cfg config.Config) {
+@@ -682,6 +709,13 @@
+ 		kind, f.controlPath = f.controlKind, ""
+ 		f.controlKind = ""
+ 		if kind == "hold" {
++			completion, ok := r.Context().Value(projectOwnerAuditWebCompletionKey{}).(*projectOwnerAuditWebCompletion)
++			if !ok || completion == nil || completion.held {
++				f.mu.Unlock()
++				clear(raw)
++				return errors.New("owned Audit hold requires its live outer handler token")
++			}
++			completion.held = true
+ 			f.counts["held"]++
+ 		} else if kind == "cut" {
+ 			f.counts["cuts"]++
+@@ -700,7 +734,6 @@
+ 		case <-r.Context().Done():
+ 			err = r.Context().Err()
+ 		}
+-		f.count("joined")
+ 		if err != nil {
+ 			clear(raw)
+ 			return err

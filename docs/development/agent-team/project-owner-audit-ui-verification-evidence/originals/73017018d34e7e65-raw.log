@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-audit-state.spec.ts src/tests/system-audit-state.spec.ts src/tests/project-workspace-state.spec.ts src/tests/system-model-selection-state.spec.ts src/tests/authentication.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+
+ Test Files  5 passed (5)
+      Tests  285 passed (285)
+   Start at  12:10:41
+   Duration  4.67s (transform 2.76s, setup 0ms, import 4.12s, tests 2.65s, environment 4.09s)
+

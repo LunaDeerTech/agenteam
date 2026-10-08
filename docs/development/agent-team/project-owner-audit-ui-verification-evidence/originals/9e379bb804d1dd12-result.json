@@ -1,0 +1,524 @@
+{
+  "status": "PASS_LIMITED_COMPLETE_JS_STATIC_AND_AUTHOR_FINAL_OFFLINE_BINDING_STOP",
+  "mandatory_fixes": [],
+  "final_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/freeze.json",
+    "bytes": 6515,
+    "sha256": "1a1a35b4f1f4b39a5fb26b3e3b30d56f639d36b3eb96086d3382ea537984d3f8"
+  },
+  "source01_handoff": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-source01/handoff.json",
+    "bytes": 2643,
+    "sha256": "5ece03e6c2dab3f9d2d4a96fb9d6440a04f411ad7d5c831e53b40528902391e1"
+  },
+  "final_sources": {
+    "tests/account-captcha-web/project-owner-audit.config.js": {
+      "installed": {
+        "path": "/workspace/agenteam/tests/account-captcha-web/project-owner-audit.config.js",
+        "bytes": 1163,
+        "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f"
+      },
+      "copy": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/project-owner-audit.config.js",
+        "bytes": 1163,
+        "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f"
+      }
+    },
+    "tests/account-captcha-web/e2e/project-owner-audit.spec.ts": {
+      "installed": {
+        "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+        "bytes": 67793,
+        "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+      },
+      "copy": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+        "bytes": 67793,
+        "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+      }
+    }
+  },
+  "source01_to_final": "Exact one locator formatting replacement (+13 bytes), config byte-identical; no behavioral delta.",
+  "checked_freeze_refs": [
+    {
+      "path": "/workspace/agenteam/tests/account-captcha-web/project-owner-audit.config.js",
+      "bytes": 1163,
+      "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/project-owner-audit.config.js",
+      "bytes": 1163,
+      "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f"
+    },
+    {
+      "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+      "bytes": 67793,
+      "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+      "bytes": 67793,
+      "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/delta.patch",
+      "bytes": 645,
+      "sha256": "b011901f55ef1a081da90bb3e98ba3a5ba5e61839472544c507d2fd16c9ae80c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-source01/handoff.json",
+      "bytes": 2643,
+      "sha256": "5ece03e6c2dab3f9d2d4a96fb9d6440a04f411ad7d5c831e53b40528902391e1"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/inputs.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/imports.json",
+      "bytes": 1085,
+      "sha256": "3f2dfb1fd0ef01819a30fbfcbd68204670c1efb677fb45f2c7a57128d0edd28a"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/checks.json",
+      "bytes": 6070,
+      "sha256": "e7b045feb169dc47a9a692ffa0660ce1fec749e02d0ae421260becbe2513c4b7"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/report.md",
+      "bytes": 1713,
+      "sha256": "e57989262f500cd9d089ede61056e5f23cc665f2b0675e883cedf554ebd44cdd"
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/project-audit.json",
+      "bytes": 295094,
+      "sha256": "b51581103f4c6952787799c93450703886917cf2ce2a98be26a085c16eadc2e1"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+      "bytes": 10909,
+      "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-tools.json",
+      "bytes": 36382,
+      "sha256": "f4e33640408959d148b2fa7960249dbc0545ea5ed29bafc566348ce880dcf8f2"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/run-browser-offline.py",
+      "bytes": 3816,
+      "sha256": "0217f8a4b4d73fac740b5f060da10840ee9e5dd1ffdc7fd0551bd7f3898cf0f9"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list.py",
+      "bytes": 1051,
+      "sha256": "49655da75331ae1358d71a5d1c9a7b2119fd8b0320acb293403ce701b47ff4db"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/freeze.json",
+      "bytes": 3153,
+      "sha256": "ee7eb7aa4a01863c47176d78e8455e37f349809147256c0de86e65a9900d476c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-coverage-plan.md",
+      "bytes": 2699,
+      "sha256": "76473f1fc4ef32ea9e89e21dbacdfd3bc4482c8cb6656291b8cdaaf7693322f1"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-calendar-provenance.json",
+      "bytes": 754,
+      "sha256": "047f635f7139c6f1fdba3e445973e600a62dbd144b1d063ca00522fa57bf26a8"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format01/result.json",
+      "bytes": 253,
+      "sha256": "7625ac72f3012fabe82011eed9ae226f37f81aa1ad8790932d1779678c0be1ec"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types01/result.json",
+      "bytes": 251,
+      "sha256": "0136be52587ef9dd821e53e0f2177f9da9f59c2796ed66c082c75f494d85ae76"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check01/result.json",
+      "bytes": 252,
+      "sha256": "2e0290779bc3ee024a0ed1a6ef9963fe78da3c462edbaa1ad552bb4f38be14ec"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list01/result.json",
+      "bytes": 326,
+      "sha256": "24b3999eb5855cd51ae8ced7da8da762dd0659a40bac2908903f91407e7be369"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format02/result.json",
+      "bytes": 252,
+      "sha256": "f3c412c3677a1e703c9e57ca6a53ebf81cd193db2804928de014701a4b457fa3"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types02/result.json",
+      "bytes": 252,
+      "sha256": "ac9281be06911dd988a2a6996886be988264b47a861f0da61998b8fc7fc8aabb"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check02/result.json",
+      "bytes": 252,
+      "sha256": "7d4682e88352f48fbaaef3f4d911d6e9ffd68f8642c236699c13388735b3bf4d"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list02/result.json",
+      "bytes": 327,
+      "sha256": "51047922ba200f0abe649d28e229ee4adba8838681e1a6090012499aae21a1cb"
+    }
+  ],
+  "checked_final_command_refs": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/command.json",
+      "bytes": 388,
+      "sha256": "38df95da48f281bfa66b2e7e5f6bd735458d2389bbc16aa641503a785dfc34d8"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/inputs-before.json",
+      "bytes": 1596,
+      "sha256": "33ef1f59ee60f593a946f63cabde2428f1059e0780ceacf18d901633f5f06162"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/inputs-after.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/raw.log",
+      "bytes": 137,
+      "sha256": "b683c0b6e13805faed18cd074f87dda2e284165fa5f637d50b1f2ccb0740ea48"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format03/result.json",
+      "bytes": 253,
+      "sha256": "0b714f0c55d4bb1803068dcabac1cb54bbef4e00464ed7e16347c41282eba0af"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/command.json",
+      "bytes": 656,
+      "sha256": "cb5dc822f6aeef766a5746dfa89bb82747b109544d32dcc076fdb56dea4b0fcd"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/inputs-before.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/inputs-after.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/raw.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types03/result.json",
+      "bytes": 252,
+      "sha256": "17f52133dc2e0f306bdce9d722282ceacf0a93c5d679830a538d4b7692c65647"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/command.json",
+      "bytes": 388,
+      "sha256": "0d207e130a251506362e7a8a86b28063424158ca8fff9d737d55bfcd63b469fa"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/inputs-before.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/inputs-after.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/raw.log",
+      "bytes": 66,
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check03/result.json",
+      "bytes": 252,
+      "sha256": "214b5b2de904e2c504e943101f842341f055f5612a921f819e8d0a35ed975b76"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/command.json",
+      "bytes": 188,
+      "sha256": "8516e96b87c7abfc95fbffc8f528a11d132089313a59ccadd0c9f47501c327fe"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/inputs-before.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/inputs-after.json",
+      "bytes": 1596,
+      "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/raw.log",
+      "bytes": 523,
+      "sha256": "8463505f9b9456658de6e5508dc962c1db0515da7552ac3118921f18b8eb4b0a"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list03/result.json",
+      "bytes": 327,
+      "sha256": "b94edd9d755f9cce7f5233e63b6b1309985ef96cc08320a023d28694cbe3b1b6"
+    }
+  ],
+  "final_input_count": 15,
+  "final_input_binding": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/inputs.json",
+    "bytes": 1596,
+    "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+  },
+  "actual_execution_reused": {
+    "browser-format03": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 0.6064563270047074,
+      "direct_actual_wait": 676697,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676697": "3471335"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": false
+    },
+    "browser-types03": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 2.1270591499996954,
+      "direct_actual_wait": 676875,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676875": "3472560"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": true
+    },
+    "browser-format-check03": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 0.9473599089978961,
+      "direct_actual_wait": 676882,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676882": "3472561"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": true
+    },
+    "browser-list03": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 3.3904937879997306,
+      "direct_actual_wait": 676873,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "676873": "3472559",
+        "676885": "3472561",
+        "676929": "3472732",
+        "676942": "3472807"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": true
+    }
+  },
+  "historical_checks": "Prior browser check result refs are preserved by final freeze; superseded-source checks are not final-source acceptance. Format03 wrote one formatting hunk and correctly records inputs_same=false; final type/check/list inputs all match final15.",
+  "static_protocol": {
+    "protocol": {
+      "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+      "bytes": 10909,
+      "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+    },
+    "go_candidate03_freeze": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+      "bytes": 3732,
+      "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+    },
+    "go_fixed_sources": [
+      {
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate03/project_owner_audit_web_fixture_test.go",
+        "bytes": 51317,
+        "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f"
+      },
+      {
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go",
+        "bytes": 6289,
+        "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+      }
+    ],
+    "ipc_actions": [
+      "counts",
+      "snapshot",
+      "arm-hold",
+      "arm-cut",
+      "arm-failure",
+      "release",
+      "session-fail",
+      "logout",
+      "rename-reuse"
+    ],
+    "count_keys": [
+      "browser_list_gets",
+      "browser_detail_gets",
+      "setup_audit_gets",
+      "control_audit_gets",
+      "browser_project_mutations",
+      "browser_command_lookups",
+      "held",
+      "joined",
+      "cuts",
+      "failures",
+      "session_failures",
+      "server_started",
+      "server_finished"
+    ],
+    "mode_check_keys": {
+      "read": [
+        "complete_projection",
+        "typed_families",
+        "explicit_pagination",
+        "all_filters",
+        "valid_empty",
+        "cursor_recovery",
+        "same_body_schema",
+        "same_body_client",
+        "zero_mutations"
+      ],
+      "authority": [
+        "owner_and_admin_owned",
+        "non_owner_hidden",
+        "both_gets",
+        "life_gates",
+        "detail_missing",
+        "cut_reread",
+        "failure_reread",
+        "list_cancel_join",
+        "detail_cancel_join",
+        "formal_logout",
+        "late_isolated",
+        "cross_project",
+        "cross_domain",
+        "zero_mutations"
+      ],
+      "navigation": [
+        "dotted_return",
+        "raw_rejection",
+        "settings_current",
+        "default_general",
+        "local_dirty_leave",
+        "existing_draft_guards",
+        "inline_focus",
+        "checking_new_page",
+        "drawer",
+        "reduced_motion",
+        "no_overflow",
+        "no_debug",
+        "zero_mutations"
+      ]
+    },
+    "result_keys": [
+      "completed",
+      "mode",
+      "checks",
+      "browser_audit_gets",
+      "schema_bodies",
+      "client_bodies",
+      "layouts"
+    ],
+    "matched": true,
+    "cookie_owner_vs_network_completion": "Native observer read completion does not itself prove Cookie-owner finally. Prior controlled factory evidence supplies that boundary; Go03 held/joined is incremented only after outer ReverseProxy handler unwinds."
+  },
+  "static_domains": {
+    "native_capture": "Returns original fetch/read promises; no cloned Response, tee, extra read or cancel. Captures only safe Audit chunks and closed Session identity fields, never credentials/CSRF/cookies.",
+    "same_body": "Actual EOF + method/raw path/query/status/media/request ID and byte/hash match to source=browser sidecar; setup/control excluded, cut/incomplete or controlled failure excluded from successful body parsing. Full upstream bytes alone are never browser EOF. Wire cursor/detail target substitutions are explicitly recorded.",
+    "public_client": "createProjectAuditAPI uses real accountTransport with original chunks/status/media/request ID and captured wire target/query. No network request in replay.",
+    "schema": "Exact GET route/status/media selection, standard Draft202012+FormatChecker registry, accepted year0000 Gregorian extension. Final b515 schema has formal409 on both paths; no schema-body execution by this review or offline list.",
+    "read": "Real producer IDs/actions and SQL safe projection equality, Project/Secret/Model families, explicit limit2 next/previous, all14 filters plus limit, 53/25 options, invalid input zero read, System-only empty and declared real cursor rejection.",
+    "authority": "Ordinary/admin own access, non-owner hidden; separately labelled explicit native list/detail gate probes; archived/archiving reads vs pending/deleting409, missing detail404; cut/failure + explicit reread, list/detail held cancellation and exact outer join; cross-project and reused names, cross-domain ordering, formal Logout with old detail retirement and explicit401.",
+    "navigation": "Dotted direct/login-return route and Resolve→Get→Audit start order; six invalid raw routes zero Project requests; both exact settings leaves/default general; local filters do not prompt, Owner and System+Summary drafts keep guards; inline keyboard/focus, idle pageshow503 and same-session fresh page, drawer/Escape/overlay/focus/reduced motion and root/body overflow.",
+    "images": "Exactly8 light/dark ×390/768/1024/1440 with viewport height900, SHA and fullPage flag; visible list/filter/detail representatives. File generation cannot establish visual acceptance; internal scroll offscreen controls not implicitly covered.",
+    "production_assets": "Private output files hashed/scanned, served entry/CSS/four-brand-SVG candidate URLs matched to fixed bytes; missing asset404 and frontend /debug NotFound. No production hosting claim."
+  },
+  "budgets_and_retirement": {
+    "test_seconds": 45,
+    "workers": 1,
+    "retries": 0,
+    "trace_video_screenshot_auto": "off",
+    "schema_child_timeout_seconds": 6,
+    "ipc_ack_timeout_seconds": 8,
+    "joined_poll_timeout_seconds": 5,
+    "go_top_including_cleanup_seconds": 120,
+    "package_minutes": 6,
+    "actual_resource_retirement_this_review": false,
+    "boundary": "Config and Go protocol only. JS releases controls and checks held==joined/server_finished==server_started before result; explicit auxiliary browser contexts close in finally. Go registered cleanup owns Node/direct wait/proxy; actual browser, child/adopted/watchdog/TCP retirement requires a later authorized run."
+  },
+  "line_anchors_final_spec": {
+    "function material()": 113,
+    "const countKeys =": 163,
+    "async function ipc(": 190,
+    "async function joined(": 251,
+    "function observeNative()": 309,
+    "const schemaProgram =": 676,
+    "async function verifyBodies(": 735,
+    "async function finish(": 964,
+    "test(\"[read]": 993,
+    "async function probe(": 1167,
+    "test(\"[authority]": 1273,
+    "async function settingsCurrent(": 1508,
+    "async function productionAssets(": 1600,
+    "test(\"[navigation]": 1676
+  },
+  "reused_refs": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-spec/rev2/card.md",
+      "bytes": 39298,
+      "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-http-verification-evidence/originals/independent/real-prep03/parse-real-body.py",
+      "bytes": 3125,
+      "sha256": "02d277a4941396664e71c2d67ed36d7837510eeaa3a49aedecc981eb13d4ba9d"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/plan-v1.md",
+      "bytes": 9735,
+      "sha256": "902118c8d662085d969ab7392687c5ad00f71d232e8612413a55b614b36e778d"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/web17-offline-v1/review.md",
+      "bytes": 1709,
+      "sha256": "280fa718ef5c61be9b4dbd9de42210f8914e697604e6c482875f148ab4835539"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/review.md",
+      "bytes": 4130,
+      "sha256": "5669b67d4c3bf8286137b03f712df48d101bc3b3dc07864a37e8f489561dc4e1"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/review.md",
+      "bytes": 4345,
+      "sha256": "067080be0ba5211c372ea337cbb02c05b0c5cffc5c53c323028d46a33665f7d7"
+    }
+  ],
+  "execution_by_independent_reviewer": "Only fixed source reading and bounded byte/SHA/JSON/delta/field-list checks. No Node/Go/type/format/list/schema-body/browser/build/resource/network/Git write.",
+  "not_accepted": [
+    "three real browser cases and response-body schema/client results",
+    "real lifecycle/producer/HTTP/Cookie runtime behavior",
+    "eight actual screenshots and visual review",
+    "actual external-process/resource retirement",
+    "Go final acceptance/README21/complete AuditUI22/fullD27/production"
+  ]
+}

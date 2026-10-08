@@ -1,0 +1,35 @@
+{
+  "bindings_byte_identical": {
+    "bytes": 1718,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/bindings.json",
+    "sha256": "5bf1aff637e071f537318bb710abd3bf02ac0ae1ecba7f221a63d251b95fe2b7"
+  },
+  "canonical_uuid_v7_constants": [
+    "00000000-0000-7000-8000-000000000001",
+    "00000000-0000-7000-8000-000000000002"
+  ],
+  "go_or_runner_or_resources_executed": false,
+  "gofmt_run": false,
+  "model_final_sources": [
+    {
+      "bytes": 5611,
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "bytes": 16692,
+      "path": "/workspace/agenteam/internal/central/model/platform_embedding_resolution_test.go",
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    }
+  ],
+  "python_ast_parse": "PASS_WITHOUT_EXECUTION",
+  "repository_sources_written": false,
+  "repository_target_still_absent": "/workspace/agenteam/tests/account/project_owner_audit_completion_overlay_test.go",
+  "runner_byte_identical": {
+    "bytes": 10596,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/run.py",
+    "sha256": "77588d9005ec7a762599b76a44156d7064ba056e8cb130a9ca51f5a946f6384f"
+  },
+  "source_delta_exactly_two_constants": true,
+  "status": "O1_FILE_ONLY_DELTA_PASS_PENDING_INDEPENDENT_REVIEW"
+}

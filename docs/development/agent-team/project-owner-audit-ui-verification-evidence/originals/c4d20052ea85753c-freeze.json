@@ -1,0 +1,101 @@
+{
+  "O1_independent_review": {
+    "bytes": 2231,
+    "path": "/workspace/scratch/architecture-audit-d1-overlay01-review/review.md",
+    "sha256": "9dd538d2a0a176580183a0f3effb960bcf8b7b07be9b790f604113762728da81"
+  },
+  "candidate03": {
+    "bytes": 3732,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+    "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+  },
+  "compiled_harness_final_model_no_overlay_execution": {
+    "bytes": 2154,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline02/freeze.json",
+    "sha256": "027101e01ec67cf5e6c3dda10621ee5a06117a440ca6c693cdaf95c2187df2a3"
+  },
+  "created_utc": "2026-10-08T12:51:44.760435+00:00",
+  "execution_started": false,
+  "expected_subtest_count": 5,
+  "expected_top_count": 1,
+  "files": [
+    {
+      "bytes": 12324,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/project_owner_audit_completion_overlay_test.go",
+      "sha256": "6a8bac42745e0d2d43db8ca07b139600945b81e6895585e672f19ec9e8fe94cd"
+    },
+    {
+      "bytes": 10596,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/run.py",
+      "sha256": "77588d9005ec7a762599b76a44156d7064ba056e8cb130a9ca51f5a946f6384f"
+    },
+    {
+      "bytes": 1718,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/bindings.json",
+      "sha256": "5bf1aff637e071f537318bb710abd3bf02ac0ae1ecba7f221a63d251b95fe2b7"
+    },
+    {
+      "bytes": 217,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/overlay.json",
+      "sha256": "c6772ed98b8b7514d91d62108cf52b1e147a231eeff655b27021379b31d8be35"
+    },
+    {
+      "bytes": 649,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/grant.template.json",
+      "sha256": "8231c35aa9146d33581dbf8076be98e63963b541874e2dfc49e59f026de58207"
+    },
+    {
+      "bytes": 814,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/overlay01-to-overlay02.patch",
+      "sha256": "e8465f1c9f508ed5d23996841959565204a1710533b9d71bf0132b8f4aee33a8"
+    },
+    {
+      "bytes": 919,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/delta.md",
+      "sha256": "697f09e99b6029cff9d9254a0f5bf7c2641f01b9c03abcd487d3db20d673866f"
+    },
+    {
+      "bytes": 1399,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/static-check.json",
+      "sha256": "f3c6a48525706ed6b922048d17d1faf4489a0e0a21b87d8c3fb394cf44400773"
+    },
+    {
+      "bytes": 619,
+      "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/handoff.md",
+      "sha256": "0640493a51bbedee18077a06fff0f01720b85df2def21d89b37b5bfb08cb1fdb"
+    }
+  ],
+  "go_cache_reader_active": false,
+  "model_final_sources": [
+    {
+      "bytes": 5611,
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "bytes": 16692,
+      "path": "/workspace/agenteam/internal/central/model/platform_embedding_resolution_test.go",
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    }
+  ],
+  "model_final_sources_pending": false,
+  "original_plan_preserved": {
+    "bytes": 2599,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/D1-validation-plan.md",
+    "sha256": "e52120ab7d04e9b48e704d94cfe274fbc5ab689dc5f07e27928aba9678b57fed"
+  },
+  "parent_overlay01": {
+    "bytes": 2547,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay01/freeze.json",
+    "sha256": "263c97f8f59ad04f7ed36655e1868d2e1fe90ae41091ffab2f9734a22739505f"
+  },
+  "planned_selector": "^TestAccountProjectOwnerAuditProxyCompletion$",
+  "prior_plan_corrections_preserved": {
+    "bytes": 2125,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay01/plan-delta.md",
+    "sha256": "e02a3ea51637ca5cdebffc099c3c6d7ede9ff00b0cce51ad1bd48d77d7e81ccd"
+  },
+  "repository_modified": false,
+  "root_authorized": false,
+  "status": "D1_OVERLAY02_AUTHOR_PREPARED_STOP_O1_FIXED_PENDING_REVIEW"
+}

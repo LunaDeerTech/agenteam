@@ -1,0 +1,11 @@
+{
+  "scope": "scratch input-snapshot preparation, before Vite execution",
+  "exit": 1,
+  "tool_chunk": "8cec50",
+  "tool_reported_wall_seconds": 0.322693642,
+  "actual_tool_completion": true,
+  "owned_pid_evidence": "not exposed by this synchronous Python tool call; no subprocess launched by helper",
+  "reason": "Inline exec of snapshot-inputs.py omitted sys.argv[1]; IndexError after reading inputs, before writing input snapshot. Script was unchanged and then run as python3 snapshot-inputs.py before/after successfully.",
+  "stderr_transcription": "Traceback (most recent call last):\n  File \"<stdin>\", line 41, in <module>\n  File \"/workspace/scratch/project-owner-audit-ui-frontend/build-v02/snapshot-inputs.py\", line 31, in <module>\n    (out/('build-inputs-'+sys.argv[1]+'.json')).write_text(json.dumps(data,indent=2)+'\\n')\n                          ~~~~~~~~^^^\nIndexError: list index out of range\n",
+  "build_runs": 1
+}

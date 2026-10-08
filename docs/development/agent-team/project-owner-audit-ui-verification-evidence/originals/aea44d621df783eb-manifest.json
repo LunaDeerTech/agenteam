@@ -1,0 +1,60 @@
+{
+  "state": "EVIDENCE_WORDING_CORRECTED_STOP_NO_REEXECUTION",
+  "correction": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/aud-owner01-evidence-boundary-correction01/correction.md",
+    "bytes": 1678,
+    "sha256": "903b2af96c68ff2db634444ca0a9128d27fe10d53354e806258c2d08a85fab51"
+  },
+  "preserved_originals": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-owner01-result/report.md",
+      "bytes": 1342,
+      "sha256": "feb11294d8386ecf3cad00c9cfdc0bd17c3e3f372bca32cbf0bf65210d18e06b"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-owner01-result/manifest.json",
+      "bytes": 23241,
+      "sha256": "405edc01bc2fa1eddfab49c8924765b08052421f8406659e8a15d8ae748b5aca"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-independent-four-final01/review.md",
+      "bytes": 2554,
+      "sha256": "c4694120ea0c9e71fbd07ecf4aee05416b8ffbefd17f19a6c69e10d15a8b4f3c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-independent-four-final01/result.json",
+      "bytes": 14724,
+      "sha256": "47cf5a9cfebc63c5047c25c459e76d28d88dd5fabb3905d23f7da617201f1abe"
+    }
+  ],
+  "fixed_source": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v5/tests/account-captcha-web/e2e/project-owner.spec.ts",
+    "bytes": 44418,
+    "sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009"
+  },
+  "fixed_freeze": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+    "bytes": 251,
+    "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+  },
+  "anchors": {
+    "response_event_only": "197-226",
+    "complete_upstream_safe_bytes": "294-298",
+    "event_link_and_public_client_replay": "352-407",
+    "aggregate_receipt_only": "421-425"
+  },
+  "new_dynamic_checks": false,
+  "old_Owner_native_EOF_proof": false,
+  "old_Owner_actual_native_bytes_comparison": false,
+  "unchanged_result": {
+    "actual_PASS": true,
+    "schema": 17,
+    "response_event_matched_public_client_replays": {
+      "list": 2,
+      "resolve": 4,
+      "get": 4,
+      "problem": 1
+    },
+    "owned_retirement": "PASS"
+  }
+}

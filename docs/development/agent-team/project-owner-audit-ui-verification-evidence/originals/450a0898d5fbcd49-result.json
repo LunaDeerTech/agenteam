@@ -1,0 +1,190 @@
+{
+  "status": "PASS_STOP",
+  "scope": "Fixed state6 plus view7 with auth-v2 override = unique12, independent STATIC plus controlled actual App/Router. API5 accepted separately and reused unchanged. Not full Audit UI22.",
+  "mandatory_fixes": [],
+  "D1_closed": "auth-v2 and settings redirect preserve fullPath in named not-found. Six independent cold invalid routes and a valid-dotted to invalid warm navigation cause no unauthorized Project requests.",
+  "independent_composition": "run01 unchanged9 PASS + run03 corrected-premise1 PASS. Original run01 9/10 FAIL and recording-only run02 1 FAIL retained. Not a single10/10 rerun.",
+  "runs": {
+    "run01": {
+      "execution": {
+        "exit": 1,
+        "timeout": false,
+        "command_elapsed_seconds": 3.034880046998296,
+        "total_elapsed_seconds": 3.2908126749971416,
+        "direct_actual_wait": 648623,
+        "adopted_actual_wait": [],
+        "observed_owned": {
+          "648623": "3262662",
+          "648650": "3262700"
+        },
+        "forced_cleanup": [],
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "tests": {
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "pending": 0
+      },
+      "input_count": 151,
+      "pre_post_and_preserved_same": true
+    },
+    "run02": {
+      "execution": {
+        "exit": 1,
+        "timeout": false,
+        "command_elapsed_seconds": 2.98331152800165,
+        "total_elapsed_seconds": 3.2401025720027974,
+        "direct_actual_wait": 649903,
+        "adopted_actual_wait": [],
+        "observed_owned": {
+          "649903": "3273713",
+          "649930": "3273762"
+        },
+        "forced_cleanup": [],
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "tests": {
+        "total": 10,
+        "passed": 0,
+        "failed": 1,
+        "pending": 9
+      },
+      "input_count": 151,
+      "pre_post_and_preserved_same": true
+    },
+    "run03": {
+      "execution": {
+        "exit": 0,
+        "timeout": false,
+        "command_elapsed_seconds": 2.6807688410044648,
+        "total_elapsed_seconds": 2.9360026930007734,
+        "direct_actual_wait": 653299,
+        "adopted_actual_wait": [],
+        "observed_owned": {
+          "653299": "3291215",
+          "653325": "3291252"
+        },
+        "forced_cleanup": [],
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "tests": {
+        "total": 10,
+        "passed": 1,
+        "failed": 0,
+        "pending": 9
+      },
+      "input_count": 151,
+      "pre_post_and_preserved_same": true
+    }
+  },
+  "parameter_behavior": "Navigation Session restore reconstructs one valid old-A page before route commits, producing one old-A default list while the old route and complete same-identity A Get context remain current. This is not zero additional requests. B stays unread until complete B Get, then exactly one B default list and explicitly requested detail.",
+  "state_reuse": "Original18+2 composition reused; the state-v1 D1 integration block is closed by this fixed auth-v2/App result; no old20 repetition.",
+  "api_reuse": "Independent71 and authorAPI86/old102 unchanged; no repetition.",
+  "author_reuse": {
+    "view_unit02": "3 selected files119 PASS, actual6.493666048s, stable130 inputs, owned double empty; 11 combined sources present, state test intentionally not executed",
+    "view_types02": "Historical189-input type PASS, actual10.844441043s; all12 source hashes same, not an independent fulltype rerun",
+    "view_format_check01": "7-source check PASS, actual1.049349491s; full snapshot189 includes same12",
+    "original_view_unit01": "43 PASS / 3 FAIL retained: raw-query route product defect plus2 malformed detail UUID fixture failures. Exact six original source bytes checked.",
+    "state": "Prior285 selected/type/format and original50/49/format failures retained unchanged."
+  },
+  "not_verified": [
+    "Native browser Cookie/CSS/Tab/visuals or native pageshow",
+    "Real Go/HTTP/Postgres/producer/schema-client replay",
+    "Active browser JS, final full-suite/private build, README21, full AuditUI22/D27/production"
+  ],
+  "no_product_writes_or_resources": true,
+  "artifacts": {
+    "input-binding.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/input-binding.json",
+      "sha256": "46b5dfb6f96c29b6ece6d33eff1ddc306ed9355e9f6b72eef5d0b64e52fb7d1b",
+      "bytes": 38643
+    },
+    "final-input-check.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/final-input-check.json",
+      "sha256": "42f4a9359a36b0f06ed669ebd116c2dd3c6d77b62daa9753f06f6f00ca88f38e",
+      "bytes": 9497
+    },
+    "probe-failures.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/probe-failures.json",
+      "sha256": "e8016bd855aac8a4f6d40407694ec71bde94ecef64226500d5040ec9d03168fc",
+      "bytes": 826
+    },
+    "recording-only.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/recording-only.patch",
+      "sha256": "b0aba4a3ece7e53c6b64c0b44c4c7f3d2013f65769fe846df2e5128b0a947ec7",
+      "bytes": 8934
+    },
+    "probe-premise-correction.patch": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/probe-premise-correction.patch",
+      "sha256": "69566984409aafd0ae429eba9abb9e1a948170ca41e4a883827ac19deb485a2b",
+      "bytes": 5058
+    },
+    "run01/raw.log": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run01/raw.log",
+      "sha256": "a1ef4d2771263c4148b529672370080171f08f6f036ddd9c8d80c7df02d058b4",
+      "bytes": 2581
+    },
+    "run01/result.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run01/result.json",
+      "sha256": "7b5406f43ee69c13a5ff82faa26a0ed3c0cecbbf5fa303e1075c2473d857a022",
+      "bytes": 359
+    },
+    "run01/independent.spec.ts": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run01/independent.spec.ts",
+      "sha256": "ec1bb9b00ea23861985cf9d59b075d8eb7e478c146dee3e02600e01e1e59e2bb",
+      "bytes": 11697
+    },
+    "run02/raw.log": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run02/raw.log",
+      "sha256": "1515f54bdcf441f4f7764f1497fea3d42458c744754954bfea3acb7c8a46e7ee",
+      "bytes": 2536
+    },
+    "run02/result.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run02/result.json",
+      "sha256": "be9ea2fd865e649e737e62885c6f641a39355a5451639f219042a4bf0354a354",
+      "bytes": 358
+    },
+    "run02/independent.spec.ts": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run02/independent.spec.ts",
+      "sha256": "21d94caf5ee1ff41ec9923b5686c09108b312cbf61d67cdcc964ef3680141d8b",
+      "bytes": 12987
+    },
+    "run02/parameter-trace.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run02/parameter-trace.json",
+      "sha256": "c29c96a1e4d16163bfea4b80a317387bf5967e93d77c6c6dc2ec6a2631934fcf",
+      "bytes": 4673
+    },
+    "run03/raw.log": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run03/raw.log",
+      "sha256": "7f01ba0b2d500ebf2fe14f58f7525136309a53af9010d333d87112ef75840031",
+      "bytes": 1987
+    },
+    "run03/result.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run03/result.json",
+      "sha256": "ee2aa3af3f06d3657762ac038c8a83f0b6e4be12a91656036ec9167530e18a7a",
+      "bytes": 360
+    },
+    "run03/independent.spec.ts": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run03/independent.spec.ts",
+      "sha256": "6bf424b7aea5d45012f62bcc07be9cc7f44975fed01c37c1ffff3d51808b0b1d",
+      "bytes": 14262
+    },
+    "run03/parameter-trace-before.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run03/parameter-trace-before.json",
+      "sha256": "c29c96a1e4d16163bfea4b80a317387bf5967e93d77c6c6dc2ec6a2631934fcf",
+      "bytes": 4673
+    },
+    "run03/parameter-trace-final.json": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run03/parameter-trace-final.json",
+      "sha256": "a8fa08a63b162387c75e33574e72dc328f4e7b0b3fbe810eeb93f3514b18e346",
+      "bytes": 6860
+    }
+  }
+}

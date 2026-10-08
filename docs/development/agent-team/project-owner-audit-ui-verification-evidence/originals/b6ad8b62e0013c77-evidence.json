@@ -1,0 +1,139 @@
+{
+  "state": "SCRATCH_README21_V2_PRE_REVIEW_PASS_STOP_NOT_INSTALLED",
+  "must_fix": [],
+  "non_blocking_findings": [],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/provenance.json",
+      "bytes": 3647,
+      "sha256": "69f6f7041d84dfeaffd37d7caa5067a94406c564db4baad02848a46609f55328"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/README.patch",
+      "bytes": 21056,
+      "sha256": "cade6b80aa466fb32a4a8c2db3fe8b71a2bd0ea48156ab66f5203bc4e4c0a3a8"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/v1-to-v2.patch",
+      "bytes": 6364,
+      "sha256": "a42b8c77ef9e8020da5dfb04e191c7e08068ef4f2168ff2fd26bf4f06f3a1cdf"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/audit-section.md",
+      "bytes": 6805,
+      "sha256": "b00ac18908d90f701e4245965d21d08d536dd302d28f97835c94cc270273baa3"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v1/provenance.json",
+      "bytes": 2599,
+      "sha256": "30e4bf74afefba7f58d80d5b1117b168ef0129bf8083618b7d271fba7407090a"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v1/README.patch",
+      "bytes": 20644,
+      "sha256": "dbc6c8392d701a262591a0290cc7e0693530c156032133e1cae7d1ea00edb9c4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/frontend/README.md",
+      "bytes": 77620,
+      "sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-spec/rev2/card.md",
+      "bytes": 39298,
+      "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+    },
+    {
+      "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/review.md",
+      "bytes": 2581,
+      "sha256": "9b0453ea78e87ac921aa34ff5b603be93023c27684ebf85f1f9c47ba0f629e3c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/freeze.json",
+      "bytes": 5516,
+      "sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditnav02-visual01/manifest.json",
+      "bytes": 1371,
+      "sha256": "07a8d8def997753548fb1c624228780ae0a391fb540a8807824baa66c9f7873c"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditnav02-visual01/review.md",
+      "bytes": 3646,
+      "sha256": "018fe8c99778a01e11a431b52c0201d19b5c89369d443b00bf98c37ccbc7b5e5"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditnav02-visual01/images.json",
+      "bytes": 4517,
+      "sha256": "b0c8747d1cc41961073ff6e8e17370d9f15180f03a90eef546daa49dab23f3fe"
+    }
+  ],
+  "candidate": {
+    "sha256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e",
+    "bytes": 84744,
+    "reconstructed_in_memory_only": true,
+    "full_copy_written": false
+  },
+  "text_checks": {
+    "tool_chunk": "c406d8",
+    "base_hunks": 6,
+    "base_old_starts": [
+      1,
+      37,
+      57,
+      71,
+      82,
+      119
+    ],
+    "v1_to_v2_hunks": 2,
+    "v1_to_v2_replaced_paragraphs": 3,
+    "exact_context_and_hunk_counts_checked": true,
+    "base_to_v2_equals_base_to_v1_to_v2": true,
+    "candidate_hash_and_length_match": true,
+    "exact_new_section_embedded": true,
+    "v1_to_v2_prefix_before_audit_section_identical": true,
+    "base_personal_and_later_tail_identical": true,
+    "tail_sha256": "06330824c983489dcbae2cbc7b1b1b949b3bbc945bd3b4ec12db2566a68382cc"
+  },
+  "semantic_consistency": [
+    "The six hunks add Audit only to capability summaries, API/controller/path tables and the new Owner Audit section; existing later-domain documentation remains byte-identical.",
+    "Rev2 contract separates 53 action/25 resource filter values from 31 Project output actions/14 resource kinds; 14 filter fields, explicit application, UTC half-open time range, 1..200 default50 and cursor-only history agree.",
+    "Owner Resolve then current stable-ID Get precedes Audit; no Admin bypass or System Audit fallback; active/archiving/archived read and blocked deleting/uninitialized contexts agree.",
+    "Canonical-read repair review9b0453 limits preservation to a strictly valid same-canonical-Project Audit route. Other changes/leave/cancel/timeout retire observations; canceled later navigation does not revive them. No route-prefix widening inferred.",
+    "Current paired 401 uses unavailable/session-unconfirmed UI, with explicit restore action; local403/404 do not set System denied and stale tails cannot clear new identity. Read failures do not create command lookup/replay.",
+    "Full EOF, fatal UTF8, 1MiB success representation and typed refinement precede publication. Native browser/schema/client evidence is separated from setup/IPC/pre-truncation captures and SQL corroboration.",
+    "README preserves historical unit2265/2266 plus targeted20 as a version combination, not fresh whole-suite success. Canonical repair final49 PASS remains a separately accepted controlled scope; this review does not rerun it.",
+    "Referenced author visual manifest/review/images describe eight light/dark widths390/768/1024/1440, all height900. README claims only visible viewports, not fullPage content, dynamic keyboard proof or native zoom. No images viewed in this document review.",
+    "Fixed protocol/test entry names and inherited45s browser/workers1/retries0/120s top inclCleanup/6m package match accepted scope. Runtime ownership and actual retirement remain execution prerequisites, not evidence supplied by README.",
+    "Production SPA, Resolution/Invocations, D24, ready503 and the three stopped scopes remain excluded; no full D27/E01 acceptance implied."
+  ],
+  "links": [
+    {
+      "target": "../work-items/d27-project-owner-audit-ui.md",
+      "exists": true,
+      "current_target_content_read": false
+    },
+    {
+      "target": "../../../api/openapi/project-audit.json",
+      "exists": true,
+      "current_target_content_read": false
+    },
+    {
+      "target": "../agent-team/project-owner-audit-ui-verification.md",
+      "exists": true,
+      "current_target_content_read": false
+    }
+  ],
+  "execution_limits": {
+    "repository_writes": false,
+    "readme_installed": false,
+    "go_node_browser_resources_network_git": false,
+    "active_old_regression_directory_read": false,
+    "whole_source_graph_rescanned": false,
+    "product_checks_rerun": false,
+    "real_independent_audit_rounds_run": false,
+    "whole_card_acceptance": false
+  },
+  "pending": "Final technical acceptance, old-regression completion and four independent actual representatives remain root-coordinated prerequisites. README installation requires a separate authorization after technical acceptance."
+}

@@ -1,0 +1,84 @@
+{
+  "status": "SCRATCH_PROPOSAL_STOP_NOT_INSTALLED",
+  "base": {
+    "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "bytes": 67892,
+    "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f"
+  },
+  "proposed_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+  "proposed_bytes": 68077,
+  "patch": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/authority01-session-proposal01/proposed.patch",
+    "bytes": 837,
+    "sha256": "dc5087790186d5aec9569fc91950f57617f12cced77273f79616cbaf9ae98a8b"
+  },
+  "analysis": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/authority01-session-proposal01/analysis.md",
+    "bytes": 2405,
+    "sha256": "f3f9cae7888efc9fd096fc57175a6b672d4a6db721ebe421af846435bb1ce024"
+  },
+  "actual_originals": [
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/raw.log",
+      "bytes": 6015,
+      "sha256": "1fcd5f238c308dd85958ff2151a0d33686c551084ade71c3f2faa32579fce22d"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/result.json",
+      "bytes": 33716,
+      "sha256": "e2c5078a4ebe4f253195127f4f2ca42f127fa79fef51960413e857d266da8cc4"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/cleanup.json",
+      "bytes": 72031,
+      "sha256": "0eed6743d30c12215f97d55f0fd6773dc7ba8968ca866b6a51b78f3a7ce217ee"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/response-044.json",
+      "bytes": 804,
+      "sha256": "4c87cbd2b9138ed2c8e7c5f8a818bb554c55a9d7475a49be9b2a5266595cc775"
+    },
+    {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/safe-http-evidence/TestAccountProjectOwnerAuditWebAuthorityAndRecovery/body-bbaf3a8ac87580a87fe59f57148e31c04d502399d11496d8f110c83996e93231.json",
+      "bytes": 241,
+      "sha256": "bbaf3a8ac87580a87fe59f57148e31c04d502399d11496d8f110c83996e93231"
+    }
+  ],
+  "static_sources": [
+    {
+      "path": "/workspace/agenteam/web/src/composables/useSession.ts",
+      "bytes": 163959,
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/App.vue",
+      "bytes": 10338,
+      "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/router/auth.ts",
+      "bytes": 10910,
+      "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/views/auth/LoginView.vue",
+      "bytes": 10372,
+      "sha256": "be5e23755d0129f35fc690ca3597d21d5275345637cb40da079c5177a79eda12"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/tests/project-audit-state.spec.ts",
+      "bytes": 32745,
+      "sha256": "f5f0ddafd782745f45148b1d8a2bbf3bb01e649ca7a645bdb53eda0eae64b539"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+      "bytes": 39298,
+      "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+    }
+  ],
+  "actual_old_dom_observed": false,
+  "actual_old_final_schema_client_reached": false,
+  "source_installed": false,
+  "checks_run": false,
+  "resources_run": false
+}

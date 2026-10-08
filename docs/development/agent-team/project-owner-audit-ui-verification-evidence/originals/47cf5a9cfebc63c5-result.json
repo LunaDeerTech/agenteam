@@ -1,0 +1,419 @@
+{
+  "state": "INDEPENDENT_AUDIT_FOUR_REAL_ROUNDS_PASS_FULLY_RETIRED_STOP",
+  "execution": "All four rounds personally executed once under separate immutable root grants. No retry, extra compile/list/filegate, source mutation or asset operation by this verifier.",
+  "rounds": [
+    {
+      "run": "aud-read01",
+      "group": "new-audit-read",
+      "state": "PASS_FULL_OWNED_RETIREMENT",
+      "original_files": 60,
+      "result": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-read01/result.json",
+        "bytes": 48277,
+        "sha256": "040324e68dbe96c0955b1db085d0e408e7aca71d23649e7f63d614d81b363288"
+      },
+      "tool_actual_exit": 0,
+      "tool_session": 1237,
+      "timing": {
+        "browser_seconds": 11.4,
+        "top_seconds": 20.0,
+        "package_seconds": 21.052,
+        "fixture_command_seconds": 71.13,
+        "TCP_tail_seconds": 38.379618853003194
+      },
+      "evidence_domain": {
+        "name": "Project Audit",
+        "attempts": 19,
+        "complete_EOF": 19,
+        "schema": 19,
+        "public_client": 19,
+        "sidecars": 19,
+        "body_files": 9,
+        "incomplete": 0
+      },
+      "resources": [
+        "108712c686800eb0c3664aeeb76ba1d2e32bda4a1e8cec66e27e37d2a46df3f0",
+        "53dbbd7988f79dcfb01154639653d3c080258d0be442aa8d4df47154826e510b",
+        "61d15865ea45159cfeee53999542ff900937d33f09d106e8ce19f66fdba02b96",
+        "9178cb52e496cd5ab12f1c6b60085e4c803babbe19443bfd97769e6c8f54561a",
+        "c63ad87fae9efe76acc6b5339182fd4e8bb565aa6c3ee961f9153b08cda8445d",
+        "ea7d4d33270e581fe384b6a12c1e72bf70eb60476a54e18ea0a66f22c82af5ba",
+        "f2e164b087e406c62e52fd0fc3cb28a5476db3c0c8ef707544104da23964c1b2"
+      ],
+      "last_TCP_clear": "2026-10-08T16:40:36.201106+00:00",
+      "sealed_manifest": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/aud-read01-result/manifest.json",
+        "bytes": 17889,
+        "sha256": "9d457c5ec724c85974ff4e6d887d7239fbd299d823605ab6452379e96201a6ed"
+      }
+    },
+    {
+      "run": "aud-authority01",
+      "group": "new-audit-authority",
+      "state": "PASS_FULL_OWNED_RETIREMENT",
+      "original_files": 103,
+      "result": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-authority01/result.json",
+        "bytes": 48939,
+        "sha256": "42e09b69662deb846f119e0841b2f59a3b0f08e3f2fc3bee82725916ea4e5ce1"
+      },
+      "tool_actual_exit": 0,
+      "tool_session": 3003,
+      "timing": {
+        "browser_seconds": 21.7,
+        "top_seconds": 28.95,
+        "fixture_command_seconds": 80.189,
+        "TCP_tail_seconds": 38.36802464599896
+      },
+      "evidence_domain": {
+        "name": "Project Audit",
+        "attempts": 47,
+        "complete_EOF": 34,
+        "schema": 34,
+        "public_client": 34,
+        "sidecars": 47,
+        "body_files": 23,
+        "incomplete": 13
+      },
+      "resources": [
+        "04d43f89dd6d8d576fb7bdc709117aa941b46d714dbb139809aaa593279053d4",
+        "0e6c898660d0e5b88c052ff5a5df437a6039dc40c3ee9e8d14c528d1a460605b",
+        "6a1864ee2157129a7d8ea084fd46439b5c2a70bd98ef8e060b24e4541921886f",
+        "7c4f4d99fc760d5b24e97ef4b8ac9700888251fe22f5ed4399231151a9cfe554",
+        "8684760509bbc7fad67c2be166f4a3be6ce08fff3251431b468cb53dbb52b3c2",
+        "8f99056715459077785e0750ba9c875b593fca23ac893797f1b3f7a0c3daebb0",
+        "b68141767c77dd85350d1ac3f7ab1205e1aaa63106b7bc9356fbcdd0027c246f"
+      ],
+      "last_TCP_clear": "2026-10-08T16:45:29.078274+00:00",
+      "sealed_manifest": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/aud-authority01-result/manifest.json",
+        "bytes": 32853,
+        "sha256": "b8715751ac0380b5829e9b77a73c41aec834e7fd377cf0bbfcdc82057a02df56"
+      }
+    },
+    {
+      "run": "aud-system01",
+      "group": "old-system-audit-authority",
+      "state": "PASS_FULL_OWNED_RETIREMENT",
+      "original_files": 24,
+      "result": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-system01/result.json",
+        "bytes": 49863,
+        "sha256": "d2fd4e054f1a733d3c0eb87fe39f172d2ef4993265d2430c9f180d1cc4bc1cd5"
+      },
+      "tool_actual_exit": 0,
+      "tool_session": 79299,
+      "timing": {
+        "top_seconds": 16.34,
+        "browser_seconds": 11.3,
+        "fixture_command_seconds": 67.2,
+        "TCP_tail_seconds": 39.369654841997544
+      },
+      "evidence_domain": {
+        "name": "legacy System Audit",
+        "Project_Audit_schema_client": "not produced"
+      },
+      "resources": [
+        "164942cdf6bc8d2626e23e71068e2fea0967156242e8ff5323dbfaf5bd5e9400",
+        "65056d48da02bd2cd35cbb558639fe8fe10936986ab71ddc28019a7d276fb46e",
+        "72e2d581e3adf9b2134c1bb01af15e5fc0b18f0f27bab4c31b05705b381cdc92",
+        "8a8b9072d96208622492d77c53c2a3b2b17a09dd955d4640780847b77ec87cbf",
+        "ebd9aed06e13aaffea4595c0125f42cf5b2dd1fa31ad5ef8b186ff54adcd452e",
+        "f0d740c117fcbaa8997bca5065a37894e3ca00117782bd3d91bdb5681991eb01",
+        "f8c43dc08c01a0fe1705270f014a1f972a5e33922513ffa9d2190509af8b8d6e"
+      ],
+      "last_TCP_clear": "2026-10-08T16:49:47.141953+00:00",
+      "sealed_manifest": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/aud-system01-result/manifest.json",
+        "bytes": 9156,
+        "sha256": "945582df00164baa384bcc23e01c91434e72bd882ee1a7de1dde20505757722e"
+      }
+    },
+    {
+      "run": "aud-owner01",
+      "group": "old-owner-identity",
+      "state": "PASS_FULL_OWNED_RETIREMENT",
+      "original_files": 52,
+      "result": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final04/runs/aud-owner01/result.json",
+        "bytes": 50178,
+        "sha256": "6b88de88f59dfb39bb710d4e68107731040fefcb82d48600d46f00fed1774e60"
+      },
+      "tool_actual_exit": 0,
+      "tool_session": 56007,
+      "timing": {
+        "top_seconds": 18.66,
+        "browser_seconds": 11.0,
+        "fixture_command_seconds": 69.295,
+        "TCP_tail_seconds": 38.37213268800406
+      },
+      "evidence_domain": {
+        "name": "legacy Owner",
+        "schema": 17,
+        "public_client": 11,
+        "client_breakdown": {
+          "list": 2,
+          "resolve": 4,
+          "get": 4,
+          "problem": 1
+        },
+        "sidecars": 17,
+        "body_files": 9,
+        "Project_Audit_schema_client": "not produced"
+      },
+      "resources": [
+        "06fefd6d8f3953ffae6050512601cf85efe546bee93c2967bb82d461d1e3ac30",
+        "2070026b461b41cb386de25fb6f90e23edead6c16eea33258d22e9f1e34288cc",
+        "5c41c485a91b219482d1b238825d30fd6d887720a67f67ccf371f065f4bfe3d6",
+        "71a917094bf30614b49f0180cefced5132128767cf41c2f277eb0192a3feee8e",
+        "ae7b0050ea798fc5b49ea480bbf6c7ccaf0654cab9ace9de94e0a6aa34e4f8df",
+        "b1a2e3086026603f525381ea6c06f35d9939f79cdc75b9c4e7d1721124e39ed6",
+        "f8a226841f4b17b352257217e762d1e412aed9844ae2e459a99a8223def15ec9"
+      ],
+      "last_TCP_clear": "2026-10-08T16:53:24.517925+00:00",
+      "sealed_manifest": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/aud-owner01-result/manifest.json",
+        "bytes": 23241,
+        "sha256": "405edc01bc2fa1eddfab49c8924765b08052421f8406659e8a15d8ae748b5aca"
+      }
+    }
+  ],
+  "aggregate": {
+    "rounds_actual_passed": 4,
+    "original_run_files": 239,
+    "distinct_named_resource_ids": 28,
+    "resource_id_reuse": false,
+    "direct_fixture_actual_waits": 4,
+    "adopted_actual_waits": 16,
+    "watchdog_joins": 4,
+    "all_tool_sessions_exit_zero": true,
+    "all_exact_ID_double_absent": true,
+    "all_owned_runtime_browser_double_empty": true,
+    "all_baselines_unchanged": true,
+    "all_TCP_double_clear_within75s": true,
+    "all_inputs_count": 1185,
+    "all_input_digest": "397114bec3d7de41c9b6682fad355ca7b902ca655b385a9cdd3a205615e233c1",
+    "all_rounds_before_after_same": true,
+    "Project_Audit_only": {
+      "attempts": 66,
+      "complete_EOF": 53,
+      "schema": 53,
+      "public_client": 53,
+      "incomplete_excluded": 13,
+      "success": 40,
+      "problem": 13,
+      "explicit_native_gate_probes": 10,
+      "page_complete_requests": 43,
+      "setup_or_IPC_Audit_GETs": 0,
+      "browser_Project_mutations_or_command_lookups": 0
+    },
+    "legacy_Owner_only": {
+      "schema": 17,
+      "public_client": 11
+    },
+    "legacy_System_Audit": "Actual frozen authority case PASS; no new ProjectAudit safe/schema/client artifact",
+    "all_layout_images_by_these_four": 0,
+    "monitor_errors": 0,
+    "forced_tail_actions": 0
+  },
+  "nonowned_PID1_shims_not_waited": [
+    {
+      "run": "aud-read01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1012402,
+      "ppid": 1,
+      "starttime": "4740485",
+      "state": "Z"
+    },
+    {
+      "run": "aud-read01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1012815,
+      "ppid": 1,
+      "starttime": "4740768",
+      "state": "Z"
+    },
+    {
+      "run": "aud-read01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1013115,
+      "ppid": 1,
+      "starttime": "4740995",
+      "state": "Z"
+    },
+    {
+      "run": "aud-read01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1013711,
+      "ppid": 1,
+      "starttime": "4741209",
+      "state": "Z"
+    },
+    {
+      "run": "aud-authority01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1023388,
+      "ppid": 1,
+      "starttime": "4768844",
+      "state": "Z"
+    },
+    {
+      "run": "aud-authority01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1023838,
+      "ppid": 1,
+      "starttime": "4769220",
+      "state": "Z"
+    },
+    {
+      "run": "aud-authority01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1024209,
+      "ppid": 1,
+      "starttime": "4769414",
+      "state": "Z"
+    },
+    {
+      "run": "aud-authority01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1024712,
+      "ppid": 1,
+      "starttime": "4769607",
+      "state": "Z"
+    },
+    {
+      "run": "aud-system01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1034958,
+      "ppid": 1,
+      "starttime": "4795866",
+      "state": "Z"
+    },
+    {
+      "run": "aud-system01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1035482,
+      "ppid": 1,
+      "starttime": "4796275",
+      "state": "Z"
+    },
+    {
+      "run": "aud-system01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1035753,
+      "ppid": 1,
+      "starttime": "4796470",
+      "state": "Z"
+    },
+    {
+      "run": "aud-system01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1036351,
+      "ppid": 1,
+      "starttime": "4796648",
+      "state": "Z"
+    },
+    {
+      "run": "aud-owner01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1044914,
+      "ppid": 1,
+      "starttime": "4817483",
+      "state": "Z"
+    },
+    {
+      "run": "aud-owner01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1045365,
+      "ppid": 1,
+      "starttime": "4817850",
+      "state": "Z"
+    },
+    {
+      "run": "aud-owner01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1045728,
+      "ppid": 1,
+      "starttime": "4818057",
+      "state": "Z"
+    },
+    {
+      "run": "aud-owner01",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1046226,
+      "ppid": 1,
+      "starttime": "4818237",
+      "state": "Z"
+    }
+  ],
+  "other_nonowned_observations_not_waited": [
+    {
+      "run": "aud-system01",
+      "executable": "",
+      "name": "runc",
+      "pid": 1042862,
+      "ppid": 608,
+      "starttime": "4802186",
+      "state": "R"
+    },
+    {
+      "run": "aud-system01",
+      "executable": "",
+      "name": "runc:[2:INIT]",
+      "pid": 1042880,
+      "ppid": 1042862,
+      "starttime": "4802187",
+      "state": "R"
+    }
+  ],
+  "fixed_version": {
+    "prepared_final04_sha256": "83852678e801fffd18d7482f3d5b0cbd7f59981b2c2e560b20ea60de2e7aeba1",
+    "driver_sha256": "e893600b3e8fbeb832169b0705544b9977a6f6f6f08d4f49e89b6f0877df3d37",
+    "four_group_sha256": "b4dd75e07df90079021c61bd928b9e32e9e8ff16a1db1170b1633cc90ded9605",
+    "closure_sha256": "5a59a2469b2e37dcb7f32795717f49d0b4875e378fb6077b6f933cd8ef218488",
+    "browser_a91d_source_v03_freeze": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df",
+    "build_v02_freeze": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae",
+    "View": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+    "unit_source": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5",
+    "in_window_private_and_global_assets": "59 files / 794499 bytes, exact manifest bound by each original gate"
+  },
+  "asset_restoration": {
+    "receipt": {
+      "path": "/workspace/scratch/project-audit-ui-assets/restore01/restoration.json",
+      "bytes": 1233,
+      "sha256": "5b79d63d2be6673f540d4db24e123d7af264e91b79a1debfb47bbed2cd182e37"
+    },
+    "root_UTC": "2026-10-08T16:54:41.092399+00:00",
+    "after_last_TCP": true,
+    "root_original_files": 3,
+    "root_original_bytes": 109465,
+    "backup_and_private_unchanged_reported_by_root": true,
+    "current_dist_not_read_by_this_summary": true
+  },
+  "reuse_and_limits": [
+    "Aggregation reuses sealed four round reports/manifests and necessary metadata; no rescan of239 original bodies or source/runtime graph.",
+    "53 native ProjectAudit bodies actual in-memory byte comparison; stored native chunks only lengths/digests, safe admitted upstream originals preserved. No fabricated native transcript/whole DOM.",
+    "Controlled cursor and missing-detail wire changes explicitly separated;13 incomplete not validated as native complete. Server joins/EOF/Session owner observations remain distinct.",
+    "current401 unavailable then explicit restore/checking preserved; stale tails do not imply current authorization.",
+    "Aux Skills/lifecycle facts,31 producers, production Invocation/Resolution/SPA/D24/E01 and stopped scopes not accepted.",
+    "No independent navigation/layout run in these four; author eight-view visual evidence remains a separate accepted scope.",
+    "Original author failures and historical false/filegate records remain unchanged. Root3-file restore follows all readers and is not in-round input drift.",
+    "This completes the four authorized independent representatives; whole-card/source/README installation acceptance belongs to root. No successor authorized."
+  ]
+}

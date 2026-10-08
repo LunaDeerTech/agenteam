@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/prettier/bin/prettier.cjs",
+    "--check",
+    "web/src/views/projects/ProjectAuditView.vue",
+    "web/src/tests/project-audit.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

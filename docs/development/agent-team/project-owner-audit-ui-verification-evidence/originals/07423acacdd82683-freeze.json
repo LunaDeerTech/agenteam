@@ -1,0 +1,112 @@
+{
+  "status": "ONE_EXTRA_LEGACY_TEST_AUTHOR_STOP",
+  "source": {
+    "path": "/workspace/agenteam/web/src/tests/system-audit.spec.ts",
+    "bytes": 34159,
+    "sha256": "c04d52e5c9843bbd616297a55cc90a86b4ee227b304bf031550b445c6a242a54"
+  },
+  "before": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-brand-v1/before.spec.ts",
+    "bytes": 34129,
+    "sha256": "6657b6121077caf0b210d990821db05a6faa8ed55ed1eb7fa46fb456de4e7342"
+  },
+  "after": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-brand-v1/after.spec.ts",
+    "bytes": 34159,
+    "sha256": "c04d52e5c9843bbd616297a55cc90a86b4ee227b304bf031550b445c6a242a54"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-brand-v1/delta.patch",
+    "bytes": 574,
+    "sha256": "b2e2cb78100d200efe3bc10ad2d8fd243ace22c13fa4f6829f68982ad0271e78"
+  },
+  "scope": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-brand-v1/scope.json",
+    "bytes": 351,
+    "sha256": "3eb74fff340f3a5d38fb6650bdfdd46f91adf335ca0b6cc8f012010c01b95745"
+  },
+  "checks": {
+    "final-unit01": [
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/final-unit01/command.json",
+        "bytes": 350,
+        "sha256": "500f0006c625a07ba3885cdd730eb2526deb4b86d76d3e25be47924906546d8b"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/final-unit01/inputs-after.json",
+        "bytes": 21211,
+        "sha256": "7991b155aa1cf2a52299d418676a793ee2f228e5b19f6ae00455dfe3e5ae773c"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/final-unit01/inputs-before.json",
+        "bytes": 21211,
+        "sha256": "7991b155aa1cf2a52299d418676a793ee2f228e5b19f6ae00455dfe3e5ae773c"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/final-unit01/raw.log",
+        "bytes": 1678,
+        "sha256": "576e740d6fb50360d31d406151b60ff3cb73f97a855a79fc27731f1df6c58950"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/final-unit01/result.json",
+        "bytes": 1701,
+        "sha256": "5569ca1f3b1487fbed9541ab53d23b343480460ba9928e666c7717d0303673c8"
+      }
+    ],
+    "legacy-audit-format01": [
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-format01/command.json",
+        "bytes": 366,
+        "sha256": "74716e85dc1da9afdc4c53cd95c667749da8e5249e409b7d42d6092239a11bf6"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-format01/inputs-after.json",
+        "bytes": 21211,
+        "sha256": "9f46cf2cd934efd6c6075281fbf12e9aca0ba301764af4bc9da0e30bd9e99320"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-format01/inputs-before.json",
+        "bytes": 21211,
+        "sha256": "9f46cf2cd934efd6c6075281fbf12e9aca0ba301764af4bc9da0e30bd9e99320"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-format01/raw.log",
+        "bytes": 66,
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-format01/result.json",
+        "bytes": 252,
+        "sha256": "9404d69358cfde8d37c0819c0564ecd49309e28f9fe0f1caaff1ab2649a1c522"
+      }
+    ],
+    "legacy-audit-unit01": [
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-unit01/command.json",
+        "bytes": 398,
+        "sha256": "a4e95b077e2b36da52ca843e94403e671be0263976dacd21fa67576f6ac7d409"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-unit01/inputs-after.json",
+        "bytes": 14190,
+        "sha256": "88e47f41fb17d5d60353cbfc2ea382c8be71958d7bc9207d5f136174627ef49e"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-unit01/inputs-before.json",
+        "bytes": 14190,
+        "sha256": "88e47f41fb17d5d60353cbfc2ea382c8be71958d7bc9207d5f136174627ef49e"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-unit01/raw.log",
+        "bytes": 577,
+        "sha256": "d6dd5ce9b0acfcebf7949098282be153caf547c87d52a6e74a619e84fe19b697"
+      },
+      {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-unit01/result.json",
+        "bytes": 326,
+        "sha256": "f44762f29eea3971781151ca84533ce988d77405399601babedd50cf17aae43f"
+      }
+    ]
+  },
+  "result": "Original full 2265/2266 PASS with sole entire-App img assertion failure retained; explicit root-granted selector fix then affected SystemAudit file 20/20 PASS, format PASS. No new full-suite claim. Product/brand/UI/Session unchanged."
+}

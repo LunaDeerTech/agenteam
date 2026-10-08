@@ -1,0 +1,81 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.32.149.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=fdb77e6b100d01b79af0b9a504116892
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=af009cbb995374316504f5767e2ceaa3
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.340s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+=== RUN   TestAccountPersonalSettingsWebThemeAndNavigation
+    personal_settings_web_test.go:47: owned observation 1 user=01a11c42-bc4a-7861-bded-c2925a0e773d version=1 theme=system committed=0 audit=0 avatar=false
+    personal_settings_web_test.go:47: owned observation 2 user=01a11c42-bc4a-7861-bded-c2925a0e773d version=1 theme=system committed=0 audit=0 avatar=false
+    personal_settings_web_test.go:47: owned observation 3 user=01a11c42-bc4a-7861-bded-c2925a0e773d version=1 theme=system committed=0 audit=0 avatar=false
+    personal_settings_web_test.go:47: owned observation 4 user=01a11c42-bc4a-7861-bded-c2925a0e773d version=4 theme=system committed=3 audit=3 avatar=false
+    personal_settings_web_test.go:47: 
+        Running 1 test using 1 worker
+        
+        [1A[2K[1/1] e2e/personal-settings.spec.ts:511:1 › [theme] preview, same-identity drafts, version conflict and protected leaf navigation
+        [1A[2K  1 passed (11.8s)
+        
+    personal_settings_web_test.go:48: owned user=01a11c42-bc4a-7861-bded-c2925a0e773d version=4 committed personal commands=3 matching success audits=3
+    personal_settings_web_test.go:53: preview/cancel were observed against unchanged DB facts; two-window version conflict retained draft; three leaf returns, dirty menu/back/logout and same-Session checking verified
+--- PASS: TestAccountPersonalSettingsWebThemeAndNavigation (17.50s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	18.539s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+D03 fixture cleanup checked for nonce f34ef15d4623a765d2e5c624e2461317
+D04 outbound fixture cleanup checked for nonce af009cbb995374316504f5767e2ceaa3
+D05 object fixture exact resource cleanup checked nonce=fdb77e6b100d01b79af0b9a504116892

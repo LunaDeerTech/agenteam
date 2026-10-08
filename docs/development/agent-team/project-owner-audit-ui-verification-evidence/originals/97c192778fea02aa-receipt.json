@@ -1,0 +1,145 @@
+{
+  "status": "README21_EXACT_INSTALL_AUTHOR_STOP",
+  "installed_at_utc": "2026-10-08T17:06:44.204821+00:00",
+  "scope": [
+    "docs/development/frontend/README.md"
+  ],
+  "before": {
+    "path": "/workspace/agenteam/docs/development/frontend/README.md",
+    "bytes": 77620,
+    "sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0"
+  },
+  "after": {
+    "path": "/workspace/agenteam/docs/development/frontend/README.md",
+    "bytes": 84744,
+    "sha256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e"
+  },
+  "candidate_provenance": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/provenance.json",
+    "bytes": 3647,
+    "sha256": "69f6f7041d84dfeaffd37d7caa5067a94406c564db4baad02848a46609f55328"
+  },
+  "candidate_patch": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/README.patch",
+    "bytes": 21056,
+    "sha256": "cade6b80aa466fb32a4a8c2db3fe8b71a2bd0ea48156ab66f5203bc4e4c0a3a8"
+  },
+  "installed_diff": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-install-v2/installed.diff",
+    "bytes": 21056,
+    "sha256": "cade6b80aa466fb32a4a8c2db3fe8b71a2bd0ea48156ab66f5203bc4e4c0a3a8"
+  },
+  "checks": {
+    "base_exact": true,
+    "candidate_exact": true,
+    "hunks": 6,
+    "diff_exactly_preapproved_patch": true,
+    "utf8_lf_final_newline": true,
+    "new_trailing_whitespace": false,
+    "personal_and_later_tail_unchanged": true,
+    "personal_tail_sha256": "06330824c983489dcbae2cbc7b1b1b949b3bbc945bd3b4ec12db2566a68382cc",
+    "relative_links": [
+      {
+        "target": "../../../api/openapi/account.json",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../../../api/openapi/project-audit.json",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../agent-team/project-owner-audit-ui-verification.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d26-account-authentication.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d26-personal-settings.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d26-public-account-entry.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-project-owner-audit-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-project-owner-workspace-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-account-security-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-audit-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-invitation-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-model-management-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-model-selection-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-outbound-policy-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-provider-management-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-runtime-information-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-smtp-delivery-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-smtp-settings-ui.md",
+        "exists": true,
+        "contents_read": false
+      },
+      {
+        "target": "../work-items/d27-system-user-directory-ui.md",
+        "exists": true,
+        "contents_read": false
+      }
+    ]
+  },
+  "final_21_acceptance_reference": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/audit21-technical-final01/review.md",
+    "sha256": "6f772adceed61671e18b1b6f6ac2808443b3d70d0efdc40d37a7b0ee014e831b",
+    "source": "root accepted grant; not re-executed or re-read"
+  },
+  "limits": "Only exact preapproved README candidate installed. No technical source changes, Node/Go/build/browser/resource command, permanent report content read or Git. Final22 independent review remains pending."
+}

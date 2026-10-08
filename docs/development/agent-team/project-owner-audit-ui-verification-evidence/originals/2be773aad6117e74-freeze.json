@@ -1,0 +1,133 @@
+{
+  "status": "PRODUCTION_PRIVATE_BUILD_AUTHOR_STOP",
+  "outDir": "/workspace/scratch/project-audit-ui/dist-ui02",
+  "outDir_was_absent": true,
+  "files": 59,
+  "bytes": 794499,
+  "assets": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/assets.json",
+    "bytes": 8827,
+    "sha256": "a3c6cac14e07261fde429801c087e2f4287dec85ac2c7a70caa1739ab53a93e5"
+  },
+  "source17": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/source17.json",
+    "bytes": 3769,
+    "sha256": "092b5e98746adea56a5bccd8aa5c4aba7ba7152421aa36f649f19580d85a60e4"
+  },
+  "changed_sources_since_build_v1": {
+    "web/src/views/projects/ProjectAuditView.vue": [
+      "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020"
+    ],
+    "web/src/tests/project-audit.spec.ts": [
+      "0ba34fdf3b020d9e5ad72a53b17f7c7b8b93b6dea730fb84f81aba6d35a35a37",
+      "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5"
+    ]
+  },
+  "source_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+    "bytes": 14693,
+    "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+  },
+  "old_build_unchanged_reference": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/freeze.json",
+    "bytes": 3153,
+    "sha256": "ee7eb7aa4a01863c47176d78e8455e37f349809147256c0de86e65a9900d476c"
+  },
+  "fixed_tools_inputs_before": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/build-inputs-before.json",
+    "bytes": 264847,
+    "sha256": "87eba642196fc0d829c3342b93e33f58a374714fb8618a70b7d127b2de9ac082"
+  },
+  "fixed_tools_inputs_after": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/build-inputs-after.json",
+    "bytes": 264847,
+    "sha256": "87eba642196fc0d829c3342b93e33f58a374714fb8618a70b7d127b2de9ac082"
+  },
+  "fixed_tools_extra_inputs_same": true,
+  "tool_packages": 70,
+  "tool_files": 1304,
+  "extra_sources": 12,
+  "web_inputs": 189,
+  "command": {
+    "command.json": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build02/command.json",
+      "bytes": 349,
+      "sha256": "d0e739e6d7eabe2476c120136cbdf5959b286b09e9d2f6f0de0f228f4e54e660"
+    },
+    "inputs-before.json": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build02/inputs-before.json",
+      "bytes": 21211,
+      "sha256": "2110eec08a6f63f1be30355eb920d5345a7003be6bd42e10fad7461da6726b40"
+    },
+    "inputs-after.json": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build02/inputs-after.json",
+      "bytes": 21211,
+      "sha256": "2110eec08a6f63f1be30355eb920d5345a7003be6bd42e10fad7461da6726b40"
+    },
+    "raw.log": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build02/raw.log",
+      "bytes": 6743,
+      "sha256": "72dee49215c6381b065a5397252de1ca18d0ec9f1ba729f0f89429e2a9dc9b9b"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build02/result.json",
+      "bytes": 252,
+      "sha256": "26a16e12be7d6e4aa591cf8a3c24f2f2abf170477da4d630b2287eef2d0ae743"
+    }
+  },
+  "result": {
+    "exit": 0,
+    "timeout": false,
+    "elapsed_seconds": 1.0368115109959035,
+    "direct_actual_wait": 889528,
+    "adopted_actual_wait": [],
+    "owned_pids": {
+      "889528": "4398874"
+    },
+    "owned_scan_1": {},
+    "owned_scan_2": {},
+    "inputs_same": true
+  },
+  "four_brand_svg_exact": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/brand.json",
+    "bytes": 2765,
+    "sha256": "cbb04391c04203b42fa48ee42fd61998f338958174dd1b6896ac0fbcc67b17df"
+  },
+  "production_scan": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/production-scan.json",
+    "bytes": 324,
+    "sha256": "c1e6e877b508161011f25acb4161141f13bb69d06bb915e9eee7bab1a0781c8d"
+  },
+  "type_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-types01/result.json",
+    "bytes": 302,
+    "sha256": "24ca009dde42611db083f66377b3bb6505416eb380bf90c0b013d2461b0c38db"
+  },
+  "type_note": "Final repair sources unchanged since accepted canonical-types01. No new type/unit/format invocation.",
+  "precondition": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/precondition.json",
+    "bytes": 365,
+    "sha256": "c38f4bdcbc84f9583c31a9a2e41f2de2164688b218edc3d3f8540114718776fd"
+  },
+  "preparation_failure": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/preparation-failure.json",
+    "bytes": 938,
+    "sha256": "6475f607456eb5d154062546c56849694c4ddc555c10a86d318de0b52bc6677d"
+  },
+  "input_snapshot_program": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/snapshot-inputs.py",
+    "bytes": 2177,
+    "sha256": "15a8afb1c5ffb27912e368e44213fecd2e6bf9d98986ce054c7d268ac7801f82"
+  },
+  "offline_driver": {
+    "path": "/workspace/scratch/owner-ui-recovery/run-offline.py",
+    "bytes": 3830,
+    "sha256": "4c12513773f48f595e0a70e303d67abd43e9c27521e0aaaa689d87c0ed2e3521"
+  },
+  "real_browser_executed": false,
+  "global_dist_accessed": false,
+  "source_edited": false,
+  "old_dist_modified": false,
+  "limits": "Single private production build only. No real browser, resource, Go, global asset exchange or live server. Original dist-ui01 and all old failure/freeze evidence remain unchanged."
+}

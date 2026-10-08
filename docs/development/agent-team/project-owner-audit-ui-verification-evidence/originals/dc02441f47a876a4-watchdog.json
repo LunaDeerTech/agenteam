@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 42085.572282995,
+      "top": "TestAccountProjectOwnerAuditWebNavigationAndLayouts"
+    },
+    {
+      "event": "result",
+      "monotonic": 42101.626958902,
+      "observed_seconds": 16.054675906998455,
+      "reported_seconds": 16.06,
+      "state": "FAIL",
+      "top": "TestAccountProjectOwnerAuditWebNavigationAndLayouts"
+    }
+  ],
+  "expected": [
+    "TestAccountProjectOwnerAuditWebNavigationAndLayouts"
+  ],
+  "failures": []
+}

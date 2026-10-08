@@ -1,0 +1,66 @@
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 262 modules transformed.
+
+(!) outDir /workspace/scratch/project-audit-ui/dist-ui01 is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+rendering chunks...
+computing gzip size...
+../scratch/project-audit-ui/dist-ui01/index.html                                          0.99 kB │ gzip:  0.46 kB
+../scratch/project-audit-ui/dist-ui01/assets/PersonalSettingsView-BLWru9en.css            0.06 kB │ gzip:  0.08 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectSettingsView-BkC-_F9A.css             0.07 kB │ gzip:  0.09 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemSettingsView-vfZJUtc6.css              0.08 kB │ gzip:  0.10 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProfileSettings-Bofqo8m5.css                 0.43 kB │ gzip:  0.25 kB
+../scratch/project-audit-ui/dist-ui01/assets/ForgotPasswordView-ZFlbmZrA.css              0.68 kB │ gzip:  0.35 kB
+../scratch/project-audit-ui/dist-ui01/assets/ResetPasswordView-BFz2mVbE.css               0.68 kB │ gzip:  0.35 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectHomeView-BbdLq40x.css                 0.72 kB │ gzip:  0.30 kB
+../scratch/project-audit-ui/dist-ui01/assets/InvitationView-hC0mMt8e.css                  0.76 kB │ gzip:  0.37 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemAccountSecurityView-DDeXsGVz.css       0.93 kB │ gzip:  0.35 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemRuntimeInformationView-BiTrORNZ.css    1.09 kB │ gzip:  0.40 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectGeneralSettings-DSoBsSrB.css          1.10 kB │ gzip:  0.41 kB
+../scratch/project-audit-ui/dist-ui01/assets/SettingsShell-D9S1S_aF.css                   1.21 kB │ gzip:  0.53 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectWorkspaceView-Cl1RIG_I.css            1.32 kB │ gzip:  0.52 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemUsersView-B41TxT1D.css                 1.44 kB │ gzip:  0.56 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectListView-C-7NkNUd.css                 1.62 kB │ gzip:  0.50 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemInvitationsView-QSKOYHWH.css           1.74 kB │ gzip:  0.62 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemOutboundPolicyView-c2N-aXU9.css        1.98 kB │ gzip:  0.66 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemProvidersView-elJ_-cRG.css             2.23 kB │ gzip:  0.62 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectAuditView-BEfSxYnQ.css                2.44 kB │ gzip:  0.80 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemSMTPSettingsView-D8y_A8gg.css          2.56 kB │ gzip:  0.76 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemAuditView-CVK5-pDL.css                 2.57 kB │ gzip:  0.83 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemModelsView-CURjLUMH.css                3.33 kB │ gzip:  0.82 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemModelSelectionView-tLdNn_JF.css        3.58 kB │ gzip:  0.87 kB
+../scratch/project-audit-ui/dist-ui01/assets/index-CzMbFiS8.css                          29.51 kB │ gzip:  6.62 kB
+../scratch/project-audit-ui/dist-ui01/assets/UiBadge-B2GUx5nj.js                          0.24 kB │ gzip:  0.21 kB
+../scratch/project-audit-ui/dist-ui01/assets/UiCheckbox-C1Shpp8X.js                       0.69 kB │ gzip:  0.43 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectSettingsView-D4Ev7a8V.js              0.78 kB │ gzip:  0.54 kB
+../scratch/project-audit-ui/dist-ui01/assets/PersonalSettingsView-iCRUZwVG.js             1.41 kB │ gzip:  0.94 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectHomeView-D9zVKIJm.js                  1.83 kB │ gzip:  1.01 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemSettingsView-BqYQGqaI.js               1.91 kB │ gzip:  1.11 kB
+../scratch/project-audit-ui/dist-ui01/assets/ForgotPasswordView-DYBrDhwg.js               2.87 kB │ gzip:  1.49 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectWorkspaceView-DK7CDveM.js             3.12 kB │ gzip:  1.44 kB
+../scratch/project-audit-ui/dist-ui01/assets/SettingsShell-9IlvxRq0.js                    3.46 kB │ gzip:  1.73 kB
+../scratch/project-audit-ui/dist-ui01/assets/PasswordSettings-DGH5SM4O.js                 3.57 kB │ gzip:  1.65 kB
+../scratch/project-audit-ui/dist-ui01/assets/ResetPasswordView-F2yeDGAh.js                3.59 kB │ gzip:  1.57 kB
+../scratch/project-audit-ui/dist-ui01/assets/AppearanceSettings-DSx-n-JR.js               3.62 kB │ gzip:  1.63 kB
+../scratch/project-audit-ui/dist-ui01/assets/InvitationView-BU5QFaaE.js                   4.61 kB │ gzip:  1.84 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectListView-aUl2FjT_.js                  4.65 kB │ gzip:  1.99 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemUsersView-CX90trPk.js                  5.62 kB │ gzip:  2.52 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemRuntimeInformationView-B70KEMxn.js     6.74 kB │ gzip:  2.85 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProfileSettings-B2VH7mKT.js                  6.88 kB │ gzip:  2.65 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemAccountSecurityView-DYLg6-t5.js        6.92 kB │ gzip:  3.12 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectGeneralSettings-dW0dY0zb.js           7.78 kB │ gzip:  3.34 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemOutboundPolicyView-D_yI_2QB.js        10.52 kB │ gzip:  4.31 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemInvitationsView-PEIXbDRd.js           12.90 kB │ gzip:  4.31 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemProvidersView-9iVcTVsW.js             15.56 kB │ gzip:  5.11 kB
+../scratch/project-audit-ui/dist-ui01/assets/ProjectAuditView-BY3r3wed.js                19.73 kB │ gzip:  6.67 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemAuditView-D7AZ133s.js                 19.95 kB │ gzip:  7.08 kB
+../scratch/project-audit-ui/dist-ui01/assets/UiSelect-Dru6h5bw.js                        21.60 kB │ gzip:  8.78 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemSMTPSettingsView-7e-bjAA7.js          24.40 kB │ gzip:  7.89 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemModelSelectionView-DTdBbmrO.js        25.55 kB │ gzip:  6.85 kB
+../scratch/project-audit-ui/dist-ui01/assets/SystemModelsView-bX6KZ3nu.js                27.02 kB │ gzip:  7.23 kB
+../scratch/project-audit-ui/dist-ui01/assets/UiButton-DU9oAlMu.js                       226.12 kB │ gzip: 66.27 kB
+../scratch/project-audit-ui/dist-ui01/assets/index-r_Bz6_Yz.js                          247.89 kB │ gzip: 72.25 kB
+
+✓ built in 875ms

@@ -1,0 +1,161 @@
+{
+  "core_refs": {
+    "cleanup.json": {
+      "bytes": 80657,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/cleanup.json",
+      "sha256": "2bc1c30ee32abe699646a10cb8066f7459e9520339445feee046c152ffcf56af"
+    },
+    "proxy-retirement-facts.json": {
+      "bytes": 587,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/proxy-retirement-facts.json",
+      "sha256": "64b1af205ce6b50456953a1d60b5c7d5a17d0f29e1cad8788e1ce5f346734bf7"
+    },
+    "raw.log": {
+      "bytes": 6025,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/raw.log",
+      "sha256": "5ffe10598a6c8176e2aa57c259930b147a3f80966a9671cb48174b01af11a96e"
+    },
+    "result.json": {
+      "bytes": 37598,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/result.json",
+      "sha256": "bd3f5d783434fbd91397b73af2ee58d08a4a24ab1f746d9caaad4ccea3f490a5"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 185621,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/tcp-tail-observation.json",
+      "sha256": "594679616e60ea74b64147bb87e39271194519ca622b309a16d87564efdf6e1a"
+    }
+  },
+  "handoff": {
+    "bytes": 13033,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/handoff.json",
+    "sha256": "1f0409feab0295a9fec0a963cf8eeb954a4edcbcd8159b98b1258a8e8a61727c"
+  },
+  "original_artifact_count": 30,
+  "original_artifacts": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "690720850b1432a2107adf65040cf892c4136093baf2b313dfe770e1cd1633cd"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 80657,
+      "sha256": "2bc1c30ee32abe699646a10cb8066f7459e9520339445feee046c152ffcf56af"
+    },
+    "command.json": {
+      "bytes": 2998,
+      "sha256": "327be50cf91dc0ff632719cc6612c692cb1b09ed6f81b1ea12ec99670c571f54"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 191,
+      "sha256": "025474908094af682e317c9fd62b173c0df2e7b66b73e96644c43af0cd7bd592"
+    },
+    "disk-preflight.json": {
+      "bytes": 191,
+      "sha256": "e6c4508b1f5de29daae61e4152a9b7775cbc895cc7fd41b422efc4c0c3ab64a0"
+    },
+    "driver.py.txt": {
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    "frozen-input.json": {
+      "bytes": 47858,
+      "sha256": "e2e997aa5773d6c43c19da9e4d40e01d19c8f82a4ba3ed957d3ddf6ed2b3b5cb"
+    },
+    "input-after.json": {
+      "bytes": 894,
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    "input-before.json": {
+      "bytes": 894,
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 15467,
+      "sha256": "22f283ef4c57d416bb94aa6bfa5c412f262004854d2b8a9d076ca44ed54db224"
+    },
+    "observed-resources.json": {
+      "bytes": 5081,
+      "sha256": "b831aa64550b790ab0922683df5d8be2812fe64d6e3a4ae0b29098c7a8ce4202"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 31535,
+      "sha256": "5eda99d780b158018f30ba05bd716d2e10514bb633c1a343b3407c845f5eb2d2"
+    },
+    "raw.log": {
+      "bytes": 6025,
+      "sha256": "5ffe10598a6c8176e2aa57c259930b147a3f80966a9671cb48174b01af11a96e"
+    },
+    "result.json": {
+      "bytes": 37598,
+      "sha256": "bd3f5d783434fbd91397b73af2ee58d08a4a24ab1f746d9caaad4ccea3f490a5"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/auxiliary-facts.json": {
+      "bytes": 1327,
+      "sha256": "523948db1a47dd9c5cc79ab52866465f1b17596c1c6b87e87f8e1840f71ad3fb"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/body-e53e60c4572a8c4bc023a178e206e1552c0c90a951a1dfafbd721e4373943cc9.json": {
+      "bytes": 1389,
+      "sha256": "e53e60c4572a8c4bc023a178e206e1552c0c90a951a1dfafbd721e4373943cc9"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/proxy-retirement-facts.json": {
+      "bytes": 587,
+      "sha256": "64b1af205ce6b50456953a1d60b5c7d5a17d0f29e1cad8788e1ce5f346734bf7"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/response-001.json": {
+      "bytes": 732,
+      "sha256": "cd1808dbc74d519ff9866bb831ae113cfba35c74107d2faef946c22c4dba669a"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/response-002.json": {
+      "bytes": 732,
+      "sha256": "e498e37a775e981b86823ac14644fa87e10bb5c7625fc665f4ddbbec366c0580"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/seed-facts.json": {
+      "bytes": 844,
+      "sha256": "87781293a247bc4cf2dc3192b2ca9092a5b8e858a897788e214bd14166ead441"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "31caf4e0a44786b1a6dc59f72aef8f34743a3537219e86a5fe8505ea3e19085c"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 9351,
+      "sha256": "8c30e84c5aa2be7b5868860ea6d5759fadf57194acadc85f447237cd98a78bdd"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 185621,
+      "sha256": "594679616e60ea74b64147bb87e39271194519ca622b309a16d87564efdf6e1a"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "b44a4a9b1359e4655198c1965a8ede554e79e0d9e1d800f3b19b610a37ba706e"
+    },
+    "watchdog.json": {
+      "bytes": 562,
+      "sha256": "dc02441f47a876a44898739f11c0601f1dab9a65c92613bf046c41214bb623a4"
+    }
+  },
+  "original_root": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01",
+  "resources_or_checks_started_during_sealing": false,
+  "run": "auditnav01",
+  "status": "FAIL_FULLY_RETIRED_STOP"
+}

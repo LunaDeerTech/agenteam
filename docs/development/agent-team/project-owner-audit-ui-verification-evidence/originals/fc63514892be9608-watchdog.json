@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 44929.341279899,
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry"
+    },
+    {
+      "event": "result",
+      "monotonic": 44942.917320161,
+      "observed_seconds": 13.576040261999879,
+      "reported_seconds": 13.6,
+      "state": "PASS",
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry"
+    }
+  ],
+  "expected": [
+    "TestAccountAuthenticationWebRevocationAndExpiry"
+  ],
+  "failures": []
+}

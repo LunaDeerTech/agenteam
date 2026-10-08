@@ -1,0 +1,196 @@
+{
+  "Go_cache_window_released": true,
+  "O1_original_preserved": "/workspace/scratch/project-audit-ui-backend/d1-overlay01/freeze.json",
+  "actual_adopted_waits": 0,
+  "actual_direct_waits": 1,
+  "actual_phase_count": 13,
+  "actual_request_handler_joins": 8,
+  "actual_subtests": [
+    "release_waits_for_write",
+    "cancel_waits_for_error_handler",
+    "request_token_isolation",
+    "evidence_error_waits_for_error_handler",
+    "write_error_unwind_actual_join"
+  ],
+  "actual_top_count": 1,
+  "direct_pid_starttime": [
+    673005,
+    3438243
+  ],
+  "driver_exit": 0,
+  "elapsed_seconds": 9.53743332799786,
+  "grant": {
+    "bytes": 695,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/grant.root-d1-probe01.json",
+    "sha256": "a36b53234894db62ee3d8ab61542b4affd6d6ad6e78dd6cc1e5135b0cbdc77a2"
+  },
+  "input_count": 911,
+  "input_digest": "c3806a07e3ed234cb9fd36e1175178050da2a34d2c5552fd1fce9ae5887c149b",
+  "inputs_same": true,
+  "meta": {
+    "bytes": 26846,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/meta.json",
+    "sha256": "888e738c2c2d6a80ef61b6a7836f563702762538cb9cc9f49f5aa330b195d3f0"
+  },
+  "model_sources": [
+    {
+      "bytes": 5611,
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "bytes": 16692,
+      "path": "/workspace/agenteam/internal/central/model/platform_embedding_resolution_test.go",
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    }
+  ],
+  "owned_empty_twice": true,
+  "phases": [
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "hold_consumed"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "callback_returned_write_blocked"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "actual_handler_returned"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "ctx_done_error_handler_blocked"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "cancelled_handler_returned"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        2,
+        1
+      ],
+      "phase": "unheld_B_cannot_complete_A"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "phase": "A_joined_before_next_arm"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        2,
+        1,
+        4,
+        3
+      ],
+      "phase": "old_context_and_D_cannot_complete_C_write"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "phase": "C_actual_join"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "hold_marked_save_failed_outlet_blocked"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "evidence_failure_actual_join"
+    },
+    {
+      "arm_blocked_by_held": true,
+      "held_joined_started_finished": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "phase": "write_error_not_returned_yet"
+    },
+    {
+      "arm_blocked_by_held": false,
+      "held_joined_started_finished": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "phase": "abort_handler_unwind_joined"
+    }
+  ],
+  "prepared": {
+    "bytes": 4109,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/freeze.json",
+    "sha256": "c4d20052ea85753cac53496e8db9a865292a1404f923f14d74c0eeaa9887f128"
+  },
+  "raw": {
+    "bytes": 4587,
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/raw",
+    "sha256": "778a303a8f8bdfbd22733a7dae74c9f4c1e5a0ec0fee45f1e07b12acccd17ce3"
+  },
+  "retry_or_followup_run": false,
+  "scope": "private in-memory proxy completion only; no listener, real business fixture, API/schema/client/browser/authorization/producer or resource acceptance",
+  "status": "AUTHOR_D1_CONTROLLED_PROXY_TIMING_PASS_ACTUAL_RETIREMENT_STOP",
+  "tmp_empty": true,
+  "top": "TestAccountProjectOwnerAuditProxyCompletion",
+  "watcher": "synchronous owner loop returned; no watcher thread/process"
+}

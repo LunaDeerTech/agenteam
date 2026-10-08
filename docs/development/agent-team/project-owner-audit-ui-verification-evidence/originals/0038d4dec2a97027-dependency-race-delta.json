@@ -1,0 +1,44 @@
+{
+  "added_import_paths": [],
+  "added_repository_sources": [
+    "tests/account/project_owner_audit_web_fixture_test.go",
+    "tests/account/project_owner_audit_web_test.go"
+  ],
+  "generated_testmain_artifacts": [
+    {
+      "bytes": 22159,
+      "path": "/workspace/.cache/go-build/b6/b634f1459194956af02e6466484d024347047ea5c7b502517bff793a3beccedc-d",
+      "sha256": "b634f1459194956af02e6466484d024347047ea5c7b502517bff793a3beccedc"
+    }
+  ],
+  "missing_selected_repository_inputs": [],
+  "new_graph": {
+    "bytes": 1263637,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps-race02/raw",
+    "sha256": "9cc038a666af947649cffb992022299ff3e3d1fac4beb4e59b4d6aab4b3f259c"
+  },
+  "new_packages": 399,
+  "new_repository_selected": 502,
+  "old_graph": {
+    "bytes": 1290193,
+    "path": "/workspace/scratch/owner-ui-backend/graph-account02/raw",
+    "sha256": "f3969033de8aafb1281962a8e2870e3613fd5e9b63a10b004c7cb63aa6ef4844"
+  },
+  "old_packages": 399,
+  "old_repository_selected": 500,
+  "prior_nonrace_result": {
+    "bytes": 1726,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/dependency-delta.json",
+    "sha256": "73c8e14efeef067cc4c9b676f95deda5b4d93fc23e9d8834026f644de522106f"
+  },
+  "prior_note": "deps01 omitted -race; two removed runtime/race packages were mode differences, not a removed dependency in the compiled race artifact",
+  "removed_import_paths": [],
+  "removed_repository_sources": [],
+  "reused_actual_union": {
+    "bytes": 42403,
+    "path": "/workspace/scratch/owner-ui-backend/inputs.json",
+    "sha256": "37482995716234a1eefcbb769f878ffad65a60791d049f9d08d79f432e54c889"
+  },
+  "status": "ACTUAL_RACE_GRAPH_DELTA_PASS",
+  "total_reused_union_plus_delta": 905
+}

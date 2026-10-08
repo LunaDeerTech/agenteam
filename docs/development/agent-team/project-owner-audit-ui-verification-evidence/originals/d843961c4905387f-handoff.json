@@ -1,0 +1,361 @@
+{
+  "actual_grant_sha256": "8257ed7dbd18e14db792002fe9f0a01b2f0f62cc7a7a4d06888544060a02ace9",
+  "browser_reported_seconds": 15.3,
+  "browser_result": {
+    "browser_audit_gets": 17,
+    "checks": {
+      "checking_new_page": true,
+      "default_general": true,
+      "dotted_return": true,
+      "drawer": true,
+      "existing_draft_guards": true,
+      "inline_focus": true,
+      "local_dirty_leave": true,
+      "no_debug": true,
+      "no_overflow": true,
+      "raw_rejection": true,
+      "reduced_motion": true,
+      "settings_current": true,
+      "zero_mutations": true
+    },
+    "client_bodies": 17,
+    "completed": true,
+    "layouts": 8,
+    "mode": "navigation",
+    "schema_bodies": 17
+  },
+  "driver_exit": 0,
+  "fixture_process_seconds": 70.578,
+  "group": "new-audit-navigation",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_required": false,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "native_evidence": {
+    "body_hash_bytes_match_selected_original_sidecars": true,
+    "browser_classification": {
+      "controlled_failure": 0,
+      "incomplete": 1,
+      "problem": 0,
+      "success": 17
+    },
+    "browser_observation_count": 18,
+    "complete_detail_gets": 6,
+    "complete_list_gets": 11,
+    "complete_same_body_count": 17,
+    "complete_status_counts": {
+      "200": 17
+    },
+    "controlled_wire": [],
+    "method_counts": {
+      "GET": 18
+    },
+    "native_sidecars": 18,
+    "proxy_browser_dispatches": 18,
+    "scope": "18 actual Audit GET dispatches/complete upstream native sidecars; 17 browser EOF successes validated from the same original bytes. One incomplete observation is excluded. Schema and public-client replay do not add network requests; preparation/control Audit GET counts are zero.",
+    "source_counts": {
+      "browser": 18
+    },
+    "transfer_kind_counts": {
+      "forwarded": 18
+    },
+    "unique_complete_body_files": 7,
+    "unique_native_body_files": 7,
+    "upstream_status_counts": {
+      "200": 18
+    }
+  },
+  "original_artifact_count": 67,
+  "proxy_retirement": {
+    "counts": {
+      "browser_command_lookups": 0,
+      "browser_detail_gets": 6,
+      "browser_list_gets": 12,
+      "browser_project_mutations": 0,
+      "control_audit_gets": 0,
+      "cuts": 0,
+      "failures": 0,
+      "held": 0,
+      "joined": 0,
+      "server_finished": 117,
+      "server_started": 117,
+      "session_failures": 1,
+      "setup_audit_gets": 0
+    },
+    "input_hash": "8257ed7dbd18e14db792002fe9f0a01b2f0f62cc7a7a4d06888544060a02ace9",
+    "mode": "navigation",
+    "observer_errors": 0,
+    "proxy_actual_join": true,
+    "scope": "proxy Serve/handlers only; root/preparation Store/guard remain owned by later LIFO cleanups and outer actual retirement evidence",
+    "test_failed_at_proxy_retirement": false
+  },
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/adopted-waits.json",
+      "sha256": "ec8b3bb971438cbb388a4c5dc299ee14f27930b92683b7709d1ad06c65477544"
+    },
+    "auxiliary-facts.json": {
+      "bytes": 1327,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/auxiliary-facts.json",
+      "sha256": "5333c6eab7e2a3b8a66bd0c958a0875d5bfebcb84bfa1bb07b0f1dd3bf0957ec"
+    },
+    "browser-observations.json": {
+      "bytes": 7408,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/browser-observations.json",
+      "sha256": "2f78a25e74e6e6940e17bf61e7763eb788cf9ef075efdeeeef5160ec71dfa8e8"
+    },
+    "browser-result.json": {
+      "bytes": 404,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/browser-result.json",
+      "sha256": "c1bfeaba9795e3df706dbaf36fef90fcd5155bf09f9d731648a401ca8ca9ae67"
+    },
+    "cleanup.json": {
+      "bytes": 88221,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/cleanup.json",
+      "sha256": "0bb609ee1864d38e03b69fde85ef89ad07f18a1576c5c037bc6d4717a386b651"
+    },
+    "command.json": {
+      "bytes": 2999,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/command.json",
+      "sha256": "b4bae5be45d7e0d23d69f89968d158d2e9e2eb50476a69d20500fab642fe582f"
+    },
+    "go-facts.json": {
+      "bytes": 762,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/go-facts.json",
+      "sha256": "19f47f2d8a774b0346d7f76e39c9d1c83adb6c5baf88e61a2a6ad087610201aa"
+    },
+    "input-after.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/input-after.json",
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "input-before.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/input-before.json",
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "layouts.json": {
+      "bytes": 3086,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/layouts.json",
+      "sha256": "f8eed949a4442d0309ec9e98989a79ab6441ce48c8c4a1cb8ea885fd07744c51"
+    },
+    "observed-resources.json": {
+      "bytes": 5083,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/observed-resources.json",
+      "sha256": "c244c55dcbf2dd1ab57c2184f8e92d5d4b7cc071cca322a8461cac13d83c4d67"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "production-assets.json": {
+      "bytes": 9155,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/production-assets.json",
+      "sha256": "e8ec61029ebfce5cb739c92eaed11926c35ebdd38d9d0f8ec1bba19932727ca5"
+    },
+    "proxy-retirement-facts.json": {
+      "bytes": 591,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/proxy-retirement-facts.json",
+      "sha256": "63133320044591339d263f937bb2a296fabc431c92f7dcfa8e3e246523334fd6"
+    },
+    "raw.log": {
+      "bytes": 4870,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/raw.log",
+      "sha256": "c1c599b3cb1eecf7f5146cd5139439a501487de924f9896833079c307ffc2321"
+    },
+    "result.json": {
+      "bytes": 41028,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/result.json",
+      "sha256": "0d2e063e38a5963966e0a3c5e850817e41a7cc2c683e1018bf03eef095a4a8a0"
+    },
+    "same-body-input.json": {
+      "bytes": 3037,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/same-body-input.json",
+      "sha256": "27d888cbc1116e041098ce7a002a4f6fa74e6b63a7d36654e7ea947ffdfed6a8"
+    },
+    "schema-validation.json": {
+      "bytes": 76,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/schema-validation.json",
+      "sha256": "352f2a9d184c3b0268d550539c042fe572302c0c10a1cc63efdfe0c8bc256803"
+    },
+    "seed-facts.json": {
+      "bytes": 844,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/seed-facts.json",
+      "sha256": "d40ee5c1e7d8c88f7ed90bfbc81c9cd33c8e206d28c5baccb0014d43875ac3b9"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 233670,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/tcp-tail-observation.json",
+      "sha256": "956219f97382a0a3a7edff9488d1c50ac232a24f2a3f3854fa19f6a0ccff7efa"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/verification-input.json",
+      "sha256": "919181d5d6a20439f8fb2b970dc5dd3668d9e9302c87ea01cf6deff516e0c829"
+    },
+    "watchdog.json": {
+      "bytes": 561,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/watchdog.json",
+      "sha256": "e93ced27faa07ff83517300574c264226ef34fefebaa3d37a2f782ed21fcf17d"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 15,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:50:24.336822+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:50:25.056968+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "0639f57854b8dc09326f887a648f837824de3813d9537404ccf8dea47aa0fbe5": {
+        "kind": "network",
+        "name": "agenteam-d04-net-6c2b62964796214f59dcda4b4df01e80"
+      },
+      "19289681e5355ed32785c0a25150180e59fc8054d0852bbcd05a89a5d1a8aea1": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-6c2b62964796214f59dcda4b4df01e80"
+      },
+      "4470d8cec783e08d0929d6c0ce10809a82b944fa8910ebcf1c1a9e93301d865f": {
+        "kind": "network",
+        "name": "agenteam-d05-object-f55802cfcff94039ac4f0f006df6a50b"
+      },
+      "8e5d91704a27a932054ab2f7eaa2598fd3cf0f4968a3d0e35bde2ffab0b48e8b": {
+        "kind": "container",
+        "name": "/agenteam-d03-90647a27921f8500821b4a5182505b1f"
+      },
+      "d7bf80865fee068bd26277dcd64e14d3cc056d1c7ab5e29d7f73631a0d8b61c1": {
+        "kind": "network",
+        "name": "agenteam-d03-90647a27921f8500821b4a5182505b1f"
+      },
+      "dd9f3f887a51d631fb93a006d9d4590136ab84eb3bf49899ce78db5a3a03aa1b": {
+        "kind": "container",
+        "name": "/agenteam-d03-90647a27921f8500821b4a5182505b1f-pg16"
+      },
+      "fd9f3de38ac304d44ad2a5f40ad95b224e4139b98220f05f79cb4657253885f1": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-f55802cfcff94039ac4f0f006df6a50b"
+      }
+    },
+    "fixture_pid": 894440,
+    "fixture_pid_starttime": "4442829",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 894669,
+        "ppid": 1,
+        "starttime": "4443052",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 895074,
+        "ppid": 1,
+        "starttime": "4443319",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 895392,
+        "ppid": 1,
+        "starttime": "4443541",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 895993,
+        "ppid": 1,
+        "starttime": "4443752",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 100,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 39.405485335002595,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "auditnav02",
+  "schema_process_result": {
+    "failed_to_run": false,
+    "signal": null,
+    "status": 0,
+    "stderr": "",
+    "stdout": "17\n"
+  },
+  "scope": {
+    "actual_browser_spec_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+    "actual_build_freeze_sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae",
+    "actual_private_dist": "/workspace/scratch/project-audit-ui/dist-ui02",
+    "all_three_prior_failures_unchanged": true,
+    "independent_result_or_visual_review_not_claimed": true,
+    "lifecycle_auxiliary_facts_do_not_bind_production_runtime": true,
+    "old_groups_in_this_round": false,
+    "only_navigation_case_in_this_round": true,
+    "prior_read02_authority02_versions_not_relabeled_or_rerun": true
+  },
+  "screenshots": {
+    "actual_png_count": 8,
+    "height": 900,
+    "images_manifest": {
+      "bytes": 3147,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/auditnav02/images.json",
+      "sha256": "72273a38f54efa487f92ac014bb4eb41bd261ef2b0203a865079b9f4d3ecc534"
+    },
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "viewports": [
+      390,
+      768,
+      1024,
+      1440
+    ],
+    "visual_review_claimed": false
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_originals_retained": true,
+    "no_rerun_or_following_group_in_this_round": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "top": "TestAccountProjectOwnerAuditWebNavigationAndLayouts",
+  "top_seconds": 23.41
+}

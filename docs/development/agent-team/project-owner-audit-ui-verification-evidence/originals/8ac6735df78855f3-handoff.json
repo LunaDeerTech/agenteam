@@ -1,0 +1,335 @@
+{
+  "actual_grant_sha256": "f0504a7d6fbf16b8897ad321f6d6ce16f6819aedb23f286d7fd84825f403162c",
+  "browser_reported_seconds": 8.5,
+  "driver_exit": 0,
+  "fixture_process_seconds": 69.176,
+  "group": "old-owner-read",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_authorized": false,
+    "legacy_global_dist_required": false,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "old_owner_native_evidence": {
+    "all_original_body_sha_match_sidecars": true,
+    "browser_public_client_reads": {
+      "client_categories": {
+        "get": 3,
+        "list": 6,
+        "problem": 4,
+        "resolve": 3
+      },
+      "count": 16,
+      "method": "GET",
+      "sidecars": [
+        "response-029.json",
+        "response-030.json",
+        "response-031.json",
+        "response-032.json",
+        "response-033.json",
+        "response-034.json",
+        "response-035.json",
+        "response-036.json",
+        "response-037.json",
+        "response-038.json",
+        "response-039.json",
+        "response-040.json",
+        "response-041.json",
+        "response-044.json",
+        "response-045.json",
+        "response-046.json"
+      ],
+      "status_counts": {
+        "200": 12,
+        "404": 3,
+        "409": 1
+      }
+    },
+    "classification_basis": "The unchanged Owner fixture/browser protocol plus actual response sequence and client_reads receipt distinguish 001–028 preparation, 042 GET/043 PATCH external rename IPC, and 029–041/044–046 browser reads. Legacy sidecars themselves do not contain a source flag. All 46 receive schema validation; only the 16 browser reads are counted for public-client replay.",
+    "method_counts": {
+      "GET": 45,
+      "PATCH": 1
+    },
+    "same_body_validation": {
+      "client_reads": {
+        "get": 3,
+        "list": 6,
+        "problem": 4,
+        "resolve": 3
+      },
+      "schemas": 46
+    },
+    "schema_only_external_rename_helper": {
+      "count": 2,
+      "sidecars": [
+        {
+          "endpoint": "/api/v1/projects/01a11c4f-ad30-76ce-9baa-f587799df67d",
+          "file": "response-042.json",
+          "method": "GET",
+          "request_id": "01a11c4f-d5ee-7db4-ab07-f0d7f6d30c65",
+          "status": 200
+        },
+        {
+          "endpoint": "/api/v1/projects/01a11c4f-ad30-76ce-9baa-f587799df67d",
+          "file": "response-043.json",
+          "method": "PATCH",
+          "request_id": "01a11c4f-d5f6-7f8e-b852-bbf4ae7b3372",
+          "status": 200
+        }
+      ]
+    },
+    "schema_only_preparation": {
+      "count": 28,
+      "method": "GET",
+      "sidecars": [
+        "response-001.json",
+        "response-002.json",
+        "response-003.json",
+        "response-004.json",
+        "response-005.json",
+        "response-006.json",
+        "response-007.json",
+        "response-008.json",
+        "response-009.json",
+        "response-010.json",
+        "response-011.json",
+        "response-012.json",
+        "response-013.json",
+        "response-014.json",
+        "response-015.json",
+        "response-016.json",
+        "response-017.json",
+        "response-018.json",
+        "response-019.json",
+        "response-020.json",
+        "response-021.json",
+        "response-022.json",
+        "response-023.json",
+        "response-024.json",
+        "response-025.json",
+        "response-026.json",
+        "response-027.json",
+        "response-028.json"
+      ],
+      "status": 200
+    },
+    "schema_process_result": {
+      "failed_to_run": false,
+      "signal": null,
+      "status": 0,
+      "stderr": "",
+      "stdout": "46\n"
+    },
+    "scope": "Legacy Project Owner schemas/client only. Validation replay adds no HTTP calls; preparation and helper responses are not counted as browser reads or Project Audit evidence.",
+    "sidecars": 46,
+    "status_counts": {
+      "200": 42,
+      "404": 3,
+      "409": 1
+    },
+    "unique_body_files": 39
+  },
+  "original_artifact_count": 111,
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/adopted-waits.json",
+      "sha256": "833c7f559d7cd0494e3f9138774044e0dc48f5582dd44d0c27e11aab7771733f"
+    },
+    "cleanup.json": {
+      "bytes": 98231,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/cleanup.json",
+      "sha256": "d5b241ba65bce5071a98c0500f42ce9cb42c85fb6685fc440bb5ab262d9094d7"
+    },
+    "command.json": {
+      "bytes": 3015,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/command.json",
+      "sha256": "ad102077876c55efd6efb1043176f1e09647cd0afbada924433a82d694dc4fb6"
+    },
+    "input-after.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/input-after.json",
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "input-before.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/input-before.json",
+      "sha256": "26faa63e5cdd828ac77f17596fd34b4af4b61cfc423d04cbb707a353a28bc61d"
+    },
+    "observed-resources.json": {
+      "bytes": 5097,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/observed-resources.json",
+      "sha256": "be1a26637e6b73597f2829146930070a7ebb8da993da89fa77b52ffa9d56f9e5"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "raw.log": {
+      "bytes": 4729,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/raw.log",
+      "sha256": "f80b6206c150c2cfaed8e8146357afdc1e6f393b316c86d7ae233c9e6e0e3e1d"
+    },
+    "result.json": {
+      "bytes": 45579,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/result.json",
+      "sha256": "4d6257bd4b4333c3f48f9574f5312ebc17d697b586591ff344ae0e17482a2ee0"
+    },
+    "same-body-validation.json": {
+      "bytes": 72,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/same-body-validation.json",
+      "sha256": "0c3a42165afc1b9fc4944c9c5899209dc2a7a36f743738b3b307ccaa1f213440"
+    },
+    "schema-validation.json": {
+      "bytes": 76,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/safe-http-evidence/TestAccountProjectOwnerWebReadAndNavigation/schema-validation.json",
+      "sha256": "934895975b13a9b827b50445d0c03206561865218569bfbc4c8f3a08b45fb997"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 329428,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/tcp-tail-observation.json",
+      "sha256": "9a5201aa05809f10cfd0b1f7e50e8e614326fbb9c24eab293a458dc1a2cbc0c8"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/verification-input.json",
+      "sha256": "caa1041ccd54af2a7556e9cec53c541af269054d698337f344cd0f4311b61ef1"
+    },
+    "watchdog.json": {
+      "bytes": 538,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldownerread01/watchdog.json",
+      "sha256": "ddf5a0367c582e84094ae90f9997904d37434f799e0229548f0c0354cd39e8fd"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 18,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:19:39.732544+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:19:40.455951+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "018ea9ac1579419586ee3bdcad81134d2011bb391b40efc57d9cc5075230f5e4": {
+        "kind": "network",
+        "name": "agenteam-d03-b63e4fc645e426795655f2d23d1fedf9"
+      },
+      "1099231b7bad7337c2d05bc40df6a33f5bc0be8c692230f05962f99b71d3eeaa": {
+        "kind": "network",
+        "name": "agenteam-d04-net-33491cea3408a48437f556e7c2812acf"
+      },
+      "1498aa1b126e29535c8fe9b5944abe885b0133b4fffe9c03753fb65d35e2724b": {
+        "kind": "container",
+        "name": "/agenteam-d03-b63e4fc645e426795655f2d23d1fedf9-pg16"
+      },
+      "284018d97931a6fedacf7380b414d02a9bd4f6653f843bc42ad840e438a729e5": {
+        "kind": "network",
+        "name": "agenteam-d05-object-b9cc93ce4372566491720196128dd636"
+      },
+      "718b085159ceba510d703c62dd270403a81698f226364a4a0d38864e30326eaa": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-b9cc93ce4372566491720196128dd636"
+      },
+      "f041dd0bf1cd7fd9073667c35c6bbff5945a93401c9d9ed6fe3241d005e34547": {
+        "kind": "container",
+        "name": "/agenteam-d03-b63e4fc645e426795655f2d23d1fedf9"
+      },
+      "f0430c8da99340097d232c21d0bf89b4cba3175bf6a256b2a2600879780acc28": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-33491cea3408a48437f556e7c2812acf"
+      }
+    },
+    "fixture_pid": 967247,
+    "fixture_pid_starttime": "4618505",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 967683,
+        "ppid": 1,
+        "starttime": "4619010",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 968133,
+        "ppid": 1,
+        "starttime": "4619451",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 968497,
+        "ppid": 1,
+        "starttime": "4619659",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 969002,
+        "ppid": 1,
+        "starttime": "4619845",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 103,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 39.4013550210002,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "oldownerread01",
+  "scope": {
+    "exact_one_original_owner_read_top": true,
+    "independent_result_review_not_claimed": true,
+    "original_go_log_boundary": "Default root and formal Account/Project APIs; private static hosting only. Skills preparation and terminal lifecycle facts are not D10 or lifecycle-runtime acceptance.",
+    "other_old_groups_not_run_in_this_round": true,
+    "private_assets": "build-v02/dist-ui02, 59 files/794499 bytes; no global legacy reader for this group",
+    "project_audit_schema_client_counts_not_claimed": true
+  },
+  "screenshots": {
+    "actual_png_count": 0,
+    "paths": []
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_prior_failures_unchanged": true,
+    "no_rerun_or_next_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "top": "TestAccountProjectOwnerWebReadAndNavigation",
+  "top_seconds": 17.02
+}

@@ -1,0 +1,28 @@
+{
+  "status": "STOP",
+  "files": [
+    {
+      "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/review.md",
+      "bytes": 2581,
+      "sha256": "9b0453ea78e87ac921aa34ff5b603be93023c27684ebf85f1f9c47ba0f629e3c"
+    },
+    {
+      "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/evidence.json",
+      "bytes": 20490,
+      "sha256": "6b02298e40eb60b6a113c8dd168e4eb9f0c6ebdf1662c5e64b7967c271b573df"
+    }
+  ],
+  "candidate_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+    "bytes": 14693,
+    "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+  },
+  "actual_result": {
+    "path": "/workspace/scratch/owner-ui-recovery/architecture-canonical-final01/result.json",
+    "bytes": 326,
+    "sha256": "46452c51b4cb6ffd414029e2e253c243c5a32208cf72b7a29105a6d02e7ec81b"
+  },
+  "originals_modified": false,
+  "candidate_or_repo_modified": false,
+  "new_executions": 1
+}

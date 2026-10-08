@@ -1,0 +1,604 @@
+{
+  "status": "METADATA_VERSION_MAP_STOP_NOT_FINAL_ACCEPTANCE",
+  "scope": "No technical source files read or hashed for this mapping; selected fixed freezes/reports only. A final one-pass 21-source binding remains for complete acceptance.",
+  "technical_path_count": 21,
+  "groups": {
+    "API5": 5,
+    "STATE6": 6,
+    "VIEWS6": 6,
+    "JS2": 2,
+    "GO2": 2
+  },
+  "path_order": "Card #1-20 plus #22; README #21 is excluded and remains last separately authorized item.",
+  "sources": [
+    {
+      "card_id": 1,
+      "path": "web/src/api/client.ts",
+      "group": "API5",
+      "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+      "bytes": 40512,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/client.ts",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 2,
+      "path": "web/src/api/project-audit.ts",
+      "group": "API5",
+      "sha256": "52858b0a4b7630a14a877a47b40d60481bc85792a7bd0c66796f6118c44aed06",
+      "bytes": 6261,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/project-audit.ts",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 3,
+      "path": "web/src/api/project-audit-metadata.ts",
+      "group": "API5",
+      "sha256": "fb3ca7b14bed7b4d35502d8df9f3dafb940ae8acdddb8f748e7dd5bb8b2f7a92",
+      "bytes": 22784,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/project-audit-metadata.ts",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 4,
+      "path": "web/src/composables/useSession.ts",
+      "group": "STATE6",
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7",
+      "bytes": 163959,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/composables/useSession.ts",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 5,
+      "path": "web/src/composables/useProjectAudit.ts",
+      "group": "STATE6",
+      "sha256": "092c81000bf27d77d5a756372436f978316ee9c9499fe2abfccc96d06e271c4e",
+      "bytes": 14945,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/composables/useProjectAudit.ts",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 6,
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "group": "STATE6",
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943",
+      "bytes": 26022,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/composables/useProjectWorkspace.ts",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 7,
+      "path": "web/src/router/auth.ts",
+      "group": "STATE6",
+      "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562",
+      "bytes": 10910,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/router/auth.ts",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "supersedes_sha256": "db307bd0a3c7085f95c4618d8d3a6cd7f342c79949c7c465d326745cf9a66fef",
+      "version_note": "auth-v2 fullPath refusal closes state-v1 D1; original state report and FAIL remain.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 8,
+      "path": "web/src/router/index.ts",
+      "group": "VIEWS6",
+      "sha256": "68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709",
+      "bytes": 5428,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/router/index.ts",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 9,
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "group": "VIEWS6",
+      "sha256": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069",
+      "bytes": 907,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/views/projects/ProjectSettingsView.vue",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 10,
+      "path": "web/src/views/projects/ProjectAuditView.vue",
+      "group": "VIEWS6",
+      "sha256": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+      "bytes": 21200,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/view.fixed01.vue",
+      "source_freeze": "canonical_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "canonical_review",
+        "canonical_actual_final49"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "supersedes_sha256": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "version_note": "Final canonical-only read preservation fix; independent final same-version one-file 49/49. Historical read02/authority02/private59 used previous View, not this candidate.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 11,
+      "path": "web/src/tests/project-audit-client.spec.ts",
+      "group": "API5",
+      "sha256": "af74f4cbfab9ef1139cad653f436c1cd8a8824a660467454c1fbf3f1186305d1",
+      "bytes": 19234,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/tests/project-audit-client.spec.ts",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 12,
+      "path": "web/src/tests/project-audit-metadata.spec.ts",
+      "group": "API5",
+      "sha256": "24b167617b12752eed2de1b0b1e3cad42cc11053288c4b2df7c22ec9f68c7e33",
+      "bytes": 21924,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/tests/project-audit-metadata.spec.ts",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 13,
+      "path": "web/src/tests/project-audit-state.spec.ts",
+      "group": "STATE6",
+      "sha256": "f5f0ddafd782745f45148b1d8a2bbf3bb01e649ca7a645bdb53eda0eae64b539",
+      "bytes": 32745,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/tests/project-audit-state.spec.ts",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 14,
+      "path": "web/src/tests/project-audit.spec.ts",
+      "group": "VIEWS6",
+      "sha256": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5",
+      "bytes": 26397,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/test.after.ts",
+      "source_freeze": "canonical_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "canonical_review",
+        "canonical_actual_final49"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "supersedes_sha256": "0ba34fdf3b020d9e5ad72a53b17f7c7b8b93b6dea730fb84f81aba6d35a35a37",
+      "version_note": "Final canonical-only read preservation fix; independent final same-version one-file 49/49. Historical read02/authority02/private59 used previous View, not this candidate.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 15,
+      "path": "web/src/tests/authentication.spec.ts",
+      "group": "STATE6",
+      "sha256": "1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f",
+      "bytes": 24670,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/tests/authentication.spec.ts",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 16,
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "group": "VIEWS6",
+      "sha256": "89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd",
+      "bytes": 11815,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/tests/project-workspace.spec.ts",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    },
+    {
+      "card_id": 17,
+      "path": "tests/account/project_owner_audit_web_fixture_test.go",
+      "group": "GO2",
+      "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f",
+      "bytes": 51317,
+      "frozen_source": "/workspace/scratch/project-audit-ui-backend/candidate03/project_owner_audit_web_fixture_test.go",
+      "source_freeze": "go03_freeze",
+      "acceptance_chain": [
+        "go02_full_static_with_D1",
+        "go03_static",
+        "D1_actual_review",
+        "go_offline02",
+        "read02_review",
+        "authority02_review"
+      ],
+      "scope": "Complete original STATIC + D1 delta/control + exact candidate03 offline and accepted author read02/authority02 evidence. Compile/list alone is not business acceptance.",
+      "version_note": "Candidate02 full review contained D1; candidate03 moves joined to actual outer handler return. D1 timing 1 top/5 groups/13 gates/8 joins accepted; no change to hard-stopped Object runtime work."
+    },
+    {
+      "card_id": 18,
+      "path": "tests/account/project_owner_audit_web_test.go",
+      "group": "GO2",
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19",
+      "bytes": 6289,
+      "frozen_source": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go",
+      "source_freeze": "go03_freeze",
+      "acceptance_chain": [
+        "go02_full_static_with_D1",
+        "go03_static",
+        "D1_actual_review",
+        "go_offline02",
+        "read02_review",
+        "authority02_review"
+      ],
+      "scope": "Complete original STATIC + D1 delta/control + exact candidate03 offline and accepted author read02/authority02 evidence. Compile/list alone is not business acceptance.",
+      "version_note": "Candidate02 full review contained D1; candidate03 moves joined to actual outer handler return. D1 timing 1 top/5 groups/13 gates/8 joins accepted; no change to hard-stopped Object runtime work."
+    },
+    {
+      "card_id": 19,
+      "path": "tests/account-captcha-web/project-owner-audit.config.js",
+      "group": "JS2",
+      "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f",
+      "bytes": 1163,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/project-owner-audit.config.js",
+      "source_freeze": "browser_freeze",
+      "acceptance_chain": [
+        "browser_review"
+      ],
+      "scope": "Accepted full JS STATIC and bounded offline only; real behavior is separately version-bound."
+    },
+    {
+      "card_id": 20,
+      "path": "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+      "group": "JS2",
+      "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+      "bytes": 68077,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/after.spec.ts",
+      "source_freeze": "source_v03_freeze",
+      "acceptance_chain": [
+        "browser_review",
+        "source_v02_review",
+        "source_v03_review"
+      ],
+      "scope": "Accepted full JS STATIC and bounded offline only; real behavior is separately version-bound.",
+      "history_sha256": [
+        "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2",
+        "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f"
+      ],
+      "version_note": "f648 browser full STATIC ->16a3 focus correction ->a91d explicit Session recovery premise; original read01/authority01 FAIL retained. Authority02 used a91d, read02 used 16a3."
+    },
+    {
+      "card_id": 22,
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "group": "VIEWS6",
+      "sha256": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55",
+      "bytes": 1973,
+      "frozen_source": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/components/layout/ProjectNav.vue",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "scope": "Accepted limited STATIC/controlled/offline combination; final whole-card acceptance pending.",
+      "build_metadata_binding": "new_build_source17"
+    }
+  ],
+  "references": {
+    "card": {
+      "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+      "bytes": 39298,
+      "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+    },
+    "api_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/freeze.json",
+      "bytes": 19832,
+      "sha256": "1a2bcdf414409962155789b4732fa039bdfeaf8873f1afcd9b525f6df06f1264"
+    },
+    "api_review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/api-v1/review.md",
+      "bytes": 4130,
+      "sha256": "5669b67d4c3bf8286137b03f712df48d101bc3b3dc07864a37e8f489561dc4e1"
+    },
+    "state_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/freeze.json",
+      "bytes": 23972,
+      "sha256": "c730a2e83a59f35971d4bfd81d74fa4c6cfcd5f3132d6c7aa510cfe7c9039f0c"
+    },
+    "state_review_with_D1": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/state-v1/review.md",
+      "bytes": 5378,
+      "sha256": "9ae45bdf4e11ad2a538a73fc17cf5ad7f347e4a50f4571ee7e3a196378f1a0e3"
+    },
+    "view_auth_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/freeze.json",
+      "bytes": 13090,
+      "sha256": "0a37aacae3f193319408b0d9210069110cac7125a3a775a84545aff567aaf746"
+    },
+    "view_auth_review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/review.md",
+      "bytes": 4345,
+      "sha256": "067080be0ba5211c372ea337cbb02c05b0c5cffc5c53c323028d46a33665f7d7"
+    },
+    "web17_offline_review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/web17-offline-v1/review.md",
+      "bytes": 1709,
+      "sha256": "280fa718ef5c61be9b4dbd9de42210f8914e697604e6c482875f148ab4835539"
+    },
+    "old_build": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/freeze.json",
+      "bytes": 3153,
+      "sha256": "ee7eb7aa4a01863c47176d78e8455e37f349809147256c0de86e65a9900d476c"
+    },
+    "canonical_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+      "bytes": 14693,
+      "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+    },
+    "canonical_review": {
+      "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/review.md",
+      "bytes": 2581,
+      "sha256": "9b0453ea78e87ac921aa34ff5b603be93023c27684ebf85f1f9c47ba0f629e3c"
+    },
+    "canonical_actual_final49": {
+      "path": "/workspace/scratch/owner-ui-recovery/architecture-canonical-final01/result.json",
+      "bytes": 326,
+      "sha256": "46452c51b4cb6ffd414029e2e253c243c5a32208cf72b7a29105a6d02e7ec81b"
+    },
+    "browser_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/freeze.json",
+      "bytes": 6515,
+      "sha256": "1a1a35b4f1f4b39a5fb26b3e3b30d56f639d36b3eb96086d3382ea537984d3f8"
+    },
+    "browser_review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/browser-v1/review.md",
+      "bytes": 3086,
+      "sha256": "f04af9bc5d4efeb841f867f4c41dc28c28d8ea02e28fd41e260b547b175fbb41"
+    },
+    "source_v02_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/freeze.json",
+      "bytes": 3766,
+      "sha256": "a2a13a51d676d241c563d778d690fc0e73b87fb781fa3e46cf4f15f8b27a0027"
+    },
+    "source_v02_review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit-source-v02/review.md",
+      "bytes": 1354,
+      "sha256": "5164ee520fd7a10cbcb0b604ff8e999974f75921708dcb6928a1c305506888d8"
+    },
+    "source_v03_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/freeze.json",
+      "bytes": 4267,
+      "sha256": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df"
+    },
+    "source_v03_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-source-v03-review01/review.md",
+      "bytes": 1572,
+      "sha256": "de56c9b7b0bf130472d3a85a5ce8c07ee3bc787870153accf6ad98e5269fccf7"
+    },
+    "go03_freeze": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+      "bytes": 3732,
+      "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+    },
+    "go02_full_static_with_D1": {
+      "path": "/workspace/scratch/architecture-audit-go-candidate02-review/review.md",
+      "bytes": 4012,
+      "sha256": "313a16f8b7233212302b55636debc97c1458df3dbe09243466d7e6cd8146a8aa"
+    },
+    "go03_static": {
+      "path": "/workspace/scratch/architecture-audit-go-candidate03-review/review.md",
+      "bytes": 2168,
+      "sha256": "b9f2d99fc5fc5575c0a9c354120e864b17852d5ac3bd77069ba3b75c6ef06630"
+    },
+    "D1_actual_review": {
+      "path": "/workspace/scratch/architecture-audit-d1-actual01-review/review.md",
+      "bytes": 1876,
+      "sha256": "79e7b09ca2507602da6b077a7da7987ee24490a183d1defc5af3e04c1cc3a393"
+    },
+    "go_offline02": {
+      "path": "/workspace/scratch/project-audit-ui-backend/offline02/freeze.json",
+      "bytes": 2154,
+      "sha256": "027101e01ec67cf5e6c3dda10621ee5a06117a440ca6c693cdaf95c2187df2a3"
+    },
+    "go_offline02_result": {
+      "path": "/workspace/scratch/project-audit-ui-backend/offline02/result.json",
+      "bytes": 4462,
+      "sha256": "3c43b6bf40695aba0a65efdbe163bd65cb81dfc26d3578682ae41976b02c8536"
+    },
+    "read02_manifest": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditread02/manifest.json",
+      "bytes": 2246,
+      "sha256": "4133d4e2161c8259862a40e3b5478593f81403ca3c0040dd25e7f1eec593e2a0"
+    },
+    "read02_review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/auditread02-result-review/review.md",
+      "bytes": 3713,
+      "sha256": "0f4b0ccc5faa1f0b76ab74358065131e90af80d24e1e0d2d9b4aa2c58cc51a50"
+    },
+    "authority02_manifest": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditauthority02/manifest.json",
+      "bytes": 24049,
+      "sha256": "0a344ac6472ddd09477db21a97344a1625826b61b65ee564cc01159e12fc2541"
+    },
+    "authority02_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/auditauthority02-review01/review.md",
+      "bytes": 2299,
+      "sha256": "6dce1378d4f69b4c203e3cbc016d812bd4b2947fba738b88a02c51051069c839"
+    },
+    "nav01_failure_review": {
+      "path": "/workspace/scratch/architecture-audit-nav01-review/review.md",
+      "bytes": 2718,
+      "sha256": "cb849ce6daa5d4f9cd726153eb411fda315cc38a4a166ad81f5e572f1c02b4d8"
+    },
+    "new_build": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/freeze.json",
+      "bytes": 5516,
+      "sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+    },
+    "new_build_source17": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/source17.json",
+      "bytes": 3769,
+      "sha256": "092b5e98746adea56a5bccd8aa5c4aba7ba7152421aa36f649f19580d85a60e4"
+    }
+  },
+  "runtime_version_boundaries": [
+    {
+      "run": "auditread02",
+      "result": "Accepted author real read and independent original-evidence review only",
+      "review": "read02_review",
+      "manifest": "read02_manifest",
+      "spec_sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f",
+      "view_sha256": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "build": "old_build",
+      "details": "Top20.02s; 19 browser safe GET sidecars, 19 native EOF/schema/client same-body records; owned retirement accepted; not an independent personally run representative."
+    },
+    {
+      "run": "auditauthority02",
+      "result": "Accepted author real authority and independent original-evidence review only",
+      "review": "authority02_review",
+      "manifest": "authority02_manifest",
+      "spec_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+      "view_sha256": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "build": "old_build",
+      "details": "Top28.44s; 47 browser GET sidecars, 34 completed native EOF/schema/client records, 13 incomplete excluded; owned retirement accepted; not an independent personally run representative."
+    },
+    {
+      "run": "auditnav01",
+      "result": "FAIL retained; owned retirement accepted only",
+      "review": "nav01_failure_review",
+      "view_sha256": "58309a18ef02b151980f3635a99a8f620f459f9674ad1b4b53b4dee2316a6de5",
+      "spec_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+      "build": "old_build",
+      "details": "Second authenticated uppercase dotted direct fails current-document native fact wait. No final EOF/DOM/finish/schema/client/eight PNGs; controlled repair does not reconstruct old missing evidence."
+    }
+  ],
+  "pending": [
+    "Actual navigation after final candidate/build binding, native final body/schema/client and all eight screenshots with individual visual inspection.",
+    "All ten exact old browser regression tops under current authorized version combination.",
+    "Independent personally executed four representatives: new read, new authority, old SystemAudit authority, old Owner identity.",
+    "One final 21-source byte binding, applicable final checks/runtime-version reconciliation and root whole-technical acceptance.",
+    "README card #21 only after complete 21-technical acceptance and separate root authorization."
+  ],
+  "historical_boundaries": [
+    "State-v1 six-source acceptance was suspended for D1; only auth-v2 combination closes it.",
+    "Original fullunit 2265 PASS/1 FAIL plus corrected old-file 20/20 is a versioned combination, not a fresh all-green full run.",
+    "Original API/state/App/Go D1/read01/authority01/nav01/canonical-red01/green01 failures and unexecuted scopes remain intact.",
+    "Object runtime join/OpenAI tools/SPA concurrent-publication hard stops, complete D27/production readiness and E01 remain outside this mapping."
+  ],
+  "actions": {
+    "metadata_read_only": true,
+    "repository_write": false,
+    "technical_source_scan": false,
+    "large_graph_copy": false,
+    "new_static_review": false,
+    "dynamic_check": false,
+    "resources": false,
+    "global_or_private_assets_read": false
+  },
+  "stop": true,
+  "current_private_build": {
+    "freeze": "new_build",
+    "source17": "new_build_source17",
+    "assets": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/assets.json",
+      "bytes": 8827,
+      "sha256": "a3c6cac14e07261fde429801c087e2f4287dec85ac2c7a70caa1739ab53a93e5"
+    },
+    "outDir": "/workspace/scratch/project-audit-ui/dist-ui02",
+    "files": 59,
+    "bytes": 794499,
+    "author_actual": {
+      "exit": 0,
+      "timeout": false,
+      "elapsed_seconds": 1.0368115109959035,
+      "direct_actual_wait": 889528,
+      "adopted_actual_wait": [],
+      "owned_pids": {
+        "889528": "4398874"
+      },
+      "owned_scan_1": {},
+      "owned_scan_2": {},
+      "inputs_same": true
+    },
+    "acceptance": "root explicitly accepted 18 fixed refs and private production build; this revision verifies freeze and 17 metadata source rows only, not assets or original execution again",
+    "real_browser": false,
+    "historical_read02_authority02_build_unchanged": true,
+    "commit_reported_by_root": "055c727b5bd1fb2f2794d402ce214ef5f95bd38b",
+    "commit_note": "Parent message recorded the pushed repair commit; no Git command or independent Git validation in this mapping."
+  },
+  "revision": {
+    "previous_map": {
+      "path": "/workspace/scratch/architecture-audit21-version-map01/source-map.json",
+      "bytes": 25131,
+      "sha256": "5b1377f75758bd6f8bff213c0689afa434d0f54183791f4ffcc1b2b019168026"
+    },
+    "delta": "Only promote current private build from pending to parent-accepted build-v02; source path hashes and existing runtime boundaries unchanged."
+  }
+}

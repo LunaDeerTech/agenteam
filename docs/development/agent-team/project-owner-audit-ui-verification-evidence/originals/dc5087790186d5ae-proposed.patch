@@ -1,0 +1,18 @@
+--- a/tests/account-captcha-web/e2e/project-owner-audit.spec.ts
++++ b/tests/account-captcha-web/e2e/project-owner-audit.spec.ts
+@@ -1488,11 +1488,14 @@
+   expect(
+     ["SESSION_REVOKED", "UNAUTHENTICATED"].includes(denied.code ?? ""),
+   ).toBe(true);
+-  await expect(page.locator("#login-email")).toBeVisible();
++  await expect(heading(page, "会话尚未确认")).toBeVisible();
+   await expect(page.locator(".project-audit")).toHaveCount(0);
+   await expect(
+     page.getByRole("navigation", { name: "项目导航", exact: true }),
+   ).toHaveCount(0);
++  await expect(button(page, "检查当前会话")).toBeEnabled();
++  await button(page, "检查当前会话").click();
++  await expect(page.locator("#login-email")).toBeVisible();
+   await deniedBoth(page, p, row.audit_id, 401, [
+     "SESSION_REVOKED",
+     "UNAUTHENTICATED",

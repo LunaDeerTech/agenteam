@@ -1,0 +1,310 @@
+{
+  "actual_grant_sha256": "e2e997aa5773d6c43c19da9e4d40e01d19c8f82a4ba3ed957d3ddf6ed2b3b5cb",
+  "driver_exit": 1,
+  "failure": {
+    "assertion": "after(): expect.poll predicate toBe(true), received false; Timeout 5000ms exceeded",
+    "classification": "Original assertion failure; no product or observer root-cause claim in this handoff.",
+    "retained_error_context": false,
+    "stack": [
+      "tests/account-captcha-web/e2e/project-owner-audit.spec.ts:541:3 after",
+      "tests/account-captcha-web/e2e/project-owner-audit.spec.ts:588:16 ready",
+      "tests/account-captcha-web/e2e/project-owner-audit.spec.ts:1713:3 navigation case"
+    ],
+    "trigger": "Second direct page.goto to uppercase dotted Project audit route returned HTML 200, then ready(page,dotted) timed out."
+  },
+  "fixture_process_seconds": 68.15,
+  "group": "new-audit-navigation",
+  "inputs_same": {
+    "actual_digest": "cc9030e9e9c0530126d76c48fa37ff8fe66c6e00ec22b83af6a0432d8c11ef43",
+    "captured_before_after_equal": true,
+    "files_count": 1179,
+    "legacy_global_dist_required": false,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "native_evidence": {
+    "detail_gets": 0,
+    "list_gets": 2,
+    "method": "GET",
+    "native_sidecars": 2,
+    "no_post_failure_validation_run": true,
+    "public_client_validation": "NOT_REACHED",
+    "query": "limit=50",
+    "request_ids": [
+      "01a11c10-bd41-73a0-a991-f202c6113fae",
+      "01a11c10-be9e-7799-ab3a-309e5a615cae"
+    ],
+    "same_native_body_bytes": 1389,
+    "same_native_body_sha256": "e53e60c4572a8c4bc023a178e206e1552c0c90a951a1dfafbd721e4373943cc9",
+    "schema_validation": "NOT_REACHED",
+    "scope": "Two complete formal-upstream 200 list bodies were retained. They are not proof of both browser EOF/client outcomes because the final observation manifest and finish were not reached.",
+    "source": "browser",
+    "statuses": [
+      200,
+      200
+    ],
+    "transfer_kinds": [
+      "forwarded",
+      "forwarded"
+    ],
+    "unique_body_files": 1
+  },
+  "original_artifact_count": 30,
+  "proxy_retirement": {
+    "counts": {
+      "browser_command_lookups": 0,
+      "browser_detail_gets": 0,
+      "browser_list_gets": 2,
+      "browser_project_mutations": 0,
+      "control_audit_gets": 0,
+      "cuts": 0,
+      "failures": 0,
+      "held": 0,
+      "joined": 0,
+      "server_finished": 61,
+      "server_started": 61,
+      "session_failures": 0,
+      "setup_audit_gets": 0
+    },
+    "input_hash": "e2e997aa5773d6c43c19da9e4d40e01d19c8f82a4ba3ed957d3ddf6ed2b3b5cb",
+    "mode": "navigation",
+    "observer_errors": 0,
+    "proxy_actual_join": true,
+    "scope": "proxy Serve/handlers only; root/preparation Store/guard remain owned by later LIFO cleanups and outer actual retirement evidence",
+    "test_failed_at_proxy_retirement": true
+  },
+  "reached_prefix": [
+    "Unauthenticated uppercase dotted direct route returned HTML 200 and Login was visible",
+    "Canonical safe-return target assertion, formal login, first ready(dotted) and canonical URL assertion passed",
+    "First Resolve/Get/Audit order assertion passed",
+    "Second direct page.goto returned HTML 200; subsequent ready did not complete"
+  ],
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/adopted-waits.json",
+      "sha256": "690720850b1432a2107adf65040cf892c4136093baf2b313dfe770e1cd1633cd"
+    },
+    "auxiliary-facts.json": {
+      "bytes": 1327,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/auxiliary-facts.json",
+      "sha256": "523948db1a47dd9c5cc79ab52866465f1b17596c1c6b87e87f8e1840f71ad3fb"
+    },
+    "body-e53e60c4572a8c4bc023a178e206e1552c0c90a951a1dfafbd721e4373943cc9.json": {
+      "bytes": 1389,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/body-e53e60c4572a8c4bc023a178e206e1552c0c90a951a1dfafbd721e4373943cc9.json",
+      "sha256": "e53e60c4572a8c4bc023a178e206e1552c0c90a951a1dfafbd721e4373943cc9"
+    },
+    "cleanup.json": {
+      "bytes": 80657,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/cleanup.json",
+      "sha256": "2bc1c30ee32abe699646a10cb8066f7459e9520339445feee046c152ffcf56af"
+    },
+    "command.json": {
+      "bytes": 2998,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/command.json",
+      "sha256": "327be50cf91dc0ff632719cc6612c692cb1b09ed6f81b1ea12ec99670c571f54"
+    },
+    "frozen_spec": {
+      "bytes": 68077,
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/after.spec.ts",
+      "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193"
+    },
+    "input-after.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/input-after.json",
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    "input-before.json": {
+      "bytes": 894,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/input-before.json",
+      "sha256": "8b32f7bfa70589e56723ef61969210f1c43279f1b26b4cf102ef35f2a74feaa3"
+    },
+    "observed-resources.json": {
+      "bytes": 5081,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/observed-resources.json",
+      "sha256": "b831aa64550b790ab0922683df5d8be2812fe64d6e3a4ae0b29098c7a8ce4202"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "proxy-retirement-facts.json": {
+      "bytes": 587,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/proxy-retirement-facts.json",
+      "sha256": "64b1af205ce6b50456953a1d60b5c7d5a17d0f29e1cad8788e1ce5f346734bf7"
+    },
+    "raw.log": {
+      "bytes": 6025,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/raw.log",
+      "sha256": "5ffe10598a6c8176e2aa57c259930b147a3f80966a9671cb48174b01af11a96e"
+    },
+    "response-001.json": {
+      "bytes": 732,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/response-001.json",
+      "sha256": "cd1808dbc74d519ff9866bb831ae113cfba35c74107d2faef946c22c4dba669a"
+    },
+    "response-002.json": {
+      "bytes": 732,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/response-002.json",
+      "sha256": "e498e37a775e981b86823ac14644fa87e10bb5c7625fc665f4ddbbec366c0580"
+    },
+    "result.json": {
+      "bytes": 37598,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/result.json",
+      "sha256": "bd3f5d783434fbd91397b73af2ee58d08a4a24ab1f746d9caaad4ccea3f490a5"
+    },
+    "seed-facts.json": {
+      "bytes": 844,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/safe-http-evidence/TestAccountProjectOwnerAuditWebNavigationAndLayouts/seed-facts.json",
+      "sha256": "87781293a247bc4cf2dc3192b2ca9092a5b8e858a897788e214bd14166ead441"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 185621,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/tcp-tail-observation.json",
+      "sha256": "594679616e60ea74b64147bb87e39271194519ca622b309a16d87564efdf6e1a"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/verification-input.json",
+      "sha256": "b44a4a9b1359e4655198c1965a8ede554e79e0d9e1d800f3b19b610a37ba706e"
+    },
+    "watchdog.json": {
+      "bytes": 562,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v03/runs/auditnav01/watchdog.json",
+      "sha256": "dc02441f47a876a44898739f11c0601f1dab9a65c92613bf046c41214bb623a4"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 11,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:10:48.292614+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T15:10:49.021789+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "005294539dc3e8374616cd86c1944084fe280c79466d7fe64b4fe9f60330291c": {
+        "kind": "container",
+        "name": "/agenteam-d03-b4245a4de7461664133e9d06a5191c83-pg16"
+      },
+      "a1720aadd37b94b641073a38c2b42e8d4d3e6dc4265c291c70f33a4a9a34f742": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-222a85c236059cc1f647ec0c10c9d929"
+      },
+      "b5c9b28d248750b62ae4b472f87ce957315c408df98205093513ce2e2fb3c8ce": {
+        "kind": "network",
+        "name": "agenteam-d05-object-d10b1319b3c41ef09370eae9250e9d7a"
+      },
+      "c61d115c751838aee27561135b872937160ff4fe275735a3a94fe8e2b0267e82": {
+        "kind": "container",
+        "name": "/agenteam-d03-b4245a4de7461664133e9d06a5191c83"
+      },
+      "e1d61bc5359a1a7166bf16114dd1e6c85038fbdf7df80aeed6062672a3d06e44": {
+        "kind": "network",
+        "name": "agenteam-d04-net-222a85c236059cc1f647ec0c10c9d929"
+      },
+      "f14e9c78ddae2839e94cd8a61ae34c53dd46e3de2d624317f9df7beef31c868b": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-d10b1319b3c41ef09370eae9250e9d7a"
+      },
+      "f30ddb3b79c82cb978e7b78ad9a2533a32fd2a32d7212fc99183fc126d1c105c": {
+        "kind": "network",
+        "name": "agenteam-d03-b4245a4de7461664133e9d06a5191c83"
+      }
+    },
+    "fixture_pid": 832103,
+    "fixture_pid_starttime": "4205465",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 832541,
+        "ppid": 1,
+        "starttime": "4206006",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 832994,
+        "ppid": 1,
+        "starttime": "4206446",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 833384,
+        "ppid": 1,
+        "starttime": "4206690",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 833936,
+        "ppid": 1,
+        "starttime": "4206877",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 95,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 39.37756072999764,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "auditnav01",
+  "screenshots": {
+    "actual_png_count": 0,
+    "expected_on_success": 8,
+    "paths": [],
+    "visual_review_claimed": false
+  },
+  "status": "FAIL_FULLY_RETIRED_STOP",
+  "stop": {
+    "no_rerun_or_later_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "previous_authority02_pass_not_modified": true,
+    "repository_driver_assets_unchanged": true,
+    "resource_window_returned_to_root": true,
+    "v03_failure_guard_unchanged": true
+  },
+  "top": "TestAccountProjectOwnerAuditWebNavigationAndLayouts",
+  "top_seconds": 16.06,
+  "unreached_scope": [
+    "checks.dotted_return assignment and Project/settings current-item assertions",
+    "Default settings/general and Audit sidebar navigation assertions",
+    "Unknown/suffixed routes and remaining safe-return rejection cases",
+    "Shared Project/System draft guards and remaining navigation/accessibility assertions",
+    "Eight layout screenshots",
+    "finish(navigation), final browser result, schema subprocess and public-client same-body validation"
+  ]
+}

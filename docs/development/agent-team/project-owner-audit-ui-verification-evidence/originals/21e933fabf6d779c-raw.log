@@ -1,0 +1,81 @@
+
+ RUN  v4.1.11 /workspace/scratch/owner-audit-ui-verification/api-v1
+
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > matches 31 separate formal schema branches and keeps the wider query alphabets 5ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > secret.create 35ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > secret.update 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > secret.delete 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > secret.resolve 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > outbound.access.deny 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > object.upload.complete 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > object.upload.failed 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > object.delete 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > object.transfer.issue 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > object.transfer.complete 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > object.transfer.revoke 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > artifact.create 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > artifact.read 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > artifact.download 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > artifact.list 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > outbox.delivery.requeue 3ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.create.accepted 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.create.completed 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.update 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.archive.accepted 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.archive.completed 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.restore 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.delete.accepted 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > project.lifecycle.retry 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > provider.create 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > provider.update 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > provider.delete 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > model.create 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > model.update 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > model.delete 1ms
+ ✓ independent.spec.ts > independent formal output witnesses via the public API > knowledge.delete_subtree 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent secret.delete 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent secret.create 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent secret.resolve 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent outbound.access.deny 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent object.upload.complete 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent object.upload.failed 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent object.delete 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent object.transfer.issue 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent object.transfer.complete 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent object.transfer.revoke 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent artifact.create 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent artifact.read 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent artifact.download 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent artifact.list 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent outbox.delivery.requeue 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent project.create.completed 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent project.archive.completed 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent project.restore 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent project.update 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent project.lifecycle.retry 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent provider.update 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent model.delete 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > rejects inconsistent knowledge.delete_subtree 0ms
+ ✓ independent.spec.ts > conditional contract counterexamples > keeps valid AgentRun association and action-limited optional branches 1ms
+ ✓ independent.spec.ts > conditional contract counterexamples > uses the accepted Go escape byte accounting for scalar text and a legal MIME maximum 1ms
+ ✓ independent.spec.ts > query capture, ordered full pages and target binding > accepts every legal filter value including System-only empty results without writes 16ms
+ ✓ independent.spec.ts > query capture, ordered full pages and target binding > captures query getters once and prevents later caller mutation from changing filter checks 1ms
+ ✓ independent.spec.ts > query capture, ordered full pages and target binding > normalizes exact calendar microseconds and rejects forbidden direct input before fetch 2ms
+ ✓ independent.spec.ts > query capture, ordered full pages and target binding > rejects malformed last row, wrong detail target and nonmatching agent OR projection 9ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > list: legal complete DTO at 1MiB waits for real EOF 3ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > get: legal complete DTO at 1MiB waits for real EOF 3ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > cap+1 retains transport until cancel resolves 1ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > cap+1 retains transport until cancel rejects 0ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > joins explicit abort tail without claiming a Session owner test 1ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > rejects complete truncated without publishing 1ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > rejects complete utf8 without publishing 0ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > rejects complete valid-prefix-extra without publishing 0ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > rejects complete bad-last-row without publishing 1ms
+ ✓ independent.spec.ts > public API streaming boundary and actual cancellation tail > keeps old Owner64KiB versus new Audit1MiB classification distinct 1ms
+
+ Test Files  1 passed (1)
+      Tests  71 passed (71)
+   Start at  12:10:23
+   Duration  402ms (transform 136ms, setup 0ms, import 166ms, tests 120ms, environment 0ms)
+
+JSON report written to /workspace/scratch/owner-audit-ui-verification/api-v1/run01/vitest.json

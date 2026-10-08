@@ -1,0 +1,20 @@
+
+ RUN  v4.1.11 /workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2
+
+ ↓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/audit?x=1 sends zero Project requests after guard and onMounted
+ ↓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/audit? sends zero Project requests after guard and onMounted
+ ↓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/general#fragment sends zero Project requests after guard and onMounted
+ ↓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings# sends zero Project requests after guard and onMounted
+ ↓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/%73ettings/audit sends zero Project requests after guard and onMounted
+ ↓ independent.spec.ts > independent production App raw rejection > cold /owner/demo/settings/%61udit sends zero Project requests after guard and onMounted
+ ↓ independent.spec.ts > independent production App raw rejection > warm invalid query retires the real page without reauthorizing its sanitized address
+ ↓ independent.spec.ts > independent App lifetime and explicit recovery > a late detail completion after a later guard cancels navigation cannot republish or steal focus
+ ↓ independent.spec.ts > independent App lifetime and explicit recovery > idle actual App pageshow503 removes private DOM and a manual Session check creates one fresh default read
+ ✓ independent.spec.ts > independent App lifetime and explicit recovery > parameter reuse removes the old detail and filter before its new Get completes 501ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 9 skipped (10)
+   Start at  12:37:17
+   Duration  2.22s (transform 1.26s, setup 0ms, import 1.23s, tests 504ms, environment 374ms)
+
+JSON report written to /workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run03/vitest.json

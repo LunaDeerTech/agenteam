@@ -1,0 +1,488 @@
+{
+  "role": "host polling; no ownership inference; may miss short connections",
+  "rows": [
+    {
+      "inode": "2612799",
+      "local": "017C900A:E1C2",
+      "remote": "027C900A:2328",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "010013AC:E006",
+      "remote": "020013AC:2328",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "2616333",
+      "local": "0100007F:806A",
+      "remote": "00000000:0000",
+      "state": "0A",
+      "table": "tcp"
+    },
+    {
+      "inode": "2618507",
+      "local": "0100007F:806B",
+      "remote": "00000000:0000",
+      "state": "0A",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622694",
+      "local": "0100007F:B263",
+      "remote": "00000000:0000",
+      "state": "0A",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624540",
+      "local": "010014AC:942C",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624544",
+      "local": "010014AC:9430",
+      "remote": "020014AC:1538",
+      "state": "04",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624542",
+      "local": "0100007F:806A",
+      "remote": "0100007F:ABD8",
+      "state": "08",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624538",
+      "local": "0100007F:806A",
+      "remote": "0100007F:ABD2",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622704",
+      "local": "0100007F:ABD2",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2621883",
+      "local": "0100007F:ABD8",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "010014AC:9430",
+      "remote": "020014AC:1538",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624554",
+      "local": "010014AC:943A",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624556",
+      "local": "017C900A:C270",
+      "remote": "027C900A:2328",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624557",
+      "local": "017C900A:C274",
+      "remote": "027C900A:2328",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623661",
+      "local": "0100007F:806A",
+      "remote": "0100007F:ABDA",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2621951",
+      "local": "0100007F:ABDA",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622001",
+      "local": "0100007F:8EA3",
+      "remote": "00000000:0000",
+      "state": "0A",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623006",
+      "local": "0100007F:B263",
+      "remote": "0100007F:9110",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623009",
+      "local": "0100007F:8EA3",
+      "remote": "0100007F:DD58",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623005",
+      "local": "0100007F:9110",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624561",
+      "local": "010014AC:943E",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623008",
+      "local": "0100007F:DD58",
+      "remote": "0100007F:8EA3",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624558",
+      "local": "0100007F:ABDE",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624559",
+      "local": "0100007F:806A",
+      "remote": "0100007F:ABDE",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622044",
+      "local": "0100007F:8060",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622045",
+      "local": "0100007F:B263",
+      "remote": "0100007F:8060",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622048",
+      "local": "0100007F:806C",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622049",
+      "local": "0100007F:B263",
+      "remote": "0100007F:806C",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624801",
+      "local": "0100007F:8074",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624803",
+      "local": "0100007F:8080",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624804",
+      "local": "0100007F:808A",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622198",
+      "local": "0100007F:B263",
+      "remote": "0100007F:808A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2625655",
+      "local": "0100007F:B263",
+      "remote": "0100007F:8080",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2625653",
+      "local": "0100007F:B263",
+      "remote": "0100007F:8074",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623297",
+      "local": "0100007F:808E",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623298",
+      "local": "0100007F:8090",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623299",
+      "local": "0100007F:809A",
+      "remote": "0100007F:B263",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2625765",
+      "local": "0100007F:B263",
+      "remote": "0100007F:809A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624096",
+      "local": "0100007F:B263",
+      "remote": "0100007F:8090",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624094",
+      "local": "0100007F:B263",
+      "remote": "0100007F:808E",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624892",
+      "local": "0100007F:806A",
+      "remote": "0100007F:CF98",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624894",
+      "local": "010014AC:98DA",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623309",
+      "local": "0100007F:CF98",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2625804",
+      "local": "010014AC:98F4",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2625802",
+      "local": "0100007F:806A",
+      "remote": "0100007F:CFBC",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623375",
+      "local": "0100007F:CFBC",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2626060",
+      "local": "010014AC:9932",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2626058",
+      "local": "0100007F:806A",
+      "remote": "0100007F:CFE0",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2622312",
+      "local": "0100007F:CFE0",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2626082",
+      "local": "0100007F:806A",
+      "remote": "0100007F:CFFC",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2626084",
+      "local": "0100007F:806A",
+      "remote": "0100007F:CFFE",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2626083",
+      "local": "0100007F:806A",
+      "remote": "0100007F:D00A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2626086",
+      "local": "010014AC:993E",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2625178",
+      "local": "010014AC:9940",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2623451",
+      "local": "010014AC:9946",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624353",
+      "local": "0100007F:CFFC",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2624354",
+      "local": "0100007F:CFFE",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2626081",
+      "local": "0100007F:D00A",
+      "remote": "0100007F:806A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:8074",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:8080",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:808A",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:808E",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:8090",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:809A",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:8EA3",
+      "remote": "0100007F:DD58",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:8060",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:806C",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "0100007F:9110",
+      "remote": "0100007F:B263",
+      "state": "06",
+      "table": "tcp"
+    }
+  ]
+}

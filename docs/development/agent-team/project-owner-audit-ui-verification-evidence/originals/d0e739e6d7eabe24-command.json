@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vite/bin/vite.js",
+    "build",
+    "/workspace/agenteam/web",
+    "--outDir",
+    "/workspace/scratch/project-audit-ui/dist-ui02"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

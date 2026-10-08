@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--outputFile.json=/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2/run01/vitest.json"
+  ],
+  "cwd": "/workspace/scratch/owner-audit-ui-verification/view-v1-auth-v2",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4,
+  "network": "no real fetch; all injected local Response/ReadableStream"
+}

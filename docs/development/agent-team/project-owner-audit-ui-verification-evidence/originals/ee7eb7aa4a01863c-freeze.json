@@ -1,0 +1,74 @@
+{
+  "status": "PRODUCTION_PRIVATE_BUILD_AUTHOR_STOP",
+  "outDir": "/workspace/scratch/project-audit-ui/dist-ui01",
+  "outDir_was_absent": true,
+  "files": 59,
+  "assets": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/assets.json",
+    "bytes": 8827,
+    "sha256": "0cf0c0f64e86b8d7a6e06385456cf9cdf1df4bb8d9ed833538bbb656a527e8c6"
+  },
+  "source17": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/source17.json",
+    "bytes": 3769,
+    "sha256": "e811f4d4c0b6a442a3c9622f354a4204ca9221136e29d9316216ed24efc44205"
+  },
+  "production_no_debug_scan": true,
+  "four_public_brand_svg_exact": true,
+  "extra_inputs_before": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-extra-inputs-before.json",
+    "bytes": 785,
+    "sha256": "c546aa2c609afba3f77b546a2b7854505977311e7dc3afb147866d895fd54df4"
+  },
+  "extra_inputs_after": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-extra-inputs-after.json",
+    "bytes": 785,
+    "sha256": "c546aa2c609afba3f77b546a2b7854505977311e7dc3afb147866d895fd54df4"
+  },
+  "extra_inputs_same": true,
+  "command": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build01/command.json",
+      "bytes": 349,
+      "sha256": "0742c96c3214443f7647f5092b6aaabd9632e0113d0140a6078dd619e16292a1"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build01/inputs-after.json",
+      "bytes": 21211,
+      "sha256": "9f46cf2cd934efd6c6075281fbf12e9aca0ba301764af4bc9da0e30bd9e99320"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build01/inputs-before.json",
+      "bytes": 21211,
+      "sha256": "9f46cf2cd934efd6c6075281fbf12e9aca0ba301764af4bc9da0e30bd9e99320"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build01/raw.log",
+      "bytes": 6743,
+      "sha256": "fc3fb02c587663df60c0a68e665abd3fa38747a1697f0043a8845022e497c0e1"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build01/result.json",
+      "bytes": 252,
+      "sha256": "789458a4554df63c1b7c39644f6f30afb8ceba2a249c506e8882125f1321f1d1"
+    }
+  ],
+  "type_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/view-types02/result.json",
+    "bytes": 302,
+    "sha256": "0b2f5df77c654517875375844bd0604eb5cc76b0e6842542babf52b2718ccc53"
+  },
+  "type_note": "All 17 web product/test allowlist source hashes are unchanged from the type pass. The separate legacy one-selector test maintenance occurred afterwards; its original full failure and affected20 PASS are separate. No product source differs.",
+  "full_unit": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/final-unit01/result.json",
+    "bytes": 1701,
+    "sha256": "5569ca1f3b1487fbed9541ab53d23b343480460ba9928e666c7717d0303673c8"
+  },
+  "legacy_fix": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/legacy-audit-brand-v1/freeze.json",
+    "bytes": 4894,
+    "sha256": "07423acacdd82683d3325ba9207a8f7c071aed2dcc898a921ec053c8aee77639"
+  },
+  "browser_run": false,
+  "global_dist_accessed": false
+}

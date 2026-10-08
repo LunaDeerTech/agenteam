@@ -1,0 +1,75 @@
+{
+  "status": "CURRENT_SOURCE_BINDING_ONLY_NO_NEW_GO_LIST",
+  "bound_sources": [
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+      "bytes": 51317,
+      "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f"
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+      "bytes": 6289,
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "bytes": 5611,
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/platform_embedding_resolution_test.go",
+      "bytes": 16692,
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    }
+  ],
+  "reused_selected_input_union": {
+    "path": "/workspace/scratch/owner-ui-backend/inputs.json",
+    "bytes": 42403,
+    "sha256": "37482995716234a1eefcbb769f878ffad65a60791d049f9d08d79f432e54c889"
+  },
+  "reused_actual_race_graph": {
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps-race02/raw",
+    "bytes": 1263637,
+    "sha256": "9cc038a666af947649cffb992022299ff3e3d1fac4beb4e59b4d6aab4b3f259c"
+  },
+  "old_graph_model_package_direct_imports_cover_current_policy": true,
+  "policy_import_paths": [
+    "context",
+    "slices",
+    "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+    "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/model/adapter",
+    "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/postgres"
+  ],
+  "added_imports_from_changed_policy": [],
+  "probe_overlay_excluded": true,
+  "added_path_bindings": [
+    "tests/account/project_owner_audit_web_fixture_test.go",
+    "tests/account/project_owner_audit_web_test.go",
+    "internal/central/model/platform_embedding_resolution_test.go"
+  ],
+  "total_union_plus_explicit_bindings": 906,
+  "model_new_pure_is_binding_only_not_a_dependency_test_selected_by_account_build": true,
+  "old_graph_not_claimed_as_fresh_current_graph": true,
+  "go": {
+    "path": "/workspace/toolchains/go1.27.1/bin/go",
+    "bytes": 17142188,
+    "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624"
+  },
+  "go_mod": {
+    "path": "/workspace/agenteam/go.mod",
+    "bytes": 1468,
+    "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+  },
+  "go_sum": {
+    "path": "/workspace/agenteam/go.sum",
+    "bytes": 8391,
+    "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "driver_exact_copy": {
+    "path": "/workspace/scratch/project-audit-ui-backend/offline02/run.py",
+    "bytes": 4917,
+    "sha256": "7760c97d373fb26ebad83c0c157ea760948cde17942e172ff325434258f013d3"
+  }
+}

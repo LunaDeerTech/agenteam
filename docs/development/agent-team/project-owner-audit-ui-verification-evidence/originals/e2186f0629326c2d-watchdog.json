@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 45775.80047552,
+      "top": "TestAccountSystemAuditWebAuthorityAndOwnership"
+    },
+    {
+      "event": "result",
+      "monotonic": 45790.984050664,
+      "observed_seconds": 15.183575144001225,
+      "reported_seconds": 15.2,
+      "state": "PASS",
+      "top": "TestAccountSystemAuditWebAuthorityAndOwnership"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemAuditWebAuthorityAndOwnership"
+  ],
+  "failures": []
+}

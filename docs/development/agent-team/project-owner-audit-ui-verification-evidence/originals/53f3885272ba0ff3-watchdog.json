@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 44731.612624429,
+      "top": "TestAccountAuthenticationWebSessionLifecycle"
+    },
+    {
+      "event": "result",
+      "monotonic": 44738.313445752,
+      "observed_seconds": 6.7008213230001274,
+      "reported_seconds": 6.68,
+      "state": "PASS",
+      "top": "TestAccountAuthenticationWebSessionLifecycle"
+    }
+  ],
+  "expected": [
+    "TestAccountAuthenticationWebSessionLifecycle"
+  ],
+  "failures": []
+}

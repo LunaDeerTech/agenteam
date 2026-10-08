@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js",
+    "--offline",
+    "--prefix",
+    "web",
+    "run",
+    "test:unit",
+    "--",
+    "src/tests/project-audit.spec.ts",
+    "-t",
+    "retains one pending native Audit read through the canonical address"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

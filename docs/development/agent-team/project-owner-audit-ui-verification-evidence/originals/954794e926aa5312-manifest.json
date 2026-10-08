@@ -1,0 +1,132 @@
+{
+  "core_refs": {
+    "cleanup.json": {
+      "bytes": 103171,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/cleanup.json",
+      "sha256": "c697ea7a721e4102da9840f966fb202d18525e67f4358ced04b2dfde859e6492"
+    },
+    "raw.log": {
+      "bytes": 4339,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/raw.log",
+      "sha256": "bb6323c5d5c2c2ba71721050480ce6e9de7d33df1381a60c5bdd82968ca47dec"
+    },
+    "result.json": {
+      "bytes": 47805,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/result.json",
+      "sha256": "8ede7b21c3d521e8087f163e2af3b3b844c42dd2b3b4bd072c4dc1b0cd961258"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 370380,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/tcp-tail-observation.json",
+      "sha256": "0043f325d3e592cb5663d4dc355de8c545f3e661446dd20465d8fb80a0ba4534"
+    }
+  },
+  "group": "old-smtp-delivery",
+  "handoff": {
+    "bytes": 9166,
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldsmtpdelivery01/handoff.json",
+    "sha256": "523e1776975961d603393afe047d9216dfdce0c0828dda5f6d48dc03cfc68082"
+  },
+  "original_artifact_count": 24,
+  "original_artifacts": {
+    "adopted-waits.json": {
+      "bytes": 579,
+      "sha256": "75c72ba254fe5e45c0e9c2376b55b364a6c843db81fcd4bac291d879841a5bd8"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 103171,
+      "sha256": "c697ea7a721e4102da9840f966fb202d18525e67f4358ced04b2dfde859e6492"
+    },
+    "command.json": {
+      "bytes": 3039,
+      "sha256": "68b11eef10265b0443959eea1367de8012cd696aea7bad7dc939c8de7623f5f6"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 191,
+      "sha256": "45258b1388c750a46cfd2b23a0ca72a1ef19cc045e066b632427ea8ec54fd5fb"
+    },
+    "disk-preflight.json": {
+      "bytes": 191,
+      "sha256": "7942e4805deefa265f532e8d54c462fd0716916907e8b07e44b27b7f01516389"
+    },
+    "driver.py.txt": {
+      "bytes": 40081,
+      "sha256": "06cf03c315d96dfe469d0dd262791d0117c944cc27baa764165df4de830c847d"
+    },
+    "frozen-input.json": {
+      "bytes": 47788,
+      "sha256": "2ec591db8577e82c50ed4d3b7cefe7dfbf4bd4dd40965a3125cb41060dbd712e"
+    },
+    "input-after.json": {
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "input-before.json": {
+      "bytes": 892,
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 16888,
+      "sha256": "b957862923ae0bb6b04167f9962274abba7d9e33100dbe7de649ec76e537c3f8"
+    },
+    "observed-resources.json": {
+      "bytes": 6699,
+      "sha256": "e1a02c87bd544bfdc7d8033def67d53e69f63545f6ca83f13add91eed6bd85fb"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 39816,
+      "sha256": "5d53de5eb3b386298e4928df9e30348035cb053ca903c1c6f4cd09d04130e1b1"
+    },
+    "raw.log": {
+      "bytes": 4339,
+      "sha256": "bb6323c5d5c2c2ba71721050480ce6e9de7d33df1381a60c5bdd82968ca47dec"
+    },
+    "result.json": {
+      "bytes": 47805,
+      "sha256": "8ede7b21c3d521e8087f163e2af3b3b844c42dd2b3b4bd072c4dc1b0cd961258"
+    },
+    "tcp-baseline.json": {
+      "bytes": 2667,
+      "sha256": "70bdd59e2f36e3f9749d67429d9982a553bd01414de6609caa1d3aace7f0f570"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 17109,
+      "sha256": "9882db7542eae480038ed6eeba7933071b292f4c056f078afd48859d07bcf92d"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 370380,
+      "sha256": "0043f325d3e592cb5663d4dc355de8c545f3e661446dd20465d8fb80a0ba4534"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "5840db8ad0b4165aba33179965924b159b7bb26cc8beda2232a3cff8b596479e"
+    },
+    "watchdog.json": {
+      "bytes": 539,
+      "sha256": "cd5f31979aab6f89129d4b59bb9f1629702ea052863c721248d3a0a85993e0c7"
+    }
+  },
+  "run": "oldsmtpdelivery01",
+  "scope": "Immutable original artifacts are indexed, not copied. Old SMTP outcome/retry only; no external mailbox delivery, Project Audit schema/client or independent acceptance claim.",
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP"
+}

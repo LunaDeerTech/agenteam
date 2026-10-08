@@ -1,0 +1,77 @@
+{
+  "compiled": false,
+  "created_utc": "2026-10-08T12:00:59.469946+00:00",
+  "gofmt": [
+    {
+      "bytes": 532,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/gofmt01.json",
+      "sha256": "98028cec7bc61330bb1613ce24c4e8eebece4c1572d20d6a241f73125a404c09"
+    },
+    {
+      "bytes": 0,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/gofmt01.raw",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 576,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/gofmt02.json",
+      "sha256": "b227c46033c3fd74484f1aa3816db6e3011b55b5a67bee77707ce2ea6aba7fc4"
+    },
+    {
+      "bytes": 0,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/gofmt02.raw",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "gofmt_tool": {
+    "bytes": 3144728,
+    "path": "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342"
+  },
+  "handoff": {
+    "bytes": 3708,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/handoff.md",
+    "sha256": "d37057e0287ee34816ad06ef7d1f83476e066b0ae9cc2c89b2611338b4a558f3"
+  },
+  "node_executed": false,
+  "private_dist_ready": false,
+  "protocol": {
+    "bytes": 10909,
+    "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+    "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+  },
+  "protocol_agreement": {
+    "bytes": 769,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/protocol-agreement.json",
+    "sha256": "3c8092b89748cbcfc7fc6a039111a5ecb71b6fa34d99514bd1ed12087677c3f8"
+  },
+  "repo_installed": false,
+  "resource_executed": false,
+  "resources_authorized": false,
+  "reused_sources": {
+    "bytes": 2165,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/reused-sources.json",
+    "sha256": "77f19326f3a4da24e6e90eb07525b0bcde3872dc07793502a96110d06e72e374"
+  },
+  "scope": "Only scratch two-source candidate; no original helper, application, schema, script, locks, repository or shared asset writes; no full dependency index",
+  "source_check": {
+    "bytes": 867,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/source-check.json",
+    "sha256": "a8e60bf85d00a9a23b0da778d4104193db661597e57d82d2ce696a9892b32da9"
+  },
+  "sources": [
+    {
+      "bytes": 50095,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_fixture_test.go",
+      "repository_target": "tests/account/project_owner_audit_web_fixture_test.go",
+      "sha256": "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb"
+    },
+    {
+      "bytes": 6289,
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go",
+      "repository_target": "tests/account/project_owner_audit_web_test.go",
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+    }
+  ],
+  "status": "GO_CANDIDATE01_AUTHOR_STOP_PENDING_INDEPENDENT_SOURCE_REVIEW"
+}

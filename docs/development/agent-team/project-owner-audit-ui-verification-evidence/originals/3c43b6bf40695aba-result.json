@@ -1,0 +1,127 @@
+{
+  "actual_adopted_waits": 0,
+  "actual_direct_waits": 4,
+  "artifacts": [
+    {
+      "bytes": 52923564,
+      "path": "/workspace/scratch/project-audit-ui-backend/offline02/bin/account.test",
+      "sha256": "a528b3709015e1c1322015652fd526d3d3846886f3985f93c8b6f66d8c8e058c"
+    },
+    {
+      "bytes": 33483066,
+      "path": "/workspace/scratch/project-audit-ui-backend/offline02/bin/agenteam",
+      "sha256": "a9a3ed401cd41c94b50e04357aae5d77045172e82c8b71fb0255b4183c84a781"
+    },
+    {
+      "bytes": 4631991,
+      "path": "/workspace/scratch/project-audit-ui-backend/offline02/bin/agenteam-runner",
+      "sha256": "908c4277c8be0c96703fc2a621eb80bae2777f40eae46dc0206cd784bb7d2a3c"
+    }
+  ],
+  "binding": {
+    "bytes": 3002,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline02/input-binding.json",
+    "sha256": "c7eb2903e7a954b37a472c063a5c8748e7f999482705f95bc0ffe4c98f85cd35"
+  },
+  "candidate03": {
+    "bytes": 3732,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+    "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+  },
+  "commands": [
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 906,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 26072,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/race-compile01/meta.json",
+        "sha256": "b94efbebc47c1fbbee36134b2aeb642231223bde8280b7c551a4a6e72ba1519b"
+      },
+      "name": "race-compile01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/race-compile01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 12.41770620099851,
+      "tmp_empty": true
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 906,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 25690,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/vet01/meta.json",
+        "sha256": "126735fecd0a862394c7da5a0fe1981a318295ed0cb2063ac9cc31bb788193e2"
+      },
+      "name": "vet01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/vet01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 2.953434510003717,
+      "tmp_empty": true
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 906,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 25376,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/build-central01/meta.json",
+        "sha256": "f20280e52186a0e6b3ffb7d43582f61b07a54dfa7f471e11b328bb35f2c66de3"
+      },
+      "name": "build-central01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/build-central01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 1.3967937960042036,
+      "tmp_empty": true
+    },
+    {
+      "actual_adopted_waits": 0,
+      "actual_direct_waits": 1,
+      "exit": 0,
+      "input_count": 906,
+      "inputs_same": true,
+      "meta": {
+        "bytes": 25391,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/build-runner01/meta.json",
+        "sha256": "9771ba90b115af5e2e1ab8faf208ed29f12eedf2d6e3a667e42ee60001acfef1"
+      },
+      "name": "build-runner01",
+      "owned_empty_twice": true,
+      "raw": {
+        "bytes": 0,
+        "path": "/workspace/scratch/project-audit-ui-backend/offline02/build-runner01/raw",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "seconds": 0.38204426399897784,
+      "tmp_empty": true
+    }
+  ],
+  "go_cache_commands_stopped": true,
+  "historical_compile_candidate02_not_replaced": {
+    "bytes": 3683,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate02/freeze.json",
+    "sha256": "bda6ba898cf8643ee2fdef464bf5320905baa10094b120c0d37d362d469dbc33"
+  },
+  "repo_source_writes": false,
+  "resources_run": false,
+  "status": "AUTHOR_OFFLINE_COMPILE_PASS_STOP_NO_TEST_EXECUTION",
+  "test_or_binary_or_list_run": false
+}

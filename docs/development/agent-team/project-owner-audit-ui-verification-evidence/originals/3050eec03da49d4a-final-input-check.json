@@ -1,0 +1,42 @@
+{
+  "status": "FIXED_INPUT_FINAL_CHECK_PASS",
+  "freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/freeze.json",
+    "sha256": "1a2bcdf414409962155789b4732fa039bdfeaf8873f1afcd9b525f6df06f1264",
+    "bytes": 19832
+  },
+  "five_sources": [
+    {
+      "path": "/workspace/agenteam/web/src/api/client.ts",
+      "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+      "bytes": 40512
+    },
+    {
+      "path": "/workspace/agenteam/web/src/api/project-audit.ts",
+      "sha256": "52858b0a4b7630a14a877a47b40d60481bc85792a7bd0c66796f6118c44aed06",
+      "bytes": 6261
+    },
+    {
+      "path": "/workspace/agenteam/web/src/api/project-audit-metadata.ts",
+      "sha256": "fb3ca7b14bed7b4d35502d8df9f3dafb940ae8acdddb8f748e7dd5bb8b2f7a92",
+      "bytes": 22784
+    },
+    {
+      "path": "/workspace/agenteam/web/src/tests/project-audit-client.spec.ts",
+      "sha256": "af74f4cbfab9ef1139cad653f436c1cd8a8824a660467454c1fbf3f1186305d1",
+      "bytes": 19234
+    },
+    {
+      "path": "/workspace/agenteam/web/src/tests/project-audit-metadata.spec.ts",
+      "sha256": "24b167617b12752eed2de1b0b1e3cad42cc11053288c4b2df7c22ec9f68c7e33",
+      "bytes": 21924
+    }
+  ],
+  "seven_modules_same": true,
+  "formal_refs_verified": 11,
+  "author_artifacts_verified": 38,
+  "run_bound_inputs": 32,
+  "run_inputs_before_after_and_current_same": true,
+  "node_vitest_match_author_fixed_tools": true,
+  "limitations": "Only the five frozen source paths, seven fixed API modules, fixed formal references, author artifacts and own probe inputs were read; no active Session/Page graph was hashed or read."
+}

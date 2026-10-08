@@ -1,0 +1,203 @@
+{
+  "actual_grant_sha256": "908c4e7ae074f43b9e272aa73664a9f71a4b92584b01ebf49b8454ec608fa7be",
+  "browser_reported_seconds": 7.9,
+  "driver_exit": 0,
+  "fixture_process_seconds": 63.759,
+  "group": "old-system-audit-read",
+  "inputs_same": {
+    "actual_digest": "0edbd0073d6efa6a0e6df506da994137b1ec359b141215c7633420fde03f26d6",
+    "captured_before_after_equal": true,
+    "files_count": 1181,
+    "legacy_global_dist_authorized": true,
+    "legacy_global_dist_match": true,
+    "legacy_global_dist_required": true,
+    "private_dist_match": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true
+  },
+  "original_artifact_count": 24,
+  "refs": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/adopted-waits.json",
+      "sha256": "6b093fb7370f14a31edcfa96eac06a82308d9eafa2683e8d884845a527b8b25b"
+    },
+    "cleanup.json": {
+      "bytes": 94079,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/cleanup.json",
+      "sha256": "69a32dcdd709bc71690f47b42b7bd93edb2650c42b75610bf4787c2d0aacb0a5"
+    },
+    "command.json": {
+      "bytes": 3011,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/command.json",
+      "sha256": "605cc02f8cc58b830907e0087ee19b648d0cb230e84cc21d99f234dfb9f1db3f"
+    },
+    "input-after.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/input-after.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "input-before.json": {
+      "bytes": 892,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/input-before.json",
+      "sha256": "8aec4e0d1cef3b6617779666d531bf06c71f46b6ca8b7548ece3de8dd04d5a7c"
+    },
+    "observed-resources.json": {
+      "bytes": 5103,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/observed-resources.json",
+      "sha256": "47737a1df3039fb74a6133bbf1e4a3b2cf2c68da4349b25466859712c35f36db"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "raw.log": {
+      "bytes": 4116,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/raw.log",
+      "sha256": "469948f832d31ea670ed324ffcfe9e8b76aa69bd9439efabfc3c53342b4c914e"
+    },
+    "result.json": {
+      "bytes": 43691,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/result.json",
+      "sha256": "036915bcd95a8373135fb90b59494965ae75a3a4a272fac8fd0a8310430ee35a"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 148325,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/tcp-tail-observation.json",
+      "sha256": "4aa127679ae6e307f4e67f65bb0cf12ebe08866fd0d9441d9d827cae5badfc88"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/verification-input.json",
+      "sha256": "fe8fb0fd3a44e4a7ad2ea467bfe4fb4ae3c33734cc8d3fe6127391e153081765"
+    },
+    "watchdog.json": {
+      "bytes": 526,
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v04/runs/oldauditread01/watchdog.json",
+      "sha256": "d132e9d401cadf8ae69cde2c913cdb3e38598d9ab4a35604b75776caf3a7fa97"
+    }
+  },
+  "retirement": {
+    "adopted_actual_waits": 4,
+    "browser_processes": 11,
+    "cleanup_observations": [
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:08:47.790641+00:00"
+      },
+      {
+        "baseline_unchanged": true,
+        "browser_runtime_entries": [],
+        "exact_id_count": 7,
+        "exact_ids_absent": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": [],
+        "time": "2026-10-08T16:08:48.480115+00:00"
+      }
+    ],
+    "direct_actual_wait": true,
+    "exact_resources": {
+      "1155d5979785a92b668c8718e8371ddc9cf1ccebd2a69c229eddfa5f55ea9f52": {
+        "kind": "network",
+        "name": "agenteam-d04-net-dbeccb22bfd3531e01a89377151657be"
+      },
+      "140b709bc3ef54a2fa568e6f92fd7f573ac19afaa82daceff7810a1752e51994": {
+        "kind": "container",
+        "name": "/agenteam-d03-def30a59a5d4110b626988ee21c43a18"
+      },
+      "37bb7ce16db1d076588a243b15fd5040b744148823bbb63b1fe49eeb2e1bd127": {
+        "kind": "network",
+        "name": "agenteam-d03-def30a59a5d4110b626988ee21c43a18"
+      },
+      "3ea04774b22f1708270db6bfdb3a6f40fd6658eff41cde7796d26588fe452608": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-dbeccb22bfd3531e01a89377151657be"
+      },
+      "6ce270bfbb1e735f7962c8adef573cc9984fde938bc50f73b555af1739063bbe": {
+        "kind": "network",
+        "name": "agenteam-d05-object-3db4c8281893183370f1c8bcd8b87fa3"
+      },
+      "b1f9d8dea13102bfde7cbb64485e340a0bc8b2f641515c75a1ecef6d0436532e": {
+        "kind": "container",
+        "name": "/agenteam-d03-def30a59a5d4110b626988ee21c43a18-pg16"
+      },
+      "c0f46c95848f7ed58e99ea868c196f9450e5ca16d14acf1ea742910b885e01ba": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-3db4c8281893183370f1c8bcd8b87fa3"
+      }
+    },
+    "fixture_pid": 937141,
+    "fixture_pid_starttime": "4553857",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 937546,
+        "ppid": 1,
+        "starttime": "4554343",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 938021,
+        "ppid": 1,
+        "starttime": "4554707",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 938297,
+        "ppid": 1,
+        "starttime": "4554914",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 938893,
+        "ppid": 1,
+        "starttime": "4555117",
+        "state": "Z"
+      }
+    ],
+    "node_processes": 2,
+    "observed_processes": 94,
+    "resource_topology_matches": true,
+    "shim_boundary": "4 new PID1 containerd shims are non-owned and were not waited; historical zombies untouched.",
+    "tcp_double_delta_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 39.37577987500117,
+    "top_watchdog_complete": true,
+    "watchdog_thread_joined": true
+  },
+  "run": "oldauditread01",
+  "scope": {
+    "current_global_assets": "exchange02/build-v02, 59 files/794499 bytes; actual before/after legacy gate required/authorized/matched",
+    "exact_one_original_system_audit_read_top": true,
+    "independent_result_review_not_claimed": true,
+    "native_evidence_boundary": "Legacy System Audit read/filter behavior is a separate contract from Project Audit. No retained new Project Audit native sidecar/schema/client evidence is produced or claimed in this round.",
+    "other_old_groups_not_run_in_this_round": true,
+    "project_audit_schema_client_counts_not_claimed": true
+  },
+  "status": "PASS_FULLY_RETIRED_AUTHOR_STOP",
+  "stop": {
+    "all_prior_failures_unchanged": true,
+    "no_rerun_or_next_group": true,
+    "only_file_sealing_after_actual_retirement": true,
+    "resource_window_returned_to_root": true
+  },
+  "top": "TestAccountSystemAuditWebReadAndFilters",
+  "top_seconds": 13.11
+}

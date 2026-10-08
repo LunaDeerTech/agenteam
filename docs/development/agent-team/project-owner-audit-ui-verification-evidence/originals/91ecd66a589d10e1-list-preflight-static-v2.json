@@ -1,0 +1,39 @@
+{
+  "actual_race_graph": {
+    "bytes": 1740,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/dependency-race-delta.json",
+    "sha256": "0038d4dec2a97027d65875e05a88f0a610607757d55216d8f05570b75904542b"
+  },
+  "correction": "Earlier phrase import paths unchanged was overbroad for nonrace deps01. This record binds the aligned race graph; all 399 import paths now actually match the accepted baseline. Prior note is retained, not used as exact race evidence.",
+  "generated_testmain": [
+    {
+      "artifact": {
+        "bytes": 22159,
+        "path": "/workspace/.cache/go-build/b6/b634f1459194956af02e6466484d024347047ea5c7b502517bff793a3beccedc-d",
+        "sha256": "b634f1459194956af02e6466484d024347047ea5c7b502517bff793a3beccedc"
+      },
+      "calls_package_TestMain": false,
+      "three_tops_registered": [
+        "TestAccountProjectOwnerAuditWebReadAndFilters",
+        "TestAccountProjectOwnerAuditWebAuthorityAndRecovery",
+        "TestAccountProjectOwnerAuditWebNavigationAndLayouts"
+      ]
+    }
+  ],
+  "list_run": false,
+  "new_source_init_or_TestMain": {
+    "tests/account/project_owner_audit_web_fixture_test.go": false,
+    "tests/account/project_owner_audit_web_test.go": false
+  },
+  "prior_accepted_list": {
+    "bytes": 4801,
+    "path": "/workspace/scratch/owner-ui-backend/list-tops01/meta.json",
+    "sha256": "89122d921543853d3849c96c9d80b693c1a9493f205a396863d407871362ba95"
+  },
+  "prior_preflight": {
+    "bytes": 1245,
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/list-preflight-static.json",
+    "sha256": "d02359aead96aac24ff2cbe159d8155983496a78db0abc3e1789be88beb295c4"
+  },
+  "status": "STATIC_ONLY_NO_BINARY_EXECUTION"
+}

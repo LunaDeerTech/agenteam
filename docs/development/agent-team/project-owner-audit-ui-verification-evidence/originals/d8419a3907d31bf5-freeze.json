@@ -1,0 +1,90 @@
+{
+  "D1_independent_review": {
+    "bytes": 4012,
+    "path": "/workspace/scratch/architecture-audit-go-candidate02-review/review.md",
+    "sha256": "313a16f8b7233212302b55636debc97c1458df3dbe09243466d7e6cd8146a8aa"
+  },
+  "controlled_timing_plan": {
+    "bytes": 2599,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/D1-validation-plan.md",
+    "sha256": "e52120ab7d04e9b48e704d94cfe274fbc5ab689dc5f07e27928aba9678b57fed"
+  },
+  "created_utc": "2026-10-08T12:30:35.248412+00:00",
+  "go_execution_this_round": false,
+  "handoff": {
+    "bytes": 1686,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/handoff.md",
+    "sha256": "1558162ad167b0f54e02764ecf981ae0479f244eb29cf4c29d7a410c0216b5a3"
+  },
+  "historical_checks_not_candidate03_validation": {
+    "bytes": 6142,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate02/checks.json",
+    "sha256": "80403b2be52c5a6622b2637bd4593ca6b255fc0731b55a5bcedf46e414f494ba"
+  },
+  "model_final_source_rebind_pending": true,
+  "no_repo_writes_outside_owned_two_sources": true,
+  "parent_candidate02": {
+    "bytes": 3683,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate02/freeze.json",
+    "sha256": "bda6ba898cf8643ee2fdef464bf5320905baa10094b120c0d37d362d469dbc33"
+  },
+  "patch": {
+    "bytes": 2852,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/candidate02-to-candidate03.patch",
+    "sha256": "7ce92ac88421ab4a6a9c13ca568534a34892783b163e6b50858912787be164bf"
+  },
+  "protocol": {
+    "bytes": 10909,
+    "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+    "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+  },
+  "protocol_agreement": {
+    "bytes": 769,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/protocol-agreement.json",
+    "sha256": "3c8092b89748cbcfc7fc6a039111a5ecb71b6fa34d99514bd1ed12087677c3f8"
+  },
+  "repo_installed": true,
+  "resources_authorized": false,
+  "resources_run": false,
+  "runtime_reference": {
+    "bytes": 1658,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/runtime-reference.json",
+    "sha256": "6d677476d87f6aacd3fd653b033493cee1b3aa3ceb2169a438dfe5df8b38d995"
+  },
+  "source_writer_stopped": true,
+  "sources": [
+    {
+      "changed_from_candidate02": true,
+      "immutable_source": {
+        "bytes": 51317,
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate03/project_owner_audit_web_fixture_test.go",
+        "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f"
+      },
+      "repository": {
+        "bytes": 51317,
+        "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+        "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f"
+      }
+    },
+    {
+      "changed_from_candidate02": false,
+      "immutable_source": {
+        "bytes": 6289,
+        "path": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go",
+        "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+      },
+      "repository": {
+        "bytes": 6289,
+        "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+        "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+      }
+    }
+  ],
+  "static_check": {
+    "bytes": 2428,
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/static-check.json",
+    "sha256": "db780b2614066b71a9b634abda470995e5d1f56c280b95a26aa504612eca16ee"
+  },
+  "status": "CANDIDATE03_AUTHOR_SOURCE_STOP_D1_STATIC_SELF_CHECK_PENDING_REVIEW_AND_RECOMPILE",
+  "timing_validation_executed": false
+}

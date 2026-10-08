@@ -1,0 +1,53 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestAccountProjectOwnerAuditWebAuthorityAndRecovery)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-08T14:40:20.182663+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/screenshots",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/scratch/paui/auditauthority01",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MEETING_SUMMARY_WEB_DIST": "/workspace/scratch/project-audit-ui/dist-ui01",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery-new/bin/minio",
+    "AGENTEAM_PROJECT_AUDIT_WEB_DIST": "/workspace/scratch/project-audit-ui/dist-ui01",
+    "AGENTEAM_PROJECT_AUDIT_WEB_EVIDENCE": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/safe-http-evidence",
+    "AGENTEAM_PROJECT_AUDIT_WEB_INPUT_HASH": "064f422de61c7354520f8b20fa51a235edf4e3013ec83b78e245cd35869630b5",
+    "AGENTEAM_PROJECT_OWNER_WEB_DIST": "/workspace/scratch/project-audit-ui/dist-ui01",
+    "AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/safe-http-evidence",
+    "AGENTEAM_PROJECT_OWNER_WEB_INPUT_HASH": "064f422de61c7354520f8b20fa51a235edf4e3013ec83b78e245cd35869630b5",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOTMPDIR": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/runtime"
+  },
+  "exit": 1,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 766171,
+  "pid_starttime": "4021310",
+  "pid_stat": "766171 (sh) S 766078 766171 766171 0 -1 4194560 246 1764 0 0 0 0 0 0 20 0 1 0 4021310 2744320 160 18446744073709551615 93917981261824 93917981342817 140728952603328 0 0 0 0 0 81922 1 0 0 17 4 0 0 0 0 0 93917981371952 93917981377088 93918535028736 140728952608936 140728952609024 140728952609024 140728952610796 0\n",
+  "seconds": 81.797,
+  "started_utc": "2026-10-08T14:38:58.385036+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

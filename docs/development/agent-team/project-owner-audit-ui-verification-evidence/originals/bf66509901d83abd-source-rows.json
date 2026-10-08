@@ -1,0 +1,349 @@
+{
+  "state": "SOURCE_BINDING_PASS_FROZEN_FOR_PENDING_FINAL_COMBINATION",
+  "captured_utc": "2026-10-08T16:50:04.677850+00:00",
+  "source_map": {
+    "path": "/workspace/scratch/architecture-audit21-version-map01/rev02/source-map.json",
+    "bytes": 27961,
+    "sha256": "bba14d28a3b506067dabc23cd580d37e0862cb8f2eb90f6a141655b9c05ed879"
+  },
+  "scope": "Exactly card paths #1-20 plus #22 once each; README card#21 excluded. This source table is frozen and must be reused, not rescanned, while awaiting remaining independent formal results.",
+  "count": 21,
+  "source_bytes": 578532,
+  "all_match": true,
+  "rows": [
+    {
+      "card_id": 1,
+      "path": "web/src/api/client.ts",
+      "group": "API5",
+      "bytes": 40512,
+      "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+      "expected_bytes": 40512,
+      "expected_sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/client.ts"
+    },
+    {
+      "card_id": 2,
+      "path": "web/src/api/project-audit.ts",
+      "group": "API5",
+      "bytes": 6261,
+      "sha256": "52858b0a4b7630a14a877a47b40d60481bc85792a7bd0c66796f6118c44aed06",
+      "expected_bytes": 6261,
+      "expected_sha256": "52858b0a4b7630a14a877a47b40d60481bc85792a7bd0c66796f6118c44aed06",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/project-audit.ts"
+    },
+    {
+      "card_id": 3,
+      "path": "web/src/api/project-audit-metadata.ts",
+      "group": "API5",
+      "bytes": 22784,
+      "sha256": "fb3ca7b14bed7b4d35502d8df9f3dafb940ae8acdddb8f748e7dd5bb8b2f7a92",
+      "expected_bytes": 22784,
+      "expected_sha256": "fb3ca7b14bed7b4d35502d8df9f3dafb940ae8acdddb8f748e7dd5bb8b2f7a92",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/project-audit-metadata.ts"
+    },
+    {
+      "card_id": 4,
+      "path": "web/src/composables/useSession.ts",
+      "group": "STATE6",
+      "bytes": 163959,
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7",
+      "expected_bytes": 163959,
+      "expected_sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/composables/useSession.ts"
+    },
+    {
+      "card_id": 5,
+      "path": "web/src/composables/useProjectAudit.ts",
+      "group": "STATE6",
+      "bytes": 14945,
+      "sha256": "092c81000bf27d77d5a756372436f978316ee9c9499fe2abfccc96d06e271c4e",
+      "expected_bytes": 14945,
+      "expected_sha256": "092c81000bf27d77d5a756372436f978316ee9c9499fe2abfccc96d06e271c4e",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/composables/useProjectAudit.ts"
+    },
+    {
+      "card_id": 6,
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "group": "STATE6",
+      "bytes": 26022,
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943",
+      "expected_bytes": 26022,
+      "expected_sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/composables/useProjectWorkspace.ts"
+    },
+    {
+      "card_id": 7,
+      "path": "web/src/router/auth.ts",
+      "group": "STATE6",
+      "bytes": 10910,
+      "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562",
+      "expected_bytes": 10910,
+      "expected_sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/router/auth.ts"
+    },
+    {
+      "card_id": 8,
+      "path": "web/src/router/index.ts",
+      "group": "VIEWS6",
+      "bytes": 5428,
+      "sha256": "68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709",
+      "expected_bytes": 5428,
+      "expected_sha256": "68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/router/index.ts"
+    },
+    {
+      "card_id": 9,
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "group": "VIEWS6",
+      "bytes": 907,
+      "sha256": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069",
+      "expected_bytes": 907,
+      "expected_sha256": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/views/projects/ProjectSettingsView.vue"
+    },
+    {
+      "card_id": 10,
+      "path": "web/src/views/projects/ProjectAuditView.vue",
+      "group": "VIEWS6",
+      "bytes": 21200,
+      "sha256": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+      "expected_bytes": 21200,
+      "expected_sha256": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "view_auth_review",
+        "canonical_review",
+        "canonical_actual_final49"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/view.fixed01.vue"
+    },
+    {
+      "card_id": 11,
+      "path": "web/src/tests/project-audit-client.spec.ts",
+      "group": "API5",
+      "bytes": 19234,
+      "sha256": "af74f4cbfab9ef1139cad653f436c1cd8a8824a660467454c1fbf3f1186305d1",
+      "expected_bytes": 19234,
+      "expected_sha256": "af74f4cbfab9ef1139cad653f436c1cd8a8824a660467454c1fbf3f1186305d1",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/tests/project-audit-client.spec.ts"
+    },
+    {
+      "card_id": 12,
+      "path": "web/src/tests/project-audit-metadata.spec.ts",
+      "group": "API5",
+      "bytes": 21924,
+      "sha256": "24b167617b12752eed2de1b0b1e3cad42cc11053288c4b2df7c22ec9f68c7e33",
+      "expected_bytes": 21924,
+      "expected_sha256": "24b167617b12752eed2de1b0b1e3cad42cc11053288c4b2df7c22ec9f68c7e33",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "api_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/tests/project-audit-metadata.spec.ts"
+    },
+    {
+      "card_id": 13,
+      "path": "web/src/tests/project-audit-state.spec.ts",
+      "group": "STATE6",
+      "bytes": 32745,
+      "sha256": "f5f0ddafd782745f45148b1d8a2bbf3bb01e649ca7a645bdb53eda0eae64b539",
+      "expected_bytes": 32745,
+      "expected_sha256": "f5f0ddafd782745f45148b1d8a2bbf3bb01e649ca7a645bdb53eda0eae64b539",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/tests/project-audit-state.spec.ts"
+    },
+    {
+      "card_id": 14,
+      "path": "web/src/tests/project-audit.spec.ts",
+      "group": "VIEWS6",
+      "bytes": 26397,
+      "sha256": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5",
+      "expected_bytes": 26397,
+      "expected_sha256": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "view_auth_review",
+        "canonical_review",
+        "canonical_actual_final49"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/test.after.ts"
+    },
+    {
+      "card_id": 15,
+      "path": "web/src/tests/authentication.spec.ts",
+      "group": "STATE6",
+      "bytes": 24670,
+      "sha256": "1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f",
+      "expected_bytes": 24670,
+      "expected_sha256": "1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/web/src/tests/authentication.spec.ts"
+    },
+    {
+      "card_id": 16,
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "group": "VIEWS6",
+      "bytes": 11815,
+      "sha256": "89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd",
+      "expected_bytes": 11815,
+      "expected_sha256": "89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/tests/project-workspace.spec.ts"
+    },
+    {
+      "card_id": 17,
+      "path": "tests/account/project_owner_audit_web_fixture_test.go",
+      "group": "GO2",
+      "bytes": 51317,
+      "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f",
+      "expected_bytes": 51317,
+      "expected_sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "go02_full_static_with_D1",
+        "go03_static",
+        "D1_actual_review",
+        "go_offline02",
+        "read02_review",
+        "authority02_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-audit-ui-backend/candidate03/project_owner_audit_web_fixture_test.go"
+    },
+    {
+      "card_id": 18,
+      "path": "tests/account/project_owner_audit_web_test.go",
+      "group": "GO2",
+      "bytes": 6289,
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19",
+      "expected_bytes": 6289,
+      "expected_sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "go02_full_static_with_D1",
+        "go03_static",
+        "D1_actual_review",
+        "go_offline02",
+        "read02_review",
+        "authority02_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-audit-ui-backend/candidate01/project_owner_audit_web_test.go"
+    },
+    {
+      "card_id": 19,
+      "path": "tests/account-captcha-web/project-owner-audit.config.js",
+      "group": "JS2",
+      "bytes": 1163,
+      "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f",
+      "expected_bytes": 1163,
+      "expected_sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "browser_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/project-owner-audit.config.js"
+    },
+    {
+      "card_id": 20,
+      "path": "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+      "group": "JS2",
+      "bytes": 68077,
+      "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+      "expected_bytes": 68077,
+      "expected_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "browser_review",
+        "source_v02_review",
+        "source_v03_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/after.spec.ts"
+    },
+    {
+      "card_id": 22,
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "group": "VIEWS6",
+      "bytes": 1973,
+      "sha256": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55",
+      "expected_bytes": 1973,
+      "expected_sha256": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55",
+      "matches_accepted_version": true,
+      "acceptance_chain_reused": [
+        "view_auth_review",
+        "web17_offline_review"
+      ],
+      "frozen_source_ref_reused": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/web/src/components/layout/ProjectNav.vue"
+    }
+  ],
+  "failures": [],
+  "current_technical_sources_read_once": true,
+  "source_content_review_or_dynamic_execution": false,
+  "whole_technical_acceptance": false
+}

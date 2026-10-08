@@ -1,0 +1,85 @@
+{
+  "status": "SOURCE_V02_AUTHOR_STOP_OFFLINE_PASS_ACTUAL_PENDING",
+  "source": {
+    "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "bytes": 67892,
+    "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f"
+  },
+  "before": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/before.spec.ts",
+    "bytes": 67793,
+    "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+  },
+  "after": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/after.spec.ts",
+    "bytes": 67892,
+    "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/delta.patch",
+    "bytes": 520,
+    "sha256": "fea0465a2467f6ff317bdf1d706023d36789da50bbd2b04482b4e7426a53d9bb"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/checks.json",
+    "bytes": 3012,
+    "sha256": "b2823fbaaf0b762c78210ffc8b0534703d1cae4a2ac6e7e7c3fb8517a605f694"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/inputs.json",
+    "bytes": 1596,
+    "sha256": "8efc399ba08f763b84b55b977338f3e1347a574b0d46d1b54da438fdc942af3f"
+  },
+  "handoff": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/handoff.md",
+    "bytes": 1044,
+    "sha256": "44c7ed98ff4c1ac6ff032d245b68c657a92150efa4d6cafa9abf680c11413b62"
+  },
+  "old_browser_v1": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/freeze.json",
+    "bytes": 6515,
+    "sha256": "1a1a35b4f1f4b39a5fb26b3e3b30d56f639d36b3eb96086d3382ea537984d3f8"
+  },
+  "accepted_proposal": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditread01-focus-proposal01/provenance.json",
+    "bytes": 2666,
+    "sha256": "96707fcc2304b31e51e64218c949b88accaf8e314a88f1014e7bed6beae1017b"
+  },
+  "original_failed_run": {
+    "manifest": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/manifest.json",
+      "bytes": 1309,
+      "sha256": "039dc5f8fbe2d81ba2864fd1e2f035749ecf918e0ffaeb07c7e02441668a988f"
+    },
+    "raw": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/raw.log",
+      "bytes": 6315,
+      "sha256": "3f2886ac7f75d0693c5d3c37d8b0b2c0582795f5fc2e0e7d94f500fa2c16bfb5"
+    },
+    "result": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/result.json",
+      "bytes": 31029,
+      "sha256": "174d380d6f8255da16f8414832c0a4c949763db08c9cdf3e21324227981bd22f"
+    }
+  },
+  "tools_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-tools.json",
+    "bytes": 36382,
+    "sha256": "f4e33640408959d148b2fa7960249dbc0545ea5ed29bafc566348ce880dcf8f2"
+  },
+  "offline_driver_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/run-browser-offline.py",
+    "bytes": 3816,
+    "sha256": "0217f8a4b4d73fac740b5f060da10840ee9e5dd1ffdc7fd0551bd7f3898cf0f9"
+  },
+  "schema_unchanged": "b51581103f4c6952787799c93450703886917cf2ce2a98be26a085c16eadc2e1",
+  "config_unchanged": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f",
+  "private_build_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/freeze.json",
+    "bytes": 3153,
+    "sha256": "ee7eb7aa4a01863c47176d78e8455e37f349809147256c0de86e65a9900d476c"
+  },
+  "actual_browser_run": false,
+  "resources_active": false,
+  "limits": "Original failure and absence of activeElement evidence are retained. No real rerun or final response-body schema/client PASS."
+}

@@ -1,6 +1,6 @@
 # 前端开发基础
 
-前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。管理员用户目录、邀请管理、Provider/Model 配置、平台模型用途、账号安全、SMTP 配置与测试/投递任务、出站规则、只读系统审计及运行信息也已实现；Owner 项目列表、工作区与基本信息编辑的当前能力及验收边界见下节。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)、[公开入口工作项](../work-items/d26-public-account-entry.md)、[目录工作项](../work-items/d27-system-user-directory-ui.md)、[邀请管理工作项](../work-items/d27-system-invitation-ui.md)、[Provider 工作项](../work-items/d27-system-provider-management-ui.md)、[Model 工作项](../work-items/d27-system-model-management-ui.md)、[平台用途工作项](../work-items/d27-system-model-selection-ui.md)、[账号安全工作项](../work-items/d27-system-account-security-ui.md)、[SMTP 配置工作项](../work-items/d27-system-smtp-settings-ui.md)、[SMTP 投递工作项](../work-items/d27-system-smtp-delivery-ui.md)、[出站规则工作项](../work-items/d27-system-outbound-policy-ui.md)、[系统审计工作项](../work-items/d27-system-audit-ui.md)、[运行信息工作项](../work-items/d27-system-runtime-information-ui.md)及[Owner 工作区工作项](../work-items/d27-project-owner-workspace-ui.md)；其余业务页面及完整 D26/D27 仍待后续交付。
+前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。管理员用户目录、邀请管理、Provider/Model 配置、平台模型用途、账号安全、SMTP 配置与测试/投递任务、出站规则、只读系统审计及运行信息也已实现；Owner 项目列表、工作区、基本信息编辑与只读项目审计的当前能力及验收边界见下节。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)、[公开入口工作项](../work-items/d26-public-account-entry.md)、[目录工作项](../work-items/d27-system-user-directory-ui.md)、[邀请管理工作项](../work-items/d27-system-invitation-ui.md)、[Provider 工作项](../work-items/d27-system-provider-management-ui.md)、[Model 工作项](../work-items/d27-system-model-management-ui.md)、[平台用途工作项](../work-items/d27-system-model-selection-ui.md)、[账号安全工作项](../work-items/d27-system-account-security-ui.md)、[SMTP 配置工作项](../work-items/d27-system-smtp-settings-ui.md)、[SMTP 投递工作项](../work-items/d27-system-smtp-delivery-ui.md)、[出站规则工作项](../work-items/d27-system-outbound-policy-ui.md)、[系统审计工作项](../work-items/d27-system-audit-ui.md)、[运行信息工作项](../work-items/d27-system-runtime-information-ui.md)、[Owner 工作区工作项](../work-items/d27-project-owner-workspace-ui.md)及[项目审计工作项](../work-items/d27-project-owner-audit-ui.md)；其余业务页面及完整 D26/D27 仍待后续交付。
 
 ## 启动与检查
 
@@ -37,17 +37,17 @@ npm run preview --prefix web
 | --- | --- |
 | `web/src/components/ui/` | 可复用控件和内容组件；公开导出及接口类型在 `index.ts` 和 `types.ts` |
 | `web/src/components/layout/` | AppShell、SystemNav、ProjectNav 与 SettingsShell；系统和项目导航、路由内容区和设置侧栏 |
-| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API 及会议 Summary GET/PUT、账号安全 GET/PUT、SMTP 配置三项 API、测试/投递任务四项 API、出站规则 GET/PUT、系统审计两个 GET、运行信息 GET 与 Owner Project 五个端点；运行时 DTO、头像字节与安全 Problem 解析 |
-| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录/系统审计/运行信息状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途及会议 Summary/账号安全/SMTP 配置与投递/出站规则/Owner 工作区草稿及原命令恢复，以及主题、按钮反馈、浮层与键盘工具 |
+| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API 及会议 Summary GET/PUT、账号安全 GET/PUT、SMTP 配置三项 API、测试/投递任务四项 API、出站规则 GET/PUT、系统审计两个 GET、运行信息 GET、Owner Project 五个端点及 Project Audit 两个 GET；运行时 DTO、头像字节与安全 Problem 解析 |
+| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录/系统审计/项目审计/运行信息状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途及会议 Summary/账号安全/SMTP 配置与投递/出站规则/Owner 工作区草稿及原命令恢复，以及主题、按钮反馈、浮层与键盘工具 |
 | `web/src/styles/` | 唯一共享 token、基础规则与公共组件样式 |
 | `web/src/router/` | 路由和导航元数据 |
 | `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战、邀请/找回/重置页面与受保护空首页 |
 | `web/src/views/settings/` | 本人资料与头像、外观、修改密码三个真实设置页面 |
 | `web/src/views/system/` | 管理员系统设置壳、用户、待注册邀请、Providers、Models、平台模型用途、系统审计、账号安全、SMTP、出站规则与运行信息十个叶子，含非管理员及权限拒绝状态 |
-| `web/src/views/projects/` | Owner 列表、项目工作区、概要与基本信息设置 |
+| `web/src/views/projects/` | Owner 列表、项目工作区、概要、基本信息设置与只读项目审计 |
 | `web/src/views/debug/` | 开发环境组件展示、演示数据与展示布局 |
 | `web/src/tests/` | Vitest + Vue Test Utils 交互与基线检查 |
-| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息与 Owner 工作区组合验收 |
+| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息、Owner 工作区与项目审计组合验收 |
 
 公共组件不能导入 `views/debug/`，不能包含演示数据、业务 API 或业务状态规则。正式页面直接引用相同公共组件；Debug 不是组件定义的位置。展示网格、目录和示例编排不约束正式业务布局。
 
@@ -57,7 +57,7 @@ npm run preview --prefix web
 
 在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标保留原十四个精确静态路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/users`、`/system/invitations`、`/system/providers`、`/system/models`、`/system/model-selection`、`/system/account-security`、`/system/smtp`、`/system/outbound-policy`、`/system/audit`、`/system/runtime-information`，并增加 `/projects` 及下节严格 Project 路径。`/settings`、`/system`、query/hash、数组、外部 URL、其余动态后缀与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
 
-客户端使用固定同源相对 Account/System/Project 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录、邀请、Provider/Model、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息与 Owner 工作区操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
+客户端使用固定同源相对 Account/System/Project 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录、邀请、Provider/Model、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息、Owner 工作区与项目审计操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
 
 采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息与 Owner 工作区的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
 
@@ -71,6 +71,7 @@ npm run preview --prefix web
 | `/:username/:project_name` | 经重新授权的项目概要，保留系统导航和项目导航 |
 | `/:username/:project_name/settings` | 重定向到同一项目的基本信息 |
 | `/:username/:project_name/settings/general` | 查看项目身份字段，编辑名称和描述，处理原命令恢复 |
+| `/:username/:project_name/settings/audit` | 只读项目审计列表、结构化筛选与内联详情 |
 
 列表默认每页25项，可选择50/100项、按生命周期筛选、上一页/下一页或从首页重读。失败不发布半页；保留的上次完整结果明确标为旧观察。删除中行不显示描述或内容入口，正在归档和已归档详情只读。
 
@@ -82,7 +83,7 @@ npm run preview --prefix web
 
 Project 与既有账号/System 操作共用唯一 Cookie 请求 owner；可见超时、取消和离页不提前释放真实 fetch/body/cancel 尾部。同 Session checking 隐藏内容并保留草稿，真正 Session/身份或 CSRF 变化清理旧材料。项目切换、系统导航、history 返回和退出接入原聚合确认，取消保留草稿与焦点；Project 本地确认不擅自清理 System 四用途/会议 Summary 的独立草稿，各域仍由原聚合流程处理。私有请求材料不写入 URL、history、storage 或普通日志。
 
-本切片不提供创建、归档、恢复、删除、Owner 转移、会议/任务/知识库、Project Model/Usage/Audit 等页面或假统计；项目设置只有基本信息。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
+当前不提供创建、归档、恢复、删除、Owner 转移、会议/任务/知识库、Project Model/Usage 等页面或假统计；项目设置的基本信息与只读审计范围分别见本节和下节。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
 
 独立前端启动沿本页“启动与检查”的 `npm run dev --prefix web` 与可选 `AGENTEAM_DEV_API_TARGET` 同源代理；登录后可访问 `/projects`。没有后端连接时不提供假登录或假项目。受影响纯检查及任务自有静态构建入口如下，构建目录由调用方先设置为独占绝对路径：
 
@@ -119,6 +120,49 @@ sh scripts/test-objects.sh -run '^(TestAccountProjectOwnerWebLayouts)$'
 真实恢复轮的 lookup 只验证 committed；in_progress/not_observed 是受控验证，不冒称真实 PG 三态或数据库 COMMIT ACK 丢失。浅深主题、1440/390宽度与常规/减少动效的八格图只接受截图可见区域，窄屏内部滚动下部、原生缩放和动画过程不由静态图证明。辅助归档/删除状态准备不验收生命周期停止链。
 
 该前端与私有 harness 结果不等于 Central 生产 SPA 托管、生产直链 fallback、安装部署或发布接受；production Resolution/Invocations、D24 仍未绑定，ready503 及 Object runtime join、OpenAI tools 独立验证、SPA 并发发布三个停止项保持。
+
+## Project Owner 审计
+
+[项目审计工作项 rev2](../work-items/d27-project-owner-audit-ui.md)在项目设置尾部增加“安全记录 → 项目审计”，精确路径为 `/:username/:project_name/settings/audit`。普通设置入口与项目导航的“项目设置”链接仍进入基本信息；基本信息和审计两叶都保持正确的两级导航当前项。安全登录返回只追加该后缀，含点项目名和大小写归一沿 Owner 路径规则，query/hash、编码绕过和额外详情后缀仍拒绝；筛选、cursor 与详情 ID 不写入页面 URL。
+
+页面先由 Resolve 定位，再等待当前稳定 ID 的完整 Owner Get，随后才调用 GET `/api/v1/projects/{project_id}/audit` 或 GET `/api/v1/projects/{project_id}/audit/{id}`，正式表示见[Project Audit API](../../../api/openapi/project-audit.json)。每次请求仍独立授权，管理员没有跨 Owner 豁免；active、archiving、archived 可读，deleting、未初始化、无权或未确认当前项目时不发 Audit 子请求。不用 System Audit 或系统配置接口补读，也不以旧项目观察恢复授权。
+
+十四个结构化筛选字段按时间与事件、操作者与资源、关联 ID 分区。只有明确应用、重置、重读或翻页才请求；每页1–200项，默认50，应用新条件或数量从首页开始。时间输入含完整时区并规范为 UTC，区间为 `[from,to)`；非法日期、UUID 或 `service` 与操作者 ID 的冲突保留输入、标记字段并定位错误，零请求。过滤目录的53个 action 与25个 resource kind，与 Project 输出闭集的31个 action、14个 resource kind 分开校验；合法 System-only action 可返回空页。分页仅沿已取得的 cursor，不猜总数或全域快照；`CURSOR_INVALID` 保留条件，由用户明确从第一页重读。
+
+列表和独立 GET 的内联详情只显示安全字段、固定标签与文本，不把列表行冒作详情，不渲染任意 HTML/Markdown/JSON 或自动链接。返回列表复用本页完整观察并恢复合法焦点，不自动发列表 GET。完整 EOF、UTF-8、1MiB成功表示上限与全部 typed DTO 校验通过后才一次发布；截断、损坏或读取失败不发布半页。没有写入、命令查证、导出、全文搜索、关联业务正文补读、轮询或实时订阅；支持合法历史 action 不证明其对应 producer/runtime 已绑定。
+
+审计复用唯一 Cookie 请求协调者。同一 Project 的合法审计地址仅做大小写规范化时保留当前读取；其他地址更新、离页、取消读取或可见超时先退休本次观察，实际 fetch/body/cancel 尾部结束前仍保持互斥。已退休请求不因后续路由守卫取消导航而恢复；留在原页时由用户显式重读，尾部完成只解锁。checking、真正身份变化、切换项目或旧名复用均清理审计筛选、cursor 和详情；同 Session 恢复也建立新页面状态，等当前 Owner 上下文和旧尾部后最多一次默认首页读取。只读筛选不新增丢写确认，也不代替 Owner 基本信息或 System 双草稿的既有离页确认。
+
+当前有效的 `401 UNAUTHENTICATED/SESSION_REVOKED` 清除旧身份与受保护审计内容，沿已有“会话尚未确认”恢复页处理；用户明确点击“检查当前会话”，再依据真实 Session 结果恢复，失效会话进入登录流程。局部403/404不设置 System 权限拒绝状态；旧身份或已退休请求的迟到错误不能清理新身份。500/503、`COMMIT_UNKNOWN` 和读取取消只表示这次读取失败，不证明事务未提交，也不产生原命令重放入口。
+
+纯检查与独占绝对目录构建沿本页通用命令；本卡目标单元入口如下。命令列为复验入口，不表示已在当前输入完成全部验收：
+
+```sh
+npm --prefix web run test:unit -- src/tests/project-audit-client.spec.ts src/tests/project-audit-metadata.spec.ts src/tests/project-audit-state.spec.ts src/tests/project-audit.spec.ts
+npm --prefix web run build -- --outDir "${AGENTEAM_PROJECT_AUDIT_WEB_DIST:?set an owned absolute dist directory}"
+```
+
+私有真实检查沿上节锁依赖、Go1.27.1、PG17.8+、MinIO、Node/Playwright、Chromium 与 Python schema 准备。Go fixture 持有私有登录材料、同源地址和正式 Project/Secret/Model producer；不把 Node 脚本当作可指向任意服务的入口。每轮绑定冻结输入、工具和静态资产，并设置以下变量；`read/authority/navigation` 由对应 Go top 向 Node 显式传入：
+
+| 环境变量 | 要求 |
+| --- | --- |
+| `AGENTEAM_PROJECT_AUDIT_WEB_DIST` | 已冻结且含 index.html 的任务自有绝对构建目录 |
+| `AGENTEAM_AUTH_WEB_RUNTIME` | 已准备的任务私有绝对短目录，路径不超过45字节 |
+| `AGENTEAM_PROJECT_AUDIT_WEB_EVIDENCE` | 任务自有绝对证据父目录；本轮 top 子目录未使用 |
+| `AGENTEAM_PROJECT_AUDIT_WEB_INPUT_HASH` | 本轮实际冻结输入的64位十六进制 SHA-256 |
+| `AGENTEAM_AUTH_WEB_IMAGES` | navigation 必填的任务自有绝对截图目录 |
+
+```sh
+sh scripts/test-objects.sh -run '^(TestAccountProjectOwnerAuditWebReadAndFilters)$'
+sh scripts/test-objects.sh -run '^(TestAccountProjectOwnerAuditWebAuthorityAndRecovery)$'
+sh scripts/test-objects.sh -run '^(TestAccountProjectOwnerAuditWebNavigationAndLayouts)$'
+```
+
+每次只在明确的自有资源窗口运行一组，前轮实际退出和 owned 双清后再开始下一组，失败保原件并停止；浏览器45秒、单 worker/零 retries，Go top 120秒含 Cleanup、包6分钟。完整浏览器 EOF 的原响应字节需同时通过正式 schema 与公开客户端；服务侧预截断 body、SQL旁证、准备请求和控制 IPC 不计作浏览器完整读取。辅助归档状态不验收 Project 生命周期停止链。
+
+固定版本、已覆盖场景、原始失败及未完成项见[项目审计 UI 验证记录](../agent-team/project-owner-audit-ui-verification.md)。单元检查、作者真实浏览器、旧域兼容回归和独立验证分别记录，不以某一阶段通过替代完整验收；原全量 unit 2265/2266与窄修后旧文件20项通过属于版本组合，不是最新源单次全绿。读取焦点、401恢复步骤及大写直达的原浏览器失败和修复保留，未到达检查不追补为通过。浅深主题×390/768/1024/1440八图只接受各自实际可见的900px视口，不证明完整页面、所有内容长度或动态键盘与原生缩放行为。
+
+该页面和私有测试服务器不等于 Central 生产 SPA 托管、发布或生产直链回退接受；独立原body校验不等于完整生产调用链可用。生产 Resolution/Invocations、D24、ready503与三项停止边界沿上节保持，完整 D27/E01不因本卡交付而完成。
 
 ## 本人设置
 

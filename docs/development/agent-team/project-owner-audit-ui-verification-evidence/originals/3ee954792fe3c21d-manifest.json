@@ -1,0 +1,73 @@
+{
+  "state": "STOP",
+  "files": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-independent-four-final01/review.md",
+      "bytes": 2554,
+      "sha256": "c4694120ea0c9e71fbd07ecf4aee05416b8ffbefd17f19a6c69e10d15a8b4f3c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-independent-four-final01/result.json",
+      "bytes": 14724,
+      "sha256": "47cf5a9cfebc63c5047c25c459e76d28d88dd5fabb3905d23f7da617201f1abe"
+    }
+  ],
+  "reused_sealed_round_deliverables": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-read01-result/manifest.json",
+      "bytes": 17889,
+      "sha256": "9d457c5ec724c85974ff4e6d887d7239fbd299d823605ab6452379e96201a6ed"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-read01-result/report.md",
+      "bytes": 1561,
+      "sha256": "4278decb650c4e94c0d55a5953e9a47ace30fb38b447267bf04782f60ab5e146"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-read01-result/handoff.json",
+      "bytes": 11670,
+      "sha256": "cb582384cd61f7f9fb2182b0fa0de37b6b3a317e9fc1885118473aeb785fa89d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-authority01-result/manifest.json",
+      "bytes": 32853,
+      "sha256": "b8715751ac0380b5829e9b77a73c41aec834e7fd377cf0bbfcdc82057a02df56"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-authority01-result/report.md",
+      "bytes": 1798,
+      "sha256": "72b0f63a3ed256c555a147f2ce29f4e40c44f1d07b550ec465ed9b0c57f33dd5"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-authority01-result/handoff.json",
+      "bytes": 16273,
+      "sha256": "1c88822a3f5b64b7a83d5fc56ae325b9f45a598bb5cb99410c941f53e5d44d5a"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-system01-result/manifest.json",
+      "bytes": 9156,
+      "sha256": "945582df00164baa384bcc23e01c91434e72bd882ee1a7de1dde20505757722e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-system01-result/report.md",
+      "bytes": 1372,
+      "sha256": "ffbabc98b7713169bb7ca9dd265cc5ff78e1146bdda8ec62ed71df5ea02ae136"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-owner01-result/manifest.json",
+      "bytes": 23241,
+      "sha256": "405edc01bc2fa1eddfab49c8924765b08052421f8406659e8a15d8ae748b5aca"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/aud-owner01-result/report.md",
+      "bytes": 1342,
+      "sha256": "feb11294d8386ecf3cad00c9cfdc0bd17c3e3f372bca32cbf0bf65210d18e06b"
+    }
+  ],
+  "root_restore_receipt": {
+    "path": "/workspace/scratch/project-audit-ui-assets/restore01/restoration.json",
+    "bytes": 1233,
+    "sha256": "5b79d63d2be6673f540d4db24e123d7af264e91b79a1debfb47bbed2cd182e37"
+  },
+  "no_source_or_entity_rescan": true
+}

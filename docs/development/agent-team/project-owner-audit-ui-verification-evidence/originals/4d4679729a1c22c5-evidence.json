@@ -1,0 +1,353 @@
+{
+  "status": "GO_STATIC_CHANGES_REQUIRED_STOP",
+  "reviewer": "architecture_worker",
+  "independent_of_implementation": true,
+  "created_utc": "2026-10-08T12:20:18.303655+00:00",
+  "candidate_freeze": {
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate02/freeze.json",
+    "bytes": 3683,
+    "sha256": "bda6ba898cf8643ee2fdef464bf5320905baa10094b120c0d37d362d469dbc33"
+  },
+  "author_checks": {
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate02/checks.json",
+    "bytes": 6142,
+    "sha256": "80403b2be52c5a6622b2637bd4593ca6b255fc0731b55a5bcedf46e414f494ba"
+  },
+  "sources_full_read_and_unchanged": [
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+      "bytes": 50095,
+      "sha256": "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb"
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_test.go",
+      "bytes": 6289,
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+    }
+  ],
+  "spec_sections_read": "5–7",
+  "spec": {
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+    "bytes": 39298,
+    "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+  },
+  "protocol": {
+    "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+    "bytes": 10909,
+    "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+  },
+  "protocol_agreement": {
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate01/protocol-agreement.json",
+    "bytes": 769,
+    "sha256": "3c8092b89748cbcfc7fc6a039111a5ecb71b6fa34d99514bd1ed12087677c3f8"
+  },
+  "necessary_helpers": [
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_web_fixture_test.go",
+      "bytes": 47310,
+      "sha256": "662e1f2edd0e4cc0d03408251de0a031e0491ca4530c042e7bfc86139070f24b"
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/personal_settings_web_fixture_test.go",
+      "bytes": 12476,
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b"
+    }
+  ],
+  "safe_projection_source": {
+    "path": "/workspace/agenteam/internal/central/audit/http/project_wire.go",
+    "bytes": 12119,
+    "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e"
+  },
+  "findings": [
+    {
+      "id": "D1",
+      "severity": "must_fix_actual_join_evidence",
+      "file": "tests/account/project_owner_audit_web_fixture_test.go",
+      "primary_line": 703,
+      "related_lines": [
+        235,
+        236,
+        237,
+        242,
+        243,
+        244,
+        285,
+        681,
+        684,
+        697,
+        699,
+        700,
+        703,
+        726,
+        953,
+        967
+      ],
+      "trigger": "A successful formal Audit response is held; release or request cancellation ends the hold select before ModifyResponse/ReverseProxy/body handler returns.",
+      "actual": "joined is incremented inside ModifyResponse; counts and next arm use held==joined while the corresponding handler can still be active.",
+      "required": "Record the held request completion only on its corresponding actual outer handler completion path; retain exact IPC schema and existing scope/budget.",
+      "final_total_wait_does_not_repair": "Final stopProxy joins all handlers, but does not establish the required per-scenario retirement before reread or another arm.",
+      "spec_references": [
+        "card §5 proxy release+actual join",
+        "card §7.2 list/detail cancellation actual join before recovery",
+        "protocol.ipc.control_semantics records actual handler completion"
+      ]
+    }
+  ],
+  "static_scope_checked": [
+    "same database no-tag app.Run and formal identities",
+    "three formal Project/Secret/Model producer families; no Audit Append/SQL write",
+    "strict pending/Skills and accepted exact lifecycle auxiliary facts",
+    "safe complete upstream body, cap/EOF/media, sidecar and browser EOF separation",
+    "current Session/Project routes retained; no role bypass",
+    "exact proxy hold/cut/failure/Session failure target and control classification",
+    "closed IPC keys/actions/sequences and atomic private publication",
+    "root/server/body/client/child registration and cleanup ordering; D1 exception",
+    "120-second top including all Cleanup; 45-second browser requirement remains JS dependent"
+  ],
+  "author_offline_evidence_reused_not_rerun": [
+    {
+      "name": "deps01",
+      "meta": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps01/meta.json",
+        "bytes": 24747,
+        "sha256": "5f2b1fa5019750b95c46f78986df6badf1b5ea51b16c782be96a47163748e614"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps01/raw",
+        "bytes": 1260506,
+        "sha256": "3f558065b41ac21fe44625a017db67bd9fa947c1f4a03407d40cc052ad777130"
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-test",
+        "-json",
+        "-tags=integration",
+        "-mod=readonly",
+        "-p=1",
+        "./tests/account"
+      ],
+      "seconds": 0.40150788000028115,
+      "exit": 0,
+      "actual_direct_wait": 1,
+      "actual_adopted_wait": 0,
+      "owned_empty_twice": true,
+      "same_905_input_fingerprint": "d54e113fa1bb92e6e18c66613c888ee1c22389ed2f65679628eadf1d7cb9878b"
+    },
+    {
+      "name": "race-compile01",
+      "meta": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/race-compile01/meta.json",
+        "bytes": 25212,
+        "sha256": "29cc2f4be18a0e30e4fb1cda007d5bb928e7a6be5ae9bf3ca8d0234850b99bb6"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/race-compile01/raw",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-p=1",
+        "-mod=readonly",
+        "-timeout=40s",
+        "-c",
+        "-o",
+        "/workspace/scratch/project-audit-ui-backend/offline01/bin/account.test",
+        "./tests/account"
+      ],
+      "seconds": 8.315314685998601,
+      "exit": 0,
+      "actual_direct_wait": 1,
+      "actual_adopted_wait": 0,
+      "owned_empty_twice": true,
+      "same_905_input_fingerprint": "d54e113fa1bb92e6e18c66613c888ee1c22389ed2f65679628eadf1d7cb9878b"
+    },
+    {
+      "name": "vet01",
+      "meta": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/vet01/meta.json",
+        "bytes": 24706,
+        "sha256": "ec6514172183e84d15b7c026bf13266fd7c5a154325d2d2056679f29f30c8022"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/vet01/raw",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "-p=1",
+        "-mod=readonly",
+        "./tests/account"
+      ],
+      "seconds": 0.7721096249988477,
+      "exit": 0,
+      "actual_direct_wait": 1,
+      "actual_adopted_wait": 0,
+      "owned_empty_twice": true,
+      "same_905_input_fingerprint": "d54e113fa1bb92e6e18c66613c888ee1c22389ed2f65679628eadf1d7cb9878b"
+    },
+    {
+      "name": "build-central01",
+      "meta": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-central01/meta.json",
+        "bytes": 25015,
+        "sha256": "30d5b54a14dcaf03748688ea99386eeee6c294e2f77c0f435ddacd074f0eb746"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-central01/raw",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-p=1",
+        "-mod=readonly",
+        "-o",
+        "/workspace/scratch/project-audit-ui-backend/offline01/bin/agenteam",
+        "./cmd/agenteam"
+      ],
+      "seconds": 1.291788987997279,
+      "exit": 0,
+      "actual_direct_wait": 1,
+      "actual_adopted_wait": 0,
+      "owned_empty_twice": true,
+      "same_905_input_fingerprint": "d54e113fa1bb92e6e18c66613c888ee1c22389ed2f65679628eadf1d7cb9878b"
+    },
+    {
+      "name": "build-runner01",
+      "meta": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-runner01/meta.json",
+        "bytes": 25401,
+        "sha256": "a7b40d1c5b2a2e27c84b644cfc9fbb1904bcc5418c20e5ce0b6da544ae257de8"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/build-runner01/raw",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-p=1",
+        "-mod=readonly",
+        "-o",
+        "/workspace/scratch/project-audit-ui-backend/offline01/bin/agenteam-runner",
+        "./cmd/agenteam-runner"
+      ],
+      "seconds": 0.527461970999866,
+      "exit": 0,
+      "actual_direct_wait": 1,
+      "actual_adopted_wait": 0,
+      "owned_empty_twice": true,
+      "same_905_input_fingerprint": "d54e113fa1bb92e6e18c66613c888ee1c22389ed2f65679628eadf1d7cb9878b"
+    },
+    {
+      "name": "deps-race02",
+      "meta": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps-race02/meta.json",
+        "bytes": 24760,
+        "sha256": "a9fa630204c281dc99535b3312e9cc7141d4e4d570da6fc068d457955409d33f"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps-race02/raw",
+        "bytes": 1263637,
+        "sha256": "9cc038a666af947649cffb992022299ff3e3d1fac4beb4e59b4d6aab4b3f259c"
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-test",
+        "-race",
+        "-json",
+        "-tags=integration",
+        "-mod=readonly",
+        "-p=1",
+        "./tests/account"
+      ],
+      "seconds": 0.34291947100064135,
+      "exit": 0,
+      "actual_direct_wait": 1,
+      "actual_adopted_wait": 0,
+      "owned_empty_twice": true,
+      "same_905_input_fingerprint": "d54e113fa1bb92e6e18c66613c888ee1c22389ed2f65679628eadf1d7cb9878b"
+    }
+  ],
+  "offline_driver_reviewed": {
+    "path": "/workspace/scratch/project-audit-ui-backend/offline01/run.py",
+    "bytes": 4917,
+    "sha256": "7760c97d373fb26ebad83c0c157ea760948cde17942e172ff325434258f013d3"
+  },
+  "list_static_preflight": {
+    "status": "SUPPORTS_FROZEN_BINARY_EXACT_LIST_PRECONDITIONS_ONLY",
+    "preflight": {
+      "path": "/workspace/scratch/project-audit-ui-backend/offline01/list-preflight-static-v2.json",
+      "bytes": 1705,
+      "sha256": "91ecd66a589d10e1f154f7e1741338c57d3e2f5896ac6194fbcf338410737203"
+    },
+    "generated_testmain": {
+      "path": "/workspace/.cache/go-build/b6/b634f1459194956af02e6466484d024347047ea5c7b502517bff793a3beccedc-d",
+      "bytes": 22159,
+      "sha256": "b634f1459194956af02e6466484d024347047ea5c7b502517bff793a3beccedc"
+    },
+    "compiled_binary": {
+      "path": "/workspace/scratch/project-audit-ui-backend/offline01/bin/account.test",
+      "bytes": 52918016,
+      "sha256": "0199643ec6190e2b3ac43900f03df9ce60ce2507b546b2336aeae2bbc722852b"
+    },
+    "prior_accepted_list": {
+      "path": "/workspace/scratch/owner-ui-backend/list-tops01/meta.json",
+      "bytes": 4801,
+      "sha256": "89122d921543853d3849c96c9d80b693c1a9493f205a396863d407871362ba95"
+    },
+    "dependency_delta": {
+      "path": "/workspace/scratch/project-audit-ui-backend/offline01/dependency-race-delta.json",
+      "bytes": 1740,
+      "sha256": "0038d4dec2a97027d65875e05a88f0a610607757d55216d8f05570b75904542b"
+    },
+    "actual_graph_refs": [
+      {
+        "path": "/workspace/scratch/owner-ui-backend/graph-account02/raw",
+        "bytes": 1290193,
+        "sha256": "f3969033de8aafb1281962a8e2870e3613fd5e9b63a10b004c7cb63aa6ef4844"
+      },
+      {
+        "path": "/workspace/scratch/project-audit-ui-backend/offline01/deps-race02/raw",
+        "bytes": 1263637,
+        "sha256": "9cc038a666af947649cffb992022299ff3e3d1fac4beb4e59b4d6aab4b3f259c"
+      }
+    ],
+    "aligned_import_paths": 399,
+    "old_selected_repository_sources": 500,
+    "new_selected_repository_sources": 502,
+    "only_added_sources": [
+      "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+      "/workspace/agenteam/tests/account/project_owner_audit_web_test.go"
+    ],
+    "package_TestMain_called": false,
+    "new_source_init_or_TestMain": false,
+    "new_three_and_required_old_ten_tops_registered": true,
+    "executed": false,
+    "selection_note": "Exclude merely declared dependency TestGoFiles/XTestGoFiles unless selected as generated test-package GoFiles. Initial broad 759/761 union was corrected to actual 500/502 without executing Go."
+  },
+  "limits": {
+    "go_node_binary_list_browser_executed": false,
+    "sql_network_resources_git_executed": false,
+    "repository_or_candidate_modified": false,
+    "only_three_review_scratch_files_written": true,
+    "business_or_integration_pass": false,
+    "js_private_dist": "PENDING, not read",
+    "visual_schema_client_resource_terminal": "NOT VERIFIED",
+    "hard_stops_changed": false
+  },
+  "stopped": true
+}

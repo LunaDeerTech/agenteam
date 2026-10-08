@@ -1,0 +1,31 @@
+{
+  "status": "FAIL_FULLY_RETIRED_STOP",
+  "handoff": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/handoff.json",
+    "bytes": 24688,
+    "sha256": "c6285cce2367277ab251fb9df9c1b4ad823f80c8d9244cb303ec668a19138164"
+  },
+  "raw": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/raw.log",
+    "bytes": 6315,
+    "sha256": "3f2886ac7f75d0693c5d3c37d8b0b2c0582795f5fc2e0e7d94f500fa2c16bfb5"
+  },
+  "result": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/result.json",
+    "bytes": 31029,
+    "sha256": "174d380d6f8255da16f8414832c0a4c949763db08c9cdf3e21324227981bd22f"
+  },
+  "cleanup": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/cleanup.json",
+    "bytes": 66173,
+    "sha256": "1078f9eec213d8dc954ea3b3f21c12c20c32b61c9bb7ebadd49d12223e6a37d5"
+  },
+  "tcp_tail": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v01/runs/auditread01/tcp-tail-observation.json",
+    "bytes": 173554,
+    "sha256": "c996d3ab287231b4e2c039bb4613adb1f3b40b86855fdecf4c79b9c160717630"
+  },
+  "original_artifact_count": 55,
+  "readers_and_commands_stopped": true,
+  "no_followup_authorized_or_run": true
+}

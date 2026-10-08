@@ -1,0 +1,446 @@
+{
+  "status": "API_V1_FROZEN_STOP_FIVE_PATHS",
+  "source": {
+    "web/src/api/client.ts": {
+      "installed": {
+        "path": "/workspace/agenteam/web/src/api/client.ts",
+        "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+        "bytes": 40512
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/client.ts",
+        "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+        "bytes": 40512
+      },
+      "before": {
+        "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+        "bytes": 38830
+      }
+    },
+    "web/src/api/project-audit.ts": {
+      "installed": {
+        "path": "/workspace/agenteam/web/src/api/project-audit.ts",
+        "sha256": "52858b0a4b7630a14a877a47b40d60481bc85792a7bd0c66796f6118c44aed06",
+        "bytes": 6261
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/project-audit.ts",
+        "sha256": "52858b0a4b7630a14a877a47b40d60481bc85792a7bd0c66796f6118c44aed06",
+        "bytes": 6261
+      },
+      "before": null
+    },
+    "web/src/api/project-audit-metadata.ts": {
+      "installed": {
+        "path": "/workspace/agenteam/web/src/api/project-audit-metadata.ts",
+        "sha256": "fb3ca7b14bed7b4d35502d8df9f3dafb940ae8acdddb8f748e7dd5bb8b2f7a92",
+        "bytes": 22784
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/api/project-audit-metadata.ts",
+        "sha256": "fb3ca7b14bed7b4d35502d8df9f3dafb940ae8acdddb8f748e7dd5bb8b2f7a92",
+        "bytes": 22784
+      },
+      "before": null
+    },
+    "web/src/tests/project-audit-client.spec.ts": {
+      "installed": {
+        "path": "/workspace/agenteam/web/src/tests/project-audit-client.spec.ts",
+        "sha256": "af74f4cbfab9ef1139cad653f436c1cd8a8824a660467454c1fbf3f1186305d1",
+        "bytes": 19234
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/tests/project-audit-client.spec.ts",
+        "sha256": "af74f4cbfab9ef1139cad653f436c1cd8a8824a660467454c1fbf3f1186305d1",
+        "bytes": 19234
+      },
+      "before": null
+    },
+    "web/src/tests/project-audit-metadata.spec.ts": {
+      "installed": {
+        "path": "/workspace/agenteam/web/src/tests/project-audit-metadata.spec.ts",
+        "sha256": "24b167617b12752eed2de1b0b1e3cad42cc11053288c4b2df7c22ec9f68c7e33",
+        "bytes": 21924
+      },
+      "frozen": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/web/src/tests/project-audit-metadata.spec.ts",
+        "sha256": "24b167617b12752eed2de1b0b1e3cad42cc11053288c4b2df7c22ec9f68c7e33",
+        "bytes": 21924
+      },
+      "before": null
+    }
+  },
+  "baseline": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/baseline.json",
+    "sha256": "39bef1667f0225fd285b90a5586d3e7a0addd194600744ce8ae2239ff2788a74",
+    "bytes": 8173
+  },
+  "checks": {
+    "api-format01": {
+      "command.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format01/command.json",
+        "sha256": "1fe6aa53f7b6c08bbe118dc9d739402cad38a4663aba78e4ecebd9d0cd05c695",
+        "bytes": 536
+      },
+      "inputs-after.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format01/inputs-after.json",
+        "sha256": "ab0c245ad69394cfb95f8810fdf891c9fe2d36eba86634511bbc091c5d3f5567",
+        "bytes": 20758
+      },
+      "inputs-before.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format01/inputs-before.json",
+        "sha256": "04d5936d4aace677e7732511c3edbdf8236b805e54c439a9e3b6048d595a75c8",
+        "bytes": 20758
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format01/raw.log",
+        "sha256": "6b5d07ecaab52c51e70ab28ad31ee2a1c0815163779f0f6a0c7dc6e699d37063",
+        "bytes": 203
+      },
+      "result.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format01/result.json",
+        "sha256": "397b7bc5356447ca0f990da7e0cba1842edefffd2cf9a975bea06c8f08a95429",
+        "bytes": 253
+      }
+    },
+    "api-unit01": {
+      "command.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01/command.json",
+        "sha256": "b2eb6e853fa3029fae9233377a3ccd3db7dd0531735eb3e75bad6d3a010d0ffe",
+        "bytes": 545
+      },
+      "inputs-after.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01/inputs-after.json",
+        "sha256": "bf6b5d5aa1ac010b302275475453b9d9c1d1f60a764bf3b03dc6c67581e5b588",
+        "bytes": 1750
+      },
+      "inputs-before.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01/inputs-before.json",
+        "sha256": "bf6b5d5aa1ac010b302275475453b9d9c1d1f60a764bf3b03dc6c67581e5b588",
+        "bytes": 1750
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01/raw.log",
+        "sha256": "88af85534fb26a2a032c1a05437a3ef1846ebfee14acc625fd15be5f13314234",
+        "bytes": 3741
+      },
+      "result.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01/result.json",
+        "sha256": "efb5ec8d9011bfcaa8bce4930311126a97d6ee39c97a1be2ad7e4d088d2a2d63",
+        "bytes": 402
+      }
+    },
+    "api-types01": {
+      "command.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types01/command.json",
+        "sha256": "03afecb69dcceee8896363398ebc27098468fe66798c8ae3f59f78901dc6e709",
+        "bytes": 351
+      },
+      "inputs-after.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types01/inputs-after.json",
+        "sha256": "ab0c245ad69394cfb95f8810fdf891c9fe2d36eba86634511bbc091c5d3f5567",
+        "bytes": 20758
+      },
+      "inputs-before.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types01/inputs-before.json",
+        "sha256": "ab0c245ad69394cfb95f8810fdf891c9fe2d36eba86634511bbc091c5d3f5567",
+        "bytes": 20758
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types01/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+        "bytes": 54
+      },
+      "result.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types01/result.json",
+        "sha256": "c1a2384764e623335ee347ed84b9c99fbe5a8d46a3be1363ca4971e5c7e6e150",
+        "bytes": 302
+      }
+    },
+    "api-format02": {
+      "command.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format02/command.json",
+        "sha256": "bfd117bba2a092d549a04cb56bd9f9e874f7a1e391ad588648bc5504ea4336c4",
+        "bytes": 426
+      },
+      "inputs-after.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format02/inputs-after.json",
+        "sha256": "fe6a710dbedf7889b273ebd22a161ff3ff7e4b7e03114c123bbd2efbe99e5864",
+        "bytes": 20758
+      },
+      "inputs-before.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format02/inputs-before.json",
+        "sha256": "6406e1b6e825eb2f16c1d26bb47936b7e11ab5a0832ab437770565e93f990edd",
+        "bytes": 20758
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format02/raw.log",
+        "sha256": "1bfdaada9b5761c30c76582a3e4e0e960e6a8b3b4de77c03397506025243b856",
+        "bytes": 111
+      },
+      "result.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format02/result.json",
+        "sha256": "a7fc212ab45be24c6a31d041ba96cf6e1b9d0f1dab33efe47f3368c8927815e9",
+        "bytes": 252
+      }
+    },
+    "api-unit02": {
+      "command.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit02/command.json",
+        "sha256": "49aacf13b8fc3a968b7cc7883a7133e6cb4c5a94675813b3262f1616f11fbb42",
+        "bytes": 454
+      },
+      "inputs-after.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit02/inputs-after.json",
+        "sha256": "0ddd84140160d177ea6b87b36e38e7c8569e4c8693080e1675a6c39cd0a75fd9",
+        "bytes": 1417
+      },
+      "inputs-before.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit02/inputs-before.json",
+        "sha256": "0ddd84140160d177ea6b87b36e38e7c8569e4c8693080e1675a6c39cd0a75fd9",
+        "bytes": 1417
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit02/raw.log",
+        "sha256": "32cf3b15d28ff37ee69087433e8f367c0bec74afa442c000954fccb3d96ad929",
+        "bytes": 339
+      },
+      "result.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit02/result.json",
+        "sha256": "f761b9c4449f6b75341bcb703bfa909a9a0f33a991d038725bfe87ff6b73a8c1",
+        "bytes": 351
+      }
+    },
+    "api-types02": {
+      "command.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types02/command.json",
+        "sha256": "03afecb69dcceee8896363398ebc27098468fe66798c8ae3f59f78901dc6e709",
+        "bytes": 351
+      },
+      "inputs-after.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types02/inputs-after.json",
+        "sha256": "fe6a710dbedf7889b273ebd22a161ff3ff7e4b7e03114c123bbd2efbe99e5864",
+        "bytes": 20758
+      },
+      "inputs-before.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types02/inputs-before.json",
+        "sha256": "fe6a710dbedf7889b273ebd22a161ff3ff7e4b7e03114c123bbd2efbe99e5864",
+        "bytes": 20758
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types02/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+        "bytes": 54
+      },
+      "result.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-types02/result.json",
+        "sha256": "e85db08947864bd8d5552ab3524e6d934aa9cb324f6ef76b5b809e0b215d55b2",
+        "bytes": 302
+      }
+    },
+    "api-format-check01": {
+      "command.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format-check01/command.json",
+        "sha256": "90879b656b4ea4f74c3447d39795a52bbbf4273b803f760ed30d5866004339b2",
+        "bytes": 536
+      },
+      "inputs-after.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format-check01/inputs-after.json",
+        "sha256": "fe6a710dbedf7889b273ebd22a161ff3ff7e4b7e03114c123bbd2efbe99e5864",
+        "bytes": 20758
+      },
+      "inputs-before.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format-check01/inputs-before.json",
+        "sha256": "fe6a710dbedf7889b273ebd22a161ff3ff7e4b7e03114c123bbd2efbe99e5864",
+        "bytes": 20758
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format-check01/raw.log",
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+        "bytes": 66
+      },
+      "result.json": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-format-check01/result.json",
+        "sha256": "602fc53a7ed5aaf993ad718dd5431a82bbf8e3bd322d1c2093515f8dfaab1809",
+        "bytes": 252
+      }
+    }
+  },
+  "unit_result": {
+    "new_final": "api-unit02:86/86 PASS",
+    "old_unchanged": "api-unit01:system-audit-client + project-owner-client 102/102 PASS; entire run FAIL from 3 new test issues",
+    "first_failed_new": "api-unit01:83/86; exact failed test source retained separately",
+    "new_repairs": "Only test premise, cancellation cleanup and schema file path; product3 unchanged from api-unit01"
+  },
+  "failure_sources": {
+    "failures.json": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01-source/failures.json",
+      "sha256": "a6dc15d3d667b7d5fafee45309cfac722d7bee368638a6e29126cb09bcc3120c",
+      "bytes": 460
+    },
+    "project-audit-client.spec.ts": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01-source/project-audit-client.spec.ts",
+      "sha256": "251717326f600bc7c250b206293e0fee4067806902c48b309e297d1a2c27ae1a",
+      "bytes": 18885
+    },
+    "project-audit-metadata.spec.ts": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-unit01-source/project-audit-metadata.spec.ts",
+      "sha256": "3aaf32d2f6ce867f276808d4c797e3a74f75ac60d2f972a38e853035f88e7403",
+      "bytes": 21896
+    }
+  },
+  "brand12_verified_same": {
+    "web/index.html": {
+      "path": "/workspace/agenteam/web/index.html",
+      "sha256": "eb0e0732af46d79f6416f95920f62eca9a21fb9f0eda78f2742e74f96ec47d51",
+      "bytes": 820
+    },
+    "web/src/components/layout/SystemNav.vue": {
+      "path": "/workspace/agenteam/web/src/components/layout/SystemNav.vue",
+      "sha256": "2325ef5ff4cc3e83ee3cdd992b6e3f5ea5b9782db443327dd29ea964a0638aa5",
+      "bytes": 972
+    },
+    "web/src/views/auth/LoginView.vue": {
+      "path": "/workspace/agenteam/web/src/views/auth/LoginView.vue",
+      "sha256": "be5e23755d0129f35fc690ca3597d21d5275345637cb40da079c5177a79eda12",
+      "bytes": 10372
+    },
+    "web/src/views/auth/InvitationView.vue": {
+      "path": "/workspace/agenteam/web/src/views/auth/InvitationView.vue",
+      "sha256": "152898c1dfcea2192fd37b4775967e086572fb0254c1c5fded69379b77203337",
+      "bytes": 5867
+    },
+    "web/src/views/auth/ForgotPasswordView.vue": {
+      "path": "/workspace/agenteam/web/src/views/auth/ForgotPasswordView.vue",
+      "sha256": "b80ef053bffcf36aa298636b081663da3dca4789caebdd97a603bb1d85709eab",
+      "bytes": 3767
+    },
+    "web/src/views/auth/ResetPasswordView.vue": {
+      "path": "/workspace/agenteam/web/src/views/auth/ResetPasswordView.vue",
+      "sha256": "8a03ac5746f146126643a1b62f5654473201c8983b54caa2bc8d9804f17f813b",
+      "bytes": 4552
+    },
+    "web/src/styles/base.css": {
+      "path": "/workspace/agenteam/web/src/styles/base.css",
+      "sha256": "5e1dc14ab90131f1fe6778bff72cd0e6cecde92bc2303120e93c8d823a601fbc",
+      "bytes": 2973
+    },
+    "web/src/components/layout/AppBrand.vue": {
+      "path": "/workspace/agenteam/web/src/components/layout/AppBrand.vue",
+      "sha256": "c1ea14feafdbfabaa16aa031c9a596aac6bf6dc3c06065dba99da53964db4810",
+      "bytes": 860
+    },
+    "web/public/assets/brand/agenteam-horizontal-light.svg": {
+      "path": "/workspace/agenteam/web/public/assets/brand/agenteam-horizontal-light.svg",
+      "sha256": "bd6be491fd10be420c420d64f9e1fad450bceffa10a21256517fa7b79173149a",
+      "bytes": 3776
+    },
+    "web/public/assets/brand/agenteam-horizontal-dark.svg": {
+      "path": "/workspace/agenteam/web/public/assets/brand/agenteam-horizontal-dark.svg",
+      "sha256": "dbbda13bf2058cce67c8c002e0cfebfd1f7c748a927347e5d0db6bb26eb00955",
+      "bytes": 3776
+    },
+    "web/public/assets/brand/agenteam-icon-512-light.svg": {
+      "path": "/workspace/agenteam/web/public/assets/brand/agenteam-icon-512-light.svg",
+      "sha256": "850ef048e07a964d82391fb60c64adedaa1dd360ed35beb6accffb9195a184a7",
+      "bytes": 967
+    },
+    "web/public/assets/brand/agenteam-icon-512-dark.svg": {
+      "path": "/workspace/agenteam/web/public/assets/brand/agenteam-icon-512-dark.svg",
+      "sha256": "3a85d53d7411f65b6cb15c40fbdd16f9133d647411c14f3781e7b740d32325ee",
+      "bytes": 967
+    }
+  },
+  "resources_run": false,
+  "readonly_paths": [
+    "web/src/api/client.ts",
+    "web/src/api/project-audit.ts",
+    "web/src/api/project-audit-metadata.ts",
+    "web/src/tests/project-audit-client.spec.ts",
+    "web/src/tests/project-audit-metadata.spec.ts"
+  ],
+  "tool_provenance_reference": "/workspace/scratch/branding-install-v1/freeze.json",
+  "notes": [
+    "Generic query pure functions and shared Audit scalar functions reused; Project actor/resource/31-action projection independent.",
+    "Project lifecycle from/to and knowledge.delete_subtree follow actual Go/schema.",
+    "Success cap1MiB is new Audit branch; Owner/System/Provider/runtime/Problem classifications checked.",
+    "This stage excludes Session/page/router/harness and is not complete Audit UI acceptance."
+  ],
+  "formal_and_reused_source_inputs_verified_same": {
+    "api/openapi/project-audit.json": {
+      "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+      "bytes": 291094
+    },
+    "api/openapi/common.json": {
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091
+    },
+    "internal/central/audit/http/project_wire.go": {
+      "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e",
+      "bytes": 12119
+    },
+    "internal/central/audit/http/project_wire_test.go": {
+      "sha256": "13263bd2dc40db5a20af6f0e2f893bed2857e0fed9a4fa9f1de29af9eac997c7",
+      "bytes": 24989
+    },
+    "internal/central/audit/contract/metadata.go": {
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+      "bytes": 21891
+    },
+    "internal/central/audit/contract/project.go": {
+      "sha256": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b",
+      "bytes": 9172
+    },
+    "internal/central/audit/contract/model.go": {
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+      "bytes": 7724
+    },
+    "internal/central/audit/contract/knowledge.go": {
+      "sha256": "270e1943c9539dda9dc2ae9bb1013a0a48bf2309578b2da8d36c1a432a4d8372",
+      "bytes": 3446
+    },
+    "web/src/api/system-audit.ts": {
+      "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+      "bytes": 7022
+    },
+    "web/src/api/system-audit-metadata.ts": {
+      "sha256": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630",
+      "bytes": 22727
+    },
+    "web/src/api/system-account.ts": {
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+      "bytes": 2972
+    }
+  },
+  "fixed_tool_files": {
+    "/workspace/scratch/owner-ui-recovery/run-offline.py": {
+      "sha256": "4c12513773f48f595e0a70e303d67abd43e9c27521e0aaaa689d87c0ed2e3521",
+      "bytes": 3830
+    },
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": {
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+      "bytes": 125989464
+    },
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js": {
+      "sha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "bytes": 54
+    },
+    "/workspace/agenteam/web/node_modules/prettier/package.json": {
+      "sha256": "8453a79e60e5437ccfe0722475ba80593373885c578f85604a562ebdfb621c30",
+      "bytes": 6424
+    },
+    "/workspace/agenteam/web/node_modules/typescript/package.json": {
+      "sha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6",
+      "bytes": 3620
+    },
+    "/workspace/agenteam/web/node_modules/vue-tsc/package.json": {
+      "sha256": "2a2e226f78029f1d2511add1625a1bcc8a9b690f7459cd97ce300fe95317fcb7",
+      "bytes": 588
+    },
+    "/workspace/agenteam/web/node_modules/vitest/package.json": {
+      "sha256": "a28126d97bcaf567da5bed69443b7f3bcd9a7a8c38c8b66e554686b6bb2c10e0",
+      "bytes": 5932
+    }
+  },
+  "metadata_preparation_failure": "First guard-map helper expected an object but phase1_sources values were bare SHA strings (TypeError, exit1 before mutation); corrected mapping and compared every formal source to baseline."
+}

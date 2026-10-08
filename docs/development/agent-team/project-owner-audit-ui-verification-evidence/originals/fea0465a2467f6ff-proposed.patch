@@ -1,0 +1,15 @@
+--- a/tests/account-captcha-web/e2e/project-owner-audit.spec.ts
++++ b/tests/account-captcha-web/e2e/project-owner-audit.spec.ts
+@@ -1150,7 +1150,11 @@
+     "aria-invalid",
+     "true",
+   );
+-  await expect(filter(page, "actor_id")).toBeFocused();
++  await expect(filter(page, "actor_kind")).toHaveAttribute(
++    "aria-invalid",
++    "true",
++  );
++  await expect(filter(page, "actor_kind")).toBeFocused();
+   expect(await auditCount(page)).toBe(start);
+   checks.valid_empty = true;
+   checks.same_body_schema = true;

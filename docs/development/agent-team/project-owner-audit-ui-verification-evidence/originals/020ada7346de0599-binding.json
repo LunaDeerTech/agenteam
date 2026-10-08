@@ -1,0 +1,48 @@
+{
+  "browser_source_evidence": {
+    "bytes": 9054,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-source-v03-review01/evidence.json",
+    "sha256": "5c73f8fdfa6af525ecc39b33c71616e79e30e86752b8c043bb28b84f2bfd900f"
+  },
+  "browser_source_inputs": {
+    "bytes": 1596,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/inputs.json",
+    "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+  },
+  "browser_source_review": {
+    "bytes": 1572,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-source-v03-review01/review.md",
+    "sha256": "de56c9b7b0bf130472d3a85a5ce8c07ee3bc787870153accf6ad98e5269fccf7"
+  },
+  "browser_source_review_manifest": {
+    "bytes": 683,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-source-v03-review01/manifest.json",
+    "sha256": "007877c556d8a7622bda58b7a322b073362d593eb7b05d536e3525c07b5205c6"
+  },
+  "browser_source_stop": {
+    "bytes": 4267,
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/freeze.json",
+    "sha256": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df"
+  },
+  "previous_preparation": {
+    "bytes": 49142,
+    "path": "/workspace/scratch/owner-ui-runtime-verification/audit-ind-driver-final02/freeze.prepared.json",
+    "sha256": "910f04570d52385227295cec44d3de4b63e7ff833140cb9170d33db74c98a788"
+  },
+  "previous_source_binding": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v02/binding.json",
+    "sha256": "e6e3906a5399686fa4647b321f7fdec8dad926b6e9f77c4a8cd9c6dd62fadffa"
+  },
+  "root_authorized_resources": false,
+  "source_changes": [
+    {
+      "after_bytes": 68077,
+      "after_sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+      "before_sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f",
+      "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+      "scope": "Accepted one-hunk test assertion correction for explicit Session recovery after401; no protocol/product/Go/schema/asset change."
+    }
+  ],
+  "status": "STOP_FALSE_ONE_JS_METADATA_BINDING_NO_GATE",
+  "unchanged": "942 repository paths/66 filename sets inherited; Model c433/shared Go880a, API/UI17/Go03/protocol/schema/private59/global59 policy unchanged. No source/tree/cache/assets sweep or execution."
+}

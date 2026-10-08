@@ -1,0 +1,22 @@
+{
+  "status": "GO_STATIC_CHANGES_REQUIRED_STOP",
+  "candidate_freeze_sha256": "bda6ba898cf8643ee2fdef464bf5320905baa10094b120c0d37d362d469dbc33",
+  "source_hashes": [
+    "f2ed3e681d9645a626bc76f06a913b3c0e92b9a03462858ebc3bba8c5967e2eb",
+    "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19"
+  ],
+  "files": [
+    {
+      "path": "/workspace/scratch/architecture-audit-go-candidate02-review/review.md",
+      "bytes": 4012,
+      "sha256": "313a16f8b7233212302b55636debc97c1458df3dbe09243466d7e6cd8146a8aa"
+    },
+    {
+      "path": "/workspace/scratch/architecture-audit-go-candidate02-review/evidence.json",
+      "bytes": 13546,
+      "sha256": "4d4679729a1c22c557f0bb27cfd9523918290279afcafd63c155504316947d7a"
+    }
+  ],
+  "implementation_or_resources_authorized": false,
+  "stopped": true
+}

@@ -1,0 +1,36 @@
+=== RUN   TestAccountProjectOwnerAuditProxyCompletion
+=== RUN   TestAccountProjectOwnerAuditProxyCompletion/release_waits_for_write
+    project_owner_audit_completion_overlay_test.go:280: phase=hold_consumed held/joined/started/finished=[1 0 1 0] arm_blocked_by_held=true
+    project_owner_audit_completion_overlay_test.go:283: phase=callback_returned_write_blocked held/joined/started/finished=[1 0 1 0] arm_blocked_by_held=true
+    project_owner_audit_completion_overlay_test.go:285: actual_api_handler_join returned=true panic=<nil> upstream_eof=true upstream_close=1
+    project_owner_audit_completion_overlay_test.go:286: phase=actual_handler_returned held/joined/started/finished=[1 1 1 1] arm_blocked_by_held=false
+=== RUN   TestAccountProjectOwnerAuditProxyCompletion/cancel_waits_for_error_handler
+    project_owner_audit_completion_overlay_test.go:299: phase=ctx_done_error_handler_blocked held/joined/started/finished=[1 0 1 0] arm_blocked_by_held=true
+    project_owner_audit_completion_overlay_test.go:301: actual_api_handler_join returned=true panic=<nil> upstream_eof=true upstream_close=2
+    project_owner_audit_completion_overlay_test.go:305: phase=cancelled_handler_returned held/joined/started/finished=[1 1 1 1] arm_blocked_by_held=false
+=== RUN   TestAccountProjectOwnerAuditProxyCompletion/request_token_isolation
+    project_owner_audit_completion_overlay_test.go:314: actual_api_handler_join returned=true panic=<nil> upstream_eof=true upstream_close=1
+    project_owner_audit_completion_overlay_test.go:315: phase=unheld_B_cannot_complete_A held/joined/started/finished=[1 0 2 1] arm_blocked_by_held=true
+    project_owner_audit_completion_overlay_test.go:319: actual_api_handler_join returned=true panic=<nil> upstream_eof=true upstream_close=1
+    project_owner_audit_completion_overlay_test.go:320: phase=A_joined_before_next_arm held/joined/started/finished=[1 1 2 2] arm_blocked_by_held=false
+    project_owner_audit_completion_overlay_test.go:332: actual_api_handler_join returned=true panic=<nil> upstream_eof=true upstream_close=1
+    project_owner_audit_completion_overlay_test.go:333: phase=old_context_and_D_cannot_complete_C_write held/joined/started/finished=[2 1 4 3] arm_blocked_by_held=true
+    project_owner_audit_completion_overlay_test.go:335: actual_api_handler_join returned=true panic=<nil> upstream_eof=true upstream_close=1
+    project_owner_audit_completion_overlay_test.go:336: phase=C_actual_join held/joined/started/finished=[2 2 4 4] arm_blocked_by_held=false
+=== RUN   TestAccountProjectOwnerAuditProxyCompletion/evidence_error_waits_for_error_handler
+    project_owner_audit_completion_overlay_test.go:352: actual_evidence_error=open /workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/tmp/TestAccountProjectOwnerAuditProxyCompletionevidence_error_waits4185887224/002/regular-file-not-directory/body-84af05be17ef513b562606df83058cd1dde403782ed61fc635135c20130e4958.json: not a directory
+    project_owner_audit_completion_overlay_test.go:354: phase=hold_marked_save_failed_outlet_blocked held/joined/started/finished=[1 0 1 0] arm_blocked_by_held=true
+    project_owner_audit_completion_overlay_test.go:356: actual_api_handler_join returned=true panic=<nil> upstream_eof=true upstream_close=2
+    project_owner_audit_completion_overlay_test.go:360: phase=evidence_failure_actual_join held/joined/started/finished=[1 1 1 1] arm_blocked_by_held=false
+=== RUN   TestAccountProjectOwnerAuditProxyCompletion/write_error_unwind_actual_join
+    project_owner_audit_completion_overlay_test.go:370: phase=write_error_not_returned_yet held/joined/started/finished=[1 0 1 0] arm_blocked_by_held=true
+    project_owner_audit_completion_overlay_test.go:372: actual_api_handler_join returned=false panic=net/http: abort Handler upstream_eof=true upstream_close=1
+    project_owner_audit_completion_overlay_test.go:376: phase=abort_handler_unwind_joined held/joined/started/finished=[1 1 1 1] arm_blocked_by_held=false
+--- PASS: TestAccountProjectOwnerAuditProxyCompletion (0.01s)
+    --- PASS: TestAccountProjectOwnerAuditProxyCompletion/release_waits_for_write (0.00s)
+    --- PASS: TestAccountProjectOwnerAuditProxyCompletion/cancel_waits_for_error_handler (0.00s)
+    --- PASS: TestAccountProjectOwnerAuditProxyCompletion/request_token_isolation (0.00s)
+    --- PASS: TestAccountProjectOwnerAuditProxyCompletion/evidence_error_waits_for_error_handler (0.00s)
+    --- PASS: TestAccountProjectOwnerAuditProxyCompletion/write_error_unwind_actual_join (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.059s

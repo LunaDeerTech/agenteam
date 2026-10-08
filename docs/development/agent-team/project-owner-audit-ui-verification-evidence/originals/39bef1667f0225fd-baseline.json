@@ -1,0 +1,167 @@
+{
+  "root_reported_main": "5320a18756d1b1f552274a28e85575ef1ab71a35",
+  "card": {
+    "path": "docs/development/work-items/d27-project-owner-audit-ui.md",
+    "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+  },
+  "write_allowlist": [
+    "web/src/api/client.ts",
+    "web/src/api/project-audit.ts",
+    "web/src/api/project-audit-metadata.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/composables/useProjectAudit.ts",
+    "web/src/composables/useProjectWorkspace.ts",
+    "web/src/router/auth.ts",
+    "web/src/router/index.ts",
+    "web/src/views/projects/ProjectSettingsView.vue",
+    "web/src/views/projects/ProjectAuditView.vue",
+    "web/src/tests/project-audit-client.spec.ts",
+    "web/src/tests/project-audit-metadata.spec.ts",
+    "web/src/tests/project-audit-state.spec.ts",
+    "web/src/tests/project-audit.spec.ts",
+    "web/src/tests/authentication.spec.ts",
+    "web/src/tests/project-workspace.spec.ts",
+    "tests/account-captcha-web/project-owner-audit.config.js",
+    "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "web/src/components/layout/ProjectNav.vue"
+  ],
+  "existing9": {
+    "web/src/api/client.ts": {
+      "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+      "bytes": 38830
+    },
+    "web/src/composables/useSession.ts": {
+      "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88",
+      "bytes": 161445
+    },
+    "web/src/composables/useProjectWorkspace.ts": {
+      "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d",
+      "bytes": 24943
+    },
+    "web/src/router/auth.ts": {
+      "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21",
+      "bytes": 10856
+    },
+    "web/src/router/index.ts": {
+      "sha256": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415",
+      "bytes": 5248
+    },
+    "web/src/views/projects/ProjectSettingsView.vue": {
+      "sha256": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e",
+      "bytes": 781
+    },
+    "web/src/tests/authentication.spec.ts": {
+      "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48",
+      "bytes": 24186
+    },
+    "web/src/tests/project-workspace.spec.ts": {
+      "sha256": "9b06021aa672002618d15e217b469534e21266ac1734db6fcf8508e05c0b63df",
+      "bytes": 11791
+    },
+    "web/src/components/layout/ProjectNav.vue": {
+      "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a",
+      "bytes": 1479
+    }
+  },
+  "absent10": [
+    "web/src/api/project-audit.ts",
+    "web/src/api/project-audit-metadata.ts",
+    "web/src/composables/useProjectAudit.ts",
+    "web/src/views/projects/ProjectAuditView.vue",
+    "web/src/tests/project-audit-client.spec.ts",
+    "web/src/tests/project-audit-metadata.spec.ts",
+    "web/src/tests/project-audit-state.spec.ts",
+    "web/src/tests/project-audit.spec.ts",
+    "tests/account-captcha-web/project-owner-audit.config.js",
+    "tests/account-captcha-web/e2e/project-owner-audit.spec.ts"
+  ],
+  "brand12_readonly_guards": {
+    "web/index.html": {
+      "sha256": "eb0e0732af46d79f6416f95920f62eca9a21fb9f0eda78f2742e74f96ec47d51",
+      "bytes": 820,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/index.html",
+      "asset_source": null
+    },
+    "web/src/components/layout/SystemNav.vue": {
+      "sha256": "2325ef5ff4cc3e83ee3cdd992b6e3f5ea5b9782db443327dd29ea964a0638aa5",
+      "bytes": 972,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/src/components/layout/SystemNav.vue",
+      "asset_source": null
+    },
+    "web/src/views/auth/LoginView.vue": {
+      "sha256": "be5e23755d0129f35fc690ca3597d21d5275345637cb40da079c5177a79eda12",
+      "bytes": 10372,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/src/views/auth/LoginView.vue",
+      "asset_source": null
+    },
+    "web/src/views/auth/InvitationView.vue": {
+      "sha256": "152898c1dfcea2192fd37b4775967e086572fb0254c1c5fded69379b77203337",
+      "bytes": 5867,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/src/views/auth/InvitationView.vue",
+      "asset_source": null
+    },
+    "web/src/views/auth/ForgotPasswordView.vue": {
+      "sha256": "b80ef053bffcf36aa298636b081663da3dca4789caebdd97a603bb1d85709eab",
+      "bytes": 3767,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/src/views/auth/ForgotPasswordView.vue",
+      "asset_source": null
+    },
+    "web/src/views/auth/ResetPasswordView.vue": {
+      "sha256": "8a03ac5746f146126643a1b62f5654473201c8983b54caa2bc8d9804f17f813b",
+      "bytes": 4552,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/src/views/auth/ResetPasswordView.vue",
+      "asset_source": null
+    },
+    "web/src/styles/base.css": {
+      "sha256": "5e1dc14ab90131f1fe6778bff72cd0e6cecde92bc2303120e93c8d823a601fbc",
+      "bytes": 2973,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/src/styles/base.css",
+      "asset_source": null
+    },
+    "web/src/components/layout/AppBrand.vue": {
+      "sha256": "c1ea14feafdbfabaa16aa031c9a596aac6bf6dc3c06065dba99da53964db4810",
+      "bytes": 860,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/src/components/layout/AppBrand.vue",
+      "asset_source": null
+    },
+    "web/public/assets/brand/agenteam-horizontal-light.svg": {
+      "sha256": "bd6be491fd10be420c420d64f9e1fad450bceffa10a21256517fa7b79173149a",
+      "bytes": 3776,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/public/assets/brand/agenteam-horizontal-light.svg",
+      "asset_source": "docs/logos/agenteam-horizontal-light.svg"
+    },
+    "web/public/assets/brand/agenteam-horizontal-dark.svg": {
+      "sha256": "dbbda13bf2058cce67c8c002e0cfebfd1f7c748a927347e5d0db6bb26eb00955",
+      "bytes": 3776,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/public/assets/brand/agenteam-horizontal-dark.svg",
+      "asset_source": "docs/logos/agenteam-horizontal-dark.svg"
+    },
+    "web/public/assets/brand/agenteam-icon-512-light.svg": {
+      "sha256": "850ef048e07a964d82391fb60c64adedaa1dd360ed35beb6accffb9195a184a7",
+      "bytes": 967,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/public/assets/brand/agenteam-icon-512-light.svg",
+      "asset_source": "docs/logos/agenteam-icon-512-light.svg"
+    },
+    "web/public/assets/brand/agenteam-icon-512-dark.svg": {
+      "sha256": "3a85d53d7411f65b6cb15c40fbdd16f9133d647411c14f3781e7b740d32325ee",
+      "bytes": 967,
+      "candidate_source": "/workspace/scratch/branding-candidate-v1/web/public/assets/brand/agenteam-icon-512-dark.svg",
+      "asset_source": "docs/logos/agenteam-icon-512-dark.svg"
+    }
+  },
+  "phase1_sources": {
+    "api/openapi/project-audit.json": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+    "api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+    "internal/central/audit/http/project_wire.go": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e",
+    "internal/central/audit/http/project_wire_test.go": "13263bd2dc40db5a20af6f0e2f893bed2857e0fed9a4fa9f1de29af9eac997c7",
+    "internal/central/audit/contract/metadata.go": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646",
+    "internal/central/audit/contract/project.go": "526e8c86d72f45b2584572c159586b59a360e1029269b4304d68ffa55f26083b",
+    "internal/central/audit/contract/model.go": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+    "internal/central/audit/contract/knowledge.go": "270e1943c9539dda9dc2ae9bb1013a0a48bf2309578b2da8d36c1a432a4d8372",
+    "web/src/api/system-audit.ts": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f",
+    "web/src/api/system-audit-metadata.ts": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630",
+    "web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+  },
+  "resource_authorization": false,
+  "README_authorization": false
+}

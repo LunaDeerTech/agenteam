@@ -1,0 +1,41 @@
+{
+  "status": "ASSET_PREPARATION_STOP_NO_BUSINESS_RESOURCES",
+  "utc": "2026-10-08T15:44:03.345533+00:00",
+  "owner": "root",
+  "repository_dist": "/workspace/agenteam/web/dist",
+  "source": "/workspace/scratch/project-audit-ui/dist-ui02",
+  "backup": "/workspace/scratch/project-audit-ui-assets/exchange01/original-dist",
+  "old": {
+    "assets/index-CwdmPznV.css": {
+      "bytes": 19108,
+      "sha256": "2a8672e39566c3cfb92da1bd75fdf90b0eae5d4589039e748eb5db5655d52be2"
+    },
+    "assets/index-D4j5Ua9w.js": {
+      "bytes": 89710,
+      "sha256": "f424cfe0b896fd1e95c9a87dabab18d94d6f92fe442984c073cab941414141a1"
+    },
+    "index.html": {
+      "bytes": 647,
+      "sha256": "981efc3c59fbb302f1f338efb64f160bcc3e7f354d2680c77b84ac6bc4824f84"
+    }
+  },
+  "previous_exchange": {
+    "path": "/workspace/scratch/project-audit-ui-assets/exchange01/exchange.json",
+    "sha256": "8750fcfdedc1539e61b5cb97421fc4a1e44eb502ca828fdc14e1f8f33533d2f8"
+  },
+  "old_private_source_retained": "/workspace/scratch/project-audit-ui/dist-ui01",
+  "installed_assets_manifest": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/assets.json",
+  "installed_assets_sha256": "a3c6cac14e07261fde429801c087e2f4287dec85ac2c7a70caa1739ab53a93e5",
+  "accepted_build_freeze": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/freeze.json",
+    "sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+  },
+  "installed_files": 59,
+  "installed_bytes": 794499,
+  "private_source_unchanged": true,
+  "backup_byte_exact": true,
+  "window_open_for_fixed_readers": true,
+  "business_execution_authorized": false,
+  "restore_after_all_readers_retired": true,
+  "old_raw_and_failure_records_unchanged": true
+}

@@ -1,0 +1,154 @@
+{
+  "status": "AUTHOR_STOP_OFFLINE_PASS_REAL_BROWSER_PENDING",
+  "sources": {
+    "tests/account-captcha-web/project-owner-audit.config.js": {
+      "installed": {
+        "path": "/workspace/agenteam/tests/account-captcha-web/project-owner-audit.config.js",
+        "bytes": 1163,
+        "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f"
+      },
+      "copy": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/project-owner-audit.config.js",
+        "bytes": 1163,
+        "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f"
+      }
+    },
+    "tests/account-captcha-web/e2e/project-owner-audit.spec.ts": {
+      "installed": {
+        "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+        "bytes": 67793,
+        "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+      },
+      "copy": {
+        "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+        "bytes": 67793,
+        "sha256": "f6482404a41ef9f322beb9bccd77ae929d7c0fac105f33accc7bd9a66c2276e2"
+      }
+    }
+  },
+  "delta_from_source01": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/delta.patch",
+    "bytes": 645,
+    "sha256": "b011901f55ef1a081da90bb3e98ba3a5ba5e61839472544c507d2fd16c9ae80c"
+  },
+  "source01": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-source01/handoff.json",
+    "bytes": 2643,
+    "sha256": "5ece03e6c2dab3f9d2d4a96fb9d6440a04f411ad7d5c831e53b40528902391e1"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/inputs.json",
+    "bytes": 1596,
+    "sha256": "e9de0d8fe72eb5919e7531fdfb18bad98803770d9bcb283f8c4e24cb21ce7843"
+  },
+  "imports": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/imports.json",
+    "bytes": 1085,
+    "sha256": "3f2dfb1fd0ef01819a30fbfcbd68204670c1efb677fb45f2c7a57128d0edd28a"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/checks.json",
+    "bytes": 6070,
+    "sha256": "e7b045feb169dc47a9a692ffa0660ce1fec749e02d0ae421260becbe2513c4b7"
+  },
+  "report": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/report.md",
+    "bytes": 1713,
+    "sha256": "e57989262f500cd9d089ede61056e5f23cc665f2b0675e883cedf554ebd44cdd"
+  },
+  "schema": {
+    "path": "/workspace/agenteam/api/openapi/project-audit.json",
+    "bytes": 295094,
+    "sha256": "b51581103f4c6952787799c93450703886917cf2ce2a98be26a085c16eadc2e1"
+  },
+  "schema_selection": "exact endpoint GET status/media; detail /api/v1/projects/{project_id}/audit/{id}; no fallback",
+  "embedded_schema_program_ast_parse": true,
+  "schema_program_actual_body_run": false,
+  "protocol": {
+    "path": "/workspace/scratch/project-audit-ui-backend/protocol-v01/protocol.json",
+    "bytes": 10909,
+    "sha256": "5b65f821158125021d1d93d21784cdf2ba7f513125d6ddc513860f85aa1aba87"
+  },
+  "tools": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-tools.json",
+    "bytes": 36382,
+    "sha256": "f4e33640408959d148b2fa7960249dbc0545ea5ed29bafc566348ce880dcf8f2"
+  },
+  "offline_driver": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/run-browser-offline.py",
+    "bytes": 3816,
+    "sha256": "0217f8a4b4d73fac740b5f060da10840ee9e5dd1ffdc7fd0551bd7f3898cf0f9"
+  },
+  "list_driver": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list.py",
+    "bytes": 1051,
+    "sha256": "49655da75331ae1358d71a5d1c9a7b2119fd8b0320acb293403ce701b47ff4db"
+  },
+  "build": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/freeze.json",
+    "bytes": 3153,
+    "sha256": "ee7eb7aa4a01863c47176d78e8455e37f349809147256c0de86e65a9900d476c"
+  },
+  "dist": "/workspace/scratch/project-audit-ui/dist-ui01",
+  "coverage": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-coverage-plan.md",
+    "bytes": 2699,
+    "sha256": "76473f1fc4ef32ea9e89e21dbacdfd3bc4482c8cb6656291b8cdaaf7693322f1"
+  },
+  "calendar_provenance": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-calendar-provenance.json",
+    "bytes": 754,
+    "sha256": "047f635f7139c6f1fdba3e445973e600a62dbd144b1d063ca00522fa57bf26a8"
+  },
+  "prior_browser_checks": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format01/result.json",
+      "bytes": 253,
+      "sha256": "7625ac72f3012fabe82011eed9ae226f37f81aa1ad8790932d1779678c0be1ec"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types01/result.json",
+      "bytes": 251,
+      "sha256": "0136be52587ef9dd821e53e0f2177f9da9f59c2796ed66c082c75f494d85ae76"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check01/result.json",
+      "bytes": 252,
+      "sha256": "2e0290779bc3ee024a0ed1a6ef9963fe78da3c462edbaa1ad552bb4f38be14ec"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list01/result.json",
+      "bytes": 326,
+      "sha256": "24b3999eb5855cd51ae8ced7da8da762dd0659a40bac2908903f91407e7be369"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format02/result.json",
+      "bytes": 252,
+      "sha256": "f3c412c3677a1e703c9e57ca6a53ebf81cd193db2804928de014701a4b457fa3"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-types02/result.json",
+      "bytes": 252,
+      "sha256": "ac9281be06911dd988a2a6996886be988264b47a861f0da61998b8fc7fc8aabb"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-format-check02/result.json",
+      "bytes": 252,
+      "sha256": "7d4682e88352f48fbaaef3f4d911d6e9ffd68f8642c236699c13388735b3bf4d"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-list02/result.json",
+      "bytes": 327,
+      "sha256": "51047922ba200f0abe649d28e229ee4adba8838681e1a6090012499aae21a1cb"
+    }
+  ],
+  "modes": [
+    "read",
+    "authority",
+    "navigation"
+  ],
+  "actual_browser_executed": false,
+  "resources_active": false,
+  "global_dist_accessed": false,
+  "limits": "Offline author checks and implementation only. Original failures are retained. Real Go/browser/response-body/visual checks need root-owned later windows."
+}

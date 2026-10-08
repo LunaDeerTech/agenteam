@@ -1,0 +1,9 @@
+{
+  "source": "api-unit01/raw.log",
+  "results": "3 failed / 185 passed; types passed separately",
+  "causes": [
+    "cancel test finally itself aborted successful oversize-cancellation barrier, correctly reclassifying as cancelled",
+    "request ID consistency belongs to Problem projection, while the test wrongly expected generic 200 header validation",
+    "jsdom/Vite import.meta URL is not a file URL; schema read path must use the fixed test cwd"
+  ]
+}

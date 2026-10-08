@@ -1,0 +1,170 @@
+{
+  "state": "README21_EXACT_BYTES_SEMANTICS_PASS_PERMANENT_LINK_CONTENT_PENDING_STOP",
+  "recorded_utc": "2026-10-08T17:09:31.185918+00:00",
+  "installed_readme": {
+    "path": "/workspace/agenteam/docs/development/frontend/README.md",
+    "bytes": 84744,
+    "sha256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e"
+  },
+  "install_receipt": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-install-v2/receipt.json",
+    "bytes": 4746,
+    "sha256": "97c192778fea02aa3835bb784335af727b3f8fdf2fe90ca8dd444f0f679e8722"
+  },
+  "patch": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/README.patch",
+    "bytes": 21056,
+    "sha256": "cade6b80aa466fb32a4a8c2db3fe8b71a2bd0ea48156ab66f5203bc4e4c0a3a8"
+  },
+  "candidate_provenance": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/provenance.json",
+    "bytes": 3647,
+    "sha256": "69f6f7041d84dfeaffd37d7caa5067a94406c564db4baad02848a46609f55328"
+  },
+  "pre_review": {
+    "review.md": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-readme21-v2-review/review.md",
+      "bytes": 1740,
+      "sha256": "dca4c67cf03368537d90cadae666073d10bb4d1c04ac6cc51ce473073a46ef17"
+    },
+    "evidence.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-readme21-v2-review/evidence.json",
+      "bytes": 6975,
+      "sha256": "b6ad8b62e0013c779fb6550f733682b248eb3341ecfdee31d3afa561cb0e04a4"
+    },
+    "manifest.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-readme21-v2-review/manifest.json",
+      "bytes": 585,
+      "sha256": "f3e15e5465fe3fd78eb2cb5dda3006768c71acdf69c3441b8091bf805c197103"
+    }
+  },
+  "checks": {
+    "hunks": 6,
+    "installed_diff_exact_preapproved_patch": true,
+    "reverse_before_bytes": 77620,
+    "reverse_before_sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0",
+    "forward_exact_after": true,
+    "personal_and_later_tail_bytes": 60821,
+    "personal_and_later_tail_sha256": "06330824c983489dcbae2cbc7b1b1b949b3bbc945bd3b4ec12db2566a68382cc",
+    "utf8_LF_final_newline": true,
+    "new_trailing_whitespace": false,
+    "local_links": [
+      {
+        "target": "../../../api/openapi/account.json",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../../../api/openapi/project-audit.json",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../agent-team/project-owner-audit-ui-verification.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d26-account-authentication.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d26-personal-settings.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d26-public-account-entry.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-project-owner-audit-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-project-owner-workspace-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-account-security-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-audit-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-invitation-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-model-management-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-model-selection-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-outbound-policy-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-provider-management-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-runtime-information-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-smtp-delivery-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-smtp-settings-ui.md",
+        "exists": true,
+        "content_read": false
+      },
+      {
+        "target": "../work-items/d27-system-user-directory-ui.md",
+        "exists": true,
+        "content_read": false
+      }
+    ]
+  },
+  "semantic_review": {
+    "six_hunks_match_prior_approved_scope": true,
+    "API_action_filter_and_output_counts_distinct": true,
+    "Resolve_Get_independent_authorization_and_current_context_required": true,
+    "raw_route_and_canonical_scope_preserved": true,
+    "current_401_explicit_recovery_only": true,
+    "no_unknown_write_replay_or_system_permission_poisoning": true,
+    "protocol_EOF_domain_is_new_Project_Audit_not_old_Owner": true,
+    "commands_are_reproduction_entries_not_claims_of_new_execution": true,
+    "old_failures_versioned_combinations_and_visual_limits_preserved": true,
+    "full_D27_production_E01_and_three_hard_stops_not_claimed": true
+  },
+  "accepted_technical21": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/audit21-technical-final01/review.md",
+    "bytes": 4270,
+    "sha256": "6f772adceed61671e18b1b6f6ac2808443b3d70d0efdc40d37a7b0ee014e831b"
+  },
+  "source21_rescan": false,
+  "dynamic_execution": false,
+  "repository_write": false,
+  "only_pending": "Read the permanent verification report after root supplies its STOP SHA; verify link scope and corrected legacy Owner boundary, then accept full22 as this bounded versioned card."
+}

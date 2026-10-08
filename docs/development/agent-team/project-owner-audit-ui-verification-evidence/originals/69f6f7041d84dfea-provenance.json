@@ -1,0 +1,78 @@
+{
+  "status": "README21_SCRATCH_CANDIDATE_V2_STOP_NOT_INSTALLED",
+  "base": {
+    "path": "/workspace/agenteam/docs/development/frontend/README.md",
+    "bytes": 77620,
+    "sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0"
+  },
+  "original_v1_provenance": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v1/provenance.json",
+    "bytes": 2599,
+    "sha256": "30e4bf74afefba7f58d80d5b1117b168ef0129bf8083618b7d271fba7407090a"
+  },
+  "original_v1_patch": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v1/README.patch",
+    "bytes": 20644,
+    "sha256": "dbc6c8392d701a262591a0290cc7e0693530c156032133e1cae7d1ea00edb9c4"
+  },
+  "candidate_sha256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e",
+  "candidate_bytes": 84744,
+  "patch": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/README.patch",
+    "bytes": 21056,
+    "sha256": "cade6b80aa466fb32a4a8c2db3fe8b71a2bd0ea48156ab66f5203bc4e4c0a3a8"
+  },
+  "v1_to_v2": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/v1-to-v2.patch",
+    "bytes": 6364,
+    "sha256": "a42b8c77ef9e8020da5dfb04e191c7e08068ef4f2168ff2fd26bf4f06f3a1cdf"
+  },
+  "new_section": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/readme21-candidate-v2/audit-section.md",
+    "bytes": 6805,
+    "sha256": "b00ac18908d90f701e4245965d21d08d536dd302d28f97835c94cc270273baa3"
+  },
+  "base_hunks": 6,
+  "patch_apply_and_reconstruction_verified": true,
+  "only_three_paragraphs_changed_from_v1": true,
+  "unchanged_prefix_before_audit_section": true,
+  "preserved_personal_and_later_tail_sha256": "06330824c983489dcbae2cbc7b1b1b949b3bbc945bd3b4ec12db2566a68382cc",
+  "links": [
+    {
+      "target": "../work-items/d27-project-owner-audit-ui.md",
+      "exists": true,
+      "target_content_used_as_acceptance_evidence": "unchanged from v1"
+    },
+    {
+      "target": "../../../api/openapi/project-audit.json",
+      "exists": true,
+      "target_content_used_as_acceptance_evidence": "unchanged from v1"
+    },
+    {
+      "target": "../agent-team/project-owner-audit-ui-verification.md",
+      "exists": true,
+      "target_content_used_as_acceptance_evidence": false
+    }
+  ],
+  "fixed_accepted_stage_refs": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+      "bytes": 14693,
+      "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/freeze.json",
+      "bytes": 5516,
+      "sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/auditnav02-visual01/manifest.json",
+      "bytes": 1371,
+      "sha256": "07a8d8def997753548fb1c624228780ae0a391fb540a8807824baa66c9f7873c"
+    }
+  ],
+  "permanent_report_target": "../agent-team/project-owner-audit-ui-verification.md",
+  "permanent_report_content_consumed": false,
+  "pending": "Affected old regressions and four independent representatives are not all accepted. Entire Audit card, final 21 technical-source acceptance and README installation remain pending. This candidate does not assert them passed.",
+  "limits": "Only scratch section and exact patches/provenance. No repository write, Node/Go/build/browser/resources; v1 and original b71f README bytes preserved. Original author RED and 48+1 controlled combination remain in referenced freeze; no fresh full-unit claim."
+}

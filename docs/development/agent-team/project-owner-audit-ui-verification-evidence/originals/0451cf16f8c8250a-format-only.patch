@@ -1,0 +1,19 @@
+--- before
++++ after
+@@ -529,12 +529,10 @@
+     )
+     expect(f.auth.system.selection.progress?.phase).toBe('uncertain')
+     expect(f.auth.system.selection.meetingSummary.progress?.phase).toBe('uncertain')
+-    const originals = f
+-      .writes()
+-      .map(([, init]) => ({
+-        body: init.body,
+-        key: new Headers(init.headers).get('Idempotency-Key'),
+-      }))
++    const originals = f.writes().map(([, init]) => ({
++      body: init.body,
++      key: new Headers(init.headers).get('Idempotency-Key'),
++    }))
+     expect(originals).toHaveLength(2)
+     expect(originals[0]?.key).not.toBe(originals[1]?.key)
+     f.setAudit(async () => problem('FORBIDDEN', 403))

@@ -1,5 +1,7 @@
 # D27：Project Owner 项目审计只读界面
 
+最终验收记录（2026-10-08）：本卡 rev2 全部 22 路径已按固定版本组合通过独验并获 root 正式接受，最终 `442ad780` 无未关闭必修。21 技术提交锚为 `75411e27d0f2f5b998ae9a88e31fc9befa431095`，README #21 为 `5fba4510`；见[永久验收报告](../agent-team/project-owner-audit-ui-verification.md)。独立新 Audit 53 份完整 EOF／schema／client 与旧 Owner response-event 关联重放严格分域，原 FAIL、缺失证据和版本组合边界保持；不完成完整 D27、生产或 E01，不解除原三停止及 Jina 边界。下文 rev2 规格全文保留原 `12022902` 时点字节。
+
 修订：rev2，2026-10-08。状态：工程规格候选，待独立 STATIC 和 root 采纳；本稿不授产品实施、Go/Node 检查或真实资源。rev1独审唯一必修D1在本版补齐ProjectNav当前项及其授权路径，原rev1与独审原件保留。只写本卡与任务自有规格证据，主线程负责 Git、台账及后续授权。
 
 前置更新：Owner 工作区 [rev2.1](d27-project-owner-workspace-ui.md) **最终24路径已独审/root正式采纳**，#22末件已提交推送 `0a939a7f12a607708e40796ac0bfae61592e7099` 并由root核远端一致，独立九轮永久档 `f9fb58d1` 已交付。本卡仍须完整SPEC独审/root采纳及共享 client/Session/router/workspace 唯一写权移交，才可实施。当前品牌已接受的 App/导航/auth 资产必须保留，不用旧 Owner snapshot 覆盖新品牌内容。

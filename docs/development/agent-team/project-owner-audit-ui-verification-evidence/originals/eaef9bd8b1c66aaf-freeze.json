@@ -1,0 +1,95 @@
+{
+  "status": "SOURCE_V03_AUTHOR_STOP_OFFLINE_PASS_ACTUAL_PENDING",
+  "source": {
+    "path": "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "bytes": 68077,
+    "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193"
+  },
+  "before": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/before.spec.ts",
+    "bytes": 67892,
+    "sha256": "16a3f734f9ac236c8ca7d60640643e42daa2407dd308cd7ec068cc1010fac06f"
+  },
+  "after": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/after.spec.ts",
+    "bytes": 68077,
+    "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/delta.patch",
+    "bytes": 837,
+    "sha256": "dc5087790186d5aec9569fc91950f57617f12cced77273f79616cbaf9ae98a8b"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/checks.json",
+    "bytes": 3011,
+    "sha256": "16b13ff739dbd59aef51367258585e6b50bc5352c04ed0c47f2a1dd4b44673ef"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/inputs.json",
+    "bytes": 1596,
+    "sha256": "ebc20fb168b60b10a26b83fbd31022cc5458bd928b290ffcb2f43d0e0466eaa7"
+  },
+  "handoff": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/handoff.md",
+    "bytes": 1259,
+    "sha256": "8ca9729caabef0758f5b75cdd7f148a533e414012b38d2f08ff423f41fd554d8"
+  },
+  "previous_source_v02": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v02/freeze.json",
+    "bytes": 3766,
+    "sha256": "a2a13a51d676d241c563d778d690fc0e73b87fb781fa3e46cf4f15f8b27a0027"
+  },
+  "original_browser_v1": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/freeze.json",
+    "bytes": 6515,
+    "sha256": "1a1a35b4f1f4b39a5fb26b3e3b30d56f639d36b3eb96086d3382ea537984d3f8"
+  },
+  "accepted_proposal": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/authority01-session-proposal01/provenance.json",
+    "bytes": 3564,
+    "sha256": "a7e360c8f4585e2e1583066cc2ddc3628b95a487d2e71241cda57ab22160dbe1"
+  },
+  "original_failed_authority_run": {
+    "manifest": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/manifest.json",
+      "bytes": 20593,
+      "sha256": "975b3b344856c15f1058b04cadb64d77df83643d61e471f03ca17cd199a7f964"
+    },
+    "handoff": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/handoff.json",
+      "bytes": 13120,
+      "sha256": "78ff08384b0410895d30c434392cfa4fd2c29aee2d37cbb09d148bfcbb2741f1"
+    },
+    "raw": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/raw.log",
+      "bytes": 6015,
+      "sha256": "1fcd5f238c308dd85958ff2151a0d33686c551084ade71c3f2faa32579fce22d"
+    },
+    "result": {
+      "path": "/workspace/scratch/project-audit-ui-backend/resource-driver-v02/runs/auditauthority01/result.json",
+      "bytes": 33716,
+      "sha256": "e2c5078a4ebe4f253195127f4f2ca42f127fa79fef51960413e857d266da8cc4"
+    }
+  },
+  "tools_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-tools.json",
+    "bytes": 36382,
+    "sha256": "f4e33640408959d148b2fa7960249dbc0545ea5ed29bafc566348ce880dcf8f2"
+  },
+  "offline_driver_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/run-browser-offline.py",
+    "bytes": 3816,
+    "sha256": "0217f8a4b4d73fac740b5f060da10840ee9e5dd1ffdc7fd0551bd7f3898cf0f9"
+  },
+  "schema_unchanged": "b51581103f4c6952787799c93450703886917cf2ce2a98be26a085c16eadc2e1",
+  "config_unchanged": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f",
+  "private_build_reused": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v1/freeze.json",
+    "bytes": 3153,
+    "sha256": "ee7eb7aa4a01863c47176d78e8455e37f349809147256c0de86e65a9900d476c"
+  },
+  "actual_browser_run": false,
+  "resources_active": false,
+  "limits": "Original failure, absent old DOM, unexecuted final checks and source history remain. Real authority rerun requires root window."
+}
