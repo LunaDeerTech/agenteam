@@ -1,5 +1,13 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新：真实运行前最后门槛
+
+Model六PG完整STATIC da648d4f已root接受，无必修；作者七轮driver只prepared正独审，实际闭包/精确14名发现未完。独立A/B只scratch准备，所有测试body/资源仍未执行。Audit固定binary精确13名列举PASS1.178s、actualwait/双空，Go/cache窗口已交回。59资产准备窗及原3backup保持；先Model、后Audit串行实际资源，尚未授首轮。详情和原件指纹见最新台账。
+
+## 当前固定资产准备窗口
+
+global web/dist现为已验59/794400B；原3完整备份`/workspace/scratch/project-audit-ui-assets/exchange01/original-dist`，exchange8750fcfd逐bytes核对，private59未变。root唯一交换owner；所有最终readers退役后必须恢复原3。现在只有driver/input准备，未开真实资源/Go窗口。JS2最终1a1a35b4＋独审f04af9bc已root读核接受离线阶段，真实正文/browser/八图仍待；具体refs见最新台账。后续不能把Model旧486或旧Owner955/1165作当前完整输入；原四图未含web/dist，59仅浏览器运行时输入，root准备时Model embed假设已更正。
+
 ## 审计409声明交付；集成验证准备
 
 额外单JSON维护已root低影响审查并精确安装STOP：Project Audit两端点GET/HEAD四处既有409，新b5158110/安装90de11dd；15原件、681refs与精确复原核对，未做全OpenAPI meta/真实409验证。frontend最后两JS绑定新schema检查中。D1受控1top/5组实际PASS9.537s、911inputs同/实际wait/双空，原件284da213和独审79e7b09c已root读核限定接受；不代表真实资源通过。Model六PG源首编译/vetPASS、486inputs同、全STOP，完整STATIC中。Audit作者/独立及Model真实driver只准备，所有Go/cache已释放，业务资源及全局dist窗口未开。web17已68173290推核同；原3/private59、三停止/Jina、生产和完整模块/E01边界保持。精确来源见本批台账。

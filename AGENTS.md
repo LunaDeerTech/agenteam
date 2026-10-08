@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+Model六PG静态接受（2026-10-08）：root读da648d4f并核evidencefb356abb/manifest3e0d4134，六原a442fcb8/76506B无必修；真实5新/旧6/旧S3三及独立A/B仍待。作者七轮driver已STOP仅prepared正独审，full Go-chain/精确14名发现待补；runtime只scratch准备不同构造A/B。Audit冻结binary精确13名list实际1.178s PASS/directwait1/owned双空/input同，无testbody/资源，缓存窗交回。root资产59准备窗保持，原3备份不可动；后续实际窗优先Model再Audit，不并发。三停止与完整项目未完保持。
+
+当前资产准备窗（2026-10-08）：root已完整备份原web/dist三文件至`/workspace/scratch/project-audit-ui-assets/exchange01/original-dist`，安装已验private59/794400B并逐字节核同；exchange8750fcfd，private原件不变，所有最终reader退役后root恢复原3。无业务资源授权。JS2最终冻结1a1a35b4及独审f04af9bc已root读核接受离线阶段；真实driver正在基于当前59/新schema/Model差量准备，不能复用旧输入数。三停止/生产/整卡边界不变。
+
 Audit接口声明补正接受（2026-10-08）：root读409文档报告8ecaa705/差量fb20d2ec并核15原件，唯一api/openapi/project-audit.json精确安装为b5158110；两端点GET/HEAD四处补既有PROJECT_NOT_ACTIVE409，GET同Problem/四headers、HEAD无body，其余语义不变。只做JSON/681refs/精确复原自查和root低影响审查，无全OpenAPI meta或真实409结果。D1受控实际1top/5组PASS，9.537s/911inputs同/actualwait与owned双空，独审79e7b09c已root读核限定接受；Model六PG已安装，race编译7.512s/vet8.975s首PASS、486inputs同/全STOP，完整STATIC中。浏览器JS最终检查与实际driver仅准备；Go/cache当前无owner，真实资源/globaldist窗口仍关闭。web17已68173290推核同；完整两卡、生产、三停止/Jina及E01边界保持。
 
 Audit web17离线阶段接受（2026-10-08）：root读280fa718及067080be、核17固定源/必要build原件，API5已b0714899；当前接受其余12 state/View/auth源码。private Vite59文件794400B/品牌4SVG原bytes与189inputs同；API71/state18＋2/App9＋1独验，原fullunit2265/2266 FAIL＋旧file20PASS组合，非fresh全绿。额外旧test一selectorf41fbee3已推核同，Model双源fa4bc123已推核同。浏览器JS等待OpenAPI既有409补正（两路径GET/HEAD四处，单JSON）；Go03 offline02四cmdPASS，overlay02 prepared6baaecb4通过但未执行；fixture获Model新六PG安装/仅包compile-vet窗口，实际PG/resources/全局dist仍无。三停止/Jina/生产/E01未完不变。

@@ -1,5 +1,17 @@
 # 团队任务台账
 
+## 2026-10-08：Model六PG静态接受与运行门槛
+
+六PG独审da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c及evidencefb356abb/manifest3e0d4134已root通读核SHA接受STATIC，无必修；六源逐字等a442fcb8，共76506B。strict facts/fresh坏事实、同Tx接受/snapshot/lease、rev3 canonical优先序、Unknown保原cause/attempt及holder/waiter cleanup有完整静态依据。15作者离线原件与22必要source/helper核同；原486只编译包记录，不扩实际PG结果。独审整理误将pure test当PG import的KeyError及原定位失误保留，未改产品或重跑。
+
+作者七轮driver8153667b/freeze12dcad5b/handoff480dd089已STOP，root读plan并交verification独审最小完整差量；full chain/精确14名-list/helper复用凭据仍pending，全部false。独立A/B由runtime继续scratch新增构造，未Go/资源。Audit精确13名-list提案ea2730fc经root读runner与七refs/生成main后单次授予，实际1.178483s、exit0、directwait1/双空/inputs同/恰13名，缓存窗已交回；不是测试正文。root资产准备59/原3完整backup保持，Model后Audit依次移交真实窗，当前没有真实资源。原三停止/Jina及生产/完整两卡/E01未完保持。
+
+## 2026-10-08：JS2离线接受与固定59资产准备窗
+
+root读最终JS独审f04af9bc/result9e379bb8并核必要原件，接受browser-v1冻结1a1a35b4的离线阶段：config2524a04e/specf6482404，source01至最终仅一locator排版；strictTS2.127s/format0.947s/三mode各一test列举3.390s均PASS、15输入同/实际wait/owned双空。原format-write输入变化及旧失败保；仍无真实schema-body/client/browser/八图或业务资源结果。
+
+root在backend/architecture确认无global reader或final filegate在途后，开启唯一资产准备窗：原3/109465B完整目录移至`/workspace/scratch/project-audit-ui-assets/exchange01/original-dist`，安装固定private59/794400B至web/dist，原private/backup/installed全部精确核同。记录exchange8750fcfdedc1539e61b5cb97421fc4a1e44eb502ca828fdc14e1f8f33533d2f8、原manifest同目录；绑定build资产清单0cf0c0f6。仅后继固定reader准备权限，业务资源未授；新3/Owner2/Summary1按private59，其余7旧组使用global59，整体input保持固定。backend按原四份实际graph更正root准备时假设：当前Go/Cgo/Embed未含web/dist，Model精确selector不运行Web体，59仅Audit浏览器运行时输入；Model不据编译Account就添加或宣称消费资产，compile486仍仅包历史结果。所有最后reader实际退役后由root恢复完整原3，三停止/生产/E01界限不扩。
+
 ## 2026-10-08：审计409声明补正与真实验证准备
 
 唯一额外文档维护`api/openapi/project-audit.json`已由writer精确安装并STOP：原4b6ff6b6→b51581103f4c6952787799c93450703886917cf2ce2a98be26a085c16eadc2e1，295094B。root通读报告8ecaa705、差量fb20d2ec与checks，实核freeze5917b2b3内15原件及原JSON；四项409移除后精确还原原语义/字节。两个端点各GET/HEAD声明既有PROJECT_NOT_ACTIVE；GET复用各自403的Problem和四安全headers，HEAD仅headers无body，其余状态/参数/组件/security保持。681本地/common引用自查通过，未运行整份官方OpenAPI meta或真实409 body；原生成marker断言与失败元数据转义错误留存。安装记录90de11dd；这是原Audit HTTP之后的单JSON文档补正，不扩Audit UI22业务源范围。frontend已获新固定schema，最后JS检查/冻结进行，禁common-only fallback。
