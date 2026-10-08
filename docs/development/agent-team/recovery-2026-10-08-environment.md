@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新接续：browser-v4窄修与edit02准备
+
+仅#21七处名称定位改用精确role helper，语义/format/type/list独审限定PASS，产品19/Go04/#20不变，不宣称edit/layouts真实通过。root相同53资产复用并保原3于original-dist-edit02，真实资源未启；backend仅final03小delta/filegate准备，待独审后另授权。精确输入和失败保留见[台账](tasks.md)。
+
 ## 最新接续：read02永久成功档、edit01失败全停
 
 read02永久档见[限定验收](project-owner-ui-recovered-read02-verification.md)，root核124原件/116指纹/38Git一致，原字节不改。edit01唯一new-edit实际FAIL，45秒预算在精确“项目名称”标签fill超时；作者已STOP并交40原件，独立负责人续派归因与实际退役复核。实际全链96.558秒、7ID/owned/runtime/TCP双清与input一致；root已恢复原3file，测试53保存test-dist-ui-v1，无活动reader或资产窗口。原失败不重写，不提前归因或重试；本次状态和精确SHA见[台账](tasks.md)。完整D27及后继未接受，原三停止和生产未绑定保持。

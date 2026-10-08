@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前限定修正（2026-10-08）：browser-v4 #21仅七处必填名称定位器修复已独审PASS，19UI/Go/#20不变，实际edit/layouts未接受。edit01失败原件/退役保持；root已复用53测试资产，原3完整backup original-dist-edit02，实际资源未授，仅final03一源delta/file-only准备。详情见[台账](docs/development/agent-team/tasks.md)；后继完整D27/生产未绑定/ready503/D08–D28/E01与三停止保持。
+
 当前接续（2026-10-08）：read02成功永久档已按124逻辑原件/38Git核归档；随后new-edit/edit01在#21:627精确标签定位45秒超时FAIL，已实际退役并恢复原3file资产，当前无资源/reader。失败原件固定、独立故障归因进行，未授后继；产品19/Go04/browser-v3保持be34固定。完整D27、新余3/旧16/独立实际A-B未接受，详情见[台账](docs/development/agent-team/tasks.md)；生产未绑定/ready503/D08–D28/E01与三停止保持。
 
 当前接受（2026-10-08）：Go04/browser-v3四测试harness路径经STATIC/离线及read02真实读取/owned退役独立原件复核接受，46schema/16client真实读取、dot稳定ID通过；19前端源不变。原read01 FAIL永久档629bf2d0已推送核同，原资产3file已恢复，当前无资源。这不等于其余4新/16旧/独立实际A-B/视觉或完整D27接受；下一步仅new-edit，详情见[台账](docs/development/agent-team/tasks.md)。D08–D28/E01/生产未绑定/ready503与三停止保持。

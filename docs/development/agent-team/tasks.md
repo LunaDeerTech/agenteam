@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：browser-v4必填名称定位器限定修正
+
+独立负责人已确认v4小差量PASS：仅#21新增按textbox精确无障碍名称定位的helper，替换edit3/layouts4共7处；原fill/value/focus/样式/readonly断言与31处描述定位保留。#20、19UI、Go04与锁字节不变。独立本地label02（1.483秒、actualwait/direct4adopted/双清、0请求）证明原required UiField结构exactLabel为0而exactRole为1并可fill；label01启动失败和edit01 FAIL保持，实验不是原edit DOM。
+
+browser-v4冻结SHA `9688d909627f3e8253c68e989ebecd7cac8b6f16d84b9196b9297ba854f006d9`，#21 SHA `0c498b269c1b52d76ef18f2e249eba3714d643b1aa4dbd353f06e60953444cf0`；format0.602s/type1.499s/list五case4.284s原件和实际wait/input/owned双清均独核。这只接受完整可独验的定位器修正，不提前接受edit/layouts真实轮或完整D27。产品本节与#21同批Git定位，root立即推送核远端。
+
+root已复用相同53资产开始edit02测试窗口，原3完整保存 `original-dist-edit02`，交换记录 `exchange-edit02.json`；无实际resource/browser reader。backend仅获final03必要一源delta和一次file-only gate，driver-v03与BB原件逐byte相同、预算不改、root_authorized=false；待固定准备独审后才唯一new-edit/edit02授权。edit01永久档进行，read02永久成功档6501ca05已推核同。后继与完整D08–D28/E01/生产边界、三停止保持；以下为历史。
+
 ## 2026-10-08：read02成功永久归档与edit01失败待独审
 
 [read02限定验收与永久原件](project-owner-ui-recovered-read02-verification.md)已冻结：124逻辑原件、新114物理581189 bytes，复用read01已提交8物理；root逐source/archive字节与SHA、116证据指纹和38Git定位核同。原schema46/client16来自实际读取轮，不重复执行；原失败保持，88原格式例外不改字节。四harness产品be34ff99已推送核同，不等于完整D27。

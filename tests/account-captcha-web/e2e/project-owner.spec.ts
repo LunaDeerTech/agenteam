@@ -57,6 +57,8 @@ const material = (): Material =>
   );
 const button = (page: Page | Locator, name: string) =>
   page.getByRole("button", { name, exact: true });
+const projectName = (page: Page) =>
+  page.getByRole("textbox", { name: "项目名称", exact: true });
 const saveButton = (page: Page) =>
   page.getByRole("button", { name: /^(保存修改|已确认保存)$/ });
 const projectLink = (page: Page) =>
@@ -624,14 +626,12 @@ test("[edit] explicit saves, conflicts and confirmed current-read failure", asyn
   );
   await button(page, "取消修改").click();
   await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue("");
-  await page.getByLabel("项目名称", { exact: true }).fill("owner-duplicate");
+  await projectName(page).fill("owner-duplicate");
   await save(page, true);
   await expect(
     page.getByText("此名称已被占用。", { exact: true }),
   ).toBeVisible();
-  await expect(page.getByLabel("项目名称", { exact: true })).toHaveValue(
-    "owner-duplicate",
-  );
+  await expect(projectName(page)).toHaveValue("owner-duplicate");
   await button(page, "取消修改").click();
   await page
     .getByLabel("项目描述", { exact: true })
@@ -655,7 +655,7 @@ test("[edit] explicit saves, conflicts and confirmed current-read failure", asyn
   await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
     "newer server value",
   );
-  await page.getByLabel("项目名称", { exact: true }).fill("Owner.Renamed");
+  await projectName(page).fill("Owner.Renamed");
   await save(page, true);
   await confirmed(page, data.ids.main!);
   await expect(page).toHaveURL(
@@ -1114,10 +1114,8 @@ test("[layouts] eight themes, sizes and motion settings with keyboard recovery",
           page.getByRole("heading", { name: "基本信息", exact: true }),
         ).toBeVisible();
         await noOverflow(page);
-        await page.getByLabel("项目名称", { exact: true }).focus();
-        await expect(
-          page.getByLabel("项目名称", { exact: true }),
-        ).toBeFocused();
+        await projectName(page).focus();
+        await expect(projectName(page)).toBeFocused();
         expect(
           await page.evaluate(
             (reduced) =>
@@ -1127,14 +1125,10 @@ test("[layouts] eight themes, sizes and motion settings with keyboard recovery",
           ),
         ).toBe(true);
         expect(
-          await page
-            .getByLabel("项目名称", { exact: true })
-            .evaluate((node) => {
-              const style = getComputedStyle(node);
-              return (
-                style.outlineStyle !== "none" || style.boxShadow !== "none"
-              );
-            }),
+          await projectName(page).evaluate((node) => {
+            const style = getComputedStyle(node);
+            return style.outlineStyle !== "none" || style.boxShadow !== "none";
+          }),
         ).toBe(true);
         await page.screenshot({
           path: join(
@@ -1150,10 +1144,7 @@ test("[layouts] eight themes, sizes and motion settings with keyboard recovery",
   }
   await page.goto(settingsPath(data, "archived"));
   await ready(page, data.ids.archived!);
-  await expect(page.getByLabel("项目名称", { exact: true })).toHaveAttribute(
-    "readonly",
-    "",
-  );
+  await expect(projectName(page)).toHaveAttribute("readonly", "");
   await expect(saveButton(page)).toBeDisabled();
   await ipc("fail-next-read", { project: "archived" });
   await button(page, "重新读取当前值").click();
