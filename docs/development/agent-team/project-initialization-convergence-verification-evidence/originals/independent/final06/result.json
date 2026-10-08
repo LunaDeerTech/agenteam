@@ -1,0 +1,46 @@
+{
+  "status": "PASS_COMPLETE_SIX_PATH_DELIVERY",
+  "sources": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final06/sources.json",
+    "sha256": "0a3760ec71a4bc255275dc8a611951319344e2ed55125e6c44257c15e0ff1314"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final06/review.md",
+    "sha256": "70436d85c2b905ea8aaa12534d343f6bbf322412dbbbf69752343584e305e5c0"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final06/checks.json",
+    "sha256": "6efec1c5757041a70383f96fc9e17f1d30f5d454522e07871719ad9fc267f048"
+  },
+  "technical_acceptance": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final05/result.json",
+    "sha256": "b05a074bbe57ca0b72c6c35783b32dd4fe988ae2ec2ff5e8607b2e6381d30567"
+  },
+  "runtime": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runtime-result01.json",
+    "sha256": "160f0a5f9f3433bbdd709066018da33f0f7ec785dd9eaeb5831964b0c02a767e"
+  },
+  "resource_daemon": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final05/resource-daemon.json",
+    "sha256": "3afc05dc41d2fff94c3a33b49ad75006e487f5daefad73ae8867b2f95b8937ef"
+  },
+  "installation": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/installation01/result.json",
+    "sha256": "410683759be1395fdac3afc203e2df5eb26a659189145ffbcae713f43a48c22f"
+  },
+  "blocking": [],
+  "paths": 6,
+  "technical_paths": 5,
+  "README_paths": 1,
+  "technical_bytes_unchanged": true,
+  "repository_installation_verified": true,
+  "real_rounds": 6,
+  "real_top": 6,
+  "real_subcases": 40,
+  "distinct_resource_ids": 42,
+  "distinct_nonowned_unwaited_shim": 24,
+  "resource_window_released": true,
+  "no_business_retest": true,
+  "scope": "Project InitializationConvergenceAuthority only; old gate/new root/Skills/HTTP/stop boundaries unchanged",
+  "final05_pending_installation_and_README_resolved_by_this_result": true
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "read-only doc input hash preflight",
+  "tool": "python3 via exec_command, inline static preparation script",
+  "exit_code": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 7, in <module>\nAssertionError\n",
+  "failed_assertion": "h(current_formal_card) == accepted_5530d79e_hash",
+  "current_sha256": "5693c03f343af146f45d2c438ee4ff057a4437dccd6589c801aa48e438583354",
+  "accepted_sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae",
+  "attribution": "Current card has an administrative archive prepend. Read-only diff confirmed only two added lines; section1 onward unchanged. Accepted formal-rev1.snapshot.md still matches accepted SHA.",
+  "failing_script_reached_writes": false,
+  "product_failure": false,
+  "go_or_resource_run": false,
+  "correction": "Bind the accepted frozen snapshot for this preparation and record the administrative current-card observation separately."
+}

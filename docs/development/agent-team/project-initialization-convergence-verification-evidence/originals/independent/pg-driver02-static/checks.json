@@ -1,0 +1,110 @@
+{
+  "status": "PASS_STATIC_EXECUTION_READINESS",
+  "changed_AST": [
+    "retire_tcp_observation"
+  ],
+  "effective_closure_unchanged": true,
+  "effective_files": 3378,
+  "effective_sets": 440,
+  "overlay_entries": 7,
+  "findings_closed": [
+    "IC-DRIVER-01"
+  ],
+  "source_only_result": {
+    "command_exit_code": 0,
+    "elapsed_seconds": 2.3656519430005574,
+    "direct_child_joined": true,
+    "adopted_reaped": [],
+    "owned_clear_observations": 2,
+    "remaining_descendants": [],
+    "actions": [],
+    "inputs_match": true
+  },
+  "source_only_child": {
+    "docker_path_and_hash_match": true,
+    "files_count": 3380,
+    "actual_digest": "ca2ce0583a9b8fb21bc0eca576c86075489779aeb29ea3de8c619faa8457e79a",
+    "expected_digest": "ca2ce0583a9b8fb21bc0eca576c86075489779aeb29ea3de8c619faa8457e79a",
+    "missing": [],
+    "mismatches": [],
+    "package_set_changes": [],
+    "candidate_sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b",
+    "closure_sha256": "a2e64479ba3217a73d17e4305520a08f3f04191fe3caf51734607d93f11ce9c1",
+    "minio_matches": true,
+    "accepted": true,
+    "resources_started": false
+  },
+  "references": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/freeze.json",
+      "sha256": "5e45849062912497bdd0c9844c3b2376f33dd667763985a4a6e197cf1673da7a"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.py",
+      "sha256": "62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/closure.json",
+      "sha256": "a2e64479ba3217a73d17e4305520a08f3f04191fe3caf51734607d93f11ce9c1"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/proposal-freeze.json",
+      "sha256": "d6a3f85fd3f65ad7cff38a9d1204102076fea5fba841c75ba13ea9f1b5d2a450"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.diff",
+      "sha256": "ee81cb329b5a226cd273d7396bbdf7451bab26566fe6aa009059247d55420d1b"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/plan.md",
+      "sha256": "02a588cee5b453ae0654bfa400ce25574917956c2c2cf5bd8d802a801cfb6a0b"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputgate02/freeze.json",
+      "sha256": "000c9383a997a38d614848ff95b236e3f7dc675347bed48ea0959630087abe6b"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputgate02/command.json",
+      "sha256": "84901bab0ca0de72c6e071b5ffafea46b5d013434c31675b766262e28f2ceef4"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputgate02/input.json",
+      "sha256": "01177bc7e19a605e442f0a95f62dd600fe8bdbfd11035117d7fefed867579ee3"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/command.json",
+      "sha256": "2f30bb716e50fea438565351d14498ab3cc53a36d15ac397666a9e9278e09c55"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/result.json",
+      "sha256": "1b8018942e7483ce4745a8220c98a06c7abed0f5e86d81e75641d74102031de3"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/stdout.log",
+      "sha256": "1f8e326309343ae51f4a06dbc6bd6cff10251657c563378de924fe3f1772207a"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-driver01-static/check.py",
+      "sha256": "18bdc2040c81c2621be21fcd128909c87f6c8d1e81d027d2c3341e79832de518"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-driver01-static/checks.json",
+      "sha256": "5feead2feacd0fda1f8080f968c931d6f5487f23e70f0fae9ac92699166c1862"
+    }
+  ],
+  "independent_execution": {
+    "Go": false,
+    "source_gate": false,
+    "resources": false
+  },
+  "limitations": [
+    "Readiness only; no PG product execution conclusion.",
+    "Host TCP polling is supplementary; not complete short-connection tracing or ownership proof.",
+    "Deadline bounds new reads and sleeps, not a hard real-time scheduler guarantee.",
+    "Fresh resource/image/space/PID baseline required per authorized actual round."
+  ]
+}

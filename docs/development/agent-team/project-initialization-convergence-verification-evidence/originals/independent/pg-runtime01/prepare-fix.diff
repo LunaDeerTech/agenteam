@@ -1,0 +1,11 @@
+--- prepare-original.py
++++ prepare.py
+@@ -11,7 +11,7 @@
+  return d
+ parent=A/'pg-driver-v02';assert H(parent/'driver.py')=='62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e'
+ p=flat(parent/'closure.json');g=J(V/'pg-offline01/actual-graph01.json');ov=J(V/'pg-probes01/overlay.json')['Replace'];inp=J(V/'pg-offline01/input-build.json')
+-assert g['extra']==[] and g['excluded_ui_consumed']==[] and g['project_main']['has_custom_TestMain'] is False
++assert g['extra']==[] and g['excluded_ui_consumed'] is False and g['project_main']['has_custom_TestMain'] is False
+ for f,s in g['files'].items():
+  if f in p['files']:assert p['files'][f]['sha256']==s
+ added={f:s for f,s in g['files'].items() if f not in p['files']};assert len(added)==2

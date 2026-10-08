@@ -1,0 +1,26 @@
+[
+  {
+    "run": "new1",
+    "result_sha256": "304b1605d9c2c7a3b4e789fd7ccb7cefdf7d048cb0422610f86911132733dd81",
+    "top": "TestProjectInitializationConvergenceFacts",
+    "sub_count": 18
+  },
+  {
+    "run": "new2",
+    "result_sha256": "2ea45b444d74e723e5610941d43a26e1c08b51568834206b8ad10e1b5fd642be",
+    "top": "TestProjectInitializationConvergenceTransactionBoundary",
+    "sub_count": 9
+  },
+  {
+    "run": "old1",
+    "result_sha256": "6605ce12780e734180aa00ceee9ec488371a0c9a128317a5660a742ccc296809",
+    "top": "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "sub_count": 6
+  },
+  {
+    "run": "old2",
+    "result_sha256": "6bb25c384c597c1157185fd89bd21f2897a50c654ab4d440ae261b5d25951036",
+    "top": "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock",
+    "sub_count": 0
+  }
+]

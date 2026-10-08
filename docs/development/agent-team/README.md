@@ -1,5 +1,11 @@
 # 主线程统筹的开发团队
 
+当前增量（2026-10-08，初始化收敛库接受）：Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](project-initialization-convergence-verification.md)。
+
+Owner工作区UI candidate04仅#21 locator修订离线通过；真实read01 Outbox setup失败、read02 label失败均保留并已独核退出，尚无browser top PASS；正在按已接受 `39ebd57e` 重新绑定Go依赖，旧16／独立A-B未跑、asset未交换、前端README未授，UI产品未接受。
+
+管理员统一Meeting Summary initial/update（含首轮标题），Project不override或复制初值，compaction／Execution Summary不变；production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join／OpenAI tools独立验收／SPA并发发布三停止保持。以下历史原字节保留。
+
 当前增量（2026-10-08，初始化收敛规格）：[Project初始化收敛授权规格](project-initialization-convergence-spec-verification.md)完整rev1及正式末件STATIC已接受，规格 `b01b08d4` 已推送并核远端一致；root仅授5技术scratch实施，不安装仓库、不Go/资源，README未授、产品未接受。D10旧ProjectFactAuthority缺失说明已过时，但真实Skills/root仍受停止的Object runtime join依赖阻挡，新gate仅必要前置，不开放创建HTTP或发布。
 
 Audit完整16产品 `4089d131`／归档 `3ce7ec33` 接受保持。Owner工作区UI candidate02完整23技术STATIC与有限离线组合通过，产品未接受；实际5新＋16旧真实top、布局/视觉及资源尚未运行，README #22仍未授。管理员统一会议Summary initial/update含首标题，Project不override/复制初值，compaction/Execution Summary不变。production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持；以下历史原文保留。

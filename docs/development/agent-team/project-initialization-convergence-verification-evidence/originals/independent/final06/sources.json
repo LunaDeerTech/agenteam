@@ -1,0 +1,49 @@
+{
+  "files": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/contract/initialization_convergence.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "sha256": "71156cb226db8e9c5ff648ff31ccfa949f38329032427357498279280383b2db",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence_test.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "tests/project/initialization_convergence_fixture_test.go",
+      "sha256": "b3dd6815c8d3e08e53f6c2a1c8662898c4451efd4676126e6defe945e44dfd90",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_fixture_test.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "tests/project/initialization_convergence_test.go",
+      "sha256": "990de5f8e5bd9e6e4aeef70ad72634023cb2ffc4f5f27a10b839a6798c51ba9b",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_test.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "docs/development/backend/README.md",
+      "sha256": "394a856acf52cf0be6eaa89f3fbce9f680f834f1de0bc0ac073f3462a1094696",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/final06/README.md",
+      "kind": "three-paragraph capability/boundary documentation only"
+    }
+  ],
+  "count": 6,
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate03/manifest.json",
+    "sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b"
+  },
+  "technical_parent": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final05/result.json",
+    "sha256": "b05a074bbe57ca0b72c6c35783b32dd4fe988ae2ec2ff5e8607b2e6381d30567"
+  }
+}

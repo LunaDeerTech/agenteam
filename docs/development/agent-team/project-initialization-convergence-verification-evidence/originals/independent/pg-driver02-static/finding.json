@@ -1,0 +1,10 @@
+{
+  "id": "IC-DRIVER-01",
+  "original_driver_sha256": "49c287c0335208859e605dfc909d0c990e05aea0df6c3fa1b99e89baa61136fe",
+  "kind": "STATIC harness budget precision",
+  "observed_runtime_failure": false,
+  "problem": "v01 checks elapsed after a TCP scan, then can sleep a full second near 75s and start one more scan past the stated retirement deadline.",
+  "resolution": "v02 sets monotonic deadline, guards each next scan, and clamps sleep to remaining time. No business budget/resource logic changed.",
+  "status": "CLOSED_STATIC",
+  "fixed_driver_sha256": "62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e"
+}

@@ -1,0 +1,252 @@
+{
+  "scope": "3 scratch files unit04, Project and Project contract pure only; no repo install/PG/native/app/tests-model execution",
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/unit04/manifest.json",
+    "sha256": "01d5d003a911a2959c574633776535ffb85921f58f952a865884ec151e2aab92"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/pure-actual-graph02.json",
+    "sha256": "c9771afa95a70a5e4fa1b604ac438ddc5a8872ce7b5959bee335edb0cb20682a"
+  },
+  "result": "ordinary/race/compile/vet/format02 PASS; original format and graph preparation gaps retained",
+  "runs": [
+    {
+      "name": "format-preview01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/format-preview01/result.json",
+        "sha256": "145ee34375956f7b1f4cc81cb5a2f249af0e1e6a15a49c69c29010dbc92c2489"
+      },
+      "actual_exit": 1,
+      "seconds": 0.27634899700206006,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "format-preview02",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/format-preview02/result.json",
+        "sha256": "2c6f1a26c9d3e5c16ac73a7c84689d0d3c09e5c0a99e6003cc576c5d1dce5124"
+      },
+      "actual_exit": 0,
+      "seconds": 0.2836819559961441,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "graph-normal01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/result.json",
+        "sha256": "f6bd583ccf924d1709bb2f1675f9175278d57b81e757fa89c8c92d221c8754b2"
+      },
+      "actual_exit": 0,
+      "seconds": 0.4663999819968012,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "graph-race01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/graph-race01/result.json",
+        "sha256": "e8401bd4523e877deb6cd412513dfff8aed1695afe7b140d4ac1f7884be46d8c"
+      },
+      "actual_exit": 0,
+      "seconds": 0.5297554360004142,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "graph-normal02",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/result.json",
+        "sha256": "2b2446efc95c11bc0020d75456fbf89c0d26d9280aeb3c0c8c45dbfa8fefc886"
+      },
+      "actual_exit": 0,
+      "seconds": 0.48786511300568236,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "graph-race02",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/graph-race02/result.json",
+        "sha256": "64271dc4aa0ecd14dadf1d1a3a6ade79c7cbf69cfd43cc46885b7e4a8f7449e7"
+      },
+      "actual_exit": 0,
+      "seconds": 0.4547959470000933,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "project-pure-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/project-pure-compile01/result.json",
+        "sha256": "9eb4a5640ab8ff4079f37188d3e56f6d4dd006373290ecdba25e973ccebdb85a"
+      },
+      "actual_exit": 0,
+      "seconds": 3.623462437004491,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "project-pure-run01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/project-pure-run01/result.json",
+        "sha256": "8bc4bf9990cb49f13d046fba14d65f1dc583602b8b0ee79e6f9d264df6936730"
+      },
+      "actual_exit": 0,
+      "seconds": 0.3434755109992693,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 54,
+      "nested": 181
+    },
+    {
+      "name": "project-race-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/project-race-compile01/result.json",
+        "sha256": "60b29626719c29b051fc13fd020857bc6cf228ca7f76ba20e0282f4d4561b351"
+      },
+      "actual_exit": 0,
+      "seconds": 4.9670070850042976,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "project-race-run01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/project-race-run01/result.json",
+        "sha256": "0e9beabc36e16135f1fadd8d297a90d6c8cbd1e81ca28a66d105d730f8bcb6b6"
+      },
+      "actual_exit": 0,
+      "seconds": 1.7636939989970415,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 54,
+      "nested": 181
+    },
+    {
+      "name": "contract-pure-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/contract-pure-compile01/result.json",
+        "sha256": "7e9bc9263742e85d3604c89d6ca3ac98dc2bccd5ba93e148eb4563389263ef1d"
+      },
+      "actual_exit": 0,
+      "seconds": 1.6983636580043822,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "contract-pure-run01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/contract-pure-run01/result.json",
+        "sha256": "cc252b14edbcea45880eda490bfecab6649a7b86abcd8c14a446bd90e774f379"
+      },
+      "actual_exit": 0,
+      "seconds": 0.31828936200327007,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 29,
+      "nested": 15
+    },
+    {
+      "name": "contract-race-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/contract-race-compile01/result.json",
+        "sha256": "a2199c39850b051e5de643022b41772b9e7b4582c39cf80bd187716041eab810"
+      },
+      "actual_exit": 0,
+      "seconds": 2.534593632000906,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    },
+    {
+      "name": "contract-race-run01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/contract-race-run01/result.json",
+        "sha256": "97bc8cdfbdd7872bd03c766920fe504b2b0380dd37866640b058b29df7c8eb2f"
+      },
+      "actual_exit": 0,
+      "seconds": 1.3452638289963943,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 29,
+      "nested": 15
+    },
+    {
+      "name": "race-vet01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/race-vet01/result.json",
+        "sha256": "88c2ec25315b8f80f43427a7c804a4f38ab85bfbfcf485195cff274a33c27767"
+      },
+      "actual_exit": 0,
+      "seconds": 0.6434300399996573,
+      "wait": true,
+      "owned_clear_observations": 2,
+      "inputs_same": true,
+      "remaining": [],
+      "top": 0,
+      "nested": 0
+    }
+  ],
+  "retained_first_findings": [
+    "unit01 static LockKey DeepEqual test helper",
+    "unit02 static SQLExecutor.Query pointer signature",
+    "format-preview01 actual exit1 with gofmt diff (stderr empty)",
+    "pregraph01/02 missing historical fingerprints; minimal6 fixed4089 contract test addition",
+    "actualgraph01 29 implicit runtime/cgo source extras; original collector AssertionError; accepted source/tool delta and actualgraph02 extra0"
+  ],
+  "pending": [
+    "two PG scratch source completion",
+    "integration actualgraph/compile and real resource authorization",
+    "repository installation only after UI handoff",
+    "backend README not authorized"
+  ]
+}

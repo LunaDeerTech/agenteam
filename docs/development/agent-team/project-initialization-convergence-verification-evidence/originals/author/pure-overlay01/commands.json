@@ -1,0 +1,144 @@
+{
+  "status": "proposal; after actual graph extra0 and updated generated closure; no Go executed",
+  "per_command_seconds": 45,
+  "commands": [
+    {
+      "name": "format-preview01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-d",
+        "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/contract/initialization_convergence.go",
+        "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence.go",
+        "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go"
+      ],
+      "purpose": "read-only formatter preview; any formatting delta only applied to owned scratch then newfreeze before later Go"
+    },
+    {
+      "name": "graph-normal01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-test",
+        "-json",
+        "./internal/central/project",
+        "./internal/central/project/contract"
+      ],
+      "purpose": "actual normal graph, extra/file attribution gate before builds"
+    },
+    {
+      "name": "graph-race01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-race",
+        "-deps",
+        "-test",
+        "-json",
+        "./internal/central/project",
+        "./internal/central/project/contract"
+      ],
+      "purpose": "actual race graph including generated testmain; no test body"
+    },
+    {
+      "name": "project-pure-compile01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/project-pure.test",
+        "./internal/central/project"
+      ]
+    },
+    {
+      "name": "project-pure-run01",
+      "argv": [
+        "/workspace/scratch/project-initialization-convergence-author/bin/project-pure.test",
+        "-test.v",
+        "-test.count=1",
+        "-test.timeout=40s"
+      ],
+      "cwd": "/workspace/agenteam/internal/central/project",
+      "purpose": "only prechecked pure project or contract package; no app/native/integration"
+    },
+    {
+      "name": "project-race-compile01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/project-race.test",
+        "./internal/central/project"
+      ]
+    },
+    {
+      "name": "project-race-run01",
+      "argv": [
+        "/workspace/scratch/project-initialization-convergence-author/bin/project-race.test",
+        "-test.v",
+        "-test.count=1",
+        "-test.timeout=40s"
+      ],
+      "cwd": "/workspace/agenteam/internal/central/project",
+      "purpose": "only prechecked pure project or contract package; no app/native/integration"
+    },
+    {
+      "name": "contract-pure-compile01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/contract-pure.test",
+        "./internal/central/project/contract"
+      ]
+    },
+    {
+      "name": "contract-pure-run01",
+      "argv": [
+        "/workspace/scratch/project-initialization-convergence-author/bin/contract-pure.test",
+        "-test.v",
+        "-test.count=1",
+        "-test.timeout=40s"
+      ],
+      "cwd": "/workspace/agenteam/internal/central/project/contract",
+      "purpose": "only prechecked pure project or contract package; no app/native/integration"
+    },
+    {
+      "name": "contract-race-compile01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/contract-race.test",
+        "./internal/central/project/contract"
+      ]
+    },
+    {
+      "name": "contract-race-run01",
+      "argv": [
+        "/workspace/scratch/project-initialization-convergence-author/bin/contract-race.test",
+        "-test.v",
+        "-test.count=1",
+        "-test.timeout=40s"
+      ],
+      "cwd": "/workspace/agenteam/internal/central/project/contract",
+      "purpose": "only prechecked pure project or contract package; no app/native/integration"
+    },
+    {
+      "name": "race-vet01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-race",
+        "./internal/central/project",
+        "./internal/central/project/contract"
+      ]
+    }
+  ]
+}

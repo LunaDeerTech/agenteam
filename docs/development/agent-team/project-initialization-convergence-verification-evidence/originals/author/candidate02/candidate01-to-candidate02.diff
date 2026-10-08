@@ -1,0 +1,30 @@
+--- candidate01/tests/project/initialization_convergence_fixture_test.go
++++ candidate02/tests/project/initialization_convergence_fixture_test.go
+@@ -45,13 +45,22 @@
+ 	}
+ 	t.Cleanup(func() {
+ 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+-		defer cancel()
+-		if err := store.Drain(ctx); err != nil {
++		err := store.Drain(ctx)
++		cancel()
++		if err != nil {
+ 			t.Error("convergence Store Drain did not finish", err)
+ 			force, stop := context.WithTimeout(context.Background(), time.Second)
+-			defer stop()
+-			if err := store.ForceClose(force); err != nil {
+-				t.Error("convergence Store ForceClose did not finish", err)
++			forceErr := store.ForceClose(force)
++			stop()
++			if forceErr != nil {
++				t.Error("convergence Store ForceClose did not finish", forceErr)
++			}
++			// A bounded Force return is not a join. Retain the failure above,
++			// then actually wait for all Store operations/pool/socket owners.
++			// The outer 120s top budget includes this Cleanup; exceeding it
++			// fails the owned process instead of reporting a successful join.
++			if err := store.Drain(context.Background()); err != nil {
++				t.Error("convergence Store terminal Drain failed", err)
+ 			}
+ 		}
+ 	})

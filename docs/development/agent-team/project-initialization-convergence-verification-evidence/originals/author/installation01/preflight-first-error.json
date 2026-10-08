@@ -1,0 +1,8 @@
+{
+  "tool_chunk": "dc11e2",
+  "actual_exit": 1,
+  "phase": "before any repository write",
+  "error": "KeyError /workspace/agenteam/internal/central/project/audit_facts_test.go",
+  "cause": "Full20 integration graph does not consume all old project unit tests though directory name set includes them.",
+  "correction": "Use already accepted pure-overlay02/input04-build.json for the existing unit source hash; no graph or test rerun."
+}

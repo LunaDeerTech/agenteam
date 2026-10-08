@@ -1,0 +1,479 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate03/manifest.json",
+    "sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b"
+  },
+  "frozen_integration_input": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/input-build.json",
+    "sha256": "f4d8d6fe9fa4453030e7e15ffbc4092190a619078f153ccf11373582ecf0125b"
+  },
+  "frozen_pure_input": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/pure-overlay02/input04-build.json",
+    "sha256": "30ed096d083c02127e077a91dcf2ff49fc85919efa5906dd72296066cabb616d"
+  },
+  "frozen_overlay": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+    "sha256": "ad4f1fca9a274eb00f8e45a175c89ddac51925990059b071a5b3f6ee794e6498"
+  },
+  "targets": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "target_absent": true,
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "bytes": 1201
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "target_absent": true,
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "bytes": 4667
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "target_absent": true,
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence_test.go",
+      "sha256": "71156cb226db8e9c5ff648ff31ccfa949f38329032427357498279280383b2db",
+      "bytes": 18096
+    },
+    {
+      "path": "tests/project/initialization_convergence_fixture_test.go",
+      "target_absent": true,
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_fixture_test.go",
+      "sha256": "b3dd6815c8d3e08e53f6c2a1c8662898c4451efd4676126e6defe945e44dfd90",
+      "bytes": 9586
+    },
+    {
+      "path": "tests/project/initialization_convergence_test.go",
+      "target_absent": true,
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_test.go",
+      "sha256": "990de5f8e5bd9e6e4aeef70ad72634023cb2ffc4f5f27a10b839a6798c51ba9b",
+      "bytes": 13605
+    }
+  ],
+  "directories": [
+    {
+      "directory": "/workspace/agenteam/internal/central/project",
+      "before_go_files": [
+        "audit_authority.go",
+        "audit_facts.go",
+        "audit_facts_test.go",
+        "authority.go",
+        "authority_test.go",
+        "commands.go",
+        "commands_test.go",
+        "creation.go",
+        "creation_test.go",
+        "events.go",
+        "events_test.go",
+        "external_event_authority.go",
+        "external_event_authority_test.go",
+        "lifecycle.go",
+        "lifecycle_audit.go",
+        "lifecycle_audit_test.go",
+        "lifecycle_authority.go",
+        "lifecycle_authority_test.go",
+        "lifecycle_events.go",
+        "lifecycle_events_test.go",
+        "lifecycle_store.go",
+        "lifecycle_store_test.go",
+        "lifecycle_test.go",
+        "object_stop_authority.go",
+        "object_stop_authority_test.go",
+        "outbox_lifecycle_authority.go",
+        "outbox_lifecycle_authority_test.go",
+        "participants.go",
+        "participants_test.go",
+        "reader.go",
+        "reader_test.go",
+        "recovery.go",
+        "recovery_test.go",
+        "repository.go",
+        "secret_authority.go",
+        "secret_authority_test.go",
+        "service.go"
+      ],
+      "installed_go_files": [
+        "initialization_convergence.go",
+        "initialization_convergence_test.go"
+      ],
+      "expected_effective_go_files": [
+        "audit_authority.go",
+        "audit_facts.go",
+        "audit_facts_test.go",
+        "authority.go",
+        "authority_test.go",
+        "commands.go",
+        "commands_test.go",
+        "creation.go",
+        "creation_test.go",
+        "events.go",
+        "events_test.go",
+        "external_event_authority.go",
+        "external_event_authority_test.go",
+        "initialization_convergence.go",
+        "initialization_convergence_test.go",
+        "lifecycle.go",
+        "lifecycle_audit.go",
+        "lifecycle_audit_test.go",
+        "lifecycle_authority.go",
+        "lifecycle_authority_test.go",
+        "lifecycle_events.go",
+        "lifecycle_events_test.go",
+        "lifecycle_store.go",
+        "lifecycle_store_test.go",
+        "lifecycle_test.go",
+        "object_stop_authority.go",
+        "object_stop_authority_test.go",
+        "outbox_lifecycle_authority.go",
+        "outbox_lifecycle_authority_test.go",
+        "participants.go",
+        "participants_test.go",
+        "reader.go",
+        "reader_test.go",
+        "recovery.go",
+        "recovery_test.go",
+        "repository.go",
+        "secret_authority.go",
+        "secret_authority_test.go",
+        "service.go"
+      ],
+      "unchanged_existing_hashes": [
+        {
+          "name": "audit_authority.go",
+          "sha256": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b"
+        },
+        {
+          "name": "audit_facts.go",
+          "sha256": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9"
+        },
+        {
+          "name": "audit_facts_test.go",
+          "sha256": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee"
+        },
+        {
+          "name": "authority.go",
+          "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321"
+        },
+        {
+          "name": "authority_test.go",
+          "sha256": "1716e35f980079f94ac25ad8233127898bfd30092b92090a6605cf3b589ba2a2"
+        },
+        {
+          "name": "commands.go",
+          "sha256": "938d5274a447d3af8d8a9857725522407ba40cb033bb505dc267038261f4817b"
+        },
+        {
+          "name": "commands_test.go",
+          "sha256": "ed6687651178f3632a223779ec783df90f33899a22acf740e6a59916105282f3"
+        },
+        {
+          "name": "creation.go",
+          "sha256": "0867dda75a498741ab141e356c953474a567071145df6daf4efafd3ac2bb1a25"
+        },
+        {
+          "name": "creation_test.go",
+          "sha256": "bc49a55b72c44719d8dc4cb30fd9dbc450858301e1ceb1b5b9686d4bbb581073"
+        },
+        {
+          "name": "events.go",
+          "sha256": "4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d"
+        },
+        {
+          "name": "events_test.go",
+          "sha256": "7847e47d711590f4ff242db9e0ee1c30c5bb36e9469508f492a7f0bbd3996776"
+        },
+        {
+          "name": "external_event_authority.go",
+          "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519"
+        },
+        {
+          "name": "external_event_authority_test.go",
+          "sha256": "fc4c20657003ca7285fc928ba297e2cbccc8915e26bda1c1de7db144c14f6452"
+        },
+        {
+          "name": "lifecycle.go",
+          "sha256": "25f865d9bcd38cf0eeba66c63b5ae3b97c9e17a8ba636f0ad5b812c905009c66"
+        },
+        {
+          "name": "lifecycle_audit.go",
+          "sha256": "df63ef9cec4488234241b3781b7aa9500f6f3c9c6e8dc1d9be4a94e00fe8c124"
+        },
+        {
+          "name": "lifecycle_audit_test.go",
+          "sha256": "d96136e6ac2241490a98b0016afea77671be01b51fc303d768141917d0a2e6a8"
+        },
+        {
+          "name": "lifecycle_authority.go",
+          "sha256": "68991ca494de669782289bf07ea2dc34295420ce041219b20d301880602affc5"
+        },
+        {
+          "name": "lifecycle_authority_test.go",
+          "sha256": "09bdf522c8ac4d114800d4cb9d119bfff1f9ebe9eacfc1e58981ddb2fb4c0977"
+        },
+        {
+          "name": "lifecycle_events.go",
+          "sha256": "5a1239954e4159f91d0b2d6f19d714ae28d27b46b9724664fe82c1a8b221d340"
+        },
+        {
+          "name": "lifecycle_events_test.go",
+          "sha256": "c4fb67d99ae5ca97ac1b040efc21a24b86b81a922f7903dda38241cd7062eb48"
+        },
+        {
+          "name": "lifecycle_store.go",
+          "sha256": "2daaa3a8f8abae06f53a8547038ce91648443ea2da33fae8156165b07fb29ccc"
+        },
+        {
+          "name": "lifecycle_store_test.go",
+          "sha256": "f622ad62f9a63b059b909c8352fe4698721d18a25967d2fa2ae038b3617ba065"
+        },
+        {
+          "name": "lifecycle_test.go",
+          "sha256": "5d3d58ba898dd23e2f13dc9ee6b920adbcddde082bc5afcbe1d8581dc2599a9e"
+        },
+        {
+          "name": "object_stop_authority.go",
+          "sha256": "4364561fde869070d4da29d7b4be5ead4a2d8f7d28bd9a6d2946e7b8874cf7c4"
+        },
+        {
+          "name": "object_stop_authority_test.go",
+          "sha256": "71149577c69e8bad2ffe3fae48fba58de21e602479bfbacca5d014e25e767f0f"
+        },
+        {
+          "name": "outbox_lifecycle_authority.go",
+          "sha256": "baa179061cd51e6b1b4896f3957bfcb914eb8bb8b0eb37df91f6947969f772e3"
+        },
+        {
+          "name": "outbox_lifecycle_authority_test.go",
+          "sha256": "c213f98dfe45148095b3f669846da882f63fa8263834e81a4d492d54152de055"
+        },
+        {
+          "name": "participants.go",
+          "sha256": "b38ebb0b2cfa0ae42e969bd993932808fdb20f7a5f4297375f27d5f6a74455ed"
+        },
+        {
+          "name": "participants_test.go",
+          "sha256": "f3386b187e4c751976ba8d147eb43d5b0c717bf19394e53a822aaf7ee0968b57"
+        },
+        {
+          "name": "reader.go",
+          "sha256": "37cd934431d601bf052719eae9ad7f91274a1bc583a13c1425d9d14082555ed5"
+        },
+        {
+          "name": "reader_test.go",
+          "sha256": "54bdf009f7852eab8c46188ba41774308cc49ce3fd97fbf5f40fd6b796a7f942"
+        },
+        {
+          "name": "recovery.go",
+          "sha256": "7149c163463416c6be4ea43351c375208b6e61278a6f170deeb302964cd29834"
+        },
+        {
+          "name": "recovery_test.go",
+          "sha256": "f97e12f3991bd095e8d5584f1b8913b3741ddd6924b5127480c7f12274213b3f"
+        },
+        {
+          "name": "repository.go",
+          "sha256": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55"
+        },
+        {
+          "name": "secret_authority.go",
+          "sha256": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79"
+        },
+        {
+          "name": "secret_authority_test.go",
+          "sha256": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004"
+        },
+        {
+          "name": "service.go",
+          "sha256": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/agenteam/internal/central/project/contract",
+      "before_go_files": [
+        "commands.go",
+        "commands_test.go",
+        "events.go",
+        "events_test.go",
+        "initialization.go",
+        "initialization_test.go",
+        "lifecycle.go",
+        "lifecycle_test.go",
+        "types.go",
+        "types_test.go",
+        "validation.go",
+        "validation_test.go"
+      ],
+      "installed_go_files": [
+        "initialization_convergence.go"
+      ],
+      "expected_effective_go_files": [
+        "commands.go",
+        "commands_test.go",
+        "events.go",
+        "events_test.go",
+        "initialization.go",
+        "initialization_convergence.go",
+        "initialization_test.go",
+        "lifecycle.go",
+        "lifecycle_test.go",
+        "types.go",
+        "types_test.go",
+        "validation.go",
+        "validation_test.go"
+      ],
+      "unchanged_existing_hashes": [
+        {
+          "name": "commands.go",
+          "sha256": "30af1efac3ed5230ac06b1795e086fcf21840246243e293bcd46bbea335886fa"
+        },
+        {
+          "name": "commands_test.go",
+          "sha256": "c8030fdff969e32a9895544c670850a83d9967978185c1f208099661061c220c"
+        },
+        {
+          "name": "events.go",
+          "sha256": "ea9303956127b0734583b1f5e0c0ef4f7b3649d8bf1f843df0b0b7cf0973b07e"
+        },
+        {
+          "name": "events_test.go",
+          "sha256": "fd390e332d2e7f5748e48770db4dd7210f645f6e1f7bc867547f46408273472a"
+        },
+        {
+          "name": "initialization.go",
+          "sha256": "0ed3217342ee10f3f0406f0576b0c63d4cac32c060da3b6c0bb9c62ee80303ee"
+        },
+        {
+          "name": "initialization_test.go",
+          "sha256": "1457ad4b7a067c334731643a6495966fa7bb6a9c010b450084984fab49fc2ddd"
+        },
+        {
+          "name": "lifecycle.go",
+          "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6"
+        },
+        {
+          "name": "lifecycle_test.go",
+          "sha256": "f820286c701da825763f4c57ec7626a5907fa9b29cde00644761500ab41748bf"
+        },
+        {
+          "name": "types.go",
+          "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1"
+        },
+        {
+          "name": "types_test.go",
+          "sha256": "74fb9f8b770379240dbfa5ef194fe41970ec57312b8588f4a1304fa2bc8fccf0"
+        },
+        {
+          "name": "validation.go",
+          "sha256": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b"
+        },
+        {
+          "name": "validation_test.go",
+          "sha256": "2e92163f97ae82866b436ecf5775459e6f5aabda7d81c365293ec116932eca75"
+        }
+      ]
+    },
+    {
+      "directory": "/workspace/agenteam/tests/project",
+      "before_go_files": [
+        "b02_commit_proxy_test.go",
+        "b02_fixture_test.go",
+        "b02_owner_commands_test.go",
+        "b02_unknown_test.go",
+        "b03_r2_acceptance_test.go",
+        "b03_r2_fixture_test.go",
+        "b03_r2_unknown_test.go",
+        "b03_r3_authority_test.go",
+        "b03_r3_fixture_test.go",
+        "b03_r3_object_stop_authority_test.go",
+        "b03_r3_outbox_inspection_test.go",
+        "b03_secret_audit_fixture_test.go",
+        "b03_secret_audit_test.go",
+        "secret_metadata_read_test.go"
+      ],
+      "installed_go_files": [
+        "initialization_convergence_fixture_test.go",
+        "initialization_convergence_test.go"
+      ],
+      "expected_effective_go_files": [
+        "b02_commit_proxy_test.go",
+        "b02_fixture_test.go",
+        "b02_owner_commands_test.go",
+        "b02_unknown_test.go",
+        "b03_r2_acceptance_test.go",
+        "b03_r2_fixture_test.go",
+        "b03_r2_unknown_test.go",
+        "b03_r3_authority_test.go",
+        "b03_r3_fixture_test.go",
+        "b03_r3_object_stop_authority_test.go",
+        "b03_r3_outbox_inspection_test.go",
+        "b03_secret_audit_fixture_test.go",
+        "b03_secret_audit_test.go",
+        "initialization_convergence_fixture_test.go",
+        "initialization_convergence_test.go",
+        "secret_metadata_read_test.go"
+      ],
+      "unchanged_existing_hashes": [
+        {
+          "name": "b02_commit_proxy_test.go",
+          "sha256": "f6a8912ca242d7f275ac84120dc1a25f250ba3d5c55696ecfdf44861e0c338aa"
+        },
+        {
+          "name": "b02_fixture_test.go",
+          "sha256": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94"
+        },
+        {
+          "name": "b02_owner_commands_test.go",
+          "sha256": "5d4b886c58ae4b286da9e79e5470688db953091e54905badb0ea5993064b7b35"
+        },
+        {
+          "name": "b02_unknown_test.go",
+          "sha256": "c6aa72701e225d514227ae7a6c634512dd0add6e15b8b603ad5d31465c943edd"
+        },
+        {
+          "name": "b03_r2_acceptance_test.go",
+          "sha256": "fc90d9c9434f4343be4981d52e918084d2e18e7b6b98258cf812a537772034bb"
+        },
+        {
+          "name": "b03_r2_fixture_test.go",
+          "sha256": "d490eae3cd029753a1f7ebf851161f591ae9c317159bb676ab7660b36aae4790"
+        },
+        {
+          "name": "b03_r2_unknown_test.go",
+          "sha256": "4518c81b0e26585da4b6bf7c18c8e01177f9d6e4b71a6ddaf38eafebad29602a"
+        },
+        {
+          "name": "b03_r3_authority_test.go",
+          "sha256": "3c17e5dc6a64802b0c45f5f8e64f541dfa1545a04584247d8aca013d02f3fae7"
+        },
+        {
+          "name": "b03_r3_fixture_test.go",
+          "sha256": "08c648c44071db30f8635da8b526ca4f49858b240565045af3b23ee46c6273c8"
+        },
+        {
+          "name": "b03_r3_object_stop_authority_test.go",
+          "sha256": "50604c13956fea21252e2ca06607b2930bc509a10e975d3c0e9e65a82edb85be"
+        },
+        {
+          "name": "b03_r3_outbox_inspection_test.go",
+          "sha256": "8a1f8193270269ec7bad881cccfc2056d9027c438464187e28241773fe216272"
+        },
+        {
+          "name": "b03_secret_audit_fixture_test.go",
+          "sha256": "69221e3abe5204593ce734ef2449042e1cce90f0cbef4caacf44f282b788fe40"
+        },
+        {
+          "name": "b03_secret_audit_test.go",
+          "sha256": "bf98816eb342ecd079238b81b8344109531416d38b91d38bb20aee1337389c51"
+        },
+        {
+          "name": "secret_metadata_read_test.go",
+          "sha256": "cb0d7f1054268bab1c70355290b550b18dd15ade05e1510138ee45ec41f660b8"
+        }
+      ]
+    }
+  ],
+  "ui_sources_read": false
+}

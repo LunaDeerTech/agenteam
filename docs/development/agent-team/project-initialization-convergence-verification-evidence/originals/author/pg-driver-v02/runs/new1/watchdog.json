@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 52606.537558395,
+      "top": "TestProjectInitializationConvergenceFacts"
+    },
+    {
+      "event": "result",
+      "monotonic": 52607.676102269,
+      "observed_seconds": 1.138543873996241,
+      "reported_seconds": 1.16,
+      "state": "PASS",
+      "top": "TestProjectInitializationConvergenceFacts"
+    }
+  ],
+  "expected": [
+    "TestProjectInitializationConvergenceFacts"
+  ],
+  "failures": []
+}

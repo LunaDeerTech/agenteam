@@ -1,0 +1,119 @@
+{
+  "status": "PASS_COMPLETE_FIVE_SCRATCH_TECHNICAL_SOURCES",
+  "sources": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final05/sources.json",
+    "sha256": "c719031265765b2b29c4ed646d867569e5dc2305ec0a61b708bf8afd91229d3e"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final05/review.md",
+    "sha256": "ce4b74c82d83fa450ac723a8e681de31f5b1ddb24d62b5345e54d1b60ed6331b"
+  },
+  "resource_daemon": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final05/resource-daemon.json",
+    "sha256": "3afc05dc41d2fff94c3a33b49ad75006e487f5daefad73ae8867b2f95b8937ef"
+  },
+  "support": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/offline-summary01.json",
+      "sha256": "889f0f8f9fa28e84b93732925863ce7248ddc4677207a828ac402603d59a798f"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/integration-offline-summary01.json",
+      "sha256": "c0b204b35fc368068a579025669131a0724f00ef97e7f7f466779bbfece7178e"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/author-results01/result.json",
+      "sha256": "04d9b34d1637d342627cdd3e7ad45d74b3a1c4648e2afbdcfee2248b6556ab0a"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/author-results01/review.md",
+      "sha256": "1dd3702ca57042f0dfc27339cb8169d61a495fd5792614c5c863aa358dbbfa2a"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/author-results01/resource-daemon.json",
+      "sha256": "71db926923ed91800e446839296eb877d71d8492325972f805330f9c0137b9b4"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/unit03-static/result.json",
+      "sha256": "89c0174c99c3b23fb6d76fba67835a24d30c5f43bf9f1a115739cb46819e6639"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/result.json",
+      "sha256": "718d5bec5f90f892adcfcb043548c1c2f5c65e6f6d25c4b3ca8bb1cf5c592c8d"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/result.json",
+      "sha256": "11ccf4a1607fd001901ade57e2738673086484875e5b0157bed52234198c75ff"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/candidate02-static/result.json",
+      "sha256": "a1aa498b217ac44f7e005786e9c713190deaf585899e13681758501b7da6702d"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/result.json",
+      "sha256": "408b164fcbb41225e5bf2e9f056e8928f476ae697692c4e1a97b1eaafb529f04"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-driver02-static/result.json",
+      "sha256": "cfcc5ec89653c35172ad6366ed3ead84099d7091a2283fc86785b40639bbce33"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/final-freeze01.json",
+      "sha256": "19232c6e75f74dda677db72affcd227ae7564d970f914ccc4d609d424d7c5371"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/summary01.json",
+      "sha256": "283b8ff78a994775368d8a8ec1b2c7a9786c5e8eaa63a6dbcf685eb6acf08b30"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/freeze.json",
+      "sha256": "a7bb20a5fee39ad0ca6e15c7675e6b259327f1468e01551b5cca056d69493f7a"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/closure.json",
+      "sha256": "803d42b3cdf1d87c62702953f1f1f91b5d8f3a1a38a9e47dbb490b9402163193"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/source-gate-result01.json",
+      "sha256": "3faf614fabbf8c2edfd7d4daaed6f588f9257b601f541e96ae13c5a33fb284f1"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/execution-freeze.json",
+      "sha256": "249a5dee21c0d34b45b28fe15fa2cf1e56219aa69a1638cac7f265e4aa2d2b9e"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runtime-result01.json",
+      "sha256": "160f0a5f9f3433bbdd709066018da33f0f7ec785dd9eaeb5831964b0c02a767e"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/completed03-result.json",
+      "sha256": "d91fa553896d37923e30d0337922fc2af35bd37f37f8e0c088711e3110143d37"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/freeze.json",
+      "sha256": "9b2b1f1384a1191f4c7c890b9eaabbff418bb1c0490eca3828a649850299528b"
+    }
+  ],
+  "blocking": [],
+  "new_product_runtime_tops": 2,
+  "author_old_regression_tops": 2,
+  "independent_tops": 2,
+  "total_real_top_count": 6,
+  "total_real_nested_count": 40,
+  "total_real_round_count": 6,
+  "total_resource_ids": 42,
+  "task_daemon_nonowned_unwaited": 24,
+  "no_repository_installation": true,
+  "README_pending": true,
+  "resource_window_released": true,
+  "no_active_independent_commands_or_resources": true,
+  "test_failures_in_real_rounds": false,
+  "limits": [
+    "Scratch overlay acceptance only; repo installation pending.",
+    "New fixture proves Project facts with true Store/service, not Skills/Human create E2E.",
+    "Snapshot only covered rows/counts, not all database fields.",
+    "Old compatibility adapters retain original test boundary.",
+    "Host TCP is supplementary, not complete trace.",
+    "PID1 daemon delta is nonowned/unwaited, no global-zero claim."
+  ]
+}

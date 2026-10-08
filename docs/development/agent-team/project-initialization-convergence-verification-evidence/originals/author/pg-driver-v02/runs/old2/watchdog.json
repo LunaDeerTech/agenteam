@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 53071.417345234,
+      "top": "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock"
+    },
+    {
+      "event": "result",
+      "monotonic": 53072.455239187,
+      "observed_seconds": 1.0378939530055504,
+      "reported_seconds": 1.03,
+      "state": "PASS",
+      "top": "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock"
+    }
+  ],
+  "expected": [
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock"
+  ],
+  "failures": []
+}

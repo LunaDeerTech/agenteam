@@ -1,0 +1,12 @@
+diff /workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_fixture_test.go.orig /workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_fixture_test.go
+--- /workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_fixture_test.go.orig
++++ /workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_fixture_test.go
+@@ -120,7 +120,7 @@
+ 		t.Fatal(err)
+ 	}
+ 	name, description := "Converge-"+projectID.String(), "owned Project authority fixture"
+-	ref := c.ProjectRef{ID: projectID, OwnerUserID: owner, Name: name, NormalizedName: "converge-"+projectID.String(), Description: description, Lifecycle: c.Active, Version: 1, CreatedAt: created, UpdatedAt: created}
++	ref := c.ProjectRef{ID: projectID, OwnerUserID: owner, Name: name, NormalizedName: "converge-" + projectID.String(), Description: description, Lifecycle: c.Active, Version: 1, CreatedAt: created, UpdatedAt: created}
+ 	if err := ref.Validate(); err != nil {
+ 		t.Fatal(err)
+ 	}

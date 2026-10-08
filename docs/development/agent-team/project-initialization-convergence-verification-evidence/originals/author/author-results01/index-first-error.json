@@ -1,0 +1,8 @@
+{
+  "status": "index helper assertion error; not product/Go/resource failure",
+  "tool_chunk": "acc567",
+  "actual_exit": 1,
+  "observed": "AssertionError at inline line 16",
+  "cause": "Aggregator assumed all brief.json had state literal PASS and checks, but original new1 brief uses a descriptive state and different summary field names. Raw new1 result remains actual0 and unchanged.",
+  "correction": "Read common raw result/command/cleanup schema and raw test lines; preserve all original brief files."
+}

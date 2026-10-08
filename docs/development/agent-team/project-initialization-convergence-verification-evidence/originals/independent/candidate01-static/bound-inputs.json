@@ -1,0 +1,151 @@
+{
+  "manifest": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate01/manifest.json",
+    "sha256": "a2c3f5fcc8cd5e34b09b67317f8f13e7cfbccdfc8a3f20f3c861ce2b77af97e5"
+  },
+  "files": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate01/src/internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "bytes": 1201,
+      "lines": 24
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate01/src/internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "bytes": 4667,
+      "lines": 109
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate01/src/internal/central/project/initialization_convergence_test.go",
+      "sha256": "71156cb226db8e9c5ff648ff31ccfa949f38329032427357498279280383b2db",
+      "bytes": 18096,
+      "lines": 441
+    },
+    {
+      "path": "tests/project/initialization_convergence_fixture_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate01/src/tests/project/initialization_convergence_fixture_test.go",
+      "sha256": "e91a6f3ffe57cac76001e942db2ec6e77a3162ad30ac27ee8f03b06c1ba77ddf",
+      "bytes": 9174,
+      "lines": 216
+    },
+    {
+      "path": "tests/project/initialization_convergence_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate01/src/tests/project/initialization_convergence_test.go",
+      "sha256": "990de5f8e5bd9e6e4aeef70ad72634023cb2ffc4f5f27a10b839a6798c51ba9b",
+      "bytes": 13605,
+      "lines": 355
+    }
+  ],
+  "additional_fixed_accepted_sources": [
+    {
+      "path": "internal/central/postgres/store.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/fixed/internal/central/postgres/store.go",
+      "sha256": "6c2f607fd3c85aa9c5d65ff9c909c1b9012f10a2f62a340a34f6d17371798072"
+    },
+    {
+      "path": "internal/central/postgres/transaction.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/fixed/internal/central/postgres/transaction.go",
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3"
+    },
+    {
+      "path": "internal/central/postgres/sql.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/fixed/internal/central/postgres/sql.go",
+      "sha256": "2a1357b60da8693124b0cdf3d863589604853b44beb5262e43995f0271f5484e"
+    },
+    {
+      "path": "tests/project/b02_fixture_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/fixed/tests/project/b02_fixture_test.go",
+      "sha256": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94"
+    },
+    {
+      "path": "db/migrations/00013_project_owner.sql",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/fixed/db/migrations/00013_project_owner.sql",
+      "sha256": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0"
+    },
+    {
+      "path": "internal/central/postgres/pool_cancellation.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/fixed/internal/central/postgres/pool_cancellation.go",
+      "sha256": "ee6c5757fedd549b2d04695c42fb1d596565fad198648a3d8cb315e99eae6989"
+    }
+  ],
+  "fixed_spec_sources": [
+    {
+      "path": "internal/central/project/authority.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/internal/central/project/authority.go",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4"
+    },
+    {
+      "path": "internal/central/project/repository.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/internal/central/project/repository.go",
+      "sha256": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+      "git_blob": "e67938516ca40b87febce02b59608a4f678f5084"
+    },
+    {
+      "path": "internal/central/project/contract/types.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/internal/central/project/contract/types.go",
+      "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+      "git_blob": "317bf76d8f392be9b798b2b3d00c30ed9ff6edae"
+    },
+    {
+      "path": "internal/central/project/contract/validation.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/internal/central/project/contract/validation.go",
+      "sha256": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b",
+      "git_blob": "4ad29bd8cc99b46af8c640dcc925d33b02575754"
+    },
+    {
+      "path": "db/migrations/00013_project_owner.sql",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/db/migrations/00013_project_owner.sql",
+      "sha256": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0",
+      "git_blob": "a85d049d4ed10b709eb68bc7465efa26129330bf"
+    },
+    {
+      "path": "internal/central/postgres/transaction.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/internal/central/postgres/transaction.go",
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "git_blob": "2a2fc435b4edb4f56f278ee5f9135a3a561737e7"
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/internal/central/identity/contract/identity.go",
+      "sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "git_blob": "fd13667713bf1248111aa1f18687296be9c3cde0"
+    },
+    {
+      "path": "tests/project/b02_fixture_test.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/tests/project/b02_fixture_test.go",
+      "sha256": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94",
+      "git_blob": "1176191fdce702042bff77867a131575d2ec00e0"
+    },
+    {
+      "path": "tests/project/b02_owner_commands_test.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/tests/project/b02_owner_commands_test.go",
+      "sha256": "5d4b886c58ae4b286da9e79e5470688db953091e54905badb0ea5993064b7b35",
+      "git_blob": "fb505896e709b9cae0c58755393d7043ce1431fa"
+    },
+    {
+      "path": "tests/testsupport/postgres/fixture.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/tests/testsupport/postgres/fixture.go",
+      "sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "git_blob": "88bd505e180becb3978e52dc1aded63d2a9b3810"
+    },
+    {
+      "path": "internal/central/account/authority.go",
+      "snapshot": "/workspace/scratch/project-create-frontier4089/fixed/internal/central/account/authority.go",
+      "sha256": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5",
+      "git_blob": "d353cc3e0d0d4a249ec6290fb50c107a63b40967"
+    }
+  ],
+  "spec": {
+    "path": "/workspace/scratch/project-create-frontier4089/formal-rev1.snapshot.md",
+    "sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae"
+  },
+  "fixed_spec_source_index": {
+    "path": "/workspace/scratch/project-create-frontier4089/inputs01.json",
+    "sha256": "057d9f57e0e7f2786444fcc685c11cda23557587c7bb9dab7bd45f478176367e"
+  }
+}

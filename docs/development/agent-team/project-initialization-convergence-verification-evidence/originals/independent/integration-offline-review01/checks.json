@@ -1,0 +1,198 @@
+{
+  "status": "PASS_FIXED_EVIDENCE_REVIEW",
+  "source_change": "only spacing in one fixture expression",
+  "commands": [
+    {
+      "name": "integration-format-preview01",
+      "exit": 1,
+      "seconds": 0.31758475300011924,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-d",
+        "/workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_fixture_test.go",
+        "/workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_test.go"
+      ]
+    },
+    {
+      "name": "integration-format-preview02",
+      "exit": 0,
+      "seconds": 0.36693246500362875,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-d",
+        "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_fixture_test.go",
+        "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_test.go"
+      ]
+    },
+    {
+      "name": "convergence-full-graph01",
+      "exit": 0,
+      "seconds": 0.8500657570039039,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-race",
+        "-tags=integration",
+        "-deps",
+        "-test",
+        "-json",
+        "./internal/central/postgres/...",
+        "./tests/database/...",
+        "./internal/central/app/...",
+        "./tests/process/...",
+        "./tests/security/...",
+        "./tests/outbox/...",
+        "./internal/central/outbox/...",
+        "./tests/account/...",
+        "./tests/accountmail/...",
+        "./internal/central/accountmail/...",
+        "./internal/central/recoverylog/...",
+        "./tests/project/...",
+        "./internal/central/model/...",
+        "./tests/model/...",
+        "./tests/objects/...",
+        "./internal/central/object/..."
+      ]
+    },
+    {
+      "name": "convergence-dynamic-graph01",
+      "exit": 0,
+      "seconds": 0.5946465100059868,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-json",
+        "./tests/testsupport/objectstore/cmd/fixture",
+        "./tests/testsupport/outbound/cmd/fixture",
+        "./tests/testsupport/postgres/cmd/fixture",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ]
+    },
+    {
+      "name": "convergence-integration-compile01",
+      "exit": 0,
+      "seconds": 5.8575286279956345,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-project-integration.test",
+        "./tests/project"
+      ]
+    },
+    {
+      "name": "convergence-integration-list01",
+      "exit": 0,
+      "seconds": 1.4139145119988825,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-project-integration.test",
+        "-test.list=^(TestProjectInitializationConvergenceFacts|TestProjectInitializationConvergenceTransactionBoundary|TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts|TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock)$"
+      ]
+    },
+    {
+      "name": "convergence-integration-vet01",
+      "exit": 0,
+      "seconds": 0.7900699710007757,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-race",
+        "-tags=integration",
+        "./tests/project"
+      ]
+    },
+    {
+      "name": "convergence-cmd-build01",
+      "exit": 0,
+      "seconds": 4.072497681998357,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam",
+        "./cmd/agenteam"
+      ]
+    },
+    {
+      "name": "convergence-runner-build01",
+      "exit": 0,
+      "seconds": 0.5944664680064307,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "input_dictionary_identical": true,
+      "owned_clear_observations": 2,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam-runner",
+        "./cmd/agenteam-runner"
+      ]
+    }
+  ],
+  "graphs": [
+    {
+      "mode": "full",
+      "packages": 453,
+      "files": 2966,
+      "generated": 20,
+      "extra": 0,
+      "excluded_UI_consumed": false
+    },
+    {
+      "mode": "dynamic",
+      "packages": 385,
+      "files": 2404,
+      "generated": 0,
+      "extra": 0,
+      "excluded_UI_consumed": false
+    }
+  ],
+  "list_exact": [
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock",
+    "TestProjectInitializationConvergenceFacts",
+    "TestProjectInitializationConvergenceTransactionBoundary"
+  ],
+  "actual_new_test_bodies": false,
+  "resources": false,
+  "reviewer_reran_go": false,
+  "repo_installation": false
+}

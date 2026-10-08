@@ -1,0 +1,41 @@
+{
+  "status": "NEEDS_FIX",
+  "scope": "full five-source candidate01 STATIC only",
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate01/manifest.json",
+    "sha256": "a2c3f5fcc8cd5e34b09b67317f8f13e7cfbccdfc8a3f20f3c861ce2b77af97e5"
+  },
+  "reused": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/unit03-static/result.json",
+      "sha256": "89c0174c99c3b23fb6d76fba67835a24d30c5f43bf9f1a115739cb46819e6639"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/result.json",
+      "sha256": "718d5bec5f90f892adcfcb043548c1c2f5c65e6f6d25c4b3ca8bb1cf5c592c8d"
+    }
+  ],
+  "production_blockers": [],
+  "test_harness_blockers": [
+    "IC-PG-01"
+  ],
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/review.md",
+    "sha256": "d60c1b82e337025290676d4e17f0117e141e3168eacd6106a8fe05eb0c99e7f8"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/bound-inputs.json",
+    "sha256": "5c8602f14c8ec3b78f3d8251cfd6314c56c3617c7ccb14fc2cf3fecd65d0b03b"
+  },
+  "findings": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/findings.json",
+    "sha256": "beae916050fc480106776ca17d1d940007f83a1f25f4cce9b54388d26a63420c"
+  },
+  "new_pg_execution": false,
+  "go_execution": false,
+  "resources": false,
+  "repository_installation": false,
+  "active_overlay_read": false,
+  "inputs_unchanged_at_end": true,
+  "stopped_writing": true
+}

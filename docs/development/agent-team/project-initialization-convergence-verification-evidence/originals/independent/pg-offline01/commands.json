@@ -1,0 +1,57 @@
+{
+  "no_test_body": true,
+  "seconds_per_command": 45,
+  "commands": [
+    {
+      "name": "format01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-d",
+        "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/independent_initialization_convergence_test.go"
+      ]
+    },
+    {
+      "name": "graph01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-race",
+        "-tags=integration",
+        "-deps",
+        "-test",
+        "-json",
+        "./tests/project"
+      ]
+    },
+    {
+      "name": "compile01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/bin/independent-convergence.test",
+        "./tests/project"
+      ]
+    },
+    {
+      "name": "list01",
+      "argv": [
+        "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/bin/independent-convergence.test",
+        "-test.list=^(TestIndependentInitializationConvergenceTransactionBoundary|TestIndependentInitializationConvergenceCanonicalFacts)$"
+      ]
+    },
+    {
+      "name": "vet01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-race",
+        "-tags=integration",
+        "./tests/project"
+      ]
+    }
+  ]
+}

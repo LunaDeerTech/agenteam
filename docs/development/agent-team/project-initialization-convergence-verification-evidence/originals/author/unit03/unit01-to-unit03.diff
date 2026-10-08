@@ -1,0 +1,20 @@
+--- unit01/internal/central/project/initialization_convergence_test.go
++++ unit03/internal/central/project/initialization_convergence_test.go
+@@ -35,7 +35,7 @@
+ 
+ func (s *convergenceStore) RequireHeldLocks(ctx context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
+ 	s.order = append(s.order, "held")
+-	if ctx != s.ctx || tx != s.tx || !reflect.DeepEqual(locks, []foundation.LockRequest{projectLock(s.project, foundation.Exclusive)}) {
++	if ctx != s.ctx || tx != s.tx || len(locks) != 1 || locks[0].Key.Validate() != nil || foundation.CompareLockKeys(locks[0].Key, projectLock(s.project, foundation.Exclusive).Key) != 0 || locks[0].Mode != foundation.Exclusive {
+ 		s.t.Fatal("convergence changed context, transaction or required Project EX")
+ 	}
+ 	if s.lockErr != nil {
+@@ -85,7 +85,7 @@
+ 	s.unexpected++
+ 	return pgconn.CommandTag{}, errors.New("convergence attempted a write")
+ }
+-func (s *convergenceStore) Query(context.Context, string, ...any) (postgres.Rows, error) {
++func (s *convergenceStore) Query(context.Context, string, ...any) (*postgres.Rows, error) {
+ 	s.unexpected++
+ 	return nil, errors.New("convergence attempted a bulk read")
+ }

@@ -1,0 +1,225 @@
+{
+  "status": "SCRATCH_ASSEMBLY_NOT_REPO_ARCHIVE_OR_COMPLETE_SIX_PATH_PRODUCT_ACCEPTANCE",
+  "rounds": [
+    {
+      "run": "new1",
+      "resource_ids": [
+        "085499766b27b7ce3b68c3bb2505ca05677eea835ef9dc79677f4c56c2cc2da6",
+        "1b26bf123adb523dc6051247051b6a25dd1f71ebb3e1fb976bc4105cdd4e412a",
+        "323b0ddce5dedd8d4549d1580d4c60fe22d2157a586960870db1a94395f9a4eb",
+        "4c69c6d936588ca430adc37e28ba1f77f06d50c33941ace2dc4f6bdfcad1b378",
+        "5404cfa9ef6863c9054daca122aa591225c4440d7b505f792f97e64eb7fe36bc",
+        "6b0e1bf203f99f514b67c603ebae8ba21003b1cf02e3b24de5acf06e13907809",
+        "eeb5de3ac96e2a1d17042f0bef79809f9c21e274514e7ff5423274f681ade751"
+      ],
+      "new_daemon_identities": [
+        [
+          "1352935",
+          "5256440"
+        ],
+        [
+          "1353377",
+          "5256704"
+        ],
+        [
+          "1353651",
+          "5256904"
+        ],
+        [
+          "1354297",
+          "5257160"
+        ]
+      ],
+      "baseline_count": 449,
+      "final_count": 453,
+      "two_raw_cleanup_tables_empty": true,
+      "actual_direct_wait": true,
+      "inputs_same": true
+    },
+    {
+      "run": "new2",
+      "resource_ids": [
+        "01b2934c95e782ce7e00ebaca26114d4ec8fc9136d6afec71bc5af7f8c44724c",
+        "39daf5978be8ae4990dc1cfd148daddc6a6ef5b69937c08e3d0c849e130350bc",
+        "536b908d16a3b0a442cfb58a417efcdecb08ec45be7c080d9da39d92c11c466f",
+        "5e6863220a9172be661120892cbf2ec5d22071b38ac8d1a170d12f51d4387147",
+        "6ce855ee521f4febe5ad0af540ff385ea94134b822541e2d5ce703f91f2074b5",
+        "7ca6e4f06a4740864efd8753e7eff6be5ac20d4e43eecba69c345670a4c83524",
+        "ae107f244a7e4ea242419974707e0b5f736c788a05fe677150b0d1f075474441"
+      ],
+      "new_daemon_identities": [
+        [
+          "1363005",
+          "5277362"
+        ],
+        [
+          "1363452",
+          "5277745"
+        ],
+        [
+          "1363819",
+          "5277933"
+        ],
+        [
+          "1364301",
+          "5278105"
+        ]
+      ],
+      "baseline_count": 453,
+      "final_count": 457,
+      "two_raw_cleanup_tables_empty": true,
+      "actual_direct_wait": true,
+      "inputs_same": true
+    },
+    {
+      "run": "old1",
+      "resource_ids": [
+        "051c07110c7a5e2dd20f0033ff76d20236d67a6b712f6a3334e4e2cbda028be3",
+        "55ea5384f1c62884b1441948c12e42904c66e2773284bf35d7043ca095d6a1cf",
+        "669c051ef5767a5169034f464f957e8d2200e91c9c5f9149656080705fd086d1",
+        "7c5a2ed9c7744b5c03f3510f1349e28347d3b274beff76840db5690993b22e20",
+        "8c68e4807968bc242e576fc09cddf79d5076fed0c2ca28e61ca4b025638a8ea4",
+        "b038134c715abb4be78729c5bc306f763dc85ddbb2739024fa9cfd7acc58c0dc",
+        "e7f4ac2dce903412d69f9acb24c72c14dd0ab6fcba8d6ca4be51d1e2ef635a93"
+      ],
+      "new_daemon_identities": [
+        [
+          "1370378",
+          "5289160"
+        ],
+        [
+          "1370732",
+          "5289377"
+        ],
+        [
+          "1371097",
+          "5289572"
+        ],
+        [
+          "1371597",
+          "5289760"
+        ]
+      ],
+      "baseline_count": 457,
+      "final_count": 461,
+      "two_raw_cleanup_tables_empty": true,
+      "actual_direct_wait": true,
+      "inputs_same": true
+    },
+    {
+      "run": "old2",
+      "resource_ids": [
+        "7981e61b372ef6c7c7829bb26cce893d41c1865ef86a160f6096e3171e9642f6",
+        "85e272a79f5f1c56068d02754999b8cf0a88181c8fa2844ca7fb2da13ac888d5",
+        "c6e608b1fd1a4ff1c5e241b0b906f76f2937eed545bbfcdc8a4a515cc653adc7",
+        "ccfee17ee11b0b1f7a2ecf971c81665752f6872732911096c342c2a501d7e1cc",
+        "cec27a03b4c4f54cd5f849953d51788fba5503dee21541d7ba78d1596bb24294",
+        "e402db2e081fd05edab078f3d5bd602c6744fb0cc4f6ee658d249a15bcff72f9",
+        "ed8356d42091cf27076a05d14a1f8d2e85a0b67d3d4503a5fd1bb70d03878c40"
+      ],
+      "new_daemon_identities": [
+        [
+          "1378618",
+          "5304104"
+        ],
+        [
+          "1379047",
+          "5304416"
+        ],
+        [
+          "1379419",
+          "5304681"
+        ],
+        [
+          "1379921",
+          "5304858"
+        ]
+      ],
+      "baseline_count": 461,
+      "final_count": 465,
+      "two_raw_cleanup_tables_empty": true,
+      "actual_direct_wait": true,
+      "inputs_same": true
+    },
+    {
+      "run": "independent-a01",
+      "resource_ids": [
+        "2a81a66923497cf45021467c5429473e5b03cb73e84662b56615d7cc05cf834d",
+        "3f4f0f17564af281df47efc073635160905b1f363bdecbeb343f5c86b1e33d89",
+        "5e1ea66434a1b28c4e3d525a9741258c811ae404eae1006c638340c4d890c27b",
+        "6451d2c02753a5832f3ef3d312bc3cdab67e2f66bdf15c27e3105d0c726d4db5",
+        "aa8a24078345ffd2e99781f5a1f94f1b6ffb48583bf7fe58f6e771b35ca028f6",
+        "f18e32bee7364cec2be1566f5e5184778afd251c22db94e9022915a441b03023",
+        "f8cb763eff1d4ef93efec38228f43375ca90d182ef486171aba2ef3eb740a4d4"
+      ],
+      "new_daemon_identities": [
+        [
+          "1386414",
+          "5319374"
+        ],
+        [
+          "1386918",
+          "5319752"
+        ],
+        [
+          "1387224",
+          "5319931"
+        ],
+        [
+          "1387722",
+          "5320108"
+        ]
+      ],
+      "baseline_count": 465,
+      "final_count": 469,
+      "two_raw_cleanup_tables_empty": true,
+      "actual_direct_wait": true,
+      "inputs_same": true
+    },
+    {
+      "run": "independent-b01",
+      "resource_ids": [
+        "00d976b2cc62fed26cbdd1dd9145622754c4a57b6c5a315c72889d8888bcfda3",
+        "15215df3fcf61ded4b3b8efdfe0751f0947e8fffb2220ec4336bf22f57f20314",
+        "41bf609f0ab3be29cbce0c7ba1e3212a7da15fe4fdb08f0ce189a3f37dce47ad",
+        "745ca57235d3636600286a429e29ed84f97be12d40293e1e633b5956e907307e",
+        "a06e0d2ae4402159f54b1e5901b1c73dc431a9cfaf9b95af2945e1e7b31a4f20",
+        "dd326701feeaca1e63872955a305811bc8874dd4a7e5d27cd9b024f952f4e19a",
+        "fb58cb844cfe32893a86d74cb187ec11bc03bf2feb64db09efa96f9e753848f5"
+      ],
+      "new_daemon_identities": [
+        [
+          "1393928",
+          "5332699"
+        ],
+        [
+          "1394468",
+          "5333116"
+        ],
+        [
+          "1394876",
+          "5333375"
+        ],
+        [
+          "1395413",
+          "5333561"
+        ]
+      ],
+      "baseline_count": 469,
+      "final_count": 473,
+      "two_raw_cleanup_tables_empty": true,
+      "actual_direct_wait": true,
+      "inputs_same": true
+    }
+  ],
+  "distinct_resource_ids": 42,
+  "distinct_nonowned_unwaited_daemon_identities": 24,
+  "PID1_baseline": 449,
+  "PID1_final": 473,
+  "between_round_extra_or_missing_identities": false,
+  "derived_omits_only_documented_keys": true,
+  "original_bytes_all_equal": true,
+  "original_inputs_unchanged": true,
+  "repository_written": false,
+  "Git_Go_Node_resources_executed": false
+}

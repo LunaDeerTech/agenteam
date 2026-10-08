@@ -1,0 +1,22 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-transaction",
+    "old-mapping",
+    "old-locks"
+  ],
+  "driver_sha256": "62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e",
+  "candidate_sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b",
+  "closure": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/closure.json",
+    "sha256": "a2e64479ba3217a73d17e4305520a08f3f04191fe3caf51734607d93f11ce9c1"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.py": "62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e",
+    "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/groups.json": "598f379df885a80c3659dd2934f0e1cecc9ec71d80a45712db30901e99e568bf",
+    "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json": "ad4f1fca9a274eb00f8e45a175c89ddac51925990059b071a5b3f6ee794e6498",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": false,
+  "authorization": "Root regranted exclusive serial window new2/new-transaction -> old1/old-mapping -> old2/old-locks. Continue only after previous actual0/topPASS/full owned/resources/TCP tail cleanup and unchanged inputs. Any failure clean up then stop; no retry, installation or other resources."
+}

@@ -1,0 +1,58 @@
+{
+  "status": "PASS_STATIC_INSTALLATION_AND_README",
+  "technical_tests_reused": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/final05/result.json",
+    "sha256": "b05a074bbe57ca0b72c6c35783b32dd4fe988ae2ec2ff5e8607b2e6381d30567"
+  },
+  "installation": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/installation01/result.json",
+    "sha256": "410683759be1395fdac3afc203e2df5eb26a659189145ffbcae713f43a48c22f"
+  },
+  "all_five_bytes_identical": true,
+  "directory_sets": [
+    {
+      "directory": "/workspace/agenteam/internal/central/project",
+      "effective_go_file_count": 39,
+      "existing_hashes_same": true
+    },
+    {
+      "directory": "/workspace/agenteam/internal/central/project/contract",
+      "effective_go_file_count": 13,
+      "existing_hashes_same": true
+    },
+    {
+      "directory": "/workspace/agenteam/tests/project",
+      "effective_go_file_count": 16,
+      "existing_hashes_same": true
+    }
+  ],
+  "README_sha256": "394a856acf52cf0be6eaa89f3fbce9f680f834f1de0bc0ac073f3462a1094696",
+  "README_before_head": "2cf00e06dda12c7c9f4b6eae033d09a387ee7332",
+  "README_change": "only one new heading and three paragraphs inserted; all prior bytes unchanged",
+  "new_links": [
+    {
+      "target": "../work-items/d08-project-initialization-convergence.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-initialization-convergence.md",
+      "exists": true
+    }
+  ],
+  "all_relative_path_targets_exist_count": 62,
+  "unchanged_fragments_reuse_prior_acceptance": true,
+  "UTF8_LF_final_newline_trailing_space_pass": true,
+  "no_test_or_resource_commands": true,
+  "no_repository_or_git_mutation_by_reviewer": true,
+  "references": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/installation01/preflight.json",
+      "sha256": "fd91cf4cc01b125676c477140bd8196a6a479c829f86821ae61f61f0e39caa6f"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/installation01/preflight-first-error.json",
+      "sha256": "01e876429f3db5a0de2cff16739a7a3b96b9561e9ff3a69f9bf6e5d7d0f75e9c"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/installation01/installed.diff",
+      "sha256": "e7880ea235740ee671b4e7d62477890c62319206b766e41b420bf045f7648bf4"
+    }
+  ]
+}

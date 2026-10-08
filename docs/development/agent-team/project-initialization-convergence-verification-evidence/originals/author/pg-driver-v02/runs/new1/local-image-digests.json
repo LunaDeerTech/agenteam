@@ -1,0 +1,24 @@
+{
+  "pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782": {
+    "argv": [
+      "/usr/local/bin/docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{json .RepoDigests}}",
+      "pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782"
+    ],
+    "raw": "[\"pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782\"]\n"
+  },
+  "pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc": {
+    "argv": [
+      "/usr/local/bin/docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{json .RepoDigests}}",
+      "pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc"
+    ],
+    "raw": "[\"pgvector/pgvector@sha256:3e8b3adfd27b5707128f60956f62a793c3c9326ea8cfaf0eab7adccb5d700b21\",\"pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc\"]\n"
+  }
+}

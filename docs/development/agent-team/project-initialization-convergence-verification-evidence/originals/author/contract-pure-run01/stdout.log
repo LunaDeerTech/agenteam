@@ -1,0 +1,89 @@
+=== RUN   TestCreateIdentityTargetAndCanonicalDigestVector
+--- PASS: TestCreateIdentityTargetAndCanonicalDigestVector (0.00s)
+=== RUN   TestPatchPresenceAndDeleteConfirmationDigests
+--- PASS: TestPatchPresenceAndDeleteConfirmationDigests (0.00s)
+=== RUN   TestCommandMetaAndActorRequirements
+--- PASS: TestCommandMetaAndActorRequirements (0.00s)
+=== RUN   TestOwnedListCursorScopeAndDeletingProjection
+--- PASS: TestOwnedListCursorScopeAndDeletingProjection (0.00s)
+=== RUN   TestLookupClosedResultVariants
+--- PASS: TestLookupClosedResultVariants (0.00s)
+=== RUN   TestRetryLifecycleResultPreservesMinimalDeletionReceipt
+--- PASS: TestRetryLifecycleResultPreservesMinimalDeletionReceipt (0.00s)
+=== RUN   TestProjectTypedEventsRoundTripAndSafePayloads
+--- PASS: TestProjectTypedEventsRoundTripAndSafePayloads (0.00s)
+=== RUN   TestProjectEventHeaderAndSchemaBoundary
+--- PASS: TestProjectEventHeaderAndSchemaBoundary (0.00s)
+=== RUN   TestProjectPayloadStrictCodecsAndInvalidVariants
+--- PASS: TestProjectPayloadStrictCodecsAndInvalidVariants (0.00s)
+=== RUN   TestProjectEventConcurrentImmutableUse
+--- PASS: TestProjectEventConcurrentImmutableUse (0.01s)
+=== RUN   TestInitializationClosedSuccessAndFailureVariants
+--- PASS: TestInitializationClosedSuccessAndFailureVariants (0.00s)
+=== RUN   TestPlanIssuerRequestActorAndLockBinding
+--- PASS: TestPlanIssuerRequestActorAndLockBinding (0.00s)
+=== RUN   TestOpaquePlanEncodingAndConcurrentCopies
+--- PASS: TestOpaquePlanEncodingAndConcurrentCopies (0.00s)
+=== RUN   TestOwnerGateMatrixCannotGrantServiceOrAgentAuthority
+--- PASS: TestOwnerGateMatrixCannotGrantServiceOrAgentAuthority (0.00s)
+=== RUN   TestLifecycleEdgesAndRetryPreserveOriginalGate
+--- PASS: TestLifecycleEdgesAndRetryPreserveOriginalGate (0.00s)
+=== RUN   TestRequiredManifestNoSilentMissingDomains
+--- PASS: TestRequiredManifestNoSilentMissingDomains (0.00s)
+=== RUN   TestLifecycleSafeProgressAndScopeVariants
+--- PASS: TestLifecycleSafeProgressAndScopeVariants (0.00s)
+=== RUN   TestReportsBindCauseAndDoNotTruncateOrGrantAuthority
+--- PASS: TestReportsBindCauseAndDoNotTruncateOrGrantAuthority (0.00s)
+=== RUN   TestCompletedDeleteOperationCannotEscapeAsPublicResult
+--- PASS: TestCompletedDeleteOperationCannotEscapeAsPublicResult (0.00s)
+=== RUN   TestProjectRefCanonicalShape
+--- PASS: TestProjectRefCanonicalShape (0.00s)
+=== RUN   TestCreationResultAndReasonVariants
+--- PASS: TestCreationResultAndReasonVariants (0.00s)
+=== RUN   TestDeletionReceiptMinimalSafeProjection
+--- PASS: TestDeletionReceiptMinimalSafeProjection (0.00s)
+=== RUN   TestProjectAccessCopiesAndIsNotJSONAuthority
+--- PASS: TestProjectAccessCopiesAndIsNotJSONAuthority (0.00s)
+=== RUN   TestNameASCIIAndBoundaries
+--- PASS: TestNameASCIIAndBoundaries (0.00s)
+=== RUN   TestDescriptionByteLengthAndControlPreservation
+--- PASS: TestDescriptionByteLengthAndControlPreservation (0.00s)
+=== RUN   TestRouteSingleDecodeAndConfirmation
+--- PASS: TestRouteSingleDecodeAndConfirmation (0.00s)
+=== RUN   TestStrictBodyDecodingRejectsAliasesDuplicatesNullAndUnknown
+--- PASS: TestStrictBodyDecodingRejectsAliasesDuplicatesNullAndUnknown (0.00s)
+=== RUN   TestSafeFaultNeverEchoesUnknownKeys
+--- PASS: TestSafeFaultNeverEchoesUnknownKeys (0.00s)
+=== RUN   TestEveryClosedEnumStrictEncoding
+=== RUN   TestEveryClosedEnumStrictEncoding/lifecycle
+=== RUN   TestEveryClosedEnumStrictEncoding/safe_reason
+=== RUN   TestEveryClosedEnumStrictEncoding/creation_state
+=== RUN   TestEveryClosedEnumStrictEncoding/creation_result
+=== RUN   TestEveryClosedEnumStrictEncoding/command
+=== RUN   TestEveryClosedEnumStrictEncoding/lookup
+=== RUN   TestEveryClosedEnumStrictEncoding/gate
+=== RUN   TestEveryClosedEnumStrictEncoding/action
+=== RUN   TestEveryClosedEnumStrictEncoding/operation_state
+=== RUN   TestEveryClosedEnumStrictEncoding/phase
+=== RUN   TestEveryClosedEnumStrictEncoding/scope
+=== RUN   TestEveryClosedEnumStrictEncoding/stop
+=== RUN   TestEveryClosedEnumStrictEncoding/cleanup
+=== RUN   TestEveryClosedEnumStrictEncoding/initialization
+=== RUN   TestEveryClosedEnumStrictEncoding/changed_field
+--- PASS: TestEveryClosedEnumStrictEncoding (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/lifecycle (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/safe_reason (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/creation_state (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/creation_result (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/command (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/lookup (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/gate (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/action (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/operation_state (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/phase (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/scope (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/stop (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/cleanup (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/initialization (0.00s)
+    --- PASS: TestEveryClosedEnumStrictEncoding/changed_field (0.00s)
+PASS

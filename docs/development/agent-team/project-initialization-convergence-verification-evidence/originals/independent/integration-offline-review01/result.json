@@ -1,0 +1,49 @@
+{
+  "status": "PASS_LIMITED_VERSION_COMBINATION",
+  "scope": "candidate03 formatting delta and author fixed integration offline evidence review",
+  "author_summary": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-offline-summary01.json",
+    "sha256": "c0b204b35fc368068a579025669131a0724f00ef97e7f7f466779bbfece7178e"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate03/manifest.json",
+    "sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/review.md",
+    "sha256": "6d2c7b871c3a79f53c71d4c3375f3720f125299a2d196466eb0eda92060b5262"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/checks.json",
+    "sha256": "8a3a9d8dee6e37feb9b958edae57e74ea4b5df0c549683d72b68c7aef40d4294"
+  },
+  "checker": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/check.py",
+    "sha256": "6a9250ec8e9fcb6b656bfea9ff18da9ffe5588adb3aa19f819daf981ee2f9f2d"
+  },
+  "reused_results": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/candidate02-static/result.json",
+      "sha256": "a1aa498b217ac44f7e005786e9c713190deaf585899e13681758501b7da6702d"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/result.json",
+      "sha256": "718d5bec5f90f892adcfcb043548c1c2f5c65e6f6d25c4b3ca8bb1cf5c592c8d"
+    }
+  ],
+  "actual_author_commands": 9,
+  "preserved_format_nonzero": 1,
+  "author_commands_passed": 8,
+  "direct_wait_count": 9,
+  "adopted_wait_count": 0,
+  "reviewer_reran_go": false,
+  "test_body_executed": false,
+  "resources": false,
+  "repo_installation": false,
+  "private_preparation": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/freeze.json",
+    "sha256": "1381844efc01e7845e4ff382f345019de0b4975f6e92239aa0fba7fb7ad2fefe"
+  },
+  "new_pg_and_independent_dynamic_pending": true,
+  "stopped_writing": true
+}

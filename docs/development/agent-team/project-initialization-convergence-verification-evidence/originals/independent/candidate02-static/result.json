@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "candidate02 minimal STATIC delta plus integration-overlay02 offline proposal readiness",
+  "closed_findings": [
+    "IC-PG-01"
+  ],
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate02/manifest.json",
+    "sha256": "95b8d89d52703d90215019dcb7cedcfd422ba8e5f3287e181b496d70d9acfd53"
+  },
+  "integration_proposal": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay02/freeze.json",
+    "sha256": "65808a912a30f697ae616284f6dfc3720751d150ae4fe093bc517eb5c9a4f40a"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/candidate02-static/review.md",
+    "sha256": "0a80708612db98ea295ac87201d50893451bfd8f34768f5e811e52751047f38c"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/candidate02-static/checks.json",
+    "sha256": "144246bb6082a25196ca8b95774ff38ea7966a04823922d5a0c1478c764293c6"
+  },
+  "reused_full_review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/result.json",
+    "sha256": "11ccf4a1607fd001901ade57e2738673086484875e5b0157bed52234198c75ff"
+  },
+  "go_execution": false,
+  "resources": false,
+  "repository_installation": false,
+  "new_actual_integration_graph_pending": true,
+  "new_pg_dynamic_pending": true,
+  "stopped_writing": true
+}

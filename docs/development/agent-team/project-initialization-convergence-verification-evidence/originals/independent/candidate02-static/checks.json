@@ -1,0 +1,27 @@
+{
+  "status": "PASS_STATIC_AND_READ_ONLY_INPUT_PREFLIGHT",
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate02/manifest.json",
+    "sha256": "95b8d89d52703d90215019dcb7cedcfd422ba8e5f3287e181b496d70d9acfd53"
+  },
+  "freeze": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay02/freeze.json",
+    "sha256": "65808a912a30f697ae616284f6dfc3720751d150ae4fe093bc517eb5c9a4f40a"
+  },
+  "only_changed_source": [
+    "tests/project/initialization_convergence_fixture_test.go"
+  ],
+  "input_files_matched": 2977,
+  "effective_directory_sets_matched": 415,
+  "overlay_entries": 7,
+  "deleted_UI_paths": [
+    "/workspace/agenteam/tests/account/project_owner_web_fixture_test.go",
+    "/workspace/agenteam/tests/account/project_owner_web_test.go"
+  ],
+  "UI_content_read": false,
+  "fixed_project_go_files_without_init_or_TestMain": 14,
+  "go_commands_executed": false,
+  "actual_new_integration_graph_pending": true,
+  "resources": false,
+  "repo_installation": false
+}

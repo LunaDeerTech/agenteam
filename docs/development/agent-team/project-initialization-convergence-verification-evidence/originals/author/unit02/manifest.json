@@ -1,0 +1,49 @@
+{
+  "status": "scratch-only unit02; static controlled LockKey comparison correction; no Go execution",
+  "baseline": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "spec_commit": "b01b08d440ca253124efe4e725dea093fa1a958e",
+  "spec_sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae",
+  "files": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit02/src/internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "bytes": 1201,
+      "lines": 24
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit02/src/internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "bytes": 4667,
+      "lines": 109
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit02/src/internal/central/project/initialization_convergence_test.go",
+      "sha256": "8087c146da9c9088b1745103714b8c756ce0ef4f3af051f6b9d93c8df3b82753",
+      "bytes": 18097,
+      "lines": 430
+    }
+  ],
+  "dependencies": {
+    "fixed_source_manifest": "/workspace/scratch/project-create-frontier4089/inputs01.json",
+    "sha256": "057d9f57e0e7f2786444fcc685c11cda23557587c7bb9dab7bd45f478176367e"
+  },
+  "go_run": false,
+  "resources": false,
+  "repo_installation": false,
+  "remaining": [
+    "tests/project/initialization_convergence_fixture_test.go",
+    "tests/project/initialization_convergence_test.go"
+  ],
+  "parent": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/unit01/manifest.json",
+    "sha256": "58a72862cf2f0dcec744de757b9bb6b148d0df64f1dd4a76ace7b8839cb173cb"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/unit02/unit01-to-unit02.diff",
+    "sha256": "535403198cb786ddc1ceeea7dd61223bd243b2749690a8dc79b5b6f5c667f88b",
+    "kind": "STATIC test-only finding; no dynamic failure"
+  }
+}

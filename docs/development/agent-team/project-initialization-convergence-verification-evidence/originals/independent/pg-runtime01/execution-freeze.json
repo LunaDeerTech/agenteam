@@ -1,0 +1,22 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "independent-a",
+    "independent-b"
+  ],
+  "driver_sha256": "222c1a5bb170f1b660f28f8227558086d45901e493ccb12104b31e50a50e8c66",
+  "candidate_sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b",
+  "closure": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/closure.json",
+    "sha256": "803d42b3cdf1d87c62702953f1f1f91b5d8f3a1a38a9e47dbb490b9402163193"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/driver.py": "222c1a5bb170f1b660f28f8227558086d45901e493ccb12104b31e50a50e8c66",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/groups.json": "57684104efa11a65d7ed34de0e2c79d668ca9b440d72c9c6dbbf68f04bd17c9f",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json": "a6058dfbde3879298ad0e28a1d940a9139716ddfd813d1d6f0f66fcf92814997",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": false,
+  "independent_test_bodies_executed": false,
+  "authorization": "Root explicitly authorizes independent-a01/independent-a then independent-b01/independent-b, only after A actual PASS/full wait/7 resource owned-runtime double clear/inputs same/TCP supplement complete; fresh baseline/localdigests/no pull/5GiB, full20 fixture, 120s top incl Cleanup/6m package, failure cleanup then stop with no automatic retry. No repository installation or extra resource scope. Source-only gate already actual PASS."
+}

@@ -1,0 +1,20 @@
+--- /workspace/scratch/project-initialization-convergence-author/integration-overlay03/driver.py
++++ /workspace/scratch/project-initialization-convergence-verification/pg-offline01/driver.py
+@@ -11,7 +11,7 @@
+ import time
+ 
+ ROOT = Path('/workspace/agenteam')
+-BASE = Path('/workspace/scratch/project-initialization-convergence-author')
++BASE = Path('/workspace/scratch/project-initialization-convergence-verification/pg-offline01')
+ INPUT = Path(sys.argv.pop(1))
+ INITIAL = json.loads(INPUT.read_text())
+ FILES = list(INITIAL['files'])
+@@ -76,7 +76,7 @@
+     'PATH': '/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin',
+     'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+     'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': '/workspace/go/pkg/mod',
+-    'GOCACHE': '/workspace/.cache/go-build', 'GOFLAGS': '-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json',
++    'GOCACHE': '/workspace/.cache/go-build', 'GOFLAGS': '-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json',
+     'TMPDIR': str(BASE / 'tmp'), 'CGO_ENABLED': '1', 'GOMAXPROCS': '2',
+     'AGENTEAM_PROJECT_AUDIT_NATIVE': '0',
+     'AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON': '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3',

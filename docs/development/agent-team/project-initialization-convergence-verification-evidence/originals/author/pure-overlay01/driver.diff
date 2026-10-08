@@ -1,0 +1,20 @@
+--- accepted-audit/offline-driver.py
++++ convergence/pure-overlay01/driver.py
+@@ -11,7 +11,7 @@
+ import time
+ 
+ ROOT = Path('/workspace/agenteam')
+-BASE = Path('/workspace/scratch/project-owner-audit-http-author')
++BASE = Path('/workspace/scratch/project-initialization-convergence-author')
+ INPUT = Path(sys.argv.pop(1))
+ INITIAL = json.loads(INPUT.read_text())
+ FILES = list(INITIAL['files'])
+@@ -67,7 +67,7 @@
+     'PATH': '/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin',
+     'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+     'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': '/workspace/go/pkg/mod',
+-    'GOCACHE': '/workspace/.cache/go-build', 'GOFLAGS': '-mod=readonly -p=1',
++    'GOCACHE': '/workspace/.cache/go-build', 'GOFLAGS': '-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay01/overlay.json',
+     'TMPDIR': str(BASE / 'tmp'), 'CGO_ENABLED': '1', 'GOMAXPROCS': '2',
+     'AGENTEAM_PROJECT_AUDIT_NATIVE': '0',
+     'AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON': '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3',

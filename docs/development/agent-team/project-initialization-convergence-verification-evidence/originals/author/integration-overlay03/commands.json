@@ -1,0 +1,115 @@
+{
+  "status": "proposal; not executed or authorized yet",
+  "seconds_per_command": 45,
+  "commands": [
+    {
+      "name": "integration-format-preview02",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-d",
+        "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_fixture_test.go",
+        "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_test.go"
+      ],
+      "stage": "read-only format preview; any delta becomes new immutable candidate before graphs"
+    },
+    {
+      "name": "convergence-full-graph01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-race",
+        "-tags=integration",
+        "-deps",
+        "-test",
+        "-json",
+        "./internal/central/postgres/...",
+        "./tests/database/...",
+        "./internal/central/app/...",
+        "./tests/process/...",
+        "./tests/security/...",
+        "./tests/outbox/...",
+        "./internal/central/outbox/...",
+        "./tests/account/...",
+        "./tests/accountmail/...",
+        "./internal/central/accountmail/...",
+        "./internal/central/recoverylog/...",
+        "./tests/project/...",
+        "./internal/central/model/...",
+        "./tests/model/...",
+        "./tests/objects/...",
+        "./internal/central/object/..."
+      ],
+      "stage": "actual race integration full20 graph only, includes generated mains; no TestMain executed"
+    },
+    {
+      "name": "convergence-dynamic-graph01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "list",
+        "-deps",
+        "-json",
+        "./tests/testsupport/objectstore/cmd/fixture",
+        "./tests/testsupport/outbound/cmd/fixture",
+        "./tests/testsupport/postgres/cmd/fixture",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ],
+      "stage": "actual ordinary fixture commands and two cmd graph only"
+    },
+    {
+      "name": "convergence-integration-compile01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-tags=integration",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-project-integration.test",
+        "./tests/project"
+      ],
+      "stage": "only after actual graph extra0 and generated closure fixed"
+    },
+    {
+      "name": "convergence-integration-list01",
+      "argv": [
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-project-integration.test",
+        "-test.list=^(TestProjectInitializationConvergenceFacts|TestProjectInitializationConvergenceTransactionBoundary|TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts|TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock)$"
+      ],
+      "stage": "list exact 2new+2old only; inspect generated main no TestMain before execution"
+    },
+    {
+      "name": "convergence-integration-vet01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-race",
+        "-tags=integration",
+        "./tests/project"
+      ],
+      "stage": "no test execution"
+    },
+    {
+      "name": "convergence-cmd-build01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam",
+        "./cmd/agenteam"
+      ],
+      "stage": "build only"
+    },
+    {
+      "name": "convergence-runner-build01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam-runner",
+        "./cmd/agenteam-runner"
+      ],
+      "stage": "build only"
+    }
+  ]
+}

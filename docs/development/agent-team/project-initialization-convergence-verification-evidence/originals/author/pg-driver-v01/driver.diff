@@ -1,0 +1,142 @@
+--- /workspace/scratch/project-owner-audit-http-author/pg-driver-v01/driver.py
++++ /workspace/scratch/project-initialization-convergence-author/pg-driver-v01/driver.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Frozen D04 Project Owner Audit HTTP fixture runner. --execute-authorized requires root's resource window."""
++"""Frozen D08 Project initialization convergence fixture runner. --execute-authorized requires root's resource window."""
+ import argparse
+ import ctypes
+ import datetime
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3'
+-GROUPS = {'new-projection': ['TestModelProjectAuditHTTPProjectionAndPaging'], 'new-authority': ['TestModelProjectAuditHTTPAuthorityAndTerminal'], 'new-root': ['TestModelProjectAuditHTTPDefaultRoot'], 'new-shutdown': ['TestModelProjectAuditHTTPShutdown'], 'old-account': ['TestSystemAuditHTTPQueryAndProjection', 'TestSystemAuditHTTPTransactionAndBudget'], 'old-app': ['TestSystemAuditHTTPRootProducerBinding'], 'old-security': ['TestAuditPaginationBindingsFiltersAndRevocation'], 'old-model': ['TestModelProjectCredentialHTTPDefaultRoot', 'TestModelProjectOwnerUpdateHTTPRootBinding', 'TestModelProjectUsageHTTPRootBinding', 'TestModelProjectConfigurationWriteHTTPDefaultRoot']}
++GROUPS = {'new-facts': ['TestProjectInitializationConvergenceFacts'], 'new-transaction': ['TestProjectInitializationConvergenceTransactionBoundary'], 'old-mapping': ['TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts'], 'old-locks': ['TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -70,7 +70,14 @@
+     set_changes = []
+     for directory, row in closure['package_file_sets'].items():
+         names = sorted(p.name for p in Path(directory).iterdir() if p.is_file() and (p.suffix in GO_INPUT_SUFFIXES or row['embed_directory']))
+-        if names != row['names']:
++        effective = set(names)
++        for original, replacement in closure.get('overlay_replace', {}).items():
++            if str(Path(original).parent) == directory:
++                if replacement:
++                    effective.add(Path(original).name)
++                else:
++                    effective.discard(Path(original).name)
++        if sorted(effective) != row['names']:
+             set_changes.append(directory)
+     minio_ok = actual.get(MINIO) == 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
+     docker_ok = actual.get(DOCKER) == DOCKER_SHA256 and shutil.which('docker', path=runtime_environment(ROOT / 'auxiliary-tmp')['PATH']) == DOCKER
+@@ -87,7 +94,7 @@
+             'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+-            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v',
++            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json',
+             'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO}
+ 
+ 
+@@ -308,6 +315,47 @@
+         kinds[row['kind']] = kinds.get(row['kind'], 0) + 1
+     return found == expected
+ 
++
++
++def tcp_snapshot():
++    rows = []
++    for table in ('tcp', 'tcp6'):
++        for line in Path('/proc/net/' + table).read_text().splitlines()[1:]:
++            fields = line.split()
++            if len(fields) < 10:
++                raise RuntimeError('incomplete host TCP table row')
++            rows.append({'table': table, 'local': fields[1], 'remote': fields[2],
++                         'state': fields[3], 'inode': fields[9]})
++    return rows
++
++
++def tcp_identity(row):
++    return (row['table'], row['local'], row['remote'], row['inode'])
++
++
++def tcp_delta(current, baseline):
++    return [row for row in current if tcp_identity(row) not in baseline]
++
++
++def retire_tcp_observation(run, baseline):
++    # This conservative host delta is supplementary, not proof of every short
++    # connection or ownership of a tuple. It never authorizes terminating a PID.
++    started, quiet, scans = time.monotonic(), 0, []
++    while True:
++        rows = tcp_delta(tcp_snapshot(), baseline)
++        scans.append({'time': utc(), 'new_host_rows': rows,
++                      'active_rows': [row for row in rows if row['state'] != '06'],
++                      'time_wait_rows': [row for row in rows if row['state'] == '06']})
++        quiet = quiet + 1 if not rows else 0
++        if quiet >= 2 or time.monotonic() - started >= 75:
++            break
++        time.sleep(0.2 if quiet else 1)
++    result = {'role': 'supplementary host polling; not complete short-connection trace or ownership proof',
++              'cleanup_budget_seconds': 75, 'seconds': time.monotonic() - started,
++              'double_delta_clear': quiet >= 2, 'scans': scans,
++              'signals_sent_for_tcp': False}
++    write(run / 'tcp-tail-observation.json', result)
++    return result
+ 
+ 
+ def main():
+@@ -369,6 +417,12 @@
+     write(run / 'process-baseline.json', baseline_processes)
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
++    tcp_baselines = [{'time': utc(), 'rows': tcp_snapshot()}]
++    time.sleep(0.2)
++    tcp_baselines.append({'time': utc(), 'rows': tcp_snapshot()})
++    write(run / 'tcp-baseline.json', tcp_baselines)
++    tcp_baseline = {tcp_identity(row) for sample in tcp_baselines for row in sample['rows']}
++    tcp_observed = {}
+     env = runtime_environment(runtime)
+     evidence = run / 'safe-http-evidence'
+     evidence.mkdir(mode=0o700)
+@@ -426,6 +480,12 @@
+         next_resources = 0.0
+         while True:
+             observe_processes(processes(), process.pid, observed_processes)
++            try:
++                for row in tcp_delta(tcp_snapshot(), tcp_baseline):
++                    tcp_observed[tcp_identity(row)] = row
++            except Exception as exc:
++                errors.append({'time': utc(), 'tcp_observation_error': type(exc).__name__})
++                request_stop(signal.SIGTERM, None)
+             if time.monotonic() >= next_resources:
+                 try:
+                     observed_resources.update({key: value for key, value in resources().items() if key not in baseline})
+@@ -465,6 +525,8 @@
+     write(run / 'cleanup.json', cleanups)
+     write(run / 'observed-processes.json', observed_processes)
+     write(run / 'adopted-waits.json', adopted_waits)
++    write(run / 'tcp-observed-delta.json', {'role': 'host polling; no ownership inference; may miss short connections', 'rows': list(tcp_observed.values())})
++    tcp_tail = retire_tcp_observation(run, tcp_baseline)
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+@@ -482,10 +544,13 @@
+                'node_processes': sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values()),
+                'historical_zombies_untouched': [{'pid': pid, **row} for pid, row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z'],
+                'new_pid1_zombies_not_owned_or_joined': [row for row in cleanups[-1]['pid1_zombies'] if row['pid'] not in baseline_processes or baseline_processes[row['pid']]['starttime'] != row['starttime']],
+-               'safe_http_evidence': str(evidence)}
++               'safe_http_evidence': str(evidence),
++               'host_tcp_delta_double_clear': tcp_tail['double_delta_clear'],
++               'host_tcp_tail_seconds': tcp_tail['seconds'],
++               'host_tcp_scope': tcp_tail['role']}
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+-    return 0 if exit_code == 0 and clean and len(observed_resources) == 7 and not errors and not cancellations and not tail_actions and summary['source_files_unchanged'] and summary['verification_inputs_unchanged'] and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] and summary['top_watchdog_complete'] and summary['watchdog_thread_joined'] else 1
++    return 0 if exit_code == 0 and clean and len(observed_resources) == 7 and not errors and not cancellations and not tail_actions and summary['source_files_unchanged'] and summary['verification_inputs_unchanged'] and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] and summary['top_watchdog_complete'] and summary['watchdog_thread_joined'] and summary['host_tcp_delta_double_clear'] else 1
+ 
+ 
+ if __name__ == '__main__':

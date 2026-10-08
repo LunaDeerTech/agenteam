@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "scope": "unit04 three-source STATIC and author pure evidence accepted; independent evidence review only",
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/unit04/manifest.json",
+    "sha256": "01d5d003a911a2959c574633776535ffb85921f58f952a865884ec151e2aab92"
+  },
+  "author_summary": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/offline-summary01.json",
+    "sha256": "889f0f8f9fa28e84b93732925863ce7248ddc4677207a828ac402603d59a798f"
+  },
+  "checks": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/checks.json",
+    "sha256": "56413a8f418fa0b1aab690622be30be9143eb80b5907ac3700640218904161a6"
+  },
+  "checker": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/check.py",
+    "sha256": "0646099cb29da652d71eacd7d3aacb59fcf3c104b9685222550c436b54f2bbf1"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/review.md",
+    "sha256": "e250418775ddcb11a4dd652cdf3cfaa0d9a1cb44482a32b25b831324dc27e4cc"
+  },
+  "reused_static": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/unit03-static/result.json",
+    "sha256": "89c0174c99c3b23fb6d76fba67835a24d30c5f43bf9f1a115739cb46819e6639"
+  },
+  "actual_runs_reviewed": 15,
+  "retained_nonzero_format_runs": 1,
+  "accepted_final_ordinary_race": {
+    "project": [
+      54,
+      181
+    ],
+    "new_project": [
+      2,
+      70
+    ],
+    "contract": [
+      29,
+      15
+    ]
+  },
+  "new_tests_executed_by_verifier": false,
+  "go_or_resources_run_by_verifier": false,
+  "full_five_source_or_pg_acceptance": false,
+  "repository_writes": false,
+  "git_commands": false,
+  "write_status": "stopped"
+}

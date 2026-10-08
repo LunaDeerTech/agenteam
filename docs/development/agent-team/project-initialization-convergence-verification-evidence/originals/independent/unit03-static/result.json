@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "scope": "three frozen scratch sources STATIC only; unit01 full review plus unit02/03 deltas",
+  "author_manifest": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/unit03/manifest.json",
+    "sha256": "0f3a2de30f724f2f5a10a06726e7449266f1c2b2bc3552099fff7e9857149302"
+  },
+  "files": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "bytes": 1201,
+      "lines": 24
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "bytes": 4667,
+      "lines": 109
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go",
+      "sha256": "a6ef13c98948d813206cde0966ebf6ed1a099498f9b7af05662f0e6fcb8c7719",
+      "bytes": 18098,
+      "lines": 430
+    }
+  ],
+  "closed_findings": [
+    "IC-UNIT-01",
+    "IC-UNIT-02"
+  ],
+  "remaining_required_fixes": [],
+  "original_review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/unit01-static/result.json",
+    "sha256": "f86810f63aa943b2bad251defa8be9cde911d9a51ad17815034232ae7ba21196"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/unit03-static/review.md",
+    "sha256": "84548aac736386592d346de210f1e2c9c0b9cc5145e30f9fe897bfa636ac8695"
+  },
+  "production_sources_unchanged_from_unit01": true,
+  "gofmt_or_go_run": false,
+  "resource_run": false,
+  "repo_installed": false,
+  "active_integration_read": false,
+  "git_commands": false,
+  "write_status": "stopped"
+}

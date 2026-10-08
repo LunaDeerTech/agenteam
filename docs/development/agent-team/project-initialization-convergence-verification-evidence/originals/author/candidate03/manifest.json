@@ -1,0 +1,76 @@
+{
+  "status": "scratch-only candidate03; actual formatter single spacing delta, no semantic change from candidate02",
+  "baseline": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "spec_commit": "b01b08d440ca253124efe4e725dea093fa1a958e",
+  "spec_sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae",
+  "files": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "bytes": 1201,
+      "lines": 24
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "bytes": 4667,
+      "lines": 109
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence_test.go",
+      "sha256": "71156cb226db8e9c5ff648ff31ccfa949f38329032427357498279280383b2db",
+      "bytes": 18096,
+      "lines": 441
+    },
+    {
+      "path": "tests/project/initialization_convergence_fixture_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_fixture_test.go",
+      "sha256": "b3dd6815c8d3e08e53f6c2a1c8662898c4451efd4676126e6defe945e44dfd90",
+      "bytes": 9586,
+      "lines": 225
+    },
+    {
+      "path": "tests/project/initialization_convergence_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_test.go",
+      "sha256": "990de5f8e5bd9e6e4aeef70ad72634023cb2ffc4f5f27a10b839a6798c51ba9b",
+      "bytes": 13605,
+      "lines": 355
+    }
+  ],
+  "parent": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate02/manifest.json",
+    "sha256": "95b8d89d52703d90215019dcb7cedcfd422ba8e5f3287e181b496d70d9acfd53"
+  },
+  "pure_evidence": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/offline-summary01.json",
+    "sha256": "889f0f8f9fa28e84b93732925863ce7248ddc4677207a828ac402603d59a798f"
+  },
+  "repo_installation": false,
+  "resources": false,
+  "new_pg_tops": [
+    "TestProjectInitializationConvergenceFacts",
+    "TestProjectInitializationConvergenceTransactionBoundary"
+  ],
+  "old_regressions": [
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock"
+  ],
+  "limitations": [
+    "Test-owned canonical Project/Creation SQL accepted by real schema before gate; no real Skills initialization",
+    "Real Account authority is a dependency; no Human/Account E2E claimed",
+    "Prior old regressions use accepted SQL identity/persistent Skills test adapter, not production Skills",
+    "No Object Runtime/Skills/root/HTTP change; all three stops retained"
+  ],
+  "delta": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate03/candidate02-to-candidate03.diff",
+    "sha256": "a8c6c62c31877e696d94b04961ab808b6c5731dd8cd949bb75a34bfc78badfd8"
+  },
+  "finding": "IC-PG-01 STATIC-only; keep original errors and actually wait Store terminal after bounded Force",
+  "format_original": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/result.json",
+    "sha256": "3927d78d78fccb1579c7eef3c2f0ee07dc56511048577f39b5809b83aec2b651"
+  }
+}

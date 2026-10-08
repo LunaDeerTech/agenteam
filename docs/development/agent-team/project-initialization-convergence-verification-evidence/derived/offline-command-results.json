@@ -1,0 +1,3088 @@
+{
+  "kind": "DERIVED_JSON_FIELD_EXCERPTS_NOT_ORIGINAL_FILES",
+  "rule": "Original whole-file SHA/path retained; only repeated inputs_before/inputs_after dictionaries omitted. All other values unchanged. No raw originals overwritten.",
+  "entries": [
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview01/command.json",
+      "whole_original_sha256": "53a66d2f4ef71d9382481cd0b1b6c9355d58b85318edc5b4a78429456052e584",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/contract/initialization_convergence.go",
+          "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence.go",
+          "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay01/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1311074,
+        "driver_sha256": "d3d16aa9fb987e598b68fd376fbb994a691f6c3d4f05cdb7d9e1dd336ba504e7",
+        "frozen_manifest_sha256": "93c92ca39b1175ed681fb9fb4519fd9473cae401f35cab0cb0fb89b1a3bd2f5a",
+        "started_utc": "2026-10-08T01:55:23Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2106,
+          "canonical_json_value_sha256": "f469850d4ac6fb14c35a7d73a13e53e4b57a6764bc140ea4558a63dd73ba1b32"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview01/result.json",
+      "whole_original_sha256": "145ee34375956f7b1f4cc81cb5a2f249af0e1e6a15a49c69c29010dbc92c2489",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 1,
+        "timed_out": false,
+        "elapsed_seconds": 0.27634899700206006,
+        "direct_child_pid": 1311077,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1311077,
+            "ppid": 1311074,
+            "pgid": 1311077,
+            "state": "Z",
+            "starttime": "5047515"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 1,
+        "stdout.log_sha256": "039c5a87d71c32fcac23a1ab9f49aebc40d3f7391d7f3c698be5a34ebee2ed13",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2106,
+          "canonical_json_value_sha256": "f469850d4ac6fb14c35a7d73a13e53e4b57a6764bc140ea4558a63dd73ba1b32"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview02/command.json",
+      "whole_original_sha256": "9f1e2c1e67f99cefb28cfd015a15cd0fef055aa4a7d3bd6b0678af080133106c",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-initialization-convergence-author/unit04/src/internal/central/project/contract/initialization_convergence.go",
+          "/workspace/scratch/project-initialization-convergence-author/unit04/src/internal/central/project/initialization_convergence.go",
+          "/workspace/scratch/project-initialization-convergence-author/unit04/src/internal/central/project/initialization_convergence_test.go"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1311627,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "9ae6a83b182d5caca6883a1877822f81e714a931a193fcaf0d76b96549b90647",
+        "started_utc": "2026-10-08T01:56:14Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2106,
+          "canonical_json_value_sha256": "0deca235b8db76d86768bd3406fde5a491ce883c234a24009f4d1c60e3dfb074"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview02/result.json",
+      "whole_original_sha256": "2c6f1a26c9d3e5c16ac73a7c84689d0d3c09e5c0a99e6003cc576c5d1dce5124",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.2836819559961441,
+        "direct_child_pid": 1311630,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1311630,
+            "ppid": 1311627,
+            "pgid": 1311630,
+            "state": "Z",
+            "starttime": "5052692"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2106,
+          "canonical_json_value_sha256": "0deca235b8db76d86768bd3406fde5a491ce883c234a24009f4d1c60e3dfb074"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/command.json",
+      "whole_original_sha256": "b0c534d5249378cbc071abb6808de2952375f4180fba41c6e605e32318007954",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/project",
+          "./internal/central/project/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1311728,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "9ae6a83b182d5caca6883a1877822f81e714a931a193fcaf0d76b96549b90647",
+        "started_utc": "2026-10-08T01:56:18Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2106,
+          "canonical_json_value_sha256": "0deca235b8db76d86768bd3406fde5a491ce883c234a24009f4d1c60e3dfb074"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/result.json",
+      "whole_original_sha256": "f6bd583ccf924d1709bb2f1675f9175278d57b81e757fa89c8c92d221c8754b2",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4663999819968012,
+        "direct_child_pid": 1311731,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1311731,
+            "ppid": 1311728,
+            "pgid": 1311731,
+            "state": "Z",
+            "starttime": "5053066"
+          },
+          {
+            "pid": 1311736,
+            "ppid": 1311731,
+            "pgid": 1311731,
+            "state": "R",
+            "starttime": "5053070"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "f99260616ff2da46a51b6230eb3bf6489cf4c7e507b5c4bf4b8fdd26c5453656",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2106,
+          "canonical_json_value_sha256": "0deca235b8db76d86768bd3406fde5a491ce883c234a24009f4d1c60e3dfb074"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race01/command.json",
+      "whole_original_sha256": "149010868bf54cfb0e73b99db1cd118889e059977d99143b69eeffaca6935166",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/project",
+          "./internal/central/project/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1311823,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "9ae6a83b182d5caca6883a1877822f81e714a931a193fcaf0d76b96549b90647",
+        "started_utc": "2026-10-08T01:56:22Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2106,
+          "canonical_json_value_sha256": "0deca235b8db76d86768bd3406fde5a491ce883c234a24009f4d1c60e3dfb074"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race01/result.json",
+      "whole_original_sha256": "e8401bd4523e877deb6cd412513dfff8aed1695afe7b140d4ac1f7884be46d8c",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5297554360004142,
+        "direct_child_pid": 1311826,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1311826,
+            "ppid": 1311823,
+            "pgid": 1311826,
+            "state": "Z",
+            "starttime": "5053473"
+          },
+          {
+            "pid": 1311831,
+            "ppid": 1311826,
+            "pgid": 1311826,
+            "state": "R",
+            "starttime": "5053478"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "d1e37680352b8f51d1ae5f89d54831afba95d783716d7486b0495ef56380237b",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2106,
+          "canonical_json_value_sha256": "0deca235b8db76d86768bd3406fde5a491ce883c234a24009f4d1c60e3dfb074"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/command.json",
+      "whole_original_sha256": "adef849b889abc1b03350083ba7ecf9f73c46fc179a83f7a2a8e53b03f94f8b5",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/project",
+          "./internal/central/project/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1312770,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "1aca93db59b00aed8ac29af72cd4ef42a4e4263ade2672ebf8938e8f22d7f282",
+        "started_utc": "2026-10-08T01:57:44Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2140,
+          "canonical_json_value_sha256": "0c75d49a5ffc20729f10f254e80381f1610f7b3173a15931fd0c32ab1ae8aff3"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/result.json",
+      "whole_original_sha256": "2b2446efc95c11bc0020d75456fbf89c0d26d9280aeb3c0c8c45dbfa8fefc886",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.48786511300568236,
+        "direct_child_pid": 1312773,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1312773,
+            "ppid": 1312770,
+            "pgid": 1312773,
+            "state": "Z",
+            "starttime": "5061608"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "f99260616ff2da46a51b6230eb3bf6489cf4c7e507b5c4bf4b8fdd26c5453656",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2140,
+          "canonical_json_value_sha256": "0c75d49a5ffc20729f10f254e80381f1610f7b3173a15931fd0c32ab1ae8aff3"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race02/command.json",
+      "whole_original_sha256": "bdb38affb035eac09556ea7a9c31593a297e2399b9d3e34faa52d9a50eb9b95d",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/project",
+          "./internal/central/project/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1312859,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "1aca93db59b00aed8ac29af72cd4ef42a4e4263ade2672ebf8938e8f22d7f282",
+        "started_utc": "2026-10-08T01:57:48Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2140,
+          "canonical_json_value_sha256": "0c75d49a5ffc20729f10f254e80381f1610f7b3173a15931fd0c32ab1ae8aff3"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race02/result.json",
+      "whole_original_sha256": "64271dc4aa0ecd14dadf1d1a3a6ade79c7cbf69cfd43cc46885b7e4a8f7449e7",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4547959470000933,
+        "direct_child_pid": 1312862,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1312862,
+            "ppid": 1312859,
+            "pgid": 1312862,
+            "state": "Z",
+            "starttime": "5062030"
+          },
+          {
+            "pid": 1312868,
+            "ppid": 1312862,
+            "pgid": 1312862,
+            "state": "R",
+            "starttime": "5062035"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "d1e37680352b8f51d1ae5f89d54831afba95d783716d7486b0495ef56380237b",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2140,
+          "canonical_json_value_sha256": "0c75d49a5ffc20729f10f254e80381f1610f7b3173a15931fd0c32ab1ae8aff3"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-compile01/command.json",
+      "whole_original_sha256": "e177738dade5ff63ce1c2bc4d569717e6a6c54aaef3c330ff9e995e2876d398c",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-author/bin/project-pure.test",
+          "./internal/central/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1312989,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "30ed096d083c02127e077a91dcf2ff49fc85919efa5906dd72296066cabb616d",
+        "started_utc": "2026-10-08T01:57:55Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-compile01/result.json",
+      "whole_original_sha256": "9eb4a5640ab8ff4079f37188d3e56f6d4dd006373290ecdba25e973ccebdb85a",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.623462437004491,
+        "direct_child_pid": 1312994,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1312994,
+            "ppid": 1312989,
+            "pgid": 1312994,
+            "state": "Z",
+            "starttime": "5062771"
+          },
+          {
+            "pid": 1313013,
+            "ppid": 1312994,
+            "pgid": 1312994,
+            "state": "R",
+            "starttime": "5062785"
+          },
+          {
+            "pid": 1313017,
+            "ppid": 1312994,
+            "pgid": 1312994,
+            "state": "S",
+            "starttime": "5062863"
+          },
+          {
+            "pid": 1313050,
+            "ppid": 1312994,
+            "pgid": 1312994,
+            "state": "R",
+            "starttime": "5063031"
+          },
+          {
+            "pid": 1313059,
+            "ppid": 1312994,
+            "pgid": 1312994,
+            "state": "R",
+            "starttime": "5063089"
+          },
+          {
+            "pid": 1313063,
+            "ppid": 1312994,
+            "pgid": 1312994,
+            "state": "R",
+            "starttime": "5063094"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-run01/command.json",
+      "whole_original_sha256": "6921d413a333c1b7824be2f69c3c1f80dbc48e67baec20a92fb9971c0cf9298d",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-initialization-convergence-author/bin/project-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=40s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1313265,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "9a15d8fee248ef05cdc500453c37f8a87e0862af52685f49fab4a8f683da0503",
+        "started_utc": "2026-10-08T01:58:17Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2144,
+          "canonical_json_value_sha256": "d32075445fec430bd411947b5031add548a56f95d2ec404c75ebd910f3d58b6c"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-run01/result.json",
+      "whole_original_sha256": "8bc4bf9990cb49f13d046fba14d65f1dc583602b8b0ee79e6f9d264df6936730",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.3434755109992693,
+        "direct_child_pid": 1313268,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1313268,
+            "ppid": 1313265,
+            "pgid": 1313268,
+            "state": "Z",
+            "starttime": "5064991"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "8550876a31ed71f31c30079e2262f575b3c00392d8ad2fd5320beac6e0b6d56e",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2144,
+          "canonical_json_value_sha256": "d32075445fec430bd411947b5031add548a56f95d2ec404c75ebd910f3d58b6c"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-compile01/command.json",
+      "whole_original_sha256": "a759281500b6d5925e18df830eb77ee18d9264945e62c00ba87c23e3cd074a53",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-author/bin/project-race.test",
+          "./internal/central/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1313349,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "30ed096d083c02127e077a91dcf2ff49fc85919efa5906dd72296066cabb616d",
+        "started_utc": "2026-10-08T01:58:24Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-compile01/result.json",
+      "whole_original_sha256": "60b29626719c29b051fc13fd020857bc6cf228ca7f76ba20e0282f4d4561b351",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 4.9670070850042976,
+        "direct_child_pid": 1313374,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1313374,
+            "ppid": 1313349,
+            "pgid": 1313374,
+            "state": "Z",
+            "starttime": "5065668"
+          },
+          {
+            "pid": 1313393,
+            "ppid": 1313374,
+            "pgid": 1313374,
+            "state": "S",
+            "starttime": "5065681"
+          },
+          {
+            "pid": 1313397,
+            "ppid": 1313374,
+            "pgid": 1313374,
+            "state": "S",
+            "starttime": "5065805"
+          },
+          {
+            "pid": 1313430,
+            "ppid": 1313374,
+            "pgid": 1313374,
+            "state": "Z",
+            "starttime": "5066056"
+          },
+          {
+            "pid": 1313465,
+            "ppid": 1313374,
+            "pgid": 1313374,
+            "state": "R",
+            "starttime": "5066127"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-run01/command.json",
+      "whole_original_sha256": "aad34a52e1732f1188b6cecb1065f52945c86815f1e60ec7f5bbafe0897a7280",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-initialization-convergence-author/bin/project-race.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=40s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1313694,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "02a882704aef025346a05a04b80dfcb8091ce4bc2734478f74b5d7d65d88ac7e",
+        "started_utc": "2026-10-08T01:58:50Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2144,
+          "canonical_json_value_sha256": "8c3b79372b01344ea43c23706adab690428f19c5b4cdae294a588e826b9b6633"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-run01/result.json",
+      "whole_original_sha256": "0e9beabc36e16135f1fadd8d297a90d6c8cbd1e81ca28a66d105d730f8bcb6b6",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.7636939989970415,
+        "direct_child_pid": 1313697,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1313697,
+            "ppid": 1313694,
+            "pgid": 1313697,
+            "state": "Z",
+            "starttime": "5068230"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "7816c567fe579f32c3b2c357a3c25d6469ff73ccdae3f47bc88fc9eb3ab5a4cf",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2144,
+          "canonical_json_value_sha256": "8c3b79372b01344ea43c23706adab690428f19c5b4cdae294a588e826b9b6633"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-compile01/command.json",
+      "whole_original_sha256": "554a31257c47c1a17580ee9e3b7a54e87e870d903bacbe9e4a3f9065a2d9bb9c",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-author/bin/contract-pure.test",
+          "./internal/central/project/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1313800,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "30ed096d083c02127e077a91dcf2ff49fc85919efa5906dd72296066cabb616d",
+        "started_utc": "2026-10-08T01:58:59Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-compile01/result.json",
+      "whole_original_sha256": "7e9bc9263742e85d3604c89d6ca3ac98dc2bccd5ba93e148eb4563389263ef1d",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.6983636580043822,
+        "direct_child_pid": 1313803,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1313803,
+            "ppid": 1313800,
+            "pgid": 1313803,
+            "state": "Z",
+            "starttime": "5069167"
+          },
+          {
+            "pid": 1313836,
+            "ppid": 1313803,
+            "pgid": 1313803,
+            "state": "S",
+            "starttime": "5069175"
+          },
+          {
+            "pid": 1313850,
+            "ppid": 1313803,
+            "pgid": 1313803,
+            "state": "S",
+            "starttime": "5069284"
+          },
+          {
+            "pid": 1313858,
+            "ppid": 1313803,
+            "pgid": 1313803,
+            "state": "S",
+            "starttime": "5069306"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-run01/command.json",
+      "whole_original_sha256": "d105c7a10f64d1d5f475f63b36f3b7101f59dc743d56fb8a4cfaa234afaa84c6",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-initialization-convergence-author/bin/contract-pure.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=40s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project/contract",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1314066,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "04852b4b7882946428de47b022b36e51de1a2216358a078d5be7569810c0a984",
+        "started_utc": "2026-10-08T01:59:20Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2144,
+          "canonical_json_value_sha256": "64e127bade72e18502edbcce7f7e9cd14af1f235aeed111cb7e430edfeef189d"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-run01/result.json",
+      "whole_original_sha256": "cc252b14edbcea45880eda490bfecab6649a7b86abcd8c14a446bd90e774f379",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.31828936200327007,
+        "direct_child_pid": 1314069,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1314069,
+            "ppid": 1314066,
+            "pgid": 1314069,
+            "state": "Z",
+            "starttime": "5071230"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "f105243e50d13d567a22234066aad15738f68cf7e42bdc521f779b1def044ab1",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2144,
+          "canonical_json_value_sha256": "64e127bade72e18502edbcce7f7e9cd14af1f235aeed111cb7e430edfeef189d"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-compile01/command.json",
+      "whole_original_sha256": "f3977e920fa244e1b76cab7f280df41bc10ab32c30787b3d6d9e7eac32c23d25",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-author/bin/contract-race.test",
+          "./internal/central/project/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1314116,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "30ed096d083c02127e077a91dcf2ff49fc85919efa5906dd72296066cabb616d",
+        "started_utc": "2026-10-08T01:59:24Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-compile01/result.json",
+      "whole_original_sha256": "a2199c39850b051e5de643022b41772b9e7b4582c39cf80bd187716041eab810",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 2.534593632000906,
+        "direct_child_pid": 1314119,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1314119,
+            "ppid": 1314116,
+            "pgid": 1314119,
+            "state": "Z",
+            "starttime": "5071653"
+          },
+          {
+            "pid": 1314156,
+            "ppid": 1314119,
+            "pgid": 1314119,
+            "state": "S",
+            "starttime": "5071662"
+          },
+          {
+            "pid": 1314174,
+            "ppid": 1314119,
+            "pgid": 1314119,
+            "state": "R",
+            "starttime": "5071837"
+          },
+          {
+            "pid": 1314204,
+            "ppid": 1314119,
+            "pgid": 1314119,
+            "state": "R",
+            "starttime": "5071874"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-run01/command.json",
+      "whole_original_sha256": "14f92d27dcd39f6e45eb4859104deadaa91bcd33aacf6430d9f0dd28b2f03f93",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-initialization-convergence-author/bin/contract-race.test",
+          "-test.v",
+          "-test.count=1",
+          "-test.timeout=40s"
+        ],
+        "cwd": "/workspace/agenteam/internal/central/project/contract",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1314653,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "f3bd45aacf7849dcc8eb8063bd959f36b54d7ff9a6fb6a750f1ffdde4b6c5044",
+        "started_utc": "2026-10-08T02:00:08Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2144,
+          "canonical_json_value_sha256": "4f57fa3f4568b6de6f1eae5542431949afd665b0c8adbcb547d8af8f0bc95fbf"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-run01/result.json",
+      "whole_original_sha256": "97bc8cdfbdd7872bd03c766920fe504b2b0380dd37866640b058b29df7c8eb2f",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.3452638289963943,
+        "direct_child_pid": 1314656,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1314656,
+            "ppid": 1314653,
+            "pgid": 1314656,
+            "state": "Z",
+            "starttime": "5076092"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e7895243b3f118f96041beeebb4a6da6253c9fb05d7ab4efe067561df5c08f70",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2144,
+          "canonical_json_value_sha256": "4f57fa3f4568b6de6f1eae5542431949afd665b0c8adbcb547d8af8f0bc95fbf"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/race-vet01/command.json",
+      "whole_original_sha256": "3a63557e15bf6210017639f75615066eb5b38072e92b2aec266f8dcdc62fb3e3",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "./internal/central/project",
+          "./internal/central/project/contract"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/pure-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1314723,
+        "driver_sha256": "1738693f68e43a7e6a30b961bc11728bb68483332f7d7519556b7fb022d7a447",
+        "frozen_manifest_sha256": "30ed096d083c02127e077a91dcf2ff49fc85919efa5906dd72296066cabb616d",
+        "started_utc": "2026-10-08T02:00:16Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/race-vet01/result.json",
+      "whole_original_sha256": "88c2ec25315b8f80f43427a7c804a4f38ab85bfbfcf485195cff274a33c27767",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.6434300399996573,
+        "direct_child_pid": 1314726,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1314726,
+            "ppid": 1314723,
+            "pgid": 1314726,
+            "state": "Z",
+            "starttime": "5076810"
+          },
+          {
+            "pid": 1314753,
+            "ppid": 1314726,
+            "pgid": 1314726,
+            "state": "R",
+            "starttime": "5076826"
+          },
+          {
+            "pid": 1314757,
+            "ppid": 1314726,
+            "pgid": 1314726,
+            "state": "Z",
+            "starttime": "5076829"
+          },
+          {
+            "pid": 1314780,
+            "ppid": 1314726,
+            "pgid": 1314726,
+            "state": "S",
+            "starttime": "5076841"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 2143,
+          "canonical_json_value_sha256": "4d945f052a168746136d645f59cbde36829c3daec35b351e84d9a7bf321d9f14"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/command.json",
+      "whole_original_sha256": "09de8957c408a276fba6aa1ab1f1360e6bd491864d03c32cd0b76da12462a359",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_fixture_test.go",
+          "/workspace/scratch/project-initialization-convergence-author/candidate02/src/tests/project/initialization_convergence_test.go"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay02/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1333598,
+        "driver_sha256": "193d414f671c1fab74b449f2ed7a27868ac39e2097c73e2be7f7bfa961c78313",
+        "frozen_manifest_sha256": "66e6795de9a7b520fda05bacc85b970b023cd6c3f645dd28206f2edfcfe88095",
+        "started_utc": "2026-10-08T02:15:45Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3392,
+          "canonical_json_value_sha256": "b3fe2953fa6ed8d00acf2cece3bc5177ce508ce354d1bc5f33df681d16f6be92"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/result.json",
+      "whole_original_sha256": "3927d78d78fccb1579c7eef3c2f0ee07dc56511048577f39b5809b83aec2b651",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 1,
+        "timed_out": false,
+        "elapsed_seconds": 0.31758475300011924,
+        "direct_child_pid": 1333601,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1333601,
+            "ppid": 1333598,
+            "pgid": 1333601,
+            "state": "Z",
+            "starttime": "5169728"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 1,
+        "stdout.log_sha256": "e25527d87d9176ff26721c566d741bab6e50f676165facee752f87116e2cf0fe",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3392,
+          "canonical_json_value_sha256": "b3fe2953fa6ed8d00acf2cece3bc5177ce508ce354d1bc5f33df681d16f6be92"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/command.json",
+      "whole_original_sha256": "72efa32262ea4badd660d34bccc61d83c7631bd1dde2d804a3817b68e7c83fd8",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_fixture_test.go",
+          "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_test.go"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1333997,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "1189feefa72d323cc4fed5e47a4e6ea558c3d97eb3f0c0f89e136441a679ff31",
+        "started_utc": "2026-10-08T02:16:23Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3392,
+          "canonical_json_value_sha256": "2a5eb10af911291331201020649048076314a021364d070e1f54df36d6601f38"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/result.json",
+      "whole_original_sha256": "b0fcbbbc0f8141e1950ceab78c8dfbdb8a8d056531bc8643643e141e0dbffd76",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.36693246500362875,
+        "direct_child_pid": 1334021,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1334021,
+            "ppid": 1333997,
+            "pgid": 1334021,
+            "state": "Z",
+            "starttime": "5173519"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3392,
+          "canonical_json_value_sha256": "2a5eb10af911291331201020649048076314a021364d070e1f54df36d6601f38"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/command.json",
+      "whole_original_sha256": "95b82477496feb61a28b4c8b11ecb0ca5e7efa73e59597c99d7a1eadbd7bfbf9",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./internal/central/postgres/...",
+          "./tests/database/...",
+          "./internal/central/app/...",
+          "./tests/process/...",
+          "./tests/security/...",
+          "./tests/outbox/...",
+          "./internal/central/outbox/...",
+          "./tests/account/...",
+          "./tests/accountmail/...",
+          "./internal/central/accountmail/...",
+          "./internal/central/recoverylog/...",
+          "./tests/project/...",
+          "./internal/central/model/...",
+          "./tests/model/...",
+          "./tests/objects/...",
+          "./internal/central/object/..."
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1334072,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "1189feefa72d323cc4fed5e47a4e6ea558c3d97eb3f0c0f89e136441a679ff31",
+        "started_utc": "2026-10-08T02:16:28Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3392,
+          "canonical_json_value_sha256": "2a5eb10af911291331201020649048076314a021364d070e1f54df36d6601f38"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/result.json",
+      "whole_original_sha256": "b89c50461ec563fe6c597869e2ae0700d942f0579dcc3d495cd32c938a64dc5d",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.8500657570039039,
+        "direct_child_pid": 1334075,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1334075,
+            "ppid": 1334072,
+            "pgid": 1334075,
+            "state": "Z",
+            "starttime": "5174024"
+          },
+          {
+            "pid": 1334081,
+            "ppid": 1334075,
+            "pgid": 1334075,
+            "state": "R",
+            "starttime": "5174039"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "5e79f1f3244c5e1b66339af8dc8662000f4d5085cf2ae0db2b73b3e0db2253e2",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3392,
+          "canonical_json_value_sha256": "2a5eb10af911291331201020649048076314a021364d070e1f54df36d6601f38"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/command.json",
+      "whole_original_sha256": "f6886816e24f96ae14a87bb8b113180cfc017080c08771343795aa9dcdabbd40",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-deps",
+          "-json",
+          "./tests/testsupport/objectstore/cmd/fixture",
+          "./tests/testsupport/outbound/cmd/fixture",
+          "./tests/testsupport/postgres/cmd/fixture",
+          "./cmd/agenteam",
+          "./cmd/agenteam-runner"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1334161,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "1189feefa72d323cc4fed5e47a4e6ea558c3d97eb3f0c0f89e136441a679ff31",
+        "started_utc": "2026-10-08T02:16:33Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3392,
+          "canonical_json_value_sha256": "2a5eb10af911291331201020649048076314a021364d070e1f54df36d6601f38"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/result.json",
+      "whole_original_sha256": "19e1cb57388184b7633ab2a7929ebe1b5a3c64e4efc26020a8c7c09fc49637c5",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5946465100059868,
+        "direct_child_pid": 1334184,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1334184,
+            "ppid": 1334161,
+            "pgid": 1334184,
+            "state": "Z",
+            "starttime": "5174542"
+          },
+          {
+            "pid": 1334189,
+            "ppid": 1334184,
+            "pgid": 1334184,
+            "state": "R",
+            "starttime": "5174547"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "23154771deeb83c01b73488be8ce89beb6324e41eb273d86df592f3c5134830c",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3392,
+          "canonical_json_value_sha256": "2a5eb10af911291331201020649048076314a021364d070e1f54df36d6601f38"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/command.json",
+      "whole_original_sha256": "598d29786afcfb04c3b21401cede08d01a990d8f36c2d389acfa268517c7d7a0",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-tags=integration",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-author/bin/convergence-project-integration.test",
+          "./tests/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1334404,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "f4d8d6fe9fa4453030e7e15ffbc4092190a619078f153ccf11373582ecf0125b",
+        "started_utc": "2026-10-08T02:16:51Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/result.json",
+      "whole_original_sha256": "533a8ae758ec18adadb7f4b0de655b21b4901eb52fb7484a8b5a3969c61e5584",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 5.8575286279956345,
+        "direct_child_pid": 1334407,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1334407,
+            "ppid": 1334404,
+            "pgid": 1334407,
+            "state": "Z",
+            "starttime": "5176317"
+          },
+          {
+            "pid": 1334426,
+            "ppid": 1334407,
+            "pgid": 1334407,
+            "state": "Z",
+            "starttime": "5176336"
+          },
+          {
+            "pid": 1334451,
+            "ppid": 1334407,
+            "pgid": 1334407,
+            "state": "R",
+            "starttime": "5176526"
+          },
+          {
+            "pid": 1334484,
+            "ppid": 1334407,
+            "pgid": 1334407,
+            "state": "R",
+            "starttime": "5176725"
+          },
+          {
+            "pid": 1334513,
+            "ppid": 1334407,
+            "pgid": 1334407,
+            "state": "S",
+            "starttime": "5176846"
+          },
+          {
+            "pid": 1334517,
+            "ppid": 1334407,
+            "pgid": 1334407,
+            "state": "R",
+            "starttime": "5176854"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/command.json",
+      "whole_original_sha256": "f2e1ff1a0993df061a7e9bf6a1687601c7463c4523449253539e5d5167bd379a",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-initialization-convergence-author/bin/convergence-project-integration.test",
+          "-test.list=^(TestProjectInitializationConvergenceFacts|TestProjectInitializationConvergenceTransactionBoundary|TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts|TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock)$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1334693,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "12171af4527dc0d88c45ea23c8e2097b4d2372e2d7bd43844f20112885987fa0",
+        "started_utc": "2026-10-08T02:17:13Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3413,
+          "canonical_json_value_sha256": "3817561c52ce6ea063033853a85411d2f8b3bc72c4e988144c27b57f3424fdf0"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/result.json",
+      "whole_original_sha256": "156cb154087727f4edd0445d64478a96d23ce1560507d7e0176d093057a28f5f",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.4139145119988825,
+        "direct_child_pid": 1334697,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1334697,
+            "ppid": 1334693,
+            "pgid": 1334697,
+            "state": "Z",
+            "starttime": "5178579"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "c29318e0ed5de2ea07b48a4244be8053d45fdfb42f1cd894750910de7bb4e650",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3413,
+          "canonical_json_value_sha256": "3817561c52ce6ea063033853a85411d2f8b3bc72c4e988144c27b57f3424fdf0"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/command.json",
+      "whole_original_sha256": "4c09a4190a4fa996509f849fc29caffdc1b98b906ac3c92cdfeee0e7f6ad656f",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1334827,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "f4d8d6fe9fa4453030e7e15ffbc4092190a619078f153ccf11373582ecf0125b",
+        "started_utc": "2026-10-08T02:17:26Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/result.json",
+      "whole_original_sha256": "5f618b00c6b92d374fca9e517c24c83e33bec5f1546de68488846463aa555632",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.7900699710007757,
+        "direct_child_pid": 1334831,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1334831,
+            "ppid": 1334827,
+            "pgid": 1334831,
+            "state": "Z",
+            "starttime": "5179817"
+          },
+          {
+            "pid": 1334857,
+            "ppid": 1334831,
+            "pgid": 1334831,
+            "state": "S",
+            "starttime": "5179839"
+          },
+          {
+            "pid": 1334861,
+            "ppid": 1334831,
+            "pgid": 1334831,
+            "state": "S",
+            "starttime": "5179843"
+          },
+          {
+            "pid": 1334865,
+            "ppid": 1334831,
+            "pgid": 1334831,
+            "state": "R",
+            "starttime": "5179851"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/command.json",
+      "whole_original_sha256": "977c032a73a9025b49ced87bfd73989e0df31c2c2a2fa33bb22ac17c738ce7ae",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam",
+          "./cmd/agenteam"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1334931,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "f4d8d6fe9fa4453030e7e15ffbc4092190a619078f153ccf11373582ecf0125b",
+        "started_utc": "2026-10-08T02:17:32Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/result.json",
+      "whole_original_sha256": "851aff63ff164c7e45cbc92f9d0c08e77e4cc30dbca1f78bc4209e59adfb38cc",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 4.072497681998357,
+        "direct_child_pid": 1334934,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1334934,
+            "ppid": 1334931,
+            "pgid": 1334934,
+            "state": "Z",
+            "starttime": "5180449"
+          },
+          {
+            "pid": 1334939,
+            "ppid": 1334934,
+            "pgid": 1334934,
+            "state": "R",
+            "starttime": "5180454"
+          },
+          {
+            "pid": 1334975,
+            "ppid": 1334934,
+            "pgid": 1334934,
+            "state": "Z",
+            "starttime": "5180469"
+          },
+          {
+            "pid": 1335003,
+            "ppid": 1334934,
+            "pgid": 1334934,
+            "state": "R",
+            "starttime": "5180585"
+          },
+          {
+            "pid": 1335008,
+            "ppid": 1334934,
+            "pgid": 1334934,
+            "state": "Z",
+            "starttime": "5180615"
+          },
+          {
+            "pid": 1335012,
+            "ppid": 1334934,
+            "pgid": 1334934,
+            "state": "S",
+            "starttime": "5180644"
+          },
+          {
+            "pid": 1335016,
+            "ppid": 1334934,
+            "pgid": 1334934,
+            "state": "R",
+            "starttime": "5180718"
+          },
+          {
+            "pid": 1335024,
+            "ppid": 1334934,
+            "pgid": 1334934,
+            "state": "S",
+            "starttime": "5180725"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/command.json",
+      "whole_original_sha256": "b45638e6b0db1879afab0bb899ca7934f50cdffcfc968180a4dfb60b69044603",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "build",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam-runner",
+          "./cmd/agenteam-runner"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1335087,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "f4d8d6fe9fa4453030e7e15ffbc4092190a619078f153ccf11373582ecf0125b",
+        "started_utc": "2026-10-08T02:17:40Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/result.json",
+      "whole_original_sha256": "ffe843a77dde99a009b0c909637c0f1ac4fbf75bda0f25518abf7977c4123952",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.5944664680064307,
+        "direct_child_pid": 1335090,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1335090,
+            "ppid": 1335087,
+            "pgid": 1335090,
+            "state": "Z",
+            "starttime": "5181240"
+          },
+          {
+            "pid": 1335095,
+            "ppid": 1335090,
+            "pgid": 1335090,
+            "state": "R",
+            "starttime": "5181242"
+          },
+          {
+            "pid": 1335134,
+            "ppid": 1335090,
+            "pgid": 1335090,
+            "state": "S",
+            "starttime": "5181254"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3412,
+          "canonical_json_value_sha256": "8c62f5b62ff0b45fd0e74b2a577ea497ea464573e80b2c461ef2626a06e832a5"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/command.json",
+      "whole_original_sha256": "2f30bb716e50fea438565351d14498ab3cc53a36d15ac397666a9e9278e09c55",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.py",
+          "--name",
+          "check-only",
+          "--group",
+          "new-facts",
+          "--frozen",
+          "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/proposal-freeze.json",
+          "--check-input-only"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-author/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1350358,
+        "driver_sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+        "frozen_manifest_sha256": "01177bc7e19a605e442f0a95f62dd600fe8bdbfd11035117d7fefed867579ee3",
+        "started_utc": "2026-10-08T02:26:44Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3832,
+          "canonical_json_value_sha256": "2d7fc9b7f3aae0620e31dcd60bd809cbf3065b351857bb265ee870469a7dc56e"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/result.json",
+      "whole_original_sha256": "1b8018942e7483ce4745a8220c98a06c7abed0f5e86d81e75641d74102031de3",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 2.3656519430005574,
+        "direct_child_pid": 1350394,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1350394,
+            "ppid": 1350358,
+            "pgid": 1350394,
+            "state": "Z",
+            "starttime": "5235739"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "1f8e326309343ae51f4a06dbc6bd6cff10251657c563378de924fe3f1772207a",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3832,
+          "canonical_json_value_sha256": "2d7fc9b7f3aae0620e31dcd60bd809cbf3065b351857bb265ee870469a7dc56e"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/command.json",
+      "whole_original_sha256": "3604fa84a4d1b02dc46b0696da5c4afdb27181e2b99cf399ab3d6429b43743ef",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/gofmt",
+          "-d",
+          "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/independent_initialization_convergence_test.go"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1346683,
+        "driver_sha256": "cccc1dce9dc3d825efbaa7f9350f0c6ecc53c0914c47703afbcb0f790d8956e3",
+        "frozen_manifest_sha256": "0b2313aa5b11b2eae898222a0ac18e095fabb351afb2b85b911046edd3d371aa",
+        "started_utc": "2026-10-08T02:21:48Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3417,
+          "canonical_json_value_sha256": "1156f745b57e6e2e9ad5c118d552ca985464970f454db2e5c0db7cb5a8a62f16"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/result.json",
+      "whole_original_sha256": "fb11bcd7f5a8415ffab25ad5c695e82469a99baa937ca2d43ab85f9688f5221c",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.3273406449952745,
+        "direct_child_pid": 1346686,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1346686,
+            "ppid": 1346683,
+            "pgid": 1346686,
+            "state": "Z",
+            "starttime": "5206069"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3417,
+          "canonical_json_value_sha256": "1156f745b57e6e2e9ad5c118d552ca985464970f454db2e5c0db7cb5a8a62f16"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/command.json",
+      "whole_original_sha256": "e5f0e207b671a13b73d031bc0fcab2fad44a13c4335bb6a39f837453dc23a6e3",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "list",
+          "-race",
+          "-tags=integration",
+          "-deps",
+          "-test",
+          "-json",
+          "./tests/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1346781,
+        "driver_sha256": "cccc1dce9dc3d825efbaa7f9350f0c6ecc53c0914c47703afbcb0f790d8956e3",
+        "frozen_manifest_sha256": "0b2313aa5b11b2eae898222a0ac18e095fabb351afb2b85b911046edd3d371aa",
+        "started_utc": "2026-10-08T02:21:56Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3417,
+          "canonical_json_value_sha256": "1156f745b57e6e2e9ad5c118d552ca985464970f454db2e5c0db7cb5a8a62f16"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/result.json",
+      "whole_original_sha256": "5d5416892b827208ae86e38ff8572da293f0ed1f97e1710163b8cca2de59aaa9",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.535649267003464,
+        "direct_child_pid": 1346784,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1346784,
+            "ppid": 1346781,
+            "pgid": 1346784,
+            "state": "Z",
+            "starttime": "5206829"
+          },
+          {
+            "pid": 1346789,
+            "ppid": 1346784,
+            "pgid": 1346784,
+            "state": "R",
+            "starttime": "5206835"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "57c01567f4271804e8d7bafe9d8e210463f85f3a95095d0322679be94f4e1257",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3417,
+          "canonical_json_value_sha256": "1156f745b57e6e2e9ad5c118d552ca985464970f454db2e5c0db7cb5a8a62f16"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/command.json",
+      "whole_original_sha256": "f0fe7ec52970b7d1e61ffd84f7b5ffd182e4f79c7433868992e1db5b1392a123",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "test",
+          "-c",
+          "-race",
+          "-tags=integration",
+          "-o",
+          "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/bin/independent-convergence.test",
+          "./tests/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1347440,
+        "driver_sha256": "cccc1dce9dc3d825efbaa7f9350f0c6ecc53c0914c47703afbcb0f790d8956e3",
+        "frozen_manifest_sha256": "cfc0aece9d12d706e64f79c1978e35369bf7ed473bef226be8dc9965b1f752e7",
+        "started_utc": "2026-10-08T02:22:32Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3421,
+          "canonical_json_value_sha256": "366495cc17ecbc3d74f82e0729f065da803e20ddbcb35cac057385ef0e44e878"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/result.json",
+      "whole_original_sha256": "a7ea1f58fbd38ca83f75ed2a1d546f6d2fb58cbd1252d0bc6850b966de5cfef1",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.7045507969960454,
+        "direct_child_pid": 1347443,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1347443,
+            "ppid": 1347440,
+            "pgid": 1347443,
+            "state": "Z",
+            "starttime": "5210443"
+          },
+          {
+            "pid": 1347462,
+            "ppid": 1347443,
+            "pgid": 1347443,
+            "state": "R",
+            "starttime": "5210461"
+          },
+          {
+            "pid": 1347499,
+            "ppid": 1347443,
+            "pgid": 1347443,
+            "state": "S",
+            "starttime": "5210654"
+          },
+          {
+            "pid": 1347529,
+            "ppid": 1347443,
+            "pgid": 1347443,
+            "state": "R",
+            "starttime": "5210766"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3421,
+          "canonical_json_value_sha256": "366495cc17ecbc3d74f82e0729f065da803e20ddbcb35cac057385ef0e44e878"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/command.json",
+      "whole_original_sha256": "271888a6cec48487b45563dc33ddc978738fb44ab6b1de18dfbc6f514c041f72",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/bin/independent-convergence.test",
+          "-test.list=^(TestIndependentInitializationConvergenceTransactionBoundary|TestIndependentInitializationConvergenceCanonicalFacts)$"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1347667,
+        "driver_sha256": "cccc1dce9dc3d825efbaa7f9350f0c6ecc53c0914c47703afbcb0f790d8956e3",
+        "frozen_manifest_sha256": "366314872bc870181c81694f36ac5dcd44435f142577ad137c14810ab4cb89d3",
+        "started_utc": "2026-10-08T02:22:49Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3422,
+          "canonical_json_value_sha256": "fa47ef62f39cd597689d56271e6c3033b10fbae413ffbc228e892b0ded09ec7f"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/result.json",
+      "whole_original_sha256": "eda3cacb492c116cc0b462053fa8f4568ad4e5cd2d287549e27865cf7425338f",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1.3916773710006964,
+        "direct_child_pid": 1347689,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1347689,
+            "ppid": 1347667,
+            "pgid": 1347689,
+            "state": "Z",
+            "starttime": "5212123"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "5eee6701ee5c5d924bd46594a62ed40d96ef107de74e52883e4293e9cb455aba",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3422,
+          "canonical_json_value_sha256": "fa47ef62f39cd597689d56271e6c3033b10fbae413ffbc228e892b0ded09ec7f"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/command.json",
+      "whole_original_sha256": "7355a8c5d4f6decaf237865fe398aad0c98dc230756229338ba024db3966aa66",
+      "derived_not_original": true,
+      "fields": {
+        "argv": [
+          "/workspace/toolchains/go1.27.1/bin/go",
+          "vet",
+          "-race",
+          "-tags=integration",
+          "./tests/project"
+        ],
+        "cwd": "/workspace/agenteam",
+        "environment_overrides": {
+          "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+          "GOTOOLCHAIN": "local",
+          "GOENV": "off",
+          "GOWORK": "off",
+          "GOPROXY": "off",
+          "GOSUMDB": "off",
+          "GOMODCACHE": "/workspace/go/pkg/mod",
+          "GOCACHE": "/workspace/.cache/go-build",
+          "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json",
+          "TMPDIR": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/tmp",
+          "CGO_ENABLED": "1",
+          "GOMAXPROCS": "2",
+          "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+          "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+          "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+          "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+        },
+        "subreaper": true,
+        "driver_pid": 1347859,
+        "driver_sha256": "cccc1dce9dc3d825efbaa7f9350f0c6ecc53c0914c47703afbcb0f790d8956e3",
+        "frozen_manifest_sha256": "cfc0aece9d12d706e64f79c1978e35369bf7ed473bef226be8dc9965b1f752e7",
+        "started_utc": "2026-10-08T02:23:03Z",
+        "total_deadline_seconds": 45,
+        "child_timeout_seconds": 42
+      },
+      "omitted": {
+        "inputs_before": {
+          "json_pointer": "/inputs_before",
+          "count": 3421,
+          "canonical_json_value_sha256": "366495cc17ecbc3d74f82e0729f065da803e20ddbcb35cac057385ef0e44e878"
+        }
+      }
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/result.json",
+      "whole_original_sha256": "85eaa6efd72495926bb5673c42dc5292eb6fb83f61008246f974f783a24df702",
+      "derived_not_original": true,
+      "fields": {
+        "command_exit_code": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.7308516979974229,
+        "direct_child_pid": 1347862,
+        "direct_child_joined": true,
+        "subreaper": true,
+        "adopted_reaped": [],
+        "processes_seen": [
+          {
+            "pid": 1347862,
+            "ppid": 1347859,
+            "pgid": 1347862,
+            "state": "Z",
+            "starttime": "5213512"
+          },
+          {
+            "pid": 1347889,
+            "ppid": 1347862,
+            "pgid": 1347862,
+            "state": "R",
+            "starttime": "5213535"
+          }
+        ],
+        "actions": [],
+        "remaining_descendants": [],
+        "inputs_match": true,
+        "owned_clear_observations": 2,
+        "exit_code": 0,
+        "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "omitted": {
+        "inputs_after": {
+          "json_pointer": "/inputs_after",
+          "count": 3421,
+          "canonical_json_value_sha256": "366495cc17ecbc3d74f82e0729f065da803e20ddbcb35cac057385ef0e44e878"
+        }
+      }
+    }
+  ]
+}

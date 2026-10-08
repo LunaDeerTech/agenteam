@@ -1,0 +1,14 @@
+{
+  "new-facts": [
+    "TestProjectInitializationConvergenceFacts"
+  ],
+  "new-transaction": [
+    "TestProjectInitializationConvergenceTransactionBoundary"
+  ],
+  "old-mapping": [
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts"
+  ],
+  "old-locks": [
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock"
+  ]
+}

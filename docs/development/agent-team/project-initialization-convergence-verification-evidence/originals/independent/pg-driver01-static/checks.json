@@ -1,0 +1,49 @@
+{
+  "status": "STATIC_PRECHECK_WITH_ONE_BUDGET_PRECISION_FINDING",
+  "freeze_sha256": "62882dd8ad7ad1d911c7ada385ee5fd085e3e42b0218e6181bd3ad68d5dd6a76",
+  "driver_sha256": "49c287c0335208859e605dfc909d0c990e05aea0df6c3fa1b99e89baa61136fe",
+  "closure_sha256": "b466231279bcde50dc79117b07dc78ad5f7ddeeede86e74820960009692368b0",
+  "proposal_sha256": "380afd623e8b26be8da0279e9b0637889cdf9912588898b76d88d60ceca0dbd3",
+  "effective_files": 3378,
+  "effective_sets": 440,
+  "runtime_file_count": 4,
+  "base_manifest_count": 12,
+  "actual_union_all_in_closure": true,
+  "CGO0_source_files_hash_verified": 1219,
+  "CGO0_imports_Project": false,
+  "unchanged_AST": [
+    "observe_processes",
+    "reap_adopted",
+    "retire_owned",
+    "TopWatchdog",
+    "watch_output",
+    "resources",
+    "resource_topology",
+    "processes",
+    "load_bound"
+  ],
+  "changed_existing_AST": [
+    "source_input",
+    "runtime_environment",
+    "main"
+  ],
+  "groups": {
+    "new-facts": [
+      "TestProjectInitializationConvergenceFacts"
+    ],
+    "new-transaction": [
+      "TestProjectInitializationConvergenceTransactionBoundary"
+    ],
+    "old-mapping": [
+      "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts"
+    ],
+    "old-locks": [
+      "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock"
+    ]
+  },
+  "overlay_entries": 7,
+  "excluded_UI_content_read": false,
+  "inputgate_executed": false,
+  "driver_executed": false,
+  "resources": false
+}

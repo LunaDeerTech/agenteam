@@ -1,0 +1,285 @@
+{
+  "rounds": [
+    {
+      "run": "new1",
+      "resource_ids": [
+        "085499766b27b7ce3b68c3bb2505ca05677eea835ef9dc79677f4c56c2cc2da6",
+        "1b26bf123adb523dc6051247051b6a25dd1f71ebb3e1fb976bc4105cdd4e412a",
+        "323b0ddce5dedd8d4549d1580d4c60fe22d2157a586960870db1a94395f9a4eb",
+        "4c69c6d936588ca430adc37e28ba1f77f06d50c33941ace2dc4f6bdfcad1b378",
+        "5404cfa9ef6863c9054daca122aa591225c4440d7b505f792f97e64eb7fe36bc",
+        "6b0e1bf203f99f514b67c603ebae8ba21003b1cf02e3b24de5acf06e13907809",
+        "eeb5de3ac96e2a1d17042f0bef79809f9c21e274514e7ff5423274f681ade751"
+      ],
+      "daemon_baseline": 449,
+      "daemon_after": 453,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1352935,
+          "ppid": 1,
+          "starttime": "5256440",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1353377,
+          "ppid": 1,
+          "starttime": "5256704",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1353651,
+          "ppid": 1,
+          "starttime": "5256904",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1354297,
+          "ppid": 1,
+          "starttime": "5257160",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new2",
+      "resource_ids": [
+        "01b2934c95e782ce7e00ebaca26114d4ec8fc9136d6afec71bc5af7f8c44724c",
+        "39daf5978be8ae4990dc1cfd148daddc6a6ef5b69937c08e3d0c849e130350bc",
+        "536b908d16a3b0a442cfb58a417efcdecb08ec45be7c080d9da39d92c11c466f",
+        "5e6863220a9172be661120892cbf2ec5d22071b38ac8d1a170d12f51d4387147",
+        "6ce855ee521f4febe5ad0af540ff385ea94134b822541e2d5ce703f91f2074b5",
+        "7ca6e4f06a4740864efd8753e7eff6be5ac20d4e43eecba69c345670a4c83524",
+        "ae107f244a7e4ea242419974707e0b5f736c788a05fe677150b0d1f075474441"
+      ],
+      "daemon_baseline": 453,
+      "daemon_after": 457,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1363005,
+          "ppid": 1,
+          "starttime": "5277362",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1363452,
+          "ppid": 1,
+          "starttime": "5277745",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1363819,
+          "ppid": 1,
+          "starttime": "5277933",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1364301,
+          "ppid": 1,
+          "starttime": "5278105",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old1",
+      "resource_ids": [
+        "051c07110c7a5e2dd20f0033ff76d20236d67a6b712f6a3334e4e2cbda028be3",
+        "55ea5384f1c62884b1441948c12e42904c66e2773284bf35d7043ca095d6a1cf",
+        "669c051ef5767a5169034f464f957e8d2200e91c9c5f9149656080705fd086d1",
+        "7c5a2ed9c7744b5c03f3510f1349e28347d3b274beff76840db5690993b22e20",
+        "8c68e4807968bc242e576fc09cddf79d5076fed0c2ca28e61ca4b025638a8ea4",
+        "b038134c715abb4be78729c5bc306f763dc85ddbb2739024fa9cfd7acc58c0dc",
+        "e7f4ac2dce903412d69f9acb24c72c14dd0ab6fcba8d6ca4be51d1e2ef635a93"
+      ],
+      "daemon_baseline": 457,
+      "daemon_after": 461,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1370378,
+          "ppid": 1,
+          "starttime": "5289160",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1370732,
+          "ppid": 1,
+          "starttime": "5289377",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1371097,
+          "ppid": 1,
+          "starttime": "5289572",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1371597,
+          "ppid": 1,
+          "starttime": "5289760",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old2",
+      "resource_ids": [
+        "7981e61b372ef6c7c7829bb26cce893d41c1865ef86a160f6096e3171e9642f6",
+        "85e272a79f5f1c56068d02754999b8cf0a88181c8fa2844ca7fb2da13ac888d5",
+        "c6e608b1fd1a4ff1c5e241b0b906f76f2937eed545bbfcdc8a4a515cc653adc7",
+        "ccfee17ee11b0b1f7a2ecf971c81665752f6872732911096c342c2a501d7e1cc",
+        "cec27a03b4c4f54cd5f849953d51788fba5503dee21541d7ba78d1596bb24294",
+        "e402db2e081fd05edab078f3d5bd602c6744fb0cc4f6ee658d249a15bcff72f9",
+        "ed8356d42091cf27076a05d14a1f8d2e85a0b67d3d4503a5fd1bb70d03878c40"
+      ],
+      "daemon_baseline": 461,
+      "daemon_after": 465,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1378618,
+          "ppid": 1,
+          "starttime": "5304104",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1379047,
+          "ppid": 1,
+          "starttime": "5304416",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1379419,
+          "ppid": 1,
+          "starttime": "5304681",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1379921,
+          "ppid": 1,
+          "starttime": "5304858",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "distinct_resource_ids": 28,
+  "distinct_observed_owned_identities": 330,
+  "task_round_daemon_delta": [
+    [
+      1352935,
+      "5256440"
+    ],
+    [
+      1353377,
+      "5256704"
+    ],
+    [
+      1353651,
+      "5256904"
+    ],
+    [
+      1354297,
+      "5257160"
+    ],
+    [
+      1363005,
+      "5277362"
+    ],
+    [
+      1363452,
+      "5277745"
+    ],
+    [
+      1363819,
+      "5277933"
+    ],
+    [
+      1364301,
+      "5278105"
+    ],
+    [
+      1370378,
+      "5289160"
+    ],
+    [
+      1370732,
+      "5289377"
+    ],
+    [
+      1371097,
+      "5289572"
+    ],
+    [
+      1371597,
+      "5289760"
+    ],
+    [
+      1378618,
+      "5304104"
+    ],
+    [
+      1379047,
+      "5304416"
+    ],
+    [
+      1379419,
+      "5304681"
+    ],
+    [
+      1379921,
+      "5304858"
+    ]
+  ],
+  "task_round_daemon_count": 16,
+  "interround_deltas": [
+    {
+      "before": "new2",
+      "new": [],
+      "disappeared": []
+    },
+    {
+      "before": "old1",
+      "new": [],
+      "disappeared": []
+    },
+    {
+      "before": "old2",
+      "new": [],
+      "disappeared": []
+    }
+  ],
+  "daemon_owned": false,
+  "daemon_waited": false,
+  "global_zero_claim": false
+}

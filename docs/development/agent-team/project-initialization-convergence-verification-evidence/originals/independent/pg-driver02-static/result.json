@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "scope": "PG v02 execution readiness STATIC plus completed author source-only gate evidence review",
+  "driver_sha256": "62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e",
+  "closure_sha256": "a2e64479ba3217a73d17e4305520a08f3f04191fe3caf51734607d93f11ce9c1",
+  "references": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/freeze.json",
+      "sha256": "5e45849062912497bdd0c9844c3b2376f33dd667763985a4a6e197cf1673da7a"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.py",
+      "sha256": "62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/closure.json",
+      "sha256": "a2e64479ba3217a73d17e4305520a08f3f04191fe3caf51734607d93f11ce9c1"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/proposal-freeze.json",
+      "sha256": "d6a3f85fd3f65ad7cff38a9d1204102076fea5fba841c75ba13ea9f1b5d2a450"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.diff",
+      "sha256": "ee81cb329b5a226cd273d7396bbdf7451bab26566fe6aa009059247d55420d1b"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/plan.md",
+      "sha256": "02a588cee5b453ae0654bfa400ce25574917956c2c2cf5bd8d802a801cfb6a0b"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputgate02/freeze.json",
+      "sha256": "000c9383a997a38d614848ff95b236e3f7dc675347bed48ea0959630087abe6b"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputgate02/command.json",
+      "sha256": "84901bab0ca0de72c6e071b5ffafea46b5d013434c31675b766262e28f2ceef4"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputgate02/input.json",
+      "sha256": "01177bc7e19a605e442f0a95f62dd600fe8bdbfd11035117d7fefed867579ee3"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/command.json",
+      "sha256": "2f30bb716e50fea438565351d14498ab3cc53a36d15ac397666a9e9278e09c55"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/result.json",
+      "sha256": "1b8018942e7483ce4745a8220c98a06c7abed0f5e86d81e75641d74102031de3"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/stdout.log",
+      "sha256": "1f8e326309343ae51f4a06dbc6bd6cff10251657c563378de924fe3f1772207a"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-driver01-static/check.py",
+      "sha256": "18bdc2040c81c2621be21fcd128909c87f6c8d1e81d027d2c3341e79832de518"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-driver01-static/checks.json",
+      "sha256": "5feead2feacd0fda1f8080f968c931d6f5487f23e70f0fae9ac92699166c1862"
+    }
+  ],
+  "files": {
+    "check.py": "9003f320f02d1c0390cc383a282bc325a6283db93ca08c23cbe897d5cb743077",
+    "checks.json": "eda781cd60777e75fec1aac8e4e096e5f7d0d6ccb77d7bb20a2377b57343a62e",
+    "finding.json": "e63bf672312a9442e6f8d51189b38c5b5ff9b6e554cb319d991bb23a1114641d",
+    "review.md": "6fe56d90d70ddcd8248774d10550045164b985c5603aad355c667a6ab6357d52"
+  },
+  "blocking": [],
+  "closed": [
+    "IC-DRIVER-01"
+  ],
+  "runtime_acceptance": false,
+  "no_product_or_resource_execution_by_reviewer": true
+}

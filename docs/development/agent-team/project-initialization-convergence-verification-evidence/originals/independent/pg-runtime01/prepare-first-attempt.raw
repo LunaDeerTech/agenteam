@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/prepare.py", line 14, in <module>
+    assert g['extra']==[] and g['excluded_ui_consumed']==[] and g['project_main']['has_custom_TestMain'] is False
+AssertionError

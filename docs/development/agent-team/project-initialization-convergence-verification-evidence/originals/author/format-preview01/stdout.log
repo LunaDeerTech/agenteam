@@ -1,0 +1,58 @@
+diff /workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go.orig /workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go
+--- /workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go.orig
++++ /workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go
+@@ -18,19 +18,19 @@
+ 
+ type convergenceStore struct {
+ 	Store
+-	t             *testing.T
+-	ctx           context.Context
+-	tx            foundation.Tx
+-	project       c.ProjectID
+-	creation      c.CreationID
+-	creationRow   []any
+-	projectRow    []any
+-	order         []string
+-	unexpected    int
+-	lockErr       error
+-	executorErr   error
+-	creationErr   error
+-	projectErr    error
++	t           *testing.T
++	ctx         context.Context
++	tx          foundation.Tx
++	project     c.ProjectID
++	creation    c.CreationID
++	creationRow []any
++	projectRow  []any
++	order       []string
++	unexpected  int
++	lockErr     error
++	executorErr error
++	creationErr error
++	projectErr  error
+ }
+ 
+ func (s *convergenceStore) RequireHeldLocks(ctx context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
+@@ -379,8 +379,19 @@
+ 		{"completed_result_owner", c.CreationCompleted, func(f *convergenceFixture) { v := f.initial; v.OwnerUserID = testID[identity.User](f.t); f.result(v) }},
+ 		{"completed_result_project", c.CreationCompleted, func(f *convergenceFixture) { v := f.initial; v.ID = testID[identity.Project](f.t); f.result(v) }},
+ 		{"completed_result_version", c.CreationCompleted, func(f *convergenceFixture) { v := f.initial; v.Version = 2; f.result(v) }},
+-		{"completed_result_sprint", c.CreationCompleted, func(f *convergenceFixture) { v := f.initial; id := testID[c.Sprint](f.t); v.CurrentSprintID = &id; f.result(v) }},
+-		{"completed_result_lifecycle", c.CreationCompleted, func(f *convergenceFixture) { v := f.initial; v.Lifecycle = c.Archived; at := v.UpdatedAt; v.ArchivedAt = &at; f.result(v) }},
++		{"completed_result_sprint", c.CreationCompleted, func(f *convergenceFixture) {
++			v := f.initial
++			id := testID[c.Sprint](f.t)
++			v.CurrentSprintID = &id
++			f.result(v)
++		}},
++		{"completed_result_lifecycle", c.CreationCompleted, func(f *convergenceFixture) {
++			v := f.initial
++			v.Lifecycle = c.Archived
++			at := v.UpdatedAt
++			v.ArchivedAt = &at
++			f.result(v)
++		}},
+ 	}
+ 	for _, tc := range cases {
+ 		t.Run(tc.name, func(t *testing.T) {

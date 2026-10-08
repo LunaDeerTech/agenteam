@@ -1,0 +1,753 @@
+{
+  "status": "PASS_INDEPENDENT_TWO_PG_ROUNDS",
+  "author_review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/completed03-result.json",
+    "sha256": "d91fa553896d37923e30d0337922fc2af35bd37f37f8e0c088711e3110143d37"
+  },
+  "independent_rounds": [
+    {
+      "run": "independent-a01",
+      "top": "TestIndependentInitializationConvergenceTransactionBoundary",
+      "subcases": [
+        "foreign_live_token_rolls_back_caller_write",
+        "shared_lock_poison",
+        "cancel_after_success_rolls_back_caller_write"
+      ],
+      "top_seconds": 1.04,
+      "fixture_seconds": 49.616,
+      "launcher_actual_exit": 0,
+      "direct_actual_wait": true,
+      "adopted_wait_count": 0,
+      "owned_identities": 75,
+      "resources": [
+        "2a81a66923497cf45021467c5429473e5b03cb73e84662b56615d7cc05cf834d",
+        "3f4f0f17564af281df47efc073635160905b1f363bdecbeb343f5c86b1e33d89",
+        "5e1ea66434a1b28c4e3d525a9741258c811ae404eae1006c638340c4d890c27b",
+        "6451d2c02753a5832f3ef3d312bc3cdab67e2f66bdf15c27e3105d0c726d4db5",
+        "aa8a24078345ffd2e99781f5a1f94f1b6ffb48583bf7fe58f6e771b35ca028f6",
+        "f18e32bee7364cec2be1566f5e5184778afd251c22db94e9022915a441b03023",
+        "f8cb763eff1d4ef93efec38228f43375ca90d182ef486171aba2ef3eb740a4d4"
+      ],
+      "double_cleanup": true,
+      "inputs_same": true,
+      "tcp_supplementary_seconds": 46.40721585699794,
+      "references": [
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/result.json",
+          "sha256": "756a1177899eea070490c78e1ca8483fb4376fcde723069ef11a14f5dc003050"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/raw.log",
+          "sha256": "ef3610b1e51f3f7c600300c444b68db3aeee854e3e4d692d88f54470b84e1de1"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/command.json",
+          "sha256": "b00fd2ccdd64fcaea5af45019993a94c6f56e799ee07628655afef7fc800ef0e"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/frozen-input.json",
+          "sha256": "249a5dee21c0d34b45b28fe15fa2cf1e56219aa69a1638cac7f265e4aa2d2b9e"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/driver.py.txt",
+          "sha256": "222c1a5bb170f1b660f28f8227558086d45901e493ccb12104b31e50a50e8c66"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/input-before.json",
+          "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/input-after.json",
+          "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/watchdog.json",
+          "sha256": "eda5702f48e7cfda7b0435e7c10462d433489bfb6492a478a9c3a61fcf4c95fd"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/observed-processes.json",
+          "sha256": "c259af8c64ba3ceab3780b9b25e1fdd7e06710ddf6e15b1e0b7c3ab638be8d34"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/observed-resources.json",
+          "sha256": "a39be341c7e4f48fb7c72e03a88605ba64d5e30664a6c3aa37f198517467cf2b"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/cleanup.json",
+          "sha256": "398bb3fca084e1c00130a32dd091f8d1a35df9adec9a42a01d1a9f8ad1a3eba0"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/process-baseline.json",
+          "sha256": "5069cb856de310c4910355d38ba35ed0cdaf2e11f8c515006755f1a34ffebef4"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/tcp-baseline.json",
+          "sha256": "0a4009b4375b9bc86141d5bf112f990c334f1efe27eb5eea62d97269c8be5871"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/tcp-observed-delta.json",
+          "sha256": "6d01d3e1a4a3319f78307089bbe593b9ead02c557710ff84d9194a18106cca22"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/tcp-tail-observation.json",
+          "sha256": "951c546bc0c6e5e5f3073e9d7fcedc7086d96cfc97846b36eb4caec351a8a1d5"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/disk-preflight.json",
+          "sha256": "4b52ffc3948e9c799c5de038bb34c7d978e114a0f5361924bdb174c502387e5e"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/disk-before-spawn.json",
+          "sha256": "ac27633a405c0471fbdb51319d622c37d416d4006403a09ed934b264cec92ba7"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/local-image-digests.json",
+          "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+        }
+      ]
+    },
+    {
+      "run": "independent-b01",
+      "top": "TestIndependentInitializationConvergenceCanonicalFacts",
+      "subcases": [
+        "accepted",
+        "initializing",
+        "failed",
+        "completed"
+      ],
+      "top_seconds": 1.0,
+      "fixture_seconds": 51.868,
+      "launcher_actual_exit": 0,
+      "direct_actual_wait": true,
+      "adopted_wait_count": 0,
+      "owned_identities": 80,
+      "resources": [
+        "00d976b2cc62fed26cbdd1dd9145622754c4a57b6c5a315c72889d8888bcfda3",
+        "15215df3fcf61ded4b3b8efdfe0751f0947e8fffb2220ec4336bf22f57f20314",
+        "41bf609f0ab3be29cbce0c7ba1e3212a7da15fe4fdb08f0ce189a3f37dce47ad",
+        "745ca57235d3636600286a429e29ed84f97be12d40293e1e633b5956e907307e",
+        "a06e0d2ae4402159f54b1e5901b1c73dc431a9cfaf9b95af2945e1e7b31a4f20",
+        "dd326701feeaca1e63872955a305811bc8874dd4a7e5d27cd9b024f952f4e19a",
+        "fb58cb844cfe32893a86d74cb187ec11bc03bf2feb64db09efa96f9e753848f5"
+      ],
+      "double_cleanup": true,
+      "inputs_same": true,
+      "tcp_supplementary_seconds": 46.39841194499604,
+      "references": [
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/result.json",
+          "sha256": "f31c250fb644738dd64e59a062dcbbed606b4cc1ec3165da41e3b300fdec47e3"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/raw.log",
+          "sha256": "0d7d7d0261bfc9429278f8efaea15aad93bd57a01c66e2591b846e54a779fe49"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/command.json",
+          "sha256": "5e0046a28ee50a3ff3d9385215ae82648bf27e54000158256b6951127569c7d3"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/frozen-input.json",
+          "sha256": "249a5dee21c0d34b45b28fe15fa2cf1e56219aa69a1638cac7f265e4aa2d2b9e"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/driver.py.txt",
+          "sha256": "222c1a5bb170f1b660f28f8227558086d45901e493ccb12104b31e50a50e8c66"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/input-before.json",
+          "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/input-after.json",
+          "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/watchdog.json",
+          "sha256": "cdd8b5df02aec8901eb771eff40145bfb24c047f2079d2e2e62b2853814680a8"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/observed-processes.json",
+          "sha256": "b0c09f3bcd3b6a0cfce7dd8ebed0d9a69bdbbd4efd0017f896fdd3a9667dff6b"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/observed-resources.json",
+          "sha256": "e237957a7f854ee142e57a7ce16a3995f294488e7c0f5888412ad050236ce4ae"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/cleanup.json",
+          "sha256": "4e57f579cd7b59360d5f6e407ff2e7aa88db0376d479037b55c1505e592e3c01"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/owned-tail-retirement.json",
+          "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/adopted-waits.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/process-baseline.json",
+          "sha256": "db590095918c06db9304413adc04bc47971172f34f9552be52f411bb15fa6ecf"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/tcp-baseline.json",
+          "sha256": "3014fdfdaa541d38f991b32268a9bea2ce5ceb23e29f9afc635834c9c7d5c504"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/tcp-observed-delta.json",
+          "sha256": "5667cd19188068897b5704fb3b33bab522e02d0562e24bfb24a35a18faf3f3a1"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/tcp-tail-observation.json",
+          "sha256": "35fc10f5615a84643d56453c883b44f0cac64d91639e3d0b26bcd11c691f0542"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/disk-preflight.json",
+          "sha256": "347c9d1d5d43d67124882017ee40cb2a962c0ead20683209d80262d906251c5f"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/disk-before-spawn.json",
+          "sha256": "e2fc2c35d57bccc19f59cacd670e4c2dfa324853367518d2fa357088a6ccaf1d"
+        },
+        {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/local-image-digests.json",
+          "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+        }
+      ]
+    }
+  ],
+  "all_six_resource_daemon": {
+    "rounds": [
+      {
+        "run": "new1",
+        "resources": [
+          "085499766b27b7ce3b68c3bb2505ca05677eea835ef9dc79677f4c56c2cc2da6",
+          "1b26bf123adb523dc6051247051b6a25dd1f71ebb3e1fb976bc4105cdd4e412a",
+          "323b0ddce5dedd8d4549d1580d4c60fe22d2157a586960870db1a94395f9a4eb",
+          "4c69c6d936588ca430adc37e28ba1f77f06d50c33941ace2dc4f6bdfcad1b378",
+          "5404cfa9ef6863c9054daca122aa591225c4440d7b505f792f97e64eb7fe36bc",
+          "6b0e1bf203f99f514b67c603ebae8ba21003b1cf02e3b24de5acf06e13907809",
+          "eeb5de3ac96e2a1d17042f0bef79809f9c21e274514e7ff5423274f681ade751"
+        ],
+        "daemon_baseline": 449,
+        "daemon_final": 453,
+        "task_new_daemon": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1352935,
+            "ppid": 1,
+            "starttime": "5256440",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1353377,
+            "ppid": 1,
+            "starttime": "5256704",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1353651,
+            "ppid": 1,
+            "starttime": "5256904",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1354297,
+            "ppid": 1,
+            "starttime": "5257160",
+            "state": "Z"
+          }
+        ],
+        "interround_difference": {
+          "added": [],
+          "removed": []
+        },
+        "resources_double_absent": true
+      },
+      {
+        "run": "new2",
+        "resources": [
+          "01b2934c95e782ce7e00ebaca26114d4ec8fc9136d6afec71bc5af7f8c44724c",
+          "39daf5978be8ae4990dc1cfd148daddc6a6ef5b69937c08e3d0c849e130350bc",
+          "536b908d16a3b0a442cfb58a417efcdecb08ec45be7c080d9da39d92c11c466f",
+          "5e6863220a9172be661120892cbf2ec5d22071b38ac8d1a170d12f51d4387147",
+          "6ce855ee521f4febe5ad0af540ff385ea94134b822541e2d5ce703f91f2074b5",
+          "7ca6e4f06a4740864efd8753e7eff6be5ac20d4e43eecba69c345670a4c83524",
+          "ae107f244a7e4ea242419974707e0b5f736c788a05fe677150b0d1f075474441"
+        ],
+        "daemon_baseline": 453,
+        "daemon_final": 457,
+        "task_new_daemon": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1363005,
+            "ppid": 1,
+            "starttime": "5277362",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1363452,
+            "ppid": 1,
+            "starttime": "5277745",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1363819,
+            "ppid": 1,
+            "starttime": "5277933",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1364301,
+            "ppid": 1,
+            "starttime": "5278105",
+            "state": "Z"
+          }
+        ],
+        "interround_difference": {
+          "added": [],
+          "removed": []
+        },
+        "resources_double_absent": true
+      },
+      {
+        "run": "old1",
+        "resources": [
+          "051c07110c7a5e2dd20f0033ff76d20236d67a6b712f6a3334e4e2cbda028be3",
+          "55ea5384f1c62884b1441948c12e42904c66e2773284bf35d7043ca095d6a1cf",
+          "669c051ef5767a5169034f464f957e8d2200e91c9c5f9149656080705fd086d1",
+          "7c5a2ed9c7744b5c03f3510f1349e28347d3b274beff76840db5690993b22e20",
+          "8c68e4807968bc242e576fc09cddf79d5076fed0c2ca28e61ca4b025638a8ea4",
+          "b038134c715abb4be78729c5bc306f763dc85ddbb2739024fa9cfd7acc58c0dc",
+          "e7f4ac2dce903412d69f9acb24c72c14dd0ab6fcba8d6ca4be51d1e2ef635a93"
+        ],
+        "daemon_baseline": 457,
+        "daemon_final": 461,
+        "task_new_daemon": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1370378,
+            "ppid": 1,
+            "starttime": "5289160",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1370732,
+            "ppid": 1,
+            "starttime": "5289377",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1371097,
+            "ppid": 1,
+            "starttime": "5289572",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1371597,
+            "ppid": 1,
+            "starttime": "5289760",
+            "state": "Z"
+          }
+        ],
+        "interround_difference": {
+          "added": [],
+          "removed": []
+        },
+        "resources_double_absent": true
+      },
+      {
+        "run": "old2",
+        "resources": [
+          "7981e61b372ef6c7c7829bb26cce893d41c1865ef86a160f6096e3171e9642f6",
+          "85e272a79f5f1c56068d02754999b8cf0a88181c8fa2844ca7fb2da13ac888d5",
+          "c6e608b1fd1a4ff1c5e241b0b906f76f2937eed545bbfcdc8a4a515cc653adc7",
+          "ccfee17ee11b0b1f7a2ecf971c81665752f6872732911096c342c2a501d7e1cc",
+          "cec27a03b4c4f54cd5f849953d51788fba5503dee21541d7ba78d1596bb24294",
+          "e402db2e081fd05edab078f3d5bd602c6744fb0cc4f6ee658d249a15bcff72f9",
+          "ed8356d42091cf27076a05d14a1f8d2e85a0b67d3d4503a5fd1bb70d03878c40"
+        ],
+        "daemon_baseline": 461,
+        "daemon_final": 465,
+        "task_new_daemon": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1378618,
+            "ppid": 1,
+            "starttime": "5304104",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1379047,
+            "ppid": 1,
+            "starttime": "5304416",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1379419,
+            "ppid": 1,
+            "starttime": "5304681",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1379921,
+            "ppid": 1,
+            "starttime": "5304858",
+            "state": "Z"
+          }
+        ],
+        "interround_difference": {
+          "added": [],
+          "removed": []
+        },
+        "resources_double_absent": true
+      },
+      {
+        "run": "independent-a01",
+        "resources": [
+          "2a81a66923497cf45021467c5429473e5b03cb73e84662b56615d7cc05cf834d",
+          "3f4f0f17564af281df47efc073635160905b1f363bdecbeb343f5c86b1e33d89",
+          "5e1ea66434a1b28c4e3d525a9741258c811ae404eae1006c638340c4d890c27b",
+          "6451d2c02753a5832f3ef3d312bc3cdab67e2f66bdf15c27e3105d0c726d4db5",
+          "aa8a24078345ffd2e99781f5a1f94f1b6ffb48583bf7fe58f6e771b35ca028f6",
+          "f18e32bee7364cec2be1566f5e5184778afd251c22db94e9022915a441b03023",
+          "f8cb763eff1d4ef93efec38228f43375ca90d182ef486171aba2ef3eb740a4d4"
+        ],
+        "daemon_baseline": 465,
+        "daemon_final": 469,
+        "task_new_daemon": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1386414,
+            "ppid": 1,
+            "starttime": "5319374",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1386918,
+            "ppid": 1,
+            "starttime": "5319752",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1387224,
+            "ppid": 1,
+            "starttime": "5319931",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1387722,
+            "ppid": 1,
+            "starttime": "5320108",
+            "state": "Z"
+          }
+        ],
+        "interround_difference": {
+          "added": [],
+          "removed": []
+        },
+        "resources_double_absent": true
+      },
+      {
+        "run": "independent-b01",
+        "resources": [
+          "00d976b2cc62fed26cbdd1dd9145622754c4a57b6c5a315c72889d8888bcfda3",
+          "15215df3fcf61ded4b3b8efdfe0751f0947e8fffb2220ec4336bf22f57f20314",
+          "41bf609f0ab3be29cbce0c7ba1e3212a7da15fe4fdb08f0ce189a3f37dce47ad",
+          "745ca57235d3636600286a429e29ed84f97be12d40293e1e633b5956e907307e",
+          "a06e0d2ae4402159f54b1e5901b1c73dc431a9cfaf9b95af2945e1e7b31a4f20",
+          "dd326701feeaca1e63872955a305811bc8874dd4a7e5d27cd9b024f952f4e19a",
+          "fb58cb844cfe32893a86d74cb187ec11bc03bf2feb64db09efa96f9e753848f5"
+        ],
+        "daemon_baseline": 469,
+        "daemon_final": 473,
+        "task_new_daemon": [
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1393928,
+            "ppid": 1,
+            "starttime": "5332699",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1394468,
+            "ppid": 1,
+            "starttime": "5333116",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1394876,
+            "ppid": 1,
+            "starttime": "5333375",
+            "state": "Z"
+          },
+          {
+            "executable": "",
+            "name": "containerd-shim",
+            "pid": 1395413,
+            "ppid": 1,
+            "starttime": "5333561",
+            "state": "Z"
+          }
+        ],
+        "interround_difference": {
+          "added": [],
+          "removed": []
+        },
+        "resources_double_absent": true
+      }
+    ],
+    "unique_resource_ids": 42,
+    "unique_observed_owned_identities": 485,
+    "distinct_task_new_daemon": 24,
+    "task_new_daemon": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1352935,
+        "ppid": 1,
+        "starttime": "5256440",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1353377,
+        "ppid": 1,
+        "starttime": "5256704",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1353651,
+        "ppid": 1,
+        "starttime": "5256904",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1354297,
+        "ppid": 1,
+        "starttime": "5257160",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1363005,
+        "ppid": 1,
+        "starttime": "5277362",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1363452,
+        "ppid": 1,
+        "starttime": "5277745",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1363819,
+        "ppid": 1,
+        "starttime": "5277933",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1364301,
+        "ppid": 1,
+        "starttime": "5278105",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1370378,
+        "ppid": 1,
+        "starttime": "5289160",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1370732,
+        "ppid": 1,
+        "starttime": "5289377",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1371097,
+        "ppid": 1,
+        "starttime": "5289572",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1371597,
+        "ppid": 1,
+        "starttime": "5289760",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1378618,
+        "ppid": 1,
+        "starttime": "5304104",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1379047,
+        "ppid": 1,
+        "starttime": "5304416",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1379419,
+        "ppid": 1,
+        "starttime": "5304681",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1379921,
+        "ppid": 1,
+        "starttime": "5304858",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1386414,
+        "ppid": 1,
+        "starttime": "5319374",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1386918,
+        "ppid": 1,
+        "starttime": "5319752",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1387224,
+        "ppid": 1,
+        "starttime": "5319931",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1387722,
+        "ppid": 1,
+        "starttime": "5320108",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1393928,
+        "ppid": 1,
+        "starttime": "5332699",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1394468,
+        "ppid": 1,
+        "starttime": "5333116",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1394876,
+        "ppid": 1,
+        "starttime": "5333375",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 1395413,
+        "ppid": 1,
+        "starttime": "5333561",
+        "state": "Z"
+      }
+    ],
+    "daemon_owned": false,
+    "daemon_waited": false,
+    "global_zero_claim": false
+  },
+  "no_repository_installation": true,
+  "host_TCP_complete_trace": false,
+  "resource_window_released_to_root": true
+}

@@ -1,0 +1,18 @@
+{
+  "scope": "scratch index helper only; no Go/resource execution or original source/result changes",
+  "errors": [
+    {
+      "tool_chunk": "acc567",
+      "exit": 1,
+      "observed": "AssertionError, inline line16",
+      "cause": "new1 original brief uses descriptive state/different fields; aggregator assumed common PASS/checks schema."
+    },
+    {
+      "tool_chunk": "572dcb",
+      "exit": 1,
+      "observed": "KeyError pid",
+      "cause": "process-baseline stores PID as dictionary key, not in each value."
+    }
+  ],
+  "correction": "Use common original result/command/cleanup and actual baseline PID keys; do not rewrite briefs."
+}

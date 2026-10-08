@@ -1,0 +1,23 @@
+--- /workspace/scratch/project-initialization-convergence-author/pg-driver-v01/driver.py
++++ /workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.py
+@@ -341,15 +341,17 @@
+     # This conservative host delta is supplementary, not proof of every short
+     # connection or ownership of a tuple. It never authorizes terminating a PID.
+     started, quiet, scans = time.monotonic(), 0, []
+-    while True:
++    deadline = started + 75
++    while time.monotonic() < deadline:
+         rows = tcp_delta(tcp_snapshot(), baseline)
+         scans.append({'time': utc(), 'new_host_rows': rows,
+                       'active_rows': [row for row in rows if row['state'] != '06'],
+                       'time_wait_rows': [row for row in rows if row['state'] == '06']})
+         quiet = quiet + 1 if not rows else 0
+-        if quiet >= 2 or time.monotonic() - started >= 75:
++        remaining = deadline - time.monotonic()
++        if quiet >= 2 or remaining <= 0:
+             break
+-        time.sleep(0.2 if quiet else 1)
++        time.sleep(min(0.2 if quiet else 1, remaining))
+     result = {'role': 'supplementary host polling; not complete short-connection trace or ownership proof',
+               'cleanup_budget_seconds': 75, 'seconds': time.monotonic() - started,
+               'double_delta_clear': quiet >= 2, 'scans': scans,

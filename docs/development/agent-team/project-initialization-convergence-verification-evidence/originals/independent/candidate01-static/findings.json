@@ -1,0 +1,20 @@
+[
+  {
+    "id": "IC-PG-01",
+    "status": "OPEN",
+    "severity": "blocking before real PG acceptance",
+    "path": "tests/project/initialization_convergence_fixture_test.go",
+    "lines": [
+      46,
+      57
+    ],
+    "observation": "Cleanup returns after Drain(2s) and ForceClose(1s), including when ForceClose reports timeout; no subsequent actual Store terminal wait.",
+    "basis": [
+      "formal spec section 6: holders must actually join and 120s top budget includes Cleanup",
+      "accepted postgres/store.go:209-242 Drain waits operations+targets and pool closed; ForceClose is explicitly bounded",
+      "accepted postgres/pool_cancellation.go:495-497 returns on total expiration before local joined condition"
+    ],
+    "repair": "Keep original Drain/Force errors, then actually await Store Drain terminal in new fixture; retain top120s including Cleanup/package6m outer ownership budget, without production/shared-helper changes.",
+    "classification": "STATIC test-harness defect; no Go or PG run has occurred on these new two sources."
+  }
+]

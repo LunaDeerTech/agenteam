@@ -1,0 +1,3836 @@
+{
+  "status": "COMPLETE_SIX_PATH_PRODUCT_ACCEPTED_AND_ARCHIVED",
+  "product_commit": "39ebd57e75ed30bc8f919dd425ec2f0b8fca7d27",
+  "accepted_spec_commit": "b01b08d440ca253124efe4e725dea093fa1a958e",
+  "accepted_spec_archive_commit": "2cf00e06dda12c7c9f4b6eae033d09a387ee7332",
+  "baseline_product_commit": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "limitations": [
+    "Original CGO collector AssertionError has no independently saved raw/stderr; original author offline summary and independent review preserve the report. Do not manufacture a traceback. Both original go-list commands exited0; graph extra29 is distinct from a go-list failure.",
+    "Fingerprinted large raw graph/input/baseline files and installed full-source diff are NOT copied into this archive. Exact source pointers remain but repo-only readers cannot reconstruct all omitted original bytes.",
+    "Derived files are JSON field excerpts/recounts, not original files.",
+    "Final05 original pending-installation/README wording is historical. Author installation01, README installation checks and final06 close those prerequisites. Product accepted at the fixed product_commit."
+  ],
+  "sources": [
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit01/manifest.json",
+      "sha256": "58a72862cf2f0dcec744de757b9bb6b148d0df64f1dd4a76ace7b8839cb173cb",
+      "bytes": 1856,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit01/manifest.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit02/manifest.json",
+      "sha256": "d7d2b71059e3ef13261e5393bf404004a54648744b844c056942f15f03ffdbf0",
+      "bytes": 2296,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit02/manifest.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit02/unit01-to-unit02.diff",
+      "sha256": "535403198cb786ddc1ceeea7dd61223bd243b2749690a8dc79b5b6f5c667f88b",
+      "bytes": 742,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit02/unit01-to-unit02.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit03/manifest.json",
+      "sha256": "0f3a2de30f724f2f5a10a06726e7449266f1c2b2bc3552099fff7e9857149302",
+      "bytes": 2598,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit03/manifest.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit03/unit01-to-unit03.diff",
+      "sha256": "81fa001fdc3a9e2b52ae0848f1f858e5557ce27eb3166211853f8429e8f2dbf7",
+      "bytes": 1171,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit03/unit01-to-unit03.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit03/unit02-to-unit03.diff",
+      "sha256": "761c4cfeb951b367f3a797b9f8460d131993cd1eb50ce6875c5b0f7def09da4e",
+      "bytes": 521,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit03/unit02-to-unit03.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit04/manifest.json",
+      "sha256": "01d5d003a911a2959c574633776535ffb85921f58f952a865884ec151e2aab92",
+      "bytes": 2440,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit04/manifest.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/unit04/unit03-to-unit04.diff",
+      "sha256": "0c47bd64aab74a995a787201c502f80051fe99f3ffea9ccd603f65b86dd6373f",
+      "bytes": 2221,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/unit04/unit03-to-unit04.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/candidate01/manifest.json",
+      "sha256": "a2c3f5fcc8cd5e34b09b67317f8f13e7cfbccdfc8a3f20f3c861ce2b77af97e5",
+      "bytes": 3384,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/candidate01/manifest.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/candidate02/candidate01-to-candidate02.diff",
+      "sha256": "5ff0aa79ae182c4fd3fa683c3f3ba78767c0ecb29090b6a8821915db79713e41",
+      "bytes": 1226,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/candidate02/candidate01-to-candidate02.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/candidate02/manifest.json",
+      "sha256": "95b8d89d52703d90215019dcb7cedcfd422ba8e5f3287e181b496d70d9acfd53",
+      "bytes": 3688,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/candidate02/manifest.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/candidate03/candidate02-to-candidate03.diff",
+      "sha256": "a8c6c62c31877e696d94b04961ab808b6c5731dd8cd949bb75a34bfc78badfd8",
+      "bytes": 770,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/candidate03/candidate02-to-candidate03.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/candidate03/manifest.json",
+      "sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b",
+      "bytes": 3906,
+      "group": "version-chain",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/candidate03/manifest.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/author-results01/result.json",
+      "sha256": "04d9b34d1637d342627cdd3e7ad45d74b3a1c4648e2afbdcfee2248b6556ab0a",
+      "bytes": 23875,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/author-results01/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/author-results01/review.md",
+      "sha256": "1dd3702ca57042f0dfc27339cb8169d61a495fd5792614c5c863aa358dbbfa2a",
+      "bytes": 1449,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/author-results01/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/author-results01/resource-daemon.json",
+      "sha256": "71db926923ed91800e446839296eb877d71d8492325972f805330f9c0137b9b4",
+      "bytes": 6997,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/author-results01/resource-daemon.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/author-results01/index-first-error.json",
+      "sha256": "cad3d0d6da624fe38d494d97052b55abfd6d3b47a577f075dbbafeab0d1495b8",
+      "bytes": 510,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/author-results01/index-first-error.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/author-results01/index-errors.json",
+      "sha256": "a610c12e561906bd9ae3c68f55bf8adf26e7a0cdacfb433dbfe4af8ee8fe9043",
+      "bytes": 648,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/author-results01/index-errors.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/offline-summary01.json",
+      "sha256": "889f0f8f9fa28e84b93732925863ce7248ddc4677207a828ac402603d59a798f",
+      "bytes": 8435,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/offline-summary01.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-offline-summary01.json",
+      "sha256": "c0b204b35fc368068a579025669131a0724f00ef97e7f7f466779bbfece7178e",
+      "bytes": 14697,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/integration-offline-summary01.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-actual-graph01.json",
+      "sha256": "870ff8508b347456e81815f5012a5216d87f6eb1ca8cdfefce31d9e4b7c98068",
+      "bytes": 16809,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pure-actual-graph01.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-actual-graph02.json",
+      "sha256": "c9771afa95a70a5e4fa1b604ac438ddc5a8872ce7b5959bee335edb0cb20682a",
+      "bytes": 743,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pure-actual-graph02.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-overlay02/cgo-delta.json",
+      "sha256": "91cff730d6841453c05b418cd0a5d66531293251fd6e097d67142bff25bcee70",
+      "bytes": 4561,
+      "group": "author-index-and-failures",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pure-overlay02/cgo-delta.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit01-static/result.json",
+      "sha256": "f86810f63aa943b2bad251defa8be9cde911d9a51ad17815034232ae7ba21196",
+      "bytes": 3775,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit01-static/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit01-static/review.md",
+      "sha256": "db45728be00f77fa5fca32ca5151df2d6d3b7a97f71f124e53194417c6bbcf25",
+      "bytes": 3718,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit01-static/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit03-static/result.json",
+      "sha256": "89c0174c99c3b23fb6d76fba67835a24d30c5f43bf9f1a115739cb46819e6639",
+      "bytes": 2184,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit03-static/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit03-static/review.md",
+      "sha256": "84548aac736386592d346de210f1e2c9c0b9cc5145e30f9fe897bfa636ac8695",
+      "bytes": 1755,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit03-static/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/check.py",
+      "sha256": "0646099cb29da652d71eacd7d3aacb59fcf3c104b9685222550c436b54f2bbf1",
+      "bytes": 6023,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit04-offline-review/check.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/checks.json",
+      "sha256": "56413a8f418fa0b1aab690622be30be9143eb80b5907ac3700640218904161a6",
+      "bytes": 12031,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit04-offline-review/checks.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/result.json",
+      "sha256": "718d5bec5f90f892adcfcb043548c1c2f5c65e6f6d25c4b3ca8bb1cf5c592c8d",
+      "bytes": 1856,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit04-offline-review/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/unit04-offline-review/review.md",
+      "sha256": "e250418775ddcb11a4dd652cdf3cfaa0d9a1cb44482a32b25b831324dc27e4cc",
+      "bytes": 3319,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/unit04-offline-review/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/bound-inputs.json",
+      "sha256": "5c8602f14c8ec3b78f3d8251cfd6314c56c3617c7ccb14fc2cf3fecd65d0b03b",
+      "bytes": 7948,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/candidate01-static/bound-inputs.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/findings.json",
+      "sha256": "beae916050fc480106776ca17d1d940007f83a1f25f4cce9b54388d26a63420c",
+      "bytes": 1062,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/candidate01-static/findings.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/result.json",
+      "sha256": "11ccf4a1607fd001901ade57e2738673086484875e5b0157bed52234198c75ff",
+      "bytes": 1657,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/candidate01-static/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/candidate01-static/review.md",
+      "sha256": "d60c1b82e337025290676d4e17f0117e141e3168eacd6106a8fe05eb0c99e7f8",
+      "bytes": 4661,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/candidate01-static/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/candidate02-static/checks.json",
+      "sha256": "144246bb6082a25196ca8b95774ff38ea7966a04823922d5a0c1478c764293c6",
+      "bytes": 1056,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/candidate02-static/checks.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/candidate02-static/result.json",
+      "sha256": "a1aa498b217ac44f7e005786e9c713190deaf585899e13681758501b7da6702d",
+      "bytes": 1437,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/candidate02-static/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/candidate02-static/review.md",
+      "sha256": "0a80708612db98ea295ac87201d50893451bfd8f34768f5e811e52751047f38c",
+      "bytes": 2985,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/candidate02-static/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/check.py",
+      "sha256": "6a9250ec8e9fcb6b656bfea9ff18da9ffe5588adb3aa19f819daf981ee2f9f2d",
+      "bytes": 5699,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/integration-offline-review01/check.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/checks.json",
+      "sha256": "8a3a9d8dee6e37feb9b958edae57e74ea4b5df0c549683d72b68c7aef40d4294",
+      "bytes": 6315,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/integration-offline-review01/checks.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/result.json",
+      "sha256": "408b164fcbb41225e5bf2e9f056e8928f476ae697692c4e1a97b1eaafb529f04",
+      "bytes": 2244,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/integration-offline-review01/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/integration-offline-review01/review.md",
+      "sha256": "6d2c7b871c3a79f53c71d4c3375f3720f125299a2d196466eb0eda92060b5262",
+      "bytes": 2637,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/integration-offline-review01/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-driver01-static/check.py",
+      "sha256": "18bdc2040c81c2621be21fcd128909c87f6c8d1e81d027d2c3341e79832de518",
+      "bytes": 3770,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-driver01-static/check.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-driver01-static/checks.json",
+      "sha256": "5feead2feacd0fda1f8080f968c931d6f5487f23e70f0fae9ac92699166c1862",
+      "bytes": 1484,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-driver01-static/checks.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-driver02-static/check.py",
+      "sha256": "9003f320f02d1c0390cc383a282bc325a6283db93ca08c23cbe897d5cb743077",
+      "bytes": 4268,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-driver02-static/check.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-driver02-static/checks.json",
+      "sha256": "eda781cd60777e75fec1aac8e4e096e5f7d0d6ccb77d7bb20a2377b57343a62e",
+      "bytes": 4656,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-driver02-static/checks.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-driver02-static/finding.json",
+      "sha256": "e63bf672312a9442e6f8d51189b38c5b5ff9b6e554cb319d991bb23a1114641d",
+      "bytes": 629,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-driver02-static/finding.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-driver02-static/result.json",
+      "sha256": "cfcc5ec89653c35172ad6366ed3ead84099d7091a2283fc86785b40639bbce33",
+      "bytes": 3860,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-driver02-static/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-driver02-static/review.md",
+      "sha256": "6fe56d90d70ddcd8248774d10550045164b985c5603aad355c667a6ab6357d52",
+      "bytes": 2068,
+      "group": "independent-static-offline",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-driver02-static/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/product-prep01/preflight01-failure.json",
+      "sha256": "83b05ac106e57189d4a5e657f017c3933085e1d0f84d6a269078e349f501a314",
+      "bytes": 950,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/product-prep01/preflight01-failure.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/check-new1-first.json",
+      "sha256": "f13a878c1f8ba73d0b9d12bff07984a8d0432b85e286a8c0546acb8bcab0ab10",
+      "bytes": 172,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/check-new1-first.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/check-new1-original.py",
+      "sha256": "6fe71f42da71333c9f92a71dc85bf22b4a1e09ebfca6283f891d7bb175d1a574",
+      "bytes": 4525,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/check-new1-original.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/check-new1.py",
+      "sha256": "779de3888a59e4ff3d9497f4c9b4dd631e16ef3a78ee3ceca9d4fc48cca633e4",
+      "bytes": 4530,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/check-new1.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/check-completed.py",
+      "sha256": "c6edb5f655111e72df42921045f0384dee39f738a32212d86c3b090e9d439261",
+      "bytes": 4878,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/check-completed.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/completed03.json",
+      "sha256": "c8723f1616971753c74e55430f3de29d538a7dd1e59dd53e6bb804aec068dfb3",
+      "bytes": 845,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/completed03.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/completed03-result.json",
+      "sha256": "d91fa553896d37923e30d0337922fc2af35bd37f37f8e0c088711e3110143d37",
+      "bytes": 28570,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/completed03-result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/freeze.json",
+      "sha256": "9b2b1f1384a1191f4c7c890b9eaabbff418bb1c0490eca3828a649850299528b",
+      "bytes": 540,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/author-pg-review01/review.md",
+      "sha256": "7e78f1d20dbfec22325646ba5b8396139e2fd7d02d148d1384dbc63ec7611024",
+      "bytes": 1648,
+      "group": "independent-author-review",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/author-pg-review01/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview01/command.json",
+      "sha256": "53a66d2f4ef71d9382481cd0b1b6c9355d58b85318edc5b4a78429456052e584",
+      "bytes": 294371,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2310,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/0"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview01/result.json",
+      "sha256": "145ee34375956f7b1f4cc81cb5a2f249af0e1e6a15a49c69c29010dbc92c2489",
+      "bytes": 292721,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 661,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/1"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview01/stdout.log",
+      "sha256": "039c5a87d71c32fcac23a1ab9f49aebc40d3f7391d7f3c698be5a34ebee2ed13",
+      "bytes": 2630,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview02/command.json",
+      "sha256": "9f1e2c1e67f99cefb28cfd015a15cd0fef055aa4a7d3bd6b0678af080133106c",
+      "bytes": 294371,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2310,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/2"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview02/result.json",
+      "sha256": "2c6f1a26c9d3e5c16ac73a7c84689d0d3c09e5c0a99e6003cc576c5d1dce5124",
+      "bytes": 292720,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/3"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview02/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/format-preview02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/command.json",
+      "sha256": "b0c534d5249378cbc071abb6808de2952375f4180fba41c6e605e32318007954",
+      "bytes": 294070,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2009,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/4"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/result.json",
+      "sha256": "f6bd583ccf924d1709bb2f1675f9175278d57b81e757fa89c8c92d221c8754b2",
+      "bytes": 292850,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 790,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/5"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/stdout.log",
+      "sha256": "f99260616ff2da46a51b6230eb3bf6489cf4c7e507b5c4bf4b8fdd26c5453656",
+      "bytes": 762743,
+      "group": "offline-raw",
+      "preservation": "fingerprint-only",
+      "note": "Large go-list stdout only fingerprinted; do not call it preserved raw.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race01/command.json",
+      "sha256": "149010868bf54cfb0e73b99db1cd118889e059977d99143b69eeffaca6935166",
+      "bytes": 294083,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2022,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/6"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race01/result.json",
+      "sha256": "e8401bd4523e877deb6cd412513dfff8aed1695afe7b140d4ac1f7884be46d8c",
+      "bytes": 292850,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 790,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/7"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race01/stdout.log",
+      "sha256": "d1e37680352b8f51d1ae5f89d54831afba95d783716d7486b0495ef56380237b",
+      "bytes": 765476,
+      "group": "offline-raw",
+      "preservation": "fingerprint-only",
+      "note": "Large go-list stdout only fingerprinted; do not call it preserved raw.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/command.json",
+      "sha256": "adef849b889abc1b03350083ba7ecf9f73c46fc179a83f7a2a8e53b03f94f8b5",
+      "bytes": 298502,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2009,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/8"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/result.json",
+      "sha256": "2b2446efc95c11bc0020d75456fbf89c0d26d9280aeb3c0c8c45dbfa8fefc886",
+      "bytes": 297153,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 661,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/9"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/stdout.log",
+      "sha256": "f99260616ff2da46a51b6230eb3bf6489cf4c7e507b5c4bf4b8fdd26c5453656",
+      "bytes": 762743,
+      "group": "offline-raw",
+      "preservation": "fingerprint-only",
+      "note": "Large go-list stdout only fingerprinted; do not call it preserved raw.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race02/command.json",
+      "sha256": "bdb38affb035eac09556ea7a9c31593a297e2399b9d3e34faa52d9a50eb9b95d",
+      "bytes": 298515,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2022,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/10"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race02/result.json",
+      "sha256": "64271dc4aa0ecd14dadf1d1a3a6ade79c7cbf69cfd43cc46885b7e4a8f7449e7",
+      "bytes": 297282,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 790,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/11"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race02/stdout.log",
+      "sha256": "d1e37680352b8f51d1ae5f89d54831afba95d783716d7486b0495ef56380237b",
+      "bytes": 765476,
+      "group": "offline-raw",
+      "preservation": "fingerprint-only",
+      "note": "Large go-list stdout only fingerprinted; do not call it preserved raw.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-compile01/command.json",
+      "sha256": "e177738dade5ff63ce1c2bc4d569717e6a6c54aaef3c330ff9e995e2876d398c",
+      "bytes": 299034,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2037,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/12"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-compile01/result.json",
+      "sha256": "9eb4a5640ab8ff4079f37188d3e56f6d4dd006373290ecdba25e973ccebdb85a",
+      "bytes": 298305,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1309,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/13"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-run01/command.json",
+      "sha256": "6921d413a333c1b7824be2f69c3c1f80dbc48e67baec20a92fb9971c0cf9298d",
+      "bytes": 299167,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2012,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/14"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-run01/result.json",
+      "sha256": "8bc4bf9990cb49f13d046fba14d65f1dc583602b8b0ee79e6f9d264df6936730",
+      "bytes": 297814,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/15"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-run01/stdout.log",
+      "sha256": "8550876a31ed71f31c30079e2262f575b3c00392d8ad2fd5320beac6e0b6d56e",
+      "bytes": 35315,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/project-pure-run01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-pure-run01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-compile01/command.json",
+      "sha256": "a759281500b6d5925e18df830eb77ee18d9264945e62c00ba87c23e3cd074a53",
+      "bytes": 299047,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2050,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/16"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-compile01/result.json",
+      "sha256": "60b29626719c29b051fc13fd020857bc6cf228ca7f76ba20e0282f4d4561b351",
+      "bytes": 298176,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1180,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/17"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-run01/command.json",
+      "sha256": "aad34a52e1732f1188b6cecb1065f52945c86815f1e60ec7f5bbafe0897a7280",
+      "bytes": 299167,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2012,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/18"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-run01/result.json",
+      "sha256": "0e9beabc36e16135f1fadd8d297a90d6c8cbd1e81ca28a66d105d730f8bcb6b6",
+      "bytes": 297814,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/19"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-run01/stdout.log",
+      "sha256": "7816c567fe579f32c3b2c357a3c25d6469ff73ccdae3f47bc88fc9eb3ab5a4cf",
+      "bytes": 35315,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/project-race-run01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/project-race-run01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-compile01/command.json",
+      "sha256": "554a31257c47c1a17580ee9e3b7a54e87e870d903bacbe9e4a3f9065a2d9bb9c",
+      "bytes": 299044,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2047,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/20"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-compile01/result.json",
+      "sha256": "7e9bc9263742e85d3604c89d6ca3ac98dc2bccd5ba93e148eb4563389263ef1d",
+      "bytes": 298046,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1050,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/21"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-run01/command.json",
+      "sha256": "d105c7a10f64d1d5f475f63b36f3b7101f59dc743d56fb8a4cfaa234afaa84c6",
+      "bytes": 299178,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2022,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/22"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-run01/result.json",
+      "sha256": "cc252b14edbcea45880eda490bfecab6649a7b86abcd8c14a446bd90e774f379",
+      "bytes": 297816,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 661,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/23"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-run01/stdout.log",
+      "sha256": "f105243e50d13d567a22234066aad15738f68cf7e42bdc521f779b1def044ab1",
+      "bytes": 5137,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/contract-pure-run01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-pure-run01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-compile01/command.json",
+      "sha256": "f3977e920fa244e1b76cab7f280df41bc10ab32c30787b3d6d9e7eac32c23d25",
+      "bytes": 299057,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2060,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/24"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-compile01/result.json",
+      "sha256": "a2199c39850b051e5de643022b41772b9e7b4582c39cf80bd187716041eab810",
+      "bytes": 298045,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1049,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/25"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-run01/command.json",
+      "sha256": "14f92d27dcd39f6e45eb4859104deadaa91bcd33aacf6430d9f0dd28b2f03f93",
+      "bytes": 299178,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2022,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/26"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-run01/result.json",
+      "sha256": "97bc8cdfbdd7872bd03c766920fe504b2b0380dd37866640b058b29df7c8eb2f",
+      "bytes": 297815,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/27"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-run01/stdout.log",
+      "sha256": "e7895243b3f118f96041beeebb4a6da6253c9fb05d7ab4efe067561df5c08f70",
+      "bytes": 5137,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/contract-race-run01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/contract-race-run01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/race-vet01/command.json",
+      "sha256": "3a63557e15bf6210017639f75615066eb5b38072e92b2aec266f8dcdc62fb3e3",
+      "bytes": 298979,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 1982,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/28"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/race-vet01/result.json",
+      "sha256": "88c2ec25315b8f80f43427a7c804a4f38ab85bfbfcf485195cff274a33c27767",
+      "bytes": 298046,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1050,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/29"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/race-vet01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/race-vet01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/command.json",
+      "sha256": "09de8957c408a276fba6aa1ab1f1360e6bd491864d03c32cd0b76da12462a359",
+      "bytes": 473573,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2175,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/30"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/result.json",
+      "sha256": "3927d78d78fccb1579c7eef3c2f0ee07dc56511048577f39b5809b83aec2b651",
+      "bytes": 472058,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 661,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/31"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/stdout.log",
+      "sha256": "e25527d87d9176ff26721c566d741bab6e50f676165facee752f87116e2cf0fe",
+      "bytes": 1183,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/integration-format-preview01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/command.json",
+      "sha256": "72efa32262ea4badd660d34bccc61d83c7631bd1dde2d804a3817b68e7c83fd8",
+      "bytes": 473573,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2175,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/32"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/result.json",
+      "sha256": "b0fcbbbc0f8141e1950ceab78c8dfbdb8a8d056531bc8643643e141e0dbffd76",
+      "bytes": 472058,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 661,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/33"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/command.json",
+      "sha256": "95b82477496feb61a28b4c8b11ecb0ca5e7efa73e59597c99d7a1eadbd7bfbf9",
+      "bytes": 473888,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2490,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/34"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/result.json",
+      "sha256": "b89c50461ec563fe6c597869e2ae0700d942f0579dcc3d495cd32c938a64dc5d",
+      "bytes": 472187,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 790,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/35"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/stdout.log",
+      "sha256": "5e79f1f3244c5e1b66339af8dc8662000f4d5085cf2ae0db2b73b3e0db2253e2",
+      "bytes": 1794797,
+      "group": "offline-raw",
+      "preservation": "fingerprint-only",
+      "note": "Large go-list stdout only fingerprinted; do not call it preserved raw.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/command.json",
+      "sha256": "f6886816e24f96ae14a87bb8b113180cfc017080c08771343795aa9dcdabbd40",
+      "bytes": 473522,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2124,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/36"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/result.json",
+      "sha256": "19e1cb57388184b7633ab2a7929ebe1b5a3c64e4efc26020a8c7c09fc49637c5",
+      "bytes": 472187,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 790,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/37"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/stdout.log",
+      "sha256": "23154771deeb83c01b73488be8ce89beb6324e41eb273d86df592f3c5134830c",
+      "bytes": 1227353,
+      "group": "offline-raw",
+      "preservation": "fingerprint-only",
+      "note": "Large go-list stdout only fingerprinted; do not call it preserved raw.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/command.json",
+      "sha256": "598d29786afcfb04c3b21401cede08d01a990d8f36c2d389acfa268517c7d7a0",
+      "bytes": 476928,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2090,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/38"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/result.json",
+      "sha256": "533a8ae758ec18adadb7f4b0de655b21b4901eb52fb7484a8b5a3969c61e5584",
+      "bytes": 476147,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1310,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/39"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/command.json",
+      "sha256": "f2e1ff1a0993df061a7e9bf6a1687601c7463c4523449253539e5d5167bd379a",
+      "bytes": 477230,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2215,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/40"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/result.json",
+      "sha256": "156cb154087727f4edd0445d64478a96d23ce1560507d7e0176d093057a28f5f",
+      "bytes": 475674,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/41"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/stdout.log",
+      "sha256": "c29318e0ed5de2ea07b48a4244be8053d45fdfb42f1cd894750910de7bb4e650",
+      "bytes": 241,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/convergence-integration-list01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/command.json",
+      "sha256": "4c09a4190a4fa996509f849fc29caffdc1b98b906ac3c92cdfeee0e7f6ad656f",
+      "bytes": 476798,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 1960,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/42"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/result.json",
+      "sha256": "5f618b00c6b92d374fca9e517c24c83e33bec5f1546de68488846463aa555632",
+      "bytes": 475887,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1050,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/43"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/command.json",
+      "sha256": "977c032a73a9025b49ced87bfd73989e0df31c2c2a2fa33bb22ac17c738ce7ae",
+      "bytes": 476864,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2026,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/44"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/result.json",
+      "sha256": "851aff63ff164c7e45cbc92f9d0c08e77e4cc30dbca1f78bc4209e59adfb38cc",
+      "bytes": 476406,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1569,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/45"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/command.json",
+      "sha256": "b45638e6b0db1879afab0bb899ca7934f50cdffcfc968180a4dfb60b69044603",
+      "bytes": 476878,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2040,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/46"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/result.json",
+      "sha256": "ffe843a77dde99a009b0c909637c0f1ac4fbf75bda0f25518abf7977c4123952",
+      "bytes": 475757,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 920,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/47"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/command.json",
+      "sha256": "2f30bb716e50fea438565351d14498ab3cc53a36d15ac397666a9e9278e09c55",
+      "bytes": 546092,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2225,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/48"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/result.json",
+      "sha256": "1b8018942e7483ce4745a8220c98a06c7abed0f5e86d81e75641d74102031de3",
+      "bytes": 544526,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/49"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/stdout.log",
+      "sha256": "1f8e326309343ae51f4a06dbc6bd6cff10251657c563378de924fe3f1772207a",
+      "bytes": 533,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-inputcheck02/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-inputcheck02/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/command.json",
+      "sha256": "3604fa84a4d1b02dc46b0696da5c4afdb27181e2b99cf399ab3d6429b43743ef",
+      "bytes": 477761,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2049,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/50"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/result.json",
+      "sha256": "fb11bcd7f5a8415ffab25ad5c695e82469a99baa937ca2d43ab85f9688f5221c",
+      "bytes": 476371,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/51"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/command.json",
+      "sha256": "e5f0e207b671a13b73d031bc0fcab2fad44a13c4335bb6a39f837453dc23a6e3",
+      "bytes": 477727,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2015,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/52"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/result.json",
+      "sha256": "5d5416892b827208ae86e38ff8572da293f0ed1f97e1710163b8cca2de59aaa9",
+      "bytes": 476500,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 789,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/53"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/stdout.log",
+      "sha256": "57c01567f4271804e8d7bafe9d8e210463f85f3a95095d0322679be94f4e1257",
+      "bytes": 1062392,
+      "group": "offline-raw",
+      "preservation": "fingerprint-only",
+      "note": "Large go-list stdout only fingerprinted; do not call it preserved raw.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/command.json",
+      "sha256": "f0fe7ec52970b7d1e61ffd84f7b5ffd182e4f79c7433868992e1db5b1392a123",
+      "bytes": 478522,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2116,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/54"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/result.json",
+      "sha256": "a7ea1f58fbd38ca83f75ed2a1d546f6d2fb58cbd1252d0bc6850b966de5cfef1",
+      "bytes": 477455,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 1050,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/55"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/command.json",
+      "sha256": "271888a6cec48487b45563dc33ddc978738fb44ab6b1de18dfbc6f514c041f72",
+      "bytes": 478709,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 2115,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/56"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/result.json",
+      "sha256": "eda3cacb492c116cc0b462053fa8f4568ad4e5cd2d287549e27865cf7425338f",
+      "bytes": 477253,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 660,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/57"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/stdout.log",
+      "sha256": "5eee6701ee5c5d924bd46594a62ed40d96ef107de74e52883e4293e9cb455aba",
+      "bytes": 115,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-offline01/list01/stdout.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/command.json",
+      "sha256": "7355a8c5d4f6decaf237865fe398aad0c98dc230756229338ba024db3966aa66",
+      "bytes": 478381,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_before"
+      ],
+      "derived_field_bytes_estimate": 1975,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/58"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/result.json",
+      "sha256": "85eaa6efd72495926bb5673c42dc5292eb6fb83f61008246f974f783a24df702",
+      "bytes": 477195,
+      "group": "offline-command-results",
+      "preservation": "derived-fields",
+      "note": "Keep every non-map field verbatim as JSON values; omit only repeated full input dictionaries, retaining pointer/count/SHA and original whole-file SHA. Derived excerpt is not original.",
+      "derived_omitted_keys": [
+        "inputs_after"
+      ],
+      "derived_field_bytes_estimate": 790,
+      "archive": "derived/offline-command-results.json",
+      "archive_json_pointer": "/entries/59"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "group": "offline-raw",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/format-preview01/stderr.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/summary01.json",
+      "sha256": "283b8ff78a994775368d8a8ec1b2c7a9786c5e8eaa63a6dbcf685eb6acf08b30",
+      "bytes": 9124,
+      "group": "independent-offline-index",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-offline01/summary01.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/review.md",
+      "sha256": "4062f38508b603b34683abbd2f5d09d75afd4f3cfff2bb92c10f3619881eee5f",
+      "bytes": 1810,
+      "group": "independent-offline-index",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-offline01/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/final-freeze01.json",
+      "sha256": "19232c6e75f74dda677db72affcd227ae7564d970f914ccc4d609d424d7c5371",
+      "bytes": 1149,
+      "group": "independent-offline-index",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-offline01/final-freeze01.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-overlay01/driver.py",
+      "sha256": "d3d16aa9fb987e598b68fd376fbb994a691f6c3d4f05cdb7d9e1dd336ba504e7",
+      "bytes": 8218,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pure-overlay01/driver.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-overlay01/driver.diff",
+      "sha256": "cf404da4cdafbc71ac33dd6e3021f73e331fe8502a4eaef373e5f0e5a2a1e36e",
+      "bytes": 1129,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pure-overlay01/driver.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-overlay01/commands.json",
+      "sha256": "2ce1e6c800ccdde380a62583d9f8610986ecadc466ab2835638ffd00e8e7d55f",
+      "bytes": 4657,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pure-overlay01/commands.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/driver.py",
+      "sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7",
+      "bytes": 8685,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/integration-overlay03/driver.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/driver.diff",
+      "sha256": "771f41b209c0991d045ae7cfb3ec057034370557361620f6a55b79ed4c03a033",
+      "bytes": 1949,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/integration-overlay03/driver.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/commands.json",
+      "sha256": "1bc20a67eab251a99dbed1a713424b0e99b7db56ada8f26b43b8d8ffe213d0c6",
+      "bytes": 3930,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/integration-overlay03/commands.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+      "sha256": "ad4f1fca9a274eb00f8e45a175c89ddac51925990059b071a5b3f6ee794e6498",
+      "bytes": 1277,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/integration-overlay03/overlay.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v01/driver.py",
+      "sha256": "49c287c0335208859e605dfc909d0c990e05aea0df6c3fa1b99e89baa61136fe",
+      "bytes": 29639,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v01/driver.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v01/driver.diff",
+      "sha256": "e94056978a23add0bd0a49d4043dbff5afdc8e22150623ccdc03a53022ecad03",
+      "bytes": 9244,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v01/driver.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v01/freeze.json",
+      "sha256": "62882dd8ad7ad1d911c7ada385ee5fd085e3e42b0218e6181bd3ad68d5dd6a76",
+      "bytes": 1289,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v01/freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v01/plan.md",
+      "sha256": "1d6cffb20116bf7860c58d9930bd365dc79ef2ff41884963f1ce90a515dbc9c4",
+      "bytes": 5732,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v01/plan.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.py",
+      "sha256": "62895c8d30f5f35fbec65521ad0b145c74730d368f8e6bcd57102cb9a4ea0b5e",
+      "bytes": 29736,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/driver.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.diff",
+      "sha256": "ee81cb329b5a226cd273d7396bbdf7451bab26566fe6aa009059247d55420d1b",
+      "bytes": 1359,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/driver.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/freeze.json",
+      "sha256": "5e45849062912497bdd0c9844c3b2376f33dd667763985a4a6e197cf1673da7a",
+      "bytes": 1254,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/closure.json",
+      "sha256": "a2e64479ba3217a73d17e4305520a08f3f04191fe3caf51734607d93f11ce9c1",
+      "bytes": 794,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/closure.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/groups.json",
+      "sha256": "598f379df885a80c3659dd2934f0e1cecc9ec71d80a45712db30901e99e568bf",
+      "bytes": 364,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/groups.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/plan.md",
+      "sha256": "02a588cee5b453ae0654bfa400ce25574917956c2c2cf5bd8d802a801cfb6a0b",
+      "bytes": 6136,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/plan.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/authorized-new1.json",
+      "sha256": "504d6adaacd0f7db6d27ed10129afbfba6839d560719ce4d9d25ec03c56f1540",
+      "bytes": 1401,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/authorized-new1.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/authorized-remaining.json",
+      "sha256": "8dfb0ac8ff8a131ea38fc4b8c0c83b5992aa638f69d36e5de6f8b564fa13a1b4",
+      "bytes": 1512,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/authorized-remaining.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/independent_initialization_convergence_test.go",
+      "sha256": "7556d559872d098c1120ae67609ff4c5f4dbf35d6b4c088b39bf6bdb2340bdae",
+      "bytes": 7451,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-probes01/independent_initialization_convergence_test.go"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/plan.md",
+      "sha256": "9a976f299fe8a52bdd5d745521c7d6cb890a3263fd9fa47afb1199a7b30894a2",
+      "bytes": 3506,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-probes01/plan.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/freeze.json",
+      "sha256": "1381844efc01e7845e4ff382f345019de0b4975f6e92239aa0fba7fb7ad2fefe",
+      "bytes": 696,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-probes01/freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/driver.py",
+      "sha256": "cccc1dce9dc3d825efbaa7f9350f0c6ecc53c0914c47703afbcb0f790d8956e3",
+      "bytes": 8700,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-offline01/driver.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/driver.diff",
+      "sha256": "8498af7fa7531b8ec32ce8f9ce1e6b73f5c14c55239dc2ff46f37934183c2c5d",
+      "bytes": 1379,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-offline01/driver.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/commands.json",
+      "sha256": "d3c0a462b8266b98d74df5aec432a2a2fc19aee43f01568ebc0643942eddddd4",
+      "bytes": 1465,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-offline01/commands.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/driver.py",
+      "sha256": "222c1a5bb170f1b660f28f8227558086d45901e493ccb12104b31e50a50e8c66",
+      "bytes": 29570,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/driver.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/driver.diff",
+      "sha256": "d0ee99ea625152f799e6072cfc702ee943c6dd94a408210227c02b175ec637f7",
+      "bytes": 1828,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/driver.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/plan.md",
+      "sha256": "30a65a72618b27b7af72d43fbc9f00a977c19c57de16cd71ec708d70ffa3bd2a",
+      "bytes": 5273,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/plan.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/groups.json",
+      "sha256": "57684104efa11a65d7ed34de0e2c79d668ca9b440d72c9c6dbbf68f04bd17c9f",
+      "bytes": 182,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/groups.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/commands.json",
+      "sha256": "7bd178a661a9f2c0003eea84da03d02158d688adba84c526b16e0ac979f78395",
+      "bytes": 1659,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/commands.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/closure.json",
+      "sha256": "803d42b3cdf1d87c62702953f1f1f91b5d8f3a1a38a9e47dbb490b9402163193",
+      "bytes": 4545,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/closure.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/execution-freeze.json",
+      "sha256": "249a5dee21c0d34b45b28fe15fa2cf1e56219aa69a1638cac7f265e4aa2d2b9e",
+      "bytes": 1708,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/execution-freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/prepare-first-attempt.json",
+      "sha256": "d90f6f912ab26a122031537911507ffbaca9f3a922f5f4791f5858c9b13efbf1",
+      "bytes": 284,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/prepare-first-attempt.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/prepare-first-attempt.raw",
+      "sha256": "abe136ece6fd08e998f65e9bc87bba792d87f84c6be6111762ef7d945045951c",
+      "bytes": 286,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/prepare-first-attempt.raw"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/prepare-original.py",
+      "sha256": "dfdc68dbc634b0d2ec8ff5747224bfb9c6afe89095e93bd6f6e61534b6fecf37",
+      "bytes": 7353,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/prepare-original.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/prepare-fix.diff",
+      "sha256": "b83ec3ac9f46dd3e039001d29a74a55caae28819988a5a18cf37ad4c34b98ad3",
+      "bytes": 752,
+      "group": "drivers-probe-and-preexecution",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/prepare-fix.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/command.json",
+      "sha256": "4c792e397f8b56bda99cb25788c5f8ae68d4489bbc48f84dcf247b777b8b982b",
+      "bytes": 3983,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/command.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/result.json",
+      "sha256": "304b1605d9c2c7a3b4e789fd7ccb7cefdf7d048cb0422610f86911132733dd81",
+      "bytes": 71463,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/raw.log",
+      "sha256": "8cbd95b10b70a3a1c1cd73490114f0b6ad8c4a0960338eb355df3201bd1383ba",
+      "bytes": 6582,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/raw.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/cleanup.json",
+      "sha256": "53c480f5208173e4c8130aaf76863f758d5f108284608f410a14074b0974f1fe",
+      "bytes": 157175,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/cleanup.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/watchdog.json",
+      "sha256": "2f788c565cf36a372e7b94c2e153f6069750eaf41f1e1da8144b6b9d5ecc027d",
+      "bytes": 530,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/watchdog.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/owned-tail-retirement.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/observed-resources.json",
+      "sha256": "1f990b862ebdf94dbf1886d3d14529c68e3db1834b990d93a337fcc3e0c465d8",
+      "bytes": 5108,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/observed-resources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/observed-processes.json",
+      "sha256": "8b10feeaec1fe9556de6f52ed2b93faabf026410dd67e7f0986cba8946673c50",
+      "bytes": 15166,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/observed-processes.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/tcp-tail-observation.json",
+      "sha256": "149c39b84323e470a132fc0377a1d640c1b2324bdcf3fb1f35d414a7e8514ec3",
+      "bytes": 20127,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/tcp-tail-observation.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/local-image-digests.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/disk-preflight.json",
+      "sha256": "9a11e9acce4fc90006e1dbfc581e5344fcab8f6bd80812b7f20feae5866a8ed1",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/disk-preflight.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/disk-before-spawn.json",
+      "sha256": "f28ced29eed4f3303dae40909013886c34bd25d14d45b80ad4f1867fd091722a",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/disk-before-spawn.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/frozen-input.json",
+      "sha256": "504d6adaacd0f7db6d27ed10129afbfba6839d560719ce4d9d25ec03c56f1540",
+      "bytes": 1401,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/input-before.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/input-after.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/process-baseline.json",
+      "sha256": "7891953076d5e7c9a9005bf6c2af2093ab65cad340c79c003a05529bbbb491b3",
+      "bytes": 60724,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/tcp-baseline.json",
+      "sha256": "82d0cb3478c308c40a2b7a2213cfd84d8b71cf9a655fbb1d131f0cb00a6dcf65",
+      "bytes": 1731,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/tcp-observed-delta.json",
+      "sha256": "83728f474e682bbf6303c0d748f27f5778e5a712100d9f9ef5892810d32773f9",
+      "bytes": 2567,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new1/verification-input.json",
+      "sha256": "46f44f7e43ea2da3c22636bf3ea531a19425cc849cc66c64d1e32ed1701d8b0d",
+      "bytes": 183,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/command.json",
+      "sha256": "b38cc46f28f1a14ae004a8ed5c57cf9462a0dd0b338264fe84fdb3f60a3835bb",
+      "bytes": 3997,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/command.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/result.json",
+      "sha256": "2ea45b444d74e723e5610941d43a26e1c08b51568834206b8ad10e1b5fd642be",
+      "bytes": 72109,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/raw.log",
+      "sha256": "c5359d6322b29a9eb0ce9fe4a923fc79d75c7b98c9952595d957f9bdfb467ab0",
+      "bytes": 5344,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/raw.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/cleanup.json",
+      "sha256": "1b84657adb7c08a9950bf5bb60cd6ce93a2f9271db7e0a4d3243b696f30d5fe1",
+      "bytes": 158567,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/cleanup.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/watchdog.json",
+      "sha256": "1d6ec79414a3d9e35d5d302339fb02467e9b8534e3d10400bb2e2877a7b39d38",
+      "bytes": 571,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/watchdog.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/owned-tail-retirement.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/observed-resources.json",
+      "sha256": "9414be51c8e570630b5025444c2934278da761b2cd123306edecd92985739587",
+      "bytes": 5105,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/observed-resources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/observed-processes.json",
+      "sha256": "a602155f3f8887c70da8b61a02b65803ebd7b8f4ee64cf4c2a0683d0a2de0265",
+      "bytes": 12708,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/observed-processes.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/tcp-tail-observation.json",
+      "sha256": "fead787a8b71ce03c2ae501300b278fc0d1e7c2d79c901483dff535de53c0b9d",
+      "bytes": 29451,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/tcp-tail-observation.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/local-image-digests.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/disk-preflight.json",
+      "sha256": "fa0c3cd02eabe5df72ce9e04e2157ff7c627a23a25c9cc69b106c6f27045b9fb",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/disk-preflight.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/disk-before-spawn.json",
+      "sha256": "0a88451c7b53c0517cfc5dbcad224e343c5115bb5a457cfcb78450d27e5acdd3",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new2/disk-before-spawn.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/frozen-input.json",
+      "sha256": "8dfb0ac8ff8a131ea38fc4b8c0c83b5992aa638f69d36e5de6f8b564fa13a1b4",
+      "bytes": 1512,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/input-before.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/input-after.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/process-baseline.json",
+      "sha256": "f1d7fd9dcf74c52b840baeafe9841b7846e1e9d3d6dc99e8bdb5cae5458865c6",
+      "bytes": 61388,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/tcp-baseline.json",
+      "sha256": "bff16948c4297bb05c4756d027b9c5f5479af90bb594bb42bb5eb1026f620de1",
+      "bytes": 1731,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/tcp-observed-delta.json",
+      "sha256": "d4962a197a1890ac5a826ad8b71720ab2ac253151a179bc38bcca3a145979b89",
+      "bytes": 1691,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/new2/verification-input.json",
+      "sha256": "0c0b2d2d96c4eda7d5e58c2c0fdeefb064d5e06aaa9b898a0efa3f3d2c0c6491",
+      "bytes": 183,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/command.json",
+      "sha256": "f3864fdce7dafd95d4b42c335bea7d1ab650b2fe57017dd912c5ef47f1029778",
+      "bytes": 4012,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/command.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/result.json",
+      "sha256": "6605ce12780e734180aa00ceee9ec488371a0c9a128317a5660a742ccc296809",
+      "bytes": 72756,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/raw.log",
+      "sha256": "b2e4c965cdfa99aeb4b453d567b7178239f66e487c6aa0ae88de2a78aed5773e",
+      "bytes": 4935,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/raw.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/cleanup.json",
+      "sha256": "35057c3b9c78c064de2f20e274df1fd29a951c9216d8bd95e2226da16732143e",
+      "bytes": 159959,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/cleanup.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/watchdog.json",
+      "sha256": "a7100345e325a86a1d8e2fc54c79140c370335661ef20cef1d1f5596eb02ade7",
+      "bytes": 617,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/watchdog.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/owned-tail-retirement.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/observed-resources.json",
+      "sha256": "59f1df1da308785d7f7139ff6d7de61e0b2106db70a23b754390c3c48799d5cd",
+      "bytes": 5105,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/observed-resources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/observed-processes.json",
+      "sha256": "d44bce4875a519da9cfcc224c6800004e51ceab068a9e3e92a88a15407c5d4b3",
+      "bytes": 13364,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/observed-processes.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/tcp-tail-observation.json",
+      "sha256": "2c926e719ee9bc8306ad57083bda350a9c6c03ad2564abc9dc674067cc96233f",
+      "bytes": 186517,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/tcp-tail-observation.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/local-image-digests.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/disk-preflight.json",
+      "sha256": "e1c4f3cae691359a5f205623667048e1b52d99a5618b49eeb768804d82b28b48",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/disk-preflight.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/disk-before-spawn.json",
+      "sha256": "d8e20b3151df89799d57599f76dfa1fa26dadcdfede2c23780bc2f3b3cbf194b",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old1/disk-before-spawn.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/frozen-input.json",
+      "sha256": "8dfb0ac8ff8a131ea38fc4b8c0c83b5992aa638f69d36e5de6f8b564fa13a1b4",
+      "bytes": 1512,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/input-before.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/input-after.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/process-baseline.json",
+      "sha256": "cba3531b23bfdd79d8cbc10c11fa992d8646d08767aa8ef10034aa60e022deae",
+      "bytes": 61920,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/tcp-baseline.json",
+      "sha256": "d9f253245b786f264d6597acc9772b578674faef160fb648a79e721ee889a4ca",
+      "bytes": 1731,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/tcp-observed-delta.json",
+      "sha256": "5fe4f52cea2ed01d2d22c72baaff909016d8078b6823ad619de02a9ac1b1dad9",
+      "bytes": 9947,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old1/verification-input.json",
+      "sha256": "0c0b2d2d96c4eda7d5e58c2c0fdeefb064d5e06aaa9b898a0efa3f3d2c0c6491",
+      "bytes": 183,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/command.json",
+      "sha256": "f996219fcebd44ae3b9605d4a3f66e551fedac352dbcd1af176df87d1c71b0cf",
+      "bytes": 4121,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/command.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/result.json",
+      "sha256": "6bb25c384c597c1157185fd89bd21f2897a50c654ab4d440ae261b5d25951036",
+      "bytes": 73389,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/raw.log",
+      "sha256": "5d6e56284ba5cd4150e3f8a6213212b3f22f500aa1f5597bcbbbe009d86bf2aa",
+      "bytes": 3720,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/raw.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/cleanup.json",
+      "sha256": "f7e8e913c94e837dfe0e9968e5e267192f74307851fae3623a1d1e41cfd6a622",
+      "bytes": 161351,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/cleanup.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/watchdog.json",
+      "sha256": "7feafd414b467240092d49e97703e70fe8a3839fe851f648653796af1b51a331",
+      "bytes": 621,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/watchdog.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/owned-tail-retirement.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/observed-resources.json",
+      "sha256": "7a0549d1fcee2cad5a4eb201c0ede22cc8b208831e5f3aae1d92d92f495deb3e",
+      "bytes": 5105,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/observed-resources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/observed-processes.json",
+      "sha256": "c022eb649e1d9eaf711c5581eeb30d820d9f8494493dcc77eaa3d6e56e51c2a2",
+      "bytes": 13200,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/observed-processes.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/tcp-tail-observation.json",
+      "sha256": "d408fa7d5aabbc9c71f77346b1f3b173ab1a3106bbe69db7f92c40822d355952",
+      "bytes": 43899,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/tcp-tail-observation.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/local-image-digests.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/disk-preflight.json",
+      "sha256": "aad00c9985ee62371226e4205d36ce03765bc3cb0f4643cb58e6112407f2c29f",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/disk-preflight.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/disk-before-spawn.json",
+      "sha256": "ff4c211bab5b7ed5eeea6fa95dbce1759602d87019e2715c1e17761dd0d93ad8",
+      "bytes": 202,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/old2/disk-before-spawn.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/frozen-input.json",
+      "sha256": "8dfb0ac8ff8a131ea38fc4b8c0c83b5992aa638f69d36e5de6f8b564fa13a1b4",
+      "bytes": 1512,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/input-before.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/input-after.json",
+      "sha256": "713aad2b3faa50c622b06545dad425bb344923c63907df45cf0bcb284dee409b",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/process-baseline.json",
+      "sha256": "534044e1d3cb900ba710bbeb25a8173e1f5df81e92638cfffdcb41cb2e905a2c",
+      "bytes": 62713,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/tcp-baseline.json",
+      "sha256": "d3ee26a3798130b84902641697142ae87ffdf6536148b5a467ceba293847a7f7",
+      "bytes": 1731,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/tcp-observed-delta.json",
+      "sha256": "da4da3863839cb7cb48c5e17459147d57ef491e1a163d168af13307ad9369ab4",
+      "bytes": 1831,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v02/runs/old2/verification-input.json",
+      "sha256": "0c0b2d2d96c4eda7d5e58c2c0fdeefb064d5e06aaa9b898a0efa3f3d2c0c6491",
+      "bytes": 183,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/command.json",
+      "sha256": "b00fd2ccdd64fcaea5af45019993a94c6f56e799ee07628655afef7fc800ef0e",
+      "bytes": 4249,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/command.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/result.json",
+      "sha256": "756a1177899eea070490c78e1ca8483fb4376fcde723069ef11a14f5dc003050",
+      "bytes": 74052,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/raw.log",
+      "sha256": "ef3610b1e51f3f7c600300c444b68db3aeee854e3e4d692d88f54470b84e1de1",
+      "bytes": 4366,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/raw.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/cleanup.json",
+      "sha256": "398bb3fca084e1c00130a32dd091f8d1a35df9adec9a42a01d1a9f8ad1a3eba0",
+      "bytes": 162743,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/cleanup.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/watchdog.json",
+      "sha256": "eda5702f48e7cfda7b0435e7c10462d433489bfb6492a478a9c3a61fcf4c95fd",
+      "bytes": 585,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/watchdog.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/owned-tail-retirement.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/observed-resources.json",
+      "sha256": "a39be341c7e4f48fb7c72e03a88605ba64d5e30664a6c3aa37f198517467cf2b",
+      "bytes": 5188,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/observed-resources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/observed-processes.json",
+      "sha256": "c259af8c64ba3ceab3780b9b25e1fdd7e06710ddf6e15b1e0b7c3ab638be8d34",
+      "bytes": 12386,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/observed-processes.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/tcp-tail-observation.json",
+      "sha256": "951c546bc0c6e5e5f3073e9d7fcedc7086d96cfc97846b36eb4caec351a8a1d5",
+      "bytes": 29451,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/tcp-tail-observation.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/local-image-digests.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/disk-preflight.json",
+      "sha256": "4b52ffc3948e9c799c5de038bb34c7d978e114a0f5361924bdb174c502387e5e",
+      "bytes": 207,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/disk-preflight.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/disk-before-spawn.json",
+      "sha256": "ac27633a405c0471fbdb51319d622c37d416d4006403a09ed934b264cec92ba7",
+      "bytes": 207,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/independent/pg-runtime01/runs/independent-a01/disk-before-spawn.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "note": "",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/frozen-input.json",
+      "sha256": "249a5dee21c0d34b45b28fe15fa2cf1e56219aa69a1638cac7f265e4aa2d2b9e",
+      "bytes": 1708,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/input-before.json",
+      "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/input-after.json",
+      "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/process-baseline.json",
+      "sha256": "5069cb856de310c4910355d38ba35ed0cdaf2e11f8c515006755f1a34ffebef4",
+      "bytes": 62984,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/tcp-baseline.json",
+      "sha256": "0a4009b4375b9bc86141d5bf112f990c334f1efe27eb5eea62d97269c8be5871",
+      "bytes": 1731,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/tcp-observed-delta.json",
+      "sha256": "6d01d3e1a4a3319f78307089bbe593b9ead02c557710ff84d9194a18106cca22",
+      "bytes": 2567,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-a01/verification-input.json",
+      "sha256": "1d8a9d555f023cdddc7dc5f33249bea395949bf6233b9971f1c48954f3b3957a",
+      "bytes": 183,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "note": "Complete input/baseline retained at source; future resource/daemon recount may derive only used identities with exact source JSON pointers.",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-pregraph01.json",
+      "sha256": "a06e8d199bab903e344baf3508c184969fa565a13220cdc73b376e2cdf3334c6",
+      "bytes": 430686,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-pregraph02.json",
+      "sha256": "b273c6376a67bea96cb841546d0e8f9087ef78324582d8e5239d7b1cd5047f5a",
+      "bytes": 442577,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-pregraph03.json",
+      "sha256": "bbd9a9509369facbb2d27b4a4d2da05b72fe0b9a7848eeddd2123f1f289cd9a1",
+      "bytes": 444075,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pure-overlay02/input04-build.json",
+      "sha256": "30ed096d083c02127e077a91dcf2ff49fc85919efa5906dd72296066cabb616d",
+      "bytes": 423426,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/actual-graph.json",
+      "sha256": "c254c9f3f695cc5a5b226ee255610e70ece254171c7ebb39472ef1b8ac06e64c",
+      "bytes": 262528,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race01/actual-graph.json",
+      "sha256": "25a21ecb122903833316d243b96c0935aa13b6920b1630a76f6f19d14d90a703",
+      "bytes": 263357,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/actual-graph.json",
+      "sha256": "a731df7503da52af964fd0b42b701d029b9f9f9e44bf28ce88e9aa6175f25857",
+      "bytes": 255079,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/graph-race02/actual-graph.json",
+      "sha256": "d87f9a7989829d5162692bf33998bd00cb2eba2ff837e8fade33843c38ac951c",
+      "bytes": 255908,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-actual-graph01.json",
+      "sha256": "8b027684b5ce6b663ef2fca94cce7a78987c2b2d2d9ad34ae5cb0334117b62fc",
+      "bytes": 417131,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/actual-graph.json",
+      "sha256": "60d89453de5b2adf46c9a0e0a0459e96ce0eb8588c66f12d89b5b00f82a02e33",
+      "bytes": 421664,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/actual-graph.json",
+      "sha256": "784ff1750198384b972948e884f2a1bb4aee17501203d51363b5da1a072d8205",
+      "bytes": 336767,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/input-build.json",
+      "sha256": "f4d8d6fe9fa4453030e7e15ffbc4092190a619078f153ccf11373582ecf0125b",
+      "bytes": 646771,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/input-list.json",
+      "sha256": "12171af4527dc0d88c45ea23c8e2097b4d2372e2d7bd43844f20112885987fa0",
+      "bytes": 646919,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/pg-driver-v01/closure.json",
+      "sha256": "b466231279bcde50dc79117b07dc78ad5f7ddeeede86e74820960009692368b0",
+      "bytes": 718002,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/actual-graph01.json",
+      "sha256": "25acd2bb6ad050b6705fd98444388927f153c3e8bc84bddb1355422b5d72dd6f",
+      "bytes": 331904,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/input-build.json",
+      "sha256": "cfc0aece9d12d706e64f79c1978e35369bf7ed473bef226be8dc9965b1f752e7",
+      "bytes": 649060,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/input-list.json",
+      "sha256": "366314872bc870181c81694f36ac5dcd44435f142577ad137c14810ab4cb89d3",
+      "bytes": 649215,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/input-pregraph.json",
+      "sha256": "0b2313aa5b11b2eae898222a0ac18e095fabb351afb2b85b911046edd3d371aa",
+      "bytes": 648152,
+      "group": "large-input-and-graphs",
+      "preservation": "fingerprint-only",
+      "note": "",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final05/result.json",
+      "sha256": "b05a074bbe57ca0b72c6c35783b32dd4fe988ae2ec2ff5e8607b2e6381d30567",
+      "bytes": 5818,
+      "group": "final05",
+      "preservation": "original",
+      "archive": "originals/independent/final05/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final05/review.md",
+      "sha256": "ce4b74c82d83fa450ac723a8e681de31f5b1ddb24d62b5345e54d1b60ed6331b",
+      "bytes": 4208,
+      "group": "final05",
+      "preservation": "original",
+      "archive": "originals/independent/final05/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final05/sources.json",
+      "sha256": "c719031265765b2b29c4ed646d867569e5dc2305ec0a61b708bf8afd91229d3e",
+      "bytes": 2409,
+      "group": "final05",
+      "preservation": "original",
+      "archive": "originals/independent/final05/sources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final05/resource-daemon.json",
+      "sha256": "3afc05dc41d2fff94c3a33b49ad75006e487f5daefad73ae8867b2f95b8937ef",
+      "bytes": 13469,
+      "group": "final05",
+      "preservation": "original",
+      "archive": "originals/independent/final05/resource-daemon.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final05/freeze.json",
+      "sha256": "cd08d2107dc5a15ab4ed3ad2fa1460557974f0ece073e0a3835e5c063b520113",
+      "bytes": 564,
+      "group": "final05",
+      "preservation": "original",
+      "archive": "originals/independent/final05/freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final05/freeze-final.py",
+      "sha256": "84efd770e1eec21d90a6b8609c4737dd46073740952c3351779673eae22e6c88",
+      "bytes": 7958,
+      "group": "final05",
+      "preservation": "original",
+      "archive": "originals/independent/final05/freeze-final.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/installation01/result.json",
+      "sha256": "410683759be1395fdac3afc203e2df5eb26a659189145ffbcae713f43a48c22f",
+      "bytes": 21037,
+      "group": "installation01",
+      "preservation": "original",
+      "archive": "originals/author/installation01/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/installation01/preflight.json",
+      "sha256": "fd91cf4cc01b125676c477140bd8196a6a479c829f86821ae61f61f0e39caa6f",
+      "bytes": 17349,
+      "group": "installation01",
+      "preservation": "original",
+      "archive": "originals/author/installation01/preflight.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/installation01/preflight-first-error.json",
+      "sha256": "01e876429f3db5a0de2cff16739a7a3b96b9561e9ff3a69f9bf6e5d7d0f75e9c",
+      "bytes": 436,
+      "group": "installation01",
+      "preservation": "original",
+      "archive": "originals/author/installation01/preflight-first-error.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-author/installation01/installed.diff",
+      "sha256": "e7880ea235740ee671b4e7d62477890c62319206b766e41b420bf045f7648bf4",
+      "bytes": 48783,
+      "group": "installation01",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runtime-result01.json",
+      "sha256": "160f0a5f9f3433bbdd709066018da33f0f7ec785dd9eaeb5831964b0c02a767e",
+      "bytes": 27221,
+      "group": "independent-pg-final",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runtime-result01.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/command.json",
+      "sha256": "5e0046a28ee50a3ff3d9385215ae82648bf27e54000158256b6951127569c7d3",
+      "bytes": 4137,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/command.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/result.json",
+      "sha256": "f31c250fb644738dd64e59a062dcbbed606b4cc1ec3165da41e3b300fdec47e3",
+      "bytes": 74679,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/raw.log",
+      "sha256": "0d7d7d0261bfc9429278f8efaea15aad93bd57a01c66e2591b846e54a779fe49",
+      "bytes": 4331,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/raw.log"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/cleanup.json",
+      "sha256": "4e57f579cd7b59360d5f6e407ff2e7aa88db0376d479037b55c1505e592e3c01",
+      "bytes": 164135,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/cleanup.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/watchdog.json",
+      "sha256": "cdd8b5df02aec8901eb771eff40145bfb24c047f2079d2e2e62b2853814680a8",
+      "bytes": 568,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/watchdog.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/author/pg-driver-v02/runs/new1/owned-tail-retirement.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/observed-resources.json",
+      "sha256": "e237957a7f854ee142e57a7ce16a3995f294488e7c0f5888412ad050236ce4ae",
+      "bytes": 5188,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/observed-resources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/observed-processes.json",
+      "sha256": "b0c09f3bcd3b6a0cfce7dd8ebed0d9a69bdbbd4efd0017f896fdd3a9667dff6b",
+      "bytes": 13200,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/observed-processes.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/tcp-tail-observation.json",
+      "sha256": "35fc10f5615a84643d56453c883b44f0cac64d91639e3d0b26bcd11c691f0542",
+      "bytes": 28779,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/tcp-tail-observation.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/author/pg-driver-v02/runs/new1/local-image-digests.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/disk-preflight.json",
+      "sha256": "347c9d1d5d43d67124882017ee40cb2a962c0ead20683209d80262d906251c5f",
+      "bytes": 207,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/disk-preflight.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/disk-before-spawn.json",
+      "sha256": "e2fc2c35d57bccc19f59cacd670e4c2dfa324853367518d2fa357088a6ccaf1d",
+      "bytes": 207,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/independent/pg-runtime01/runs/independent-b01/disk-before-spawn.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/monitor-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "group": "completed-pg-originals",
+      "preservation": "original",
+      "archive": "originals/author/pg-driver-v02/runs/new1/adopted-waits.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/frozen-input.json",
+      "sha256": "249a5dee21c0d34b45b28fe15fa2cf1e56219aa69a1638cac7f265e4aa2d2b9e",
+      "bytes": 1708,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/input-before.json",
+      "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/input-after.json",
+      "sha256": "30b636d62aedc7decb78a1f6f159bd8c165cc444e8936b36d9b940540435f7a1",
+      "bytes": 529,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/process-baseline.json",
+      "sha256": "db590095918c06db9304413adc04bc47971172f34f9552be52f411bb15fa6ecf",
+      "bytes": 63516,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/tcp-baseline.json",
+      "sha256": "3014fdfdaa541d38f991b32268a9bea2ce5ceb23e29f9afc635834c9c7d5c504",
+      "bytes": 1731,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/tcp-observed-delta.json",
+      "sha256": "5667cd19188068897b5704fb3b33bab522e02d0562e24bfb24a35a18faf3f3a1",
+      "bytes": 2129,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/runs/independent-b01/verification-input.json",
+      "sha256": "1d8a9d555f023cdddc7dc5f33249bea395949bf6233b9971f1c48954f3b3957a",
+      "bytes": 183,
+      "group": "completed-pg-input-baseline",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/recovery-docs/project-initialization-convergence-readme-install01/README.patch",
+      "sha256": "6aefedc853dc8cff7ddea34f585637b5aacde548374f1ba6ea02611e20fc15b7",
+      "bytes": 3449,
+      "group": "readme-install",
+      "preservation": "original",
+      "archive": "originals/readme-install/README.patch"
+    },
+    {
+      "source": "/workspace/scratch/recovery-docs/project-initialization-convergence-readme-install01/checks.json",
+      "sha256": "a8ea99b916fe55c9da13990979678c834d10de14ae5047885a7c288cb4e1f117",
+      "bytes": 768,
+      "group": "readme-install",
+      "preservation": "original",
+      "archive": "originals/readme-install/checks.json"
+    },
+    {
+      "source": "/workspace/scratch/recovery-docs/project-initialization-convergence-readme-install01/freeze.json",
+      "sha256": "376462f347b2e5a2019108292653abdf64920ff1d9e58e08f6df413bcd700b8a",
+      "bytes": 772,
+      "group": "readme-install",
+      "preservation": "original",
+      "archive": "originals/readme-install/freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/result.json",
+      "sha256": "8d54f69ff78b685cf916a06fded6045b359c62927f96cdc1401bbace6ddcefb5",
+      "bytes": 2069,
+      "group": "final06-complete-delivery",
+      "preservation": "original",
+      "archive": "originals/independent/final06/result.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/review.md",
+      "sha256": "70436d85c2b905ea8aaa12534d343f6bbf322412dbbbf69752343584e305e5c0",
+      "bytes": 2141,
+      "group": "final06-complete-delivery",
+      "preservation": "original",
+      "archive": "originals/independent/final06/review.md"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/sources.json",
+      "sha256": "0a3760ec71a4bc255275dc8a611951319344e2ed55125e6c44257c15e0ff1314",
+      "bytes": 2602,
+      "group": "final06-complete-delivery",
+      "preservation": "original",
+      "archive": "originals/independent/final06/sources.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/checks.json",
+      "sha256": "6efec1c5757041a70383f96fc9e17f1d30f5d454522e07871719ad9fc267f048",
+      "bytes": 2386,
+      "group": "final06-complete-delivery",
+      "preservation": "original",
+      "archive": "originals/independent/final06/checks.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/check.py",
+      "sha256": "57f6f4977c455917dedc9461ffc7589a783085a3568ee144ea4e291edf4f9d79",
+      "bytes": 4838,
+      "group": "final06-complete-delivery",
+      "preservation": "original",
+      "archive": "originals/independent/final06/check.py"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/freeze.json",
+      "sha256": "f36debf923f1dc8fc0163ca58365ac0ee0d8615fb685f389fce083db16640a37",
+      "bytes": 760,
+      "group": "final06-complete-delivery",
+      "preservation": "original",
+      "archive": "originals/independent/final06/freeze.json"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/README.diff",
+      "sha256": "7cf1f7b1de80d0137ef41fce83a22180c88ed167dc63cdece8db16c8006cfe97",
+      "bytes": 3486,
+      "group": "final06-complete-delivery",
+      "preservation": "original",
+      "archive": "originals/independent/final06/README.diff"
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/README.md",
+      "sha256": "394a856acf52cf0be6eaa89f3fbce9f680f834f1de0bc0ac073f3462a1094696",
+      "bytes": 72922,
+      "group": "final06-complete-delivery",
+      "preservation": "fingerprint-only",
+      "archive": null
+    },
+    {
+      "source": "/workspace/scratch/project-initialization-convergence-verification/final06/README-before.md",
+      "sha256": "dd030988ca8c02ca0d6eb163e2b21b91e1d6801cdc91c27bc56e70ef3ab8b5be",
+      "bytes": 70847,
+      "group": "final06-complete-delivery",
+      "preservation": "fingerprint-only",
+      "archive": null
+    }
+  ],
+  "commit_confirmation": {
+    "source": "root task handoff",
+    "facts": "root reports commit/push actual0 and ls-remote main identical",
+    "documentation_worker_git_executed": false
+  },
+  "product_files_reused_from_git": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/contract/initialization_convergence.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "sha256": "71156cb226db8e9c5ff648ff31ccfa949f38329032427357498279280383b2db",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/internal/central/project/initialization_convergence_test.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "tests/project/initialization_convergence_fixture_test.go",
+      "sha256": "b3dd6815c8d3e08e53f6c2a1c8662898c4451efd4676126e6defe945e44dfd90",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_fixture_test.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "tests/project/initialization_convergence_test.go",
+      "sha256": "990de5f8e5bd9e6e4aeef70ad72634023cb2ffc4f5f27a10b839a6798c51ba9b",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/candidate03/src/tests/project/initialization_convergence_test.go",
+      "installed_byte_identical": true
+    },
+    {
+      "path": "docs/development/backend/README.md",
+      "sha256": "394a856acf52cf0be6eaa89f3fbce9f680f834f1de0bc0ac073f3462a1094696",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-verification/final06/README.md",
+      "kind": "three-paragraph capability/boundary documentation only"
+    }
+  ],
+  "format_review": {
+    "path": "format-exceptions.json",
+    "sha256": "ebb5a60a2d60749a3945473c81edcb67a46514278a94430df273303826f9d251",
+    "git_expected_count": 77,
+    "actual_git_check": "root to execute; documentation worker did not invoke Git"
+  },
+  "archive_scope": {
+    "original_unique_files": 190,
+    "original_unique_bytes": 2573869,
+    "derived_command_result_entries": 60,
+    "fingerprint_only_count": 70,
+    "source_records": 390
+  }
+}

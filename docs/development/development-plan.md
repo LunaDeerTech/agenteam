@@ -1,5 +1,11 @@
 # agenteam 开发计划
 
+当前基线（2026-10-08，初始化收敛库接受）：Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](agent-team/project-initialization-convergence-verification.md)。
+
+Owner工作区UI candidate04仅#21 locator修订离线通过；真实read01 Outbox setup失败、read02 label失败均保留并已独核退出，尚无browser top PASS；正在按已接受 `39ebd57e` 重新绑定Go依赖，旧16／独立A-B未跑、asset未交换、前端README未授，UI产品未接受。
+
+管理员统一Meeting Summary initial/update（含首轮标题），Project不override或复制初值，compaction／Execution Summary不变；production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join／OpenAI tools独立验收／SPA并发发布三停止保持。以下历史原字节保留。
+
 本计划用于指导后续 AI 从基础契约开始，按真实依赖完成 agenteam 的正式开发。推进单位是职责明确的模块；每个模块先设计数据结构、接口和状态规则，再实现、调试和验收，最后接入其他模块。没有未满足依赖的模块和完整结果任务允许并行，不以模块编号规定全局串行。不以提前出现可操作界面作为早期交付目标。
 
 计划依据是[当前架构](../architecture/README.md)、[前端设计](../frontend-design/README.md)和[仓库结构](repository-structure.md)。它规定开发顺序和验收要求，不替代架构专题，也不把尚未确定的实现选择写成既定事实。`docs/draft.md` 仅作历史参考。

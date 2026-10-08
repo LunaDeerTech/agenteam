@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 52920.795525768,
+      "top": "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts"
+    },
+    {
+      "event": "result",
+      "monotonic": 52926.933631511,
+      "observed_seconds": 6.138105742997141,
+      "reported_seconds": 6.15,
+      "state": "PASS",
+      "top": "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts"
+    }
+  ],
+  "expected": [
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts"
+  ],
+  "failures": []
+}

@@ -1,0 +1,58 @@
+{
+  "status": "scratch-only unit03; two STATIC controlled-test defects corrected; no Go/format execution",
+  "baseline": "4089d13128da8680955005d9507c8a7da74af1f1",
+  "spec_commit": "b01b08d440ca253124efe4e725dea093fa1a958e",
+  "spec_sha256": "5530d79eef389085bd27e61c6bad00f61e779d0d5ec296e00abfd00e63e245ae",
+  "files": [
+    {
+      "path": "internal/central/project/contract/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/contract/initialization_convergence.go",
+      "sha256": "7b2a9eecb9b865bb4324d0da850de6af911afa81dd0e5e3ac3eeb204b5272ef2",
+      "bytes": 1201,
+      "lines": 24
+    },
+    {
+      "path": "internal/central/project/initialization_convergence.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence.go",
+      "sha256": "3b0c6efe7ebb467187abd735cd87c179bbd70de43dc111cf32fa5a79a6097c1d",
+      "bytes": 4667,
+      "lines": 109
+    },
+    {
+      "path": "internal/central/project/initialization_convergence_test.go",
+      "snapshot": "/workspace/scratch/project-initialization-convergence-author/unit03/src/internal/central/project/initialization_convergence_test.go",
+      "sha256": "a6ef13c98948d813206cde0966ebf6ed1a099498f9b7af05662f0e6fcb8c7719",
+      "bytes": 18098,
+      "lines": 430
+    }
+  ],
+  "dependencies": {
+    "fixed_source_manifest": "/workspace/scratch/project-create-frontier4089/inputs01.json",
+    "sha256": "057d9f57e0e7f2786444fcc685c11cda23557587c7bb9dab7bd45f478176367e"
+  },
+  "go_run": false,
+  "resources": false,
+  "repo_installation": false,
+  "remaining": [
+    "tests/project/initialization_convergence_fixture_test.go",
+    "tests/project/initialization_convergence_test.go"
+  ],
+  "parent": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/unit02/manifest.json",
+    "sha256": "d7d2b71059e3ef13261e5393bf404004a54648744b844c056942f15f03ffdbf0"
+  },
+  "delta": [
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/unit03/unit01-to-unit03.diff",
+      "sha256": "81fa001fdc3a9e2b52ae0848f1f858e5557ce27eb3166211853f8429e8f2dbf7"
+    },
+    {
+      "path": "/workspace/scratch/project-initialization-convergence-author/unit03/unit02-to-unit03.diff",
+      "sha256": "761c4cfeb951b367f3a797b9f8460d131993cd1eb50ce6875c5b0f7def09da4e"
+    }
+  ],
+  "static_defects": [
+    "LockKey canonical closure compared via DeepEqual",
+    "SQLExecutor.Query requires *postgres.Rows pointer"
+  ]
+}

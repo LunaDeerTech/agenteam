@@ -1,0 +1,105 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.80.36.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=4055c6d4a5482a57e8d381df68289a05
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=e3a371f59dfa2598f3b0e49b3955ecda
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.531s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.018s [no tests to run]
+=== RUN   TestProjectInitializationConvergenceFacts
+=== RUN   TestProjectInitializationConvergenceFacts/accepted
+=== RUN   TestProjectInitializationConvergenceFacts/initializing
+=== RUN   TestProjectInitializationConvergenceFacts/failed
+=== RUN   TestProjectInitializationConvergenceFacts/completed
+=== RUN   TestProjectInitializationConvergenceFacts/accepted_request_metadata_mismatch
+=== RUN   TestProjectInitializationConvergenceFacts/initializing_owner_mismatch
+=== RUN   TestProjectInitializationConvergenceFacts/failed_initialized
+=== RUN   TestProjectInitializationConvergenceFacts/completed_uninitialized
+=== RUN   TestProjectInitializationConvergenceFacts/completed_bad_history_id
+=== RUN   TestProjectInitializationConvergenceFacts/completed_bad_history_owner
+=== RUN   TestProjectInitializationConvergenceFacts/completed_bad_history_version
+=== RUN   TestProjectInitializationConvergenceFacts/completed_current_rename_is_not_history
+=== RUN   TestProjectInitializationConvergenceFacts/caller_mismatch_initialization_key
+=== RUN   TestProjectInitializationConvergenceFacts/caller_mismatch_command_key
+=== RUN   TestProjectInitializationConvergenceFacts/caller_mismatch_project_pair
+=== RUN   TestProjectInitializationConvergenceFacts/lifecycle_archiving
+=== RUN   TestProjectInitializationConvergenceFacts/lifecycle_archived
+=== RUN   TestProjectInitializationConvergenceFacts/lifecycle_deleting
+--- PASS: TestProjectInitializationConvergenceFacts (1.16s)
+    --- PASS: TestProjectInitializationConvergenceFacts/accepted (0.02s)
+    --- PASS: TestProjectInitializationConvergenceFacts/initializing (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/failed (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/completed (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/accepted_request_metadata_mismatch (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/initializing_owner_mismatch (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/failed_initialized (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/completed_uninitialized (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/completed_bad_history_id (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/completed_bad_history_owner (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/completed_bad_history_version (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/completed_current_rename_is_not_history (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/caller_mismatch_initialization_key (0.00s)
+    --- PASS: TestProjectInitializationConvergenceFacts/caller_mismatch_command_key (0.00s)
+    --- PASS: TestProjectInitializationConvergenceFacts/caller_mismatch_project_pair (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/lifecycle_archiving (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/lifecycle_archived (0.01s)
+    --- PASS: TestProjectInitializationConvergenceFacts/lifecycle_deleting (0.01s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	2.175s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+D03 fixture cleanup checked for nonce 17c5ef2c53b6b90bb83dc9e2a46e2c69
+D04 outbound fixture cleanup checked for nonce e3a371f59dfa2598f3b0e49b3955ecda
+D05 object fixture exact resource cleanup checked nonce=4055c6d4a5482a57e8d381df68289a05

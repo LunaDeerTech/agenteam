@@ -1,0 +1,20 @@
+--- /workspace/scratch/project-initialization-convergence-author/pg-driver-v02/driver.py
++++ /workspace/scratch/project-initialization-convergence-verification/pg-runtime01/driver.py
+@@ -24,7 +24,7 @@
+ MINIO = '/workspace/scratch/fixture-recovery/bin/minio'
+ GOCACHE = '/workspace/.cache/go-build'
+ PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3'
+-GROUPS = {'new-facts': ['TestProjectInitializationConvergenceFacts'], 'new-transaction': ['TestProjectInitializationConvergenceTransactionBoundary'], 'old-mapping': ['TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts'], 'old-locks': ['TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock']}
++GROUPS = {'independent-a': ['TestIndependentInitializationConvergenceTransactionBoundary'], 'independent-b': ['TestIndependentInitializationConvergenceCanonicalFacts']}
+ 
+ GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+ FROZEN = {}
+@@ -94,7 +94,7 @@
+             'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+             'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+             'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+-            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json',
++            'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/project-initialization-convergence-verification/pg-probes01/overlay.json',
+             'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO}
+ 
+ 

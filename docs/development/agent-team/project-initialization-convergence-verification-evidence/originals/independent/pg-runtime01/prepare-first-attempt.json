@@ -1,0 +1,8 @@
+{
+  "status": "STATIC_HELPER_ASSERTION",
+  "command_exit": 1,
+  "stage": "read-fixed-graph-before-driver-or-runtime-files-write",
+  "assumption": "excluded_ui_consumed assumed list, fixed graph uses bool",
+  "actual_excluded_ui_consumed": false,
+  "Go_or_resource_execution": false
+}

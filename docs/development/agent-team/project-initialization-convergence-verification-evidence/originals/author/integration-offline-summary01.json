@@ -1,0 +1,311 @@
+{
+  "status": "bounded integration offline PASS; 8 required commands plus preserved first format diff =9 actual runs; no integration test body or resources",
+  "candidate": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate03/manifest.json",
+    "sha256": "0c7ab9129a9757cd7f2def5bfe3375e176910b935e047bc532f328ecf8f1886b"
+  },
+  "format_delta": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/candidate03/candidate02-to-candidate03.diff",
+    "sha256": "a8c6c62c31877e696d94b04961ab808b6c5731dd8cd949bb75a34bfc78badfd8"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/input-build.json",
+    "sha256": "f4d8d6fe9fa4453030e7e15ffbc4092190a619078f153ccf11373582ecf0125b"
+  },
+  "list_input": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/input-list.json",
+    "sha256": "12171af4527dc0d88c45ea23c8e2097b4d2372e2d7bd43844f20112885987fa0"
+  },
+  "actual_graph": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-actual-graph01.json",
+    "sha256": "8b027684b5ce6b663ef2fca94cce7a78987c2b2d2d9ad34ae5cb0334117b62fc"
+  },
+  "driver": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/driver.py",
+    "sha256": "1577f8d44d198bd433a47ea9bfe62611bfcffb33ec5748d464206397ce34c9f7"
+  },
+  "overlay": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/integration-overlay03/overlay.json",
+    "sha256": "ad4f1fca9a274eb00f8e45a175c89ddac51925990059b071a5b3f6ee794e6498"
+  },
+  "runs": [
+    {
+      "name": "integration-format-preview01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/result.json",
+        "sha256": "3927d78d78fccb1579c7eef3c2f0ee07dc56511048577f39b5809b83aec2b651"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/command.json",
+        "sha256": "09de8957c408a276fba6aa1ab1f1360e6bd491864d03c32cd0b76da12462a359"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/stdout.log",
+        "sha256": "e25527d87d9176ff26721c566d741bab6e50f676165facee752f87116e2cf0fe"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 1,
+      "seconds": 0.31758475300011924,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "preserved original formatter one-space layout diff, not compile/test failure"
+    },
+    {
+      "name": "integration-format-preview02",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/result.json",
+        "sha256": "b0fcbbbc0f8141e1950ceab78c8dfbdb8a8d056531bc8643643e141e0dbffd76"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/command.json",
+        "sha256": "72efa32262ea4badd660d34bccc61d83c7631bd1dde2d804a3817b68e7c83fd8"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/integration-format-preview02/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 0.36693246500362875,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    },
+    {
+      "name": "convergence-full-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/result.json",
+        "sha256": "b89c50461ec563fe6c597869e2ae0700d942f0579dcc3d495cd32c938a64dc5d"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/command.json",
+        "sha256": "95b82477496feb61a28b4c8b11ecb0ca5e7efa73e59597c99d7a1eadbd7bfbf9"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/stdout.log",
+        "sha256": "5e79f1f3244c5e1b66339af8dc8662000f4d5085cf2ae0db2b73b3e0db2253e2"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-full-graph01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 0.8500657570039039,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    },
+    {
+      "name": "convergence-dynamic-graph01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/result.json",
+        "sha256": "19e1cb57388184b7633ab2a7929ebe1b5a3c64e4efc26020a8c7c09fc49637c5"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/command.json",
+        "sha256": "f6886816e24f96ae14a87bb8b113180cfc017080c08771343795aa9dcdabbd40"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/stdout.log",
+        "sha256": "23154771deeb83c01b73488be8ce89beb6324e41eb273d86df592f3c5134830c"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-dynamic-graph01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 0.5946465100059868,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    },
+    {
+      "name": "convergence-integration-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/result.json",
+        "sha256": "533a8ae758ec18adadb7f4b0de655b21b4901eb52fb7484a8b5a3969c61e5584"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/command.json",
+        "sha256": "598d29786afcfb04c3b21401cede08d01a990d8f36c2d389acfa268517c7d7a0"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-compile01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 5.8575286279956345,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    },
+    {
+      "name": "convergence-integration-list01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/result.json",
+        "sha256": "156cb154087727f4edd0445d64478a96d23ce1560507d7e0176d093057a28f5f"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/command.json",
+        "sha256": "f2e1ff1a0993df061a7e9bf6a1687601c7463c4523449253539e5d5167bd379a"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/stdout.log",
+        "sha256": "c29318e0ed5de2ea07b48a4244be8053d45fdfb42f1cd894750910de7bb4e650"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-list01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 1.4139145119988825,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    },
+    {
+      "name": "convergence-integration-vet01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/result.json",
+        "sha256": "5f618b00c6b92d374fca9e517c24c83e33bec5f1546de68488846463aa555632"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/command.json",
+        "sha256": "4c09a4190a4fa996509f849fc29caffdc1b98b906ac3c92cdfeee0e7f6ad656f"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-integration-vet01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 0.7900699710007757,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    },
+    {
+      "name": "convergence-cmd-build01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/result.json",
+        "sha256": "851aff63ff164c7e45cbc92f9d0c08e77e4cc30dbca1f78bc4209e59adfb38cc"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/command.json",
+        "sha256": "977c032a73a9025b49ced87bfd73989e0df31c2c2a2fa33bb22ac17c738ce7ae"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-cmd-build01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 4.072497681998357,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    },
+    {
+      "name": "convergence-runner-build01",
+      "result": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/result.json",
+        "sha256": "ffe843a77dde99a009b0c909637c0f1ac4fbf75bda0f25518abf7977c4123952"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/command.json",
+        "sha256": "b45638e6b0db1879afab0bb899ca7934f50cdffcfc968180a4dfb60b69044603"
+      },
+      "stdout": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/project-initialization-convergence-author/convergence-runner-build01/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual_exit": 0,
+      "seconds": 0.5944664680064307,
+      "actual_direct_wait": true,
+      "adopted_reaped": [],
+      "owned_clear_observations": 2,
+      "input_unchanged": true,
+      "remaining_descendants": [],
+      "classification": "PASS"
+    }
+  ],
+  "listed_exact": [
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock",
+    "TestProjectInitializationConvergenceFacts",
+    "TestProjectInitializationConvergenceTransactionBoundary"
+  ],
+  "binaries": {
+    "convergence-project-integration.test": {
+      "path": "/workspace/scratch/project-initialization-convergence-author/bin/convergence-project-integration.test",
+      "sha256": "87cf0ea881f5c11240d177be27e6cbccfe739d471524ab54ceda7b926a0b18ce"
+    },
+    "convergence-agenteam": {
+      "path": "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam",
+      "sha256": "ce132ee37fddb8ba0e2852357b5d3dabc68ddfe87fcaeaf15b7a82eddaa9da82"
+    },
+    "convergence-agenteam-runner": {
+      "path": "/workspace/scratch/project-initialization-convergence-author/bin/convergence-agenteam-runner",
+      "sha256": "a905c7baa4d5441324ebb969bfeeb86f511b8dc4770c3990aabfc221d1a7db00"
+    }
+  },
+  "unchanged_pure_reuse": {
+    "path": "/workspace/scratch/project-initialization-convergence-author/offline-summary01.json",
+    "sha256": "889f0f8f9fa28e84b93732925863ce7248ddc4677207a828ac402603d59a798f"
+  },
+  "new_semantic_source_changes": false,
+  "repo_installation": false,
+  "ui_effective_inputs": false,
+  "test_body_executed": false,
+  "resources": false,
+  "limitations": [
+    "Full20 go list is graph evidence only; unselected tests are not passed",
+    "Old two B02 selectors only listed, not rerun; old SQL identity/Skills adapter limitations remain",
+    "True PG and README remain pending root resource/installation handoff",
+    "No Object runtime/Skills/root binding; all stops remain"
+  ]
+}

@@ -1,0 +1,11 @@
+--- unit02/internal/central/project/initialization_convergence_test.go
++++ unit03/internal/central/project/initialization_convergence_test.go
+@@ -85,7 +85,7 @@
+ 	s.unexpected++
+ 	return pgconn.CommandTag{}, errors.New("convergence attempted a write")
+ }
+-func (s *convergenceStore) Query(context.Context, string, ...any) (postgres.Rows, error) {
++func (s *convergenceStore) Query(context.Context, string, ...any) (*postgres.Rows, error) {
+ 	s.unexpected++
+ 	return nil, errors.New("convergence attempted a bulk read")
+ }

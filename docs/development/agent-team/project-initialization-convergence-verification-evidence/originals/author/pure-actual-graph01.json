@@ -1,0 +1,316 @@
+{
+  "graphs": [
+    {
+      "mode": "normal",
+      "packages": 294,
+      "files": 1825,
+      "generated": 2,
+      "extra": [
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks.go",
+          "sha256": "c9ea8e5f44b448f035d193521fef832791bd56caf5e3152ab1850364c7366505"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_traceback.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_traceback.go",
+          "sha256": "e5046003c58a73e692b4045763b0faf7a6c955fe199a017cef9a18c9383086c3"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_unix.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_unix.go",
+          "sha256": "b958ddcd0ec991ec9802d2c5572b5b3bb31b3a7f60d170c4cc1339fb60214c9c"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/clearenv.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/clearenv.go",
+          "sha256": "0a680faf208c304a76d6a2ecbc2fbb9515e131a1d23ce26050236d72ca9319b4"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/handle.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/handle.go",
+          "sha256": "114e1c7e5fa7ef5fbb2cba1362b31081c40277d27e1d1d00c06114e2e5dbc727"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/iscgo.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/iscgo.go",
+          "sha256": "eb9cb0774da854424967b8b1883efa657c166f2911091722356a9f986f1ee8b1"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux.go",
+          "sha256": "31545deddd648458011c4b21a9c51eef1f180eafe5d54f8f2866c3fa3c4984f3"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/mmap.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/mmap.go",
+          "sha256": "c1c248df38c648d3880ff2fba9dd98a9c032c9bf98fe714f76eac68cce98b459"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/setenv.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/setenv.go",
+          "sha256": "74970e37595cf53adc4971d53e68c713fd198a37cc170c7bcd75cb10ce63a1a3"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/sigaction.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/sigaction.go",
+          "sha256": "a4d252269422205f7e516c9947d251bc19b6a9ad0f59eecfbbab0632456c7d06"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/cgo.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/cgo.go",
+          "sha256": "dbe71d01a3a36c3d6dd4d92e352746e53db763befe745d16feea28db042d80b1"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_clearenv.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_clearenv.c",
+          "sha256": "da44bed2687f91000fe7c79f73a28987737f15de4fbf0170c4ed05ac79e22df5"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_context.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_context.c",
+          "sha256": "f117768145b8a31967300073bcb4a23af306b11d1cdf2facf0c438f0760058b6"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_fatalf.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_fatalf.c",
+          "sha256": "d52b599bac24a900c803f1cec6027d5187887781d4546835b5ef8c8448342552"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_libinit_unix.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_libinit_unix.c",
+          "sha256": "463c60b9c923ba99aaf2600c97f6697d8dc102d984591b7c8424d1b9a82f455a"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_mmap.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_mmap.c",
+          "sha256": "d8ece6e6a4385bf0449ab50c51887946e39c49bd6d43b3a5f3757a7546c73c96"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_setenv.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_setenv.c",
+          "sha256": "120a9a088f87be81a95270eff8dc431fc112a1d1b803c72176c469379eb0f96f"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_sigaction.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_sigaction.c",
+          "sha256": "fc4101848860a0eabbb5120a2d628abce95b01b438849ec8d14e003b516c2712"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_traceback.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_traceback.c",
+          "sha256": "1a51727ac7da836a98eb4987c897a1e1f7c73922c0de1a74b93add8ec0ddece7"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_unix.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_unix.c",
+          "sha256": "d0857eeb3d4173371d214b4f603eacea3f9a148665b9125f559cef311e0b2b2c"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_util.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_util.c",
+          "sha256": "bd338fbcf4b2e916072f2d22f050ba533b4fc0f1f698338c101c22506a823847"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux_syscall.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux_syscall.c",
+          "sha256": "fb53e53bc37d5ba8f8df641e4f6e0abd705e3eae7815ccc87f55911d20c36133"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/pthread_unix.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/pthread_unix.c",
+          "sha256": "2cb8a2e3477953df2c36d09821a568f660eda558a23fb4aa3601e33cf13c0938"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_amd64.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_amd64.h",
+          "sha256": "7832f3b0a3d91852a53705f3df6d16d69e1e785cfd1d733ee33229411cd26717"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_ppc64x.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_ppc64x.h",
+          "sha256": "c805863eed3ec9d923afa76fb1948b6a3206cc55169ac9286537149671122d29"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo.h",
+          "sha256": "d59ac8da619bbdb65241f80e72902d3a9201173b7c2318eddfebf7f83c81da56"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo_unix.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo_unix.h",
+          "sha256": "02f5c29c7af63d9791a579c254e063ee503c915f7fa8c5d4ebe033e72ad43fc9"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/asm_amd64.s",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/asm_amd64.s",
+          "sha256": "4592d4cfe237e01561d7a6329fdfe5c384a247afb0ff2da7a5ef2a355ac23db8"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_amd64.S",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_amd64.S",
+          "sha256": "47427e195996d98726efea5dfb4093c8ef8887e96067095f0053f5adb62485a9"
+        }
+      ],
+      "path": "/workspace/scratch/project-initialization-convergence-author/graph-normal01/actual-graph.json",
+      "sha256": "c254c9f3f695cc5a5b226ee255610e70ece254171c7ebb39472ef1b8ac06e64c"
+    },
+    {
+      "mode": "race",
+      "packages": 296,
+      "files": 1831,
+      "generated": 2,
+      "extra": [
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks.go",
+          "sha256": "c9ea8e5f44b448f035d193521fef832791bd56caf5e3152ab1850364c7366505"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_traceback.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_traceback.go",
+          "sha256": "e5046003c58a73e692b4045763b0faf7a6c955fe199a017cef9a18c9383086c3"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_unix.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/callbacks_unix.go",
+          "sha256": "b958ddcd0ec991ec9802d2c5572b5b3bb31b3a7f60d170c4cc1339fb60214c9c"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/clearenv.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/clearenv.go",
+          "sha256": "0a680faf208c304a76d6a2ecbc2fbb9515e131a1d23ce26050236d72ca9319b4"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/handle.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/handle.go",
+          "sha256": "114e1c7e5fa7ef5fbb2cba1362b31081c40277d27e1d1d00c06114e2e5dbc727"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/iscgo.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/iscgo.go",
+          "sha256": "eb9cb0774da854424967b8b1883efa657c166f2911091722356a9f986f1ee8b1"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux.go",
+          "sha256": "31545deddd648458011c4b21a9c51eef1f180eafe5d54f8f2866c3fa3c4984f3"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/mmap.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/mmap.go",
+          "sha256": "c1c248df38c648d3880ff2fba9dd98a9c032c9bf98fe714f76eac68cce98b459"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/setenv.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/setenv.go",
+          "sha256": "74970e37595cf53adc4971d53e68c713fd198a37cc170c7bcd75cb10ce63a1a3"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/sigaction.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/sigaction.go",
+          "sha256": "a4d252269422205f7e516c9947d251bc19b6a9ad0f59eecfbbab0632456c7d06"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/cgo.go",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/cgo.go",
+          "sha256": "dbe71d01a3a36c3d6dd4d92e352746e53db763befe745d16feea28db042d80b1"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_clearenv.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_clearenv.c",
+          "sha256": "da44bed2687f91000fe7c79f73a28987737f15de4fbf0170c4ed05ac79e22df5"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_context.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_context.c",
+          "sha256": "f117768145b8a31967300073bcb4a23af306b11d1cdf2facf0c438f0760058b6"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_fatalf.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_fatalf.c",
+          "sha256": "d52b599bac24a900c803f1cec6027d5187887781d4546835b5ef8c8448342552"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_libinit_unix.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_libinit_unix.c",
+          "sha256": "463c60b9c923ba99aaf2600c97f6697d8dc102d984591b7c8424d1b9a82f455a"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_mmap.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_mmap.c",
+          "sha256": "d8ece6e6a4385bf0449ab50c51887946e39c49bd6d43b3a5f3757a7546c73c96"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_setenv.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_setenv.c",
+          "sha256": "120a9a088f87be81a95270eff8dc431fc112a1d1b803c72176c469379eb0f96f"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_sigaction.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_sigaction.c",
+          "sha256": "fc4101848860a0eabbb5120a2d628abce95b01b438849ec8d14e003b516c2712"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_traceback.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_traceback.c",
+          "sha256": "1a51727ac7da836a98eb4987c897a1e1f7c73922c0de1a74b93add8ec0ddece7"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_unix.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_unix.c",
+          "sha256": "d0857eeb3d4173371d214b4f603eacea3f9a148665b9125f559cef311e0b2b2c"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_util.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_util.c",
+          "sha256": "bd338fbcf4b2e916072f2d22f050ba533b4fc0f1f698338c101c22506a823847"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux_syscall.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/linux_syscall.c",
+          "sha256": "fb53e53bc37d5ba8f8df641e4f6e0abd705e3eae7815ccc87f55911d20c36133"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/pthread_unix.c",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/pthread_unix.c",
+          "sha256": "2cb8a2e3477953df2c36d09821a568f660eda558a23fb4aa3601e33cf13c0938"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_amd64.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_amd64.h",
+          "sha256": "7832f3b0a3d91852a53705f3df6d16d69e1e785cfd1d733ee33229411cd26717"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_ppc64x.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/abi_ppc64x.h",
+          "sha256": "c805863eed3ec9d923afa76fb1948b6a3206cc55169ac9286537149671122d29"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo.h",
+          "sha256": "d59ac8da619bbdb65241f80e72902d3a9201173b7c2318eddfebf7f83c81da56"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo_unix.h",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/libcgo_unix.h",
+          "sha256": "02f5c29c7af63d9791a579c254e063ee503c915f7fa8c5d4ebe033e72ad43fc9"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/asm_amd64.s",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/asm_amd64.s",
+          "sha256": "4592d4cfe237e01561d7a6329fdfe5c384a247afb0ff2da7a5ef2a355ac23db8"
+        },
+        {
+          "virtual": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_amd64.S",
+          "physical": "/workspace/toolchains/go1.27.1/src/runtime/cgo/gcc_amd64.S",
+          "sha256": "47427e195996d98726efea5dfb4093c8ef8887e96067095f0053f5adb62485a9"
+        }
+      ],
+      "path": "/workspace/scratch/project-initialization-convergence-author/graph-race01/actual-graph.json",
+      "sha256": "25a21ecb122903833316d243b96c0935aa13b6920b1630a76f6f19d14d90a703"
+    }
+  ],
+  "status": "actual normal/race Go list; build gate requires extra0",
+  "ui_packages": false
+}

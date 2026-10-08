@@ -1,0 +1,207 @@
+{
+  "status": "PASS_OFFLINE_PREPARATION_ONLY",
+  "runs": [
+    {
+      "name": "format01",
+      "actual_exit": 0,
+      "seconds": 0.3273406449952745,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2,
+      "inputs_unchanged": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/command.json",
+          "sha256": "3604fa84a4d1b02dc46b0696da5c4afdb27181e2b99cf399ab3d6429b43743ef"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/result.json",
+          "sha256": "fb11bcd7f5a8415ffab25ad5c695e82469a99baa937ca2d43ab85f9688f5221c"
+        },
+        "stdout.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/format01/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "graph01",
+      "actual_exit": 0,
+      "seconds": 0.535649267003464,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2,
+      "inputs_unchanged": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/command.json",
+          "sha256": "e5f0e207b671a13b73d031bc0fcab2fad44a13c4335bb6a39f837453dc23a6e3"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/result.json",
+          "sha256": "5d5416892b827208ae86e38ff8572da293f0ed1f97e1710163b8cca2de59aaa9"
+        },
+        "stdout.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/stdout.log",
+          "sha256": "57c01567f4271804e8d7bafe9d8e210463f85f3a95095d0322679be94f4e1257"
+        },
+        "stderr.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/graph01/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "compile01",
+      "actual_exit": 0,
+      "seconds": 3.7045507969960454,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2,
+      "inputs_unchanged": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/command.json",
+          "sha256": "f0fe7ec52970b7d1e61ffd84f7b5ffd182e4f79c7433868992e1db5b1392a123"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/result.json",
+          "sha256": "a7ea1f58fbd38ca83f75ed2a1d546f6d2fb58cbd1252d0bc6850b966de5cfef1"
+        },
+        "stdout.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/compile01/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "list01",
+      "actual_exit": 0,
+      "seconds": 1.3916773710006964,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2,
+      "inputs_unchanged": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/command.json",
+          "sha256": "271888a6cec48487b45563dc33ddc978738fb44ab6b1de18dfbc6f514c041f72"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/result.json",
+          "sha256": "eda3cacb492c116cc0b462053fa8f4568ad4e5cd2d287549e27865cf7425338f"
+        },
+        "stdout.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/stdout.log",
+          "sha256": "5eee6701ee5c5d924bd46594a62ed40d96ef107de74e52883e4293e9cb455aba"
+        },
+        "stderr.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/list01/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "vet01",
+      "actual_exit": 0,
+      "seconds": 0.7308516979974229,
+      "direct_wait_count": 1,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2,
+      "inputs_unchanged": true,
+      "actions": [],
+      "remaining_descendants": [],
+      "evidence": {
+        "command.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/command.json",
+          "sha256": "7355a8c5d4f6decaf237865fe398aad0c98dc230756229338ba024db3966aa66"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/result.json",
+          "sha256": "85eaa6efd72495926bb5673c42dc5292eb6fb83f61008246f974f783a24df702"
+        },
+        "stdout.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.log": {
+          "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/vet01/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "driver": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/driver.py",
+    "sha256": "cccc1dce9dc3d825efbaa7f9350f0c6ecc53c0914c47703afbcb0f790d8956e3"
+  },
+  "driver_delta": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/driver.diff",
+    "sha256": "8498af7fa7531b8ec32ce8f9ce1e6b73f5c14c55239dc2ff46f37934183c2c5d"
+  },
+  "initial_freeze": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/freeze01.json",
+    "sha256": "76dfd725185474b28e8e263b7498449ce3431f8b091e3b93393aacf11fee77b3"
+  },
+  "private_freeze": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-probes01/freeze.json",
+    "sha256": "1381844efc01e7845e4ff382f345019de0b4975f6e92239aa0fba7fb7ad2fefe"
+  },
+  "graph": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/actual-graph01.json",
+    "sha256": "25acd2bb6ad050b6705fd98444388927f153c3e8bc84bddb1355422b5d72dd6f",
+    "packages": 377,
+    "files": 2363,
+    "generated": 1,
+    "extra": 0,
+    "custom_TestMain": false
+  },
+  "inputs": {
+    "input-pregraph.json": {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/input-pregraph.json",
+      "sha256": "0b2313aa5b11b2eae898222a0ac18e095fabb351afb2b85b911046edd3d371aa"
+    },
+    "input-build.json": {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/input-build.json",
+      "sha256": "cfc0aece9d12d706e64f79c1978e35369bf7ed473bef226be8dc9965b1f752e7"
+    },
+    "input-list.json": {
+      "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/input-list.json",
+      "sha256": "366314872bc870181c81694f36ac5dcd44435f142577ad137c14810ab4cb89d3"
+    }
+  },
+  "binary": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/bin/independent-convergence.test",
+    "sha256": "815c3cfd24cb476141ec70bd977efcd5cef22740e5d06183895368a8757c03ae"
+  },
+  "exact_list": [
+    "TestIndependentInitializationConvergenceTransactionBoundary",
+    "TestIndependentInitializationConvergenceCanonicalFacts"
+  ],
+  "review": {
+    "path": "/workspace/scratch/project-initialization-convergence-verification/pg-offline01/review.md",
+    "sha256": "4062f38508b603b34683abbd2f5d09d75afd4f3cfff2bb92c10f3619881eee5f"
+  },
+  "test_body_executed": false,
+  "resources": false,
+  "repo_installation": false,
+  "UI_content_read": false,
+  "active_commands": false,
+  "stopped_writing": true
+}

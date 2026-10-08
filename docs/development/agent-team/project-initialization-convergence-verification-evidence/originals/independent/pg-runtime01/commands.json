@@ -1,0 +1,42 @@
+{
+  "source_gate": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/source-gate/driver.py",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/source-gate/input.json",
+    "inputcheck01",
+    "--",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/driver.py",
+    "--name",
+    "check-only",
+    "--group",
+    "independent-a",
+    "--frozen",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/proposal-freeze.json",
+    "--check-input-only"
+  ],
+  "runtime_A": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/driver.py",
+    "--name",
+    "independent-a01",
+    "--group",
+    "independent-a",
+    "--frozen",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/execution-freeze.json",
+    "--execute-authorized"
+  ],
+  "runtime_B": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/driver.py",
+    "--name",
+    "independent-b01",
+    "--group",
+    "independent-b",
+    "--frozen",
+    "/workspace/scratch/project-initialization-convergence-verification/pg-runtime01/execution-freeze.json",
+    "--execute-authorized"
+  ],
+  "executed": false,
+  "execution_freeze_exists": false
+}

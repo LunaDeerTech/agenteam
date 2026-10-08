@@ -1,0 +1,24 @@
+{
+  "graphs": [
+    {
+      "mode": "normal",
+      "packages": 294,
+      "files": 1825,
+      "generated": 2,
+      "extra": [],
+      "path": "/workspace/scratch/project-initialization-convergence-author/graph-normal02/actual-graph.json",
+      "sha256": "a731df7503da52af964fd0b42b701d029b9f9f9e44bf28ce88e9aa6175f25857"
+    },
+    {
+      "mode": "race",
+      "packages": 296,
+      "files": 1831,
+      "generated": 2,
+      "extra": [],
+      "path": "/workspace/scratch/project-initialization-convergence-author/graph-race02/actual-graph.json",
+      "sha256": "d87f9a7989829d5162692bf33998bd00cb2eba2ff837e8fade33843c38ac951c"
+    }
+  ],
+  "status": "actual normal/race Go list; build gate requires extra0",
+  "ui_packages": false
+}
