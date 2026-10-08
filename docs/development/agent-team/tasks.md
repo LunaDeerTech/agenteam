@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：Audit API五源正式接受
+
+root限定接受卡#1/#2/#3/#11/#12的API阶段：独审[固定短报告](/workspace/scratch/owner-audit-ui-verification/api-v1/review.md)5669b67d4c3bf8286137b03f712df48d101bc3b3dc07864a37e8f489561dc4e1、result765e40c0、final-input3050eec0；root通读报告/result与client关键差量，核五安装源/冻结及所有12原件指纹。独立71/71实际exit0，0.823s/终局1.086s，32固定input同/direct actualwait/owned双空；覆盖31合法输出、53/25过滤、跨scope/条件投影/Go JSON计数及真实stream EOF/cap/cancel尾部。作者86/type10.333s/format1.219s及首轮实际旧102按未变产品组合复用；原首3新测试前提FAIL和两test原件保留，fulltype仅API时点185文件，不冒当前活动UI。仅五API源可提交，不代表Cookie owner或完整22卡。
+
+state-v1六源freeze c730a2e8已作者STOP，新52＋旧四域合285 PASS/type11.514s，format首红及纯格式修后PASS保持；缺audit后缀阶段50FAIL→49/50→最终、最后403/FORBIDDEN测试前提修正保留。verification已ACK独审该固定六源；frontend继续余8源，前11源只读。Audit Go candidate02 bda6ba89两源与candidate01同bytes，race-c/vet/两cmd/两模式deps共6命令均PASS/actualwait/905input同；repo500→502仅两新。architecture正完整STATIC，已初识hold joined早于外handler结束，待全项正式报告再修，尚未资源/binary/list/真实top。
+
+Embedding规格永久小档2034e79d/manifest14730b73已STOP，root核15原件72479B、17逻辑定位、全部manifest及48f8293e卡Git bytes；原diff10尾白保，待单独交付。产品#1/#2仅scratch-v2 freeze8c13a93f（policy c8ccd095、pure a5fbc31e）正独立STATIC；v1未编译先发现两nil Tx，v2改f.Tx{}并保原件。fixture继续PG6 scratch，仓库model源未写；Go安装/检查另交。所有业务资源/全局dist窗口关闭，生产未绑/ready503/D08–D28/E01及三停止/Jina保持。
+
 ## 2026-10-08：Embedding Resolver rev2规格接受；Audit实现继续
 
 root正式接受[Platform embedding Resolver rev2](../work-items/d09-platform-embedding-resolution.md)：卡67d372523d2ab94db5e60e2e85518171985e15a739e3812d564b18b6f61964d7，原rev1完整独审4b16dd82唯一D1/D2；rev2恰四处单行差量后，独审0badabfd45098b31b1e58c6ba82894f6d934efda1bff28a9bad1b68b1825c261正式组合PASS。root通读全卡/差量与报告、核卡/freeze及三件SHA；evidence7a9bfad2、manifesta11b2f16。D1完整保原agent/tool direct含ApprovalAuto，D2明确同外Tx SQL/Acquire并禁补锁/内Tx/Provider外网；9路径/top/预算不变，原FAIL与49来源保持。8技术仅既有resolution_policy加新pure1/PG6，README9后交；fixture唯一backend作者已只读准备STOP，实施写权下一步交接，不据规格称产品/资源可用。严格两个Knowledge/Memory purpose、不可变snapshot/lease/版本保持；真实consumer/serving/IndexProfile维度、Nonchat/Invocation/root待后继。

@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Audit API五源接受（2026-10-08）：root通读独审5669b67d/result765e40c0并核五安装源/冻结及12原件指纹，限定接受#1/#2/#3/#11/#12：独立71/71与作者新86/type/format、原旧102组合通过。原首3测试FAIL与旧时点185文件type限制保持，不外推Session/UI/真实producer。state六源c730a2e8作者285通过、独审进行；其余8前端源活跃。Go candidate02 bda6ba89已安装/离线通过，完整STATIC正在审，初步join计数过早问题待完整报告，资源未授。Embedding两源仅scratch-v2 8c13a93f正独审、PG6仍作者scratch，生产未扩；三停止/Jina保持。
+
 Platform embedding Resolver规格接受（2026-10-08）：rev2卡67d37252及完整rev1独审4b16dd82＋D1/D2差量/最终组合0badabfd已root通读核SHA接受；8技术＋README9，唯一既有产品源resolution_policy.go。原agent/tool direct与同Tx SQL/Acquire明确保留。fixture已完成只读作者准备，后继仅scratch实施，生产consumer/serving/维度/Invocation/root不扩。Audit API5源1a2bcdf4作者86/type/format与原102通过、独审进行，首3测试FAIL保；frontend继续Session/page，backend已授两新Go安装及≤45s离线编译，不运行binary/list/资源。三停止与Jina取证保持。
 
 Audit UI已实施（2026-10-08）：规格5320a187已push核远端同；frontend已ACK19个web/JS技术路径及必要≤45s本地Node检查/private outDir，backend已ACK仅Go #17–18 scratch候选，README/业务资源未授。规格永久档0bc3c8ea/manifest e204082f已STOP，root实核15原件133979B、4metadata引用及已提交卡Gitblob；原diff31尾白保。独审API/实际计划已STOP待冻结。并行架构仅新D09 platform.embedding current-selection Resolver规格，严格Knowledge/Memory purpose；不开放真实消费者/serving/维度/Invocation/root，三停止保持。

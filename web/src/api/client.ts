@@ -59,6 +59,8 @@ const endpoints = {
   resolveOwnerProject: ['GET', '/api/v1/projects/resolve', 200],
   updateOwnerProject: ['PATCH', '/api/v1/projects/{id}', 200],
   lookupOwnerProject: ['POST', '/api/v1/projects/{id}/commands/lookup', 200],
+  listProjectAudit: ['GET', '/api/v1/projects/{project_id}/audit', 200],
+  getProjectAudit: ['GET', '/api/v1/projects/{project_id}/audit/{audit_id}', 200],
   bootstrap: ['GET', '/api/v1/auth/bootstrap', 200],
   session: ['GET', '/api/v1/session', 200],
   login: ['POST', '/api/v1/sessions/login', 200],
@@ -589,6 +591,11 @@ type AuditOptions<E extends AuditEndpoint> = E extends 'listSystemAudit'
   ? { signal: AbortSignal; audit: AuditWireQuery }
   : { signal: AbortSignal; target: string }
 
+type ProjectAuditEndpoint = 'listProjectAudit' | 'getProjectAudit'
+type ProjectAuditOptions<E extends ProjectAuditEndpoint> = E extends 'listProjectAudit'
+  ? { signal: AbortSignal; projectID: string; audit: AuditWireQuery }
+  : { signal: AbortSignal; projectID: string; target: string }
+
 type ProjectEndpoint =
   | 'listOwnerProjects'
   | 'getOwnerProject'
@@ -613,6 +620,11 @@ const projectEndpoints: readonly ProjectEndpoint[] = [
 ]
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends ProjectAuditEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: ProjectAuditOptions<E>,
+  ): Promise<T>
   function request<T, E extends ProjectEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -683,6 +695,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     endpoint: Exclude<
       keyof typeof endpoints,
       | ProjectEndpoint
+      | ProjectAuditEndpoint
       | 'systemUsers'
       | 'systemInvitations'
       | InvitationTarget
@@ -711,13 +724,35 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
       projectAddress?: ProjectWireAddress
+      projectID?: string
       target?: string
     },
   ): Promise<T> {
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if (projectEndpoints.includes(endpoint as ProjectEndpoint)) {
+    if (endpoint === 'listProjectAudit' || endpoint === 'getProjectAudit') {
+      try {
+        shape(options, [
+          'signal',
+          'projectID',
+          endpoint === 'listProjectAudit' ? 'audit' : 'target',
+        ])
+        const projectID = string(options.projectID, 36, 36)
+        if (!uuid7.test(projectID)) throw new Error()
+        path = basePath.replace('{project_id}', projectID)
+        if (endpoint === 'listProjectAudit') {
+          const encoded = new URLSearchParams(captureAuditWireQuery(options.audit)).toString()
+          if (encoded) path += '?' + encoded
+        } else {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = path.replace('{audit_id}', target)
+        }
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (projectEndpoints.includes(endpoint as ProjectEndpoint)) {
       try {
         const hasTarget = basePath.includes('{id}')
         shape(options, [
@@ -1017,7 +1052,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                 ? 16 * 1024
                 : endpoint === 'listProviders' && success
                   ? 2 * 1024 * 1024
-                  : (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') && success
+                  : (endpoint === 'listSystemAudit' ||
+                        endpoint === 'getSystemAudit' ||
+                        endpoint === 'listProjectAudit' ||
+                        endpoint === 'getProjectAudit') &&
+                      success
                     ? 1024 * 1024
                     : 600_000,
         )
