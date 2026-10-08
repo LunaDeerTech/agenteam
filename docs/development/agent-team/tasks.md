@@ -1,5 +1,41 @@
 # 团队任务台账
 
+## 2026-10-08：Model 新五轮实际齐备；Audit 恢复前提修正已接受
+
+资源当前均已全退役STOP。Authorization工具session14946实际exit0已确认；独审2b93e811/0ed1aaa5/865f5fc6已root通读核报告指纹，55RUN含父组/50叶、权限/锁/Secret witness断言有限接受。Atomicity独审462a545e/99f7e0f3/bd9502a1已root同样接受，未重复扫描996闭包。
+
+root各新0444单grant：Replay8360b27d、Unknown4eafcbc3，均原v03/预算不变。Replay实际45RUN/PASS top12.57s/pkg13.606，fixture65.477s/outer119.967490s，工具79713/chunk293a48 actual0；inner f8793ba7/outer6ce9e875 root读核accepted，7ID/owned-runtime双清、TCP51.455966s双清。Unknown实际17RUN/PASS top6.93s/pkg7.959，fixture62.474s/outer118.145440s，工具85279/chunk7bdf91 actual0；inner1767ccc6/outer7df355ca root读核accepted，7ID/owned-runtime双清、TCP52.445884s双清。两轮各996输入同/0adopted/83observed/4非ownedPID1 shim不wait；近120真实elapsed保留，不扩大预算。当前v03五轮35IDs去重只指本代；Unknown是固定真实commit/rollback装饰与取消边界，不是物理ACK丢失。Replay/Unknown原件独审活跃，旧Resolver6/旧Summary3及独立A/B未执行。
+
+Audit authority01失败/完整退役/单hunk提案独审52eb76b5/b3fd1743/285e8a04已root读核，92原件597148B、45proxy GET与44完整sidecar分开，未存401后DOM/后段checker未达。root disposition9bd81ffb仅准新代准备，旧v01/v02 guard/FAIL保持。source-v03唯一a91d3ab7/68077B，freeze eaef9bd8、deltadc508779精确；format0.603070s/strictTS1.894196s实际0/wait/owned双空/15输入同，末件独审de56c9b7/5c73f8fd/007877c5已root全文读hash接受。无产品/Go/build/list重跑，read02实际16a3的read逻辑组合明确。
+
+Audit v03 driver精确06cf；resource-inputs-v03 stop25b76411/manifest6bf5c389/freeze1dafcb2f/closure9a01930a/binding35553eab已root读核23必要refs。仅一JS source hash与5metadata一换一，继承942/66+237runtime=1179。root一次sourcecheck04纯输入分支：工具session61744由b71cf4初yield、d1f157实际exit0，rawb7606628/receipt7d86c712，1179/digest同、missing/mismatch/setchange空、private59与工具边界同；未单独计总elapsed，不把初yield1.001s冒作全程，未声称资源退休。readonly false保持，下一拟auditauthority02另grant；导航/旧10/独立4/8图与整卡待。独立Audit final03只metadata准备中，README#21仅scratch候选；下一Owner模型设置也仅scratch工程补齐，正式实施仍待Audit整卡交接。
+
+## 2026-10-08：Atomicity、Authorization 首次实际通过；后继独立准备就绪
+
+Audit read02独审 `/workspace/scratch/owner-audit-ui-verification/auditread02-result-review/review.md` SHA0f4b0ccc（evidence cc2c5dba/manifest f00cc904）已root通读核报告指纹，接受本轮60原件494292B、19 native同bytes/schema及public client重放、9checks与完整owned退役。18成功+1受控cursor Problem，client不是另19网络请求，原read01FAIL/未保存DOM与authority/navigation/旧组/独立4未完成保持。
+
+Model embedatomicity01单轮grantf2c79cf8实际PASS7.23s/pkg8.268s，1top+2purpose父组+12cases共15RUN；inner d6e4ecec/outer ef278284已root读核，actualwait58.818/114.394861s exit0、7ID/owned-runtime双清、TCP52.437941s双清、996输入同、0adopted/83observed，4非ownedPID1 shim不wait；独审进行。root新0444 grant249dee99仅授embedauth01/new-authorization，实际session14946；top8.99s/pkg10.029s，55RUN全PASS。inner bf3261bd/outer930bf4cf已root读核完整accepted/actualwait112.730188s/0与TCP52.444990s双清，执行者最终工具STOP交接待收；replay/unknown/两旧组未授。不同ID结论只指当前v03已封轮，原失败/cleanupfalse/独立恢复不改。
+
+Audit auditauthority01原e2c5078a FAIL完整退役，manifest975b3b34/handoff78ff0838固定92原件；45proxy GET与44完整sidecar区分，401后DOM未存，finish/schema/client未达。frontend仅scratch提案provenance a7e360c8/patchdc508779：保零Audit/Nav、明确检查会话后保login/deniedBoth/finish，现spec16a3未变；architecture正在独核。下一代/真实重跑未授。
+
+独立Model final02 manifest33c30a3f与五原件root读/hash核合，c433单SQL覆盖、d0dac/b7a4同时更新、bbe8/d2/probe/overlay/88runtime映射不变，旧A/B binary/list2与新作者compile02仅离线组合。root只执行一次已审纯input分支，`indfilegate02.raw.json` fbcbd809／receipt87c54260，actual工具exit0/0.590552433s，999输入及external同、missing/mismatch/setchange空，无资源；runtime另只读核合STOP。总false不改，A/B待新五轮通过后逐轮另授，无Go重编/list或新索引。
+
+Owner模型设置scratch rev0 8b78072a及独审463cd09a/bde2b724/1e91289a已root全文读核，仅接受29路径/17操作草案可行性；两个菜单叶子、Credential与Provider显式分步、配置与凭据归档重放区别、安全目录七字段保持。T1最终Audit共享源、T2精确旧selectors、T3 IPC/输入/预算、T4正式基线尚待，不是正式卡或实施授权。当前所有原FAIL、三停止/Jina、生产未绑定、ready503、完整D08–D28/E01未完保持。
+
+## 2026-10-08：修正后的真实 Selection/审计读取通过；权限轮首红
+
+Model单fixture c433已安装，compile02 stopd0dac1ad/installationb7a4aa4e/sharedGo880a001e只有一原Go hash，909/63与485其它包输入保持。race-c7.825571s/vet0.621320s实际exit0/wait/owned双空，486 input同，新/旧生成TestMain精确db1，原14名list有限复用、新binary4ad未执行。末件独审279de7c2/5f824485/b0df40a0已root读核接受离线组合；原failed Selection和恢复独审004a1ec0/f04c638a/b0db1662已root读核，c433仍只证明持久Model材料审计0，不扩回滚尝试。root只准备dispositionb64ca04b明确旧FAIL/双cleanupfalse保持、新generation原driver/launcher字节；不修改旧guard。
+
+Model v03 falsefba6fded/readinessbfaa372f/manifest a0cf7cb3已root读七原件，driver79739d14/launcherd2be78b5原bytes。root亲filegate03一次exit0/0.653918s、996/63/355external同，rawd839d4e8/receipt1acc5336，source-only无资源退休声明。root0444 grant03068c0b单授embedselect02；初续派尚未启动时root中断仅准备中的agent并重新明确执行，agent确认无活跃命令后才实际session82966启动，无重复run。实际1top+10nested全PASS5.99s，inner53.455s/outer108.939894s exit0/direct actualwait，7ID双absent/owned-runtime双空/TCP52.430464s双清/996输入同/0Node-browser/adopted0，4非ownedPID1 shim不wait；不声称跨代ID唯一。inner9e1f9c1b/outerdfed9e86，作者短stop45627ea5/manifestb35d37c6原位33件，独审1adbd48b/evidence3809d816/manifestbe568cdc已root读核接受本轮。余下6作者轮与A/B未借此接受。
+
+Audit v02 exact06cf，完整false c5e5271b/closure13948285/stop51dd74c9/manifest9487d8bf仅fixture c433＋JS16a3两hash，942/66+237runtime=1179。root读核18显式refs后亲sourcecheck03一次1.163455s exit0/raw1d10dcab/receipt7179dcb7：全1179/66/355/4bundles/private59同，new-read不要求global扫描。root单轮grantc2bf2bd4，auditread02真实browser12.4s/top20.02s PASS/fullchain72.364s exit0，result7a59020c。directwait/adopted4/watchdogjoin、7ID双absent/owned两runtime双空/TCP38.388988s双清/inputs同，101观测进程与4非ownedshim不冒称全wait。原19sidecars/9unique上游body（16list/3detail、18×200/1×400）已完成实际schema subprocess exit0/count19和publicclient19、9checks真，proxy57/57，1受控cursor wire分列，setup/controlAudit GET0；原read01FAIL不改。短manifest4133d4e2/handoff12a08a73索引60原件，独审进行。
+
+root随后只授auditauthority01/new-audit-authority grant064f422d，实际top30.36s/browserexit1 FAIL。最后typed SESSION_REVOKED/UNAUTHENTICATED已取得，spec1491等login-email 5s缺元素；fixed LoginView ID存在，Session当前401路径置unavailable，App仅anonymous自动/login，既有界面要求用户显式检查会话。frontend只读归因/最小测试补正中，不回填旧DOM/状态观察或改产品。result e2c5078a原FAIL/root读核：actualwait/adopted4/7ID双absent/owned-runtime双空/TCP38.399935s双清/inputs同，0forced、4nonowned shim不wait，backend仅封停止证据；nav及旧组未运行，v02旧failureguard保持。
+
+窗口交回后root单授Model embedatomicity01/new-atomicity，0444grant f2c79cf85931cd1113721d64520516d60facfd46b5654f8afea57d68260fa0c5；fixture已实际ACK/session59285启动，尚无终局，120inclCleanup/6m/75TCP/5GiB/7ID保持，FAIL全退役STOP无自动后轮。root不Git/push或换资产，JS后继只scratch且不属Model Go输入。Model独立final02 33c30a3f/false4e241b9d与Audit独立final02 86c00d84/false910f0457（1183/66）仅metadata STOP未gate/实际；后者即将因authority后继JS再绑定，不借旧准备counts当新门禁。59/原3backup原位，最终readers退役后root恢复。
+
+后继Owner模型设置scratch rev0 8b78072a（17操作/29路径、两叶子）与独审463cd09a仅草案STATIC通过，正式卡仍待Audit整卡共享源及方法/Session签名、旧selectors与IPC/预算精确绑定；无仓库实施或资源。三停止/Jina、ready503/生产未绑定与D08–D28/E01未完保持。
+
 ## 2026-10-08：首轮真实失败、退出与最小测试修正
 
 Audit完整准备独审d6760b44/resultdbae2f13已root通读核36refs接受限定，Model v02 c83dffc1/result971cc44a及40refs核同，G1/G2与专用loader关闭。为使用先就绪输入，先Audit后Model实际串行，未并发资源。独立Audit final01仅STATIC c1188022，尚未filegate；独立Model driver cb55a8cd/manifest7080cf1e已root读核44refs接受STATIC，其final0177afb5d8只false元数据，实际A/B未运行。
