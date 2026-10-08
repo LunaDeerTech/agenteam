@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：Project Owner Audit UI rev2规格接受
+
+用户明确继续完成项目。main恢复基线5684993d，Owner工作区24路径和官方品牌已验收；[Audit UI卡rev2](../work-items/d27-project-owner-audit-ui.md) SHA1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb，经原rev1全文独审0c78f19a与rev2差量/最终组合独审dc7d9c60正式通过。root通读报告/evidence并核卡、freeze及独审三件SHA；唯一D1关闭，原HTTP/Session契约、selectors与预算保持，原失败不改写。
+
+当前阶段：规格已接受，产品待实施。范围21技术＋README共22；frontend将独占#1–16/#19–20/#22，backend将独占新Go #17–18，#21 README待技术验收后另交。共享client/Session/workspace/router/ProjectNav同一写者；root独占Git、三协调文档与web/dist/真实资源窗口。两作者已ACK只读准备，尚未授产品检查或业务资源。runtime已STOP；规格永久小档另由fixture准备，不延迟已接受工程实施。下一步交接实现、离线检查、独立代码/权限恢复验证，再按冻结计划执行真实新3/旧10及独立代表。
+
+固定独审：`/workspace/scratch/owner-ui-runtime-verification/project-owner-audit-ui-spec-rev2-review/`，review dc7d9c60974ec8852982821b86c976e28ccd75a9f7969a94e257ad5409c17c86，evidence0129b62b77a1949016f38949c86e568420cbd0363c407de6f9ab5d169dc0f88c，manifest6d4459c9628321768d458b8f6394f04d56431119638db9946df909152b776c54。纯规格检查，无动态PASS；原rev1唯一D1及作者selector自查FAIL保持。Object runtime join、OpenAI tools独立验收、SPA并发发布三停止不重试；production Skills/创建HTTP/Resolution/Invocations/D24未绑定，ready503，完整D08–D28/E01未完成，E01未开始。
+
 final24格式终局（2026-10-08）：完整原Git诊断实数12＝10尾白＋README.patch:111和v2-to-v3.patch:7两EOF空行。root第一次helper遇首EOF提前assert，后次集合比较失败才完整枚举第二EOF，两helper exit1均未后续commit；Git本身exit2，原失败输出保持。fixture仅三JSON再补STOP manifest13d5c5cb，原bytes/report/两header不变，当前登记已完整。只按精确12原例外核后交付，其余生成文件零异常；不产品/技术重跑。
 
 final24归档格式补正（2026-10-08）：root首stage检查另识别原README.patch第111行new blank line at EOF，脚本assert退出后未继续commit；同该行原尾白已登记。fixture仅format/checks/manifest三JSON补EOF例外STOP（manifest0f378888），原patch306dc83f/所有原件/报告/两docheader不改；实际11diagnostics=10尾白+1EOF原样保，root核更新manifest/hash通过，接着仅restage元数据/三根再核提交。Audit rev1正式独审正进行，D1当前设置叶选中态需追加既有ProjectNav，原卡保持，产品未写。
