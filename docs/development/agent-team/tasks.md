@@ -1,5 +1,15 @@
 # 团队任务台账
 
+## 2026-10-08：完整运行输入与原始失败收口中
+
+Model作者精确14名-list首PASS1.278915s，resultf92074e9/manifest1bb48916，冻结binary083d8839前后同/actualwait/双空，无body。独立A/B probe原117c/cd353/a2c经完整语义独审4f575104接受；私有格式348dccae仅三空格，overlay39e98025只增不存在虚拟target，race-c8.558s/vet0.999s/格式0.152s全PASS，486固定input同/actualwait/双空/0forced。最终组合独审82f2568f/evidence4fed26ae/manifestbcfa917a已root读核；后继冻结binary3c5a008c精确A/B两名首list1.230s PASS，freeze0ca80d24/result6d3c0ae9，无body或资源。准备阶段误推18迁移+3web资产已依据原observed-inputs更正为20迁移SQL+弱密码JSON，463Go加两锁共486，不读或绑定web。
+
+共享Go-only层0716db67/binding684073d0/closuree2a1954f已STOP，原四实际graph/355外部组仅引用：base951→retain903→去3旧schema=900，再9新Go+policy原位覆盖=909、63集合。独立字段复核5fc756e5仅静态，实际loader需支持retain/remove顺序。Model作者driver8153667b的完整静审88f676dc/result830a1860为FAIL：G1直接入口未闭合严格true/readonly/launcher hash；G2只查inner run遗漏outer launch失败/未完成。原19退役helpers及预算无另必修，v01/false保留；fixture唯一新v02修gate/历史及必要专用loader，独立A/B driver等待此停止继承，未真实执行。
+
+Audit完整准备6073cbc0/completione736a81e/driver06cf03c3/falseffc55d60已STOP，root读diff/早返回和原件，核17引用。Go909加浏览器33共942repo/66sets，再234工具与refs共1176；4bundles含20schema资源，59资产原bytes。sourcecheck01小启动器在Popen前因`/proc/self/task/<pid>/children`缺失FAIL，failure65613276/toolstderr原复制保留，0子进程/0资源。新仅启动器ECHILD修正3ef087be经root读差量核六refs另授单轮，filegate02/result83daf669实际1.626s PASS/directwait1/adopted0/双ECHILD/0forced；原raw0d7210df通过1176hash/66sets/355外部组/4bundles/private59/global59。wrapper只重复自身/driver/freeze三hash，不称第二全sourcegate。root第一次误猜patch短名只读cat缺件，随后按proposal精确路径核过，未误执行。资源授权false，完整prepared独审进行；无新的Go或业务资源。
+
+当前原3备份仍`/workspace/scratch/project-audit-ui-assets/exchange01/original-dist`，global59保持停止写入；末reader退休root恢复。优先Model作者七轮后Audit十三轮，均须独占串行；独立A/B与Audit四轮另交实际窗口。原三停止/Jina、生产ready503及完整D08–D28/E01未完不变。
+
 ## 2026-10-08：Model六PG静态接受与运行门槛
 
 六PG独审da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c及evidencefb356abb/manifest3e0d4134已root通读核SHA接受STATIC，无必修；六源逐字等a442fcb8，共76506B。strict facts/fresh坏事实、同Tx接受/snapshot/lease、rev3 canonical优先序、Unknown保原cause/attempt及holder/waiter cleanup有完整静态依据。15作者离线原件与22必要source/helper核同；原486只编译包记录，不扩实际PG结果。独审整理误将pure test当PG import的KeyError及原定位失误保留，未改产品或重跑。

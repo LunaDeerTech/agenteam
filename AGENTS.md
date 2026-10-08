@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前真实前状态（2026-10-08）：Model作者14名精确list已1.279s PASS/实际wait/双空；独立A/B原117c完整STATIC4f575104、格式348dccae与race-c8.558s/vet0.999s组合82f2568f已root读核，精确2名list1.230s PASS，未testbody。Model七轮driver v01独审88f676dc仅G1直接入口immutable与G2前轮outer失败/不完整阻断必修，fixture仅v02窄修及新closure过滤loader，尚未关闭。Audit完整prepared6073cbc0＋falseffc55d60已STOP，filegate01因缺/proc task children在Popen前FAIL/0child，原件保；v02 ECHILD窄修后filegate02实际1.626s PASS/1176hash/66sets/外部355/私有与global59同/actualwait双ECHILD，独审进行。所有Go/cache和业务资源当前空；root仍持59资产准备窗/原3backup。共享Go-only0716db67为909/63，无web资产：Model486实际463Go＋20迁移＋弱密码JSON＋2锁，原18+3推断已更正，不回写历史。三停止/Jina与生产/完整两卡/E01未完保持。
+
 Model六PG静态接受（2026-10-08）：root读da648d4f并核evidencefb356abb/manifest3e0d4134，六原a442fcb8/76506B无必修；真实5新/旧6/旧S3三及独立A/B仍待。作者七轮driver已STOP仅prepared正独审，full Go-chain/精确14名发现待补；runtime只scratch准备不同构造A/B。Audit冻结binary精确13名list实际1.178s PASS/directwait1/owned双空/input同，无testbody/资源，缓存窗交回。root资产59准备窗保持，原3备份不可动；后续实际窗优先Model再Audit，不并发。三停止与完整项目未完保持。
 
 当前资产准备窗（2026-10-08）：root已完整备份原web/dist三文件至`/workspace/scratch/project-audit-ui-assets/exchange01/original-dist`，安装已验private59/794400B并逐字节核同；exchange8750fcfd，private原件不变，所有最终reader退役后root恢复原3。无业务资源授权。JS2最终冻结1a1a35b4及独审f04af9bc已root读核接受离线阶段；真实driver正在基于当前59/新schema/Model差量准备，不能复用旧输入数。三停止/生产/整卡边界不变。
