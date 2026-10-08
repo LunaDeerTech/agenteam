@@ -1,0 +1,116 @@
+{
+  "status": "DOCUMENT_CONTENT_AND_DIFF_CHECKS_PASS_LINK_PENDING_ARCHIVE",
+  "target_sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0",
+  "baseline_bound": true,
+  "personal_settings_and_all_following_history_bytes_preserved": true,
+  "only_v3_delta_from_v2": "Replace pending independent acceptance sentence with limited accepted 9-run report and coordinated link.",
+  "v1_and_v2_freezes_unchanged": true,
+  "added_lines_no_trailing_whitespace": true,
+  "utf8_lf_final_newline": true,
+  "prefix_fences_balanced": true,
+  "relative_links": [
+    {
+      "link": "../work-items/d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d26-personal-settings.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d26-public-account-entry.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-user-directory-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-invitation-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-provider-management-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-model-management-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-model-selection-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-account-security-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-smtp-settings-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-smtp-delivery-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-outbound-policy-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-audit-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-system-runtime-information-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../work-items/d27-project-owner-workspace-ui.md",
+      "exists": true
+    },
+    {
+      "link": "../backend/README.md",
+      "exists": true
+    },
+    {
+      "link": "../../../api/openapi/account.json",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-read02-verification.md",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-edit03-verification.md",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-nextnew01-verification.md",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-old16batch01-verification.md",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-ui-old14-success-verification.md",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "exists": true
+    },
+    {
+      "link": "../agent-team/project-owner-ui-independent-ab-verification.md",
+      "exists": false,
+      "status": "COORDINATED_PERMANENT_ARCHIVE_BEING_WRITTEN"
+    }
+  ],
+  "pending_coordinated_links": [
+    "../agent-team/project-owner-ui-independent-ab-verification.md"
+  ],
+  "fixed_original_report_sha256": "4942c4deed2b32dca67827fcb66d7ec11bc63dd0c2822329928ded26a6a0a00e",
+  "no_network_link_requests": true,
+  "technical_checks_or_source_graph_rescan": false
+}

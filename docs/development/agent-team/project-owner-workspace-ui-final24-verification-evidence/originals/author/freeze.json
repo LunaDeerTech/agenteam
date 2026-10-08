@@ -1,0 +1,64 @@
+{
+  "revision": "owner-readme22-installed-v3",
+  "status": "SOURCE_AND_COMMANDS_STOP_DOC_CHECKS_DONE_PENDING_ARCHIVE_LINK_AND_INDEPENDENT24",
+  "target": "docs/development/frontend/README.md",
+  "baseline_sha256": "2b4545145a9b377de0f6d7d76cc0e8d808e62f2b846f51b4561d9cc2e9ba24d6",
+  "source_sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0",
+  "parents": [
+    {
+      "path": "/workspace/scratch/owner-readme22-candidate-v1/freeze.json",
+      "sha256": "e7561844b8850f7592381741ad60770c957fdf84905d3374a60fc7380c952594"
+    },
+    {
+      "path": "/workspace/scratch/owner-readme22-candidate-v2/freeze.json",
+      "sha256": "5f55a8dded6603f741c518923536f5edd032cfbc4797cb61755816896e6b5892"
+    }
+  ],
+  "technical23_provenance_reused": {
+    "path": "/workspace/scratch/owner-readme22-candidate-v1/baseline.json",
+    "sha256": "6d3ab5c3d6550d153329700dcd3c031b8249b4721e49fe1f4b7be873ed968009",
+    "reused_without_source_graph_rescan": true
+  },
+  "independent_report": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/independent-ab-final01/review.md",
+    "sha256": "4942c4deed2b32dca67827fcb66d7ec11bc63dd0c2822329928ded26a6a0a00e",
+    "bytes": 4678,
+    "permanent_path": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+    "permanent_path_coordinated_with": "/root/fixture_recovery"
+  },
+  "personal_suffix_preserved": {
+    "bytes": 60821,
+    "sha256": "06330824c983489dcbae2cbc7b1b1b949b3bbc945bd3b4ec12db2566a68382cc"
+  },
+  "pending_coordinated_links": [
+    "../agent-team/project-owner-ui-independent-ab-verification.md"
+  ],
+  "files": {
+    "README.patch": {
+      "sha256": "306dc83f5f568df6dce84a52f6e93d2b486c9361b710fee3d81264ee700e7dc1",
+      "bytes": 21650
+    },
+    "v2-to-v3.patch": {
+      "sha256": "fe255b0109f2a7efd35aec818e06a80545c1e08d5208c228e20dc6d5d58a33e7",
+      "bytes": 2067
+    },
+    "provenance.json": {
+      "sha256": "438e9c364c00c12405e2d8e6fcd9f13e078cb01ae00dc33a3aa8ddaa535d08ed",
+      "bytes": 2333
+    },
+    "checks.json": {
+      "sha256": "dd2b1362139deb2d8cdbe8c8d337925974899931d6bea15a9af4d6600b5b9d1f",
+      "bytes": 3349
+    },
+    "handoff.md": {
+      "sha256": "3674b830bffdb07dd159c2471c967a8a542c793f68fff96acea4a9664825f305",
+      "bytes": 1604
+    }
+  },
+  "repository_writes": [
+    "docs/development/frontend/README.md"
+  ],
+  "technical_or_resource_checks_executed": false,
+  "writer_stopped": true,
+  "owned_commands_running": false
+}

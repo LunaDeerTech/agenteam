@@ -1,0 +1,66 @@
+{
+  "scope": "12 original small artifacts; exact bytes retained including unified patch context whitespace.",
+  "strict_utf8_all_pass": true,
+  "exception_files": 2,
+  "trailing_whitespace_lines": 10,
+  "exceptions": [
+    {
+      "archive": "originals/author/README.patch",
+      "sha256": "306dc83f5f568df6dce84a52f6e93d2b486c9361b710fee3d81264ee700e7dc1",
+      "bytes": 21650,
+      "issues": {
+        "trailing_whitespace_lines": [
+          5,
+          8,
+          10,
+          31,
+          33,
+          35,
+          109,
+          111
+        ],
+        "blank_line_at_eof_lines": [
+          111
+        ]
+      }
+    },
+    {
+      "archive": "originals/author/v2-to-v3.patch",
+      "sha256": "fe255b0109f2a7efd35aec818e06a80545c1e08d5208c228e20dc6d5d58a33e7",
+      "bytes": 2067,
+      "issues": {
+        "trailing_whitespace_lines": [
+          4,
+          7
+        ],
+        "blank_line_at_eof_lines": [
+          7
+        ]
+      }
+    }
+  ],
+  "normalization_performed": false,
+  "generated_doc_and_metadata_exceptions": [],
+  "git_diff_check_executed": false,
+  "blank_line_at_eof_files": 2,
+  "blank_line_at_eof_diagnostics": 2,
+  "registered_git_diff_check_diagnostics": 12,
+  "git_diff_check_limit": "git_diff_check_executed=false refers to the archivist; root reports Git exit2 and reporting-helper exit1. No Git was rerun by this metadata correction.",
+  "root_reported_additional_diagnostics": [
+    {
+      "path": "originals/author/README.patch",
+      "line": 111,
+      "message": "new blank line at EOF."
+    },
+    {
+      "path": "originals/author/v2-to-v3.patch",
+      "line": 7,
+      "message": "new blank line at EOF."
+    }
+  ],
+  "root_reported_check_exits": {
+    "git_diff_check_exit": 2,
+    "python_reporting_helper_exit": 1,
+    "meaning": "Git emitted the complete 12 diagnostics. The root Python helper asserted at the first EOF diagnostic during the initial partial handoff; its exit1 is not the Git exit code. Root retained the complete original output."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "status": "LOCAL_DOCUMENT_CHECK_HELPER_FAILURE_ONLY",
+  "actual_tool_chunk": "b9681c",
+  "actual_exit": 1,
+  "raw": "Traceback (most recent call last):\n  File \"<stdin>\", line 59, in <module>\nAssertionError\n",
+  "failed_assertion": "len(links)==24 and sum(exists)==23 before deduplication",
+  "actual_occurrences": 28,
+  "unique_links": 24,
+  "existing_unique_links": 23,
+  "cause": "Four legitimate repeated relative links were counted twice by the ad-hoc helper; author check counts unique targets. No product or documentation defect.",
+  "prior_completed_checks": [
+    "all 24 fixed source SHA match; source-rows saved",
+    "reverse v3/v2/v1 reaches exact original baseline",
+    "forward v1/v2/v3 and full baseline-to-v3 patch both reproduce installed bytes",
+    "60821-byte original suffix exact"
+  ],
+  "repair": "Deduplicate link targets only; reuse saved source rows without rereading technical23; retain failure record.",
+  "resource_or_business_rerun": false
+}

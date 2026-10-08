@@ -1,0 +1,31 @@
+{
+  "status": "FINAL_BOUNDED_CARD24_STATIC_AND_VERSION_COMPOSITION_PASS_STOP",
+  "readme_sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0",
+  "installed_freeze_sha256": "96d33596a5549bde39162dd63e1d5d4df72fba6ab4cf1d061d5d377c10666caa",
+  "source_rows": {
+    "path": "/workspace/scratch/owner-ui-verification/owner-final24-review-v1/source-rows.json",
+    "sha256": "a8e19c17393f4e5794eb16dbf366634a894aef318270d5c1a9604fb32d3e93a9",
+    "rows": 24,
+    "technical23_hash_reads": 1
+  },
+  "previous_checks": {
+    "path": "/workspace/scratch/owner-ui-verification/owner-final24-review-v1/checks-before-archive.json",
+    "sha256": "4241c5234240820a08238bf505a049c67a36caab763cb3104854724ba4725ec8"
+  },
+  "final_link_check": {
+    "read_tool_chunk": "3ec78e",
+    "link": "../agent-team/project-owner-ui-independent-ab-verification.md",
+    "archive_path": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+    "archive_sha256": "6f2f3a1eb5e7d83d1a07ead26125c27c49f6ab2a5ebc592256ca51d0943bd24c",
+    "archive_bytes": 10771,
+    "original_path": "docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence/originals/final/review.md",
+    "original_sha256": "4942c4deed2b32dca67827fcb66d7ec11bc63dd0c2822329928ded26a6a0a00e",
+    "original_bytes": 4678,
+    "original_exact": true,
+    "bounded_nine_real_representatives_and_eight_visible_screenshots_semantics_match": true,
+    "unique_relative_targets_now_closed": 24
+  },
+  "unresolved_required_findings": [],
+  "new_dynamic_or_resource_checks": [],
+  "stop": true
+}

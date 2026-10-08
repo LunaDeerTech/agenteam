@@ -1,0 +1,149 @@
+{
+  "status": "STATIC_PASS_PENDING_COORDINATED_ARCHIVE_STOP_AND_LINK_CLOSURE",
+  "installed_freeze_sha256": "96d33596a5549bde39162dd63e1d5d4df72fba6ab4cf1d061d5d377c10666caa",
+  "readme_sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0",
+  "source_rows_sha256": "a8e19c17393f4e5794eb16dbf366634a894aef318270d5c1a9604fb32d3e93a9",
+  "technical23_match": true,
+  "card24_match": true,
+  "composition": {
+    "baseline": "2b4545145a9b377de0f6d7d76cc0e8d808e62f2b846f51b4561d9cc2e9ba24d6",
+    "v1": "30d9919d8141572e16f94af6b61d777537bcf44153d0a97ef82d6751a6891bb8",
+    "v2": "1ad3b78410e1c0b5b81ac8c134736409a41c33c808c8165bfcc0c19c80cc4c2c",
+    "v3": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0",
+    "forward_and_reverse_exact": true,
+    "full_patch_exact": true,
+    "checked_in_tool_chunk": "b9681c before final link-count assertion"
+  },
+  "original_history_suffix": {
+    "bytes": 60821,
+    "sha256": "06330824c983489dcbae2cbc7b1b1b949b3bbc945bd3b4ec12db2566a68382cc"
+  },
+  "relative_link_occurrences": 28,
+  "unique_relative_links": 24,
+  "links": [
+    {
+      "link": "../work-items/d26-account-authentication.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d26-personal-settings.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d26-public-account-entry.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-user-directory-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-invitation-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-provider-management-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-model-management-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-model-selection-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-account-security-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-smtp-settings-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-smtp-delivery-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-outbound-policy-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-audit-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-system-runtime-information-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../work-items/d27-project-owner-workspace-ui.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../backend/README.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../../../api/openapi/account.json",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-read02-verification.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-edit03-verification.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-nextnew01-verification.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../agent-team/project-owner-ui-recovered-old16batch01-verification.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../agent-team/project-owner-ui-old14-success-verification.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "exists": true,
+      "fragment": ""
+    },
+    {
+      "link": "../agent-team/project-owner-ui-independent-ab-verification.md",
+      "exists": false,
+      "fragment": ""
+    }
+  ],
+  "added_lines_trailing_whitespace": false,
+  "utf8_lf_final_newline": true,
+  "prefix_fences_balanced": true,
+  "new_business_or_resource_commands": false
+}

@@ -1,0 +1,218 @@
+{
+  "schema": "owner-workspace-ui-final24-permanent-archive-v1",
+  "scope": "Card rev2.1 all24 completed by accepted STATIC and explicit version composition; no fresh all-suite current-HEAD claim, full D27, production or stopped task acceptance.",
+  "originals": [
+    {
+      "source": "/workspace/scratch/owner-ui-verification/owner-final24-review-v1/review.md",
+      "archive": "originals/independent/review.md",
+      "sha256": "14d9d717072d746c8727bb98d86e00831dc83406af08c793d4114e40c5eb3b14",
+      "bytes": 4271
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/owner-final24-review-v1/result.json",
+      "archive": "originals/independent/result.json",
+      "sha256": "e4a02fb8251fbcb34fa4cb970a58c23c52f55750348b7fee2d447b11aae8306c",
+      "bytes": 1598
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/owner-final24-review-v1/source-rows.json",
+      "archive": "originals/independent/source-rows.json",
+      "sha256": "a8e19c17393f4e5794eb16dbf366634a894aef318270d5c1a9604fb32d3e93a9",
+      "bytes": 9373
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/owner-final24-review-v1/checks-before-archive.json",
+      "archive": "originals/independent/checks-before-archive.json",
+      "sha256": "4241c5234240820a08238bf505a049c67a36caab763cb3104854724ba4725ec8",
+      "bytes": 4213
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-verification/owner-final24-review-v1/local-check01-failure.json",
+      "archive": "originals/independent/local-check01-failure.json",
+      "sha256": "197381dc5a092a2ea3a28f0d27a9c5c996b87046f15380fd3a666a46a507d2ea",
+      "bytes": 982
+    },
+    {
+      "source": "/workspace/scratch/owner-readme22-installed-v3/freeze.json",
+      "archive": "originals/author/freeze.json",
+      "sha256": "96d33596a5549bde39162dd63e1d5d4df72fba6ab4cf1d061d5d377c10666caa",
+      "bytes": 2487
+    },
+    {
+      "source": "/workspace/scratch/owner-readme22-installed-v3/README.patch",
+      "archive": "originals/author/README.patch",
+      "sha256": "306dc83f5f568df6dce84a52f6e93d2b486c9361b710fee3d81264ee700e7dc1",
+      "bytes": 21650
+    },
+    {
+      "source": "/workspace/scratch/owner-readme22-installed-v3/v2-to-v3.patch",
+      "archive": "originals/author/v2-to-v3.patch",
+      "sha256": "fe255b0109f2a7efd35aec818e06a80545c1e08d5208c228e20dc6d5d58a33e7",
+      "bytes": 2067
+    },
+    {
+      "source": "/workspace/scratch/owner-readme22-installed-v3/provenance.json",
+      "archive": "originals/author/provenance.json",
+      "sha256": "438e9c364c00c12405e2d8e6fcd9f13e078cb01ae00dc33a3aa8ddaa535d08ed",
+      "bytes": 2333
+    },
+    {
+      "source": "/workspace/scratch/owner-readme22-installed-v3/checks.json",
+      "archive": "originals/author/checks.json",
+      "sha256": "dd2b1362139deb2d8cdbe8c8d337925974899931d6bea15a9af4d6600b5b9d1f",
+      "bytes": 3349
+    },
+    {
+      "source": "/workspace/scratch/owner-readme22-installed-v3/handoff.md",
+      "archive": "originals/author/handoff.md",
+      "sha256": "3674b830bffdb07dd159c2471c967a8a542c793f68fff96acea4a9664825f305",
+      "bytes": 1604
+    },
+    {
+      "source": "/workspace/scratch/owner-readme22-candidate-v1/baseline.json",
+      "archive": "originals/author/technical23-baseline.json",
+      "sha256": "6d3ab5c3d6550d153329700dcd3c031b8249b4721e49fe1f4b7be873ed968009",
+      "bytes": 4930
+    }
+  ],
+  "logical_originals": 12,
+  "logical_original_bytes": 58857,
+  "distinct_content_sha256": 12,
+  "new_physical_original_files": 12,
+  "new_physical_original_bytes": 58857,
+  "references_not_copied": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-client-verification.md",
+      "bytes": 7882,
+      "sha256": "1495f71191593fc5e08d05710091aa53e4d900c629930dc091d5fbeddb1f4665",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "bytes": 10548,
+      "sha256": "cc8b6c758b1713d7304aed88ec3b2c47bf0b2acfa468c27c017e5ece85927f26",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read02-verification.md",
+      "bytes": 10294,
+      "sha256": "ccee9c78cab9547748763897280b5c3b9e88e9009ec3388e079367ff8adfe477",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit03-verification.md",
+      "bytes": 10753,
+      "sha256": "c5ef7b1fbf65bf247a52344732b0329863057ea1c5acc3575f150403219b5bdd",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification.md",
+      "bytes": 16764,
+      "sha256": "f841c7b6027106817a9eede46eac42122ad3df2b75275f8590a80544860fce95",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification.md",
+      "bytes": 12833,
+      "sha256": "7ba239518f302fb386617cc5d3a66329354331f73af8c4522742918db9ac25bf",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "bytes": 14443,
+      "sha256": "dd2be6e08cadaa471963825fefe36ca59ef6e4ad4d0c3051b94ba3a06cb2b3e6",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-legacy-profile-json-verification.md",
+      "bytes": 9624,
+      "sha256": "cbd1a1924df7870731757dfd771b656f59a99cfb257dcd962738516e6ff33002",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-verification/owner-readme22-review-v1/review.md",
+      "bytes": 4677,
+      "sha256": "2ef3d6d805423b8cb75e89bba180a798f2f8b17ee7f2b9f044b1e1eed81ddb38",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-verification/owner-readme22-review-v2/review.md",
+      "bytes": 2038,
+      "sha256": "f45a326a2333601b6712921ac0370cdd4f02a872a179034a1f925edffc6e46e5",
+      "copy": false,
+      "role": "Accepted composition or sealed prior README review, referenced only; no source or old run archive recopy."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "sha256": "6f2f3a1eb5e7d83d1a07ead26125c27c49f6ab2a5ebc592256ca51d0943bd24c",
+      "bytes": 10771,
+      "copy": false,
+      "role": "Existing independent A/B permanent entity."
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence/originals/final/review.md",
+      "sha256": "4942c4deed2b32dca67827fcb66d7ec11bc63dd0c2822329928ded26a6a0a00e",
+      "bytes": 4678,
+      "copy": false,
+      "role": "Existing independent A/B permanent entity."
+    }
+  ],
+  "root_reported_accepted_delivery_commit": "0a939a7f12a607708e40796ac0bfae61592e7099",
+  "root_reported_independent_ab_archive_commit": "f9fb58d1",
+  "accepted_readme22_sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0",
+  "formal_review_sha256": "14d9d717072d746c8727bb98d86e00831dc83406af08c793d4114e40c5eb3b14",
+  "card24_source_rows_sha256": "a8e19c17393f4e5794eb16dbf366634a894aef318270d5c1a9604fb32d3e93a9",
+  "technical_sources_read_by_archivist": 0,
+  "old_run_originals_copied": 0,
+  "whole_README_copies": 0,
+  "full_source_or_dependency_graph_copied": false,
+  "before_prepend_updates": {
+    "docs/development/development-plan.md": {
+      "before_sha256": "42812393e89538c551633482a1933441fec85a72dc30cd0af61ec817f0468318",
+      "before_bytes": 90215,
+      "operation": "Add current acceptance notice immediately after unchanged H1; original remaining bytes must be exact."
+    },
+    "docs/development/work-items/d27-project-owner-workspace-ui.md": {
+      "before_sha256": "37725ca136a9fe957714c0d29ef2ab43f86d82de5b1e265598f546f2dc143828",
+      "before_bytes": 55134,
+      "operation": "Add current acceptance notice immediately after unchanged H1; original remaining bytes must be exact."
+    }
+  },
+  "history_limit": "Author freeze and checks remain pending at their historical point; independent result closes the link without rewriting them. v1 D1 and v2 STATIC use sealed review references, not a new source review.",
+  "actions_limit": "Documentation and fixed small originals only. No Git, product, technical checker, resource, browser, current dist or active next-card input reads.",
+  "completed_prepend_updates": [
+    {
+      "path": "docs/development/development-plan.md",
+      "before_sha256": "42812393e89538c551633482a1933441fec85a72dc30cd0af61ec817f0468318",
+      "before_bytes": 90215,
+      "operation": "Add current acceptance notice immediately after unchanged H1; original remaining bytes must be exact.",
+      "after_sha256": "2d3e769a6abad9ba078889481c1439acbcd3e24af1a4cf5257315bea7064f96e",
+      "after_bytes": 91301,
+      "insert_offset": 25,
+      "insert_bytes": 1086,
+      "insert_sha256": "725e7185f9ed18fb8258bc6dfbed0905cd4bde9d1d4d56f93545fcd229b5297b",
+      "original_full_bytes_reconstruct_exactly": true
+    },
+    {
+      "path": "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "before_sha256": "37725ca136a9fe957714c0d29ef2ab43f86d82de5b1e265598f546f2dc143828",
+      "before_bytes": 55134,
+      "operation": "Add current acceptance notice immediately after unchanged H1; original remaining bytes must be exact.",
+      "after_sha256": "1355c8c8da07929f3970fa962d6929e246f2f3feba163ddaaae8e01dca7c6cb3",
+      "after_bytes": 56133,
+      "insert_offset": 70,
+      "insert_bytes": 999,
+      "insert_sha256": "0cd93f800272c98b0f2b7042e5b79066f5f235e45aae1255c180995bba090806",
+      "original_full_bytes_reconstruct_exactly": true
+    }
+  ]
+}

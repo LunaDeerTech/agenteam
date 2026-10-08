@@ -1,5 +1,11 @@
 # Repository Guidelines
 
+final24格式终局（2026-10-08）：完整原Git诊断实数12＝10尾白＋README.patch:111和v2-to-v3.patch:7两EOF空行。root第一次helper遇首EOF提前assert，后次集合比较失败才完整枚举第二EOF，两helper exit1均未后续commit；Git本身exit2，原失败输出保持。fixture仅三JSON再补STOP manifest13d5c5cb，原bytes/report/两header不变，当前登记已完整。只按精确12原例外核后交付，其余生成文件零异常；不产品/技术重跑。
+
+final24归档格式补正（2026-10-08）：root首stage检查另识别原README.patch第111行new blank line at EOF，脚本assert退出后未继续commit；同该行原尾白已登记。fixture仅format/checks/manifest三JSON补EOF例外STOP（manifest0f378888），原patch306dc83f/所有原件/报告/两docheader不改；实际11diagnostics=10尾白+1EOF原样保，root核更新manifest/hash通过，接着仅restage元数据/三根再核提交。Audit rev1正式独审正进行，D1当前设置叶选中态需追加既有ProjectNav，原卡保持，产品未写。
+
+Owner验后文档归位（2026-10-08）：fixture STOP完成plan/原卡两顶部及final24小永久档，report e9be5e2d/map52cdb814/manifest d35a0824；root核12原件58857B/source与archive全bytes/SHA、所有manifest/ref、两insert去除精确还原HEAD历史（1086/999B）。两patch10处原上下文空白按行保留。全24原独审14d9d717与末件0a939a7f已推保持。下一Project Owner Audit UI rev1卡efeadf1b已作者STOP/freeze144efac2，runtime已ACK正式完整SPEC静审；21白名单实施未授。只有新卡独审后再移交共享client/Session/router等，三停止/生产/完整D27与E01边界保持。
+
 Owner工作区完整24卡接受（2026-10-08）：九轮永久档f9fb58d11fae0d7a3d813b8933333e4b40d43bbd已push核远端同，raw27例外逐line保。root通读最终独审14d9d717及result e4a02fb8/24row a8e19c17并核SHA，原23技术一次匹配、#22 b71fcd01文档与新唯一链接闭合，无必修；接受rev2.1全24路径的既有版本组合（非最新HEAD一次全套fresh），原FAIL与v3/v5/old2+14/ind9原53/品牌另版界限保持。本卡List/Get/Resolve/Update/lookup/Session/导航/页面/privateharness完整结果可作为下一卡依赖，完整D27/D26/生产/三停止仍未完。root仅交#22+三根；Audit UI当前仅backend新规格写、实施尚未授，runtime准备STOP待正式卡。
 
 独立九轮永久档接受（2026-10-08）：fixture STOP报告6f2f3a1e、map b369f3e2、manifest86d31d95；root实核479逻辑原件逐source/archive bytes/SHA及10 Gitblob来源，385新增4705177B/18原位复用、429run完整，原正式4942c4de/65ID/117schema50client/8原图有限结果保持。生成报告/map/checks/format绑定通过；204原JSON无末LF与9raw27尾空白保。root初查误取checks.json（实际archive-checks.json）产生只读FileNotFoundError，已正确取名核通过、无后续Git误执行。#22 v3 b71fcd01停写，最终24 STATIC与唯一一次23源核已通过，独审仅补新永久链接末件；下一Audit UI卡backend唯一规格写，runtime仅准备STOP。品牌f2f65e72已推，完整D27/生产/三停止不扩。

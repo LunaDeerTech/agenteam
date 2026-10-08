@@ -1,5 +1,9 @@
 # agenteam 开发计划
 
+当前完成记录（2026-10-08，Owner工作区UI rev2.1）：[本卡](work-items/d27-project-owner-workspace-ui.md)全24路径已按明确版本组合完成并获root正式接受，含23技术路径与#22前端README；最终独审14d9d717无未关闭必修，文档末件0a939a7f12a607708e40796ac0bfae61592e7099已推送并由root核远端一致。[最终24验收与小原件](agent-team/project-owner-workspace-ui-final24-verification.md)固定API7db／UI088f／Go04及browser-v3→v5、作者新5与旧2＋14、独立本人A3＋B6九轮的既有组合。独立九轮使用原固定53资产；后续品牌另版接受，不表示当前HEAD的一次全套重新执行。
+
+本次完成的是Owner入口、工作区和基本信息编辑卡，不代表完整D27／D26、Project创建／生命周期或生产SPA托管／发布完成。production Resolution/Invocations、D24未绑定，ready503及Object runtime join／OpenAI tools独立验收／Central SPA concurrent-publication三停止保持。以下旧状态及历史字节保留其原时点，不覆盖原失败或缺失证据。
+
 当前基线（2026-10-08，初始化收敛库接受）：Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](agent-team/project-initialization-convergence-verification.md)。
 
 Owner工作区UI candidate04仅#21 locator修订离线通过；真实read01 Outbox setup失败、read02 label失败均保留并已独核退出，尚无browser top PASS；正在按已接受 `39ebd57e` 重新绑定Go依赖，旧16／独立A-B未跑、asset未交换、前端README未授，UI产品未接受。

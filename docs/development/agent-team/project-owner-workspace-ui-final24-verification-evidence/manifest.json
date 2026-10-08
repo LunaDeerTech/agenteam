@@ -1,0 +1,41 @@
+{
+  "status": "STOP_FINAL24_DOC_ARCHIVE_COMPLETE_FOR_ROOT_REVIEW",
+  "original_files": 12,
+  "original_bytes": 58857,
+  "files": {
+    "docs/development/development-plan.md": {
+      "sha256": "2d3e769a6abad9ba078889481c1439acbcd3e24af1a4cf5257315bea7064f96e",
+      "bytes": 91301
+    },
+    "docs/development/work-items/d27-project-owner-workspace-ui.md": {
+      "sha256": "1355c8c8da07929f3970fa962d6929e246f2f3feba163ddaaae8e01dca7c6cb3",
+      "bytes": 56133
+    },
+    "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md": {
+      "sha256": "e9be5e2d8ccd16d8bfe8a6f75c2316250dd284ba5eb4311eafc3b681b6b55966",
+      "bytes": 6073
+    },
+    "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/source-map.json": {
+      "sha256": "52cdb8143a0df209e3d540899b21bd1f16a906177faf36ae1cb9b860621cb332",
+      "bytes": 10952
+    },
+    "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/archive-checks.json": {
+      "sha256": "a2eebc2f0afdbf62ab04f7cc1e4b675a9a924b778f7c1003700ceb971108a1a1",
+      "bytes": 10584
+    },
+    "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/format-exceptions.json": {
+      "sha256": "6f25eff40fbaf2f6429d9d53209654668d0665fc9328c92700e7b0e3f534a02f",
+      "bytes": 2019
+    }
+  },
+  "limits": "Card rev2.1 full24 accepted by existing version composition; not full D27/production/stopped work/current HEAD fresh all-suite execution.",
+  "no_remaining_commands_or_writers": true,
+  "format_exception_registration": {
+    "trailing_whitespace_diagnostics": 10,
+    "blank_line_at_eof_diagnostics": 2,
+    "total_diagnostics": 12,
+    "raw_originals_unchanged": true,
+    "root_git_diff_check_exit": 2,
+    "root_python_reporting_helper_exit": 1
+  }
+}

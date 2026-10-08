@@ -1,5 +1,9 @@
 # D27 Project Owner 项目入口、工作区与基本信息编辑 UI
 
+完成状态（2026-10-08）：本卡rev2.1全24路径（23技术＋#22前端README）已按明确版本组合完成并获root正式接受；最终独审14d9d717无未关闭必修，末件0a939a7f12a607708e40796ac0bfae61592e7099已推送并核远端一致。[最终24验收与小原件](../agent-team/project-owner-workspace-ui-final24-verification.md)固定API7db／UI088f／Go04及browser-v3→v5、作者新5和旧2＋14、独立本人A3＋B6九轮及自产8图可见区域的限定组合。原九轮固定53资产与后继品牌版本分开，不称当前HEAD的一次全套重新执行。
+
+本卡完成不等于完整D27／D26、Project创建／生命周期、生产SPA直链／托管／安装发布或D10/Invocation/Summary生成完成。production Resolution/Invocations、D24未绑定，ready503与Object runtime join／OpenAI tools独立验收／Central SPA concurrent-publication三停止保持。以下原规格、旧状态与失败边界逐字节保留，不回写历史接受范围。
+
 工程修订 rev2.1（2026-10-08，独立窄 STATIC PASS，root 已采纳）：仅追加 §8 第24个既有测试文件，修复既定 `/projects` 导航新增后的旧期待；当前24路径＝23技术＋1文档，新15/旧9。原 rev2 页首、§10 与附录A的23路径/65来源作为历史基线保留，不重写原指纹。产品合同、路由和UI范围不变；#24实施仍由root另授，不表示产品或真实资源接受。
 
 归档状态（2026-10-08）：rev1 全文＋rev2 B1＋正式末件完整 STATIC 已接受，规格 `8cf81b44` 已推送并核远端一致；[原始审查与可逆修订](../agent-team/project-owner-workspace-ui-spec-verification.md)已归档。仅规格接受；当前另授纯 web/JS 实施与独立准备，产品及真实浏览器/资源未接受。以下原状态保留其正式归位时点，§1 起技术原字节不变。

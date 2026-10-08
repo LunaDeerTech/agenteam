@@ -1,0 +1,219 @@
+{
+  "status": "PASS_DOC_ARCHIVE_AND_TOP_NOTICES_ONLY",
+  "actual_checks": "Python standard-library SHA/bytes, JSON parsing, exact reversal of two inserted notices, generated/archival Markdown target existence and text-format checks.",
+  "originals_checked": 12,
+  "original_bytes_checked": 58857,
+  "source_archive_bytes_and_SHA_equal": true,
+  "parsed_original_JSON_files": 8,
+  "prior_references_checked_not_copied": 12,
+  "technical23_or_current_README22_read": false,
+  "old_nine_run_bytes_read_or_copied": false,
+  "prepend_updates": [
+    {
+      "path": "docs/development/development-plan.md",
+      "before_sha256": "42812393e89538c551633482a1933441fec85a72dc30cd0af61ec817f0468318",
+      "before_bytes": 90215,
+      "operation": "Add current acceptance notice immediately after unchanged H1; original remaining bytes must be exact.",
+      "after_sha256": "2d3e769a6abad9ba078889481c1439acbcd3e24af1a4cf5257315bea7064f96e",
+      "after_bytes": 91301,
+      "insert_offset": 25,
+      "insert_bytes": 1086,
+      "insert_sha256": "725e7185f9ed18fb8258bc6dfbed0905cd4bde9d1d4d56f93545fcd229b5297b",
+      "original_full_bytes_reconstruct_exactly": true
+    },
+    {
+      "path": "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "before_sha256": "37725ca136a9fe957714c0d29ef2ab43f86d82de5b1e265598f546f2dc143828",
+      "before_bytes": 55134,
+      "operation": "Add current acceptance notice immediately after unchanged H1; original remaining bytes must be exact.",
+      "after_sha256": "1355c8c8da07929f3970fa962d6929e246f2f3feba163ddaaae8e01dca7c6cb3",
+      "after_bytes": 56133,
+      "insert_offset": 70,
+      "insert_bytes": 999,
+      "insert_sha256": "0cd93f800272c98b0f2b7042e5b79066f5f235e45aae1255c180995bba090806",
+      "original_full_bytes_reconstruct_exactly": true
+    }
+  ],
+  "old_history_bytes_unchanged": true,
+  "generated_and_original_Markdown_link_occurrences_checked": 32,
+  "link_checks": [
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/review.md",
+      "target": "source-rows.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/review.md",
+      "target": "local-check01-failure.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/review.md",
+      "target": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-independent-ab-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/review.md",
+      "target": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence/originals/final/review.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/review.md",
+      "target": "checks-before-archive.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/review.md",
+      "target": "result.json"
+    },
+    {
+      "source": "docs/development/development-plan.md",
+      "target": "work-items/d27-project-owner-workspace-ui.md"
+    },
+    {
+      "source": "docs/development/development-plan.md",
+      "target": "agent-team/project-owner-workspace-ui-final24-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "target": "../agent-team/project-owner-workspace-ui-final24-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/independent/review.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/independent/result.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-ui-client-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-ui-recovered-read02-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-ui-recovered-edit03-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-ui-recovered-nextnew01-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-ui-old14-success-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-ui-legacy-profile-json-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-ui-independent-ab-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "../frontend/README.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/author/freeze.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/author/README.patch"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/author/v2-to-v3.patch"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/author/provenance.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/source-map.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/independent/checks-before-archive.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/originals/independent/local-check01-failure.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/archive-checks.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "project-owner-workspace-ui-final24-verification-evidence/format-exceptions.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "target": "../work-items/d27-project-owner-workspace-ui.md"
+    }
+  ],
+  "fragment_count": 0,
+  "generated_UTF8_LF_final_newline_no_trailing_whitespace": true,
+  "raw_format_exception_files": 2,
+  "raw_trailing_whitespace_lines": 10,
+  "raw_format_exceptions_preserved": "format-exceptions.json",
+  "formal_final_review_SHA256": "14d9d717072d746c8727bb98d86e00831dc83406af08c793d4114e40c5eb3b14",
+  "accepted_document_delivery_commit_from_root": "0a939a7f12a607708e40796ac0bfae61592e7099",
+  "source_rows_match_checks_reused_not_reexecuted": true,
+  "preserved_original_local_check01_failure": "originals/independent/local-check01-failure.json",
+  "no_product_technical_resource_network_browser_Git_commands": true,
+  "no_current_dist_host_active_next_card_inputs": true,
+  "raw_blank_line_at_eof_diagnostics": 2,
+  "raw_blank_line_at_eof_locations": [
+    {
+      "archive": "originals/author/README.patch",
+      "line": 111
+    },
+    {
+      "archive": "originals/author/v2-to-v3.patch",
+      "line": 7
+    }
+  ],
+  "registered_git_diff_check_diagnostics": 12,
+  "format_exception_metadata_followup": {
+    "reason": "Root complete output adds v2-to-v3.patch line7 to README.patch line111. Both original space-only final context lines have trailing-whitespace and EOF-blank-line diagnoses; originals remain unchanged.",
+    "root_reported_git_diff_check_exit": 2,
+    "root_reported_python_helper_exit": 1,
+    "exit_meaning": "Git itself returned2 with all12 diagnoses; the root Python reporting helper returned1 after its assertion and initially omitted the second EOF diagnosis. Complete original output retained by root.",
+    "original_patches": [
+      {
+        "archive": "originals/author/README.patch",
+        "line": 111,
+        "sha256": "306dc83f5f568df6dce84a52f6e93d2b486c9361b710fee3d81264ee700e7dc1",
+        "bytes": 21650,
+        "original_last_line_hex": "200a"
+      },
+      {
+        "archive": "originals/author/v2-to-v3.patch",
+        "line": 7,
+        "sha256": "fe255b0109f2a7efd35aec818e06a80545c1e08d5208c228e20dc6d5d58a33e7",
+        "bytes": 2067,
+        "original_last_line_hex": "200a"
+      }
+    ],
+    "original_bytes_changed": false,
+    "source_map_or_original_tree_rebuilt": false,
+    "product_defect": false,
+    "Git_executed_by_archivist": false
+  },
+  "raw_format_exceptions_sha256": "6f25eff40fbaf2f6429d9d53209654668d0665fc9328c92700e7b0e3f534a02f"
+}
