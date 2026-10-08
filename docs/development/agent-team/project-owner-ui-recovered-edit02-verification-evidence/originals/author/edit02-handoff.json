@@ -1,0 +1,346 @@
+{
+  "boundary": "only authorized edit02 ran; no retry, successor, source/driver/asset write, or additional case. Root asset restoration after retirement is outside in-round input equality.",
+  "browser_frozen": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v4/freeze.json",
+    "sha256": "9688d909627f3e8253c68e989ebecd7cac8b6f16d84b9196b9297ba854f006d9"
+  },
+  "created_utc": "2026-10-08T06:11:38.479719+00:00",
+  "driver_snapshot": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/driver.py.txt",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "failure": {
+    "assertion": "ready():249 expect(page.locator(.project-facts)).toContainText(id)",
+    "browser_error": "strict mode violation: locator(.project-facts) resolved to 2 elements",
+    "classification": "raw locator ambiguity is established; independent failure review pending",
+    "reported_top_seconds": 13.04,
+    "scope": "after confirmed write/current Get failure and explicit reread; stable identity dl and current name/description dl both match",
+    "stack": "confirmed():272 -> edit test:683",
+    "top": "TestAccountProjectOwnerWebEditAndRename",
+    "unexecuted": [
+      "after-reread no additional PATCH assertion",
+      "after-reread factsUnchanged assertion",
+      "after-reread description value assertion",
+      "final verifyBodies and complete result"
+    ]
+  },
+  "frozen_input": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/frozen-input.json",
+    "sha256": "0e4d117ae2d882299f21172237f4b09563d3dfd35055e197ed0df0909b21dbcf"
+  },
+  "outer_execution": {
+    "actual_exit": 1,
+    "final_chunk_id": "1f9dae",
+    "launch_stdout_stderr": {
+      "path": "/workspace/scratch/owner-ui-backend/edit02-launch.raw",
+      "sha256": "a3b2e37841c048890a3284cd0bec06ae52ec62ff3751cfa73e23d2c688b6df1e"
+    },
+    "session_id": 9115
+  },
+  "raw": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/raw.log",
+    "sha256": "10f7e26ea47a00ce22aefdaa10f18147a407c0e0376d7f4bf768ba1355f50460"
+  },
+  "result": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/result.json",
+    "sha256": "1331b6afd61a3e0cad44ea3b9cfe5e357c3b17d920639e49c0b5f4674c68078f"
+  },
+  "retirement": {
+    "actual_direct_wait_completed": true,
+    "adopted_actual_waits": 4,
+    "baseline_resources_unchanged": true,
+    "cancellation_records": 0,
+    "direct_pid": 162247,
+    "direct_seconds": 58.451,
+    "direct_starttime": "949335",
+    "exact_resource_ids": [
+      "250d15f629879037b3e52f587a7ec283006226efae92c28aa7033bbad2b5f7d0",
+      "2c79d1eb9b5ca19f178433b9bcd1e49ab404a020cb9d15ea111ac3c12cff916e",
+      "4625444cd4adc9bef00b3d5c49b14f540ead504536f6d2b6a4134fa9bc1a2d78",
+      "466d5ffbde87c58423795dbb9e35ebd22e6ecaa59804d58fdc1162b53e0f7564",
+      "b44c2608bffc70b03503b608159bb21614638965bd9089bad4e4654229ae521a",
+      "cf22e47c643471daad62c72531441a3daebfec5df689d74310b91b4bb3465dff",
+      "f9084b6e5cf268b63be4f76d6d482547a6bf02831bb69deaaeabffa697b03682"
+    ],
+    "exact_resource_ids_double_absent": true,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_nonowned_pid1_zombies": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 162472,
+        "ppid": 1,
+        "starttime": "949562",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 162827,
+        "ppid": 1,
+        "starttime": "949801",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 163195,
+        "ppid": 1,
+        "starttime": "949987",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 163694,
+        "ppid": 1,
+        "starttime": "950173",
+        "state": "Z"
+      }
+    ],
+    "owned_and_runtime_double_empty": true,
+    "source_input_before_after_same": true,
+    "tcp_delta_double_clear": true,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_tail_seconds": 39.38028535700141,
+    "verification_input_same": true,
+    "watchdog_joined": true
+  },
+  "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02",
+  "run_file_count": 54,
+  "run_files": {
+    "adopted-waits.json": {
+      "bytes": 571,
+      "sha256": "b5ccc2806d5db1de4af8474c3f2faec147c737b5c37c53aa37108b83695157b1"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 13239,
+      "sha256": "b291db661539796b9a9eec4a006f019a6f615a2bd8afb96620aa7369c3706904"
+    },
+    "command.json": {
+      "bytes": 2580,
+      "sha256": "7551bb5027355141a26fd628c6ac2d7cb0bb15d08d1717c845892b28e65c636d"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 183,
+      "sha256": "efa394ddd8a5382b852a93f780de78f19e945114ecd3ad2d3c57969f86f02a05"
+    },
+    "disk-preflight.json": {
+      "bytes": 183,
+      "sha256": "a996ed1cd8d38f5243998d37b4aeaf0fcf54c612aa3acd834c2f3528057b75c9"
+    },
+    "driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "frozen-input.json": {
+      "bytes": 40109,
+      "sha256": "0e4d117ae2d882299f21172237f4b09563d3dfd35055e197ed0df0909b21dbcf"
+    },
+    "input-after.json": {
+      "bytes": 815,
+      "sha256": "061c201ab9a155250a3092b9fd3f2914d505d13ca203e710bcbe70d0083e4657"
+    },
+    "input-before.json": {
+      "bytes": 815,
+      "sha256": "061c201ab9a155250a3092b9fd3f2914d505d13ca203e710bcbe70d0083e4657"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 16857,
+      "sha256": "e0459c245901a22e910c4767cae4e1c11360d33ae44d24dea9e521e7a2c6afbf"
+    },
+    "observed-resources.json": {
+      "bytes": 5023,
+      "sha256": "8a5dfba1c51d254e6bfcb700c7e82a6e34bf186bacb909ab215281671c3271ef"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 6035,
+      "sha256": "d910b6194e7055f75af750ad3c2af22e28b4e125f956001107b2434a8e17a809"
+    },
+    "raw.log": {
+      "bytes": 6482,
+      "sha256": "10f7e26ea47a00ce22aefdaa10f18147a407c0e0376d7f4bf768ba1355f50460"
+    },
+    "result.json": {
+      "bytes": 6982,
+      "sha256": "1331b6afd61a3e0cad44ea3b9cfe5e357c3b17d920639e49c0b5f4674c68078f"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065.json": {
+      "bytes": 357,
+      "sha256": "0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-34d0e42b14951f2469871b47586f294cafc2bf36df32279596120cfbfb3d8aa9.json": {
+      "bytes": 304,
+      "sha256": "34d0e42b14951f2469871b47586f294cafc2bf36df32279596120cfbfb3d8aa9"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-4a711155cadc3d48fdb1e0c5087f630c7d220a5e9bfbe560fad777cb8bec3afc.json": {
+      "bytes": 404,
+      "sha256": "4a711155cadc3d48fdb1e0c5087f630c7d220a5e9bfbe560fad777cb8bec3afc"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1.json": {
+      "bytes": 373,
+      "sha256": "562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-5d081da55c8885502e65e0686eecb09fdca9a21fb8399b3888295d15fac95bc7.json": {
+      "bytes": 383,
+      "sha256": "5d081da55c8885502e65e0686eecb09fdca9a21fb8399b3888295d15fac95bc7"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f.json": {
+      "bytes": 365,
+      "sha256": "68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b.json": {
+      "bytes": 368,
+      "sha256": "90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8.json": {
+      "bytes": 351,
+      "sha256": "a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-ae3a6550cd3f5ecbb2a0c861e2df88986c29b9cd3f14125139ea09ea4c93dc26.json": {
+      "bytes": 380,
+      "sha256": "ae3a6550cd3f5ecbb2a0c861e2df88986c29b9cd3f14125139ea09ea4c93dc26"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-e1e333e2ac2489c7d5d70fa0d9d186d5b5da1ac270d45f2eb76c46cd60665d13.json": {
+      "bytes": 306,
+      "sha256": "e1e333e2ac2489c7d5d70fa0d9d186d5b5da1ac270d45f2eb76c46cd60665d13"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322.json": {
+      "bytes": 333,
+      "sha256": "f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json": {
+      "bytes": 539,
+      "sha256": "a657004848688e6dbd29cbd3d469be33099c03b6a17c30af112f36d0a417eede"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json": {
+      "bytes": 539,
+      "sha256": "618926501ab9712e0bda7607e3e7c815a9659d4f336a035ec0d2f6ce50888d45"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json": {
+      "bytes": 539,
+      "sha256": "10ea8033e6b34b811b2e3535153d20da7767b9ac506a5f49755a2fd0968b3c77"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json": {
+      "bytes": 539,
+      "sha256": "8810752c5584128695e9d3b5a1c85babe36527e314a24929869bded0121aaa4c"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json": {
+      "bytes": 474,
+      "sha256": "f498e15e867eae03638a10e1be02078ab0fd9bb0bba8ce620159047770a38822"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json": {
+      "bytes": 539,
+      "sha256": "19fb3b0b07918c345afb1e7914a1de21588527df64ff4aa462ded521081d8e2a"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json": {
+      "bytes": 541,
+      "sha256": "1092aac2ffaae5dd7a10b636dda530df4b31fe5e079ea04576e7af4b06ea57fc"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json": {
+      "bytes": 539,
+      "sha256": "a944c1ad7666d71d15d7701ae05862c84140fd635a918569a35441ce4c9727e1"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json": {
+      "bytes": 541,
+      "sha256": "13d9d35efbab884e4de8a8ca2d3ed907992da1fa4fb6b3f5f62bc2a57e3ced98"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json": {
+      "bytes": 539,
+      "sha256": "4c6eb7ce88647830b4f2040753a92149c7274a97cccc1fb5507b5239f84eb24e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-011.json": {
+      "bytes": 549,
+      "sha256": "1e229f217e3b660b2bd417c6334d5d984969c17865b1d7d9a156432c129e4d06"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-012.json": {
+      "bytes": 539,
+      "sha256": "088db9af19777834822ca53bbde35cd4627b6b573d525b3e105ac24cef79b44d"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-013.json": {
+      "bytes": 541,
+      "sha256": "da3e885faa379b69034f7023e8c7ec43203464145fc1503be5d244ac2dc3af03"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-014.json": {
+      "bytes": 549,
+      "sha256": "5c3ab93739734a0b4929978b12849be434bfe6076bdb794a3451e705bae0b0ba"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-015.json": {
+      "bytes": 539,
+      "sha256": "e658d9d5ab3fee9f80ba7b1a243082da6e26cbc489280f5d9809dcddaac4bf70"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-016.json": {
+      "bytes": 541,
+      "sha256": "19cb9394aa9ee5de24539df7df4876556242812e5ee58763f95a07570b68e68e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-017.json": {
+      "bytes": 539,
+      "sha256": "efd6c67e1c9908b4b4cd5a20b9930db63c28bf71d45e63e707f0fb9374ec71c1"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-018.json": {
+      "bytes": 541,
+      "sha256": "98adeaef0b279b8cda6ec45d3dbb71a08c99618d8b56d8dfc4756e2f8adb0b6d"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-019.json": {
+      "bytes": 539,
+      "sha256": "9237c708d895de9ec728f223296a5a39ffb9fb7d00f68a3abb0f6405ac558daa"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "d1769549c232b02b450280f820208101cc23243e1c1c322fc72a89aa02df9b23"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 9737,
+      "sha256": "4bfb749a6734f47fa1d424b6a113a7ffbdac2da5771731d858a0f466b5b60543"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 187973,
+      "sha256": "e8835f2dc7aec86dd04af865443843e25d3a8d8e3c57d773217689e6ebe38313"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "d46fa953eaa71ec9eb1bde492bc9dfc94417fcb8af410d657d20742d84cbd8a5"
+    },
+    "watchdog.json": {
+      "bytes": 523,
+      "sha256": "7697ecd05100d5ec6ae3b7f220d603d10bdff15cb5ee3ca6c19fd6d530c76df5"
+    }
+  },
+  "safe_http": {
+    "all_recorded_body_sha256_match": true,
+    "browser_only_read_count_not_claimed": true,
+    "counts_include_fixture_and_helper_requests": true,
+    "distinct_bodies": 11,
+    "method_status_counts": {
+      "GET 200": 12,
+      "PATCH 200": 5,
+      "PATCH 409": 2
+    },
+    "same_body_validation_artifact_present": false,
+    "schema_validation_artifact_present": false,
+    "screenshots": 0,
+    "sidecars": 19
+  },
+  "status": "EDIT02_FAIL_ACTUALLY_RETIRED_STOP"
+}

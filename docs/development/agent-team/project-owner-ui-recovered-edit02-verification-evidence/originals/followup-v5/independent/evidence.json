@@ -1,0 +1,231 @@
+{
+  "verdict": "PASS: identity facts locator narrow correction only",
+  "source_sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009",
+  "scope": {
+    "new_browser_or_fixture": false,
+    "new_check_execution": false,
+    "full_closure_recomputed": false,
+    "resources_authorized": false,
+    "full_edit_or_layouts_pass": false
+  },
+  "independent_static_proofs": {
+    "only_helper_and_ready_change": true,
+    "reverse_two_edits_byte_equal_v4": true,
+    "identity_has_exact_dt_Project_ID_and_Owner": true,
+    "strict_ID_form_reread_preserved": true,
+    "name_helper_calls": 7,
+    "description_exact_label_calls": 31,
+    "config_imports_tools_byte_equal_v4": true,
+    "only_13_input_manifest_change": "tests/account-captcha-web/e2e/project-owner.spec.ts",
+    "unchanged_UI19_Go_full_closure": "reuse accepted baseline; no broad recheck"
+  },
+  "prior_failure": "edit02 remains FAIL; raw strict output proves two matching dl; full original DOM was not captured",
+  "checks": {
+    "browser-v5-format-check01": {
+      "author_result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 0.7311584349990881,
+        "direct_actual_wait": 174521,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "174521": "998616"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "hash_claims_verified": true,
+      "pre_post_equal_to_v5_inputs": true,
+      "independently_rerun": false
+    },
+    "browser-v5-types01": {
+      "author_result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 1.6688094999990426,
+        "direct_actual_wait": 174528,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "174528": "998617"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "hash_claims_verified": true,
+      "pre_post_equal_to_v5_inputs": true,
+      "independently_rerun": false
+    },
+    "browser-v5-list01": {
+      "author_result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 4.348788728000727,
+        "direct_actual_wait": 174519,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "174519": "998616",
+          "174530": "998617",
+          "174573": "998758",
+          "174586": "998830",
+          "174599": "998897",
+          "174632": "998969"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "hash_claims_verified": true,
+      "pre_post_equal_to_v5_inputs": true,
+      "independently_rerun": false
+    }
+  },
+  "references": [
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+      "bytes": 251,
+      "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/delta.patch",
+      "bytes": 1099,
+      "sha256": "19b9c8d9e3dea653a4d4a13e09db10077d83e62dc37508265e2b3db58fef7bfa"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/handoff.md",
+      "bytes": 1266,
+      "sha256": "d2865841fca971040256113e960dc97ffdf83488367e5ec8f3eee2c24bdfaed3"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/checks.json",
+      "bytes": 1013,
+      "sha256": "3ff59b5622f5fb89acbdaed0d6dabbed401b47155ca21c32e1274d028e4f503e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/inputs.json",
+      "bytes": 1366,
+      "sha256": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/imports.json",
+      "bytes": 704,
+      "sha256": "c1be647023227872098b597215bf71e2239a608a1340176cba4b2501a87b40bc"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/tools.json",
+      "bytes": 30827,
+      "sha256": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "bytes": 44418,
+      "sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5/tests/account-captcha-web/project-owner.config.js",
+      "bytes": 1424,
+      "sha256": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-format-check01/command.json",
+      "bytes": 299,
+      "sha256": "97cd428a76e0af6c40beffb783d082c3132b6197cc2c46ae03ae5e83e36991bc"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-format-check01/raw.log",
+      "bytes": 66,
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-format-check01/result.json",
+      "bytes": 251,
+      "sha256": "f04d3ae5b4830b72c25e6e6730d0a3c8ee4af786781dde793db75ad66f2c1886"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-format-check01/inputs-before.json",
+      "bytes": 1366,
+      "sha256": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-format-check01/inputs-after.json",
+      "bytes": 1366,
+      "sha256": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-types01/command.json",
+      "bytes": 631,
+      "sha256": "e783697b8fb62b2e85c48a901e9ec4ff25044392231242e2a41ad46494fd422c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-types01/raw.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-types01/result.json",
+      "bytes": 251,
+      "sha256": "55c9b3988d8934268b4f40a2e34a5c5f53909e5f9f6168510fb88ca496a01afb"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-types01/inputs-before.json",
+      "bytes": 1366,
+      "sha256": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-types01/inputs-after.json",
+      "bytes": 1366,
+      "sha256": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-list01/command.json",
+      "bytes": 174,
+      "sha256": "527c5a6d6add0cb647eb9f070c58359fa8867f33bb4b59ccd62f808e23f34158"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-list01/raw.log",
+      "bytes": 765,
+      "sha256": "aa8962eba7fe12dfb8061bff1fca4b02b142e13ea7a74a062c7223b25e104d17"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-list01/result.json",
+      "bytes": 370,
+      "sha256": "421f595b1c702f77b89f5f656d5ea9d7a81b482b20bbdf0f77cbdaf465bc530b"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-list01/inputs-before.json",
+      "bytes": 1366,
+      "sha256": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v5-list01/inputs-after.json",
+      "bytes": 1366,
+      "sha256": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v4/tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "bytes": 44187,
+      "sha256": "0c498b269c1b52d76ef18f2e249eba3714d643b1aa4dbd353f06e60953444cf0"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v4/inputs.json",
+      "bytes": 1366,
+      "sha256": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/edit02-review/review.md",
+      "bytes": 3113,
+      "sha256": "2a3dedd33b5754c6205784a6a059acdaf55dc2503944ff7052211d55a7348f3f"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/edit02-review/evidence.json",
+      "bytes": 22874,
+      "sha256": "498c13d5368200497a433d1f8615d3019ea22efc8fb823905e7ffc791f94b98e"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/browser-v4-review/review.md",
+      "bytes": 1774,
+      "sha256": "294311ed90f015ba5e84a711d15fec344b9f7c47604cd8baa90e0368cfc8c897"
+    }
+  ]
+}

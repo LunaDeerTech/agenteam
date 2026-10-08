@@ -1,0 +1,37 @@
+{
+  "changed_repository_sources": [
+    "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner.spec.ts"
+  ],
+  "driver_path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/driver.py",
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "explicit_file_hashes": 1165,
+  "files": {
+    "binding.json": "8975776ce3397c2c0d6439f0e8a6e7b76779aa2d607a03e726d0e65d5dd26ec8",
+    "closure.delta.json": "006f0a4f0c5f184c53350f27bcf6b943083f1f758954ec3d51059379cc260a5a",
+    "delta.md": "166f92492dc7b95ec5071009094dde4c6daae3da498c70032f03baf9a4f066d8",
+    "freeze.final.json": "99d71e028ded80f7b7979f8ee9a32ef4fe88c1a1c21b8a415ae665faa2290232",
+    "handoff.md": "16dfc273b2c5c9d9242ce1b38ef32716b72964312e0c918b9445482062c1c647",
+    "source-check.meta.json": "689b20bc55af55dccf437c322523f9c3efb6a1ca6ce1b4b14a516bdb36a05d44",
+    "source-check.raw": "051e773854a48035b95b8755336962b768e7d4078a9fb80aa500617490d009cf"
+  },
+  "freeze_final_sha256": "99d71e028ded80f7b7979f8ee9a32ef4fe88c1a1c21b8a415ae665faa2290232",
+  "merged_closure_files": 955,
+  "merged_package_file_sets": 66,
+  "permitted_groups": [
+    "new-edit"
+  ],
+  "previous_final": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final02/freeze.final.json",
+    "sha256": "b57d4748467246611e8d58138c0da6208acc6a3c2e7bbc0c9ba503465b101e28"
+  },
+  "prior_edit01_manifest": {
+    "path": "/workspace/scratch/owner-ui-backend/edit01-handoff.json",
+    "sha256": "b82defa1f9b8b051d5d4b4e646da7089754d422e545d838abdc96fbbdacf7238"
+  },
+  "resources_started": false,
+  "root_authorized_resources": false,
+  "source_gate_exit": 0,
+  "source_gate_runs": 1,
+  "source_gate_seconds": 1.3175122590000683,
+  "status": "FINAL03_STOP_FROZEN_FOR_REVIEW"
+}

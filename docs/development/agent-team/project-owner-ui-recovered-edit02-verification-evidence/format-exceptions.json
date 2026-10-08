@@ -1,0 +1,332 @@
+{
+  "policy": "Original bytes remain unchanged, including original FAIL, separate v5 correction and shared committed evidence. No-index exit1 without diagnostics means content differs, not a formatting failure. JSON parsing is syntax/integrity only.",
+  "physical_originals_checked_including_reused": 94,
+  "git_no_index_exit_counts": {
+    "1": 92,
+    "3": 2
+  },
+  "crlf_files": [],
+  "standalone_cr_files": [],
+  "files": [
+    {
+      "path": "originals/followup-v5/author/browser-v5-list01/raw.log",
+      "reused_prior": false,
+      "preserved_original_sha256": "aa8962eba7fe12dfb8061bff1fca4b02b142e13ea7a74a062c7223b25e104d17",
+      "exceptions": [
+        "original blank line at EOF"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5-list01/raw.log:25: new blank line at EOF.\n"
+    },
+    {
+      "path": "originals/run/raw.log",
+      "reused_prior": false,
+      "preserved_original_sha256": "10f7e26ea47a00ce22aefdaa10f18147a407c0e0376d7f4bf768ba1355f50460",
+      "exceptions": [
+        "original trailing whitespace at lines 32,34,36,37,39,45,49,50,61,62,64,65"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:32: trailing whitespace.\n+    project_owner_web_test.go:47: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:36: trailing whitespace.\n+        \u001b\u001b[1A\u001b\u001b[2K  1) e2e/project-owner.spec.ts:433:1 › [edit] explicit saves, conflicts and confirmed current-read failure \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:39: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:45: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:49: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:50: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:61: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:62: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:64: trailing whitespace.\n+            e2e/project-owner.spec.ts:433:1 › [edit] explicit saves, conflicts and confirmed current-read failure \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log:65: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-34d0e42b14951f2469871b47586f294cafc2bf36df32279596120cfbfb3d8aa9.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "34d0e42b14951f2469871b47586f294cafc2bf36df32279596120cfbfb3d8aa9",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-4a711155cadc3d48fdb1e0c5087f630c7d220a5e9bfbe560fad777cb8bec3afc.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "4a711155cadc3d48fdb1e0c5087f630c7d220a5e9bfbe560fad777cb8bec3afc",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-5d081da55c8885502e65e0686eecb09fdca9a21fb8399b3888295d15fac95bc7.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "5d081da55c8885502e65e0686eecb09fdca9a21fb8399b3888295d15fac95bc7",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-ae3a6550cd3f5ecbb2a0c861e2df88986c29b9cd3f14125139ea09ea4c93dc26.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "ae3a6550cd3f5ecbb2a0c861e2df88986c29b9cd3f14125139ea09ea4c93dc26",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-e1e333e2ac2489c7d5d70fa0d9d186d5b5da1ac270d45f2eb76c46cd60665d13.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "e1e333e2ac2489c7d5d70fa0d9d186d5b5da1ac270d45f2eb76c46cd60665d13",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a657004848688e6dbd29cbd3d469be33099c03b6a17c30af112f36d0a417eede",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "618926501ab9712e0bda7607e3e7c815a9659d4f336a035ec0d2f6ce50888d45",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "10ea8033e6b34b811b2e3535153d20da7767b9ac506a5f49755a2fd0968b3c77",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "8810752c5584128695e9d3b5a1c85babe36527e314a24929869bded0121aaa4c",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "f498e15e867eae03638a10e1be02078ab0fd9bb0bba8ce620159047770a38822",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "19fb3b0b07918c345afb1e7914a1de21588527df64ff4aa462ded521081d8e2a",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "1092aac2ffaae5dd7a10b636dda530df4b31fe5e079ea04576e7af4b06ea57fc",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "a944c1ad7666d71d15d7701ae05862c84140fd635a918569a35441ce4c9727e1",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "13d9d35efbab884e4de8a8ca2d3ed907992da1fa4fb6b3f5f62bc2a57e3ced98",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "4c6eb7ce88647830b4f2040753a92149c7274a97cccc1fb5507b5239f84eb24e",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-011.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "1e229f217e3b660b2bd417c6334d5d984969c17865b1d7d9a156432c129e4d06",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-012.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "088db9af19777834822ca53bbde35cd4627b6b573d525b3e105ac24cef79b44d",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-013.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "da3e885faa379b69034f7023e8c7ec43203464145fc1503be5d244ac2dc3af03",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-014.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "5c3ab93739734a0b4929978b12849be434bfe6076bdb794a3451e705bae0b0ba",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-015.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "e658d9d5ab3fee9f80ba7b1a243082da6e26cbc489280f5d9809dcddaac4bf70",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-016.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "19cb9394aa9ee5de24539df7df4876556242812e5ee58763f95a07570b68e68e",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-017.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "efd6c67e1c9908b4b4cd5a20b9930db63c28bf71d45e63e707f0fb9374ec71c1",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-018.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "98adeaef0b279b8cda6ec45d3dbb71a08c99618d8b56d8dfc4756e2f8adb0b6d",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    },
+    {
+      "path": "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-019.json",
+      "reused_prior": false,
+      "preserved_original_sha256": "9237c708d895de9ec728f223296a5a39ffb9fb7d00f68a3abb0f6405ac558daa",
+      "exceptions": [
+        "original missing EOF newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": ""
+    }
+  ]
+}

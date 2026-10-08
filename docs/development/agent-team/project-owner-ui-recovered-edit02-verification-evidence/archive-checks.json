@@ -1,0 +1,325 @@
+{
+  "status": "ARCHIVE_INTEGRITY_PASS_STOP",
+  "acceptance_scope": "Original author edit02 actual FAIL preserved; independent original integrity and owned retirement PASS. Separate Git367/browser-v5 identity facts locator correction accepted from fixed static delta and existing offline checks. No real corrected edit/layouts/other tops/A-B/visual/full D27 acceptance.",
+  "business_resource_network_schema_client_or_existing_check_commands_run_by_archiver": false,
+  "handoff_sha256": "c150baaeeb4bde32cba5f90437bd2a4d5d34854e4b6bfb6e36dcd3e47ac7b74c",
+  "independent_stop_manifest_sha256": "8b5082725ae36473855a1e4811561c3613adb0c61516a8511253ec6855dc9de6",
+  "logical_original_refs_checked": 104,
+  "author_original_run_files_checked": 54,
+  "author_original_run_bytes": 358083,
+  "independent_manifest_members_checked": 2,
+  "followup_v5_original_refs_checked": 27,
+  "followup_v5_manifest_members_checked": 2,
+  "followup_v5_explicit_git_inputs_checked": 13,
+  "followup_v5_delta_equals_git_f09f_to_367": true,
+  "followup_v5_checks_reused_not_rerun": {
+    "browser-v5-format-check01": {
+      "exit": 0,
+      "seconds": 0.7311584349990881,
+      "direct_actual_wait": 174521,
+      "inputs_same": true
+    },
+    "browser-v5-types01": {
+      "exit": 0,
+      "seconds": 1.6688094999990426,
+      "direct_actual_wait": 174528,
+      "inputs_same": true
+    },
+    "browser-v5-list01": {
+      "exit": 0,
+      "seconds": 4.348788728000727,
+      "direct_actual_wait": 174519,
+      "inputs_same": true
+    }
+  },
+  "new_physical_original_files_checked": 76,
+  "new_physical_original_bytes": 439029,
+  "reused_prior_physical_originals_checked": 18,
+  "all_original_bytes_and_sha_match": true,
+  "git_small_sources_and_blobs_checked": 43,
+  "closure_binding_inherited_with_single_source_delta": {
+    "inherited_source_map": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification-evidence/source-map.json",
+    "inherited_commit": "023404b9ba190c6e5760a6f692baf5746df21aba",
+    "inherited_source_map_sha256": "9d7e1f951800d66e4d94e40aec1ca46928ad289b1234591515a25cc3542ca1e8",
+    "base_closure_sha256": "8c11333ddc9514ed71a9a96b92fa833bb93bb886464468ad013e384067717d98",
+    "final03_closure_sha256": "006f0a4f0c5f184c53350f27bcf6b943083f1f758954ec3d51059379cc260a5a",
+    "delta_repository_paths": [
+      "tests/account-captcha-web/e2e/project-owner.spec.ts"
+    ],
+    "delta_source_sha256": "0c498b269c1b52d76ef18f2e249eba3714d643b1aa4dbd353f06e60953444cf0",
+    "source_commit": "f09f311256a88dd535a4315b65e378d3b3682465",
+    "merged_repository_inputs_inherited": 955,
+    "new_full_graph_scan": false,
+    "unchanged_package_file_sets_in_delta": true
+  },
+  "prepared_false_and_actual_true_input_binding": {
+    "prepared_input_sha256": "99d71e028ded80f7b7979f8ee9a32ef4fe88c1a1c21b8a415ae665faa2290232",
+    "prepared_authorized_resources": false,
+    "actual_frozen_input_sha256": "0e4d117ae2d882299f21172237f4b09563d3dfd35055e197ed0df0909b21dbcf",
+    "actual_authorized_resources": true,
+    "changed_top_level_keys": [
+      "root_authorization",
+      "root_authorized_resources",
+      "status"
+    ],
+    "permitted_groups": [
+      "new-edit"
+    ],
+    "prior_prepared_input_unchanged": true
+  },
+  "reused_manifest_refs_checked": 2,
+  "json_syntax_files_parsed_excluding_this_result": 66,
+  "json_parse_is_not_schema_or_client_execution": true,
+  "markdown_local_links_checked": 29,
+  "derived_text_format_checked": [
+    "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+    "source-map.json",
+    "format-exceptions.json"
+  ],
+  "original_format_exception_files": 32,
+  "git_original_diagnostic_files": [
+    {
+      "path": "originals/followup-v5/author/browser-v5-list01/raw.log",
+      "exit": 3
+    },
+    {
+      "path": "originals/run/raw.log",
+      "exit": 3
+    }
+  ],
+  "new_file_git_exit_counts_excluding_this_result": {
+    "1": 77,
+    "3": 2
+  },
+  "original_crlf_files": [],
+  "original_standalone_cr_files": [],
+  "tracked_scoped_diff_check_exit": 0,
+  "new_file_check": "git diff --no-index --check -- /dev/null <every new file and report>; difference exit1 without diagnostics distinguished from formatting failure",
+  "same_body_original_integrity": {
+    "sidecars": 19,
+    "unique_request_ids": 19,
+    "unique_body_files": 11,
+    "method_status_counts": [
+      {
+        "method": "GET",
+        "status": 200,
+        "count": 12
+      },
+      {
+        "method": "PATCH",
+        "status": 200,
+        "count": 5
+      },
+      {
+        "method": "PATCH",
+        "status": 409,
+        "count": 2
+      }
+    ],
+    "all_bindings_match": true,
+    "schema_validation_present": false,
+    "same_body_validation_present": false,
+    "validation_executed_by_archiver": false
+  },
+  "checked_report_sha256": "5e9cda8d2ae6aee38d47f0fe3995f4b8bf1a53e4890ec2dcde938a8bd2e3b9c3",
+  "checked_source_map_sha256": "3c9e8f917f96970ff718a6999faaecb5ded2e447d872e8e226fb86fe0e5c0ff2",
+  "checked_format_exceptions_sha256": "907b7f2f714c03d8d5ec40076da100b770a7030ecdb52d462e245e35164b9e39",
+  "files_sha256_excluding_this_result": {
+    "format-exceptions.json": "907b7f2f714c03d8d5ec40076da100b770a7030ecdb52d462e245e35164b9e39",
+    "originals/author/edit02-handoff.json": "c150baaeeb4bde32cba5f90437bd2a4d5d34854e4b6bfb6e36dcd3e47ac7b74c",
+    "originals/author/edit02-handoff.md": "637ddd404f16b633161c833c64e0f0bacc49d6f1d5c1b6ff19df4e736639419a",
+    "originals/author/edit02-launch.raw": "a3b2e37841c048890a3284cd0bec06ae52ec62ff3751cfa73e23d2c688b6df1e",
+    "originals/followup-v5/author/browser-v5/checks.json": "3ff59b5622f5fb89acbdaed0d6dabbed401b47155ca21c32e1274d028e4f503e",
+    "originals/followup-v5/author/browser-v5/delta.patch": "19b9c8d9e3dea653a4d4a13e09db10077d83e62dc37508265e2b3db58fef7bfa",
+    "originals/followup-v5/author/browser-v5/freeze.json": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85",
+    "originals/followup-v5/author/browser-v5/handoff.md": "d2865841fca971040256113e960dc97ffdf83488367e5ec8f3eee2c24bdfaed3",
+    "originals/followup-v5/author/browser-v5/inputs.json": "9a1c0d2834e420b50c8dab92ecdbe60876c1e58035040117a1405a9739f18e8c",
+    "originals/followup-v5/author/browser-v5-format-check01/result.json": "f04d3ae5b4830b72c25e6e6730d0a3c8ee4af786781dde793db75ad66f2c1886",
+    "originals/followup-v5/author/browser-v5-list01/raw.log": "aa8962eba7fe12dfb8061bff1fca4b02b142e13ea7a74a062c7223b25e104d17",
+    "originals/followup-v5/author/browser-v5-list01/result.json": "421f595b1c702f77b89f5f656d5ea9d7a81b482b20bbdf0f77cbdaf465bc530b",
+    "originals/followup-v5/author/browser-v5-types01/result.json": "55c9b3988d8934268b4f40a2e34a5c5f53909e5f9f6168510fb88ca496a01afb",
+    "originals/followup-v5/independent/evidence.json": "9994bbcb8634cc8f0092db4bce2583d6fedcc0245ae5ff1064f5bab6a4f79288",
+    "originals/followup-v5/independent/manifest.json": "9203be7f811e6c972462b11a44efa527277fc7fe47992f3d05db602f1b2575a5",
+    "originals/followup-v5/independent/review.md": "82f890192ee86f926afda73c789b55c9fed482f16c86476c1ad37979f1f931e0",
+    "originals/independent/evidence.json": "498c13d5368200497a433d1f8615d3019ea22efc8fb823905e7ffc791f94b98e",
+    "originals/independent/manifest.json": "8b5082725ae36473855a1e4811561c3613adb0c61516a8511253ec6855dc9de6",
+    "originals/independent/review.md": "2a3dedd33b5754c6205784a6a059acdaf55dc2503944ff7052211d55a7348f3f",
+    "originals/input/final03/binding.json": "8975776ce3397c2c0d6439f0e8a6e7b76779aa2d607a03e726d0e65d5dd26ec8",
+    "originals/input/final03/closure.delta.json": "006f0a4f0c5f184c53350f27bcf6b943083f1f758954ec3d51059379cc260a5a",
+    "originals/input/final03/delta.md": "166f92492dc7b95ec5071009094dde4c6daae3da498c70032f03baf9a4f066d8",
+    "originals/input/final03/freeze.final.json": "99d71e028ded80f7b7979f8ee9a32ef4fe88c1a1c21b8a415ae665faa2290232",
+    "originals/input/final03/handoff.json": "cd739bedb5f96bd6c5120e12fda750f8ac6fc21f7891e3b652b3a2b81bc38663",
+    "originals/input/final03/handoff.md": "16dfc273b2c5c9d9242ce1b38ef32716b72964312e0c918b9445482062c1c647",
+    "originals/input/final03/independent-prepared-review.md": "12fc0eaf6c7cfdb34e5b6c0d53de60249d719d9a15ea5f1751a86ab043f36d20",
+    "originals/input/final03/source-check.meta.json": "689b20bc55af55dccf437c322523f9c3efb6a1ca6ce1b4b14a516bdb36a05d44",
+    "originals/input/final03/source-check.raw": "051e773854a48035b95b8755336962b768e7d4078a9fb80aa500617490d009cf",
+    "originals/root/exchange-edit02.json": "d71f6e6448658fa632fe7a1cbd219cc1398fe8e3a3abee74439f6dbf4ec9774a",
+    "originals/root/restore-after-edit02.json": "f2c5902158de4690ced39abde0a83f22c2bb01b293de97eac72f30228ce6601c",
+    "originals/run/adopted-waits.json": "b5ccc2806d5db1de4af8474c3f2faec147c737b5c37c53aa37108b83695157b1",
+    "originals/run/cleanup.json": "b291db661539796b9a9eec4a006f019a6f615a2bd8afb96620aa7369c3706904",
+    "originals/run/command.json": "7551bb5027355141a26fd628c6ac2d7cb0bb15d08d1717c845892b28e65c636d",
+    "originals/run/disk-before-spawn.json": "efa394ddd8a5382b852a93f780de78f19e945114ecd3ad2d3c57969f86f02a05",
+    "originals/run/disk-preflight.json": "a996ed1cd8d38f5243998d37b4aeaf0fcf54c612aa3acd834c2f3528057b75c9",
+    "originals/run/frozen-input.json": "0e4d117ae2d882299f21172237f4b09563d3dfd35055e197ed0df0909b21dbcf",
+    "originals/run/input-after.json": "061c201ab9a155250a3092b9fd3f2914d505d13ca203e710bcbe70d0083e4657",
+    "originals/run/observed-processes.json": "e0459c245901a22e910c4767cae4e1c11360d33ae44d24dea9e521e7a2c6afbf",
+    "originals/run/observed-resources.json": "8a5dfba1c51d254e6bfcb700c7e82a6e34bf186bacb909ab215281671c3271ef",
+    "originals/run/process-baseline.json": "d910b6194e7055f75af750ad3c2af22e28b4e125f956001107b2434a8e17a809",
+    "originals/run/raw.log": "10f7e26ea47a00ce22aefdaa10f18147a407c0e0376d7f4bf768ba1355f50460",
+    "originals/run/result.json": "1331b6afd61a3e0cad44ea3b9cfe5e357c3b17d920639e49c0b5f4674c68078f",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065.json": "0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-34d0e42b14951f2469871b47586f294cafc2bf36df32279596120cfbfb3d8aa9.json": "34d0e42b14951f2469871b47586f294cafc2bf36df32279596120cfbfb3d8aa9",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-4a711155cadc3d48fdb1e0c5087f630c7d220a5e9bfbe560fad777cb8bec3afc.json": "4a711155cadc3d48fdb1e0c5087f630c7d220a5e9bfbe560fad777cb8bec3afc",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1.json": "562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-5d081da55c8885502e65e0686eecb09fdca9a21fb8399b3888295d15fac95bc7.json": "5d081da55c8885502e65e0686eecb09fdca9a21fb8399b3888295d15fac95bc7",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f.json": "68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b.json": "90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8.json": "a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-ae3a6550cd3f5ecbb2a0c861e2df88986c29b9cd3f14125139ea09ea4c93dc26.json": "ae3a6550cd3f5ecbb2a0c861e2df88986c29b9cd3f14125139ea09ea4c93dc26",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-e1e333e2ac2489c7d5d70fa0d9d186d5b5da1ac270d45f2eb76c46cd60665d13.json": "e1e333e2ac2489c7d5d70fa0d9d186d5b5da1ac270d45f2eb76c46cd60665d13",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322.json": "f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json": "a657004848688e6dbd29cbd3d469be33099c03b6a17c30af112f36d0a417eede",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json": "618926501ab9712e0bda7607e3e7c815a9659d4f336a035ec0d2f6ce50888d45",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json": "10ea8033e6b34b811b2e3535153d20da7767b9ac506a5f49755a2fd0968b3c77",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json": "8810752c5584128695e9d3b5a1c85babe36527e314a24929869bded0121aaa4c",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json": "f498e15e867eae03638a10e1be02078ab0fd9bb0bba8ce620159047770a38822",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json": "19fb3b0b07918c345afb1e7914a1de21588527df64ff4aa462ded521081d8e2a",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json": "1092aac2ffaae5dd7a10b636dda530df4b31fe5e079ea04576e7af4b06ea57fc",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json": "a944c1ad7666d71d15d7701ae05862c84140fd635a918569a35441ce4c9727e1",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json": "13d9d35efbab884e4de8a8ca2d3ed907992da1fa4fb6b3f5f62bc2a57e3ced98",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json": "4c6eb7ce88647830b4f2040753a92149c7274a97cccc1fb5507b5239f84eb24e",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-011.json": "1e229f217e3b660b2bd417c6334d5d984969c17865b1d7d9a156432c129e4d06",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-012.json": "088db9af19777834822ca53bbde35cd4627b6b573d525b3e105ac24cef79b44d",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-013.json": "da3e885faa379b69034f7023e8c7ec43203464145fc1503be5d244ac2dc3af03",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-014.json": "5c3ab93739734a0b4929978b12849be434bfe6076bdb794a3451e705bae0b0ba",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-015.json": "e658d9d5ab3fee9f80ba7b1a243082da6e26cbc489280f5d9809dcddaac4bf70",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-016.json": "19cb9394aa9ee5de24539df7df4876556242812e5ee58763f95a07570b68e68e",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-017.json": "efd6c67e1c9908b4b4cd5a20b9930db63c28bf71d45e63e707f0fb9374ec71c1",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-018.json": "98adeaef0b279b8cda6ec45d3dbb71a08c99618d8b56d8dfc4756e2f8adb0b6d",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-019.json": "9237c708d895de9ec728f223296a5a39ffb9fb7d00f68a3abb0f6405ac558daa",
+    "originals/run/tcp-baseline.json": "d1769549c232b02b450280f820208101cc23243e1c1c322fc72a89aa02df9b23",
+    "originals/run/tcp-observed-delta.json": "4bfb749a6734f47fa1d424b6a113a7ffbdac2da5771731d858a0f466b5b60543",
+    "originals/run/tcp-tail-observation.json": "e8835f2dc7aec86dd04af865443843e25d3a8d8e3c57d773217689e6ebe38313",
+    "originals/run/verification-input.json": "d46fa953eaa71ec9eb1bde492bc9dfc94417fcb8af410d657d20742d84cbd8a5",
+    "originals/run/watchdog.json": "7697ecd05100d5ec6ae3b7f220d603d10bdff15cb5ee3ca6c19fd6d530c76df5",
+    "source-map.json": "3c9e8f917f96970ff718a6999faaecb5ded2e447d872e8e226fb86fe0e5c0ff2"
+  },
+  "links": [
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-read02-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-read01-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/author/edit02-handoff.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/author/edit02-handoff.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/frozen-input.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/input/final03/closure.delta.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/raw.log"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/command.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/author/edit02-launch.raw"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/independent/review.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/independent/evidence.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/independent/manifest.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/adopted-waits.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/observed-resources.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/cleanup.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/run/tcp-tail-observation.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/root/restore-after-edit02.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/source-map.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/format-exceptions.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/archive-checks.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/freeze.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/delta.patch"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/independent/review.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/independent/evidence.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/independent/manifest.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/checks.json"
+    }
+  ]
+}

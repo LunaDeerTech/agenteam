@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：edit02永久失败档，edit03作者实际PASS退役
+
+[edit02失败与v5窄修永久档](project-owner-ui-recovered-edit02-verification.md)已STOP，root核104逻辑source/archive原bytes/SHA、78证据指纹/43Git定位一致；新增76原件439029 bytes、18共同原件复用，32原格式例外保持。原FAIL与v5源码367窄修分列，不回填未到断言或schema/client。
+
+edit03作者实际整轮PASS/退役：command57.939秒、top12.10/browser5.7，原19schema status0、browser公开client resolve1/get6尾验已产生；direct+4adopted wait/watchdogjoin、exact7IDs逐两absent/owned-runtime双空/TCP全态delta双清（38.369秒补充尾）、source/input同、monitor/cancel/forced0。4非owned daemon PID1 shim单列，非全机清零。作者短manifest正在封STOP，独立原件/终局复核尚待正式交接，当前不据作者结果接受完整D27或后继。
+
+root在全部reader/资源退役后恢复原3file及SHA，restore-after-edit03.json固定，测试53保留test-dist-ui-v1；无当前资源/资产窗口。false final04原件和唯一edit03 truecopy保持；下一步正式独核edit03、归档必要成功小原件，再准备recovery/identity/layouts及旧16/独立A-B。产品19/Go04/browser-v5不变，完整D27/生产未绑定/ready503/D08–D28/E01与三停止保持，以下为历史。
+
 ## 2026-10-08：browser-v5身份facts范围窄修接受
 
 独立v5窄差量PASS：仅#21新增同时含精确dt“Project ID”“Owner”的身份dl helper，ready一处改用此scope，保strict/id/form/reread及全部无内容断言。移除这两变化即与v4逐字节同，7名称/31描述定位与行为保持；19UI/Go/#20及锁无变。固定format0.731s/type1.669s/list各1五mode4.349s实际exit0、input绑定v5、actualwait/owned双空已独核。关闭edit02仅此定位器必修，不提前接受真实edit/layouts或全卡。freeze SHA `a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85`，#21 SHA `3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009`；本节与#21同批Git定位，小交付立即推送核远端。

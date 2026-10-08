@@ -1,0 +1,60 @@
+{
+  "asset_exchange_record": {
+    "path": "/workspace/scratch/owner-ui-assets/exchange-edit02.json",
+    "sha256": "d71f6e6448658fa632fe7a1cbd219cc1398fe8e3a3abee74439f6dbf4ec9774a"
+  },
+  "browser": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v4/freeze.json",
+    "sha256": "9688d909627f3e8253c68e989ebecd7cac8b6f16d84b9196b9297ba854f006d9"
+  },
+  "browser_delta": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v4/delta.patch",
+    "sha256": "a38a421b04f7b0100287ec805ecfe4e56536d0c580aa85b3e724a626eed40f23"
+  },
+  "changed_repository_sources": [
+    "tests/account-captcha-web/e2e/project-owner.spec.ts"
+  ],
+  "driver": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "driver_preparation": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v03/preparation.json",
+    "sha256": "b36fea26ffd7b4667ab3631a2bf59783e4603a39c750009e91813e543ffb385c"
+  },
+  "globaldist_read": "one authorized source-only gate after root reported edit02 exchange ready",
+  "imports_tools_exact_previous_bytes": true,
+  "no_new_go_node_resource_execution": true,
+  "original_driver": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "permitted_groups": [
+    "new-edit"
+  ],
+  "previous_closure": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final02/closure.delta.json",
+    "sha256": "8c11333ddc9514ed71a9a96b92fa833bb93bb886464468ad013e384067717d98"
+  },
+  "previous_final": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final02/freeze.final.json",
+    "sha256": "b57d4748467246611e8d58138c0da6208acc6a3c2e7bbc0c9ba503465b101e28"
+  },
+  "resources_started": false,
+  "root_authorized_resources": false,
+  "unchanged_budgets": {
+    "browser_case_seconds": 45,
+    "go_top_including_cleanup_seconds": 120,
+    "package_minutes": 6,
+    "tcp_tail_seconds": 75
+  },
+  "unchanged_go_candidate": "04",
+  "unchanged_python_actual_modules": 171,
+  "unchanged_python_meta_resources": 20,
+  "unchanged_topology": {
+    "new-edit": 7,
+    "other-required-tops": 7,
+    "required-old-smtp-delivery": 9
+  },
+  "unchanged_ui": "ui-v1/19 sources"
+}

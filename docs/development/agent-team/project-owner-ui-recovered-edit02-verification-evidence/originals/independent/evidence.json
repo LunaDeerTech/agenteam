@@ -1,0 +1,550 @@
+{
+  "status": "EDIT02_ACTUAL_FAIL_PRESERVED_IDENTITY_FACTS_LOCATOR_MUST_FIX_OWNED_RETIREMENT_REVIEW_PASS_STOP",
+  "reviewer": "/root/verification_runtime",
+  "recorded_utc": "2026-10-08T06:18:40.023162+00:00",
+  "scope": "Only independent read-only frozen source/raw/evidence audit; no new tests, probe, browser or business resources",
+  "references": {
+    "/workspace/scratch/owner-ui-backend/edit02-handoff.json": {
+      "bytes": 14753,
+      "sha256": "c150baaeeb4bde32cba5f90437bd2a4d5d34854e4b6bfb6e36dcd3e47ac7b74c"
+    },
+    "/workspace/scratch/owner-ui-backend/edit02-handoff.md": {
+      "bytes": 1390,
+      "sha256": "637ddd404f16b633161c833c64e0f0bacc49d6f1d5c1b6ff19df4e736639419a"
+    },
+    "/workspace/scratch/owner-ui-backend/edit02-launch.raw": {
+      "bytes": 5228,
+      "sha256": "a3b2e37841c048890a3284cd0bec06ae52ec62ff3751cfa73e23d2c688b6df1e"
+    },
+    "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/raw.log": {
+      "bytes": 6482,
+      "sha256": "10f7e26ea47a00ce22aefdaa10f18147a407c0e0376d7f4bf768ba1355f50460"
+    },
+    "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/result.json": {
+      "bytes": 6982,
+      "sha256": "1331b6afd61a3e0cad44ea3b9cfe5e357c3b17d920639e49c0b5f4674c68078f"
+    },
+    "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/frozen-input.json": {
+      "bytes": 40109,
+      "sha256": "0e4d117ae2d882299f21172237f4b09563d3dfd35055e197ed0df0909b21dbcf"
+    },
+    "/workspace/scratch/owner-ui-backend/resource-driver-v03/runs/edit02/driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "/workspace/scratch/owner-ui-recovery/browser-v4/freeze.json": {
+      "bytes": 251,
+      "sha256": "9688d909627f3e8253c68e989ebecd7cac8b6f16d84b9196b9297ba854f006d9"
+    },
+    "/workspace/scratch/owner-ui-recovery/browser-v4/tests/account-captcha-web/e2e/project-owner.spec.ts": {
+      "bytes": 44187,
+      "sha256": "0c498b269c1b52d76ef18f2e249eba3714d643b1aa4dbd353f06e60953444cf0"
+    },
+    "/workspace/scratch/owner-ui-assets/restore-after-edit02.json": {
+      "bytes": 769,
+      "sha256": "f2c5902158de4690ced39abde0a83f22c2bb01b293de97eac72f30228ce6601c"
+    }
+  },
+  "git_sources": {
+    "commit": "f09f311256a88dd535a4315b65e378d3b3682465",
+    "paths": [
+      "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "web/src/composables/useProjectWorkspace.ts",
+      "web/src/views/projects/ProjectGeneralSettings.vue",
+      "web/src/views/projects/ProjectWorkspaceView.vue"
+    ]
+  },
+  "original_integrity": {
+    "original_run_count": 54,
+    "all_sizes_and_hashes_match": true,
+    "extra": [],
+    "missing": [],
+    "launch_hash_match": true,
+    "closed_sidecars": 19,
+    "unique_bodies": 11,
+    "all_body_hashes_auth_input_source_run_match": true,
+    "unique_request_ids": 19,
+    "method_status_counts": {
+      "GET 200": 12,
+      "PATCH 200": 5,
+      "PATCH 409": 2
+    },
+    "safe_response_table": [
+      {
+        "sidecar": "response-001.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-ba3a-7ce5-981e-b3e34e725d1c",
+        "body_sha256": "68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "Owner browser fixture owner-main",
+        "version": "1",
+        "code": null,
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-002.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-ba42-7241-8a13-4fc67a4f268d",
+        "body_sha256": "ae3a6550cd3f5ecbb2a0c861e2df88986c29b9cd3f14125139ea09ea4c93dc26",
+        "id": "01a11a1f-b89f-7a67-9fc5-68cc32e4d994",
+        "name": "owner-duplicate",
+        "description": "Owner browser fixture owner-duplicate",
+        "version": "1",
+        "code": null,
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-003.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-ba47-7e89-8d2a-b62de7693588",
+        "body_sha256": "4a711155cadc3d48fdb1e0c5087f630c7d220a5e9bfbe560fad777cb8bec3afc",
+        "id": "01a11a1f-b8ca-7301-8241-e562096736eb",
+        "name": "owner-archived",
+        "description": "Owner browser fixture owner-archived",
+        "version": "3",
+        "code": null,
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-004.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-ba4f-768a-a876-6de9642461bf",
+        "body_sha256": "5d081da55c8885502e65e0686eecb09fdca9a21fb8399b3888295d15fac95bc7",
+        "id": "01a11a1f-b8f3-7eae-a525-7f785681f4d0",
+        "name": "owner-archiving",
+        "description": "Owner browser fixture owner-archiving",
+        "version": "2",
+        "code": null,
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-005.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-c83f-74ae-a8e9-da2aeda5cbdf",
+        "body_sha256": "68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "Owner browser fixture owner-main",
+        "version": "1",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-006.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-c850-7c91-91c7-81b83877d632",
+        "body_sha256": "68b73f85eea3e17a83f88b73bb6fd14a313203a70bbe65f88d668123c5b6ed3f",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "Owner browser fixture owner-main",
+        "version": "1",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-007.json",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a11a1f-ca68-772e-85fa-f96ebecbbbc7",
+        "body_sha256": "90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "  first description\n保持空格  ",
+        "version": "2",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-008.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-cad5-7bee-9489-02790856302f",
+        "body_sha256": "90e0f8339fa11e6d49e4d26b8e8cdb03163a8fb3e01e6bbbdb80e6dda379449b",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "  first description\n保持空格  ",
+        "version": "2",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-009.json",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a11a1f-cb90-70b6-b970-bdbdde11ea47",
+        "body_sha256": "f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "",
+        "version": "3",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-010.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-cbcb-7a4e-afa8-c000b93bc95d",
+        "body_sha256": "f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "",
+        "version": "3",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-011.json",
+        "method": "PATCH",
+        "status": 409,
+        "request_id": "01a11a1f-cef1-7d7a-9ea4-9f795f60852d",
+        "body_sha256": "e1e333e2ac2489c7d5d70fa0d9d186d5b5da1ac270d45f2eb76c46cd60665d13",
+        "id": null,
+        "name": null,
+        "description": null,
+        "version": null,
+        "code": "RESOURCE_BUSY",
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-012.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-cfaf-764d-b025-2ed19a8c4265",
+        "body_sha256": "f16b08024b377e36b7492eb965bc101c6e5842e568284902f51de733491fc322",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "",
+        "version": "3",
+        "code": null,
+        "role": "external update IPC helper"
+      },
+      {
+        "sidecar": "response-013.json",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a11a1f-cfb8-756f-9fd4-8b43739e1c9f",
+        "body_sha256": "a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "newer server value",
+        "version": "4",
+        "code": null,
+        "role": "external update IPC helper"
+      },
+      {
+        "sidecar": "response-014.json",
+        "method": "PATCH",
+        "status": 409,
+        "request_id": "01a11a1f-d084-7434-80ce-583e33b51fb5",
+        "body_sha256": "34d0e42b14951f2469871b47586f294cafc2bf36df32279596120cfbfb3d8aa9",
+        "id": null,
+        "name": null,
+        "description": null,
+        "version": null,
+        "code": "VERSION_CONFLICT",
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-015.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-d114-71ac-a8df-4efef3eb4af6",
+        "body_sha256": "a25ca860951171f19778a7f94cb526ced9dd64379fac1735559db2d86f394fc8",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "owner-main",
+        "description": "newer server value",
+        "version": "4",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-016.json",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a11a1f-d426-720f-a07e-9ce871582f10",
+        "body_sha256": "0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "Owner.Renamed",
+        "description": "newer server value",
+        "version": "5",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-017.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-d46a-7596-8e1f-19805f1fd0a4",
+        "body_sha256": "0a22796e7da835f2eebadafc21e6eb6c07d991feb6ea004df9b9bc8d3be45065",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "Owner.Renamed",
+        "description": "newer server value",
+        "version": "5",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-018.json",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a11a1f-d50f-7509-99bc-290a47107303",
+        "body_sha256": "562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "Owner.Renamed",
+        "description": "confirmed while Get is unavailable",
+        "version": "6",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      },
+      {
+        "sidecar": "response-019.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a1f-d5c5-7c65-9095-636c4278b7b2",
+        "body_sha256": "562195e72feaf655bc48fb73efa90cbea74b8c6f077fbd30105f195296c7e1f1",
+        "id": "01a11a1f-b866-7338-aa31-ce2794d5e288",
+        "name": "Owner.Renamed",
+        "description": "confirmed while Get is unavailable",
+        "version": "6",
+        "code": null,
+        "role": "formal response during browser sequence; no final native-read counter or schema/client result"
+      }
+    ],
+    "no_browser_exclusive_count_claim": true,
+    "schema_validation_present": false,
+    "same_body_validation_present": false,
+    "screenshots": 0
+  },
+  "actual_failure": {
+    "direct_exit": 1,
+    "outer_exit": 1,
+    "direct_seconds": 58.451,
+    "top_seconds": 13.04,
+    "top": "TestAccountProjectOwnerWebEditAndRename",
+    "source_stack": "browser-v4 spec683 -> confirmed272 -> ready249",
+    "operation": "expect(page.locator(.project-facts)).toContainText(id)",
+    "actual_strict_match_count": 2,
+    "raw_matches": [
+      "identity dl.project-facts contains Project ID01a11a1f-b866-7338-aa31-ce2794d5e288Ownerowner-workspace ...",
+      "review dl.project-facts contains 当前名称Owner.Renamed当前描述 ..."
+    ],
+    "classification": "Harness assumes unique class across two legitimate definition lists. No product-state change is required by this defect.",
+    "dom_limit": "Real strict-mode output records matching elements/text aliases, not a complete DOM snapshot. No claim of all page state or later assertions."
+  },
+  "state_reasoning": {
+    "source": "fixed Git f09 controller accept/readCurrent/readFailed plus GeneralSettings review section and Workspace retry handler",
+    "sequence": "Successful rename/current Get version5; final write receipt version6 while immediate current read deliberately fails. Existing editor stays ready at older version and preserves draft. Explicit retry calls readCurrent() with adopt=false; accept(value,false) can set editor.conflict on version change, then requiresRead clears. Current value review may therefore legally coexist with stable identity facts while the confirmed receipt remains separate.",
+    "native_support": "017 Get version5;018 PATCH200 and019 Get200 share exact version6 original body with description confirmed while Get is unavailable.",
+    "contract_basis": "Card5.2 preserves drafts on reads/conflicts and explicit adoption;6.1 separates confirmed receipt and current Get, with failed current read not cancelling confirmation or resubmitting.",
+    "inference_limit": "Detailed editor flag transition is source-derived, not a captured internal-state dump. Raw directly proves only two actual matching dl at the failing assertion."
+  },
+  "must_fix": {
+    "path": "tests/account-captcha-web/e2e/project-owner.spec.ts",
+    "scope": "Only ready() identity facts target/helper",
+    "recommendation": "Select dl.project-facts containing exact dt Project ID AND exact dt Owner; retain uniqueness/strict targeting and target stable ID assertion. Keep form visibility/read-enabled/save-disabled and all other assertions.",
+    "prohibited_weakening": [
+      ".first()/nth as workaround",
+      "drop target ID assertion",
+      "relax to arbitrary text anywhere",
+      "narrow global no-content .project-facts zero-count checks",
+      "product/UiField/controller changes"
+    ],
+    "minimal_validation": "Frozen exact delta plus necessary existing format/type/list evidence; real strict output and fixed DOM sufficient, no new semantic browser probe needed; affected real edit must later reach full completion."
+  },
+  "executed_prefix": {
+    "basis": "Sequential fixed assertions before ready249 failure plus native responses; not overall edit PASS",
+    "steps": [
+      "description save/preserve whitespace and version increment",
+      "clear description and dirty-navigation/cancel flow",
+      "duplicate-name conflict and retained name draft",
+      "version conflict, explicit current read and adoption",
+      "rename confirmation and canonical URL/Project navigation",
+      "final write command-confirmed and current-read-error headings",
+      "explicit reread clicked; confirmed heading and ready form visibility completed before ambiguous identity assertion"
+    ],
+    "final_safe_response": "019 GET200 version6 same body as018 PATCH200"
+  },
+  "unexecuted": {
+    "within_confirmed": [
+      "ready line250 read-current enabled check",
+      "confirmed line273 save disabled check"
+    ],
+    "after_line683": [
+      "no additional PATCH assertion from684",
+      "factsUnchanged assertion",
+      "description value assertion",
+      "verifyBodies schema/public client",
+      "complete edit result"
+    ]
+  },
+  "retirement": {
+    "direct_identity": {
+      "pid": 162247,
+      "starttime": "949335"
+    },
+    "direct_actual_wait": true,
+    "watchdog_join": true,
+    "adopted_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 166721,
+        "starttime": "952583",
+        "time": "2026-10-08T06:07:36.545838+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 166715,
+        "starttime": "952583",
+        "time": "2026-10-08T06:07:36.545882+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 166718,
+        "starttime": "952583",
+        "time": "2026-10-08T06:07:36.545890+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 166719,
+        "starttime": "952583",
+        "time": "2026-10-08T06:07:36.545906+00:00"
+      }
+    ],
+    "wait_identities_match_pid_starttime": true,
+    "exact_resources": {
+      "250d15f629879037b3e52f587a7ec283006226efae92c28aa7033bbad2b5f7d0": {
+        "kind": "container",
+        "name": "/agenteam-d03-a0b39d46c0c2904485083d2fda7c1424-pg16",
+        "labels": {
+          "agenteam.d03.fixture": "a0b39d46c0c2904485083d2fda7c1424"
+        }
+      },
+      "2c79d1eb9b5ca19f178433b9bcd1e49ab404a020cb9d15ea111ac3c12cff916e": {
+        "kind": "network",
+        "name": "agenteam-d03-a0b39d46c0c2904485083d2fda7c1424",
+        "labels": {
+          "agenteam.d03.fixture": "a0b39d46c0c2904485083d2fda7c1424"
+        }
+      },
+      "4625444cd4adc9bef00b3d5c49b14f540ead504536f6d2b6a4134fa9bc1a2d78": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-00e56521c2c243b169b13f36dcbf2fc4",
+        "labels": {
+          "agenteam.d05.objectfixture": "00e56521c2c243b169b13f36dcbf2fc4"
+        }
+      },
+      "466d5ffbde87c58423795dbb9e35ebd22e6ecaa59804d58fdc1162b53e0f7564": {
+        "kind": "container",
+        "name": "/agenteam-d03-a0b39d46c0c2904485083d2fda7c1424",
+        "labels": {
+          "agenteam.d03.fixture": "a0b39d46c0c2904485083d2fda7c1424"
+        }
+      },
+      "b44c2608bffc70b03503b608159bb21614638965bd9089bad4e4654229ae521a": {
+        "kind": "network",
+        "name": "agenteam-d04-net-5bdff5449da63a8037a3d1f5386a5de1",
+        "labels": {
+          "agenteam.d04.networkfixture": "5bdff5449da63a8037a3d1f5386a5de1"
+        }
+      },
+      "cf22e47c643471daad62c72531441a3daebfec5df689d74310b91b4bb3465dff": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-5bdff5449da63a8037a3d1f5386a5de1",
+        "labels": {
+          "agenteam.d04.networkfixture": "5bdff5449da63a8037a3d1f5386a5de1"
+        }
+      },
+      "f9084b6e5cf268b63be4f76d6d482547a6bf02831bb69deaaeabffa697b03682": {
+        "kind": "network",
+        "name": "agenteam-d05-object-00e56521c2c243b169b13f36dcbf2fc4",
+        "labels": {
+          "agenteam.d05.objectfixture": "00e56521c2c243b169b13f36dcbf2fc4"
+        }
+      }
+    },
+    "seven_ids_each_absent_twice": true,
+    "owned_processes_runtime_and_new_resources_empty_twice": true,
+    "unrelated_docker_baseline_unchanged": true,
+    "monitor_errors": 0,
+    "cancellations": 0,
+    "forced_tail_actions": 0,
+    "tcp_tail_seconds": 39.38028535700141,
+    "tcp_last_two_scans": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T06:08:37.611420+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T06:08:37.815244+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_role": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "signals_sent_for_tcp": false,
+    "nonowned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 162472,
+        "ppid": 1,
+        "starttime": "949562",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 162827,
+        "ppid": 1,
+        "starttime": "949801",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 163195,
+        "ppid": 1,
+        "starttime": "949987",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 163694,
+        "ppid": 1,
+        "starttime": "950173",
+        "state": "Z"
+      }
+    ],
+    "nonowned_boundary": "Not waited, not signaled or claimed joined; no global-machine-empty claim",
+    "raw_join_order": "Node actual wait; proxy Serve/body handlers joined; Project preparation joined before ProcessGuard release; formal root joined; fixtures completed original cleanup checks"
+  },
+  "input_and_restore": {
+    "input_before_after_identical": true,
+    "input_files": 1165,
+    "authorized_input_sha256": "0e4d117ae2d882299f21172237f4b09563d3dfd35055e197ed0df0909b21dbcf",
+    "root_permitted_only_new_edit": true,
+    "root_restore_time": "2026-10-08T06:09:18.662340+00:00",
+    "restore_after_last_tcp_scan": true,
+    "original3_exact_reported": true,
+    "not_in_round_drift": true
+  },
+  "prior_results": "read02 and v4 locator-only acceptance stay bounded; edit01 FAIL unchanged; this edit02 stays FAIL",
+  "review_metadata_note": "Initial integrity script expected older manifest key original_run_files; read actual new handoff schema run_files and corrected the read-only lookup. No test/resource rerun.",
+  "writer_state": "STOP; only this scratch review directory written; no source, repository docs or Git mutation; no active command or owned resource"
+}
