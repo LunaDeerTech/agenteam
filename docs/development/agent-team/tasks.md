@@ -1,5 +1,21 @@
 # 团队任务台账
 
+## 2026-10-08：final05准备独审接受，实际14待另授
+
+final05 handoff9be1f4422396f483889f49f35d3c2cbf6db17637a32902f92217b20198ec639a、false freeze62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc、closure delta126be6bacf25182c6af0cd0d7c317e48ae7fbd3dc7bb834f92b31e5c623e98af固定。仅personal TS155b→a0fede/sourceGit80ec/v4作者76058+独审096892；955源/66集合/210runtime-tool+1165文件/171Python20schema/原Go/UI19/Projectv5/工具锁组保，package sets无变化，无wholegraph重扫。
+
+一次作者filegate原exit0/1.669532s/raw73bf8ce608a154eaa3c5ccdda41272bac05af192a84c8126ffd953ede5b3c027，1165hash/两资产/bundles匹配0missing/mismatch/set-change/pending，PID289921 start1580359 actualwait/原身份两absent/driver-freeze after同；纯文件分支不冒全机双空或第二次完整graph复验。独审final05-review/review.md SHAb3b24a3bc99f130db40a0ecb45b72e4937e7b620b2eaa8d68fdf1d89924bb166、evidence678053a6e5a5ea5274c5d2718cd17b1924c33578c4866d5d23a77ae671c01e85、manifeste1de31e165f27d09d0d48b38cff662821b378bbfe6765e0d10904915f71c7c54，正式PREPARED PASS/STOP。root实际通读接受，未据此授资源/真轮PASS。
+
+14原selector/独目录/原budget/FAIL先全退役STOP保持，100只是计划；旧auth2有限复用条件闭合而非final05重跑/独立动态，profile/theme/password仍须真跑。root固定53准备窗口/原3backup保持，下一步唯一0444truecopy明确条件串行oldprofile02→13，活跃期不push/network/换资产，全部reader退役后恢复原3。当前资源未授；旧FAIL/实际A-B/README22/完整D27/生产/ready503与三停止保持，以下为历史。
+
+## 2026-10-08：80ec窄修推送，final05纯文件准备窗口
+
+额外legacy单测试路径sourcecommit80ec2ab378c7420d65240bf9c1b8a48e871e5acd已push精确远端一致，workingtree干净。root随后核原3/stage53/reader0，两rename复用固定53，原3完整backup original-dist-old14batch01，exchange-old14batch01.json SHA7a71cdca425d3b6889a035a13b6c80ec0e3a6e694ab8a98308b2035c55feb62e；不是资源startup或production发布。
+
+backend正式仅resource-inputs-final05继承final04：一个personal TS155b→a0fede差量与必要作者v4/独审/80ec/v05provenance，955/66集合/1165文件与171Python20schema/工具/Go/UI19/Projectv5/groups/assets原图复用，不重扫wholegraph/cache；原prepared false不改。一次exactBB check-input-only≤45s原files门禁/actualwait/owned证据，禁止Go/JS业务/build/list/browser/PG/外网/true资源；失败保原件STOP无自动第二gate。正式STOP及indprepared接受后root另授immutable真副本/old14条件串行，当前实际资源未授。
+
+verification_worker另限extra legacy窄修永久档，保四版format/TS原失败与后继PASS、旧helper格式例外171→172；只消费既有fixed41原件，不读当前dist或活跃final05、不重复format/type/业务。root独占Git/协调3文件/全局资产，当前53准备窗口在全部实际reader退休后仍须恢复原3。原oldprofile01 FAIL/余13NOT_RUN及真正A-B/README22/完整D27/生产/ready503与三停止保持，以下为历史。
+
 ## 2026-10-08：额外legacy单测试路径窄修独审接受
 
 单路径tests/account-captcha-web/e2e/personal-settings.spec.ts sourcea0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603，逐字节等于Git367/155b基线加两处授权替换：PATCH/me400闭集target和duplicate调用复用既有settingsJSONFor/对象field_errors。原helper4694 bytes不变，400、/username ALREADY_EXISTS、aria-invalid/currentread/avatar/facts等后段断言与预算保，root本地patch diff-check无新增格式问题。

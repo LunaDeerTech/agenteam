@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+当前准备接受（2026-10-08）：final05仅personal TS一源delta及一次filegate已独审PREPARED PASS/STOP（b3b24a3b），原false/0pending/14groups保持；auth2仅既有PASS有限复用。53准备窗口与原3完整backup original-dist-old14batch01保持，资源尚未授，root下一步immutable truecopy条件串行oldprofile02→13。实际A-B/README22/full未验，详台账，生产/三停止保持。
+
+当前准备窗口（2026-10-08）：extra legacy修正80ec2ab3已push核同；root安装固定53至final05文件准备窗口，原3完整backup original-dist-old14batch01。backend仅一legacy源闭包delta/一次filegate、rootfalse无业务资源；末reader退役后root仍须恢复原3。窄修永久档正归档，旧14真轮/A-B/README22/full未验，详台账，生产与三停止保持。
+
 当前限定交付（2026-10-08）：额外legacy单路径personal-settings.spec.ts两hunk取证修正已独审PASS/STOP（096892da），sourcea0fede；原helper/全部断言/预算保，显式strict TS补DOM.Iterable后PASS。原helper格式例外基线171/当前172（早称169为hunk起点）、原v1格式/v3类型/oldprofile01 FAIL均留。仅该测试静态交付，不代表profile正文/UI/facts实际通过；final05/old14资源、实际A/B/README22/完整D27仍待，原3restore无窗口，生产与三停止保持，详台账。
 
 当前永久归档（2026-10-08）：旧16首批永久档已root核104逻辑/65指纹/48Git，原2PASS/1FAIL/13未跑与3轮21ID/3direct16adopted退役独核保持。窄legacy补丁2处source候选a0fede；格式唯一提示原helper169旧行，formatter仅改该无关行后已恢复，原v1 FAIL/v2输出均留，root授v3仅显式TS检查，source未接受/资源未授。原3恢复，实际A/B/README22/完整D27未验，详台账，生产/三停止保持。
