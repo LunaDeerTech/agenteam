@@ -1,0 +1,59 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-workspace-state.spec.ts src/tests/project-workspace.spec.ts src/tests/session.spec.ts src/tests/authentication.spec.ts src/tests/system-user-directory.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/project-workspace.spec.ts (16 tests | 3 failed) 1280ms
+     × retains URL and input when a Project navigation is cancelled, then explicitly discards 91ms
+     × saving a description requires one explicit action and reports button success 70ms
+     × shows archived fields read-only and leaves out unbound actions 72ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/project-workspace.spec.ts > Project production routes and public interactions > retains URL and input when a Project navigation is cancelled, then explicitly discards
+Error: Missing public button: 继续编辑
+ ❯ button src/tests/project-workspace.spec.ts:211:21
+    209|     (entry) => entry.textContent?.trim() === text,
+    210|   )
+    211|   if (!found) throw new Error(`Missing public button: ${text}`)
+       |                     ^
+    212|   return found
+    213| }
+ ❯ src/tests/project-workspace.spec.ts:251:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/tests/project-workspace.spec.ts > Project production routes and public interactions > saving a description requires one explicit action and reports button success
+Error: Missing public button: 保存修改
+ ❯ button src/tests/project-workspace.spec.ts:211:21
+    209|     (entry) => entry.textContent?.trim() === text,
+    210|   )
+    211|   if (!found) throw new Error(`Missing public button: ${text}`)
+       |                     ^
+    212|   return found
+    213| }
+ ❯ src/tests/project-workspace.spec.ts:264:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/tests/project-workspace.spec.ts > Project production routes and public interactions > shows archived fields read-only and leaves out unbound actions
+Error: Missing public button: 保存修改
+ ❯ button src/tests/project-workspace.spec.ts:211:21
+    209|     (entry) => entry.textContent?.trim() === text,
+    210|   )
+    211|   if (!found) throw new Error(`Missing public button: ${text}`)
+       |                     ^
+    212|   return found
+    213| }
+ ❯ src/tests/project-workspace.spec.ts:277:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  3 failed | 124 passed (127)
+   Start at  03:57:57
+   Duration  4.22s (transform 2.80s, setup 0ms, import 3.81s, tests 3.73s, environment 3.10s)
+

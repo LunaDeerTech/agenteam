@@ -1,0 +1,41 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-workspace-state.spec.ts src/tests/session.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/session.spec.ts (16 tests | 1 failed) 67ms
+     × keeps all old mutators behind an active Project actual tail 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/session.spec.ts > Project facade compatibility > keeps all old mutators behind an active Project actual tail
+AssertionError: expected AccountFailure: invalid-input { …(2) } to match object { kind: 'busy' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "kind": "busy",
++ AccountFailure {
++   "kind": "invalid-input",
+  }
+
+ ❯ src/tests/session.spec.ts:574:33
+    572|       ]
+    573|       for (const mutation of mutations)
+    574|         await expect(mutation()).rejects.toMatchObject({ kind: 'busy' …
+       |                                 ^
+    575|       expect(api.updateProfile).not.toHaveBeenCalled()
+    576|       expect(api.logout).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 44 passed (45)
+   Start at  03:50:45
+   Duration  896ms (transform 422ms, setup 0ms, import 617ms, tests 162ms, environment 732ms)
+

@@ -1,0 +1,33 @@
+{
+  "historical_source_limit": "No separate failed source snapshots exist for these author rounds. Original command/raw/result and before/after SHA are retained; historical implementation bytes are not reconstructed.",
+  "rounds": [
+    {
+      "round": "state-unit01",
+      "exit": 1,
+      "passed": 37,
+      "failed": 1,
+      "observation": "Rename success left workspace.dirty=true instead of false.",
+      "author_explanation": "useProjectWorkspace.ts baseline was a plain object; changed to reactive so adoption/current/rename baseline changes invalidate changed/dirty computed. Implementation defect repaired before final freeze.",
+      "independent_scope": "Original red raw inspected; author explanation received from frontend_worker. Final frozen baseline is reactive and accepted 2077 includes the rename/dirty test. No historical source diff is reconstructed."
+    },
+    {
+      "round": "state-unit04",
+      "exit": 1,
+      "passed": 44,
+      "failed": 1,
+      "observation": "Old mutator matrix expected busy but one case returned invalid-input.",
+      "author_explanation": "session.spec.ts invitation test supplied invalid input; changed to legal email so the call reaches shared busy guard. Production validation was not widened.",
+      "independent_scope": "Original red raw inspected; explanation received from frontend_worker. Final frozen test legal email and independent body-cancel tests exercise all 14 busy outcomes."
+    },
+    {
+      "round": "integrated-unit01",
+      "exit": 1,
+      "passed": 124,
+      "failed": 3,
+      "observation": "button helper failed to find 继续编辑 / 保存修改 via raw textContent including aria-hidden content.",
+      "author_explanation": "Test helper uses accessible public text: clone button and remove aria-hidden descendants, or read aria-label. Product component was not changed to satisfy this helper.",
+      "independent_scope": "Original three failures and final frozen helper inspected; accepted final all-unit includes these scenarios."
+    }
+  ],
+  "final_reused_round": "integrated-unit-all01: 2077/2077, exact ui-v1 19 source input"
+}

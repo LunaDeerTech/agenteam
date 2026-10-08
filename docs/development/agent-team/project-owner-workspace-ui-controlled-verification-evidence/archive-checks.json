@@ -1,0 +1,224 @@
+{
+  "status": "PASS",
+  "scope": "Archive integrity and documentation only; no accepted product tests rerun",
+  "product_commit": "088f4d3490db4d86781090f0602299901c5f3247",
+  "remaining_source_commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+  "original_logical_refs_checked": 55,
+  "original_physical_files_checked": 45,
+  "original_physical_bytes": 194439,
+  "all_original_source_bytes_and_sha_match": true,
+  "git_sources_and_blobs_checked": 37,
+  "json_files_parsed_excluding_this_result": 29,
+  "markdown_local_links_checked": 29,
+  "report_utf8_lf_final_newline_no_trailing_space": true,
+  "derived_text_format_checked": [
+    "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+    "author-failure-summary.json",
+    "format-exceptions.json",
+    "source-map.json"
+  ],
+  "original_format_exception_files": 7,
+  "original_git_whitespace_findings": [
+    {
+      "path": "originals/author/integrated-unit-all01/raw.log",
+      "exit": 3
+    },
+    {
+      "path": "originals/author/integrated-unit01/raw.log",
+      "exit": 3
+    },
+    {
+      "path": "originals/author/state-unit01/raw.log",
+      "exit": 3
+    },
+    {
+      "path": "originals/author/state-unit04/raw.log",
+      "exit": 3
+    },
+    {
+      "path": "originals/independent/run01/stderr.raw",
+      "exit": 3
+    }
+  ],
+  "original_crlf_files": [],
+  "original_standalone_cr_files": [],
+  "new_files_actual_check": "git diff --no-index --check -- /dev/null <each archive file and report>; content-difference exit 1 with no diagnostics is not a whitespace error",
+  "new_file_check_exit_counts_excluding_this_result": {
+    "1": 44,
+    "3": 5
+  },
+  "tracked_scoped_diff_check_exit": 0,
+  "original_diagnostics_preserved_and_exactly_classified": true,
+  "preliminary_check_note": "First format checker stopped on no-index exit 1 with empty diagnostics (ordinary content difference), then corrected classification. A later link checker stopped before its own result target was written; target was created as pending, then all links and completed result validated. No original evidence changed.",
+  "checked_report_sha256": "cc8b6c758b1713d7304aed88ec3b2c47bf0b2acfa468c27c017e5ece85927f26",
+  "checked_source_map_sha256": "60ae548f44d4f873304dbaae5b4094d1aecb9a5f5038cfcca857bbfda3b51da5",
+  "checked_format_exceptions_sha256": "3117f830ba8ff306e62dd1d2f99d08d67e0e1203219352a99e6bf8512d2ad7d7",
+  "files_sha256_excluding_this_result": {
+    "author-failure-summary.json": "a6f1bbef6486391a5132000648b1b427d0bb8ad14961a3010161cb809419bcc6",
+    "format-exceptions.json": "3117f830ba8ff306e62dd1d2f99d08d67e0e1203219352a99e6bf8512d2ad7d7",
+    "originals/author/integrated-build01/command.json": "918df305783aea20bef854048e18fc4b8fb612c539134cb0d5ef1ab693b66340",
+    "originals/author/integrated-build01/raw.log": "4847aa0b8f54515adbd41a117687b65c70fdc9902367ca15d44487aba146f257",
+    "originals/author/integrated-build01/result.json": "b236e6c705d60d9d1640aea30d227e45ab5149f533f7fc303b82bb021dbde0f3",
+    "originals/author/integrated-format-check01/command.json": "42cbfcfdd5d6bd2bb63a3e2f7ef2595e7c0d6f39d4148308bbfe8bafe645ccc4",
+    "originals/author/integrated-format-check01/raw.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "originals/author/integrated-format-check01/result.json": "7eb0cfa1654361e95a7097ea2dbb98dfe2a2c53354d02a847c26472d00a04f5f",
+    "originals/author/integrated-unit-all01/command.json": "97a1ae39b1ef402135bed470d10a4afe0c2fb1c44347527e588cac7d390a3bf2",
+    "originals/author/integrated-unit-all01/inputs-before.json": "3c826ee145f9780cc1b6a98cbea32b0d4674d4463d7dcc736bb865c0eeba121d",
+    "originals/author/integrated-unit-all01/raw.log": "99a178423f7d3f46a86bddc249818a3d82e9e0cbfa3ce2a056332f285c7803ec",
+    "originals/author/integrated-unit-all01/result.json": "56611099ddf0519eb8e2332b4ebf999e0df4011c1a06311ce1e229eabd9d47da",
+    "originals/author/integrated-unit01/command.json": "6af7b24ec50c7a316d00958f9e7c6f280cddb23adcbdf797af74bc5f980190c8",
+    "originals/author/integrated-unit01/inputs-before.json": "3365278a16654d450aad5ec0532dbb567e199f86cdad8622e402d57d184e49b5",
+    "originals/author/integrated-unit01/raw.log": "9b1f21e9bd0e16aaeddd0f62ea6a873057e51e5aa611d4825eee5210b0716c59",
+    "originals/author/integrated-unit01/result.json": "346e1f0baa8a8d30fb55ba612f63d6518b652bc529aaaed022936aea829dfca3",
+    "originals/author/state-unit01/command.json": "27b2d330786a58e95b93fc05cdbc62c8460e5c360c66c5872d0f49785d1e444d",
+    "originals/author/state-unit01/inputs-before.json": "118d5f9980ed07f90ee2387d7cba3374e6044b4fc3c4ed7190599258a80b222b",
+    "originals/author/state-unit01/raw.log": "0d56489769dac95e5180ef32db425091cda6fb4a7ebddc4876780e317fbc880f",
+    "originals/author/state-unit01/result.json": "2e0019230d71ef3fe4a9021022f63a5d932fa171eace91ece89f4051fbe6c7a9",
+    "originals/author/state-unit04/inputs-before.json": "e64e3b0e8da70c5069052a497eea8d0feaa0b956c5992d90b02d764b17654ac4",
+    "originals/author/state-unit04/raw.log": "62f93fc5fac99c3a97997bf64e6be1ac56fc14bc4a7132084e31949588173ed7",
+    "originals/author/state-unit04/result.json": "72102b32b0646c476aa373c1c8981d0f08bbfbd62e95af45d84c6340260396c3",
+    "originals/author/ui-v1/assets.json": "00bd636e8446c8e75690bcf07745975bd7a4f9b906172de4d3ae55ab10393752",
+    "originals/author/ui-v1/freeze.json": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64",
+    "originals/independent/final/author-binding.json": "be305e93109bb74e0508909bffa150b7450262acf92b23cdd176cf6ec31bd000",
+    "originals/independent/final/result.json": "aa77e590295b7c50e7416c8f3b3d3f5cc4db50db2d7cb1ea16045d30b1811ae1",
+    "originals/independent/final/review.md": "00e1dcdf4a31318eb579c306028820f8f7c3ba728d1415dbf9b809410462f7ab",
+    "originals/independent/run01/command.json": "5a48c5cf6c8de49dc7699027fc5c593b4b4bdd99bc225bab098610c1b7c6a949",
+    "originals/independent/run01/ownership.independent.spec.ts": "73aed78a1de7efb7f89ece77166ff57ba9d80d131fc9298ef9f6a7be44636a10",
+    "originals/independent/run01/result.json": "faeb0ff5086ee25e46609eaa49aa5758b39e3f5d7ac2e8fc4465eb1b2856e2d5",
+    "originals/independent/run01/source-binding.json": "cce3d5641bffd15946cf1b8cdac298418af3ebaa67e94170ed0204b3cd5d2a47",
+    "originals/independent/run01/stderr.raw": "95363c8f37808ac69164954a94328083a1cac22ab14fceb5ffa2ccd344152488",
+    "originals/independent/run01/stdout.raw": "aeab306fb7457b2062da7f639479b468f72ea6f6c3507961987322c385ec4768",
+    "originals/independent/run01/vitest.json": "f378d543f180bcc476bc1d031179e7ade2547cff6573d8b0019ee994204a15f7",
+    "originals/independent/run02/command.json": "ddc795fae9a46c23a44dc937190ec6de32aab134bedb6c326fdb6e8c0f8012e5",
+    "originals/independent/run02/result.json": "74cd9d926b75be86bda39e0fa9a12dfa27773bcf9b7ecc17f0224d08365dcaed",
+    "originals/independent/run02/stderr.raw": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "originals/independent/run02/stdout.raw": "c2e9a18844fba7ebe4ee1074808fb3701ca3b26a5b36773db853ad6b360811f1",
+    "originals/independent/run02/vitest.json": "cde74d9dc3d25a84f0c1cf9193a45a165c41a41d118406add466cbf35a0fc669",
+    "probes/bind_author.py": "c3869d2a485f19398856faa99809db09663f3d51f65ef3cc6fd5d594b52951a5",
+    "probes/finalize.py": "f0191907a7863cfd33d55ee0cc0ac7ad5925c20dcfd31c7f2e412ea7f17f4bc9",
+    "probes/fixture.ts": "2bf5127ef8c57a858c077a6a0029fb83dfb77f26f6cf4d8b805c68991956a407",
+    "probes/ownership.independent.spec.ts": "b3ae0615ac36ca8d46d599beb1b4e30d200fb7603652c2bfb1351dec957158df",
+    "probes/run_checks.py": "c82e75ccaced6ecf7e59f1576b4a639d0f5e7cb30f0ce8203836fef896538ad5",
+    "probes/vitest.config.mjs": "90d8931f4f90dbd8f395dbf769635462581df9d3bced772f81cbabc7a344b176",
+    "probes/workspace.independent.spec.ts": "8434f3a9dd9fc0f7c9d3997cd65c3f604e2d5ef917cf5c1ed9890f9a9d000329",
+    "source-map.json": "60ae548f44d4f873304dbaae5b4094d1aecb9a5f5038cfcca857bbfda3b51da5"
+  },
+  "links": [
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "../work-items/d27-project-owner-workspace-ui.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/ui-v1/freeze.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/source-map.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-ui-client-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/final/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/final/review.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/probes/run_checks.py"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run02/command.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run02/stdout.raw"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run02/vitest.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run02/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/probes/ownership.independent.spec.ts"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/probes/workspace.independent.spec.ts"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/probes/fixture.ts"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/final/author-binding.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/integrated-unit-all01/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/integrated-build01/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/integrated-format-check01/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/ui-v1/assets.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run01/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run01/ownership.independent.spec.ts"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run01/stderr.raw"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/author-failure-summary.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/state-unit01/raw.log"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/state-unit04/raw.log"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/originals/author/integrated-unit01/raw.log"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-ui-client-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/archive-checks.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification-evidence/format-exceptions.json"
+    }
+  ]
+}

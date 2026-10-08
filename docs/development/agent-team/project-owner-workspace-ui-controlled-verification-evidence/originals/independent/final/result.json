@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "acceptance_scope": "ui-v1 frozen 19 frontend sources: independent static review and controlled Session/workspace supplement only",
+  "unresolved_must_fix": [],
+  "implementation_participation": false,
+  "product_files_written": [],
+  "source_freeze": "/workspace/scratch/owner-ui-recovery/ui-v1/freeze.json",
+  "source_freeze_sha256": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64",
+  "source_sha256": {
+    "web/src/api/client.ts": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c",
+    "web/src/api/project-owner.ts": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+    "web/src/composables/useProjectWorkspace.ts": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d",
+    "web/src/App.vue": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5",
+    "web/src/router/index.ts": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415",
+    "web/src/router/auth.ts": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21",
+    "web/src/components/layout/ProjectNav.vue": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a",
+    "web/src/views/projects/ProjectListView.vue": "aafa7b81ad789c627f83f4bca684f16441f41b72232fbfddb8df268b317b909f",
+    "web/src/views/projects/ProjectWorkspaceView.vue": "a73263a6d2e12e0d46a3cd3373ae3d54396ac3699b360855090ac47a1265712f",
+    "web/src/views/projects/ProjectHomeView.vue": "cb4fec3b9bb24b05acbd85319b6ca90d694fef193d1ae9ccb48ab6997339e922",
+    "web/src/views/projects/ProjectSettingsView.vue": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e",
+    "web/src/views/projects/ProjectGeneralSettings.vue": "0c5013fc4e7f022d04aa4e52caa41dec247cb6c2f20bf7d4947d505b4c2e2607",
+    "web/src/tests/project-owner-client.spec.ts": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e",
+    "web/src/tests/project-workspace-state.spec.ts": "d4edd90c09149cdc92d2c1886170c78dc913b04a77e22c8cd306e499ba00381b",
+    "web/src/tests/project-workspace.spec.ts": "9b06021aa672002618d15e217b469534e21266ac1734db6fcf8508e05c0b63df",
+    "web/src/tests/authentication.spec.ts": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48",
+    "web/src/tests/session.spec.ts": "941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a",
+    "web/src/composables/useSession.ts": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88",
+    "web/src/tests/system-user-directory.spec.ts": "a740bf6ef4aac400116055219e4f5e1f5cd0899a52159eb0a4e5241ec93fc896"
+  },
+  "source_current_and_snapshot_match": true,
+  "independent_run": {
+    "result": "/workspace/scratch/owner-ui-verification/ui-v1/run02/result.json",
+    "sha256": "74cd9d926b75be86bda39e0fa9a12dfa27773bcf9b7ecc17f0224d08365dcaed",
+    "tests": 29,
+    "passed": 29,
+    "exit": 0,
+    "elapsed_seconds": 2.0062561509998886,
+    "inputs": 52,
+    "source_bindings": 37,
+    "inputs_same": true,
+    "owned_cleanup_two_scans": [
+      [],
+      []
+    ]
+  },
+  "prior_run_retained": {
+    "result": "/workspace/scratch/owner-ui-verification/ui-v1/run01/result.json",
+    "sha256": "faeb0ff5086ee25e46609eaa49aa5758b39e3f5d7ac2e8fc4465eb1b2856e2d5",
+    "passed": 28,
+    "failed": 1,
+    "classification": "independent probe omitted old Selection activeRoute context; not product defect",
+    "original_probe": "/workspace/scratch/owner-ui-verification/ui-v1/run01/ownership.independent.spec.ts",
+    "original_probe_sha256": "73aed78a1de7efb7f89ece77166ff57ba9d80d131fc9298ef9f6a7be44636a10"
+  },
+  "reused_author_evidence_binding": {
+    "path": "/workspace/scratch/owner-ui-verification/ui-v1/author-binding.json",
+    "sha256": "be305e93109bb74e0508909bffa150b7450262acf92b23cdd176cf6ec31bd000"
+  },
+  "reused_api": {
+    "product_commit": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2",
+    "independent_tests": 258,
+    "rerun": false
+  },
+  "not_accepted_by_this_result": [
+    "full D27",
+    "real browser or visual/keyboard/focus",
+    "real PG/API fixture or lookup state/commit facts",
+    "production SPA hosting/fallback/publication",
+    "stopped probes"
+  ],
+  "review": {
+    "path": "/workspace/scratch/owner-ui-verification/ui-v1/review.md",
+    "sha256": "00e1dcdf4a31318eb579c306028820f8f7c3ba728d1415dbf9b809410462f7ab"
+  },
+  "frozen_evidence": {
+    "bind_author.py": "c3869d2a485f19398856faa99809db09663f3d51f65ef3cc6fd5d594b52951a5",
+    "finalize.py": "f0191907a7863cfd33d55ee0cc0ac7ad5925c20dcfd31c7f2e412ea7f17f4bc9",
+    "fixture.ts": "2bf5127ef8c57a858c077a6a0029fb83dfb77f26f6cf4d8b805c68991956a407",
+    "ownership.independent.spec.ts": "b3ae0615ac36ca8d46d599beb1b4e30d200fb7603652c2bfb1351dec957158df",
+    "run_checks.py": "c82e75ccaced6ecf7e59f1576b4a639d0f5e7cb30f0ce8203836fef896538ad5",
+    "vitest.config.mjs": "90d8931f4f90dbd8f395dbf769635462581df9d3bced772f81cbabc7a344b176",
+    "workspace.independent.spec.ts": "8434f3a9dd9fc0f7c9d3997cd65c3f604e2d5ef917cf5c1ed9890f9a9d000329"
+  }
+}

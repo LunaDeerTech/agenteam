@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "web/node_modules/prettier/bin/prettier.cjs",
+    "--check",
+    "web/src/api/client.ts",
+    "web/src/api/project-owner.ts",
+    "web/src/composables/useProjectWorkspace.ts",
+    "web/src/App.vue",
+    "web/src/router/index.ts",
+    "web/src/router/auth.ts",
+    "web/src/components/layout/ProjectNav.vue",
+    "web/src/views/projects/ProjectListView.vue",
+    "web/src/views/projects/ProjectWorkspaceView.vue",
+    "web/src/views/projects/ProjectHomeView.vue",
+    "web/src/views/projects/ProjectSettingsView.vue",
+    "web/src/views/projects/ProjectGeneralSettings.vue",
+    "web/src/tests/project-owner-client.spec.ts",
+    "web/src/tests/project-workspace-state.spec.ts",
+    "web/src/tests/project-workspace.spec.ts",
+    "web/src/tests/authentication.spec.ts",
+    "web/src/tests/session.spec.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/tests/system-user-directory.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

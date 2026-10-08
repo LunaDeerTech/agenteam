@@ -1,0 +1,14 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+audit-current403-navigation [{"method":"GET","path":"/api/v1/session","phase":"checking","personalPhase":"checking","route":"/system/audit"},{"method":"GET","path":"/api/v1/system/audit?limit=50","phase":"authenticated","personalPhase":"current","role":"admin","route":"/system/audit"}]
+
+ Test Files  52 passed (52)
+      Tests  2077 passed (2077)
+   Start at  04:00:02
+   Duration  25.78s (transform 4.76s, setup 0ms, import 10.85s, tests 35.78s, environment 22.96s)
+

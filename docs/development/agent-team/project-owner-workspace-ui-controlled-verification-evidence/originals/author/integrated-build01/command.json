@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+    "--prefix",
+    "web",
+    "run",
+    "build",
+    "--",
+    "--outDir",
+    "/workspace/scratch/owner-ui-recovery/dist-ui01"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 40,
+  "cleanup_seconds": 4
+}

@@ -1,5 +1,16 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 2026-10-08：ui-v1 产品推送与真实浏览器前置修订
+
+前端产品 `088f4d3490db4d86781090f0602299901c5f3247` 已提交推送，root实际核远端main同；独立STATIC/受控29项与作者2077/type/build/format接受保持，完整D27及真实动态尚未接受。[永久controlled验收及小原件](project-owner-workspace-ui-controlled-verification.md)已冻结；root逐项核55逻辑原件source/archive SHA/字节、37固定Gitblob、48证据指纹及JSON/链接均一致，7原格式例外明确登记并保留。产品19源没有后继变更；本批纯归档不重跑业务。
+
+测试资产临时独占交换已实际完成：原 `web/dist` 3file普通目录完整保留在 `/workspace/scratch/owner-ui-assets/original-dist`，当前 `web/dist` 53file逐SHA同 `ui-v1/assets.json`；记录 `/workspace/scratch/owner-ui-assets/exchange-ui-v1.json`。这仅为私有测试资产，root须在全部真实reader退役后恢复原目录，当前尚未启动资源。独占前作者均ACK无reader/writer；只读预检初次把自身shell脚本文字误列为潜在reader，`reader-preflight02.json`已排除自身祖先/脚本解释器，未停止任何进程。
+
+资源driver-v01正式冻结含启动取证/monitor异常的owner finally退役与固定PID+starttime修复，独审继续；file-only门禁实际980固定输入/两处53资产同，JS闭包pending正确拒绝，不称业务失败或资源PASS。browser-v1五case源码及离线通过已冻结，但独审发现J1：JS要求ack不存在的ok字段，而Go04返回sequence及安全操作结果。仅续派JS窄修为browser-v2，旧原件/Go协议保持，后台final输入绑定暂停待新manifest，真实首read未授。之后需final实际TS/Python闭包绑定与独审，首new-read实际PASS和完全退役后才允许后继。
+
+生产未绑定/ready503、完整D08–D28/E01未完成、E01未开始与三历史停止均保持。此条是当前进度，以下条目保留各原时点。
+
+
 ## 2026-10-08：Owner 工作区前端受控子能力接受
 
 D27 rev2.1 的 `ui-v1` 完整19前端固定输入通过独立STATIC与真实Session/controller受控补集；本批15源实际改动、4源沿用已接受客户端字节。Project列表、稳定ID详情、基本信息编辑、冲突fresh Get后显式采用、unknown原请求恢复、App聚合确认及路由接入可作为前端子能力交付。Session继续唯一持有Cookie owner，14旧mutator与Project双向互斥，Project/System权限状态隔离；管理员统一Meeting Summary规则不变。

@@ -1,0 +1,187 @@
+[
+  {
+    "path": "web/src/App.vue",
+    "source": "ui-v1/freeze.json",
+    "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5"
+  },
+  {
+    "path": "web/src/api/account.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/account.ts",
+    "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+  },
+  {
+    "path": "web/src/api/client.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c"
+  },
+  {
+    "path": "web/src/api/outbound-rules.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/outbound-rules.ts",
+    "sha256": "7b41d4af381520fb95c824dfeda079d0bb36af82f4ec614967c2346f56a38466"
+  },
+  {
+    "path": "web/src/api/project-owner.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea"
+  },
+  {
+    "path": "web/src/api/system-account-security.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-account-security.ts",
+    "sha256": "5dabbdd4c5de0cfde671c6bdfc8c92eae140a842719752740ea65282a8feffbb"
+  },
+  {
+    "path": "web/src/api/system-account.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-account.ts",
+    "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+  },
+  {
+    "path": "web/src/api/system-audit-metadata.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-audit-metadata.ts",
+    "sha256": "1ab89e3c9b61d5080242b2a97fd85c3d96488202020c60de52d078c761b4f630"
+  },
+  {
+    "path": "web/src/api/system-audit.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-audit.ts",
+    "sha256": "449b1a8012adaa5c355b0c915765946270b44b47a9201f9bf725a59a1ef4fe1f"
+  },
+  {
+    "path": "web/src/api/system-invitations.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-invitations.ts",
+    "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+  },
+  {
+    "path": "web/src/api/system-meeting-summary.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-meeting-summary.ts",
+    "sha256": "4ddefde1b19d7cbdf869ce7857a9551ea8979229a5d7d1fa91790fd13bc799ff"
+  },
+  {
+    "path": "web/src/api/system-model-selection.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-model-selection.ts",
+    "sha256": "a9b74ef52937636206abb0ac4a7b05aa8b2f260c8f94fd4b607c8ffe83da1b17"
+  },
+  {
+    "path": "web/src/api/system-models.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-models.ts",
+    "sha256": "ffa1b0d4a917eee4b3faddffd30f96d650bfceffa24191b5e3833b54ea62cf29"
+  },
+  {
+    "path": "web/src/api/system-outbound-policy.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-outbound-policy.ts",
+    "sha256": "6dff6c0b696b334799abd7779ac52b12b8ceabc3f6b7861ee639ae1823d9123e"
+  },
+  {
+    "path": "web/src/api/system-providers.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-providers.ts",
+    "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+  },
+  {
+    "path": "web/src/api/system-runtime-information.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-runtime-information.ts",
+    "sha256": "7126e4a1d17260a6c8f467372f65f6d1749ffe7880a5d1099036fa8fc46254ec"
+  },
+  {
+    "path": "web/src/api/system-smtp-delivery.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-smtp-delivery.ts",
+    "sha256": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd"
+  },
+  {
+    "path": "web/src/api/system-smtp-settings.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/api/system-smtp-settings.ts",
+    "sha256": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311"
+  },
+  {
+    "path": "web/src/components/layout/ProjectNav.vue",
+    "source": "ui-v1/freeze.json",
+    "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a"
+  },
+  {
+    "path": "web/src/composables/useMeetingSummarySettings.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/composables/useMeetingSummarySettings.ts",
+    "sha256": "9682df1cd9c6feaee65aacb0c69e18fee5b7c2c95c1e031a1ef6fbfb05a9ba5b"
+  },
+  {
+    "path": "web/src/composables/useProjectWorkspace.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d"
+  },
+  {
+    "path": "web/src/composables/useSession.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88"
+  },
+  {
+    "path": "web/src/composables/useSystemModelSelection.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/composables/useSystemModelSelection.ts",
+    "sha256": "a001a6ad373e2868a702659770e6ec19bcc5d51b59278628b587880ea28df0e7"
+  },
+  {
+    "path": "web/src/composables/useTheme.ts",
+    "source": "7dbd42a3fb70f9cea94c21a5c3f77197d65b04b2:web/src/composables/useTheme.ts",
+    "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+  },
+  {
+    "path": "web/src/router/auth.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21"
+  },
+  {
+    "path": "web/src/router/index.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415"
+  },
+  {
+    "path": "web/src/tests/authentication.spec.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+  },
+  {
+    "path": "web/src/tests/project-owner-client.spec.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e"
+  },
+  {
+    "path": "web/src/tests/project-workspace-state.spec.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "d4edd90c09149cdc92d2c1886170c78dc913b04a77e22c8cd306e499ba00381b"
+  },
+  {
+    "path": "web/src/tests/project-workspace.spec.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "9b06021aa672002618d15e217b469534e21266ac1734db6fcf8508e05c0b63df"
+  },
+  {
+    "path": "web/src/tests/session.spec.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a"
+  },
+  {
+    "path": "web/src/tests/system-user-directory.spec.ts",
+    "source": "ui-v1/freeze.json",
+    "sha256": "a740bf6ef4aac400116055219e4f5e1f5cd0899a52159eb0a4e5241ec93fc896"
+  },
+  {
+    "path": "web/src/views/projects/ProjectGeneralSettings.vue",
+    "source": "ui-v1/freeze.json",
+    "sha256": "0c5013fc4e7f022d04aa4e52caa41dec247cb6c2f20bf7d4947d505b4c2e2607"
+  },
+  {
+    "path": "web/src/views/projects/ProjectHomeView.vue",
+    "source": "ui-v1/freeze.json",
+    "sha256": "cb4fec3b9bb24b05acbd85319b6ca90d694fef193d1ae9ccb48ab6997339e922"
+  },
+  {
+    "path": "web/src/views/projects/ProjectListView.vue",
+    "source": "ui-v1/freeze.json",
+    "sha256": "aafa7b81ad789c627f83f4bca684f16441f41b72232fbfddb8df268b317b909f"
+  },
+  {
+    "path": "web/src/views/projects/ProjectSettingsView.vue",
+    "source": "ui-v1/freeze.json",
+    "sha256": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e"
+  },
+  {
+    "path": "web/src/views/projects/ProjectWorkspaceView.vue",
+    "source": "ui-v1/freeze.json",
+    "sha256": "a73263a6d2e12e0d46a3cd3373ae3d54396ac3699b360855090ac47a1265712f"
+  }
+]

@@ -1,0 +1,80 @@
+{
+  "policy": "Original evidence bytes remain exact. Exceptions are not reformatted. git diff --no-index --check /dev/null <each original> covers additions without staging; exit 1 with empty diagnostics records differing content, not a whitespace failure.",
+  "original_files_checked": 45,
+  "git_no_index_exit_counts": {
+    "1": 40,
+    "3": 5
+  },
+  "files": [
+    {
+      "path": "originals/author/integrated-unit-all01/raw.log",
+      "preserved_original_sha256": "99a178423f7d3f46a86bddc249818a3d82e9e0cbfa3ce2a056332f285c7803ec",
+      "exceptions": [
+        "original new blank line at EOF"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/integrated-unit-all01/raw.log:14: new blank line at EOF.\n",
+      "git_no_index_check_stderr": ""
+    },
+    {
+      "path": "originals/author/integrated-unit01/raw.log",
+      "preserved_original_sha256": "9b1f21e9bd0e16aaeddd0f62ea6a873057e51e5aa611d4825eee5210b0716c59",
+      "exceptions": [
+        "original new blank line at EOF"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/integrated-unit01/raw.log:59: new blank line at EOF.\n",
+      "git_no_index_check_stderr": ""
+    },
+    {
+      "path": "originals/author/state-unit01/raw.log",
+      "preserved_original_sha256": "0d56489769dac95e5180ef32db425091cda6fb4a7ebddc4876780e317fbc880f",
+      "exceptions": [
+        "original new blank line at EOF"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/state-unit01/raw.log:37: new blank line at EOF.\n",
+      "git_no_index_check_stderr": ""
+    },
+    {
+      "path": "originals/author/state-unit04/raw.log",
+      "preserved_original_sha256": "62f93fc5fac99c3a97997bf64e6be1ac56fc14bc4a7132084e31949588173ed7",
+      "exceptions": [
+        "original new blank line at EOF"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/state-unit04/raw.log:41: new blank line at EOF.\n",
+      "git_no_index_check_stderr": ""
+    },
+    {
+      "path": "originals/independent/run01/stderr.raw",
+      "preserved_original_sha256": "95363c8f37808ac69164954a94328083a1cac22ab14fceb5ffa2ccd344152488",
+      "exceptions": [
+        "original new blank line at EOF"
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/independent/run01/stderr.raw:22: new blank line at EOF.\n",
+      "git_no_index_check_stderr": ""
+    },
+    {
+      "path": "originals/independent/run01/vitest.json",
+      "preserved_original_sha256": "f378d543f180bcc476bc1d031179e7ade2547cff6573d8b0019ee994204a15f7",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": "",
+      "git_no_index_check_stderr": ""
+    },
+    {
+      "path": "originals/independent/run02/vitest.json",
+      "preserved_original_sha256": "cde74d9dc3d25a84f0c1cf9193a45a165c41a41d118406add466cbf35a0fc669",
+      "exceptions": [
+        "original lacks final newline"
+      ],
+      "git_no_index_check_exit": 1,
+      "git_no_index_check_stdout": "",
+      "git_no_index_check_stderr": ""
+    }
+  ]
+}

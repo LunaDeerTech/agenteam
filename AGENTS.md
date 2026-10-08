@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前增量（2026-10-08）：ui-v1产品 `088f4d34` 已推送核同，[永久controlled验收](docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md)55逻辑原件/37Git源已核归档。测试资产53file已临时替换，原3file目录完整备份，真实reader全部退役后root须恢复；资源尚未启动。JS browser-v1独审J1为ack字段不匹配，已续派仅JS→v2，Go协议不变；driver/最终TS-Python输入待独审。详情与原件见[恢复记录](docs/development/agent-team/recovery-2026-10-08-environment.md)，不称真实browser/PG或完整D27接受。
+
 当前接续（2026-10-08）：Owner UI `ui-v1` 19源已通过独立STATIC＋Session/workspace受控29项，作者2077/type/build/format固定证据复核；本批15源交付，4源复用客户端。真实browser/PG、新5旧16及完整D27未接受；Go candidate04限定STATIC与68路由通过，资源driver清理异常修复、JS准备中，资源未启、资产未换。详情见[台账](docs/development/agent-team/tasks.md)。三停止及生产未绑定/ready503/D08–D28/E01边界保持。
 
 当前接续（2026-10-08）：Owner UI五源客户端／pure safe return已独立接受并推送 `7dbd42a3`（258项），[永久验收](docs/development/agent-team/project-owner-ui-client-verification.md)已归档；[固定依赖恢复](docs/development/agent-team/environment-test-dependencies-2026-10-08.md) `20d45a72` 已推送。Session/controller/App/路由/六页面与真实Go/browser仍未整卡接受，Go候选仅STATIC/离线阶段，真实资源未启；旧candidate04丢失说明及三停止保持，当前所有权和下一步见台账。

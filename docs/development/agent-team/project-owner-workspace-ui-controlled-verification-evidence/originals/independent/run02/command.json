@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/owner-ui-verification/ui-v1/vitest.config.mjs",
+    "--reporter=json",
+    "--reporter=default",
+    "--outputFile.json=/workspace/scratch/owner-ui-verification/ui-v1/run02/vitest.json"
+  ],
+  "cwd": "/workspace/scratch/owner-ui-verification/ui-v1",
+  "timeout_seconds": 45
+}

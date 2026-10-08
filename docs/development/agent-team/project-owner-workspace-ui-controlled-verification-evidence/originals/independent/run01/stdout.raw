@@ -1,0 +1,23 @@
+
+ RUN  v4.1.11 /workspace/scratch/owner-ui-verification/ui-v1
+
+ ✓ workspace.independent.spec.ts (18 tests) 67ms
+ ❯ ownership.independent.spec.ts (11 tests | 1 failed) 71ms
+     ✓ body cancel resolve keeps all 14 old mutators, Logout and restore blocked until actual tail 32ms
+     ✓ body cancel reject keeps all 14 old mutators, Logout and restore blocked until actual tail 3ms
+     ✓ reverse ownership refuses a Project update without retaining a private intent 4ms
+     ✓ Project 403 is isolated while independent System denial still permits Owner 4ms
+     ✓ Project 404 is isolated while independent System denial still permits Owner 3ms
+     ✓ current UNAUTHENTICATED invalidates one shared identity 2ms
+     ✓ current CSRF_FAILED invalidates one shared identity 1ms
+     ✓ old success tail after identity leave cannot publish or poison next Session 5ms
+     ✓ old 401 tail after identity leave cannot publish or poison next Session 2ms
+     ✓ old 403 tail after identity leave cannot publish or poison next Session 2ms
+     × Project local abandon and confirmation leave the two old Selection intents independent; aggregate cancellation retains both 10ms
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 28 passed (29)
+   Start at  04:30:16
+   Duration  1.49s (transform 242ms, setup 0ms, import 419ms, tests 138ms, environment 721ms)
+
+JSON report written to /workspace/scratch/owner-ui-verification/ui-v1/run01/vitest.json

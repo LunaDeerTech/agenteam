@@ -1,0 +1,113 @@
+{
+  "rounds": [
+    {
+      "name": "integrated-unit-all01",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+        "--prefix",
+        "web",
+        "run",
+        "test:unit"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "elapsed_seconds": 26.376638704000015,
+      "inputs_count": 180,
+      "all_19_frozen_inputs_match": true,
+      "remaining_inputs_match_7db_count": 161,
+      "current_and_before_after_all_match": true,
+      "original_result_has_direct_actual_wait_and_double_empty": true,
+      "evidence": {
+        "/workspace/scratch/owner-ui-recovery/integrated-unit-all01/command.json": "97a1ae39b1ef402135bed470d10a4afe0c2fb1c44347527e588cac7d390a3bf2",
+        "/workspace/scratch/owner-ui-recovery/integrated-unit-all01/inputs-after.json": "3c826ee145f9780cc1b6a98cbea32b0d4674d4463d7dcc736bb865c0eeba121d",
+        "/workspace/scratch/owner-ui-recovery/integrated-unit-all01/inputs-before.json": "3c826ee145f9780cc1b6a98cbea32b0d4674d4463d7dcc736bb865c0eeba121d",
+        "/workspace/scratch/owner-ui-recovery/integrated-unit-all01/raw.log": "99a178423f7d3f46a86bddc249818a3d82e9e0cbfa3ce2a056332f285c7803ec",
+        "/workspace/scratch/owner-ui-recovery/integrated-unit-all01/result.json": "56611099ddf0519eb8e2332b4ebf999e0df4011c1a06311ce1e229eabd9d47da"
+      }
+    },
+    {
+      "name": "integrated-build01",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+        "--prefix",
+        "web",
+        "run",
+        "build",
+        "--",
+        "--outDir",
+        "/workspace/scratch/owner-ui-recovery/dist-ui01"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "elapsed_seconds": 12.116887891000033,
+      "inputs_count": 180,
+      "all_19_frozen_inputs_match": true,
+      "remaining_inputs_match_7db_count": 161,
+      "current_and_before_after_all_match": true,
+      "original_result_has_direct_actual_wait_and_double_empty": true,
+      "evidence": {
+        "/workspace/scratch/owner-ui-recovery/integrated-build01/command.json": "918df305783aea20bef854048e18fc4b8fb612c539134cb0d5ef1ab693b66340",
+        "/workspace/scratch/owner-ui-recovery/integrated-build01/inputs-after.json": "3c826ee145f9780cc1b6a98cbea32b0d4674d4463d7dcc736bb865c0eeba121d",
+        "/workspace/scratch/owner-ui-recovery/integrated-build01/inputs-before.json": "3c826ee145f9780cc1b6a98cbea32b0d4674d4463d7dcc736bb865c0eeba121d",
+        "/workspace/scratch/owner-ui-recovery/integrated-build01/raw.log": "4847aa0b8f54515adbd41a117687b65c70fdc9902367ca15d44487aba146f257",
+        "/workspace/scratch/owner-ui-recovery/integrated-build01/result.json": "b236e6c705d60d9d1640aea30d227e45ab5149f533f7fc303b82bb021dbde0f3"
+      }
+    },
+    {
+      "name": "integrated-format-check01",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "web/node_modules/prettier/bin/prettier.cjs",
+        "--check",
+        "web/src/api/client.ts",
+        "web/src/api/project-owner.ts",
+        "web/src/composables/useProjectWorkspace.ts",
+        "web/src/App.vue",
+        "web/src/router/index.ts",
+        "web/src/router/auth.ts",
+        "web/src/components/layout/ProjectNav.vue",
+        "web/src/views/projects/ProjectListView.vue",
+        "web/src/views/projects/ProjectWorkspaceView.vue",
+        "web/src/views/projects/ProjectHomeView.vue",
+        "web/src/views/projects/ProjectSettingsView.vue",
+        "web/src/views/projects/ProjectGeneralSettings.vue",
+        "web/src/tests/project-owner-client.spec.ts",
+        "web/src/tests/project-workspace-state.spec.ts",
+        "web/src/tests/project-workspace.spec.ts",
+        "web/src/tests/authentication.spec.ts",
+        "web/src/tests/session.spec.ts",
+        "web/src/composables/useSession.ts",
+        "web/src/tests/system-user-directory.spec.ts"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "elapsed_seconds": 1.4486239789998763,
+      "inputs_count": 180,
+      "all_19_frozen_inputs_match": true,
+      "remaining_inputs_match_7db_count": 161,
+      "current_and_before_after_all_match": true,
+      "original_result_has_direct_actual_wait_and_double_empty": true,
+      "evidence": {
+        "/workspace/scratch/owner-ui-recovery/integrated-format-check01/command.json": "42cbfcfdd5d6bd2bb63a3e2f7ef2595e7c0d6f39d4148308bbfe8bafe645ccc4",
+        "/workspace/scratch/owner-ui-recovery/integrated-format-check01/inputs-after.json": "3c826ee145f9780cc1b6a98cbea32b0d4674d4463d7dcc736bb865c0eeba121d",
+        "/workspace/scratch/owner-ui-recovery/integrated-format-check01/inputs-before.json": "3c826ee145f9780cc1b6a98cbea32b0d4674d4463d7dcc736bb865c0eeba121d",
+        "/workspace/scratch/owner-ui-recovery/integrated-format-check01/raw.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+        "/workspace/scratch/owner-ui-recovery/integrated-format-check01/result.json": "7eb0cfa1654361e95a7097ea2dbb98dfe2a2c53354d02a847c26472d00a04f5f"
+      }
+    }
+  ],
+  "frozen_sources_current_snapshot_all_match": true,
+  "freeze_sha256": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64",
+  "assets_manifest_sha256": "00bd636e8446c8e75690bcf07745975bd7a4f9b906172de4d3ae55ab10393752",
+  "assets_count": 53,
+  "assets_all_match": true,
+  "debug_chunk_or_import_hits": [],
+  "git_diff_check_exit": 0,
+  "all_19_including_untracked_whitespace_errors": [],
+  "reused_not_independently_rerun": [
+    "all 2077 unit cases",
+    "product fullgraph types",
+    "Vite production build",
+    "19-source Prettier"
+  ]
+}

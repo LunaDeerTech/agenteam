@@ -1,0 +1,22 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ownership.independent.spec.ts > independent shared owner and identity tests > Project local abandon and confirmation leave the two old Selection intents independent; aggregate cancellation retains both
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ ownership.independent.spec.ts:144:28
+    142|     const accepted = selection.confirmLeave()
+    143|     selection.finishConfirmation(true)
+    144|     expect(await accepted).toBe(true)
+       |                            ^
+    145|     expect(f.auth.system.selection.progress).toBeNull()
+    146|     expect(f.auth.system.selection.meetingSummary.progress).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

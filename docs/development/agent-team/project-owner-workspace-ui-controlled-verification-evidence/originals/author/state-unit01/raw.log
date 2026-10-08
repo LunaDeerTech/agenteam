@@ -1,0 +1,37 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/project-workspace-state.spec.ts src/tests/session.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/project-workspace-state.spec.ts (24 tests | 1 failed) 106ms
+     × saves only changed fields, confirms first, and re-reads by original ID after a rename 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/project-workspace-state.spec.ts > Project owner state and original requests > saves only changed fields, confirms first, and re-reads by original ID after a rename
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/project-workspace-state.spec.ts:301:37
+    299|       name: 'Renamed',
+    300|     })
+    301|     expect(f.workspace.dirty.value).toBe(false)
+       |                                     ^
+    302|   })
+    303|   it('preserves confirmation when current Get fails and explicitly ret…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 37 passed (38)
+   Start at  03:46:57
+   Duration  901ms (transform 362ms, setup 0ms, import 565ms, tests 173ms, environment 738ms)
+
