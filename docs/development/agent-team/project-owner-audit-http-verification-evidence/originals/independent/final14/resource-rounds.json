@@ -1,0 +1,880 @@
+{
+  "rounds": [
+    {
+      "run": "new1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "6c5758d769c6fa080d16c24cbac8574f966bc2004085e55051f803acb10789c9"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/command.json",
+        "sha256": "4fd349f4da7e3f8378ec92fffea749f67a1a953052b6a31a2b90d52e7a90bd78"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/raw.log",
+        "sha256": "1ec64c462573837e76e237f240e4462eaa511dfba34bc54e2ecb404a28ca8b5d"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/cleanup.json",
+        "sha256": "b68d3252c34b206885ec73d4fa59c928c1707183b7b62f78bc81bfcaf86f6f26"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/observed-resources.json",
+        "sha256": "552af804ebbe05c48099edffa844b71733c47c68e46e8cf9a82101a475cf6d6a"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/watchdog.json",
+        "sha256": "2a0ab9abaa52859e81b26012d17b9b90d924ae88e78fd35ae01d9695439c519e"
+      },
+      "exit": 1,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectAuditHTTPProjectionAndPaging"
+        ]
+      ],
+      "nested_passes": 0,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "32455bf5e89c8a4bac962f7a0d306386efc8f7dd88f01110de97269a2082b40f",
+        "5f505503e970e76857fe4204a3e4dc45ea7c3e5eafcd55ec709d2f412e65c5e0",
+        "7992b3bcd8aed4e4fd5cc4cf7093e1167834d8cd5bc933ca72ef7dd3d2a93e70",
+        "b6421eb77e776e46a8fa5233ea12ea1a41f5a4f90bd636bcf999ee94ce0325b6",
+        "d4dc3b33b371aba439bab9232f82fab56564b84d9249e513b78c3581556b5772",
+        "d99c81c04214f5cdbd3d827806cc1180b2d847518122ddf3ad17d8021b621881",
+        "dfbab9a1ed69f85caad6574a07349a88cb9af83e5c38cbf09190e06ebfe9fb3a"
+      ],
+      "daemon_before_count": 328,
+      "daemon_after_count": 332,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1181303,
+          "starttime": "4654933"
+        },
+        {
+          "pid": 1181669,
+          "starttime": "4655214"
+        },
+        {
+          "pid": 1182041,
+          "starttime": "4655437"
+        },
+        {
+          "pid": 1182637,
+          "starttime": "4655654"
+        }
+      ],
+      "all_pid1_zombie_before_count": 388,
+      "all_pid1_zombie_after_count": 392
+    },
+    {
+      "run": "new2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "240e0978fd68187a21a21f460de23d5835021f639874cf5b9fbfed6cf42a2ec4"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/command.json",
+        "sha256": "62581193d9453b8d19c353fc042eb78bc9bd08baa64f8f2df4f1e129791f1571"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/raw.log",
+        "sha256": "7ab3c05812c7f84eb1851d32731449f5e2fa386a93bbdad44cca3e3da3dab1a3"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/cleanup.json",
+        "sha256": "77119575976d3f2638c92284541c82fd5ede56f4c0e61612eeda989b6e19584b"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/observed-resources.json",
+        "sha256": "e29af8c36c4bbd45587c0a037361fec023228307383ce032870504e518ffe44d"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/watchdog.json",
+        "sha256": "716d8bb6b923801d4b0942ad6558b4547b18a92c618616ab56ce650b97acfc76"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPProjectionAndPaging"
+        ]
+      ],
+      "nested_passes": 4,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "140355365b82c3a6cb725d7786f35db2bd767c55529c555f8eb2b4a61dba7ac3",
+        "22ac527833dd6a86162f549c1603b66d8a57b443bdc7d5e79278f699be249405",
+        "4965ecc9272677ddf3b6b5694e53004fabd013098358542752e5c420e14bb0ae",
+        "65c13f3f7258b7a9e01243a29e4def25d994e41b2130713cff789cb2d7e466e8",
+        "c533e7295cae5d0cece4a5b5beef27dda6b4163a557d7589f237eb3dc1881fc9",
+        "e2bd76f86bb4da4b448a00c46fab781195f0d52737f52acfa5114dbc9657b373",
+        "fd375eaf14a07bda5952facd6f7ae36efccc10b1710d8aceee343037a9e1840c"
+      ],
+      "daemon_before_count": 332,
+      "daemon_after_count": 336,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1196659,
+          "starttime": "4707691"
+        },
+        {
+          "pid": 1197010,
+          "starttime": "4707927"
+        },
+        {
+          "pid": 1197281,
+          "starttime": "4708104"
+        },
+        {
+          "pid": 1197876,
+          "starttime": "4708306"
+        }
+      ],
+      "all_pid1_zombie_before_count": 392,
+      "all_pid1_zombie_after_count": 396
+    },
+    {
+      "run": "new3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new3/result.json",
+        "sha256": "13a265d83553f515d6dbd97a288995612bb27baac59ebc589dbea7333a4e6627"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new3/command.json",
+        "sha256": "7e84e18fa0cd159bbf82dbb269922b2ef5fa9365ecafe4eb1f5ea62782ef5d97"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new3/raw.log",
+        "sha256": "100f153db0b4abd77177d26518b70a1e89eb481a9f60a44ad974cf198b4d160b"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new3/cleanup.json",
+        "sha256": "b8d364f43fe08722dd507b7b66f692fd5fd910c7c997612f5d88eb078b4b944f"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new3/observed-resources.json",
+        "sha256": "0d5571f23c1a81e1c6c4678a669cae7183aaa130d3c5415db9539fcf95ed8184"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new3/watchdog.json",
+        "sha256": "b064199d1b5e88c32683885c32fd8f416c9b11db4fa230a8bec9f61ec02e2023"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPAuthorityAndTerminal"
+        ]
+      ],
+      "nested_passes": 6,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "2b5e2c7e677df8f090beddd63f93b5cb876f4cae3f21642d23aae260022a6524",
+        "2c9b3340a1dc60f4a9dc2eef9d3f4da329fb6f72bbf960c24fb7372bffe58a0c",
+        "3692c8db2b2c023278a13e43a881251fdafbce556ceebe36868b7a173057c5c7",
+        "721eb867b1abeed9fdd5a124bcb95343048e7b12259d663b967e355272e24ccb",
+        "735f3a65c6ef384ca0d79716cbf189887bd6243acc7846980f9c08f2261b9145",
+        "9d336820a435fa36d799afd3463667bea935e4d9823ffa43af45a6b3d9f2b67f",
+        "d344edc3d2a60d8bc4b71c7bc748ca7713f3399a9abe5b558eeb66850d9a7d18"
+      ],
+      "daemon_before_count": 336,
+      "daemon_after_count": 340,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1204861,
+          "starttime": "4716178"
+        },
+        {
+          "pid": 1205385,
+          "starttime": "4716577"
+        },
+        {
+          "pid": 1205687,
+          "starttime": "4716777"
+        },
+        {
+          "pid": 1206291,
+          "starttime": "4716966"
+        }
+      ],
+      "all_pid1_zombie_before_count": 396,
+      "all_pid1_zombie_after_count": 400
+    },
+    {
+      "run": "new4",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/result.json",
+        "sha256": "1c5863f5d4f54aea8fe58c3c8bd2e7fade1e3bc83c7d1a8856011698930d7326"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/command.json",
+        "sha256": "0aecfdd2e967f891f586a5e30ba30996ebdc1829def889b4574b96c704b11d31"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/raw.log",
+        "sha256": "ed6d146d2c41bd14c9a3435bbf8f63b363c89558b93af0196ddcdc6e62314472"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/cleanup.json",
+        "sha256": "03aaaa4be1f55662842615ca34f6ab374427fa38ef8fa31d3c113838c6056ac5"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/observed-resources.json",
+        "sha256": "61bb9c0bb60d4be6f2d418288c34e9385dc5010ffbbbd711e4a7ed7122f37935"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/watchdog.json",
+        "sha256": "57962b8598af13ed683fecea87287b981d8f8bba392a3b665d6756f432a70d2d"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPDefaultRoot"
+        ]
+      ],
+      "nested_passes": 0,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "329249d50c462d3f0b141847f47bec41aa5de73b2aae5bccafc3da6316ec08df",
+        "451bf140b71e2abc6ad39a14c4f3ab70fade1aa950409e019895e21690ccde9b",
+        "46514da90646fe333af6fadd5c948f9a1301455dbffd133ea2a40ebb09ef9002",
+        "69628f91e883e477ad713ab394038f70159e6f16f84014a1f0c936dc2f46d694",
+        "827838b5acbdfec6705f58cd9c2d51f2037cc8f76a794219130a38d6dfbdaa4d",
+        "ce52e26cc711e7b31a9b5da9b1bc7f79a4836712eccddc45cd9f36546d4b00c0",
+        "f9ec0b154f679213e617e3b57d018573e102630e233694494e2b315e1a507d26"
+      ],
+      "daemon_before_count": 340,
+      "daemon_after_count": 344,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1212202,
+          "starttime": "4723473"
+        },
+        {
+          "pid": 1212656,
+          "starttime": "4723870"
+        },
+        {
+          "pid": 1213024,
+          "starttime": "4724073"
+        },
+        {
+          "pid": 1213524,
+          "starttime": "4724247"
+        }
+      ],
+      "all_pid1_zombie_before_count": 400,
+      "all_pid1_zombie_after_count": 404
+    },
+    {
+      "run": "new5",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new5/result.json",
+        "sha256": "7cbf368099b0f41533bcaa5a718e9d1477ef612e91c6ac7b30d07f10859d3c73"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new5/command.json",
+        "sha256": "fb725df04f5611bf2a89c621a73e2a6e54c5ffcb93d4d1544ae1e326562cb0c7"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new5/raw.log",
+        "sha256": "f667cbffb26c72a5076ff1f6f0c141a33478f96afca71f06f0df4c701d9a57ae"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new5/cleanup.json",
+        "sha256": "29d65d68a3ddf5e33453ded6901663948c863eaef5f721a836b617b2357a2fb2"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new5/observed-resources.json",
+        "sha256": "f8ecf1bf796b22f4174e20783630ff0ffbd52ba12820d17557cdc85ce3544515"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new5/watchdog.json",
+        "sha256": "5bd81f4ace65aa12c07c422ca4c6bff2ba866fc44fa87151c1ce60a6919db8a6"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPShutdown"
+        ]
+      ],
+      "nested_passes": 2,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "26ea0880df090e04d79422b57bdce78c6c6af48dc770891a3a66a4a2d5ffea24",
+        "511b555f67cb8103fc1caaf102568e58e500fa174c61330ed29bc7a6cc9c73d0",
+        "75214ca06451acac9420bbbdd4de9ba9bec7cf488a5cf1a8363a15cf278beef6",
+        "8dc871bba17f76d726766446bb5a5347f1684db03603ef8b06c9403e94e2c9fb",
+        "b218e112426f91eff66a8cb0990bd9e6996ffa0630399dbeb77cdb38abbc874c",
+        "cdccda89094cd4a71acfde4d432ee2653f6744ba720be605f1a55fa382d8b21e",
+        "e64b7e928e11b7f7bfb94dac58fa7920e95a4ae886830cebcc41bcb6858927fa"
+      ],
+      "daemon_before_count": 344,
+      "daemon_after_count": 348,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1219645,
+          "starttime": "4730589"
+        },
+        {
+          "pid": 1220082,
+          "starttime": "4730958"
+        },
+        {
+          "pid": 1220441,
+          "starttime": "4731137"
+        },
+        {
+          "pid": 1220947,
+          "starttime": "4731338"
+        }
+      ],
+      "all_pid1_zombie_before_count": 404,
+      "all_pid1_zombie_after_count": 408
+    },
+    {
+      "run": "old1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old1/result.json",
+        "sha256": "9255b263a21f9e88689027e54242a68564185924b6d18ef1a659693a77f30937"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old1/command.json",
+        "sha256": "39387d65600b714cd3d0f963cdeba8fbbf2f6e6f7aa6847f07805fa97d0cbd51"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old1/raw.log",
+        "sha256": "6bb0697fbda90039088e76e44ca612e7983be229bdc15824509bfe426483d6a5"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old1/cleanup.json",
+        "sha256": "5444d1e3566bbf61447d559bf353f106521e0740b85dee894b05b840fc6dae59"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old1/observed-resources.json",
+        "sha256": "3bb1f65585ea5ccd98f3c280afc89b6f2836ec47d26ec3f029a2da9f1b0880e5"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old1/watchdog.json",
+        "sha256": "7e3ac3bb2f8ca7163b3d98297cd96659a4790e8bcce20b8c5428d42ceb1474cd"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestSystemAuditHTTPQueryAndProjection"
+        ],
+        [
+          "PASS",
+          "TestSystemAuditHTTPTransactionAndBudget"
+        ]
+      ],
+      "nested_passes": 8,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "0aecbd804050b2f9e9b255b97b87417acf10c2a515346755a2e604d3ae5bff72",
+        "154fca0803f428bb0db181de4492489e49bb39580ceb02fcb3d907da9c0ffc27",
+        "3c744fdb2e4c3855019907035fe0643728c902b83d2d38dce6b3ef0d628d2468",
+        "49701fa34d9ce12ced8ea55c7e3628aeae0c1e86d1bd70d642cf4912528c8912",
+        "9fb4c69caa84ff5130143a2e8ec61da456429f27b1f4250673c0cee1ddff4445",
+        "dd3a20311bccaf9e3ccc9b81b4a6b7d0533a32594ade30150d0a3345a14f568f",
+        "f202b4a3219c2a87c2e9c1bbd57a57a06f6223786830a367212a70541e667e63"
+      ],
+      "daemon_before_count": 348,
+      "daemon_after_count": 352,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1227098,
+          "starttime": "4737941"
+        },
+        {
+          "pid": 1227549,
+          "starttime": "4738311"
+        },
+        {
+          "pid": 1227921,
+          "starttime": "4738500"
+        },
+        {
+          "pid": 1228441,
+          "starttime": "4738699"
+        }
+      ],
+      "all_pid1_zombie_before_count": 408,
+      "all_pid1_zombie_after_count": 412
+    },
+    {
+      "run": "old2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old2/result.json",
+        "sha256": "b9e77abd9a7cc4f6da46d871eee11c7e7c7bfe36c32321846a3a52476d5b592f"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old2/command.json",
+        "sha256": "be05d9695b2c17f5504cd1fbee1a71981a541abbe669ba7c9d750b3860ef36da"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old2/raw.log",
+        "sha256": "fea7f5c906262fb74f9f26719f05173deb66f62181203891521ee783c2248aaa"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old2/cleanup.json",
+        "sha256": "71499d90c04b6a7cab4a48354519582b8db805fe17fec2795eedd9ff9a26592b"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old2/observed-resources.json",
+        "sha256": "98005434da39daf911d643cfba290dcd7f296b09df7f8927380a70a68ff948ed"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old2/watchdog.json",
+        "sha256": "dc4e910386572a597c836167d7642f72e04c8eaa2bcabb60f7325178bbdc126b"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestSystemAuditHTTPRootProducerBinding"
+        ]
+      ],
+      "nested_passes": 0,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "16d79990329efc2f5cc5c39c930a0fcca7c98022222c4e0ccc596ed5cf7a1c73",
+        "4c923b1ed264335263ace9a4d4bd0b972562e012e138738fb313dae22eae5faa",
+        "52025f79efc53bb6c269d3fc46f14a018a87ec020fa581521815c2565db08810",
+        "56a9b382d01845f0d809ba4385d7c6ff5eea985cc7cc5ab4c8f3a148745353ad",
+        "850d23d88db68a34d2c7d3ef9d2f388b3b74e9beb873dd7f5d26d1931061b873",
+        "aeeb093585e5ae2ca9f54564627004eb1877f32199f73d0d7b98d77fa9a85689",
+        "f763893ab782769c0b50aa3a3bdc8355b20d117fcc56f7a7db153d077ccec8be"
+      ],
+      "daemon_before_count": 352,
+      "daemon_after_count": 356,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1235026,
+          "starttime": "4745535"
+        },
+        {
+          "pid": 1235577,
+          "starttime": "4745981"
+        },
+        {
+          "pid": 1235950,
+          "starttime": "4746227"
+        },
+        {
+          "pid": 1236451,
+          "starttime": "4746405"
+        }
+      ],
+      "all_pid1_zombie_before_count": 412,
+      "all_pid1_zombie_after_count": 416
+    },
+    {
+      "run": "old3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old3/result.json",
+        "sha256": "bfb5124f0a5606e3814c09da2d8d0330e515c49f2aef5d703985d1a87d0c6298"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old3/command.json",
+        "sha256": "8304dd88ec5b06dbe9310093c5e36bc2eddfef2cdc65d4f6ddde68e5a76b3214"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old3/raw.log",
+        "sha256": "76c272336cafabaddf73fc4861c2a3dbd86632ad09551eb5597a5b0f750202f3"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old3/cleanup.json",
+        "sha256": "36178d5708d4c5235f8e2f1f0cf0da3acfdca69319a918089da485712dff0e2d"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old3/observed-resources.json",
+        "sha256": "06e518a766a06997d647a853f4df2caa31ef7be9d49c45cb2bd3b5c790795005"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old3/watchdog.json",
+        "sha256": "b9d1e2598ae8a84d14a081ad6831ca690e5de805231cddc9abab8d30d39e6feb"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAuditPaginationBindingsFiltersAndRevocation"
+        ]
+      ],
+      "nested_passes": 0,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "05a93c2b75729c003036057a0bb599e4e1df7310c79b1d32b100457d4037d981",
+        "076948064dc22f9e4f515e760676bf89d10c722bf4c37ab6b73db3de3093e339",
+        "123a1015b3babfe52c1eb9dd051642ec7e9c1ec9246d54d0dcd124a65b408e1d",
+        "27cbc4b1edd368131b315a39daeb387d9b7912fac1a4f4a4b53195e8d7c3c4c8",
+        "64f91cf35e973da852ff2f608013a165caca524f6112f2f29cd48d4b08e1017f",
+        "6a24c5353043319b948fff4872ad3387807d5e478fc53d76a7d7ef6259a4e006",
+        "d911635f5ba55aec9b04b956dc5ff885dbc89c940bd4e164c316e0fd0c00580c"
+      ],
+      "daemon_before_count": 356,
+      "daemon_after_count": 360,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1242139,
+          "starttime": "4752819"
+        },
+        {
+          "pid": 1242514,
+          "starttime": "4753049"
+        },
+        {
+          "pid": 1242796,
+          "starttime": "4753246"
+        },
+        {
+          "pid": 1243373,
+          "starttime": "4753424"
+        }
+      ],
+      "all_pid1_zombie_before_count": 416,
+      "all_pid1_zombie_after_count": 420
+    },
+    {
+      "run": "old4",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old4/result.json",
+        "sha256": "6f29d248ccaf2eb473302dd28da9a5f16bd804a682c4764947f08455b599ff62"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old4/command.json",
+        "sha256": "a6ab0c70b98780760863d176e071e645830c9debb200302fef87d08180163431"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old4/raw.log",
+        "sha256": "827e2e61d24ab5dae8c691939ef0cca8c200785ad2f0695b548aa2a135df9053"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old4/cleanup.json",
+        "sha256": "f7f187ede41bfed19df42e9cac6c080cea5daea822210f884a9a492976f72cfa"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old4/observed-resources.json",
+        "sha256": "d5642b0945d039c8060bea46db647c25162c167621da3e6b8daad69c49fb1e8d"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old4/watchdog.json",
+        "sha256": "e3fa85918250df1dc7bdb26fcbf94c97d1640d8fdec026e3927f83e3eb8d6114"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationWriteHTTPDefaultRoot"
+        ],
+        [
+          "PASS",
+          "TestModelProjectCredentialHTTPDefaultRoot"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ]
+      ],
+      "nested_passes": 4,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "0202b0986dccc57da7c9148ab669ed0d72fbb0a720f0e8ad31dc477c1c144989",
+        "33884e2d3e9791efbb5d5532f31664239053cab43869eb78314e8334feb478f3",
+        "38a12559bea19f3b49351a7fba89e91b2dddb925d3a2e77fde06b0d03d3caf9b",
+        "402eb13b566980b055673da8bb2bcfc9c865aa92547b927312e2ab35d0b5d395",
+        "41225202d3bfedfc6bcff66e11343c37e6beebfb2d8693d27b95d29d995d12b5",
+        "c010e0828dde21a9140ef7e4f8f56ee365368141fbb85909234c0f2b87d4b15a",
+        "c0c8523933c9872db7ecc4eeb01b15d55ab3089906acc8ef473189cc0ae97408"
+      ],
+      "daemon_before_count": 360,
+      "daemon_after_count": 364,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1248977,
+          "starttime": "4759719"
+        },
+        {
+          "pid": 1249431,
+          "starttime": "4760121"
+        },
+        {
+          "pid": 1249855,
+          "starttime": "4760344"
+        },
+        {
+          "pid": 1250405,
+          "starttime": "4760556"
+        }
+      ],
+      "all_pid1_zombie_before_count": 420,
+      "all_pid1_zombie_after_count": 424
+    },
+    {
+      "run": "independent-a01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/result.json",
+        "sha256": "c7fabc52f4c47772181d477908423979224b582c3b7d6bc55b1227686dca2849"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/command.json",
+        "sha256": "0e6ba50ec5211631d81878d592eada889fb00f7bc313f5880c75de041662826c"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/raw.log",
+        "sha256": "52a0718a1690526b3e4a7862ed09cc36e181bf6f3a89092935aa77ac8efe197a"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/cleanup.json",
+        "sha256": "3455d1e0a3e58cb4b922eb463359df9ea80426338710c0d6b60f8c72a98e8391"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/observed-resources.json",
+        "sha256": "e1a076146fe579aa64dcb83a42333f1798f937245d2a912f7eff9bf3e559510a"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/watchdog.json",
+        "sha256": "48972fe9bf13bfe238603354da4d272af0bc33a90dc75a7b7b3c7a256b2b251b"
+      },
+      "exit": 1,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestIndependentProjectAuditOwnerAndPage"
+        ]
+      ],
+      "nested_passes": 1,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "4357649e6771d2690a7aa9c2801051cbb65795a64d1406511e4d493171369b9c",
+        "5d61f08052e21cfb51ed970ae22161b1b9aed3800c0c1ea1fd4fa43a8e4523cc",
+        "86bbf8c94593c10871d49315cd311adc51b3f0c59a2ed8a891bdb3154abd7953",
+        "874b913c7586c6d23d1c42bbddda2f3995e868762b2a0e7d39a25b96f10825bc",
+        "cb623325eecb0554a454aeb160c5b2e05506613f70b405ff0db76fc7b4a05797",
+        "da24cb6d93721ac28985542e21903718b18ac274526add6fdd98bb3adb8b7836",
+        "e197db080ac52cb587ffab1cdd028cddaeed568f8c87b6b4590f00b05254a5e5"
+      ],
+      "daemon_before_count": 364,
+      "daemon_after_count": 368,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1259707,
+          "starttime": "4773277"
+        },
+        {
+          "pid": 1260250,
+          "starttime": "4773758"
+        },
+        {
+          "pid": 1260611,
+          "starttime": "4773978"
+        },
+        {
+          "pid": 1261105,
+          "starttime": "4774154"
+        }
+      ],
+      "all_pid1_zombie_before_count": 424,
+      "all_pid1_zombie_after_count": 428
+    },
+    {
+      "run": "independent-a02",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-a02/result.json",
+        "sha256": "b7b3cda1dc3ea2a090ab8719b2bb060a615550a5700d2d1dc0e6bf1a3e318914"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-a02/command.json",
+        "sha256": "e18e16df1d7b9fac6d92a0829112491bb1a0af6e19e3a124ef351d626590815e"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-a02/raw.log",
+        "sha256": "8110e902b740757889e9ed3bc927439f42843215c55bf5e6a0816bb764a4b6f5"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-a02/cleanup.json",
+        "sha256": "15bff98b380d0976001f9ecea7d473db2cb844bd9550718214e5d1a77515c81d"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-a02/observed-resources.json",
+        "sha256": "29f5684155c6484d313e6a99de1512cf3494ede93e26bd487519fa7d6de2daa3"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-a02/watchdog.json",
+        "sha256": "709ee5912f9545b2df5f1ef6326681eac61745a2d7a48610d6a3b06794189b31"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentProjectAuditOwnerAndPage"
+        ]
+      ],
+      "nested_passes": 2,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "3cb912dbc632fff92aaa439dbeef3d37b3bc64a6db4f8219075d381cc305caf2",
+        "75ef45a4b42c7d88d76fc2553559092660ab0795b3ba73b32b3f008e961d2bb0",
+        "78cf0eb1c8ef19052d3d9e605d0231c24d497cee44393cb7ff586cc6bddbedf9",
+        "81b58e7dfdb61a693bbe8284fe40049fa326084ae37897e836aec53009eff0a9",
+        "befe7d20d61c98f77de6e4165b9eab6ae93529ac48087e25a42e752d9c2a2f0d",
+        "cf4be0c6bcbf7c8811afe72db92bbf32a8adc721fe41853cdbfe68e7d86056d6",
+        "d8c43bd8080390dcc3b86bc5583a51591671cb458ae1927c30aeafe3edbe94f3"
+      ],
+      "daemon_before_count": 368,
+      "daemon_after_count": 372,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1269787,
+          "starttime": "4802668"
+        },
+        {
+          "pid": 1270245,
+          "starttime": "4803046"
+        },
+        {
+          "pid": 1270605,
+          "starttime": "4803229"
+        },
+        {
+          "pid": 1271111,
+          "starttime": "4803397"
+        }
+      ],
+      "all_pid1_zombie_before_count": 429,
+      "all_pid1_zombie_after_count": 433
+    },
+    {
+      "run": "independent-b01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-b01/result.json",
+        "sha256": "bd10da219ee0444f7302d35a6f1774e9325ca608b75ad0118258f22b4cfd3cd5"
+      },
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-b01/command.json",
+        "sha256": "24b0de2595d4d291137c937028a86c0259033a6a85ecff463205eed67e458214"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-b01/raw.log",
+        "sha256": "859a4ff71793d7382e49edd23b1ca8bd35e516e89f46aaedfd6baf0ac9f480de"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-b01/cleanup.json",
+        "sha256": "e479918112c87cdcb457a4b6739b1ba95ad891b1fe3b1a7b7e3b56e9184b0d30"
+      },
+      "observed_resources": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-b01/observed-resources.json",
+        "sha256": "100c834ac08ee1da3871144f777730adee15cfa4ddf2b911144c8fdd7b741b7e"
+      },
+      "watchdog": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/runs/independent-b01/watchdog.json",
+        "sha256": "c2a780e9daf8866eddadb656be897d9067483e38b6b5b2eeaaf529ad7252a03a"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestIndependentProjectAuditTerminalAndRoot"
+        ]
+      ],
+      "nested_passes": 2,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "inputs_same": true,
+      "forced_tail_actions": 0,
+      "resource_ids": [
+        "3298b3f1f1648c29d199186ee5947582bfe32d33517977186dab336740f40363",
+        "4764c624fc8b171af54551b130beeee7e95610dc93684f3ae9a54046e9db6140",
+        "53a45c320f71a1f6f24d38e113ba988d9df8e402be041ad79797fa788c44ec13",
+        "546ad54d62fb66d6c2b672ca3ec87ae821dfbdf89c019ee620da776f7a8d8e85",
+        "83ade4a6ec9f2b74c7092ed8b42121b52805bb407dbfe9fd0dbf9477d9f7dad1",
+        "aeda119fad11d4fe406cd9729f919b7017978bf7f0e71623514580bc6b62007a",
+        "b5fea333b93a3c1ae13c25710e2d1fb89f6bbaff7a670f689ea69e28cf8358e1"
+      ],
+      "daemon_before_count": 372,
+      "daemon_after_count": 376,
+      "daemon_delta_nonowned_notwait": [
+        {
+          "pid": 1276973,
+          "starttime": "4809600"
+        },
+        {
+          "pid": 1277447,
+          "starttime": "4809986"
+        },
+        {
+          "pid": 1277777,
+          "starttime": "4810179"
+        },
+        {
+          "pid": 1278276,
+          "starttime": "4810351"
+        }
+      ],
+      "all_pid1_zombie_before_count": 433,
+      "all_pid1_zombie_after_count": 437
+    }
+  ],
+  "count": 12,
+  "distinct_owned_resource_ids": 84,
+  "daemon_before": 328,
+  "daemon_after": 376,
+  "daemon_delta": 48,
+  "daemon_limit": "PID1 containerd-shim zombies are not owned and were not waited; not machine-wide zero; exact PID/starttime sets used.",
+  "daemon_before_label": "containerd-shim only",
+  "all_pid1_zombie_before": 388,
+  "all_pid1_zombie_after": 437,
+  "all_pid1_zombie_delta": 49,
+  "other_interval_pid1_zombies_not_task_attributed": [
+    {
+      "executable": "",
+      "name": "git",
+      "pid": 1267429,
+      "ppid": 1,
+      "starttime": "4787157",
+      "state": "Z"
+    }
+  ]
+}

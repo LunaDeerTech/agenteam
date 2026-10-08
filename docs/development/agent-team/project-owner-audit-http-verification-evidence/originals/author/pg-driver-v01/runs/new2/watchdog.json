@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47111.994690584,
+      "top": "TestModelProjectAuditHTTPProjectionAndPaging"
+    },
+    {
+      "event": "result",
+      "monotonic": 47127.824219589,
+      "observed_seconds": 15.82952900500095,
+      "reported_seconds": 15.84,
+      "state": "PASS",
+      "top": "TestModelProjectAuditHTTPProjectionAndPaging"
+    }
+  ],
+  "expected": [
+    "TestModelProjectAuditHTTPProjectionAndPaging"
+  ],
+  "failures": []
+}

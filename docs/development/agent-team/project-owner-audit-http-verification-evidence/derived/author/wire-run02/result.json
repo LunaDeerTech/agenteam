@@ -1,0 +1,47 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/wire-run02/result.json",
+    "sha256": "5abdd4931394085cda74cf42b84211af4393bec2dc3fd99400666ada1a1ab09d",
+    "bytes": 531224
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3751
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 1,
+    "timed_out": false,
+    "elapsed_seconds": 1.4084562040006858,
+    "direct_child_pid": 1150316,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1150316,
+        "ppid": 1150293,
+        "pgid": 1150316,
+        "state": "Z",
+        "starttime": "4393998"
+      },
+      {
+        "pid": 1150322,
+        "ppid": 1150316,
+        "pgid": 1150316,
+        "state": "R",
+        "starttime": "4394003"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 1,
+    "stdout.log_sha256": "eb1fb832ac3e72e30d0db740ba6b56266dce22c3eb0933f678b92ec310253699",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

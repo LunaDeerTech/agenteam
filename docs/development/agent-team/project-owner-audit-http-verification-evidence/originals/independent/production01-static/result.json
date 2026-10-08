@@ -1,0 +1,15 @@
+{
+  "status": "PASS_STATIC_ONLY",
+  "blocking": [],
+  "scope": "5 fixed production sources, #1 reused unchanged",
+  "inputs_sha256": "65ce4c29704a33a7864532fd28bf1662c4025a97326036145552fe7879879e41",
+  "review_sha256": "e5f47e7d782447fb372eee42bc31227a94f38e6786af941b421c6f2f68c667a7",
+  "not_run": [
+    "Go graph/compile/unit/race/vet",
+    "schema",
+    "native",
+    "PG"
+  ],
+  "no_active_products_read": true,
+  "no_product_writes": true
+}

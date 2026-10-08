@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47469.302879848,
+      "top": "TestSystemAuditHTTPRootProducerBinding"
+    },
+    {
+      "event": "result",
+      "monotonic": 47471.720187327,
+      "observed_seconds": 2.4173074790014653,
+      "reported_seconds": 2.42,
+      "state": "PASS",
+      "top": "TestSystemAuditHTTPRootProducerBinding"
+    }
+  ],
+  "expected": [
+    "TestSystemAuditHTTPRootProducerBinding"
+  ],
+  "failures": []
+}

@@ -1,0 +1,40 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/model-integration-list02/result.json",
+    "sha256": "4fc2c9ccaa1ae32f76b52732f852f4b451becafb0cb7540df86023b0d44b21ab",
+    "bytes": 531940
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3757
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.0327477140017436,
+    "direct_child_pid": 1195370,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1195370,
+        "ppid": 1195366,
+        "pgid": 1195370,
+        "state": "Z",
+        "starttime": "4698835"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "11577d8dcb558404b88dbd5eb6b2e404d0fb3f7f8a04de30cb88d74158d57199",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

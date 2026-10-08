@@ -1,5 +1,7 @@
 # D04：Project Owner Audit 列表与详情读取 HTTP
 
+产品接受（2026-10-08）：完整16路径（14技术＋audit/README两末件）独立限定PASS，root已接受；产品 `4089d13128da8680955005d9507c8a7da74af1f1` 已推送并核远端一致。[版本组合、原失败与资源/报告更正证据](../agent-team/project-owner-audit-http-verification.md)已持久归档。以下原规格状态按其历史时点保留，§1起原字节不变；不表示D04全模块、D08–D28/E01或生产未绑定项完成。
+
 持久归档（2026-10-07）：rev2完整规格及正式末件STATIC接受已提交 `9eb167e4` 并推送核远端一致；[三轮独审、B1修订与静态证据](../agent-team/project-owner-audit-http-spec-verification.md)已归档。以下§1–8技术原字节保持，仍仅规格接受，实施须满足既定配置完整接受与根移交门槛。
 
 修订：rev2；状态：完整规格独立 STATIC 已通过（rev1 完整审＋rev2 B1 差量），root 已采纳，现正式归位；**尚未授权本卡14技术实施、2文档末件或任何 Go／资源执行**。固定产品基线 `e4b1b89197da0e9027018fdb41f6ab3e04050b9d`（Project 模型凭据完整接受），固定来源与验收指纹见 [§9](#9-固定来源与规格验收定位)。Project 模型配置写入 rev2 完整产品接受后，须由 root 正式移交 account.go 与共同冻结输入再下发实施；这是调度与共享编译输入门槛，不是 Audit 查询功能缺失。

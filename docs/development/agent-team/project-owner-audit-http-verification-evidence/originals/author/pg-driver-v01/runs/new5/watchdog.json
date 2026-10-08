@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47343.117223265,
+      "top": "TestModelProjectAuditHTTPShutdown"
+    },
+    {
+      "event": "result",
+      "monotonic": 47347.937585139,
+      "observed_seconds": 4.82036187400081,
+      "reported_seconds": 4.81,
+      "state": "PASS",
+      "top": "TestModelProjectAuditHTTPShutdown"
+    }
+  ],
+  "expected": [
+    "TestModelProjectAuditHTTPShutdown"
+  ],
+  "failures": []
+}

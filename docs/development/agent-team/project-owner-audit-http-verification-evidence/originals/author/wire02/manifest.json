@@ -1,0 +1,59 @@
+{
+  "status": "frozen author ordinary/schema PASS; independent delta pending; no resources",
+  "files": {
+    "api/openapi/project-audit.json": {
+      "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire02/src/api/openapi/project-audit.json"
+    },
+    "internal/central/audit/http/project_wire_test.go": {
+      "sha256": "0178a781cc90d8b909f8da3cc917d78b294ab6c093598d8cc86bde06173b420b",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire02/src/internal/central/audit/http/project_wire_test.go"
+    }
+  },
+  "references": {
+    "production01/manifest.json": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/production01/manifest.json",
+      "sha256": "b5cedcd9ddd148ac6769909ed31a00d2534d1e3224d79184bd4907daecf0c68b"
+    },
+    "wire-run07/result.json": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run07/result.json",
+      "sha256": "8862dbec412cfca00b05c7c822e4ef79977639a6125a6184daa391ff39825f99"
+    },
+    "wire-run07/command.json": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run07/command.json",
+      "sha256": "664119bbf1073f743c582a6818a4962ac4e7ce9445aa4e2d87c6a8d0aa8a49f3"
+    },
+    "wire-run07/stdout.log": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run07/stdout.log",
+      "sha256": "b2bd120589b11471bf9d8961c989753c49e7ca68252e878907a3f707652e88c6"
+    },
+    "wire-run07/stderr.log": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run07/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wire-run-input07.json": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run-input07.json",
+      "sha256": "dccf629f0e4e6e3739b95bb3073aa584d7a6511102d2d0509b202ebee1957f30"
+    },
+    "query-run02/result.json": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/query-run02/result.json",
+      "sha256": "802fe442f13672667e3fc77fec02a6ef1f849c645ce81210c039fad89105a693"
+    },
+    "build-schema.py": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/build-schema.py",
+      "sha256": "b7af12ed252ca4f92dd37b31cef6729ae1868345fad42dad89899c5aa2365458"
+    }
+  },
+  "maximum_page_bytes": 598220,
+  "real_signed_page_bytes": 590584,
+  "real_cursor_bytes": 556,
+  "standard_schema_vectors": 341,
+  "delta": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire02/delta.diff",
+    "sha256": "9233769ec99e46517ea416a50b01b5ac945f77d2f6b8584f4661b1716766eec3"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire02/review.md",
+    "sha256": "808fd0a2dfa5e42e5114fed0760d628b11c56a037aed7810cc7a92c0c1307297"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "status": "PASS_INDEPENDENT_QUERY_CONTROLLED_ONLY",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/query01/src/internal/central/audit/project_query.go",
+    "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456"
+  },
+  "private_source_sha256": "69339f0bb03d4092c80f779d095ede3490fda6a4cfc250380fb25fd790bd1962",
+  "overlay_sha256": "c870e91728575293beb40064c64343e68ec877003c2bc60012f9045455fbc0cb",
+  "driver_sha256": "0470c1d433a491adbaf563148144bb37ddb8aabbb0b9abfafcff5356cae1cdfb",
+  "binary_input_sha256": "f88420a96c7ec1debd6901d158e0947b567ac1163d083592154d85babec675b9",
+  "normal": {
+    "packages": 267,
+    "files": 1645,
+    "generated_testmain": 1,
+    "extra": 0
+  },
+  "race": {
+    "packages": 269,
+    "files": 1651,
+    "generated_testmain": 1,
+    "extra": 0
+  },
+  "test_result": "normal/race each1top9sub, actual exit0",
+  "rounds": [
+    {
+      "name": "format01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/format01/result.json",
+      "sha256": "ef2fc59f4057683548f11eaa28323bc9740f4654b7a04bc2a2d4f41e2c72a2c1",
+      "elapsed_seconds": 0.9162288430015906,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    },
+    {
+      "name": "graph-normal01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/graph-normal01/result.json",
+      "sha256": "0282322b6e76cb57af425f97720232edcc711fa36d0c4e18b28b980200440e7d",
+      "elapsed_seconds": 1.071981537999818,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    },
+    {
+      "name": "graph-race01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/graph-race01/result.json",
+      "sha256": "21b6ddf5835de4edef4f88ddbb87e912ca98d696472b0acab2e7df0f95710ed3",
+      "elapsed_seconds": 1.0985637470002985,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    },
+    {
+      "name": "compile-normal01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/compile-normal01/result.json",
+      "sha256": "3bdf0f404632a3092d3726e53e0a65c347905c43d6320998094384911a12a296",
+      "elapsed_seconds": 1.7330065589994774,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    },
+    {
+      "name": "compile-race01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/compile-race01/result.json",
+      "sha256": "6df8232c48616475a1e37c6eb78fa21a72308ee12491f724d4ce1253ac7c8aa1",
+      "elapsed_seconds": 1.777768007996201,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    },
+    {
+      "name": "list01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/list01/result.json",
+      "sha256": "d1e6ebb1e9066436ea192c9210312f155bf74cb4dc7378603c8a8606c010e2b6",
+      "elapsed_seconds": 0.30440111799543956,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    },
+    {
+      "name": "run-normal01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/run-normal01/result.json",
+      "sha256": "2e863c78148444a60fe5f04aa6854492c015e707a6e8397fdef2f03511278b3b",
+      "elapsed_seconds": 0.3325671249986044,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    },
+    {
+      "name": "run-race01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/run-race01/result.json",
+      "sha256": "35cf2fb3eee88e3d6125c86afd9a1960126482e23c7284f9e8f9d5012edc5b06",
+      "elapsed_seconds": 1.389401076005015,
+      "direct_wait": true,
+      "adopted_wait_count": 0,
+      "owned_clear_observations": 2
+    }
+  ],
+  "scope_limits": [
+    "controlled store, not physical PostgreSQL commit or real lock/current-authority proof",
+    "only query01 product; production01 HTTP/root has separate STATIC-only verdict",
+    "page controls directly compose existing recordPage and new projectPageCheck, no mocked concrete postgres.Rows public List success claim",
+    "selected pure runtime no DB/socket/TestMain/fixture/schema reads",
+    "no active product/test source read; all14 author paths explicitly isolated by15-entry overlay",
+    "no product changes; no resources or Git mutation; fullcard pending"
+  ]
+}

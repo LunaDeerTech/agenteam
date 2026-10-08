@@ -1,0 +1,110 @@
+{
+  "status": "all14 frozen for STATIC; model race integration compile actual0; no native/PG testbody",
+  "baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "sources": [
+    {
+      "card_path": 1,
+      "path": "internal/central/audit/project_query.go",
+      "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/project_query.go"
+    },
+    {
+      "card_path": 2,
+      "path": "internal/central/audit/project_query_test.go",
+      "sha256": "2d3b813d05ca46fad53669b7e595f922c17e2f984a55d00e13fda9213f6eee82",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/project_query_test.go"
+    },
+    {
+      "card_path": 3,
+      "path": "internal/central/audit/http/project.go",
+      "sha256": "dbf8dd786da702e0c0b52f7dd5a12bc703f5e03bebd88768b9aebe5e0d181d7a",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project.go"
+    },
+    {
+      "card_path": 4,
+      "path": "internal/central/audit/http/project_wire.go",
+      "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_wire.go"
+    },
+    {
+      "card_path": 5,
+      "path": "internal/central/audit/http/project_test.go",
+      "sha256": "5220bb249078fca5f83ae6e33d8b792d63f01076b0d62c7362cab5b04968558b",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_test.go"
+    },
+    {
+      "card_path": 6,
+      "path": "internal/central/audit/http/project_wire_test.go",
+      "sha256": "13263bd2dc40db5a20af6f0e2f893bed2857e0fed9a4fa9f1de29af9eac997c7",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_wire_test.go"
+    },
+    {
+      "card_path": 7,
+      "path": "internal/central/audit/http/project_native_test.go",
+      "sha256": "72f30308df22d15462dcf395902e6eed6ca95979c0316e9bc23fa0ed2e8265d4",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_native_test.go"
+    },
+    {
+      "card_path": 8,
+      "path": "api/openapi/project-audit.json",
+      "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/api/openapi/project-audit.json"
+    },
+    {
+      "card_path": 9,
+      "path": "internal/central/app/project_audit.go",
+      "sha256": "92870eb558c98078fce9bb168cfdedd47925f16d49bced98be49c47ecc639d96",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/app/project_audit.go"
+    },
+    {
+      "card_path": 10,
+      "path": "internal/central/app/project_audit_test.go",
+      "sha256": "9e874f9c8198f642c65f80b2fea758bea8c4390fbe9c4c98d84685f613b4f67d",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/app/project_audit_test.go"
+    },
+    {
+      "card_path": 11,
+      "path": "internal/central/app/account.go",
+      "sha256": "c8afd6286fccef135f53667a66f8522553a77cc187fa9f32a2813ef1e926eb98",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/app/account.go"
+    },
+    {
+      "card_path": 12,
+      "path": "tests/model/project_audit_http_fixture_test.go",
+      "sha256": "39347c457cbd529566a1497c1264b36c75a4e0bad998d78d7cae6a21d82e60e7",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/tests/model/project_audit_http_fixture_test.go"
+    },
+    {
+      "card_path": 13,
+      "path": "tests/model/project_audit_http_test.go",
+      "sha256": "9548d72c96d90aba1b8ccfd3d1809b6168c9c9316be323f9269311ea0f7eb5f6",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/tests/model/project_audit_http_test.go"
+    },
+    {
+      "card_path": 14,
+      "path": "tests/model/project_audit_http_root_test.go",
+      "sha256": "105ed8b47a808068f70a19397fa8509ca84fb4170c4f08c82a1df2dd4b56d384",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/tests/model/project_audit_http_root_test.go"
+    }
+  ],
+  "production01_sha256": "b5cedcd9ddd148ac6769909ed31a00d2534d1e3224d79184bd4907daecf0c68b",
+  "wire02_schema_unchanged": true,
+  "wire03_extremes_pending_actual_run": true,
+  "inputs": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/full-input01.json",
+    "sha256": "b0631e97738f2ff5646e80f7cdd0890ee4af22ed1a7af1eaa559526a520f0662"
+  },
+  "integration_compile": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/model-integrationcompile01/result.json",
+    "sha256": "ccfd2c036883103d8f7f0100940c8605f64f84169eef84541b07d6cece5615be"
+  },
+  "integration_graph": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/integration-graph01/actual-graph.json",
+    "sha256": "ac412e4d1bb0151c8a4ae7b49a09ab51b538993bfcc66e89a137c2e7876386b7"
+  },
+  "not_run": [
+    "native resources",
+    "real PG/root",
+    "final ordinary/race/vet/build and full20fixture graph"
+  ]
+}

@@ -1,0 +1,85 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.8.124.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=cd62a2a0b1b98166ab46177bbb38a791
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=bb580bd2524f83afa6e06abeb8c03ccf
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.025s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.234s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+=== RUN   TestModelProjectAuditHTTPAuthorityAndTerminal
+=== RUN   TestModelProjectAuditHTTPAuthorityAndTerminal/committed-Logout-before-read
+=== RUN   TestModelProjectAuditHTTPAuthorityAndTerminal/read-shared-lock-then-Logout
+=== RUN   TestModelProjectAuditHTTPAuthorityAndTerminal/ProjectEX-and-real-cancel
+=== RUN   TestModelProjectAuditHTTPAuthorityAndTerminal/physical-terminal-first-ACKloss
+=== RUN   TestModelProjectAuditHTTPAuthorityAndTerminal/physical-terminal-first-ACKloss/GET
+    project_audit_http_test.go:361: physical Audit read backend=138 cause_owner=audit.project-read attempt=01a11907-00f8-7b94-bd80-f51fedcff910 server_COMMIT=true server_idle=true ACK_dropped=true
+    project_configuration_http_terminal_test.go:405: safe PG frame events after actual join: [1:backend-138 1:send-COMMIT 1:tag-COMMIT 1:ready-I-before-drop 1:commit-idle-ack-dropped 2:cancel 2:backend-closed 3:backend-140 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:backend-closed]
+=== RUN   TestModelProjectAuditHTTPAuthorityAndTerminal/physical-terminal-first-ACKloss/HEAD
+    project_audit_http_test.go:361: physical Audit read backend=141 cause_owner=audit.project-read attempt=01a11907-012c-7653-88cd-bd62d02069a0 server_COMMIT=true server_idle=true ACK_dropped=true
+    project_configuration_http_terminal_test.go:405: safe PG frame events after actual join: [1:backend-141 1:send-COMMIT 1:tag-COMMIT 1:ready-I-before-drop 1:commit-idle-ack-dropped 2:cancel 2:backend-closed 3:backend-143 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:backend-closed]
+--- PASS: TestModelProjectAuditHTTPAuthorityAndTerminal (4.87s)
+    --- PASS: TestModelProjectAuditHTTPAuthorityAndTerminal/committed-Logout-before-read (0.41s)
+    --- PASS: TestModelProjectAuditHTTPAuthorityAndTerminal/read-shared-lock-then-Logout (0.48s)
+    --- PASS: TestModelProjectAuditHTTPAuthorityAndTerminal/ProjectEX-and-real-cancel (0.02s)
+    --- PASS: TestModelProjectAuditHTTPAuthorityAndTerminal/physical-terminal-first-ACKloss (0.11s)
+        --- PASS: TestModelProjectAuditHTTPAuthorityAndTerminal/physical-terminal-first-ACKloss/GET (0.05s)
+        --- PASS: TestModelProjectAuditHTTPAuthorityAndTerminal/physical-terminal-first-ACKloss/HEAD (0.05s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	5.903s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+D03 fixture cleanup checked for nonce 983eeb1894969a0d8194281da6702f67
+D04 outbound fixture cleanup checked for nonce bb580bd2524f83afa6e06abeb8c03ccf
+D05 object fixture exact resource cleanup checked nonce=cd62a2a0b1b98166ab46177bbb38a791

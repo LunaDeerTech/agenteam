@@ -1,0 +1,1235 @@
+[
+  {
+    "name": "outbox-positive",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "outbox-handler-trailing-LF",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a\n",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "outbox-handler-CR",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a\r",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "outbox-handler-129",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "outbox-handler-upper",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "A",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "project-update-positive",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "project.update",
+      "outcome": "success",
+      "resource": {
+        "kind": "project",
+        "id": "01900000-0000-7000-8000-000000000003"
+      },
+      "metadata": {
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "initiator_id": "01900000-0000-7000-8000-000000000001",
+        "project_version": "2",
+        "changed_fields": [
+          "name"
+        ]
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "project-update-forbidden-operation-association",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "project.update",
+      "outcome": "success",
+      "resource": {
+        "kind": "project",
+        "id": "01900000-0000-7000-8000-000000000003"
+      },
+      "metadata": {
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "initiator_id": "01900000-0000-7000-8000-000000000001",
+        "project_version": "2",
+        "changed_fields": [
+          "name"
+        ]
+      },
+      "associations": {
+        "operation_id": "01900000-0000-7000-8000-000000000001"
+      },
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "project-update-version-one",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "project.update",
+      "outcome": "success",
+      "resource": {
+        "kind": "project",
+        "id": "01900000-0000-7000-8000-000000000003"
+      },
+      "metadata": {
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "initiator_id": "01900000-0000-7000-8000-000000000001",
+        "project_version": "1",
+        "changed_fields": [
+          "name"
+        ]
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "project-update-forbidden-transition",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "project.update",
+      "outcome": "success",
+      "resource": {
+        "kind": "project",
+        "id": "01900000-0000-7000-8000-000000000003"
+      },
+      "metadata": {
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "initiator_id": "01900000-0000-7000-8000-000000000001",
+        "project_version": "2",
+        "changed_fields": [
+          "name"
+        ],
+        "from": "active"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "project-update-null-changed",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "project.update",
+      "outcome": "success",
+      "resource": {
+        "kind": "project",
+        "id": "01900000-0000-7000-8000-000000000003"
+      },
+      "metadata": {
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "initiator_id": "01900000-0000-7000-8000-000000000001",
+        "project_version": "2",
+        "changed_fields": null
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "project-update-duplicate-changed",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "project.update",
+      "outcome": "success",
+      "resource": {
+        "kind": "project",
+        "id": "01900000-0000-7000-8000-000000000003"
+      },
+      "metadata": {
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "initiator_id": "01900000-0000-7000-8000-000000000001",
+        "project_version": "2",
+        "changed_fields": [
+          "name",
+          "name"
+        ]
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-download-no-source-positive",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-source-empty-forbidden",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent",
+        "source_kind": ""
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-source-id-without-kind",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent",
+        "source_id": "01900000-0000-7000-8000-000000000001"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-sent-reason-forbidden",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent",
+        "reason": "timeout"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-sent-failed-outcome",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "failed",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-failed-positive",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "failed",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "failed",
+        "reason": "timeout"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-failed-no-reason",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "failed",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "failed"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-mime-reject-0",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain; filename=x",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-mime-reject-1",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "Text/Plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-mime-reject-2",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain\n",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-mime-reject-3",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain; charset=UTF-8",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "artifact-mime-reject-4",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain; charset=\"utf-8\"",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-null-actor",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": null,
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-missing-actor",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-null-metadata",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": null,
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-missing-metadata",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-null-project_id",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": null,
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-missing-project_id",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-null-summary",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": null
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-missing-summary",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {}
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-system-scope",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "system",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "record-system-action",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "account.login",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "agent-download-positive",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "agent_run",
+        "id": "01900000-0000-7000-8000-000000000001",
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "execution_id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {
+        "execution_id": "01900000-0000-7000-8000-000000000001"
+      },
+      "summary": "Audit event"
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "agent-missing-association",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-10-08T01:02:03.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "agent_run",
+        "id": "01900000-0000-7000-8000-000000000001",
+        "project_id": "01900000-0000-7000-8000-000000000003",
+        "execution_id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "artifact.download",
+      "outcome": "success",
+      "resource": {
+        "kind": "artifact",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "artifact_id": "01900000-0000-7000-8000-000000000001",
+        "object_id": "01900000-0000-7000-8000-000000000001",
+        "media_type": "text/plain",
+        "byte_size": "9",
+        "sent_bytes": "9",
+        "phase": "sent"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "calendar-positive-0000-02-29T00:00:00.000000Z",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "0000-02-29T00:00:00.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "calendar-positive-9999-12-31T23:59:59.999999Z",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "9999-12-31T23:59:59.999999Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "calendar-negative-0000-02-30T00:00:00.000000Z",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "0000-02-30T00:00:00.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "calendar-negative-2026-02-29T00:00:00.000000Z",
+    "body": {
+      "audit_id": "01900000-0000-7000-8000-000000000001",
+      "created_at": "2026-02-29T00:00:00.000000Z",
+      "scope": "project",
+      "project_id": "01900000-0000-7000-8000-000000000003",
+      "actor": {
+        "kind": "human",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "action": "outbox.delivery.requeue",
+      "outcome": "success",
+      "resource": {
+        "kind": "outbox_delivery",
+        "id": "01900000-0000-7000-8000-000000000001"
+      },
+      "metadata": {
+        "delivery_id": "01900000-0000-7000-8000-000000000001",
+        "event_id": "01900000-0000-7000-8000-000000000001",
+        "handler_id": "a",
+        "from_state": "failed",
+        "redrive_cycle": "1",
+        "reason_code": "operator_retry"
+      },
+      "associations": {},
+      "summary": "Audit event"
+    },
+    "want_valid": false,
+    "schema": "ProjectAuditRecord"
+  },
+  {
+    "name": "page-positive",
+    "body": {
+      "items": [
+        {
+          "audit_id": "01900000-0000-7000-8000-000000000001",
+          "created_at": "2026-10-08T01:02:03.000000Z",
+          "scope": "project",
+          "project_id": "01900000-0000-7000-8000-000000000003",
+          "actor": {
+            "kind": "human",
+            "id": "01900000-0000-7000-8000-000000000001"
+          },
+          "action": "outbox.delivery.requeue",
+          "outcome": "success",
+          "resource": {
+            "kind": "outbox_delivery",
+            "id": "01900000-0000-7000-8000-000000000001"
+          },
+          "metadata": {
+            "delivery_id": "01900000-0000-7000-8000-000000000001",
+            "event_id": "01900000-0000-7000-8000-000000000001",
+            "handler_id": "a",
+            "from_state": "failed",
+            "redrive_cycle": "1",
+            "reason_code": "operator_retry"
+          },
+          "associations": {},
+          "summary": "Audit event"
+        }
+      ],
+      "next_cursor": null
+    },
+    "want_valid": true,
+    "schema": "ProjectAuditPage"
+  }
+]

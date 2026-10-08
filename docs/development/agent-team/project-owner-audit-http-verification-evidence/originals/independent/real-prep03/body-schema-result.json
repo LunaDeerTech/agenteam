@@ -1,0 +1,35 @@
+{
+  "status": "PASS_ORIGINAL_BYTES_STANDARD_SCHEMA_AND_HEAD",
+  "schema_sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+  "common_sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+  "parser_sha256": "02d277a4941396664e71c2d67ed36d7837510eeaa3a49aedecc981eb13d4ba9d",
+  "results": [
+    {
+      "name": "independent-root-list",
+      "method": "GET",
+      "bytes": 1389,
+      "body_sha256": "e45577b849c2c833080fd8943261f6717cfce58c2af7b191853715fdb68c0df5",
+      "source_sha256": "fe8dfff2d71c50e0a85ba2df08ae5074566d419768535b3e97febbd60fc9fa43",
+      "schema_component": "ProjectAuditPage",
+      "status": "PASS"
+    },
+    {
+      "name": "independent-root-detail",
+      "method": "GET",
+      "bytes": 727,
+      "body_sha256": "65e6497620eafd3cf635b5d7aabf09e11811bf10766157616472bdaf57dbdfa8",
+      "source_sha256": "bbb5ee35716f2fd56b7dfcd92b5ac559aa6b58f3d0cf54bb46b13185ecb47039",
+      "schema_component": "ProjectAuditRecord",
+      "status": "PASS"
+    },
+    {
+      "name": "independent-root-head",
+      "method": "HEAD",
+      "bytes": 0,
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "bb7b3ca509aa64868bb4d0e434a840804fdf842173ff08ee989214d5e3cd3a6b",
+      "schema_component": null,
+      "status": "PASS"
+    }
+  ]
+}

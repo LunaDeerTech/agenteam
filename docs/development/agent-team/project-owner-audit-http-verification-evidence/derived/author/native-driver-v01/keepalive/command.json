@@ -1,0 +1,145 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/keepalive/command.json",
+    "sha256": "c442736777bc47e8858b7889682abc43b6eaf53d5e44dd52c7133b5d79faf5ee",
+    "bytes": 1386720
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/before",
+      "type": "dict",
+      "items": 3
+    },
+    {
+      "json_pointer": "/after",
+      "type": "dict",
+      "items": 3
+    }
+  ],
+  "retained_fields": {
+    "mode": "keepalive",
+    "driver_sha256": "9508ac5eb92dd66186c842b1ca81bfc13603718f89bdc42fa0a706d5e70644d4",
+    "driver_pid": 1177761,
+    "driver_stat": {
+      "pid": 1177761,
+      "starttime": "4627443",
+      "ppid": 850,
+      "pgrp": 1177761,
+      "state": "R",
+      "name": "python3"
+    },
+    "subreaper": true,
+    "command": [
+      "/usr/bin/strace",
+      "-D",
+      "-f",
+      "-ttt",
+      "-yy",
+      "-e",
+      "trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close",
+      "-o",
+      "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/keepalive/trace.raw",
+      "/workspace/scratch/project-owner-audit-http-author/http-race01.test",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=40s",
+      "-test.run=^TestProjectAuditHTTPNativeEOFAndKeepAlive$",
+      "-test.v"
+    ],
+    "env": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+      "TMPDIR": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/keepalive/tmp",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOPATH": "/workspace/go",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOWORK": "off",
+      "CGO_ENABLED": "1",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_AUDIT_NATIVE": "1"
+    },
+    "cwd": "/workspace/agenteam/internal/central/audit/http",
+    "budget_seconds": 45,
+    "cleanup_grace_seconds": 15,
+    "started": 1791420323.5554485,
+    "direct_pid": {
+      "pid": 1177764,
+      "starttime": "4627538",
+      "ppid": 1177761,
+      "pgrp": 1177764,
+      "state": "R",
+      "name": "strace"
+    },
+    "execution_elapsed_seconds": 1.2410527219981304,
+    "exit": 0,
+    "actual_waits": [
+      {
+        "role": "direct",
+        "pid": 1177764,
+        "starttime": "4627538",
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791420324.7965438
+      },
+      {
+        "role": "adopted",
+        "pid": 1177768,
+        "starttime": "4627538",
+        "wait_status": 0,
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791420324.8025951
+      }
+    ],
+    "signals": [],
+    "owned_processes": [
+      {
+        "pid": 1177764,
+        "starttime": "4627538",
+        "ppid": 1177761,
+        "pgrp": 1177764,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791420323.5558915
+      },
+      {
+        "pid": 1177768,
+        "starttime": "4627538",
+        "ppid": 1177761,
+        "pgrp": 1177764,
+        "state": "S",
+        "name": "strace",
+        "first_observed": 1791420323.5712647
+      }
+    ],
+    "execution_finished": 1791420324.8090672,
+    "inputs_unchanged": true,
+    "finished": 1791420386.691443,
+    "listener_ports": [
+      32891
+    ],
+    "all_ports": [
+      32891,
+      35988
+    ],
+    "double_all_port_and_process_zero": true,
+    "trace_sha256": "74eba12cf598c31be44cc4cf7f7635188f855ab7123a589eafa555ce07593044",
+    "raw_sha256": "4a4dca701cefd6d087e07cb6c143ec4dfa9be9ae10999dad4632daa7dbd5a5b1",
+    "test_results": {
+      "top_passes": [
+        "TestProjectAuditHTTPNativeEOFAndKeepAlive"
+      ],
+      "sub_passes": [],
+      "test_bodies": true
+    },
+    "exact_test_results": true,
+    "expected_listeners_observed": true,
+    "expected_connection_pairs": 1,
+    "pass": true
+  }
+}

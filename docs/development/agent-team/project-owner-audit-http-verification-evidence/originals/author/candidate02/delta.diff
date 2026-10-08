@@ -1,0 +1,31 @@
+--- candidate01/tests/model/project_audit_http_test.go
++++ candidate02/tests/model/project_audit_http_test.go
+@@ -78,7 +78,8 @@
+ 	for _, tokenPath := range []string{path + "?cursor=not-a-token", path + "?action=secret.create&cursor=" + url.QueryEscape(page.NextCursor)} {
+ 		v.read(t, v.ownerBrowser, "GET", tokenPath).problem(t, 400, f.CursorInvalid)
+ 	}
+-	for _, action := range []string{"secret.create", "secret.update", "secret.delete", "model.provider.create", "model.provider.update", "model.provider.delete", "model.create", "model.update", "model.delete", "project.create.completed"} {
++	for _, action := range []string{"secret.create", "secret.update", "secret.delete", string(ac.ProviderCreate), string(ac.ProviderUpdate), string(ac.ProviderDelete), "model.create", "model.update", "model.delete", "project.create.completed"} {
++		t.Logf("checking formal Audit action %q", action)
+ 		p := projectAuditDecodePage(t, v.read(t, v.ownerBrowser, "GET", path+"?action="+action), v.project.ID)
+ 		if len(p.Items) == 0 {
+ 			t.Fatal("formal producer history absent", action)
+--- candidate01/tests/model/project_audit_http_root_test.go
++++ candidate02/tests/model/project_audit_http_root_test.go
+@@ -10,6 +10,7 @@
+ 	"testing"
+ 	"time"
+ 
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+ )
+@@ -47,7 +48,7 @@
+ 	for _, item := range page.Items {
+ 		found[item.Action] = true
+ 	}
+-	for _, action := range []string{"secret.create", "secret.update", "secret.delete", "project.update", "model.provider.create", "model.provider.update", "model.provider.delete", "model.create", "model.update", "model.delete"} {
++	for _, action := range []string{"secret.create", "secret.update", "secret.delete", "project.update", string(ac.ProviderCreate), string(ac.ProviderUpdate), string(ac.ProviderDelete), "model.create", "model.update", "model.delete"} {
+ 		if !found[action] {
+ 			t.Fatal("default real producer absent", action)
+ 		}

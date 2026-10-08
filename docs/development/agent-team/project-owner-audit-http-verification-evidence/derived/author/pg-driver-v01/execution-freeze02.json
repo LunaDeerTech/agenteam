@@ -1,0 +1,35 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/execution-freeze02.json",
+    "sha256": "769ec45d832a85bf7662af29c6510a4213d18581b2e7381ad443efbfa15d08ba",
+    "bytes": 1242
+  },
+  "omitted_repeated_large_fields": [],
+  "retained_fields": {
+    "root_authorized_resources": true,
+    "permitted_groups": [
+      "new-projection",
+      "new-authority",
+      "new-root",
+      "new-shutdown",
+      "old-account",
+      "old-app",
+      "old-security",
+      "old-model"
+    ],
+    "driver_sha256": "5e1e27b989c3d4f8879cc23c589ac57c7952d818133e2a9416b75e0b927748b7",
+    "candidate_sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d",
+    "closure": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/closure02.json",
+      "sha256": "764645e53767f01741c10b6804707238abde4c6bd24f0339bb9844f0a8687805"
+    },
+    "driver_runtime_files": {
+      "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/driver.py": "5e1e27b989c3d4f8879cc23c589ac57c7952d818133e2a9416b75e0b927748b7",
+      "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/groups.json": "da19ab7b96d285b1f07df7c379b1256ad266acc4fce896e10e6a197ae0dcf13c",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    },
+    "check_only_ready": true,
+    "authorization": "PREPARED ONLY; root must explicitly hand exclusive resources and freeze separate true authorization before execution."
+  }
+}

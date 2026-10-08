@@ -1,0 +1,39 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/closure02.json",
+    "sha256": "764645e53767f01741c10b6804707238abde4c6bd24f0339bb9844f0a8687805",
+    "bytes": 1458
+  },
+  "omitted_repeated_large_fields": [],
+  "retained_fields": {
+    "base_closure": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/closure.json",
+      "sha256": "c40c9a7500e27a5fcf07979f1a67755f8d1c04950e6659b5c08b3cc18ec4c89c"
+    },
+    "candidate": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/manifest.json",
+      "sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d"
+    },
+    "actual_union": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/actual-graph-full02.json",
+      "sha256": "426083c3f396f76808243f0adb9dec5a9efd6eeb2015db610adb5bc1baf03b20"
+    },
+    "files": {
+      "/workspace/agenteam/tests/model/project_audit_http_test.go": {
+        "sha256": "d05cbff6a5d67a7009a5e57cf388f198b75f1e0f7270a6dfe962f44bca3e1c85"
+      },
+      "/workspace/agenteam/tests/model/project_audit_http_root_test.go": {
+        "sha256": "d4c8f0251f470682d78f5065cf5805e2d8966dd6e6eb25f1b6f9ddd369304114"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/candidate02/manifest.json": {
+        "sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/actual-graph-full02.json": {
+        "sha256": "426083c3f396f76808243f0adb9dec5a9efd6eeb2015db610adb5bc1baf03b20"
+      }
+    },
+    "package_file_sets": {},
+    "scope": "Test-only Audit action correction; prior actual normal/race/full20/dynamic/CGO0 closures and all budgets/resource functions unchanged"
+  }
+}

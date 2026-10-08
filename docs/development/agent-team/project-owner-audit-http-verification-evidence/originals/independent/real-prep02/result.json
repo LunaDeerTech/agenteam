@@ -1,0 +1,78 @@
+{
+  "status": "FROZEN_OFFLINE_PASS_RESOURCE_NOT_AUTHORIZED",
+  "candidate_sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d",
+  "runs": [
+    {
+      "name": "integration-compile01",
+      "seconds": 8.102856494995649,
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/integration-compile01/result.json",
+      "sha256": "87bfdc2e5bd936cad82b13bcc5e7937e6ed5458ca269f28b71b102e93d1261d3"
+    },
+    {
+      "name": "list01",
+      "seconds": 2.0215535310053383,
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/list01/result.json",
+      "sha256": "f2dc4978fa0ce19a500d72ca938aea6e752a5ca15b18ecaa59579b775ff56d3a"
+    },
+    {
+      "name": "resource-inputcheck01",
+      "seconds": 1.970187596998585,
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/resource-inputcheck01/result.json",
+      "sha256": "67c13ca6255c5c19324379a2995c0c0e55a2ad9d147b28e05763315dab5844d4"
+    }
+  ],
+  "files": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/independent_project_audit_test.go",
+      "sha256": "7c7fcc64214d94b2e3353dea205510717ec70697b9c72655838e57d8fd95816a"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/input01.json",
+      "sha256": "db1967646705de95e4286b6449781c3881f3c01d4c3493eca78821eadbd3a995"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/binary-input01.json",
+      "sha256": "c865f4b2a71b5352d5d60f50f948e8a4a9f79230fa46d2f3028cf354fd42957d"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/actual-graph-full01.json",
+      "sha256": "65ae20d1bead2525e1703d963f548c00370b22d81add4f2b74cc87bf723d5c90"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/driver.py",
+      "sha256": "dfa490dcc37d9467cd43a2b22ad063ad7536ae5d6e342de4ab3d84302d01b1a8"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/driver.diff",
+      "sha256": "df47486b9b0dc00130832834bbc93486fc8e49a7e32a99254eeab049510f7587"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/closure.json",
+      "sha256": "607b503e50a4005bf44cb81f2ef0031cf428639bc87abbd45cbb1f1c80153847"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/overlay.json",
+      "sha256": "65b03325e8249ec36e372655d5fbe8ff8d1f08a6bc8dee14c08cdf881c2a0a13"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/proposal-freeze.json",
+      "sha256": "7a8edb8476b4ea82f2b6014d4abb3f0669cb733c8d3e7de90de602e8ca06df5d"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/parse-real-body.py",
+      "sha256": "02d277a4941396664e71c2d67ed36d7837510eeaa3a49aedecc981eb13d4ba9d"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/plan.md",
+      "sha256": "99753928fd5cfa6c698376ae5edf8be8be3eb8ebb289ce16243e0cfe0c3f8b9d"
+    }
+  ],
+  "resource_input_count": 3354,
+  "resource_started": false,
+  "private_source_unchanged": true,
+  "limitations": [
+    "No actual A/B testbody",
+    "No resource window",
+    "No new original HTTP body schema yet"
+  ]
+}

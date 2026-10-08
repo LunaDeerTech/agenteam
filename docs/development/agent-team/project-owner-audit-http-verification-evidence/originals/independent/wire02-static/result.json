@@ -1,0 +1,20 @@
+{
+  "status": "PASS_DELTA_AND_STANDARD_SCHEMA_WITH_EXTREMA_REMAINDER",
+  "closed_findings": [
+    "AUD-WIRE-01",
+    "AUD-WIRE-02",
+    "AUD-WIRE-03"
+  ],
+  "blocking_schema_findings": [],
+  "extrema_remainder": [
+    "object upload.complete/delete service maximum",
+    "outbox reason_code maximum",
+    "access-deny resource with ID maximum"
+  ],
+  "review_sha256": "72ffcb6b43abce64c7d4ab180254c2c74151f9baa59b583a1ed0b7bf38b27e5a",
+  "inputs_sha256": "64473d3d2da8c0d958bf575acb3188c9ba25edc35add3869425027c0ef9f6e4a",
+  "independent_vectors": 40,
+  "independent_mismatch": 0,
+  "author_vectors": 341,
+  "no_native_pg_go": true
+}

@@ -1,0 +1,28 @@
+{
+  "kind": "independent Audit product verification risk preparation freeze",
+  "status": "PREPARED_ONLY_NO_PRODUCT_VERDICT",
+  "accepted_product_commit": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "files": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/prep01/plan.md",
+      "sha256": "db8bf0ef1adee758bb2089d47a921cf903c5e07ef82fc2a98f632c5f89de930a"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/prep01/inputs.json",
+      "sha256": "4c6434adfcf3fbdcc86111c8d913b63c4a27bedaec81b59e848abb1658a93c41"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/prep01/accepted-handoff.json",
+      "sha256": "f398dfba5f30a4070589555f6b7ef453a2201bacbf0d1d31dfb9c1b2020beb05"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/prep01/author-base-check.json",
+      "sha256": "9359cee5f316986f5d3f85a386645cc76655539755167aa6cd870387acff64e1"
+    }
+  ],
+  "current_author_query_activity_read": false,
+  "go_native_pg_executed": false,
+  "shared_root_ownership": "author usage_verification only; independent never writes product",
+  "independent_execution_authorization": "not yet granted",
+  "stop_writing": true
+}

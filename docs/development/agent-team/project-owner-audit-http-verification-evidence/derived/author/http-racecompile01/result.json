@@ -1,0 +1,61 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/http-racecompile01/result.json",
+    "sha256": "86e329b96bfac6ce173a6cf2e14f3843f9cce1b9dd0bc56b5c4cf698cfe99505",
+    "bytes": 532473
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3758
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 3.0609075230022427,
+    "direct_child_pid": 1173197,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1173197,
+        "ppid": 1173196,
+        "pgid": 1173197,
+        "state": "Z",
+        "starttime": "4592714"
+      },
+      {
+        "pid": 1173216,
+        "ppid": 1173197,
+        "pgid": 1173197,
+        "state": "R",
+        "starttime": "4592730"
+      },
+      {
+        "pid": 1173250,
+        "ppid": 1173197,
+        "pgid": 1173197,
+        "state": "S",
+        "starttime": "4592847"
+      },
+      {
+        "pid": 1173260,
+        "ppid": 1173197,
+        "pgid": 1173197,
+        "state": "S",
+        "starttime": "4592928"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

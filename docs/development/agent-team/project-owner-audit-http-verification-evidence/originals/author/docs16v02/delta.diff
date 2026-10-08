@@ -1,0 +1,22 @@
+--- before/docs/development/backend/audit.md
++++ after/docs/development/backend/audit.md
+@@ -61,7 +61,7 @@
+ 
+ 本卡作者普通/race、标准 schema、三轮真实 native 和四新八旧 PG top 已通过，独立受控补集及 A02/B01 两个真实代表也通过。31动作及有限可选分支/反例的341标准例、实际200行页598220B与真实 Sign/Verify 页590584B分别有证据；8192B shape cursor 仅用于容量边界，不冒称实际签名产物。作者四份 GET 原字节及两份空 HEAD、独立两份 GET 原字节（1389B/727B）及同长度空 HEAD 均按各自来源验证；GET 由固定标准 Draft202012/FormatChecker 检查，不把合成样例当真实 HTTP。
+ 
+-原作者 new1 的400只定位至断言行，日志未记当时 action；两新测试把 `provider.*` 误写成 `model.provider.*` 的静态缺陷修正后重跑通过，生产未变，原 STATIC 漏检保留。独立 A01 私有坏 metadata 注入先被既有 SQL CHECK 拒绝，未进入待测 List；改用 PostgreSQL 可存而正式 scanner 拒绝的 UUIDv4 request_id 后 A02 通过，不放宽 SQL 或生产校验。所有原失败和版本组合保留。三 native 轮实际等待 direct3/adopted3、9个 listener 的全 TCP 含 TIME_WAIT 及 owned 双清；作者九轮和独立三轮 PG 各七资源实际等待/双清，daemon/PID1 差集另列未 wait，不声称全机清零。
++原作者 new1 的400只定位至断言行，日志未记当时 action；两新测试把 `provider.*` 误写成 `model.provider.*` 的静态缺陷修正后重跑通过，生产未变，原 STATIC 漏检保留。独立 A01 私有坏 metadata 注入实际仅返回 DATABASE_SQL_FAILED，未进入待测 List；根据固定 schema 静态定位为既有 Project typed CHECK 不接受该形状，原轮未记录 SQLSTATE 或约束名；改用 PostgreSQL 可存而正式 scanner 拒绝的 UUIDv4 request_id 后 A02 通过，不放宽 SQL 或生产校验。所有原失败和版本组合保留。三 native 轮实际等待 direct3/adopted3、9个 listener 的全 TCP 含 TIME_WAIT 及 owned 双清；作者九轮和独立三轮 PG 各七资源实际等待/双清，daemon/PID1 差集另列未 wait，不声称全机清零。
+ 
+ 物理 Unknown 证据绑定同一原读取 backend 的 `C(COMMIT)` 与 `Z(I)` 后丢失 ACK，保留原 cause/attempt，与结果装饰分开。正常关闭和100ms耗尽均有实际根路径；强制 root 返回不能由后续 fixture/client/backend 退役倒填为全部 inner join。正式 Account 身份和真实 Project/Secret/Model producer 参与主链，隔离 Skills 辅助不等于生产创建绑定。生产 Resolution/Invocations、D24、Project 创建/生命周期根仍未绑定，ready503；Object runtime join、OpenAI tools 独审、SPA 并发发布三停止保持，本卡不宣称完整 D04/D27、UI 或 Runtime 完成。
+ 
+--- before/docs/development/backend/README.md
++++ after/docs/development/backend/README.md
+@@ -240,7 +240,7 @@
+ 
+ 局部3秒预算从预认证前开始并继承更早 parent，包含实际读写/Flush、Body.Close、事务与取消回调收尾；尾部实际等待，不承诺全 handler 三秒已返回。HEAD 完成同一授权/查询/编码，仅省略实体并保留表示长度。仅实际 Committed、callback 完整且 ctx 有效才发布；Unknown/取消/损坏行均零候选，原 State/Cause/Attempt 内部保留。没有 command/receipt、确认端点或自动重读，也不新增 initializer/worker；旧 System Audit、Project/Model/凭据/配置/Usage 路由保留。
+ 
+-作者四新八旧 PG top、三 native 轮和独立 A02/B01 真实代表通过，原作者 action 预期首红及独立 SQL CHECK 注入首红均保留，修正仅限测试。最大合法200页实编码、341标准 schema 例及作者/独立真实原字节各自验证；不把合成 cursor 容量输入当真实签名，也不把受控 writer 当 native。每轮资源实际等待并双清，daemon/PID1 未 wait 限制和强制 root 返回不证明全部 inner join 的边界保留。该结果不绑定生产 Resolution/Invocations/D24、Project 创建/生命周期或 UI，不解除 ready503、Object runtime join/OpenAI tools 独审/SPA 并发发布三停止，也不表示完整 D04 或 D09 已完成。
++作者四新八旧 PG top、三 native 轮和独立 A02/B01 真实代表通过，原作者 action 预期首红及独立私有注入首红均保留，修正仅限测试。独立 A01 实际只记录 DATABASE_SQL_FAILED、未进入待测 List；既有 Project typed CHECK 不接受该形状是固定 schema 的静态归因，原轮没有 SQLSTATE 或约束名。31种 typed 动作极值及有限可选分支的200行代表页实编码、341标准 schema 例及作者/独立真实原字节各自验证，不声称穷尽序列化组合；不把合成 cursor 容量输入当真实签名，也不把受控 writer 当 native。每轮资源实际等待并双清，daemon/PID1 未 wait 限制和强制 root 返回不证明全部 inner join 的边界保留。该结果不绑定生产 Resolution/Invocations/D24、Project 创建/生命周期或 UI，不解除 ready503、Object runtime join/OpenAI tools 独审/SPA 并发发布三停止，也不表示完整 D04 或 D09 已完成。
+ 
+ ## Project Owner Usage 只读 HTTP
+ 

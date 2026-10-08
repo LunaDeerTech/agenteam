@@ -1,0 +1,242 @@
+[
+  {
+    "name": "outbox-positive",
+    "expected": true,
+    "actual": false,
+    "match": false
+  },
+  {
+    "name": "outbox-handler-trailing-LF",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "outbox-handler-CR",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "outbox-handler-129",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "outbox-handler-upper",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "project-update-positive",
+    "expected": true,
+    "actual": false,
+    "match": false
+  },
+  {
+    "name": "project-update-forbidden-operation-association",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "project-update-version-one",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "project-update-forbidden-transition",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "project-update-null-changed",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "project-update-duplicate-changed",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-download-no-source-positive",
+    "expected": true,
+    "actual": false,
+    "match": false
+  },
+  {
+    "name": "artifact-source-empty-forbidden",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-source-id-without-kind",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-sent-reason-forbidden",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-sent-failed-outcome",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-failed-positive",
+    "expected": true,
+    "actual": false,
+    "match": false
+  },
+  {
+    "name": "artifact-failed-no-reason",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-mime-reject-0",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-mime-reject-1",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-mime-reject-2",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-mime-reject-3",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "artifact-mime-reject-4",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-null-actor",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-missing-actor",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-null-metadata",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-missing-metadata",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-null-project_id",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-missing-project_id",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-null-summary",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-missing-summary",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-system-scope",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "record-system-action",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "agent-download-positive",
+    "expected": true,
+    "actual": false,
+    "match": false
+  },
+  {
+    "name": "agent-missing-association",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "calendar-positive-0000-02-29T00:00:00Z",
+    "expected": true,
+    "actual": false,
+    "match": false
+  },
+  {
+    "name": "calendar-positive-9999-12-31T23:59:59.999999Z",
+    "expected": true,
+    "actual": true,
+    "match": true
+  },
+  {
+    "name": "calendar-negative-0000-02-30T00:00:00Z",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "calendar-negative-2026-02-29T00:00:00Z",
+    "expected": false,
+    "actual": false,
+    "match": true
+  },
+  {
+    "name": "page-positive",
+    "expected": true,
+    "actual": false,
+    "match": false
+  }
+]

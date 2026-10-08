@@ -1,0 +1,405 @@
+{
+  "status": "PASS",
+  "utf8_lf_finalnewline_no_trailing_whitespace": true,
+  "fence_pairs": true,
+  "local_links_and_fragments": [
+    {
+      "source": "docs/development/backend/audit.md",
+      "target": "../work-items/d04-security-design.md#4-b01audit-\u4e0e\u7b7e\u540d-cursor",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-security-design.md",
+      "fragment": "4-b01audit-\u4e0e\u7b7e\u540d-cursor"
+    },
+    {
+      "source": "docs/development/backend/audit.md",
+      "target": "../work-items/d04-system-audit-management-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-system-audit-management-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/audit.md",
+      "target": "../../../api/openapi/audit.json",
+      "resolved": "/workspace/agenteam/api/openapi/audit.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/audit.md",
+      "target": "../work-items/d04-project-owner-audit-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/audit.md",
+      "target": "../../../api/openapi/project-audit.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-audit.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "database.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "audit.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "secret.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/secret.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "outbound.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d05-object-storage-design.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-design.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/model-system.json",
+      "resolved": "/workspace/agenteam/api/openapi/model-system.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/recovery-d09-system-model-root.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-system-model-root.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "object-runtime.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/object-runtime.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/object-runtime-join-regression.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/account.json",
+      "resolved": "/workspace/agenteam/api/openapi/account.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "artifact.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/artifact.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/system-model-management-reads-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/system-model-management-reads-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/recovery-d09-system-model-management-reads.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-system-model-management-reads.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-system-meeting-summary-selection.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-selection.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-system-meeting-summary-settings.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-settings.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-system-meeting-summary-resolution.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-resolution.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/invocation-usage-ledger-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/invocation-usage-ledger-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/recovery-d09-openai-chat-structured-wire.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/d09-openai-chat-structured-wire-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d09-openai-chat-structured-wire-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-openai-embeddings-wire.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-openai-embeddings-wire.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "outbound.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d28-central-spa-hosting.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d28-central-spa-hosting.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/system-central-spa-hosting-spec-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/system-central-spa-hosting-spec-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "account.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "accountmail.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/accountmail.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/d26-authentication-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/d26-authentication-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/personal-settings-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/personal-settings-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../agent-team/public-account-entry-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/public-account-entry-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d07-account-session-smtp.md#\u5f53\u524d\u8fdb\u5ea6",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d07-account-session-smtp.md",
+      "fragment": "\u5f53\u524d\u8fdb\u5ea6"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../deploy/central.env.example",
+      "resolved": "/workspace/agenteam/deploy/central.env.example",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../deploy/runner.env.example",
+      "resolved": "/workspace/agenteam/deploy/runner.env.example",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "audit.md#cursor-\u4e0e\u90e8\u7f72\u914d\u7f6e",
+      "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+      "fragment": "cursor-\u4e0e\u90e8\u7f72\u914d\u7f6e"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "secret.md#\u90e8\u7f72\u914d\u7f6e\u4e0e\u542f\u52a8",
+      "resolved": "/workspace/agenteam/docs/development/backend/secret.md",
+      "fragment": "\u90e8\u7f72\u914d\u7f6e\u4e0e\u542f\u52a8"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "account.md#\u90e8\u7f72\u8f93\u5165\u4e0e\u9996\u6b21\u7ba1\u7406\u5458",
+      "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+      "fragment": "\u90e8\u7f72\u8f93\u5165\u4e0e\u9996\u6b21\u7ba1\u7406\u5458"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "outbound.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/outbound.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "database.md#\u7248\u672c\u4e0e\u914d\u7f6e",
+      "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+      "fragment": "\u7248\u672c\u4e0e\u914d\u7f6e"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "database.md#\u8fc1\u79fb\u4e0e\u4fee\u590d",
+      "resolved": "/workspace/agenteam/docs/development/backend/database.md",
+      "fragment": "\u8fc1\u79fb\u4e0e\u4fee\u590d"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "account.md#\u6b63\u5f0f-http-\u4e0e\u8d44\u6599\u5934\u50cf",
+      "resolved": "/workspace/agenteam/docs/development/backend/account.md",
+      "fragment": "\u6b63\u5f0f-http-\u4e0e\u8d44\u6599\u5934\u50cf"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/model-system.json",
+      "resolved": "/workspace/agenteam/api/openapi/model-system.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "accountmail.md#smtp-\u4e0e\u65e5\u5fd7",
+      "resolved": "/workspace/agenteam/docs/development/backend/accountmail.md",
+      "fragment": "smtp-\u4e0e\u65e5\u5fd7"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/project-owner.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-owner.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d08-project-owner-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-read-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d08-project-owner-update-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d08-project-owner-update-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/project-owner.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-owner.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/project-models.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-models.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-project-model-owner-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-project-model-credentials-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/project-model-credentials.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-model-credentials.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-project-model-configuration-write-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/project-models.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-models.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "audit.md#project-owner-audit-http",
+      "resolved": "/workspace/agenteam/docs/development/backend/audit.md",
+      "fragment": "project-owner-audit-http"
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d04-project-owner-audit-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/project-audit.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-audit.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/project-usage.json",
+      "resolved": "/workspace/agenteam/api/openapi/project-usage.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d09-project-usage-read-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-project-usage-read-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../../../api/openapi/runtime-information.json",
+      "resolved": "/workspace/agenteam/api/openapi/runtime-information.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d28-system-runtime-information-http.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d28-system-runtime-information-http.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "artifact.md",
+      "resolved": "/workspace/agenteam/docs/development/backend/artifact.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d05-object-storage-research.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-research.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d05-object-storage-artifact.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d05-object-storage-artifact.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/backend/README.md",
+      "target": "../work-items/d06-transactional-outbox-design.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d06-transactional-outbox-design.md",
+      "fragment": ""
+    }
+  ],
+  "count": 66,
+  "note": "No Git command or product test; direct original-byte diff and local link/format checks only."
+}

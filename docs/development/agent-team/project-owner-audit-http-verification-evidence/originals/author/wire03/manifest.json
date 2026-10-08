@@ -1,0 +1,30 @@
+{
+  "status": "frozen; three extreme corrections actual ordinary PASS",
+  "previous": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire02/manifest.json",
+    "sha256": "8acb7460d09446720e72ca9ac3052425acb62aa965d0c2f8525a4bd13c4349a5"
+  },
+  "files": {
+    "internal/central/audit/http/project_wire_test.go": {
+      "sha256": "13263bd2dc40db5a20af6f0e2f893bed2857e0fed9a4fa9f1de29af9eac997c7",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire03/src/internal/central/audit/http/project_wire_test.go"
+    },
+    "api/openapi/project-audit.json": {
+      "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire02/src/api/openapi/project-audit.json"
+    }
+  },
+  "delta_sha256": "dbd16b2e930315ffc348077d8c35a398a18f9051aed47f41564fa0000183b952",
+  "review_sha256": "483deee72843a6e493078f1403f3cd86cbe211f1b34f5eb02f3f931a1c734b2c",
+  "run": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire-run08/result.json",
+    "sha256": "be38df1a2c11baad4a65676f99fd3a398c5a44ddda9bfa145a9e88987638f4f4"
+  },
+  "raw": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire-run08/stdout.log",
+    "sha256": "d3fd73292f4f4cd0e9529c56070b9b19618b750a2c7e8d22c1aa66d425562be8"
+  },
+  "maximum_page_bytes": 598220,
+  "real_signer_page_bytes": 590584,
+  "schema_vectors": 341
+}

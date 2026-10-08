@@ -1,0 +1,52 @@
+{
+  "status": "PASS_COMPLETE_BOUNDED_16",
+  "blocking_findings": [],
+  "source_count": 16,
+  "baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "technical14_reused_unchanged": true,
+  "technical_result": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/final14/result.json",
+    "sha256": "4d89b7dfe24acfc3757191c3f66d09e1b2d071aaffeb33da48bce7ef881c221e"
+  },
+  "technical_review_preserved": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/final14/review.md",
+    "sha256": "8873adc370d4cb05c9d3f7e5fd7f34b3441213d962057f3cec8e5447264b51cf"
+  },
+  "author_manifest16": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/docs16v02/manifest16.json",
+    "sha256": "ca73454ed2498d0801a492d21acc447bc315292b306f58f009f73140877b24f5"
+  },
+  "original_docs16_preserved": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/docs16/manifest16.json",
+    "sha256": "67243f64063c33d8f88c6152a926176431b55fff0598e9ea8c9a6d7d33d92624"
+  },
+  "wording_delta": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/docs16v02/delta.diff",
+    "sha256": "f90b3fde33594ba52d2eb384762a327f7a0e6b75b0f6dba23a18c3ad94543eef"
+  },
+  "sources": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/final16/sources.json",
+    "sha256": "7da42e56bafa8efd9889b38f9e6ced13bade90c6166e08503f39a55e43f778df"
+  },
+  "link_format_checks": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/final16/checks.json",
+    "sha256": "7e6a4e04441b668d6c000cb710f834f05abe74702a30355f3832f0e30c31e623"
+  },
+  "checker": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/doc-final-check.py",
+    "sha256": "753eb7164eef5d875ad90c58ac95359e64df24879f23adc3f2a2628dd577c945"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/final16/review.md",
+    "sha256": "8cda8a796243352320fe0654933bdb518e77d5b8275e2b77cdadd8c5e8fe10a2"
+  },
+  "correction": {
+    "original_report": "final14/review.md",
+    "original_phrase": "跨Session与limit绑定cursor",
+    "corrected": "Cursor binds scope/filter/order only; limit may change; not bound to Session. Every request still checks current Session/Owner in the same Tx.",
+    "production_or_tests_changed": false
+  },
+  "validation_reused": "full frozen STATIC/pure/race/native/PG/schema version combination from final14; no test rerun for two docs",
+  "resource_state": "no active verifier command or owned resource; prior real window explicitly returned root",
+  "limits_reused_from_final14": true
+}

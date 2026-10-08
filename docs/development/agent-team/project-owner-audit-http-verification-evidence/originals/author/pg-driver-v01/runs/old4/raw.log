@@ -1,0 +1,91 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.58.105.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=9d3f228707fe4c4e52b6d49d8821aa6f
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=800db52c37f589b6b0767546c31ebfa5
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.033s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.032s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.033s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	3.049s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.024s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.034s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+=== RUN   TestModelProjectConfigurationWriteHTTPDefaultRoot
+    project_configuration_write_http_root_test.go:98: default app.Run/no replacement Store or handler: init failure no listener; formal credentials and six writes share existing Authority; five reads/Owner Update/Usage/System/Summary retained; stable restart receipts; unresolved production Resolution/Invocations still unbound
+--- PASS: TestModelProjectConfigurationWriteHTTPDefaultRoot (7.16s)
+=== RUN   TestModelProjectCredentialHTTPDefaultRoot
+=== RUN   TestModelProjectCredentialHTTPDefaultRoot/actual_writer_shutdown_3s
+    project_credentials_http_root_test.go:201: default root original Secret writer uniquely held command EX at key-gate barrier; backend 142 shutdown 3s client actually joined; forced app return is not a claim of every inner join
+=== RUN   TestModelProjectCredentialHTTPDefaultRoot/actual_writer_shutdown_100ms
+    project_credentials_http_root_test.go:201: default root original Secret writer uniquely held command EX at key-gate barrier; backend 145 shutdown 100ms client actually joined; forced app return is not a claim of every inner join
+--- PASS: TestModelProjectCredentialHTTPDefaultRoot (6.17s)
+    --- PASS: TestModelProjectCredentialHTTPDefaultRoot/actual_writer_shutdown_3s (0.51s)
+    --- PASS: TestModelProjectCredentialHTTPDefaultRoot/actual_writer_shutdown_100ms (0.61s)
+=== RUN   TestModelProjectOwnerUpdateHTTPRootBinding
+=== RUN   TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-3s
+    project_owner_update_http_root_test.go:289: target Project/update planned fact + unique registry waiter holding exact command lock bound original backend 159 shutdown 3s proxy original COMMIT terminal separately joined; forced root return does not prove inner joins
+=== RUN   TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-100ms
+    project_owner_update_http_root_test.go:289: target Project/update planned fact + unique registry waiter holding exact command lock bound original backend 168 shutdown 100ms proxy original COMMIT terminal separately joined; forced root return does not prove inner joins
+=== NAME  TestModelProjectOwnerUpdateHTTPRootBinding
+    project_owner_update_http_root_test.go:114: public default root real Audit/Outbox/Project Service; original key preserved, current GET differs from historical receipt; actual shutdown
+--- PASS: TestModelProjectOwnerUpdateHTTPRootBinding (6.72s)
+    --- PASS: TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-3s (0.66s)
+    --- PASS: TestModelProjectOwnerUpdateHTTPRootBinding/inflight-Unknown-shutdown-100ms (1.65s)
+=== RUN   TestModelProjectUsageHTTPRootBinding
+    project_usage_http_root_test.go:239: public default app.Run read formally prepared nonempty Usage, six GET/HEAD responses and old routes shared one connection; readiness stayed false; shutdown actually joined
+--- PASS: TestModelProjectUsageHTTPRootBinding (4.39s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	25.482s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce be51c5fc36a648de7b790ddb600c12e9
+D04 outbound fixture cleanup checked for nonce 800db52c37f589b6b0767546c31ebfa5
+D05 object fixture exact resource cleanup checked nonce=9d3f228707fe4c4e52b6d49d8821aa6f

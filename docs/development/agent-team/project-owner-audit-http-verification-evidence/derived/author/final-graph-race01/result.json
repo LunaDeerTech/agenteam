@@ -1,0 +1,47 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/final-graph-race01/result.json",
+    "sha256": "b77e6e592e8c801766a34f12bba95849b2c003b95e88cbe8edbf1e0616ad6708",
+    "bytes": 532212
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3758
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.099561820999952,
+    "direct_child_pid": 1172615,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1172615,
+        "ppid": 1172591,
+        "pgid": 1172615,
+        "state": "Z",
+        "starttime": "4589523"
+      },
+      {
+        "pid": 1172620,
+        "ppid": 1172615,
+        "pgid": 1172615,
+        "state": "R",
+        "starttime": "4589528"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "bc2f9a330f29596f5b971e77f5945b5d24e3617c08c33bdee92992d561d7fd48",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

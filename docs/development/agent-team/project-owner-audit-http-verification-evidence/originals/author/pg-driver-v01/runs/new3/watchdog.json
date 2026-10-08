@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47198.922374968,
+      "top": "TestModelProjectAuditHTTPAuthorityAndTerminal"
+    },
+    {
+      "event": "result",
+      "monotonic": 47203.793504723,
+      "observed_seconds": 4.871129754996218,
+      "reported_seconds": 4.87,
+      "state": "PASS",
+      "top": "TestModelProjectAuditHTTPAuthorityAndTerminal"
+    }
+  ],
+  "expected": [
+    "TestModelProjectAuditHTTPAuthorityAndTerminal"
+  ],
+  "failures": []
+}

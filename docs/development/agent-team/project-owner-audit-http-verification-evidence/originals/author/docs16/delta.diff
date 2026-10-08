@@ -1,0 +1,65 @@
+--- before/docs/development/backend/audit.md
++++ after/docs/development/backend/audit.md
+@@ -1,6 +1,6 @@
+ # Audit 与签名 cursor
+ 
+-`internal/central/audit` 消费 D03 Store/Tx，`audit/contract` 只依赖基础类型与最小 `identity/contract`。`00002_audit.sql` 在同一全局迁移序列增加 `agenteam_audit.audit_records`。本库不创建 User/Session/Project 事实；D07 绑定当前 Session/System 权限，D08 负责 Owner/gate/删除 cause。现有通用库语义保持，新增 System 管理 HTTP 见下节；不提供 Project Audit HTTP。未绑定端口返回 `DEPENDENCY_UNBOUND`。规格见 [D04 B01](../work-items/d04-security-design.md#4-b01audit-与签名-cursor)。
++`internal/central/audit` 消费 D03 Store/Tx，`audit/contract` 只依赖基础类型与最小 `identity/contract`。`00002_audit.sql` 在同一全局迁移序列增加 `agenteam_audit.audit_records`。本库不创建 User/Session/Project 事实；D07 绑定当前 Session/System 权限，D08 负责 Owner/gate/删除 cause。现有通用库语义保持，System 管理 HTTP 与 Project Owner Audit GET/HEAD 均已装配，具体边界见下文。未绑定端口返回 `DEPENDENCY_UNBOUND`。规格见 [D04 B01](../work-items/d04-security-design.md#4-b01audit-与签名-cursor)。
+ 
+ ## 写入与未知提交
+ 
+@@ -49,6 +49,22 @@
+ 
+ 输出为闭合十字段 DTO，保留37种 action、13个 Service、17类 resource 和5种允许关联及其条件约束。metadata 经正式 typed 构造器重建，默认 JSON 转义后最多4096B；不输出认证材料、原 DB JSON 或关联对象正文。成功响应在写200前完整编码，最终 UTF-8 JSON 最多1 MiB（1048576B）；975420B 是保守页上界算术，不是规模性能证据。局部3s预算从预认证之前开始并继承更早 parent，实际读写、Flush、Body.Close 和取消 callback 必须完成；能力不足或短写/写错/Flush失败 abort，不作无界降级。普通日志/显式 Problem 不带 filter/cursor、记录内容或嵌套 cause，保持唯一 RequestID、安全 headers 和原其他 API 链。
+ 
++## Project Owner Audit HTTP
++
++默认 Central 根提供 `GET/HEAD /api/v1/projects/{project_id}/audit` 和 `GET/HEAD /api/v1/projects/{project_id}/audit/{audit_id}`，契约见 [Project Owner Audit 规格](../work-items/d04-project-owner-audit-http.md) 与 [Project Audit OpenAPI](../../../api/openapi/project-audit.json)。公开窄能力 `ListProject/GetProject` 在同一个真实 Tx 中先取 User Shared、再取 Project Shared，并重验当前 Human Session、Owner 和 Project Read gate；管理员没有跨 Owner 豁免，Agent/Service 不是查询主体。initialized 的 active/archiving/archived 可读，initializing/deleting 拒绝；没有新增 Audit 写入、保留期、导出、清理或生命周期流程。
++
++列表默认50条、显式1–200条，复用原16项严格 query 和签名 cursor。filter 接受通用合法动作，合法 System-only action 在 Project 下返回空页；输出为31种 Project action、14类 resource 的闭合11字段投影，历史 Actor/typed metadata/关联必须满足各分支。全部行含额外哨兵均验证，Rows.Close 后再查 Err，严格 `(created_at,id)` DESC，next_cursor 签最后实际返回行；cursor 绑定 scope/filter/order，不授权限，也不绑定 limit 或提供跨页快照。summary 只取固定安全文案，不复制 name/description、材料、模型参数、正文或原数据库 JSON。
++
++GET/HEAD 都实际读空请求体至 EOF，并完成相同授权、SQL、验证和完整编码；HEAD 不写实体，Content-Length 等于 GET 表示。其他方法405、Allow 精确 `GET, HEAD`；原 Account pathClean 先拒绝 trailing slash 等不规范路径，合法未知尾部404。完整响应最多1 MiB，写200前已验证和编码。局部3秒预算从预认证前开始并继承更早 parent，覆盖实际 I/O、Flush、Body.Close、服务和取消回调的实际收尾；逐项处理 setter/Close panic，保留原 tracked writer/RequestID/安全错误日志。过期后不发布候选或继续响应写入，尾部必须同步等待，不承诺所有 handler 在3秒内已返回。
++
++仅原读取 Tx 实际 Committed、callback 完整且 ctx 仍有效才发布。取消、错误、坏行或 Unknown 一律零 record/items/cursor；`ProjectReadUnknownAttempt` 保存原 State/Cause/AttemptID，HTTP 只用既有安全 Problem，不增加 cause 字段或头。该读取没有 command/receipt、确认端点、WithoutCancel 或自动重读；既有 `retry_hint=lookup` 不表示本口提供查证能力。旧 System facade、通用 List/Get 和写入 `LookupAppend` 不改。默认根复用同 Store、Account/Project Authority 与原 auditor，不新增 initializer/worker。
++
++本卡作者普通/race、标准 schema、三轮真实 native 和四新八旧 PG top 已通过，独立受控补集及 A02/B01 两个真实代表也通过。31动作及有限可选分支/反例的341标准例、实际200行页598220B与真实 Sign/Verify 页590584B分别有证据；8192B shape cursor 仅用于容量边界，不冒称实际签名产物。作者四份 GET 原字节及两份空 HEAD、独立两份 GET 原字节（1389B/727B）及同长度空 HEAD 均按各自来源验证；GET 由固定标准 Draft202012/FormatChecker 检查，不把合成样例当真实 HTTP。
++
++原作者 new1 的400只定位至断言行，日志未记当时 action；两新测试把 `provider.*` 误写成 `model.provider.*` 的静态缺陷修正后重跑通过，生产未变，原 STATIC 漏检保留。独立 A01 私有坏 metadata 注入先被既有 SQL CHECK 拒绝，未进入待测 List；改用 PostgreSQL 可存而正式 scanner 拒绝的 UUIDv4 request_id 后 A02 通过，不放宽 SQL 或生产校验。所有原失败和版本组合保留。三 native 轮实际等待 direct3/adopted3、9个 listener 的全 TCP 含 TIME_WAIT 及 owned 双清；作者九轮和独立三轮 PG 各七资源实际等待/双清，daemon/PID1 差集另列未 wait，不声称全机清零。
++
++物理 Unknown 证据绑定同一原读取 backend 的 `C(COMMIT)` 与 `Z(I)` 后丢失 ACK，保留原 cause/attempt，与结果装饰分开。正常关闭和100ms耗尽均有实际根路径；强制 root 返回不能由后续 fixture/client/backend 退役倒填为全部 inner join。正式 Account 身份和真实 Project/Secret/Model producer 参与主链，隔离 Skills 辅助不等于生产创建绑定。生产 Resolution/Invocations、D24、Project 创建/生命周期根仍未绑定，ready503；Object runtime join、OpenAI tools 独审、SPA 并发发布三停止保持，本卡不宣称完整 D04/D27、UI 或 Runtime 完成。
++
+ ## cursor 与部署配置
+ 
+ `AGENTEAM_CENTRAL_CURSOR_KEYRING` 从本块起必填，进程不自动生成、不从数据库或 UI 读取：
+@@ -95,4 +111,4 @@
+ 
+ 独立私有 overlay 的 selector 为 ^(TestAuditIndependentCurrentAuthorityAndTerminal|TestAuditIndependentRootProducerProjection)$，同轮两项 PASS、actual exit0 /105.717s；这些探针不是仓库公开测试入口。前者是真实 PG/正式 Authority 加受控 writer，后者为同 root 原生连接；受控 writer 提交前未发布不能称 TCP 零字节。真实 DB1s锁超时不冒称自然3s，Unknown 零候选沿受控验证。全部资源轮实际等待并双清，自有 ID/PID 与原基线分开，历史 PPID1 僵尸不在回收声明中。原纯测/trace/native 前提失败及 query-pure02 早退路径缺少独立 goroutine join 证据的限制均保留。
+ 
+-本结果不覆盖 Project Audit HTTP、UI、完整 D04/D27、SPA 或 Runtime。后续主线新增同包前端 harness 的整合编译/发现需另记，固定基线真实轮不冒称后续主线动态验证。
++上述 System 管理 HTTP 的历史验收不覆盖 Project Audit HTTP；Project 的当前范围见上节。该历史验收仍不覆盖 UI、完整 D04/D27、SPA 或 Runtime。后续主线新增同包前端 harness 的整合编译/发现需另记，固定基线真实轮不冒称后续主线动态验证。
+--- before/docs/development/backend/README.md
++++ after/docs/development/backend/README.md
+@@ -2,7 +2,7 @@
+ 
+ 根 module 为 `github.com/LunaDeerTech/agenteam`，固定 Go 1.27.1。Central 已装配固定 pgx/Goose 数据库库，见[数据库说明](database.md)。Audit 的同事务追加、授权查询/生命周期清理端口与独立签名 cursor 已实现，见[Audit 说明](audit.md)。Secret 的 envelope、引用/lease、加密 receipt 和可恢复主密钥维护见 [Secret 说明](secret.md)。动态策略、受控 HTTP 与 SMTP 拨号端口见[出站说明](outbound.md)。D05 对象库提供受限流式存储、授权 reference/lease、Artifact/下载和 typed Runner transfer，接口与阶段见[对象实施规格](../work-items/d05-object-storage-design.md)。Central 与 Runner 分别装配；Runner 不导入 Central。中立 `internal/platform` 只处理进程日志和关闭协调，不提供授权、业务幂等、数据库事务或 Runner 设备协议。
+ 
+-Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断、正式账户 HTTP、System Model 配置 HTTP、Project Owner 元数据读取与更新、Model 配置与安全 chat 目录读取、Project Owner 模型凭据管理、Provider/Model 配置写入与原命令查证，以及 Project Owner Usage 只读 HTTP。默认根已绑定 System Provider/Model CRUD、平台 selector、Model credential 独立写入及 Model 配置和 credential 两类原命令查证，使用真实 Account Session/admin、同一 Secret/Audit/Outbox；接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)，装配边界见[根装配规格](../work-items/recovery-d09-system-model-root.md)。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 仍为 `account.mail-enqueue`，没有 Model consumer。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)；已证实的 [Object runtime join 缺陷](../agent-team/object-runtime-join-regression.md)尚未修复，本次 System Model 根装配不解除该限制。Artifact/通用下载 HTTP、Project 创建与生命周期、Runner/Operation、Model Resolver/Invocation Facts 写入和实际 Provider/MCP 调用仍未绑定。系统管理员统一选择 Meeting Summary 模型的 S1 持久化库、S2 设置 HTTP 与默认根初始化、S3 解析库已实现，默认根 Resolution 与实际 Meeting 消费仍未绑定，详见下文；完整 D09 未完成。Runner 是未连接进程，整体 `ready=false`、`/readyz` 仍为 503。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
++Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断、正式账户 HTTP、System Model 配置 HTTP、Project Owner 元数据读取与更新、Model 配置与安全 chat 目录读取、Project Owner 模型凭据管理、Provider/Model 配置写入与原命令查证，以及 Project Owner Usage 与 Audit 只读 HTTP。默认根已绑定 System Provider/Model CRUD、平台 selector、Model credential 独立写入及 Model 配置和 credential 两类原命令查证，使用真实 Account Session/admin、同一 Secret/Audit/Outbox；接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)，装配边界见[根装配规格](../work-items/recovery-d09-system-model-root.md)。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 仍为 `account.mail-enqueue`，没有 Model consumer。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)；已证实的 [Object runtime join 缺陷](../agent-team/object-runtime-join-regression.md)尚未修复，本次 System Model 根装配不解除该限制。Artifact/通用下载 HTTP、Project 创建与生命周期、Runner/Operation、Model Resolver/Invocation Facts 写入和实际 Provider/MCP 调用仍未绑定。系统管理员统一选择 Meeting Summary 模型的 S1 持久化库、S2 设置 HTTP 与默认根初始化、S3 解析库已实现，默认根 Resolution 与实际 Meeting 消费仍未绑定，详见下文；完整 D09 未完成。Runner 是未连接进程，整体 `ready=false`、`/readyz` 仍为 503。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
+ 
+ System Model 管理读口已实现并通过[独立验收](../agent-team/system-model-management-reads-verification.md)：GET/HEAD `/api/v1/system/model-credentials/{id}` 只返回当前安全 metadata（credential ID、purpose、version）；GET/HEAD `/api/v1/system/models/{id}/deletion-impact` 返回有界精确引用统计、替换要求和已知 adapter 阻断。两类读取各自拥有完整锁 union 的读取事务，在同一 Tx 内重验当前 Session/admin 后读取；最长 3 秒预算包含 HTTP 认证、锁等待和 SQL，并继承更早的调用方取消。仅确认 Committed 且 context 仍有效才返回结果，失败、Unknown 或取消不返回候选数据，也不自动重读。预览不授予删除权限，后续 DeleteModel 仍重验当前引用与替换事实；外域引用 adapter 仍未绑定。精确接口与边界见[管理读口规格](../work-items/recovery-d09-system-model-management-reads.md)。
+ 
+@@ -234,6 +234,14 @@
+ 
+ 本卡不绑定 Agent/Project Summary 引用替换 adapter、UI、生产 Resolution/Invocations、实际 Provider 调用或 D24，不完成整个 D09。系统管理员统一 Summary 无 Project override；原三项停止边界、`ready=false` 与 `/readyz` 503 保持。
+ 
++## Project Owner Audit 只读 HTTP
++
++默认根已提供 `GET/HEAD /api/v1/projects/{project_id}/audit` 与 `GET/HEAD /api/v1/projects/{project_id}/audit/{audit_id}`，见 [Audit 说明](audit.md#project-owner-audit-http)、[实施规格](../work-items/d04-project-owner-audit-http.md)和 [Project Audit OpenAPI](../../../api/openapi/project-audit.json)。公开 `ListProject/GetProject` 在同一实际事务中按 User SH→Project SH 重验当前 Human Session、Owner 与 Read gate；管理员没有跨 Owner 豁免，归档可读，initializing/deleting 拒绝。列表默认50、最多200，完整验证全行及额外哨兵，沿原 scope/filter/order 签名 cursor；返回闭合安全 metadata、关联 ID 和固定 summary，不返回业务正文或认证材料。
++
++局部3秒预算从预认证前开始并继承更早 parent，包含实际读写/Flush、Body.Close、事务与取消回调收尾；尾部实际等待，不承诺全 handler 三秒已返回。HEAD 完成同一授权/查询/编码，仅省略实体并保留表示长度。仅实际 Committed、callback 完整且 ctx 有效才发布；Unknown/取消/损坏行均零候选，原 State/Cause/Attempt 内部保留。没有 command/receipt、确认端点或自动重读，也不新增 initializer/worker；旧 System Audit、Project/Model/凭据/配置/Usage 路由保留。
++
++作者四新八旧 PG top、三 native 轮和独立 A02/B01 真实代表通过，原作者 action 预期首红及独立 SQL CHECK 注入首红均保留，修正仅限测试。最大合法200页实编码、341标准 schema 例及作者/独立真实原字节各自验证；不把合成 cursor 容量输入当真实签名，也不把受控 writer 当 native。每轮资源实际等待并双清，daemon/PID1 未 wait 限制和强制 root 返回不证明全部 inner join 的边界保留。该结果不绑定生产 Resolution/Invocations/D24、Project 创建/生命周期或 UI，不解除 ready503、Object runtime join/OpenAI tools 独审/SPA 并发发布三停止，也不表示完整 D04 或 D09 已完成。
++
+ ## Project Owner Usage 只读 HTTP
+ 
+ 默认 Central 根已装配三个 GET/HEAD 资源，接口与闭合字段见 [Project Usage OpenAPI](../../../api/openapi/project-usage.json) 和[实施规格](../work-items/d09-project-usage-read-http.md)。沿同一 Account Store/Authority 构造 Project Authority（Sessions、Routes 均为原 Account Authority），再构造引用同一 Project Authority 的 Usage Authority/Service，并复用已加载的 cursor keyring。handler 持有这些同实例及原 Account Service 的 HTTPBoundary；读取在实际事务内重验当前 Human Session、Project Owner 与项目状态，系统管理员没有跨 Owner 读取豁免。

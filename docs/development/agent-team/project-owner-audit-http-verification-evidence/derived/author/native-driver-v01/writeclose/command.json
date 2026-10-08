@@ -1,0 +1,163 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/writeclose/command.json",
+    "sha256": "1d2eb8892221285fdd1aa07f1454b3393bed3240e0fe5ac1100fbd9aeb5e8265",
+    "bytes": 1387218
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/before",
+      "type": "dict",
+      "items": 3
+    },
+    {
+      "json_pointer": "/after",
+      "type": "dict",
+      "items": 3
+    }
+  ],
+  "retained_fields": {
+    "mode": "writeclose",
+    "driver_sha256": "9508ac5eb92dd66186c842b1ca81bfc13603718f89bdc42fa0a706d5e70644d4",
+    "driver_pid": 1179667,
+    "driver_stat": {
+      "pid": 1179667,
+      "starttime": "4643296",
+      "ppid": 850,
+      "pgrp": 1179667,
+      "state": "R",
+      "name": "python3"
+    },
+    "subreaper": true,
+    "command": [
+      "/usr/bin/strace",
+      "-D",
+      "-f",
+      "-ttt",
+      "-yy",
+      "-e",
+      "trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close",
+      "-o",
+      "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/writeclose/trace.raw",
+      "/workspace/scratch/project-owner-audit-http-author/http-race01.test",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=40s",
+      "-test.run=^TestProjectAuditHTTPNativeWriteAndFlushAbort$",
+      "-test.v"
+    ],
+    "env": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+      "TMPDIR": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/writeclose/tmp",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOPATH": "/workspace/go",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOWORK": "off",
+      "CGO_ENABLED": "1",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_AUDIT_NATIVE": "1"
+    },
+    "cwd": "/workspace/agenteam/internal/central/audit/http",
+    "budget_seconds": 45,
+    "cleanup_grace_seconds": 15,
+    "started": 1791420482.000465,
+    "direct_pid": {
+      "pid": 1179691,
+      "starttime": "4643382",
+      "ppid": 1179667,
+      "pgrp": 1179691,
+      "state": "R",
+      "name": "strace"
+    },
+    "execution_elapsed_seconds": 7.190268266997009,
+    "exit": 0,
+    "actual_waits": [
+      {
+        "role": "direct",
+        "pid": 1179691,
+        "starttime": "4643382",
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791420489.1907895
+      },
+      {
+        "role": "adopted",
+        "pid": 1179695,
+        "starttime": "4643383",
+        "wait_status": 0,
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791420489.1979656
+      }
+    ],
+    "signals": [],
+    "owned_processes": [
+      {
+        "pid": 1179691,
+        "starttime": "4643382",
+        "ppid": 1179667,
+        "pgrp": 1179691,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791420482.0009794
+      },
+      {
+        "pid": 1179695,
+        "starttime": "4643383",
+        "ppid": 1179667,
+        "pgrp": 1179691,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791420482.0125575
+      }
+    ],
+    "execution_finished": 1791420489.20494,
+    "inputs_unchanged": true,
+    "finished": 1791420543.9089315,
+    "listener_ports": [
+      33349,
+      39683,
+      42671,
+      43379,
+      44303
+    ],
+    "all_ports": [
+      33212,
+      33349,
+      39683,
+      42671,
+      43266,
+      43379,
+      44303,
+      51266,
+      58170,
+      60346
+    ],
+    "double_all_port_and_process_zero": true,
+    "trace_sha256": "792910e69f81f5d9f80040b7abd992d352b0b864552f06fab76dc1f848bcc5fd",
+    "raw_sha256": "c804efbf207b150b1522d8397a91ef3b03296aa241c3dd581ba03272dfd144df",
+    "test_results": {
+      "top_passes": [
+        "TestProjectAuditHTTPNativeWriteAndFlushAbort"
+      ],
+      "sub_passes": [
+        "TestProjectAuditHTTPNativeWriteAndFlushAbort/short-write-GET",
+        "TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-GET",
+        "TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-HEAD",
+        "TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-write-GET",
+        "TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-flush-HEAD"
+      ],
+      "test_bodies": true
+    },
+    "exact_test_results": true,
+    "expected_listeners_observed": true,
+    "expected_connection_pairs": 5,
+    "pass": true
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/http-racevet01/result.json",
+    "sha256": "7c26fbb778da85ad759e0591d83762aad467cf470a8e2e80338b3502cd2d2d26",
+    "bytes": 532862
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3758
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.603272398999252,
+    "direct_child_pid": 1173688,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1173688,
+        "ppid": 1173667,
+        "pgid": 1173688,
+        "state": "Z",
+        "starttime": "4596103"
+      },
+      {
+        "pid": 1173715,
+        "ppid": 1173688,
+        "pgid": 1173688,
+        "state": "R",
+        "starttime": "4596121"
+      },
+      {
+        "pid": 1173719,
+        "ppid": 1173688,
+        "pgid": 1173688,
+        "state": "R",
+        "starttime": "4596125"
+      },
+      {
+        "pid": 1173723,
+        "ppid": 1173688,
+        "pgid": 1173688,
+        "state": "R",
+        "starttime": "4596130"
+      },
+      {
+        "pid": 1173727,
+        "ppid": 1173688,
+        "pgid": 1173688,
+        "state": "R",
+        "starttime": "4596144"
+      },
+      {
+        "pid": 1173731,
+        "ppid": 1173688,
+        "pgid": 1173688,
+        "state": "S",
+        "starttime": "4596150"
+      },
+      {
+        "pid": 1173735,
+        "ppid": 1173688,
+        "pgid": 1173688,
+        "state": "Z",
+        "starttime": "4596170"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

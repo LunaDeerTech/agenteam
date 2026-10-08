@@ -1,0 +1,17 @@
+# Audit wire02 独立定向复核
+
+结论：AUD-WIRE-01/02/03 全部关闭；两源差量及受影响标准解析 PASS。原 wire01 完整schema审查未变化范围复用，production01五源原字节且原STATIC结论保持。全卡动态/所有分支精确极值仍不据本切片宣布完成。
+
+manifest 8acb7460…349a5、两源/全部reference/diff/mapping SHA逐项匹配。独立重新比对实际 schema：四operation Allow精确GET, HEAD，trailing400/canonical未知404及System-filter空Project说明已正；handler_id新增排除一切非法ASCII字符的not条件，不再依赖$末尾语义；四non-operation动作引用新closed四字段ProjectNonOperationAssociations，其余四operation动作仍用原含可选operation_id分支。没有修改公共common/业务端口/生产。
+
+独立原40向量只切到wire02 schema，使用同Draft202012+FormatChecker/正式日历语义/common本地引用/20官方schemaJSON。40全部匹配，actual0/0.9474768s，subreaper/direct实际wait、两次owned空、无actions/残留、输入同。原probe01错误Instant正例与probe02真实两反例全部保留；新轮不覆盖原记录。恢复后重新核Python hash与live verifier进程为空，没有把恢复当旧命令wait。没有Go/native/PG/仓库修改。
+
+作者wire-run07及实际compile→binary→run输入链复核：#6/#8指纹匹配manifest、binary匹配command；actual0/12.259047562s、directwait/双owned空/inputsame；同步exec.CommandContext/CombinedOutput在Go返回前等待标准parser。341向量增加合法Human/Agent/Service、Object initiator/service、Artifact source/phase与缺省、Secret4Outcome、Project另一transition、Access3resource、Model无replacement；补4类record missing/null全11字段、每action System-only/resource错配、四禁止operation、5行终止符、数字/MIME/changed重复及phase/actor负例；另4个跨ID例调用真实production projection拒绝，没有宣称schema实现ID值相等。
+
+31动作代表已加强19位数/MIME转义/可选reason/Secret changed全集/ArtifactAgent与uploaded_object/failed分支；200完整页598220B，所测最大ObjectTransferRevoke2949B/metadata1922B。真实Keyring Sign/Verify绑定Project/规范空FilterDigest/AuditOrder/row200，token556B、页590584B并同标准schema验证；8192只是capacityshape，未冒真实签名长度。SQL201消费+row200cursor归属于作者query-run02和此前独立query-controlled，不冒HTTP/PG201已验。
+
+剩余精确极值口径（已报root）：#6 extreme仍未替换 ObjectUploadComplete/ObjectDelete 的旧ObjectService为更长ObjectMaintenance；Outbox reason_code仍operator_retry而非更长dependency_restored；AccessDeny主极值仍outbound_policy无id，而其secret/agent带id仅非extreme分支测试。因而review中的“all legal metadata present at maximum/longest allowed service”过强。三者不改变当前全局最大代表结论或1037420B静态全空间包络，但卡§4每动作最大允许组合应由作者做这三个有界选择补足或明确门禁尚待；当前不把该尚待项误记成生产/schema缺陷。无需扩1MiB预算或全矩阵笛卡尔重跑。
+
+原作者失败版本保持：wire-run01错误cwd未到schema、wire-run02 policy id误required；wire-run04非canonical Digest输入；wire-run06原negative已处于failed outcome而期望false。wire-run05/07 PASS均按各自输入保存，不覆盖旧597820/新598220差别。
+
+未验证：本轮race新增#6、实际31页HTTP原body与最终schema联验、真实native3s尾部、当前Session/Owner真实锁/原read物理Unknown、默认root与关闭，以及其余活动测试源。当前私有probe/审查已冻结停写、无活动命令。

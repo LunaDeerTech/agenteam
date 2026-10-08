@@ -1,0 +1,79 @@
+{
+  "status": "PASS_PURE_NORMAL_AND_RACE_ONLY",
+  "candidate": "/workspace/scratch/project-owner-audit-http-author/candidate01/manifest.json",
+  "candidate_sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0",
+  "source_sha256": "28b3b266c84d8a38c75bc9c1085240309b6b95b0e90d2e647e694d5975e0a46c",
+  "input_sha256": "8927150e025a0808fa497f789499b1f908115c8f7bdd7a304942b7c278391c8d",
+  "binary_input_sha256": "15e5c3eda6da47d233087a9b26acb0c1ced3f5fd13a8b59a6c4b245b4066c83d",
+  "driver_sha256": "b761d92d8f61fe63adc457d2571f1ec5dd9db5c74d16e8e37c4988ae2000edd2",
+  "overlay_sha256": "f3dff94cab50fad7db8a616a35cf35d856eb9025f12b5e58163f61af38dde701",
+  "selector": "^TestIndependentProjectAuditHTTPControls$",
+  "runs": [
+    {
+      "name": "format01",
+      "elapsed_seconds": 0.9013791430043057,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/format01/result.json",
+      "sha256": "887354378e0809dd1cb2ce2accf9e8a757d61d727f11b7a4b90e4cd3ddde1c0a",
+      "command_sha256": "91e1030e316989ede6cf7d6719fb48abb6864741b6df55c257feb6e43aa71b23",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "graph-normal01",
+      "elapsed_seconds": 1.1495540369942319,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/graph-normal01/result.json",
+      "sha256": "2f57d5dd1548b051ce2874a04e12fad3512deb1e77720c46812dfc4679c81d64",
+      "command_sha256": "d33ba83f3ae6baf9bdc5ec41f6578dc2814667749e4282d384e86c78b8265bb7",
+      "stdout_sha256": "3046f21458f8f28887e956c299b8eb61971ac02f243ab3778f7aa5b5a3f0c1bf"
+    },
+    {
+      "name": "graph-race01",
+      "elapsed_seconds": 1.0896259770015604,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/graph-race01/result.json",
+      "sha256": "4718f99bc72c8422367e69389728f12cd1022c474f7cd5a951ccc21115ef99cf",
+      "command_sha256": "5a368dfa839a381bf3f27211cdcd460117ee297fffb6eb1d5265ee73485177ec",
+      "stdout_sha256": "b49de185f9e93330553f416e9d0264fdc06d699e4dd0445f3bfe53248858ca4f"
+    },
+    {
+      "name": "compile-normal01",
+      "elapsed_seconds": 2.5398589369942783,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/compile-normal01/result.json",
+      "sha256": "0891e2e74eea849caea058cf6a7ba4733e8e185c8d9bc32a43ef35b139867660",
+      "command_sha256": "85b79556867a370c9ac8a41e14b9796ade3062d5e56d0d27d3f5cc1a3da0691b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "compile-race01",
+      "elapsed_seconds": 3.1234189680035342,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/compile-race01/result.json",
+      "sha256": "dd34df511673d9ee475cb80a867172c6c1c623fc53a3d1e6a26ca84124465443",
+      "command_sha256": "5ba69a066be076dd58c17fd8e79ca5c0c791c4693f05923740999ba443e179e1",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "list01",
+      "elapsed_seconds": 0.854933737005922,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/list01/result.json",
+      "sha256": "eba43c1ead8d40d44fb1b12500575ab7e20ec0c02b5d78dee2b573415727c188",
+      "command_sha256": "14136c9e758b21dcf771726d831a6f4fa3d09e0d9c05201e6da56c4ae80948c4",
+      "stdout_sha256": "e891384fb2dfb4805e3225f6403cbfdaa6a00f47a4ecd279e9c79326aa6d17e9"
+    },
+    {
+      "name": "run-normal01",
+      "elapsed_seconds": 0.9025630530013586,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/run-normal01/result.json",
+      "sha256": "7fc096f5cb83c0a1835ac48eb0039099fc52d0e4988e0e83410b41a1be81ee2b",
+      "command_sha256": "cdb801a9033501887f9f4e5983f195903bef161ae9c368b49d3b7dea3d85913e",
+      "stdout_sha256": "5537fe6503eb52bc2470aef634dfaa7d114d5e4cd3d02d36f694fe9e52321962"
+    },
+    {
+      "name": "run-race01",
+      "elapsed_seconds": 1.901471742996364,
+      "result": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/run-race01/result.json",
+      "sha256": "86e0131bc0b3f9e3db3b526643abc500c7f4404ce93aff3237b269dc7c2fb2de",
+      "command_sha256": "232b480a0d6edee09adea320a881076fb671a9002b90f8f029c0bb126712aa4d",
+      "stdout_sha256": "5537fe6503eb52bc2470aef634dfaa7d114d5e4cd3d02d36f694fe9e52321962"
+    }
+  ],
+  "review_sha256": "dba72fa35fa5c7298cd52d523777846a5747d0ae11ba1280ea993734c5e7af3e",
+  "native_pg_resources": false
+}

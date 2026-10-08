@@ -1,0 +1,37 @@
+{
+  "status": "PASS_STATIC_COMPLETE_14_AND_WIRE03_DELTA",
+  "candidate_manifest": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate01/manifest.json",
+    "sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0"
+  },
+  "sources": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/candidate01-static/sources.json",
+    "sha256": "b65a9e26555869488c14b07cd57cdc6e713280268453d45f72d7041167fd0efe"
+  },
+  "inputs": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/candidate01-static/inputs.json",
+    "sha256": "a0c4828a2453c9a7081d2c8bfca7d7c1f6be522b141e966e198371ee68762285"
+  },
+  "review": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/candidate01-static/review.md",
+    "sha256": "75e418e31ee4dc91e404eb1473f25936403a8a65bb041ee2f0ee57edad21ece3"
+  },
+  "blocking": [],
+  "closed": [
+    "AUD-WIRE-01",
+    "AUD-WIRE-02",
+    "AUD-WIRE-03",
+    "wire02 three extrema remainder"
+  ],
+  "new_dynamic_execution": false,
+  "product_dynamic_accepted": false,
+  "not_run": [
+    "final author offline review",
+    "native",
+    "PG/root",
+    "independent HTTP supplement",
+    "independent real A/B",
+    "real HTTP body schema"
+  ],
+  "scope": "frozen14+fixed accepted dependencies only"
+}

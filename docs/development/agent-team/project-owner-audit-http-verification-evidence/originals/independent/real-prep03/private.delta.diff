@@ -1,0 +1,24 @@
+--- real-prep02/private.go
++++ real-prep03/private.go
+@@ -89,13 +89,14 @@
+ 		}
+ 	})
+ 	t.Run("bad-hidden-sentinel-current-authority-first", func(t *testing.T) {
+-		var original []byte
+-		if e := v.raw.QueryRow(testContext(t), `SELECT metadata::text FROM agenteam_audit.audit_records WHERE id=$1`, target.String()).Scan(&original); e != nil {
+-			t.Fatal(e)
+-		}
+-		// Only this negative case corrupts an already formally produced row.
+-		v.sql(t, `UPDATE agenteam_audit.audit_records SET metadata='{}'::jsonb WHERE id=$1`, target.String())
+-		defer v.sql(t, `UPDATE agenteam_audit.audit_records SET metadata=$2::jsonb WHERE id=$1`, target.String(), string(original))
++		var original string
++		if e := v.raw.QueryRow(testContext(t), `SELECT coalesce(request_id::text,'') FROM agenteam_audit.audit_records WHERE id=$1`, target.String()).Scan(&original); e != nil {
++			t.Fatal(e)
++		}
++		// This negative case keeps the formally produced metadata and third-row order.
++		// PostgreSQL accepts UUIDv4 here; the scanner requires UUIDv7 associations.
++		v.sql(t, `UPDATE agenteam_audit.audit_records SET request_id='00000000-0000-4000-8000-000000000000'::uuid WHERE id=$1`, target.String())
++		defer v.sql(t, `UPDATE agenteam_audit.audit_records SET request_id=NULLIF($2,'')::uuid WHERE id=$1`, target.String(), original)
+ 		bad, e := v.aud.ListProject(testContext(t), v.owner, v.project.ID, filter, f.PageRequest{Limit: 2})
+ 		requireCode(t, e, f.DependencyUnavailable)
+ 		if len(bad.Items) != 0 || bad.NextCursor != "" {

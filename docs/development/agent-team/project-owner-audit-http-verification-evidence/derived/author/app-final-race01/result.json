@@ -1,0 +1,40 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/app-final-race01/result.json",
+    "sha256": "23441d2513acae60a7b1dc9715f36ea0a68fb86daecdd969d9cf5cbace4a6d3a",
+    "bytes": 532225
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3759
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.9185103880008683,
+    "direct_child_pid": 1173858,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1173858,
+        "ppid": 1173857,
+        "pgid": 1173858,
+        "state": "Z",
+        "starttime": "4596868"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "2ca4ba7c787854e11d233c68fd61a9ce04a1e62b78ae757101b52af6cdb13d24",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

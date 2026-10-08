@@ -1,0 +1,468 @@
+{
+  "status": "AUTHOR_NINE_PG_RAW_INDEX_AND_TERMINAL_CHECKS_PASS_WITH_ORIGINAL_NEW1_FAIL_PRESERVED",
+  "summary": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/result-summary.json",
+    "sha256": "f452f7a4ffc8255944d018141bb550b41c0acfadb9e15803fcfd3469d97790a6"
+  },
+  "rows": [
+    {
+      "run": "new1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/result.json",
+        "sha256": "6c5758d769c6fa080d16c24cbac8574f966bc2004085e55051f803acb10789c9"
+      },
+      "exit": 1,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestModelProjectAuditHTTPProjectionAndPaging"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1181303,
+          "ppid": 1,
+          "starttime": "4654933",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1181669,
+          "ppid": 1,
+          "starttime": "4655214",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1182041,
+          "ppid": 1,
+          "starttime": "4655437",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1182637,
+          "ppid": 1,
+          "starttime": "4655654",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/result.json",
+        "sha256": "240e0978fd68187a21a21f460de23d5835021f639874cf5b9fbfed6cf42a2ec4"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPProjectionAndPaging"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1196659,
+          "ppid": 1,
+          "starttime": "4707691",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1197010,
+          "ppid": 1,
+          "starttime": "4707927",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1197281,
+          "ppid": 1,
+          "starttime": "4708104",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1197876,
+          "ppid": 1,
+          "starttime": "4708306",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new3/result.json",
+        "sha256": "13a265d83553f515d6dbd97a288995612bb27baac59ebc589dbea7333a4e6627"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPAuthorityAndTerminal"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1204861,
+          "ppid": 1,
+          "starttime": "4716178",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1205385,
+          "ppid": 1,
+          "starttime": "4716577",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1205687,
+          "ppid": 1,
+          "starttime": "4716777",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1206291,
+          "ppid": 1,
+          "starttime": "4716966",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new4",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/result.json",
+        "sha256": "1c5863f5d4f54aea8fe58c3c8bd2e7fade1e3bc83c7d1a8856011698930d7326"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPDefaultRoot"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1212202,
+          "ppid": 1,
+          "starttime": "4723473",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1212656,
+          "ppid": 1,
+          "starttime": "4723870",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1213024,
+          "ppid": 1,
+          "starttime": "4724073",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1213524,
+          "ppid": 1,
+          "starttime": "4724247",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "new5",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new5/result.json",
+        "sha256": "7cbf368099b0f41533bcaa5a718e9d1477ef612e91c6ac7b30d07f10859d3c73"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectAuditHTTPShutdown"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1219645,
+          "ppid": 1,
+          "starttime": "4730589",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1220082,
+          "ppid": 1,
+          "starttime": "4730958",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1220441,
+          "ppid": 1,
+          "starttime": "4731137",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1220947,
+          "ppid": 1,
+          "starttime": "4731338",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old1",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old1/result.json",
+        "sha256": "9255b263a21f9e88689027e54242a68564185924b6d18ef1a659693a77f30937"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestSystemAuditHTTPQueryAndProjection"
+        ],
+        [
+          "PASS",
+          "TestSystemAuditHTTPTransactionAndBudget"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1227098,
+          "ppid": 1,
+          "starttime": "4737941",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1227549,
+          "ppid": 1,
+          "starttime": "4738311",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1227921,
+          "ppid": 1,
+          "starttime": "4738500",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1228441,
+          "ppid": 1,
+          "starttime": "4738699",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old2",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old2/result.json",
+        "sha256": "b9e77abd9a7cc4f6da46d871eee11c7e7c7bfe36c32321846a3a52476d5b592f"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestSystemAuditHTTPRootProducerBinding"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1235026,
+          "ppid": 1,
+          "starttime": "4745535",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1235577,
+          "ppid": 1,
+          "starttime": "4745981",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1235950,
+          "ppid": 1,
+          "starttime": "4746227",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1236451,
+          "ppid": 1,
+          "starttime": "4746405",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old3",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old3/result.json",
+        "sha256": "bfb5124f0a5606e3814c09da2d8d0330e515c49f2aef5d703985d1a87d0c6298"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAuditPaginationBindingsFiltersAndRevocation"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1242139,
+          "ppid": 1,
+          "starttime": "4752819",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1242514,
+          "ppid": 1,
+          "starttime": "4753049",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1242796,
+          "ppid": 1,
+          "starttime": "4753246",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1243373,
+          "ppid": 1,
+          "starttime": "4753424",
+          "state": "Z"
+        }
+      ]
+    },
+    {
+      "run": "old4",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/old4/result.json",
+        "sha256": "6f29d248ccaf2eb473302dd28da9a5f16bd804a682c4764947f08455b599ff62"
+      },
+      "exit": 0,
+      "top_levels": [
+        [
+          "PASS",
+          "TestModelProjectConfigurationWriteHTTPDefaultRoot"
+        ],
+        [
+          "PASS",
+          "TestModelProjectCredentialHTTPDefaultRoot"
+        ],
+        [
+          "PASS",
+          "TestModelProjectOwnerUpdateHTTPRootBinding"
+        ],
+        [
+          "PASS",
+          "TestModelProjectUsageHTTPRootBinding"
+        ]
+      ],
+      "actual_wait_7_double_clear_inputs_same": true,
+      "daemon_delta": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1248977,
+          "ppid": 1,
+          "starttime": "4759719",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1249431,
+          "ppid": 1,
+          "starttime": "4760121",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1249855,
+          "ppid": 1,
+          "starttime": "4760344",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 1250405,
+          "ppid": 1,
+          "starttime": "4760556",
+          "state": "Z"
+        }
+      ]
+    }
+  ],
+  "new1_limit": "raw lacks current action; no observed action retrofill",
+  "note": "Independent A01 is additional failure and not included in these nine author rounds."
+}

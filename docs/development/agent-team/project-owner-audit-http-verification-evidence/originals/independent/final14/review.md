@@ -1,0 +1,17 @@
+# Project Owner Audit HTTP — independent technical 14 PASS
+
+固定接受基线 cc850b2244cad771eb862a2c82d99887d5da7284；最终候选为作者 candidate02（455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d）。本结论限正式卡 #1–14，当前14路径与冻结副本逐一同hash。#15 audit.md / #16 backend README 由作者随后完成并单独窄审；此时不声明文档末件或整个D04/D08/D09完成。无剩余技术阻断。精确来源、原命令、hash与限制在 result.json。
+
+完整STATIC沿五生产、query、schema和完整candidate01覆盖复用，candidate02仅两测试的Provider动作命名空间修正。53种合法filter/31种Project输出、13个service/14个resource闭集、三Actor及条件metadata投影、无正文泄漏、同一Reader根装配、3s I/O与同步收尾都在限定审查内。查询事务固定User SH→Project SH，当前Session优先于Owner Read与可观察记录；不采纳System管理员跨项目越权。完整201哨兵/第202越界、Rows.Close错误、跨Session与limit绑定cursor、原Unknown结果零候选与无自动确认，均有库及受控验证。
+
+独立纯验证沿冻结隔离overlay普通/race实际通过：query 1top9sub/每模式，HTTP补集1top2sub/每模式。HTTP补集覆盖Close panic仍等待已启动callback、deadline reset panic仍继续另一setter且不二次发布；作者受控矩阵/native覆盖其余3s、早父ctx、HEAD完整编码、setter/Close与透明writer链。独立40个标准schema反例/正例与作者最终341例组合通过；原wire01三缺陷和wire03三极值反馈都已闭合，旧失败原件未改。31 typed极值实编码：200条加8192 cursor容量形状为598220B；真实Signer token556B时页为590584B，均完整反解且低于1MiB。1037420B是规格静态上界，并非新的实测字节数。
+
+作者真实结果按版本组合复核：新4top12sub、旧8top12sub通过；九轮PG包含原new1首红。原raw只观测到HTTP400 INVALID_ARGUMENT/not_started，未记录具体action；三项model.provider.*误用是固定源归因。首次candidate01 STATIC漏检该测试缺陷已单列AUD-TEST-01，保原PASS报告，不倒填原raw；candidate02更正为正式Audit provider.*，其余12源/生产/schema不变。作者3轮native共3top8sub/9listener通过，原命令安全syscall闭集、实际direct3+adopted3 wait、全部TCP/进程双空均复核。作者离线22步与candidate02受影响compile/list/vet/inputgate作为固定版本组合复用，不重复执行无变化矩阵。
+
+独立真实A02通过1top2sub：正式产生的三个ProjectUpdate记录、跨页limit变更、User/Project两个SH实际共存；第三哨兵保持排序，临时request_id合法PG UUIDv4被scanner拒绝，完整页零候选；NonOwner及管理员仍NotFound，正式Logout的SessionRevoked先于坏行观察，Owner HTTP安全503。原A01曾尝试metadata={}并在负例注入自身得到DATABASE_SQL_FAILED，未到List。仅固定schema能归因为强typed Project CHECK不允许该形状；原SQLSTATE/约束名未记录，不能回填。修订仅私有测试request_id及原值defer恢复，metadata与所有DDL不动，A01原件保留。
+
+独立B01通过1top2sub：专用真实Store/同backend接到COMMIT后实际服务器C(COMMIT)+Z(I)再丢ACK，公开GetProject返回零候选CommitUnknown；内部ProjectReadUnknownAttempt经包装仍精确保持原cause/attempt，仅一次读取、无确认/重试。默认app.Run实际GET列表/详情与HEAD、当前NonOwner管理员隐藏、正常root关闭通过。B01原始列表1389B、详情727B用冻结Draft202012+FormatChecker及common引用同字节解析通过（没有重编码），HEAD零body且Content-Length等于GET详情。parser实际0/1.178s、actualwait/双owned空/inputsame。原始body和安全method/path/status/content-type/run/candidate/input/hash来源一并保留。
+
+十二实PG轮（作者9 + 独立A01/A02/B01）都实际direct wait，watchdog实际join、每轮7精确资源全Mount/nonce记录，两次owned进程/runtime及资源归零、前后输入同、forced tail 0；84个不同resource ID。各轮新增4个daemon/PID1 containerd-shim，共48个实际PID/starttime身份，不属于owned、未wait。全部PID1 Z统计388→437额外包括A01→A02基线间一个git PID1267429/starttime4787157，单列、不归因于任务fixture。shim子集为328→376。不存在“全机零”或已join全部daemon声明。
+
+身份与生产边界：主路径正式Account身份和真实Project/Audit producer；既有持久Skills测试适配器不代表生产Skills初始化绑定。root强制返回与之后fixture/client/backend实际退休分别记账，不声明强制分支全部root inner组件joined。Unknown没有新增HTTP cause_id字段。默认生产Resolution/Invocations/D24仍未绑定、ready503继续；Object runtime join/OpenAI tools独验/SPA并发发布三停止不变。独立真实窗已明确交回root，所有自有命令已actualwait，当前无活动owned资源。

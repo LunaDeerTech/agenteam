@@ -1,0 +1,287 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/closure.json",
+    "sha256": "c40c9a7500e27a5fcf07979f1a67755f8d1c04950e6659b5c08b3cc18ec4c89c",
+    "bytes": 12107
+  },
+  "omitted_repeated_large_fields": [],
+  "retained_fields": {
+    "base_closure": {
+      "path": "/workspace/scratch/project-model-configuration-write-http-author/pg-driver-v01/closure05.json",
+      "sha256": "562654c58cc7f537e004b2512dffbbdd538ac4b3405e451cd1ab5bdbc338ae05"
+    },
+    "candidate": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/candidate01/manifest.json",
+      "sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0"
+    },
+    "actual_union": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/actual-graph-full01.json",
+      "sha256": "158cfb4693c3f9dc8a6e304bd63c99307a2f367833e3da95c7c5c20fa4457c1e"
+    },
+    "files": {
+      "/workspace/agenteam/internal/central/app/account.go": {
+        "sha256": "c8afd6286fccef135f53667a66f8522553a77cc187fa9f32a2813ef1e926eb98"
+      },
+      "/workspace/scratch/project-model-credentials-http-author/bin/model-integration03.test": {
+        "sha256": "209e46a62a1cc5cab7f3d436a2c2f2b8cc41ddea9dd1178a905a26f9d740e0d3"
+      },
+      "/workspace/scratch/project-model-configuration-write-http-author/offline-driver.py": {
+        "sha256": "49a165ce6cdeaa8b7814ad553793a95c78b4e895a6f07f1bf640fea0b16fdda3"
+      },
+      "/workspace/scratch/project-model-configuration-write-http-author/extract-graph.py": {
+        "sha256": "042ee0009b6f9401d21aa37f09a38a5443cd964997a512468e1c21dea2c3de1c"
+      },
+      "/workspace/scratch/project-model-configuration-write-http-author/candidate01/manifest.json": {
+        "sha256": "fdd4d455e8ccf774fd4570e4071b7ed84dcbb04f0878054b7ce1c40d30c1d850"
+      },
+      "/workspace/agenteam/internal/central/audit/project_query.go": {
+        "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456"
+      },
+      "/workspace/agenteam/internal/central/audit/http/project.go": {
+        "sha256": "dbf8dd786da702e0c0b52f7dd5a12bc703f5e03bebd88768b9aebe5e0d181d7a"
+      },
+      "/workspace/agenteam/internal/central/audit/http/project_wire.go": {
+        "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e"
+      },
+      "/workspace/agenteam/internal/central/app/project_audit.go": {
+        "sha256": "92870eb558c98078fce9bb168cfdedd47925f16d49bced98be49c47ecc639d96"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/offline-driver-v02.py": {
+        "sha256": "33c1cc5157150e5d968f3b83e17f2058d8f4dab853d422859b755b54ad2d5f9b"
+      },
+      "/workspace/scratch/project-model-configuration-write-http-author/full-input06.json": {
+        "sha256": "3501b5b7ecc9dacb5f02d536e758d3462c57be7f0e41c965eebf6c9d52a1b1dd"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/production01/manifest.json": {
+        "sha256": "b5cedcd9ddd148ac6769909ed31a00d2534d1e3224d79184bd4907daecf0c68b"
+      },
+      "/workspace/agenteam/internal/central/audit/http/handler_test.go": {
+        "sha256": "0844862bbaa0ac8f7f90dbd574e73534333c3d31b1bba10e2d3dd22cff5c0764"
+      },
+      "/workspace/agenteam/internal/central/audit/model_test.go": {
+        "sha256": "684003984faef1affa2dba5dc5e0459a39721b6bd950ffab22247fdbd02857b9"
+      },
+      "/workspace/agenteam/internal/central/audit/project_test.go": {
+        "sha256": "3457b2dd350589f62f9981927d95ea932b59c96cd2b266c3f51a03d415dc47c4"
+      },
+      "/workspace/agenteam/internal/central/audit/service_test.go": {
+        "sha256": "b38301adb0823f781b8c68f60c285affdf351b8b638cb998b13a94c35c21725a"
+      },
+      "/workspace/agenteam/internal/central/audit/system_query_test.go": {
+        "sha256": "411baa52add891a82ba720643981eae1584c3b7371a8a21a8e21ff56591aef6d"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/extract-graph.py": {
+        "sha256": "d31d3bb7e8ea311dfb2b4521ae5a130927b9a6164eba098a5d5ad100666c39eb"
+      },
+      "/workspace/agenteam/internal/central/audit/project_query_test.go": {
+        "sha256": "2d3b813d05ca46fad53669b7e595f922c17e2f984a55d00e13fda9213f6eee82"
+      },
+      "/workspace/agenteam/internal/central/audit/http/project_test.go": {
+        "sha256": "5220bb249078fca5f83ae6e33d8b792d63f01076b0d62c7362cab5b04968558b"
+      },
+      "/workspace/agenteam/internal/central/audit/http/project_wire_test.go": {
+        "sha256": "13263bd2dc40db5a20af6f0e2f893bed2857e0fed9a4fa9f1de29af9eac997c7"
+      },
+      "/workspace/agenteam/internal/central/audit/http/project_native_test.go": {
+        "sha256": "72f30308df22d15462dcf395902e6eed6ca95979c0316e9bc23fa0ed2e8265d4"
+      },
+      "/workspace/agenteam/api/openapi/project-audit.json": {
+        "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4"
+      },
+      "/workspace/agenteam/internal/central/app/project_audit_test.go": {
+        "sha256": "9e874f9c8198f642c65f80b2fea758bea8c4390fbe9c4c98d84685f613b4f67d"
+      },
+      "/workspace/agenteam/tests/model/project_audit_http_fixture_test.go": {
+        "sha256": "39347c457cbd529566a1497c1264b36c75a4e0bad998d78d7cae6a21d82e60e7"
+      },
+      "/workspace/agenteam/tests/model/project_audit_http_test.go": {
+        "sha256": "9548d72c96d90aba1b8ccfd3d1809b6168c9c9316be323f9269311ea0f7eb5f6"
+      },
+      "/workspace/agenteam/tests/model/project_audit_http_root_test.go": {
+        "sha256": "105ed8b47a808068f70a19397fa8509ca84fb4170c4f08c82a1df2dd4b56d384"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/make-input.py": {
+        "sha256": "93a91af3c4d0115d70c8d372d742bcc76b293dee8bd95a1b63bc4748ce267d5e"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/build-schema.py": {
+        "sha256": "b7af12ed252ca4f92dd37b31cef6729ae1868345fad42dad89899c5aa2365458"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/candidate01/manifest.json": {
+        "sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0"
+      },
+      "/workspace/scratch/project-owner-audit-http-author/actual-graph-full01.json": {
+        "sha256": "158cfb4693c3f9dc8a6e304bd63c99307a2f367833e3da95c7c5c20fa4457c1e"
+      }
+    },
+    "package_file_sets": {
+      "/workspace/agenteam/internal/central/app": {
+        "names": [
+          "account.go",
+          "account_lifecycle_test.go",
+          "account_process_test.go",
+          "account_test.go",
+          "app.go",
+          "app_test.go",
+          "audit_http.go",
+          "audit_http_process_test.go",
+          "audit_http_test.go",
+          "database_process_test.go",
+          "database_test.go",
+          "diagnostics.go",
+          "health.go",
+          "health_sampling_test.go",
+          "model.go",
+          "model_process_test.go",
+          "model_test.go",
+          "object.go",
+          "object_test.go",
+          "outbound.go",
+          "outbound_policy_http.go",
+          "outbound_policy_http_process_test.go",
+          "outbound_policy_http_test.go",
+          "outbound_process_test.go",
+          "outbound_test.go",
+          "outbox.go",
+          "outbox_process_test.go",
+          "outbox_test.go",
+          "process_test.go",
+          "project_audit.go",
+          "project_audit_test.go",
+          "project_credentials.go",
+          "project_credentials_test.go",
+          "project_models.go",
+          "project_models_test.go",
+          "project_read.go",
+          "project_read_test.go",
+          "project_update.go",
+          "project_update_test.go",
+          "project_usage.go",
+          "project_usage_test.go",
+          "repair.go",
+          "resources.go",
+          "runtime_information.go",
+          "runtime_information_process_test.go",
+          "runtime_information_test.go",
+          "secret_process_test.go",
+          "secret_test.go",
+          "security.go",
+          "security_test.go"
+        ],
+        "embed_directory": false
+      },
+      "/workspace/agenteam/internal/central/audit": {
+        "names": [
+          "cleanup.go",
+          "error.go",
+          "model_test.go",
+          "project_query.go",
+          "project_query_test.go",
+          "project_test.go",
+          "query.go",
+          "service.go",
+          "service_test.go",
+          "system_query.go",
+          "system_query_test.go"
+        ],
+        "embed_directory": false
+      },
+      "/workspace/agenteam/internal/central/audit/http": {
+        "names": [
+          "handler.go",
+          "handler_test.go",
+          "project.go",
+          "project_native_test.go",
+          "project_test.go",
+          "project_wire.go",
+          "project_wire_test.go",
+          "wire.go"
+        ],
+        "embed_directory": false
+      },
+      "/workspace/agenteam/tests/model": {
+        "names": [
+          "current_resolution_atomicity_test.go",
+          "current_resolution_authorization_test.go",
+          "current_resolution_fixture_test.go",
+          "current_resolution_schema_test.go",
+          "current_resolution_selection_test.go",
+          "current_resolution_unknown_test.go",
+          "meeting_summary_fixture_test.go",
+          "meeting_summary_http_test.go",
+          "meeting_summary_replacement_test.go",
+          "meeting_summary_resolution_atomicity_test.go",
+          "meeting_summary_resolution_authorization_test.go",
+          "meeting_summary_resolution_fixture_test.go",
+          "meeting_summary_resolution_replay_test.go",
+          "meeting_summary_resolution_selection_test.go",
+          "meeting_summary_resolution_unknown_test.go",
+          "meeting_summary_schema_test.go",
+          "meeting_summary_selection_test.go",
+          "meeting_summary_settings_fixture_test.go",
+          "meeting_summary_settings_http_test.go",
+          "meeting_summary_settings_root_test.go",
+          "meeting_summary_unknown_test.go",
+          "meeting_summary_upgrade_test.go",
+          "openai_chat_structured_http_test.go",
+          "openai_chat_structured_stream_test.go",
+          "openai_chat_wire_fixture_test.go",
+          "openai_chat_wire_http_test.go",
+          "openai_chat_wire_stream_test.go",
+          "openai_embeddings_wire_budget_test.go",
+          "openai_embeddings_wire_fixture_test.go",
+          "openai_embeddings_wire_http_test.go",
+          "openai_embeddings_wire_terminal_test.go",
+          "project_audit_http_fixture_test.go",
+          "project_audit_http_root_test.go",
+          "project_audit_http_test.go",
+          "project_available_models_test.go",
+          "project_configuration_fixture_test.go",
+          "project_configuration_http_fixture_test.go",
+          "project_configuration_http_root_test.go",
+          "project_configuration_http_terminal_test.go",
+          "project_configuration_http_test.go",
+          "project_configuration_integration_test.go",
+          "project_configuration_unknown_test.go",
+          "project_configuration_write_http_authority_test.go",
+          "project_configuration_write_http_fixture_test.go",
+          "project_configuration_write_http_root_test.go",
+          "project_configuration_write_http_terminal_test.go",
+          "project_configuration_write_http_test.go",
+          "project_credentials_http_authority_test.go",
+          "project_credentials_http_fixture_test.go",
+          "project_credentials_http_root_test.go",
+          "project_credentials_http_test.go",
+          "project_credentials_http_unknown_test.go",
+          "project_owner_read_http_fixture_test.go",
+          "project_owner_read_http_root_test.go",
+          "project_owner_read_http_terminal_test.go",
+          "project_owner_read_http_test.go",
+          "project_owner_update_http_fixture_test.go",
+          "project_owner_update_http_root_test.go",
+          "project_owner_update_http_test.go",
+          "project_owner_update_http_unknown_test.go",
+          "project_usage_http_fixture_test.go",
+          "project_usage_http_root_test.go",
+          "project_usage_http_terminal_test.go",
+          "project_usage_http_test.go",
+          "system_configuration_integration_test.go",
+          "system_http_configuration_test.go",
+          "system_http_credentials_test.go",
+          "system_http_fixture_test.go",
+          "system_management_boundaries_test.go",
+          "system_management_impact_test.go",
+          "system_management_metadata_test.go",
+          "usage_authorization_test.go",
+          "usage_fixture_test.go",
+          "usage_ledger_test.go",
+          "usage_query_test.go",
+          "usage_schema_test.go",
+          "usage_unknown_test.go"
+        ],
+        "embed_directory": false
+      }
+    },
+    "scope": "original full20 fixture plus exact 14 Audit candidate source delta; all actual normal/race/fixture/dynamic graph extra0; unchanged outbound CGO0 graph current hashes all match"
+  }
+}

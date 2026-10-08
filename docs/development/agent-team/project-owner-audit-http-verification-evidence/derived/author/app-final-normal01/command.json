@@ -1,0 +1,59 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/app-final-normal01/command.json",
+    "sha256": "dc4a91895853f448d9d0f4bcccfe3c1282f6863f8bd099b08f362ec25d327655",
+    "bytes": 533979
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_before",
+      "type": "dict",
+      "items": 3759
+    }
+  ],
+  "retained_fields": {
+    "argv": [
+      "/workspace/scratch/project-owner-audit-http-author/app-unit01.test",
+      "-test.run",
+      "^(TestProjectAuditRootPureCompositionAndRoutes|TestAuditRootPureRoutePreservationAndSingleMiddleware|TestAuditRootPureSameInstanceConstructionGraph|TestProjectCredentialsRootPureRouteOwnership|TestProjectReadRootPureRouteOwnership|TestProjectModelsRootPureRouteOwnership|TestProjectUsageRootPureRoutesPreserveOriginalChain|TestProjectModelConfigurationHTTPComposition)$",
+      "-test.v",
+      "-test.timeout=40s",
+      "-test.count=1"
+    ],
+    "cwd": "/workspace/agenteam/internal/central/app",
+    "environment_overrides": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "TMPDIR": "/workspace/scratch/project-owner-audit-http-author/tmp",
+      "CGO_ENABLED": "1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+      "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+      "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "subreaper": true,
+    "driver_pid": 1172954,
+    "driver_sha256": "33c1cc5157150e5d968f3b83e17f2058d8f4dab853d422859b755b54ad2d5f9b",
+    "frozen_manifest_sha256": "204711d76ef6980196f7e7a715955422fa907e348c84c93e1e9d8de5867dc279",
+    "started_utc": "2026-10-08T00:39:21Z",
+    "total_deadline_seconds": 45,
+    "child_timeout_seconds": 42
+  }
+}

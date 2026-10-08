@@ -1,0 +1,11 @@
+--- /workspace/scratch/project-owner-audit-http-verification/query-controlled01/driver.py
++++ /workspace/scratch/project-owner-audit-http-verification/http-controlled01/driver.py
+@@ -11,7 +11,7 @@
+ import time
+ 
+ ROOT = Path('/workspace/agenteam')
+-BASE = Path('/workspace/scratch/project-owner-audit-http-verification/query-controlled01')
++BASE = Path('/workspace/scratch/project-owner-audit-http-verification/http-controlled01')
+ INPUT = Path(sys.argv.pop(1))
+ INITIAL = json.loads(INPUT.read_text())
+ OVERLAY = json.loads(Path(INITIAL['overlay_file']).read_text())['Replace']

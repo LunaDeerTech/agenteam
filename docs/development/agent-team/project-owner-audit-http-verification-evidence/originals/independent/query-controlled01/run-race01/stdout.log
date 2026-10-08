@@ -1,0 +1,21 @@
+=== RUN   TestIndependentProjectAuditQueryControls
+=== RUN   TestIndependentProjectAuditQueryControls/same-tx-current-gates-before-query
+=== RUN   TestIndependentProjectAuditQueryControls/reject-current-session-before-query
+=== RUN   TestIndependentProjectAuditQueryControls/reject-current-owner-before-query
+=== RUN   TestIndependentProjectAuditQueryControls/original-unknown-attempt-through-wrapping
+=== RUN   TestIndependentProjectAuditQueryControls/cancel-does-not-publish-before-actual-tail
+=== RUN   TestIndependentProjectAuditQueryControls/complete-page-valid201
+=== RUN   TestIndependentProjectAuditQueryControls/complete-page-bad201
+=== RUN   TestIndependentProjectAuditQueryControls/complete-page-extra202
+=== RUN   TestIndependentProjectAuditQueryControls/complete-page-close-error
+--- PASS: TestIndependentProjectAuditQueryControls (0.07s)
+    --- PASS: TestIndependentProjectAuditQueryControls/same-tx-current-gates-before-query (0.00s)
+    --- PASS: TestIndependentProjectAuditQueryControls/reject-current-session-before-query (0.00s)
+    --- PASS: TestIndependentProjectAuditQueryControls/reject-current-owner-before-query (0.00s)
+    --- PASS: TestIndependentProjectAuditQueryControls/original-unknown-attempt-through-wrapping (0.00s)
+    --- PASS: TestIndependentProjectAuditQueryControls/cancel-does-not-publish-before-actual-tail (0.00s)
+    --- PASS: TestIndependentProjectAuditQueryControls/complete-page-valid201 (0.02s)
+    --- PASS: TestIndependentProjectAuditQueryControls/complete-page-bad201 (0.02s)
+    --- PASS: TestIndependentProjectAuditQueryControls/complete-page-extra202 (0.01s)
+    --- PASS: TestIndependentProjectAuditQueryControls/complete-page-close-error (0.01s)
+PASS

@@ -1,0 +1,57 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/action-format02/command.json",
+    "sha256": "bdd0fffe3e1285fbd8e705f11a5d7721dff22aa78e4aba5f6465ac8c6cb81a63",
+    "bytes": 533148
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_before",
+      "type": "dict",
+      "items": 3756
+    }
+  ],
+  "retained_fields": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/gofmt",
+      "-w",
+      "tests/model/project_audit_http_test.go",
+      "tests/model/project_audit_http_root_test.go"
+    ],
+    "cwd": "/workspace/agenteam",
+    "environment_overrides": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "TMPDIR": "/workspace/scratch/project-owner-audit-http-author/tmp",
+      "CGO_ENABLED": "1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+      "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+      "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "subreaper": true,
+    "driver_pid": 1194637,
+    "driver_sha256": "33c1cc5157150e5d968f3b83e17f2058d8f4dab853d422859b755b54ad2d5f9b",
+    "frozen_manifest_sha256": "615b08f629c893bc5e2c77e1c31ea5e7b566e4b4afa55a328832f20d481ca506",
+    "started_utc": "2026-10-08T00:56:14Z",
+    "total_deadline_seconds": 45,
+    "child_timeout_seconds": 42
+  }
+}

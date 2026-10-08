@@ -1,0 +1,18 @@
+diff --git a/internal/central/app/account.go b/internal/central/app/account.go
+index 3837dfa2..28615e47 100644
+--- a/internal/central/app/account.go
++++ b/internal/central/app/account.go
+@@ -452,8 +452,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
+ 	if err != nil {
+ 		return err
+ 	}
++	projectAudit, err := projectAuditHandler(auditor, core, cfg.PublicOrigin())
++	if err != nil {
++		return err
++	}
+ 	if !accounts.install(ctx, func() {
+-		accounts.handler = projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler)
++		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
+ 	}) {
+ 		return context.Canceled
+ 	}

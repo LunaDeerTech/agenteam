@@ -1,0 +1,78 @@
+{
+  "status": "six compile/list commands actual0; no testbody",
+  "runs": [
+    {
+      "name": "old-account-integrationcompile01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-account-integrationcompile01/result.json",
+        "sha256": "a8757da1fcfc0175312184d76e59d9db316ea42bb7858ee55db7686fc54e819c"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-account-integrationcompile01/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "body_executed": false
+    },
+    {
+      "name": "old-account-integrationlist01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-account-integrationlist01/result.json",
+        "sha256": "35bfdf3820a37c81dd1bc7712cf360acbfdacd145725d0dc51aaf6eed873c64b"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-account-integrationlist01/stdout.log",
+        "sha256": "7538122afb46e5960f2d07a69a55b56a071d4a2b1388800e41e937048708c67a"
+      },
+      "body_executed": false
+    },
+    {
+      "name": "old-app-integrationcompile01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-app-integrationcompile01/result.json",
+        "sha256": "6efb4e949cab45e31a9e96f432aa0e6726957d759c79a57095da963df5eaf47a"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-app-integrationcompile01/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "body_executed": false
+    },
+    {
+      "name": "old-app-integrationlist01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-app-integrationlist01/result.json",
+        "sha256": "092ff2c486266eecef2eea61793d3a86cc4f291f9a33c28abadb801b2c3998c2"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-app-integrationlist01/stdout.log",
+        "sha256": "40b1b329ebd960a0b63df3373af7ac8c6f1353bf4923f16f37b3d938ea666136"
+      },
+      "body_executed": false
+    },
+    {
+      "name": "old-security-integrationcompile01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-security-integrationcompile01/result.json",
+        "sha256": "5d72c9f7163fa552c531ed3e82a983d78688b9db541e66f864d269e4a5e57ad5"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-security-integrationcompile01/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "body_executed": false
+    },
+    {
+      "name": "old-security-integrationlist01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-security-integrationlist01/result.json",
+        "sha256": "fbfe494bec9a41158f8b3528c4c706bb894bb68356850e55195e326f21ee3426"
+      },
+      "raw": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/old-security-integrationlist01/stdout.log",
+        "sha256": "54163cde14433a32e9deaf386f08f2b33a082e25de44a6c43a1d64ebd6519423"
+      },
+      "body_executed": false
+    }
+  ],
+  "candidate_sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0"
+}

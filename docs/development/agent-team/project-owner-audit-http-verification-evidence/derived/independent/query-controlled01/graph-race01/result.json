@@ -1,0 +1,47 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/graph-race01/result.json",
+    "sha256": "21b6ddf5835de4edef4f88ddbb87e912ca98d696472b0acab2e7df0f95710ed3",
+    "bytes": 530807
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3747
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.0985637470002985,
+    "direct_child_pid": 1146878,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1146878,
+        "ppid": 1146873,
+        "pgid": 1146878,
+        "state": "Z",
+        "starttime": "4364139"
+      },
+      {
+        "pid": 1146884,
+        "ppid": 1146878,
+        "pgid": 1146878,
+        "state": "S",
+        "starttime": "4364143"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "80df2131ecb9dcdaa5d91889246e5009299f47892f208e8a53174f0b80e9c621",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

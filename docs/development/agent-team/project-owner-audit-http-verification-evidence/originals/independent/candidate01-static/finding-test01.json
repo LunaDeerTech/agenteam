@@ -1,0 +1,32 @@
+{
+  "id": "AUD-TEST-01",
+  "classification": "test-only blocker; omitted in original full STATIC; retain original review",
+  "candidate_sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0",
+  "finding": "#13 line81 query and #14 line50 expected action set incorrectly use model.provider.create/update/delete. Audit contract uses provider.create/update/delete, while model.provider.* are command kinds. Unknown action rejected by original shared query; root found set also cannot contain the wrong names.",
+  "sources": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/tests/model/project_audit_http_test.go",
+      "sha256": "9548d72c96d90aba1b8ccfd3d1809b6168c9c9316be323f9269311ea0f7eb5f6",
+      "line": 81
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/tests/model/project_audit_http_root_test.go",
+      "sha256": "105ed8b47a808068f70a19397fa8509ca84fb4170c4f08c82a1df2dd4b56d384",
+      "line": 50
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed/internal/central/audit/contract/model.go",
+      "sha256": "c94372d74737ed0775b004a6e636927c0e93df2bb1716dc5310ae64cb36d44d6",
+      "lines": "15-17"
+    }
+  ],
+  "actual_failure": {
+    "result": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/result.json",
+    "reported_sha256": "6c5758d769c6fa080d16c24cbac8574f966bc2004085e55051f803acb10789c9",
+    "observed": "line82 HTTP400 INVALID_ARGUMENT/not_started vs200; original raw did not record current action",
+    "limitation": "static causal finding, not claim of recorded dynamic offending action"
+  },
+  "fix_scope": "only author #13/#14 use exact Audit action constants; production/query/schema/budgets unchanged",
+  "default_limit": "fixed shared query initializes foundation.DefaultPageRequest=50 before parsing; no evidence supporting missing-default-limit hypothesis",
+  "status": "NEEDS_AUTHOR_FIX_AND_AFFECTED_VALIDATION"
+}

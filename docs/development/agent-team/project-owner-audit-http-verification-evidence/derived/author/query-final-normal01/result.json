@@ -1,0 +1,40 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/query-final-normal01/result.json",
+    "sha256": "bc24b6d2c3c8484fdbb94605d83fdb469cc762e312f3f502456bc5b3da536c68",
+    "bytes": 532226
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3759
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 3.948790351001662,
+    "direct_child_pid": 1172815,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1172815,
+        "ppid": 1172794,
+        "pgid": 1172815,
+        "state": "Z",
+        "starttime": "4590123"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "c124e4ccf425754e11e806b1e35e633aee9690c2c01e9db5a45ae2ded480d829",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/full-fixture-graph01/result.json",
+    "sha256": "db7479db41fa2822a614e8a800cbc30e10d66d8356fc5f8aa9c0a4e393eae947",
+    "bytes": 532213
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3758
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.2049468330005766,
+    "direct_child_pid": 1172681,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1172681,
+        "ppid": 1172660,
+        "pgid": 1172681,
+        "state": "Z",
+        "starttime": "4589720"
+      },
+      {
+        "pid": 1172687,
+        "ppid": 1172681,
+        "pgid": 1172681,
+        "state": "R",
+        "starttime": "4589729"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "a67739c5a73196727705c11c4caed1f0ad8879c47083e9425ef5f6ba00c45aad",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

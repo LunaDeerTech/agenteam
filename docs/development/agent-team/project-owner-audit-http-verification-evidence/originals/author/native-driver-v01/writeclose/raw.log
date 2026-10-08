@@ -1,0 +1,13 @@
+=== RUN   TestProjectAuditHTTPNativeWriteAndFlushAbort
+=== RUN   TestProjectAuditHTTPNativeWriteAndFlushAbort/short-write-GET
+=== RUN   TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-GET
+=== RUN   TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-HEAD
+=== RUN   TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-write-GET
+=== RUN   TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-flush-HEAD
+--- PASS: TestProjectAuditHTTPNativeWriteAndFlushAbort (6.14s)
+    --- PASS: TestProjectAuditHTTPNativeWriteAndFlushAbort/short-write-GET (0.00s)
+    --- PASS: TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-GET (0.00s)
+    --- PASS: TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-HEAD (0.00s)
+    --- PASS: TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-write-GET (3.12s)
+    --- PASS: TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-flush-HEAD (3.01s)
+PASS

@@ -1,0 +1,34 @@
+{
+  "status": "frozen; schema and formal typed Go maximum-page checked ordinary only",
+  "production_manifest": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/production01/manifest.json",
+    "sha256": "b5cedcd9ddd148ac6769909ed31a00d2534d1e3224d79184bd4907daecf0c68b"
+  },
+  "files": {
+    "api/openapi/project-audit.json": {
+      "sha256": "072ff0de5d503825bf4a4e4278615f9d87d3d14b4c925d662e8e44eb42b3f650",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire01/src/api/openapi/project-audit.json"
+    },
+    "internal/central/audit/http/project_wire_test.go": {
+      "sha256": "204558ac641ee0a4cd49249b68870e60b06b5a284682eb2b66e99b0eba9d4894",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire01/src/internal/central/audit/http/project_wire_test.go"
+    }
+  },
+  "actual_run": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire-run03/result.json",
+    "sha256": "da8630ce484090168bf0e4c9a352ae059be5db5a2d6efe0090e8137edae2dc70"
+  },
+  "raw": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire-run03/stdout.log",
+    "sha256": "3a9f6b1387a2db92c1c0f383ea97b7bccbf72c79f2a3584be9c015eeaa1ce116"
+  },
+  "maximum_page_bytes": 598220,
+  "records": 200,
+  "cursor_bytes": 8192,
+  "standard_schema_vectors": 79,
+  "original_failures": [
+    "wire-run01 incorrect binary cwd",
+    "wire-run02 schema required omitempty policy id"
+  ],
+  "no_native_pg": true
+}

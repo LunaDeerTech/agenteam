@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47543.786441036,
+      "top": "TestAuditPaginationBindingsFiltersAndRevocation"
+    },
+    {
+      "event": "result",
+      "monotonic": 47544.746197843,
+      "observed_seconds": 0.9597568070021225,
+      "reported_seconds": 0.96,
+      "state": "PASS",
+      "top": "TestAuditPaginationBindingsFiltersAndRevocation"
+    }
+  ],
+  "expected": [
+    "TestAuditPaginationBindingsFiltersAndRevocation"
+  ],
+  "failures": []
+}

@@ -1,0 +1,17 @@
+{
+  "status": "PASS_STATIC_DELTA_AND_COMPLETE_14_COMBINATION",
+  "candidate_sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d",
+  "delta_sha256": "2c74b7f36c2f675fb2a9593e919234c2d14d496bad2b1d9b861dbff2bc761f94",
+  "review_sha256": "82f1ec9912c12d9264bd912c63b8cee65d6146f31d112063831090a5c1d551fa",
+  "changed_card_paths": [
+    13,
+    14
+  ],
+  "unchanged": 12,
+  "closed": "AUD-TEST-01 (STATIC only)",
+  "original_finding": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/candidate01-static/finding-test01.json",
+    "sha256": "0f27b1181a53d249378e4975f1eeaac470521fc897ea44f04fe2ac80aae0f710"
+  },
+  "dynamic_rerun_pending": true
+}

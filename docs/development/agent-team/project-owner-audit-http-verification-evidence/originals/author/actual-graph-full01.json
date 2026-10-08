@@ -1,0 +1,54 @@
+{
+  "graphs": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-author/final-graph-normal01/actual-graph.json",
+      "sha256": "a8d4d79a7df9a7db387133ef6531d56b58b94dc9957acc80262719ca7d018a79",
+      "files": 2480,
+      "packages": 397,
+      "generated": 3
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-author/final-graph-race01/actual-graph.json",
+      "sha256": "718a3160f83e785f728f969c7224edbb5554d1cfe17bf801b987ad44aae2ecc5",
+      "files": 2486,
+      "packages": 399,
+      "generated": 3
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-author/integration-graph01/actual-graph.json",
+      "sha256": "ac412e4d1bb0151c8a4ae7b49a09ab51b538993bfcc66e89a137c2e7876386b7",
+      "files": 2693,
+      "packages": 408,
+      "generated": 4
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-author/full-fixture-graph01/actual-graph.json",
+      "sha256": "b47cfc30ef0507b8162b136e4f2b26cc7b8435bfba2629cc6441742709b596e3",
+      "files": 2942,
+      "packages": 453,
+      "generated": 20
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-author/dynamic-cmd-graph01/actual-graph.json",
+      "sha256": "7279068b8b924cd810a6229b2abbb939d662c18403e9ffbbadbfcd9005d91113",
+      "files": 2402,
+      "packages": 385,
+      "generated": 0
+    }
+  ],
+  "unchanged_cgo0_reuse": {
+    "path": "/workspace/scratch/project-model-credentials-http-author/dynamic-outbound-cgo0-graph01/actual-graph.json",
+    "sha256": "fbafa2b7406f46da4604aa1ac112f1216329ba5b903f543ccdc90f799355b8a6",
+    "all_files_current_match": true,
+    "scope": "unchanged outbound server CGO0 actual graph; no Audit import"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate01/manifest.json",
+    "sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/full-input01.json",
+    "sha256": "b0631e97738f2ff5646e80f7cdd0890ee4af22ed1a7af1eaa559526a520f0662"
+  },
+  "no_resources": true
+}

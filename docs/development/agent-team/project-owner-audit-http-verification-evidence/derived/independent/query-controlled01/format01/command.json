@@ -1,0 +1,56 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/format01/command.json",
+    "sha256": "20960ef17be86da66b06b07f59cbae25e823d6e7ea181fd2b8e59ff76ecc1764",
+    "bytes": 532179
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_before",
+      "type": "dict",
+      "items": 3747
+    }
+  ],
+  "retained_fields": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/gofmt",
+      "-w",
+      "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/independent_project_query_test.go"
+    ],
+    "cwd": "/workspace/agenteam",
+    "environment_overrides": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/project-owner-audit-http-verification/query-controlled01/overlay.json",
+      "TMPDIR": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/tmp",
+      "CGO_ENABLED": "1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_AUDIT_NATIVE": "0",
+      "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_OWNER_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_OWNER_UPDATE_NATIVE": "0",
+      "AGENTEAM_PROJECT_CREDENTIAL_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_READ_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_NATIVE": "0",
+      "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    "subreaper": true,
+    "driver_pid": 1146490,
+    "driver_sha256": "0470c1d433a491adbaf563148144bb37ddb8aabbb0b9abfafcff5356cae1cdfb",
+    "frozen_manifest_sha256": "4a7ebe89fb7156ce48a0ee613d05a04a8df4ae112e3adb8dba7c346fdc4faf91",
+    "started_utc": "2026-10-08T00:00:57Z",
+    "total_deadline_seconds": 45,
+    "child_timeout_seconds": 42
+  }
+}

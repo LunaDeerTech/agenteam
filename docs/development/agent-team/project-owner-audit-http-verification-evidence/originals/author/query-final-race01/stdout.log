@@ -1,0 +1,109 @@
+=== RUN   TestProjectAuditReadTransactionAndAuthority
+=== RUN   TestProjectAuditReadTransactionAndAuthority/same-transaction
+=== RUN   TestProjectAuditReadTransactionAndAuthority/revoked
+=== RUN   TestProjectAuditReadTransactionAndAuthority/not-owner
+=== RUN   TestProjectAuditReadTransactionAndAuthority/forged-grant
+=== RUN   TestProjectAuditReadTransactionAndAuthority/user-lock
+=== RUN   TestProjectAuditReadTransactionAndAuthority/wrong-scope
+=== RUN   TestProjectAuditReadTransactionAndAuthority/wrong-id
+=== RUN   TestProjectAuditReadTransactionAndAuthority/bad-metadata
+=== RUN   TestProjectAuditReadTransactionAndAuthority/bad-time
+=== RUN   TestProjectAuditReadTransactionAndAuthority/missing-project-port
+=== RUN   TestProjectAuditReadTransactionAndAuthority/non-human
+=== RUN   TestProjectAuditReadTransactionAndAuthority/nil-context
+=== RUN   TestProjectAuditReadTransactionAndAuthority/sql-bound-filter
+--- PASS: TestProjectAuditReadTransactionAndAuthority (0.01s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/same-transaction (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/revoked (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/not-owner (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/forged-grant (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/user-lock (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/wrong-scope (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/wrong-id (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/bad-metadata (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/bad-time (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/missing-project-port (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/non-human (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/nil-context (0.00s)
+    --- PASS: TestProjectAuditReadTransactionAndAuthority/sql-bound-filter (0.00s)
+=== RUN   TestProjectAuditReadTerminalAndPage
+=== RUN   TestProjectAuditReadTerminalAndPage/original-unknown
+=== RUN   TestProjectAuditReadTerminalAndPage/cancel-after-candidate
+=== RUN   TestProjectAuditReadTerminalAndPage/actual-tail
+=== RUN   TestProjectAuditReadTerminalAndPage/success-200
+=== RUN   TestProjectAuditReadTerminalAndPage/sentinel-scope
+=== RUN   TestProjectAuditReadTerminalAndPage/sentinel-filter
+=== RUN   TestProjectAuditReadTerminalAndPage/sentinel-metadata
+=== RUN   TestProjectAuditReadTerminalAndPage/sentinel-order
+=== RUN   TestProjectAuditReadTerminalAndPage/sentinel-duplicate
+=== RUN   TestProjectAuditReadTerminalAndPage/rows-error
+=== RUN   TestProjectAuditReadTerminalAndPage/close-error
+=== RUN   TestProjectAuditReadTerminalAndPage/too-many
+=== RUN   TestProjectAuditReadTerminalAndPage/sign-error
+--- PASS: TestProjectAuditReadTerminalAndPage (0.15s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/original-unknown (0.00s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/cancel-after-candidate (0.00s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/actual-tail (0.00s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/success-200 (0.02s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/sentinel-scope (0.02s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/sentinel-filter (0.01s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/sentinel-metadata (0.01s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/sentinel-order (0.01s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/sentinel-duplicate (0.01s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/rows-error (0.01s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/close-error (0.01s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/too-many (0.02s)
+    --- PASS: TestProjectAuditReadTerminalAndPage/sign-error (0.01s)
+=== RUN   TestSystemAuditReadTransactionPublication
+--- PASS: TestSystemAuditReadTransactionPublication (0.00s)
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/unknown
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/not-committed
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/cancel-after-scan
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/revoked
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/forged-grant
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/lock
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/wrong-scope
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/not-found
+=== RUN   TestSystemAuditReadFailureHasZeroCandidate/bad-time
+--- PASS: TestSystemAuditReadFailureHasZeroCandidate (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/unknown (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/not-committed (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/cancel-after-scan (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/revoked (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/forged-grant (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/lock (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/wrong-scope (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/not-found (0.00s)
+    --- PASS: TestSystemAuditReadFailureHasZeroCandidate/bad-time (0.00s)
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/success
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-scope
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-time
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-metadata
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-id
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/rows-error
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/close-error
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/sign-error
+=== RUN   TestSystemAuditPageScansSentinelAndClosesBeforePublication/too-many
+--- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication (0.01s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/success (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-scope (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-time (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-metadata (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/sentinel-id (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/rows-error (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/close-error (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/sign-error (0.00s)
+    --- PASS: TestSystemAuditPageScansSentinelAndClosesBeforePublication/too-many (0.00s)
+=== RUN   TestSystemAuditReadDeadlineAndActualTail
+=== RUN   TestSystemAuditReadDeadlineAndActualTail/local-three-seconds
+=== RUN   TestSystemAuditReadDeadlineAndActualTail/earlier-parent
+--- PASS: TestSystemAuditReadDeadlineAndActualTail (3.06s)
+    --- PASS: TestSystemAuditReadDeadlineAndActualTail/local-three-seconds (3.00s)
+    --- PASS: TestSystemAuditReadDeadlineAndActualTail/earlier-parent (0.06s)
+=== RUN   TestSystemAuditLegacyQueryScopeAndValidationEquivalence
+--- PASS: TestSystemAuditLegacyQueryScopeAndValidationEquivalence (0.00s)
+=== RUN   TestSystemAuditCursorBindingAndInvalidActor
+--- PASS: TestSystemAuditCursorBindingAndInvalidActor (0.00s)
+PASS

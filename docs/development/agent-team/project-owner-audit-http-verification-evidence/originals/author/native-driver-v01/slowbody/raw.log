@@ -1,0 +1,9 @@
+=== RUN   TestProjectAuditHTTPNativeSlowBodyBudgets
+=== RUN   TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-Close
+=== RUN   TestProjectAuditHTTPNativeSlowBodyBudgets/earlier-parent-Close
+=== RUN   TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-chunk-Read
+--- PASS: TestProjectAuditHTTPNativeSlowBodyBudgets (6.14s)
+    --- PASS: TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-Close (3.01s)
+    --- PASS: TestProjectAuditHTTPNativeSlowBodyBudgets/earlier-parent-Close (0.12s)
+    --- PASS: TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-chunk-Read (3.00s)
+PASS

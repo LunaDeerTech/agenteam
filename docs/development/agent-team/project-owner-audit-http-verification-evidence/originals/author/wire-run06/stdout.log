@@ -1,0 +1,100 @@
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/secret.create
+    project_wire_test.go:289: maximum representative metadata=70 record=1086
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/secret.update
+    project_wire_test.go:289: maximum representative metadata=70 record=1086
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/secret.delete
+    project_wire_test.go:289: maximum representative metadata=33 record=1049
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/secret.resolve
+    project_wire_test.go:289: maximum representative metadata=110 record=1132
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/outbound.access.deny
+    project_wire_test.go:289: maximum representative metadata=92 record=1087
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/object.upload.complete
+    project_wire_test.go:289: maximum representative metadata=1840 record=2853
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/object.upload.failed
+    project_wire_test.go:289: maximum representative metadata=1868 record=2891
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/object.delete
+    project_wire_test.go:289: maximum representative metadata=1838 record=2842
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/outbox.delivery.requeue
+    project_wire_test.go:289: maximum representative metadata=344 record=1245
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/provider.create
+    project_wire_test.go:289: maximum representative metadata=115 record=640
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/provider.update
+    project_wire_test.go:289: maximum representative metadata=169 record=694
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/provider.delete
+    project_wire_test.go:289: maximum representative metadata=115 record=640
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/model.create
+    project_wire_test.go:289: maximum representative metadata=165 record=685
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/model.update
+    project_wire_test.go:289: maximum representative metadata=250 record=770
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/model.delete
+    project_wire_test.go:289: maximum representative metadata=274 record=794
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/object.transfer.issue
+    project_wire_test.go:289: maximum representative metadata=1890 record=2916
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/object.transfer.complete
+    project_wire_test.go:289: maximum representative metadata=1888 record=2917
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/object.transfer.revoke
+    project_wire_test.go:289: maximum representative metadata=1922 record=2949
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/artifact.create
+    project_wire_test.go:289: maximum representative metadata=1851 record=2847
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/artifact.read
+    project_wire_test.go:289: maximum representative metadata=1864 record=2858
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/artifact.download
+    project_wire_test.go:289: maximum representative metadata=1897 record=2894
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/artifact.list
+    project_wire_test.go:289: maximum representative metadata=48 record=1053
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.create.accepted
+    project_wire_test.go:289: maximum representative metadata=223 record=861
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.create.completed
+    project_wire_test.go:289: maximum representative metadata=223 record=958
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.update
+    project_wire_test.go:289: maximum representative metadata=187 record=807
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.archive.accepted
+    project_wire_test.go:289: maximum representative metadata=295 record=989
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.archive.completed
+    project_wire_test.go:289: maximum representative metadata=297 record=1083
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.restore
+    project_wire_test.go:289: maximum representative metadata=198 record=819
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.delete.accepted
+    project_wire_test.go:289: maximum representative metadata=295 record=988
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/project.lifecycle.retry
+    project_wire_test.go:289: maximum representative metadata=262 record=955
+=== RUN   TestProjectAuditHTTPPureWireAndMaximumPage/knowledge.delete_subtree
+    project_wire_test.go:289: maximum representative metadata=283 record=711
+=== NAME  TestProjectAuditHTTPPureWireAndMaximumPage
+    project_wire_test.go:342: MAXIMUM_PAGE actual_bytes=598220 records=200 largest_action=object.transfer.revoke largest_record=2949 cursor_bytes=8192 budget=1048576
+    project_wire_test.go:397: REAL_SIGNER_PAGE bytes=590584 token_bytes=556; SQL 201 sentinel/sign-last-row is a separate query/PG acceptance item
+    project_wire_test.go:398: standard schema validation failed: exit status 1 vector disagrees: download-phase-outcome
+--- FAIL: TestProjectAuditHTTPPureWireAndMaximumPage (8.63s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/secret.create (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/secret.update (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/secret.delete (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/secret.resolve (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/outbound.access.deny (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/object.upload.complete (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/object.upload.failed (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/object.delete (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/outbox.delivery.requeue (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/provider.create (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/provider.update (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/provider.delete (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/model.create (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/model.update (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/model.delete (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/object.transfer.issue (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/object.transfer.complete (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/object.transfer.revoke (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/artifact.create (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/artifact.read (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/artifact.download (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/artifact.list (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.create.accepted (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.create.completed (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.update (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.archive.accepted (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.archive.completed (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.restore (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.delete.accepted (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/project.lifecycle.retry (0.00s)
+    --- PASS: TestProjectAuditHTTPPureWireAndMaximumPage/knowledge.delete_subtree (0.00s)
+FAIL

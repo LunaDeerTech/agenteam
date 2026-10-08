@@ -1,0 +1,94 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/manifest.json",
+    "sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d"
+  },
+  "count": 14,
+  "sources": [
+    {
+      "card_path": 1,
+      "path": "internal/central/audit/project_query.go",
+      "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/project_query.go"
+    },
+    {
+      "card_path": 2,
+      "path": "internal/central/audit/project_query_test.go",
+      "sha256": "2d3b813d05ca46fad53669b7e595f922c17e2f984a55d00e13fda9213f6eee82",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/project_query_test.go"
+    },
+    {
+      "card_path": 3,
+      "path": "internal/central/audit/http/project.go",
+      "sha256": "dbf8dd786da702e0c0b52f7dd5a12bc703f5e03bebd88768b9aebe5e0d181d7a",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project.go"
+    },
+    {
+      "card_path": 4,
+      "path": "internal/central/audit/http/project_wire.go",
+      "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_wire.go"
+    },
+    {
+      "card_path": 5,
+      "path": "internal/central/audit/http/project_test.go",
+      "sha256": "5220bb249078fca5f83ae6e33d8b792d63f01076b0d62c7362cab5b04968558b",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_test.go"
+    },
+    {
+      "card_path": 6,
+      "path": "internal/central/audit/http/project_wire_test.go",
+      "sha256": "13263bd2dc40db5a20af6f0e2f893bed2857e0fed9a4fa9f1de29af9eac997c7",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_wire_test.go"
+    },
+    {
+      "card_path": 7,
+      "path": "internal/central/audit/http/project_native_test.go",
+      "sha256": "72f30308df22d15462dcf395902e6eed6ca95979c0316e9bc23fa0ed2e8265d4",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/audit/http/project_native_test.go"
+    },
+    {
+      "card_path": 8,
+      "path": "api/openapi/project-audit.json",
+      "sha256": "4b6ff6b624ca82ca79c047d179d629037306305783f770d543c82c513a3659b4",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/api/openapi/project-audit.json"
+    },
+    {
+      "card_path": 9,
+      "path": "internal/central/app/project_audit.go",
+      "sha256": "92870eb558c98078fce9bb168cfdedd47925f16d49bced98be49c47ecc639d96",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/app/project_audit.go"
+    },
+    {
+      "card_path": 10,
+      "path": "internal/central/app/project_audit_test.go",
+      "sha256": "9e874f9c8198f642c65f80b2fea758bea8c4390fbe9c4c98d84685f613b4f67d",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/app/project_audit_test.go"
+    },
+    {
+      "card_path": 11,
+      "path": "internal/central/app/account.go",
+      "sha256": "c8afd6286fccef135f53667a66f8522553a77cc187fa9f32a2813ef1e926eb98",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/internal/central/app/account.go"
+    },
+    {
+      "card_path": 12,
+      "path": "tests/model/project_audit_http_fixture_test.go",
+      "sha256": "39347c457cbd529566a1497c1264b36c75a4e0bad998d78d7cae6a21d82e60e7",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate01/src/tests/model/project_audit_http_fixture_test.go"
+    },
+    {
+      "card_path": 13,
+      "path": "tests/model/project_audit_http_test.go",
+      "sha256": "d05cbff6a5d67a7009a5e57cf388f198b75f1e0f7270a6dfe962f44bca3e1c85",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate02/src/tests/model/project_audit_http_test.go"
+    },
+    {
+      "card_path": 14,
+      "path": "tests/model/project_audit_http_root_test.go",
+      "sha256": "d4c8f0251f470682d78f5065cf5805e2d8966dd6e6eb25f1b6f9ddd369304114",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/candidate02/src/tests/model/project_audit_http_root_test.go"
+    }
+  ],
+  "all_worktree_and_snapshot_hashes_match": true
+}

@@ -1,0 +1,883 @@
+{
+  "nine_real_pg_rounds": 9,
+  "resources_total_occurrences": 63,
+  "distinct_resources": 63,
+  "resources_by_exact_id": {
+    "32455bf5e89c8a4bac962f7a0d306386efc8f7dd88f01110de97269a2082b40f": {
+      "run": "new1",
+      "kind": "container",
+      "name": "/agenteam-d05-object-7f004fb42eda12c1dcd397f01ef19921",
+      "labels": {
+        "agenteam.d05.objectfixture": "7f004fb42eda12c1dcd397f01ef19921"
+      }
+    },
+    "5f505503e970e76857fe4204a3e4dc45ea7c3e5eafcd55ec709d2f412e65c5e0": {
+      "run": "new1",
+      "kind": "container",
+      "name": "/agenteam-d03-57617de83f60bbf2d461323b8b7e6f09",
+      "labels": {
+        "agenteam.d03.fixture": "57617de83f60bbf2d461323b8b7e6f09"
+      }
+    },
+    "7992b3bcd8aed4e4fd5cc4cf7093e1167834d8cd5bc933ca72ef7dd3d2a93e70": {
+      "run": "new1",
+      "kind": "container",
+      "name": "/agenteam-d04-net-f2e222b25cb4326cc790b5ce784e22ba",
+      "labels": {
+        "agenteam.d04.networkfixture": "f2e222b25cb4326cc790b5ce784e22ba"
+      }
+    },
+    "b6421eb77e776e46a8fa5233ea12ea1a41f5a4f90bd636bcf999ee94ce0325b6": {
+      "run": "new1",
+      "kind": "container",
+      "name": "/agenteam-d03-57617de83f60bbf2d461323b8b7e6f09-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "57617de83f60bbf2d461323b8b7e6f09"
+      }
+    },
+    "d4dc3b33b371aba439bab9232f82fab56564b84d9249e513b78c3581556b5772": {
+      "run": "new1",
+      "kind": "network",
+      "name": "agenteam-d04-net-f2e222b25cb4326cc790b5ce784e22ba",
+      "labels": {
+        "agenteam.d04.networkfixture": "f2e222b25cb4326cc790b5ce784e22ba"
+      }
+    },
+    "d99c81c04214f5cdbd3d827806cc1180b2d847518122ddf3ad17d8021b621881": {
+      "run": "new1",
+      "kind": "network",
+      "name": "agenteam-d03-57617de83f60bbf2d461323b8b7e6f09",
+      "labels": {
+        "agenteam.d03.fixture": "57617de83f60bbf2d461323b8b7e6f09"
+      }
+    },
+    "dfbab9a1ed69f85caad6574a07349a88cb9af83e5c38cbf09190e06ebfe9fb3a": {
+      "run": "new1",
+      "kind": "network",
+      "name": "agenteam-d05-object-7f004fb42eda12c1dcd397f01ef19921",
+      "labels": {
+        "agenteam.d05.objectfixture": "7f004fb42eda12c1dcd397f01ef19921"
+      }
+    },
+    "140355365b82c3a6cb725d7786f35db2bd767c55529c555f8eb2b4a61dba7ac3": {
+      "run": "new2",
+      "kind": "container",
+      "name": "/agenteam-d05-object-c5ff4c74e17342667bf9b91ab17864b0",
+      "labels": {
+        "agenteam.d05.objectfixture": "c5ff4c74e17342667bf9b91ab17864b0"
+      }
+    },
+    "22ac527833dd6a86162f549c1603b66d8a57b443bdc7d5e79278f699be249405": {
+      "run": "new2",
+      "kind": "network",
+      "name": "agenteam-d04-net-966a6af49285e1b6c8ea02b90e7deced",
+      "labels": {
+        "agenteam.d04.networkfixture": "966a6af49285e1b6c8ea02b90e7deced"
+      }
+    },
+    "4965ecc9272677ddf3b6b5694e53004fabd013098358542752e5c420e14bb0ae": {
+      "run": "new2",
+      "kind": "container",
+      "name": "/agenteam-d04-net-966a6af49285e1b6c8ea02b90e7deced",
+      "labels": {
+        "agenteam.d04.networkfixture": "966a6af49285e1b6c8ea02b90e7deced"
+      }
+    },
+    "65c13f3f7258b7a9e01243a29e4def25d994e41b2130713cff789cb2d7e466e8": {
+      "run": "new2",
+      "kind": "network",
+      "name": "agenteam-d05-object-c5ff4c74e17342667bf9b91ab17864b0",
+      "labels": {
+        "agenteam.d05.objectfixture": "c5ff4c74e17342667bf9b91ab17864b0"
+      }
+    },
+    "c533e7295cae5d0cece4a5b5beef27dda6b4163a557d7589f237eb3dc1881fc9": {
+      "run": "new2",
+      "kind": "container",
+      "name": "/agenteam-d03-54bc99aa0dd02710983632eeab9491ae-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "54bc99aa0dd02710983632eeab9491ae"
+      }
+    },
+    "e2bd76f86bb4da4b448a00c46fab781195f0d52737f52acfa5114dbc9657b373": {
+      "run": "new2",
+      "kind": "container",
+      "name": "/agenteam-d03-54bc99aa0dd02710983632eeab9491ae",
+      "labels": {
+        "agenteam.d03.fixture": "54bc99aa0dd02710983632eeab9491ae"
+      }
+    },
+    "fd375eaf14a07bda5952facd6f7ae36efccc10b1710d8aceee343037a9e1840c": {
+      "run": "new2",
+      "kind": "network",
+      "name": "agenteam-d03-54bc99aa0dd02710983632eeab9491ae",
+      "labels": {
+        "agenteam.d03.fixture": "54bc99aa0dd02710983632eeab9491ae"
+      }
+    },
+    "2b5e2c7e677df8f090beddd63f93b5cb876f4cae3f21642d23aae260022a6524": {
+      "run": "new3",
+      "kind": "network",
+      "name": "agenteam-d05-object-cd62a2a0b1b98166ab46177bbb38a791",
+      "labels": {
+        "agenteam.d05.objectfixture": "cd62a2a0b1b98166ab46177bbb38a791"
+      }
+    },
+    "2c9b3340a1dc60f4a9dc2eef9d3f4da329fb6f72bbf960c24fb7372bffe58a0c": {
+      "run": "new3",
+      "kind": "container",
+      "name": "/agenteam-d04-net-bb580bd2524f83afa6e06abeb8c03ccf",
+      "labels": {
+        "agenteam.d04.networkfixture": "bb580bd2524f83afa6e06abeb8c03ccf"
+      }
+    },
+    "3692c8db2b2c023278a13e43a881251fdafbce556ceebe36868b7a173057c5c7": {
+      "run": "new3",
+      "kind": "network",
+      "name": "agenteam-d04-net-bb580bd2524f83afa6e06abeb8c03ccf",
+      "labels": {
+        "agenteam.d04.networkfixture": "bb580bd2524f83afa6e06abeb8c03ccf"
+      }
+    },
+    "721eb867b1abeed9fdd5a124bcb95343048e7b12259d663b967e355272e24ccb": {
+      "run": "new3",
+      "kind": "container",
+      "name": "/agenteam-d03-983eeb1894969a0d8194281da6702f67-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "983eeb1894969a0d8194281da6702f67"
+      }
+    },
+    "735f3a65c6ef384ca0d79716cbf189887bd6243acc7846980f9c08f2261b9145": {
+      "run": "new3",
+      "kind": "container",
+      "name": "/agenteam-d03-983eeb1894969a0d8194281da6702f67",
+      "labels": {
+        "agenteam.d03.fixture": "983eeb1894969a0d8194281da6702f67"
+      }
+    },
+    "9d336820a435fa36d799afd3463667bea935e4d9823ffa43af45a6b3d9f2b67f": {
+      "run": "new3",
+      "kind": "network",
+      "name": "agenteam-d03-983eeb1894969a0d8194281da6702f67",
+      "labels": {
+        "agenteam.d03.fixture": "983eeb1894969a0d8194281da6702f67"
+      }
+    },
+    "d344edc3d2a60d8bc4b71c7bc748ca7713f3399a9abe5b558eeb66850d9a7d18": {
+      "run": "new3",
+      "kind": "container",
+      "name": "/agenteam-d05-object-cd62a2a0b1b98166ab46177bbb38a791",
+      "labels": {
+        "agenteam.d05.objectfixture": "cd62a2a0b1b98166ab46177bbb38a791"
+      }
+    },
+    "329249d50c462d3f0b141847f47bec41aa5de73b2aae5bccafc3da6316ec08df": {
+      "run": "new4",
+      "kind": "container",
+      "name": "/agenteam-d05-object-2f82b02b36c773429dffe8acb0e14cfd",
+      "labels": {
+        "agenteam.d05.objectfixture": "2f82b02b36c773429dffe8acb0e14cfd"
+      }
+    },
+    "451bf140b71e2abc6ad39a14c4f3ab70fade1aa950409e019895e21690ccde9b": {
+      "run": "new4",
+      "kind": "network",
+      "name": "agenteam-d05-object-2f82b02b36c773429dffe8acb0e14cfd",
+      "labels": {
+        "agenteam.d05.objectfixture": "2f82b02b36c773429dffe8acb0e14cfd"
+      }
+    },
+    "46514da90646fe333af6fadd5c948f9a1301455dbffd133ea2a40ebb09ef9002": {
+      "run": "new4",
+      "kind": "network",
+      "name": "agenteam-d03-f59092efdd0a0d22dd40d1599d363622",
+      "labels": {
+        "agenteam.d03.fixture": "f59092efdd0a0d22dd40d1599d363622"
+      }
+    },
+    "69628f91e883e477ad713ab394038f70159e6f16f84014a1f0c936dc2f46d694": {
+      "run": "new4",
+      "kind": "container",
+      "name": "/agenteam-d04-net-f2f31056220aa859717020805ad2dd3d",
+      "labels": {
+        "agenteam.d04.networkfixture": "f2f31056220aa859717020805ad2dd3d"
+      }
+    },
+    "827838b5acbdfec6705f58cd9c2d51f2037cc8f76a794219130a38d6dfbdaa4d": {
+      "run": "new4",
+      "kind": "network",
+      "name": "agenteam-d04-net-f2f31056220aa859717020805ad2dd3d",
+      "labels": {
+        "agenteam.d04.networkfixture": "f2f31056220aa859717020805ad2dd3d"
+      }
+    },
+    "ce52e26cc711e7b31a9b5da9b1bc7f79a4836712eccddc45cd9f36546d4b00c0": {
+      "run": "new4",
+      "kind": "container",
+      "name": "/agenteam-d03-f59092efdd0a0d22dd40d1599d363622-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "f59092efdd0a0d22dd40d1599d363622"
+      }
+    },
+    "f9ec0b154f679213e617e3b57d018573e102630e233694494e2b315e1a507d26": {
+      "run": "new4",
+      "kind": "container",
+      "name": "/agenteam-d03-f59092efdd0a0d22dd40d1599d363622",
+      "labels": {
+        "agenteam.d03.fixture": "f59092efdd0a0d22dd40d1599d363622"
+      }
+    },
+    "26ea0880df090e04d79422b57bdce78c6c6af48dc770891a3a66a4a2d5ffea24": {
+      "run": "new5",
+      "kind": "network",
+      "name": "agenteam-d04-net-7b7f1db2d1e115cc0a92c77b8a0bccc8",
+      "labels": {
+        "agenteam.d04.networkfixture": "7b7f1db2d1e115cc0a92c77b8a0bccc8"
+      }
+    },
+    "511b555f67cb8103fc1caaf102568e58e500fa174c61330ed29bc7a6cc9c73d0": {
+      "run": "new5",
+      "kind": "network",
+      "name": "agenteam-d05-object-b0e810f4b7d9cc778c376b316d6320f3",
+      "labels": {
+        "agenteam.d05.objectfixture": "b0e810f4b7d9cc778c376b316d6320f3"
+      }
+    },
+    "75214ca06451acac9420bbbdd4de9ba9bec7cf488a5cf1a8363a15cf278beef6": {
+      "run": "new5",
+      "kind": "container",
+      "name": "/agenteam-d03-1664b4ce9114d034b0e6d0df9f66e56a",
+      "labels": {
+        "agenteam.d03.fixture": "1664b4ce9114d034b0e6d0df9f66e56a"
+      }
+    },
+    "8dc871bba17f76d726766446bb5a5347f1684db03603ef8b06c9403e94e2c9fb": {
+      "run": "new5",
+      "kind": "container",
+      "name": "/agenteam-d05-object-b0e810f4b7d9cc778c376b316d6320f3",
+      "labels": {
+        "agenteam.d05.objectfixture": "b0e810f4b7d9cc778c376b316d6320f3"
+      }
+    },
+    "b218e112426f91eff66a8cb0990bd9e6996ffa0630399dbeb77cdb38abbc874c": {
+      "run": "new5",
+      "kind": "network",
+      "name": "agenteam-d03-1664b4ce9114d034b0e6d0df9f66e56a",
+      "labels": {
+        "agenteam.d03.fixture": "1664b4ce9114d034b0e6d0df9f66e56a"
+      }
+    },
+    "cdccda89094cd4a71acfde4d432ee2653f6744ba720be605f1a55fa382d8b21e": {
+      "run": "new5",
+      "kind": "container",
+      "name": "/agenteam-d04-net-7b7f1db2d1e115cc0a92c77b8a0bccc8",
+      "labels": {
+        "agenteam.d04.networkfixture": "7b7f1db2d1e115cc0a92c77b8a0bccc8"
+      }
+    },
+    "e64b7e928e11b7f7bfb94dac58fa7920e95a4ae886830cebcc41bcb6858927fa": {
+      "run": "new5",
+      "kind": "container",
+      "name": "/agenteam-d03-1664b4ce9114d034b0e6d0df9f66e56a-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "1664b4ce9114d034b0e6d0df9f66e56a"
+      }
+    },
+    "0aecbd804050b2f9e9b255b97b87417acf10c2a515346755a2e604d3ae5bff72": {
+      "run": "old1",
+      "kind": "network",
+      "name": "agenteam-d04-net-cf104b2148e2ae568a7c5534c3331c24",
+      "labels": {
+        "agenteam.d04.networkfixture": "cf104b2148e2ae568a7c5534c3331c24"
+      }
+    },
+    "154fca0803f428bb0db181de4492489e49bb39580ceb02fcb3d907da9c0ffc27": {
+      "run": "old1",
+      "kind": "network",
+      "name": "agenteam-d05-object-c067a3006c9076a2c96991a9ed2c87ff",
+      "labels": {
+        "agenteam.d05.objectfixture": "c067a3006c9076a2c96991a9ed2c87ff"
+      }
+    },
+    "3c744fdb2e4c3855019907035fe0643728c902b83d2d38dce6b3ef0d628d2468": {
+      "run": "old1",
+      "kind": "container",
+      "name": "/agenteam-d04-net-cf104b2148e2ae568a7c5534c3331c24",
+      "labels": {
+        "agenteam.d04.networkfixture": "cf104b2148e2ae568a7c5534c3331c24"
+      }
+    },
+    "49701fa34d9ce12ced8ea55c7e3628aeae0c1e86d1bd70d642cf4912528c8912": {
+      "run": "old1",
+      "kind": "container",
+      "name": "/agenteam-d03-9796fafd964930072bb00f161ae65a32-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "9796fafd964930072bb00f161ae65a32"
+      }
+    },
+    "9fb4c69caa84ff5130143a2e8ec61da456429f27b1f4250673c0cee1ddff4445": {
+      "run": "old1",
+      "kind": "container",
+      "name": "/agenteam-d05-object-c067a3006c9076a2c96991a9ed2c87ff",
+      "labels": {
+        "agenteam.d05.objectfixture": "c067a3006c9076a2c96991a9ed2c87ff"
+      }
+    },
+    "dd3a20311bccaf9e3ccc9b81b4a6b7d0533a32594ade30150d0a3345a14f568f": {
+      "run": "old1",
+      "kind": "container",
+      "name": "/agenteam-d03-9796fafd964930072bb00f161ae65a32",
+      "labels": {
+        "agenteam.d03.fixture": "9796fafd964930072bb00f161ae65a32"
+      }
+    },
+    "f202b4a3219c2a87c2e9c1bbd57a57a06f6223786830a367212a70541e667e63": {
+      "run": "old1",
+      "kind": "network",
+      "name": "agenteam-d03-9796fafd964930072bb00f161ae65a32",
+      "labels": {
+        "agenteam.d03.fixture": "9796fafd964930072bb00f161ae65a32"
+      }
+    },
+    "16d79990329efc2f5cc5c39c930a0fcca7c98022222c4e0ccc596ed5cf7a1c73": {
+      "run": "old2",
+      "kind": "container",
+      "name": "/agenteam-d03-f97ef182e192af0a2079874f23467877-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "f97ef182e192af0a2079874f23467877"
+      }
+    },
+    "4c923b1ed264335263ace9a4d4bd0b972562e012e138738fb313dae22eae5faa": {
+      "run": "old2",
+      "kind": "container",
+      "name": "/agenteam-d05-object-146f29b368bc7441e96c408e3cec8dfa",
+      "labels": {
+        "agenteam.d05.objectfixture": "146f29b368bc7441e96c408e3cec8dfa"
+      }
+    },
+    "52025f79efc53bb6c269d3fc46f14a018a87ec020fa581521815c2565db08810": {
+      "run": "old2",
+      "kind": "container",
+      "name": "/agenteam-d04-net-0cf16a6cec1582b68c70e150505b74bf",
+      "labels": {
+        "agenteam.d04.networkfixture": "0cf16a6cec1582b68c70e150505b74bf"
+      }
+    },
+    "56a9b382d01845f0d809ba4385d7c6ff5eea985cc7cc5ab4c8f3a148745353ad": {
+      "run": "old2",
+      "kind": "network",
+      "name": "agenteam-d05-object-146f29b368bc7441e96c408e3cec8dfa",
+      "labels": {
+        "agenteam.d05.objectfixture": "146f29b368bc7441e96c408e3cec8dfa"
+      }
+    },
+    "850d23d88db68a34d2c7d3ef9d2f388b3b74e9beb873dd7f5d26d1931061b873": {
+      "run": "old2",
+      "kind": "container",
+      "name": "/agenteam-d03-f97ef182e192af0a2079874f23467877",
+      "labels": {
+        "agenteam.d03.fixture": "f97ef182e192af0a2079874f23467877"
+      }
+    },
+    "aeeb093585e5ae2ca9f54564627004eb1877f32199f73d0d7b98d77fa9a85689": {
+      "run": "old2",
+      "kind": "network",
+      "name": "agenteam-d03-f97ef182e192af0a2079874f23467877",
+      "labels": {
+        "agenteam.d03.fixture": "f97ef182e192af0a2079874f23467877"
+      }
+    },
+    "f763893ab782769c0b50aa3a3bdc8355b20d117fcc56f7a7db153d077ccec8be": {
+      "run": "old2",
+      "kind": "network",
+      "name": "agenteam-d04-net-0cf16a6cec1582b68c70e150505b74bf",
+      "labels": {
+        "agenteam.d04.networkfixture": "0cf16a6cec1582b68c70e150505b74bf"
+      }
+    },
+    "05a93c2b75729c003036057a0bb599e4e1df7310c79b1d32b100457d4037d981": {
+      "run": "old3",
+      "kind": "network",
+      "name": "agenteam-d05-object-00cb50bdf94f2544a0a54c82386935af",
+      "labels": {
+        "agenteam.d05.objectfixture": "00cb50bdf94f2544a0a54c82386935af"
+      }
+    },
+    "076948064dc22f9e4f515e760676bf89d10c722bf4c37ab6b73db3de3093e339": {
+      "run": "old3",
+      "kind": "container",
+      "name": "/agenteam-d05-object-00cb50bdf94f2544a0a54c82386935af",
+      "labels": {
+        "agenteam.d05.objectfixture": "00cb50bdf94f2544a0a54c82386935af"
+      }
+    },
+    "123a1015b3babfe52c1eb9dd051642ec7e9c1ec9246d54d0dcd124a65b408e1d": {
+      "run": "old3",
+      "kind": "container",
+      "name": "/agenteam-d04-net-8cd69ca3b17014a433aa7c7831be3a16",
+      "labels": {
+        "agenteam.d04.networkfixture": "8cd69ca3b17014a433aa7c7831be3a16"
+      }
+    },
+    "27cbc4b1edd368131b315a39daeb387d9b7912fac1a4f4a4b53195e8d7c3c4c8": {
+      "run": "old3",
+      "kind": "container",
+      "name": "/agenteam-d03-8fd7b52e5c31b99a2cb6236982d8016a-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "8fd7b52e5c31b99a2cb6236982d8016a"
+      }
+    },
+    "64f91cf35e973da852ff2f608013a165caca524f6112f2f29cd48d4b08e1017f": {
+      "run": "old3",
+      "kind": "container",
+      "name": "/agenteam-d03-8fd7b52e5c31b99a2cb6236982d8016a",
+      "labels": {
+        "agenteam.d03.fixture": "8fd7b52e5c31b99a2cb6236982d8016a"
+      }
+    },
+    "6a24c5353043319b948fff4872ad3387807d5e478fc53d76a7d7ef6259a4e006": {
+      "run": "old3",
+      "kind": "network",
+      "name": "agenteam-d03-8fd7b52e5c31b99a2cb6236982d8016a",
+      "labels": {
+        "agenteam.d03.fixture": "8fd7b52e5c31b99a2cb6236982d8016a"
+      }
+    },
+    "d911635f5ba55aec9b04b956dc5ff885dbc89c940bd4e164c316e0fd0c00580c": {
+      "run": "old3",
+      "kind": "network",
+      "name": "agenteam-d04-net-8cd69ca3b17014a433aa7c7831be3a16",
+      "labels": {
+        "agenteam.d04.networkfixture": "8cd69ca3b17014a433aa7c7831be3a16"
+      }
+    },
+    "0202b0986dccc57da7c9148ab669ed0d72fbb0a720f0e8ad31dc477c1c144989": {
+      "run": "old4",
+      "kind": "network",
+      "name": "agenteam-d05-object-9d3f228707fe4c4e52b6d49d8821aa6f",
+      "labels": {
+        "agenteam.d05.objectfixture": "9d3f228707fe4c4e52b6d49d8821aa6f"
+      }
+    },
+    "33884e2d3e9791efbb5d5532f31664239053cab43869eb78314e8334feb478f3": {
+      "run": "old4",
+      "kind": "container",
+      "name": "/agenteam-d04-net-800db52c37f589b6b0767546c31ebfa5",
+      "labels": {
+        "agenteam.d04.networkfixture": "800db52c37f589b6b0767546c31ebfa5"
+      }
+    },
+    "38a12559bea19f3b49351a7fba89e91b2dddb925d3a2e77fde06b0d03d3caf9b": {
+      "run": "old4",
+      "kind": "container",
+      "name": "/agenteam-d05-object-9d3f228707fe4c4e52b6d49d8821aa6f",
+      "labels": {
+        "agenteam.d05.objectfixture": "9d3f228707fe4c4e52b6d49d8821aa6f"
+      }
+    },
+    "402eb13b566980b055673da8bb2bcfc9c865aa92547b927312e2ab35d0b5d395": {
+      "run": "old4",
+      "kind": "network",
+      "name": "agenteam-d03-be51c5fc36a648de7b790ddb600c12e9",
+      "labels": {
+        "agenteam.d03.fixture": "be51c5fc36a648de7b790ddb600c12e9"
+      }
+    },
+    "41225202d3bfedfc6bcff66e11343c37e6beebfb2d8693d27b95d29d995d12b5": {
+      "run": "old4",
+      "kind": "container",
+      "name": "/agenteam-d03-be51c5fc36a648de7b790ddb600c12e9",
+      "labels": {
+        "agenteam.d03.fixture": "be51c5fc36a648de7b790ddb600c12e9"
+      }
+    },
+    "c010e0828dde21a9140ef7e4f8f56ee365368141fbb85909234c0f2b87d4b15a": {
+      "run": "old4",
+      "kind": "container",
+      "name": "/agenteam-d03-be51c5fc36a648de7b790ddb600c12e9-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "be51c5fc36a648de7b790ddb600c12e9"
+      }
+    },
+    "c0c8523933c9872db7ecc4eeb01b15d55ab3089906acc8ef473189cc0ae97408": {
+      "run": "old4",
+      "kind": "network",
+      "name": "agenteam-d04-net-800db52c37f589b6b0767546c31ebfa5",
+      "labels": {
+        "agenteam.d04.networkfixture": "800db52c37f589b6b0767546c31ebfa5"
+      }
+    }
+  },
+  "initial_pid1_zombie_count": 388,
+  "last_pid1_zombie_count": 424,
+  "new_daemon_count": 36,
+  "new_daemon_by_pid_starttime": [
+    {
+      "run": "new1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1181303,
+      "ppid": 1,
+      "starttime": "4654933",
+      "state": "Z"
+    },
+    {
+      "run": "new1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1181669,
+      "ppid": 1,
+      "starttime": "4655214",
+      "state": "Z"
+    },
+    {
+      "run": "new1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1182041,
+      "ppid": 1,
+      "starttime": "4655437",
+      "state": "Z"
+    },
+    {
+      "run": "new1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1182637,
+      "ppid": 1,
+      "starttime": "4655654",
+      "state": "Z"
+    },
+    {
+      "run": "new2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1196659,
+      "ppid": 1,
+      "starttime": "4707691",
+      "state": "Z"
+    },
+    {
+      "run": "new2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1197010,
+      "ppid": 1,
+      "starttime": "4707927",
+      "state": "Z"
+    },
+    {
+      "run": "new2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1197281,
+      "ppid": 1,
+      "starttime": "4708104",
+      "state": "Z"
+    },
+    {
+      "run": "new2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1197876,
+      "ppid": 1,
+      "starttime": "4708306",
+      "state": "Z"
+    },
+    {
+      "run": "new3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1204861,
+      "ppid": 1,
+      "starttime": "4716178",
+      "state": "Z"
+    },
+    {
+      "run": "new3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1205385,
+      "ppid": 1,
+      "starttime": "4716577",
+      "state": "Z"
+    },
+    {
+      "run": "new3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1205687,
+      "ppid": 1,
+      "starttime": "4716777",
+      "state": "Z"
+    },
+    {
+      "run": "new3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1206291,
+      "ppid": 1,
+      "starttime": "4716966",
+      "state": "Z"
+    },
+    {
+      "run": "new4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1212202,
+      "ppid": 1,
+      "starttime": "4723473",
+      "state": "Z"
+    },
+    {
+      "run": "new4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1212656,
+      "ppid": 1,
+      "starttime": "4723870",
+      "state": "Z"
+    },
+    {
+      "run": "new4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1213024,
+      "ppid": 1,
+      "starttime": "4724073",
+      "state": "Z"
+    },
+    {
+      "run": "new4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1213524,
+      "ppid": 1,
+      "starttime": "4724247",
+      "state": "Z"
+    },
+    {
+      "run": "new5",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1219645,
+      "ppid": 1,
+      "starttime": "4730589",
+      "state": "Z"
+    },
+    {
+      "run": "new5",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1220082,
+      "ppid": 1,
+      "starttime": "4730958",
+      "state": "Z"
+    },
+    {
+      "run": "new5",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1220441,
+      "ppid": 1,
+      "starttime": "4731137",
+      "state": "Z"
+    },
+    {
+      "run": "new5",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1220947,
+      "ppid": 1,
+      "starttime": "4731338",
+      "state": "Z"
+    },
+    {
+      "run": "old1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1227098,
+      "ppid": 1,
+      "starttime": "4737941",
+      "state": "Z"
+    },
+    {
+      "run": "old1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1227549,
+      "ppid": 1,
+      "starttime": "4738311",
+      "state": "Z"
+    },
+    {
+      "run": "old1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1227921,
+      "ppid": 1,
+      "starttime": "4738500",
+      "state": "Z"
+    },
+    {
+      "run": "old1",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1228441,
+      "ppid": 1,
+      "starttime": "4738699",
+      "state": "Z"
+    },
+    {
+      "run": "old2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1235026,
+      "ppid": 1,
+      "starttime": "4745535",
+      "state": "Z"
+    },
+    {
+      "run": "old2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1235577,
+      "ppid": 1,
+      "starttime": "4745981",
+      "state": "Z"
+    },
+    {
+      "run": "old2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1235950,
+      "ppid": 1,
+      "starttime": "4746227",
+      "state": "Z"
+    },
+    {
+      "run": "old2",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1236451,
+      "ppid": 1,
+      "starttime": "4746405",
+      "state": "Z"
+    },
+    {
+      "run": "old3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1242139,
+      "ppid": 1,
+      "starttime": "4752819",
+      "state": "Z"
+    },
+    {
+      "run": "old3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1242514,
+      "ppid": 1,
+      "starttime": "4753049",
+      "state": "Z"
+    },
+    {
+      "run": "old3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1242796,
+      "ppid": 1,
+      "starttime": "4753246",
+      "state": "Z"
+    },
+    {
+      "run": "old3",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1243373,
+      "ppid": 1,
+      "starttime": "4753424",
+      "state": "Z"
+    },
+    {
+      "run": "old4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1248977,
+      "ppid": 1,
+      "starttime": "4759719",
+      "state": "Z"
+    },
+    {
+      "run": "old4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1249431,
+      "ppid": 1,
+      "starttime": "4760121",
+      "state": "Z"
+    },
+    {
+      "run": "old4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1249855,
+      "ppid": 1,
+      "starttime": "4760344",
+      "state": "Z"
+    },
+    {
+      "run": "old4",
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 1250405,
+      "ppid": 1,
+      "starttime": "4760556",
+      "state": "Z"
+    }
+  ],
+  "interround_differences": [
+    {
+      "before_run": "new2",
+      "added": [],
+      "removed": []
+    },
+    {
+      "before_run": "new3",
+      "added": [],
+      "removed": []
+    },
+    {
+      "before_run": "new4",
+      "added": [],
+      "removed": []
+    },
+    {
+      "before_run": "new5",
+      "added": [],
+      "removed": []
+    },
+    {
+      "before_run": "old1",
+      "added": [],
+      "removed": []
+    },
+    {
+      "before_run": "old2",
+      "added": [],
+      "removed": []
+    },
+    {
+      "before_run": "old3",
+      "added": [],
+      "removed": []
+    },
+    {
+      "before_run": "old4",
+      "added": [],
+      "removed": []
+    }
+  ],
+  "limit": "All 36 are daemon/PID1 containerd-shim zombies, not task descendants or waited. Task owned/runtime cleanup is not whole-machine zero. These are the original nine author windows only; later independent baselines must be fresh."
+}

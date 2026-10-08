@@ -1,0 +1,68 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/model-integrationcompile02/result.json",
+    "sha256": "a24bac6cf66db862602b67dcab7389b465f2608d59b6f3eb6a94f2fc2955cb91",
+    "bytes": 532308
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3756
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 8.186909513999126,
+    "direct_child_pid": 1194963,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1194963,
+        "ppid": 1194937,
+        "pgid": 1194963,
+        "state": "Z",
+        "starttime": "4695339"
+      },
+      {
+        "pid": 1194982,
+        "ppid": 1194963,
+        "pgid": 1194963,
+        "state": "Z",
+        "starttime": "4695362"
+      },
+      {
+        "pid": 1195031,
+        "ppid": 1194963,
+        "pgid": 1194963,
+        "state": "R",
+        "starttime": "4695903"
+      },
+      {
+        "pid": 1195039,
+        "ppid": 1194963,
+        "pgid": 1194963,
+        "state": "R",
+        "starttime": "4695910"
+      },
+      {
+        "pid": 1195072,
+        "ppid": 1194963,
+        "pgid": 1194963,
+        "state": "S",
+        "starttime": "4696041"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

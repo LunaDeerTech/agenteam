@@ -1,0 +1,139 @@
+{
+  "status": "PASS_BOUNDED_TECHNICAL_14_INDEPENDENT",
+  "baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/manifest.json",
+    "sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d"
+  },
+  "blocking_findings": [],
+  "technical_path_count": 14,
+  "all_current_technical_bytes_match_frozen_snapshots": true,
+  "evidence": {
+    "author_final": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/technical-final02/result.json",
+      "sha256": "c25d02150c932a3718e2ab59aafe707e28adc8fb1184d2e82135a330ef9daa10"
+    },
+    "author_pg_raw_review": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/author-pg-review01.json",
+      "sha256": "c966dfa8432cf8511a8a588474366d7f0d6e2f986862debbc2bee133835aa073"
+    },
+    "author_offline_native_raw_review": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/author-offline-native-review01.json",
+      "sha256": "d520da102de57b8038d7964690c38212fee6c7332eed5c7a581a3d49f2058f8b"
+    },
+    "candidate01_static": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/candidate01-static/result.json",
+      "sha256": "45dbaa322bb162c537a4497745fe1d0f9669e3bcd96486cf821321d58741018b"
+    },
+    "candidate01_missed_test_finding": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/candidate01-static/finding-test01.json",
+      "sha256": "0f27b1181a53d249378e4975f1eeaac470521fc897ea44f04fe2ac80aae0f710"
+    },
+    "candidate02_static": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/candidate02-static/result.json",
+      "sha256": "c35c291d5d68961aa83e3e15e549130af910bfc51a378841c9aeee8375d41fca"
+    },
+    "query_controlled": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query-controlled01/result.json",
+      "sha256": "bbbc176d2970fedf24a7d76c7dee1dae23c1be7c0f5c2c950cbf3c6cce78c917"
+    },
+    "http_controlled": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/http-controlled01/result.json",
+      "sha256": "850fb73802b0220268b24775823395f91226121ad8423039aa25e28f8e6030a7"
+    },
+    "wire01_initial_findings": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/wire01-static/result.json",
+      "sha256": "954149c7011cded30144109b8f53506a99d8cc1b4d2b5548677d9d106e983d5b"
+    },
+    "wire02_40_parser": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/wire02-static/result.json",
+      "sha256": "6512522419d983f88c7467e5011e77a4beee58c9bb2349dc91727f60e54d017e"
+    },
+    "wire03_extrema": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire03/manifest.json",
+      "sha256": "6dbe851f3a71756e1f99ee84c30bc239b62d4094a3738f1f584a0057e614c08a"
+    },
+    "author_341_schema_actual": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run08/result.json",
+      "sha256": "be38df1a2c11baad4a65676f99fd3a398c5a44ddda9bfa145a9e88987638f4f4"
+    },
+    "private_a01_fix": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/result.json",
+      "sha256": "45827236ed545510c04f764d499a154a52ae13b97b04b5bf5eb360ebce55ba7b"
+    },
+    "private_a01_delta": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/private.delta.diff",
+      "sha256": "f67b22c9d71725431c86869e71ad2dd43d0238981a195287ac0f2080560f6fb7"
+    },
+    "independent_body_schema": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/body-schema-result.json",
+      "sha256": "66e44681c6db114af9883193527a9642aa540e8a0e480f4384385cba310814f4"
+    },
+    "independent_body_command": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/body-schema01/result.json",
+      "sha256": "2fa4f4feb95c31cb38447cf8c10adaa238bf1e4b2f8a0006ec258491f067e0d6"
+    },
+    "author_safe_http": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/technical-final02/safe-http-index.json",
+      "sha256": "1aa6754283531dd159467d8a3f79b105fa3a5a3af61e1ae2abf2f7f3075acb21"
+    },
+    "sources": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/final14/sources.json",
+      "sha256": "464a0a2ad482147fb144c4929a360222482768d8fa17898d223e7cbf471c20d7"
+    },
+    "resource_rounds": {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/final14/resource-rounds.json",
+      "sha256": "e7e5006f0266299a331b576e7444a9605620c9ecf970ccb701c439ac97ed621e"
+    }
+  },
+  "scope": "Project Owner Audit read library/GET HEAD/schema/default root only; documentation paths15/16 pending separate narrow review",
+  "counts": {
+    "author_new_pg_top": 4,
+    "author_new_pg_nested": 12,
+    "author_old_pg_top": 8,
+    "author_old_pg_nested": 12,
+    "author_pg_real_rounds_including_initial_failure": 9,
+    "author_native_rounds": 3,
+    "author_native_top": 3,
+    "author_native_nested": 8,
+    "author_native_listeners": 9,
+    "independent_pg_real_rounds_including_initial_failure": 3,
+    "independent_final_top": 2,
+    "independent_final_nested": 4,
+    "independent_query_pure_top_per_mode": 1,
+    "independent_query_pure_nested_per_mode": 9,
+    "independent_http_pure_top_per_mode": 1,
+    "independent_http_pure_nested_per_mode": 2,
+    "independent_schema_negative_positive_vectors": 40,
+    "author_standard_schema_vectors": 341
+  },
+  "capacity": {
+    "wire_page_with_capacity_shape_8192_cursor_bytes": 598220,
+    "wire_actual_signer_page_bytes": 590584,
+    "actual_signer_token_bytes": 556,
+    "limit_bytes": 1048576,
+    "static_upper_bound_is_not_a_dynamic_measurement": 1037420,
+    "independent_original_body_bytes": [
+      1389,
+      727,
+      0
+    ]
+  },
+  "failures_preserved": [
+    "Author new1 wrong provider action test vocabulary; original raw did not log action; production unchanged. Independent candidate01 STATIC missed this test defect, separate finding retained and candidate02 closes it.",
+    "Independent A01 attempted metadata={} in a formal Project audit row and received DATABASE_SQL_FAILED before tested List. No SQLSTATE/constraint name captured; fixed-schema static attribution only. Private A02 injects DB-legal UUIDv4 request_id, restores original, leaves metadata/DDL/order unchanged.",
+    "Original wire/schema test and input/gating failures remain in linked original evidence; accepted result is version combination, not erased-first-run success."
+  ],
+  "limits": [
+    "Native and PG tests use isolated full fixtures; original formal Account/Project producers consumed. Persistent Skills fixture does not establish production Skills initialization.",
+    "Read Unknown is one actual transaction result, original cause/attempt via internal accessor, zero auto-confirm/retry; no new HTTP cause_id field.",
+    "Root forced return is distinct from later fixture/client/backend actual joins; does not prove all root inner components joined on forced return.",
+    "Twelve PG rounds each add four containerd-shim PID1 zombies: 48 task-round identities, nonowned/notwait. All PID1 zombies move 388→437 because one separate git PID1267429/starttime4787157 appears between A01 and A02 baselines; it is separately recorded without attribution or owned-wait claim.",
+    "D04/D08/D09 as whole, production Resolution/Invocations/D24 and ready503 gates remain incomplete; three stopped frontiers remain stopped."
+  ],
+  "resource_state": "Released root after A02/B01 actualwait and two clean observations; parser ended actualwait/doubleempty; no active verifier command/resource.",
+  "review": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/final14/review.md",
+    "sha256": "8873adc370d4cb05c9d3f7e5fd7f34b3441213d962057f3cec8e5447264b51cf"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "kind": "first stopped production slice; not full candidate or product PASS",
+  "baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "base01_sha256": "7e80236c7e79b461b6ac2dbad5edb6806038b7689dd7e56e3dc8252eeee39e58",
+  "sources": [
+    {
+      "card_path": 1,
+      "path": "internal/central/audit/project_query.go",
+      "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/query01/src/internal/central/audit/project_query.go"
+    }
+  ],
+  "fixed_dependencies": [
+    {
+      "path": "internal/central/audit/query.go",
+      "prior_sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "base_sha256": "3713a95d285b19300e0038cb6243f9932754bb22a030afb820012b8f9e8968f3",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/audit/system_query.go",
+      "prior_sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "base_sha256": "b84646b38e6810d02e3c6b259c1ee1e88b26aa79af406ebb5c504b58abd2014f",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/audit/service.go",
+      "prior_sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+      "base_sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/audit/contract/access.go",
+      "prior_sha256": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1",
+      "base_sha256": "775a838c03690fef4b709c37975fd23ccfc24e506569d4c3e8684ac32f8abfd1",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/audit/contract/types.go",
+      "prior_sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+      "base_sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "prior_sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "base_sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/audit/error.go",
+      "prior_sha256": "ad980308d48166a978891ad999adbf4309dee28fe201bf40e3629192712a58d8",
+      "base_sha256": "ad980308d48166a978891ad999adbf4309dee28fe201bf40e3629192712a58d8",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/foundation/tx.go",
+      "prior_sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "base_sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/foundation/fault.go",
+      "prior_sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "base_sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/foundation/cause.go",
+      "prior_sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "base_sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/foundation/lock.go",
+      "prior_sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "base_sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "prior_sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "base_sha256": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+      "changed_from_spec_base": false
+    },
+    {
+      "path": "internal/central/cursor/cursor.go",
+      "prior_sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "base_sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "changed_from_spec_base": false
+    }
+  ],
+  "format_result": "/workspace/scratch/project-owner-audit-http-author/query-format02/result.json",
+  "format_result_sha256": "33245d88155093e4b9e4e2d7181ad34baad3527e919edd618846c6ae3efbf45c",
+  "not_run": [
+    "Go compile",
+    "unit/race/vet",
+    "native",
+    "PG"
+  ],
+  "scope_limit": "Only #1 frozen. Other13 implementing; do not read activity as frozen. No documentation changes."
+}

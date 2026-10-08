@@ -1,0 +1,53 @@
+{
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/manifest.json",
+    "sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d"
+  },
+  "checks": [
+    {
+      "name": "action-format02",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/action-format02/result.json",
+        "sha256": "584118b4179528701d978a299853fc8decf2ffc6f00c8d6b8ece933b77132902"
+      },
+      "elapsed_seconds": 0.8838170880044345,
+      "actual_exit": 0,
+      "double_owned_empty": true
+    },
+    {
+      "name": "model-integrationcompile02",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/model-integrationcompile02/result.json",
+        "sha256": "a24bac6cf66db862602b67dcab7389b465f2608d59b6f3eb6a94f2fc2955cb91"
+      },
+      "elapsed_seconds": 8.186909513999126,
+      "actual_exit": 0,
+      "double_owned_empty": true
+    },
+    {
+      "name": "model-integration-list02",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/model-integration-list02/result.json",
+        "sha256": "4fc2c9ccaa1ae32f76b52732f852f4b451becafb0cb7540df86023b0d44b21ab"
+      },
+      "elapsed_seconds": 2.0327477140017436,
+      "actual_exit": 0,
+      "double_owned_empty": true
+    },
+    {
+      "name": "model-integration-vet02",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/model-integration-vet02/result.json",
+        "sha256": "a29de03c9f812e686431e4b5e76dc0a5a62122a84c1d9c213ee83d6c29f98c59"
+      },
+      "elapsed_seconds": 1.4795388860002276,
+      "actual_exit": 0,
+      "double_owned_empty": true
+    }
+  ],
+  "binary": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/model-integration02.test",
+    "sha256": "130ab9a938b12c4d2da809e185d5efb4bb9b76337ece2d5cb68a47d08b6d75ab"
+  },
+  "not_run": "No testbody or resource rerun; original new1 failure preserved; unchanged native/wire/production results reused"
+}

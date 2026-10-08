@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47770.644855321,
+      "top": "TestIndependentProjectAuditOwnerAndPage"
+    },
+    {
+      "event": "result",
+      "monotonic": 47774.994199593,
+      "observed_seconds": 4.3493442719991435,
+      "reported_seconds": 4.35,
+      "state": "FAIL",
+      "top": "TestIndependentProjectAuditOwnerAndPage"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectAuditOwnerAndPage"
+  ],
+  "failures": []
+}

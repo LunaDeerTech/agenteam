@@ -1,0 +1,221 @@
+1179691 1791420482.004096 close(3</etc/ld.so.cache>) = 0
+1179691 1791420482.004822 close(3</usr/lib/x86_64-linux-gnu/libc.so.6>) = 0
+1179691 1791420482.005873 close(3</proc/1179691/maps>) = 0
+1179691 1791420482.006118 close(3</sys/kernel/mm/transparent_hugepage/hpage_pmd_size>) = 0
+1179691 1791420482.010533 close(3</proc/1179691/environ>) = 0
+1179691 1791420482.010820 close(3</proc/1179691/cmdline>) = 0
+1179691 1791420482.013591 close(3</proc/1179691/cgroup>) = 0
+1179691 1791420482.013769 close(3</proc/1179691/mountinfo>) = 0
+1179691 1791420482.025270 close(5</etc/machine-id>) = 0
+1179691 1791420482.028636 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCP:[3130978]>
+1179691 1791420482.028778 close(5<TCP:[3130978]>) = 0
+1179691 1791420482.028845 socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 5<TCPv6:[3130979]>
+1179691 1791420482.028960 bind(5<TCPv6:[3130979]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+1179691 1791420482.029113 socket(AF_INET6, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_TCP) = 6<TCPv6:[3130980]>
+1179691 1791420482.029218 bind(6<TCPv6:[3130980]>, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::ffff:127.0.0.1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+1179691 1791420482.029288 close(6<TCPv6:[3130980]>) = 0
+1179691 1791420482.029344 close(5<TCPv6:[3130979]>) = 0
+1179691 1791420482.029417 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_MPTCP) = -1 EPROTONOSUPPORT (Protocol not supported)
+1179691 1791420482.029487 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[3130982]>
+1179691 1791420482.029893 close(6</proc/sys/net/core/somaxconn>) = 0
+1179691 1791420482.030043 bind(5<TCP:[3130982]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+1179691 1791420482.030175 listen(5<TCP:[3130982]>, 4096) = 0
+1179691 1791420482.030324 getsockname(5<TCP:[3130982]>, {sa_family=AF_INET, sin_port=htons(42671), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420482.030599 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 6<TCP:[3130983]>
+1179691 1791420482.030669 connect(6<TCP:[3130983]>, {sa_family=AF_INET, sin_port=htons(42671), sin_addr=inet_addr("127.0.0.1")}, 16 <unfinished ...>
+1179698 1791420482.030693 accept4(5<TCP:[3130982]>, 0xc00006199c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179691 1791420482.030799 <... connect resumed>) = -1 EINPROGRESS (Operation now in progress)
+1179698 1791420482.030877 accept4(5<TCP:[3130982]>, {sa_family=AF_INET, sin_port=htons(33212), sin_addr=inet_addr("127.0.0.1")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[3127272]>
+1179698 1791420482.031096 getsockname(7<TCP:[3127272]>, {sa_family=AF_INET, sin_port=htons(42671), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420482.031154 getpeername(6<TCP:[3130983]>, {sa_family=AF_INET, sin_port=htons(42671), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420482.031219 getsockname(6<TCP:[3130983]>, {sa_family=AF_INET, sin_port=htons(33212), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179698 1791420482.031563 accept4(5<TCP:[3130982]>, 0xc00006199c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179698 1791420482.032677 close(7<TCP:[3127272]>) = 0
+1179697 1791420482.032924 close(6<TCP:[3130983]>) = 0
+1179697 1791420482.033119 close(5<TCP:[3130982]>) = 0
+1179697 1791420482.033607 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[3128117]>
+1179697 1791420482.033717 bind(5<TCP:[3128117]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+1179697 1791420482.033828 listen(5<TCP:[3128117]>, 4096) = 0
+1179697 1791420482.033917 getsockname(5<TCP:[3128117]>, {sa_family=AF_INET, sin_port=htons(43379), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179697 1791420482.034090 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 6<TCP:[3128118]>
+1179697 1791420482.034186 connect(6<TCP:[3128118]>, {sa_family=AF_INET, sin_port=htons(43379), sin_addr=inet_addr("127.0.0.1")}, 16 <unfinished ...>
+1179691 1791420482.034279 accept4(5<TCP:[3128117]>, 0xc00005c99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179697 1791420482.034396 <... connect resumed>) = -1 EINPROGRESS (Operation now in progress)
+1179691 1791420482.034455 accept4(5<TCP:[3128117]>, {sa_family=AF_INET, sin_port=htons(43266), sin_addr=inet_addr("127.0.0.1")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[3130985]>
+1179697 1791420482.034574 getpeername(6<TCP:[3128118]>, {sa_family=AF_INET, sin_port=htons(43379), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420482.034619 getsockname(7<TCP:[3130985]>, {sa_family=AF_INET, sin_port=htons(43379), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179697 1791420482.034659 getsockname(6<TCP:[3128118]>, {sa_family=AF_INET, sin_port=htons(43266), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420482.034980 accept4(5<TCP:[3128117]>, 0xc00005c99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179691 1791420482.035798 close(7<TCP:[3130985]>) = 0
+1179697 1791420482.036072 close(6<TCP:[3128118]>) = 0
+1179697 1791420482.036256 close(5<TCP:[3128117]>) = 0
+1179698 1791420482.036691 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[3127274]>
+1179698 1791420482.036820 bind(5<TCP:[3127274]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+1179698 1791420482.036878 listen(5<TCP:[3127274]>, 4096) = 0
+1179698 1791420482.036970 getsockname(5<TCP:[3127274]>, {sa_family=AF_INET, sin_port=htons(44303), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179698 1791420482.037172 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP <unfinished ...>
+1179697 1791420482.037189 accept4(5<TCP:[3127274]>,  <unfinished ...>
+1179698 1791420482.037209 <... socket resumed>) = 6<TCP:[3127275]>
+1179697 1791420482.037231 <... accept4 resumed>0xc00005d99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179698 1791420482.037243 connect(6<TCP:[3127275]>, {sa_family=AF_INET, sin_port=htons(44303), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EINPROGRESS (Operation now in progress)
+1179697 1791420482.037483 accept4(5<TCP:[3127274]>, {sa_family=AF_INET, sin_port=htons(60346), sin_addr=inet_addr("127.0.0.1")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[3128120]>
+1179697 1791420482.037608 getsockname(7<TCP:[3128120]>,  <unfinished ...>
+1179698 1791420482.037624 getpeername(6<TCP:[3127275]>,  <unfinished ...>
+1179697 1791420482.037640 <... getsockname resumed>{sa_family=AF_INET, sin_port=htons(44303), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179698 1791420482.037652 <... getpeername resumed>{sa_family=AF_INET, sin_port=htons(44303), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179698 1791420482.037700 getsockname(6<TCP:[3127275]>, {sa_family=AF_INET, sin_port=htons(60346), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179697 1791420482.037994 accept4(5<TCP:[3127274]>, 0xc00005d99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179691 1791420482.038669 close(7<TCP:[3128120]>) = 0
+1179697 1791420482.038885 close(6<TCP:[3127275]>) = 0
+1179697 1791420482.039081 close(5<TCP:[3127274]>) = 0
+1179697 1791420482.058933 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.073731 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.074195 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.074453 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.074701 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.094788 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.115502 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.123286 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.123626 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.123881 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.124065 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.124319 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.137053 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.153061 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[3128122]>
+1179697 1791420482.153260 bind(5<TCP:[3128122]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+1179697 1791420482.153438 listen(5<TCP:[3128122]>, 4096) = 0
+1179697 1791420482.153555 getsockname(5<TCP:[3128122]>, {sa_family=AF_INET, sin_port=htons(39683), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179698 1791420482.153791 accept4(5<TCP:[3128122]>,  <unfinished ...>
+1179697 1791420482.153816 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP <unfinished ...>
+1179698 1791420482.153845 <... accept4 resumed>0xc00046d99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179697 1791420482.153858 <... socket resumed>) = 6<TCP:[3128123]>
+1179697 1791420482.153889 connect(6<TCP:[3128123]>, {sa_family=AF_INET, sin_port=htons(39683), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EINPROGRESS (Operation now in progress)
+1179691 1791420482.154325 accept4(5<TCP:[3128122]>, {sa_family=AF_INET, sin_port=htons(58170), sin_addr=inet_addr("127.0.0.1")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[3130987]>
+1179697 1791420482.154475 getpeername(6<TCP:[3128123]>, {sa_family=AF_INET, sin_port=htons(39683), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420482.154518 getsockname(7<TCP:[3130987]>,  <unfinished ...>
+1179697 1791420482.154553 getsockname(6<TCP:[3128123]>,  <unfinished ...>
+1179691 1791420482.154679 <... getsockname resumed>{sa_family=AF_INET, sin_port=htons(39683), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179697 1791420482.154741 <... getsockname resumed>{sa_family=AF_INET, sin_port=htons(58170), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420482.155082 accept4(5<TCP:[3128122]>, 0xc00046d99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179697 1791420482.167661 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.169672 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.170071 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.170331 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.170689 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.170974 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.190793 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.201090 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.207970 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.208385 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.208619 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.208837 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.221538 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.232933 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.244141 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.244512 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.244764 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.244987 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179698 1791420482.263256 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.266274 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.266792 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.267017 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.267168 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.280767 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.280904 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281033 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281144 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281254 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281385 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281498 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281614 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281745 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.281986 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282081 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282202 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282308 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282454 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282566 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282683 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282829 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.282949 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283053 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283165 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283257 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283376 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283498 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283600 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283718 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283826 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.283933 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.284033 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.284149 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.284273 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.284388 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.284500 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.284656 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.284890 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285011 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285116 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285249 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285376 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285491 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285600 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285714 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.285832 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286092 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286204 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286311 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286451 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286567 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286671 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286790 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.286916 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287045 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287150 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287257 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287375 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287503 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287610 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287728 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287840 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.287939 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288047 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288148 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288243 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288346 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288461 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288560 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288660 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288752 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288853 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.288953 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.289264 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.289520 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420482.289718 --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=1179691, si_uid=1000} ---
+1179697 1791420485.156561 close(7<TCP:[3130987]>) = 0
+1179697 1791420485.156857 close(6<TCP:[3128123]>) = 0
+1179697 1791420485.157041 close(5<TCP:[3128122]>) = 0
+1179697 1791420485.157486 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP) = 5<TCP:[3128130]>
+1179697 1791420485.157569 bind(5<TCP:[3128130]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+1179697 1791420485.157639 listen(5<TCP:[3128130]>, 4096) = 0
+1179697 1791420485.157863 getsockname(5<TCP:[3128130]>, {sa_family=AF_INET, sin_port=htons(33349), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179697 1791420485.158060 socket(AF_INET, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, IPPROTO_IP <unfinished ...>
+1179691 1791420485.158069 accept4(5<TCP:[3128130]>,  <unfinished ...>
+1179697 1791420485.158097 <... socket resumed>) = 6<TCP:[3128131]>
+1179691 1791420485.158117 <... accept4 resumed>0xc00046d99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179697 1791420485.158134 connect(6<TCP:[3128131]>, {sa_family=AF_INET, sin_port=htons(33349), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 EINPROGRESS (Operation now in progress)
+1179691 1791420485.158243 accept4(5<TCP:[3128130]>, {sa_family=AF_INET, sin_port=htons(51266), sin_addr=inet_addr("127.0.0.1")}, [112 => 16], SOCK_CLOEXEC|SOCK_NONBLOCK) = 7<TCP:[3131012]>
+1179697 1791420485.158329 getpeername(6<TCP:[3128131]>, {sa_family=AF_INET, sin_port=htons(33349), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420485.158399 getsockname(7<TCP:[3131012]>, {sa_family=AF_INET, sin_port=htons(33349), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179697 1791420485.158441 getsockname(6<TCP:[3128131]>, {sa_family=AF_INET, sin_port=htons(51266), sin_addr=inet_addr("127.0.0.1")}, [112 => 16]) = 0
+1179691 1791420485.158772 accept4(5<TCP:[3128130]>, 0xc00046d99c, [112], SOCK_CLOEXEC|SOCK_NONBLOCK) = -1 EAGAIN (Resource temporarily unavailable)
+1179691 1791420488.163685 close(7<TCP:[3131012]> <unfinished ...>
+1179697 1791420488.163806 close(6<TCP:[3128131]> <unfinished ...>
+1179691 1791420488.163843 <... close resumed>) = 0
+1179697 1791420488.163901 <... close resumed>) = 0
+1179697 1791420488.164093 close(5<TCP:[3128130]>) = 0
+1179699 1791420489.167043 +++ exited with 0 +++
+1179698 1791420489.167107 +++ exited with 0 +++
+1179697 1791420489.167111 +++ exited with 0 +++
+1179696 1791420489.174110 +++ exited with 0 +++
+1179691 1791420489.174129 +++ exited with 0 +++

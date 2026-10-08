@@ -1,0 +1,61 @@
+{
+  "kind": "five production source stopped slice; no wholeproduct acceptance",
+  "baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "sources": [
+    {
+      "card_path": 1,
+      "path": "internal/central/audit/project_query.go",
+      "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/audit/project_query.go"
+    },
+    {
+      "card_path": 3,
+      "path": "internal/central/audit/http/project.go",
+      "sha256": "dbf8dd786da702e0c0b52f7dd5a12bc703f5e03bebd88768b9aebe5e0d181d7a",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/audit/http/project.go"
+    },
+    {
+      "card_path": 4,
+      "path": "internal/central/audit/http/project_wire.go",
+      "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/audit/http/project_wire.go"
+    },
+    {
+      "card_path": 9,
+      "path": "internal/central/app/project_audit.go",
+      "sha256": "92870eb558c98078fce9bb168cfdedd47925f16d49bced98be49c47ecc639d96",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/app/project_audit.go"
+    },
+    {
+      "card_path": 11,
+      "path": "internal/central/app/account.go",
+      "sha256": "c8afd6286fccef135f53667a66f8522553a77cc187fa9f32a2813ef1e926eb98",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/app/account.go"
+    }
+  ],
+  "base01_sha256": "7e80236c7e79b461b6ac2dbad5edb6806038b7689dd7e56e3dc8252eeee39e58",
+  "unchanged_query01": true,
+  "readonly_roots": [
+    {
+      "path": "internal/central/app/security.go",
+      "sha256": "0804ec5ab4c3b8566d3f933881415779bf354eaa89a1bb85e0fb4fb09bd0a7a4"
+    },
+    {
+      "path": "internal/central/app/project_usage.go",
+      "sha256": "13abb6bbdc4d38d40b1ba627aa989aec503ffe55c7a310dd42d11acc33d81275"
+    },
+    {
+      "path": "internal/central/app/project_models.go",
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0"
+    }
+  ],
+  "format_result": "/workspace/scratch/project-owner-audit-http-author/production-format01/result.json",
+  "format_result_sha256": "41e9f1a2e037daa873d6da6fbf540e135eed33b750d95af63526cae62b1cec35",
+  "not_run": [
+    "compile",
+    "unit/race/vet/schema",
+    "native",
+    "PG"
+  ],
+  "outside_slice": "Tests/schema still implementing; only snapshot5 safe to review"
+}

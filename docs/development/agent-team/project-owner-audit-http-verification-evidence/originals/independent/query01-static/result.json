@@ -1,0 +1,48 @@
+{
+  "kind": "independent frozen production slice STATIC review",
+  "status": "PASS_STATIC_ONLY",
+  "scope": [
+    "internal/central/audit/project_query.go"
+  ],
+  "card_path_numbers": [
+    1
+  ],
+  "baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "manifest": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/query01/manifest.json",
+    "sha256": "7b86715dd24bc2d7410cac4dde0e10ca9c0acc6eeb0ef346d5e20f7df69d797a"
+  },
+  "source": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/query01/src/internal/central/audit/project_query.go",
+    "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456",
+    "lines": 204
+  },
+  "blocking_findings": [],
+  "required_product_changes": [],
+  "accepted_dependency_count": 13,
+  "scope_limits": [
+    "Other13 active sources not read",
+    "No Go compile/unit/race/vet/native/PG conclusion",
+    "Full14 product acceptance remains pending"
+  ],
+  "reviewer_executed_go_or_resources": false,
+  "product_or_repository_writes": false,
+  "author_format_result_checked": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/query-format02/result.json",
+    "sha256": "33245d88155093e4b9e4e2d7181ad34baad3527e919edd618846c6ae3efbf45c",
+    "actual_exit": 0,
+    "actual_direct_wait": true,
+    "owned_observations": 2
+  },
+  "review_stopped_writing": true,
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query01-static/review.md",
+      "sha256": "6e37f4a062f06840952869d00161b90a164e55add5e07fa2ac0308b8b9d7f927"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-audit-http-verification/query01-static/inputs.json",
+      "sha256": "4ef6c922e27767d98781cc49ed4588f49bc720fb9b97c88cf65f8d1a692f7d81"
+    }
+  ]
+}

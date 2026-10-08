@@ -1,0 +1,7 @@
+=== RUN   TestIndependentProjectAuditHTTPControls
+=== RUN   TestIndependentProjectAuditHTTPControls/Close-panic-still-joins-started-callback
+=== RUN   TestIndependentProjectAuditHTTPControls/reset-read-panic-still-attempts-write-reset
+--- PASS: TestIndependentProjectAuditHTTPControls (0.00s)
+    --- PASS: TestIndependentProjectAuditHTTPControls/Close-panic-still-joins-started-callback (0.00s)
+    --- PASS: TestIndependentProjectAuditHTTPControls/reset-read-panic-still-attempts-write-reset (0.00s)
+PASS

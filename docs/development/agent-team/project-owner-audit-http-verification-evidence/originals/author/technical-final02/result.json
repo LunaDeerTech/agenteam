@@ -1,0 +1,67 @@
+{
+  "status": "AUTHOR bounded technical 14 PASS; independent final acceptance pending; documentation 15/16 not authorized or changed",
+  "baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "sources": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/technical-final02/sources.json",
+    "sha256": "464a0a2ad482147fb144c4929a360222482768d8fa17898d223e7cbf471c20d7"
+  },
+  "pg": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/result-summary.json",
+    "sha256": "f452f7a4ffc8255944d018141bb550b41c0acfadb9e15803fcfd3469d97790a6"
+  },
+  "native": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/result-summary.json",
+    "sha256": "47c7e12f1545c6f04f12c6951646049de7f3edfa4a3ac4c4056de585c0420979"
+  },
+  "offline": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/offline-summary01.json",
+    "sha256": "1dda8d34fca60a62ef6084152cf5a0a66677a0c70f4bc4a398b4e5109ac17ad9"
+  },
+  "old_offline": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/offline-old-list-summary01.json",
+    "sha256": "e24117fd2c2cf216749da13032a78b639fe9b202941ca991c437e95a28746adc"
+  },
+  "affected_offline": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/offline-results.json",
+    "sha256": "df589075da775be32d314b0ad7221a742135acfebaf9f763fed9ea313c20a923"
+  },
+  "graph": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/actual-graph-full02.json",
+    "sha256": "426083c3f396f76808243f0adb9dec5a9efd6eeb2015db610adb5bc1baf03b20"
+  },
+  "resource_daemon": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/technical-final02/resource-daemon.json",
+    "sha256": "c347476c43cdaa89c3dbb3fb1f341ad3309b72ab82e7ab36bd155633ffd08431"
+  },
+  "safe_http": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/technical-final02/safe-http-index.json",
+    "sha256": "1aa6754283531dd159467d8a3f79b105fa3a5a3af61e1ae2abf2f7f3075acb21"
+  },
+  "first_runtime_failure": {
+    "result": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/result.json",
+      "sha256": "6c5758d769c6fa080d16c24cbac8574f966bc2004085e55051f803acb10789c9"
+    },
+    "raw": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new1/raw.log",
+      "sha256": "1ec64c462573837e76e237f240e4462eaa511dfba34bc54e2ecb404a28ca8b5d"
+    },
+    "attribution": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/fix06-audit-actions/attribution.md",
+      "sha256": "9df9891e825f13d20301ea1ea64601fd97befeb20f59f1d66c9a27dc2cf063ae"
+    },
+    "delta": {
+      "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/delta.diff",
+      "sha256": "2c74b7f36c2f675fb2a9593e919234c2d14d496bad2b1d9b861dbff2bc761f94"
+    },
+    "limit": "Original raw has no current action. Test vocabulary defect is statically established; do not fill in the observed failed iteration."
+  },
+  "unchanged_production_schema_reused": true,
+  "resources_released": true,
+  "limitations": [
+    "Root forced return is distinct from subsequent fixture/client/backend joins; no claim all root inner components joined.",
+    "Audit read Unknown is original one transaction result/cause/attempt and actual same-backend C(COMMIT)+Z(I) then lost ACK; no command receipt/confirm/retry.",
+    "Formal Account identities and real Audit producers are used. Skills fixture is explicitly isolated; production Skills/D24/Resolution/Invocations remain unbound, ready503.",
+    "36 daemon/PID1 zombies remain not-owned/not-waited; no whole-machine zero."
+  ]
+}

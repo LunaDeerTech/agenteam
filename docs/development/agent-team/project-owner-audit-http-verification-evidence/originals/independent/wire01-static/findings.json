@@ -1,0 +1,33 @@
+[
+  {
+    "id": "AUD-WIRE-01",
+    "severity": "must-fix",
+    "scope": "#8 schema paths",
+    "finding": "all four operations encode 405 Allow=GET / GET-only, versus production and card GET, HEAD; detail text misstates trailing slash as404 and general filter text reverses Project/System domain",
+    "locations": [
+      "paths/*/{get,head}/responses/405",
+      "paths/detail/*/parameters/id/description",
+      "paths/list/*/parameters/{actor_kind,action,outcome,resource_kind}/description"
+    ],
+    "expected": "GET, HEAD; noncanonical/trailing400 via Account; canonical unknown suffix404; legal System-only filters may yield empty Project page",
+    "evidence": "production01/project.go307-309, formal card\u00a73; frozen account HTTPBoundary pathClean"
+  },
+  {
+    "id": "AUD-WIRE-02",
+    "severity": "must-fix",
+    "scope": "#8 Outbox handler_id + #6 regression",
+    "finding": "standard schema accepts metadata.handler_id a\\n because $ may match before final LF; formal auditHandlerName rejects it bytewise",
+    "expected": "reject all characters outside stable ASCII identifier including final LF; keep valid1..128 limits",
+    "actual_probe": "probe02 outbox-handler-trailing-LF expectedfalse/actualtrue",
+    "fixed_source": "audit/contract/metadata.go542-554"
+  },
+  {
+    "id": "AUD-WIRE-03",
+    "severity": "must-fix",
+    "scope": "#8 non-operation Project association shapes + #6 regression",
+    "finding": "shared ProjectAssociations admits operation_id for project.create.accepted/completed, project.update and project.restore although these metadata have no operation_id; formal entry and production reject",
+    "expected": "forbid association operation_id for these4 action shapes; retain optional operation association on archive.accepted/completed, delete.accepted, lifecycle.retry; ID equality stays production responsibility",
+    "actual_probe": "probe02 project-update-forbidden-operation-association expectedfalse/actualtrue",
+    "fixed_source": "audit/contract/project.go64-72,221-226; production01/project_wire.go126-129"
+  }
+]

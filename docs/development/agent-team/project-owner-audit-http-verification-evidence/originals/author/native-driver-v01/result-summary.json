@@ -1,0 +1,144 @@
+{
+  "status": "PASS three native actual rounds; no PG yet",
+  "candidate_sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0",
+  "execution_freeze_sha256": "3350fb6440727634053c3fb633aa640ecb7eb4eced26b296a85a8bf631f1e375",
+  "runs": [
+    {
+      "mode": "keepalive",
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/keepalive/command.json",
+        "sha256": "c442736777bc47e8858b7889682abc43b6eaf53d5e44dd52c7133b5d79faf5ee"
+      },
+      "raw_sha256": "4a4dca701cefd6d087e07cb6c143ec4dfa9be9ae10999dad4632daa7dbd5a5b1",
+      "cleanup_sha256": "b248b179f4525b491d8fcc52b642fb8fb40adffc8e56bb77b524b78f7f06c112",
+      "test_results": {
+        "top_passes": [
+          "TestProjectAuditHTTPNativeEOFAndKeepAlive"
+        ],
+        "sub_passes": [],
+        "test_bodies": true
+      },
+      "listeners": [
+        32891
+      ],
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1177764,
+          "starttime": "4627538",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420324.7965438
+        },
+        {
+          "role": "adopted",
+          "pid": 1177768,
+          "starttime": "4627538",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420324.8025951
+        }
+      ]
+    },
+    {
+      "mode": "slowbody",
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/slowbody/command.json",
+        "sha256": "c5e60761972fefd00e6987541c49c26a6d3b173d15afaa4373f29cbf5cd202b7"
+      },
+      "raw_sha256": "f44c59303d342b4ad19df23e7ffc258519e2109138463d17ed3e5bb780e4f4a5",
+      "cleanup_sha256": "2c1735b86b7a8ea691f3f392b8137dde645cb58e7d50ff57c03e87d78559c1e3",
+      "test_results": {
+        "top_passes": [
+          "TestProjectAuditHTTPNativeSlowBodyBudgets"
+        ],
+        "sub_passes": [
+          "TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-Close",
+          "TestProjectAuditHTTPNativeSlowBodyBudgets/earlier-parent-Close",
+          "TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-chunk-Read"
+        ],
+        "test_bodies": true
+      },
+      "listeners": [
+        40579,
+        44751,
+        45763
+      ],
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1178880,
+          "starttime": "4635952",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420414.8654077
+        },
+        {
+          "role": "adopted",
+          "pid": 1178884,
+          "starttime": "4635952",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420414.8716178
+        }
+      ]
+    },
+    {
+      "mode": "writeclose",
+      "command": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/writeclose/command.json",
+        "sha256": "1d2eb8892221285fdd1aa07f1454b3393bed3240e0fe5ac1100fbd9aeb5e8265"
+      },
+      "raw_sha256": "c804efbf207b150b1522d8397a91ef3b03296aa241c3dd581ba03272dfd144df",
+      "cleanup_sha256": "14e1b499b01ed95f11d7c073375cbd1439a98f1ebea1efd2e8acebb3086a159f",
+      "test_results": {
+        "top_passes": [
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort"
+        ],
+        "sub_passes": [
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/short-write-GET",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-GET",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-HEAD",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-write-GET",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-flush-HEAD"
+        ],
+        "test_bodies": true
+      },
+      "listeners": [
+        33349,
+        39683,
+        42671,
+        43379,
+        44303
+      ],
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1179691,
+          "starttime": "4643382",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420489.1907895
+        },
+        {
+          "role": "adopted",
+          "pid": 1179695,
+          "starttime": "4643383",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420489.1979656
+        }
+      ]
+    }
+  ],
+  "tops": 3,
+  "subcases": 8,
+  "listeners": 9,
+  "direct_actual_wait_count": 3,
+  "adopted_actual_wait_count": 3,
+  "all_wait_statuses": 0,
+  "source_and_all_TCP_owned_double_clear": true
+}

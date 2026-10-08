@@ -1,0 +1,52 @@
+{
+  "parent_actual_graph": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/actual-graph-full01.json",
+    "sha256": "158cfb4693c3f9dc8a6e304bd63c99307a2f367833e3da95c7c5c20fa4457c1e"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/manifest.json",
+    "sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d"
+  },
+  "input": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/full-input02.json",
+    "sha256": "6b56f9f2248aaa26393af1c1ff333b300d6a0c1e1c15f9f7df7cbc56d42163d7"
+  },
+  "changed_source_hashes": {
+    "/workspace/agenteam/tests/model/project_audit_http_test.go": "d05cbff6a5d67a7009a5e57cf388f198b75f1e0f7270a6dfe962f44bca3e1c85",
+    "/workspace/agenteam/tests/model/project_audit_http_root_test.go": "d4c8f0251f470682d78f5065cf5805e2d8966dd6e6eb25f1b6f9ddd369304114"
+  },
+  "checks": [
+    {
+      "graph": "/workspace/scratch/project-owner-audit-http-author/final-graph-normal01/actual-graph.json",
+      "audit_contract_model_already_present": true,
+      "delta_sources_present": []
+    },
+    {
+      "graph": "/workspace/scratch/project-owner-audit-http-author/final-graph-race01/actual-graph.json",
+      "audit_contract_model_already_present": true,
+      "delta_sources_present": []
+    },
+    {
+      "graph": "/workspace/scratch/project-owner-audit-http-author/integration-graph01/actual-graph.json",
+      "audit_contract_model_already_present": true,
+      "delta_sources_present": [
+        "/workspace/agenteam/tests/model/project_audit_http_test.go",
+        "/workspace/agenteam/tests/model/project_audit_http_root_test.go"
+      ]
+    },
+    {
+      "graph": "/workspace/scratch/project-owner-audit-http-author/full-fixture-graph01/actual-graph.json",
+      "audit_contract_model_already_present": true,
+      "delta_sources_present": [
+        "/workspace/agenteam/tests/model/project_audit_http_test.go",
+        "/workspace/agenteam/tests/model/project_audit_http_root_test.go"
+      ]
+    },
+    {
+      "graph": "/workspace/scratch/project-owner-audit-http-author/dynamic-cmd-graph01/actual-graph.json",
+      "audit_contract_model_already_present": true,
+      "delta_sources_present": []
+    }
+  ],
+  "scope": "Only two integration test bodies and already reachable Audit contract import; no new file/embed/package. Reuse exact original graph closure and apply these source hashes. No new graph execution claimed."
+}

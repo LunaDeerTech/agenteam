@@ -1,0 +1,26 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "new-projection",
+    "new-authority",
+    "new-root",
+    "new-shutdown",
+    "old-account",
+    "old-app",
+    "old-security",
+    "old-model"
+  ],
+  "driver_sha256": "5e1e27b989c3d4f8879cc23c589ac57c7952d818133e2a9416b75e0b927748b7",
+  "candidate_sha256": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/closure.json",
+    "sha256": "c40c9a7500e27a5fcf07979f1a67755f8d1c04950e6659b5c08b3cc18ec4c89c"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/driver.py": "5e1e27b989c3d4f8879cc23c589ac57c7952d818133e2a9416b75e0b927748b7",
+    "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/groups.json": "da19ab7b96d285b1f07df7c379b1256ad266acc4fce896e10e6a197ae0dcf13c",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": true,
+  "authorization": "PREPARED ONLY; root must explicitly hand exclusive resources and freeze separate true authorization before execution."
+}

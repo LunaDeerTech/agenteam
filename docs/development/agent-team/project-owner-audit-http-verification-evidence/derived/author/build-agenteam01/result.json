@@ -1,0 +1,68 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/build-agenteam01/result.json",
+    "sha256": "8e50659d091eee3674196a809415588f2965dfa959cba36c6e2ad76466b8021c",
+    "bytes": 532603
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3758
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.6730968999981997,
+    "direct_child_pid": 1174169,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1174169,
+        "ppid": 1174149,
+        "pgid": 1174169,
+        "state": "Z",
+        "starttime": "4598041"
+      },
+      {
+        "pid": 1174175,
+        "ppid": 1174169,
+        "pgid": 1174169,
+        "state": "R",
+        "starttime": "4598046"
+      },
+      {
+        "pid": 1174210,
+        "ppid": 1174169,
+        "pgid": 1174169,
+        "state": "S",
+        "starttime": "4598059"
+      },
+      {
+        "pid": 1174215,
+        "ppid": 1174169,
+        "pgid": 1174169,
+        "state": "R",
+        "starttime": "4598121"
+      },
+      {
+        "pid": 1174223,
+        "ppid": 1174169,
+        "pgid": 1174169,
+        "state": "R",
+        "starttime": "4598127"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

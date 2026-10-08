@@ -1,0 +1,38 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47403.709461658,
+      "top": "TestSystemAuditHTTPQueryAndProjection"
+    },
+    {
+      "event": "result",
+      "monotonic": 47407.255555575,
+      "observed_seconds": 3.5460939170006895,
+      "reported_seconds": 3.54,
+      "state": "PASS",
+      "top": "TestSystemAuditHTTPQueryAndProjection"
+    },
+    {
+      "event": "run",
+      "monotonic": 47407.255555575,
+      "top": "TestSystemAuditHTTPTransactionAndBudget"
+    },
+    {
+      "event": "result",
+      "monotonic": 47414.619540147,
+      "observed_seconds": 7.363984572002664,
+      "reported_seconds": 7.38,
+      "state": "PASS",
+      "top": "TestSystemAuditHTTPTransactionAndBudget"
+    }
+  ],
+  "expected": [
+    "TestSystemAuditHTTPQueryAndProjection",
+    "TestSystemAuditHTTPTransactionAndBudget"
+  ],
+  "failures": []
+}

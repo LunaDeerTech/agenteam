@@ -1,0 +1,113 @@
+{
+  "bodies": [
+    {
+      "body": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/safe-http-evidence/projection-detail.json",
+        "sha256": "1baae225ec067977917ba74921e9c6debb30c564b1cc2a54fc1b932649ce8ff5"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/safe-http-evidence/projection-detail-source.json",
+        "sha256": "e533477e32dea38f3f33475cd0fbc7997bac815b928a404384a1e849d2e84f63"
+      },
+      "bytes": 564,
+      "method": "GET",
+      "schema_component": "ProjectAuditRecord",
+      "source_run": "new2",
+      "status": 200,
+      "content_type": "application/json",
+      "original_bytes": true,
+      "schema_validated_in_actual_test": true
+    },
+    {
+      "body": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/safe-http-evidence/projection-head.json",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/safe-http-evidence/projection-head-source.json",
+        "sha256": "ec4b6b9af0e19070b8f5f10182024a912d3014dcd4243805f2454da502c2c87d"
+      },
+      "bytes": 0,
+      "method": "HEAD",
+      "schema_component": null,
+      "source_run": "new2",
+      "status": 200,
+      "content_type": "application/json",
+      "original_bytes": true,
+      "schema_validated_in_actual_test": false
+    },
+    {
+      "body": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/safe-http-evidence/projection-list.json",
+        "sha256": "8649c965422845f0a7aac995c0fec681bab1107cda2b29b136cfd4b978f267b6"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new2/safe-http-evidence/projection-list-source.json",
+        "sha256": "350f34231671c374bc1e6e8bb51a6f10ea07fea24a568375c3dabd9219711640"
+      },
+      "bytes": 113476,
+      "method": "GET",
+      "schema_component": "ProjectAuditPage",
+      "source_run": "new2",
+      "status": 200,
+      "content_type": "application/json",
+      "original_bytes": true,
+      "schema_validated_in_actual_test": true
+    },
+    {
+      "body": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/safe-http-evidence/root-detail.json",
+        "sha256": "c47d2ed5eaf078f25875edcbb70ee92c92e56cb3f29ae48fa585aa0c0659815e"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/safe-http-evidence/root-detail-source.json",
+        "sha256": "379e03ee6ffe132928a956a437fc53263a952cb30782bdadf1f33fb1babe3e7b"
+      },
+      "bytes": 569,
+      "method": "GET",
+      "schema_component": "ProjectAuditRecord",
+      "source_run": "new4",
+      "status": 200,
+      "content_type": "application/json",
+      "original_bytes": true,
+      "schema_validated_in_actual_test": true
+    },
+    {
+      "body": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/safe-http-evidence/root-head.json",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/safe-http-evidence/root-head-source.json",
+        "sha256": "7fabf2df95b72e50143f6ac0cd44193128d37d8e157997004beab61958a0b16b"
+      },
+      "bytes": 0,
+      "method": "HEAD",
+      "schema_component": null,
+      "source_run": "new4",
+      "status": 200,
+      "content_type": "application/json",
+      "original_bytes": true,
+      "schema_validated_in_actual_test": false
+    },
+    {
+      "body": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/safe-http-evidence/root-list.json",
+        "sha256": "f11293a201844f2268100cecaddad0f25537f31d98673d260f56f1f7f15fb93b"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/project-owner-audit-http-author/pg-driver-v01/runs/new4/safe-http-evidence/root-list-source.json",
+        "sha256": "b56a5e4d4923368bb08a37df1d6c068477f13ebced747db68f7f1d99a352fb56"
+      },
+      "bytes": 7001,
+      "method": "GET",
+      "schema_component": "ProjectAuditPage",
+      "source_run": "new4",
+      "status": 200,
+      "content_type": "application/json",
+      "original_bytes": true,
+      "schema_validated_in_actual_test": true
+    }
+  ],
+  "scope": "4 original GET byte bodies and 2 empty HEAD bodies; standard Draft202012/FormatChecker run within new2 and new4. No parse/stringify replacement."
+}

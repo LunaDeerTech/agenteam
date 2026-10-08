@@ -1,0 +1,66 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 47640.536472735,
+      "top": "TestModelProjectConfigurationWriteHTTPDefaultRoot"
+    },
+    {
+      "event": "result",
+      "monotonic": 47647.715543501,
+      "observed_seconds": 7.179070765996585,
+      "reported_seconds": 7.16,
+      "state": "PASS",
+      "top": "TestModelProjectConfigurationWriteHTTPDefaultRoot"
+    },
+    {
+      "event": "run",
+      "monotonic": 47647.715543501,
+      "top": "TestModelProjectCredentialHTTPDefaultRoot"
+    },
+    {
+      "event": "result",
+      "monotonic": 47653.879559109,
+      "observed_seconds": 6.164015608002956,
+      "reported_seconds": 6.17,
+      "state": "PASS",
+      "top": "TestModelProjectCredentialHTTPDefaultRoot"
+    },
+    {
+      "event": "run",
+      "monotonic": 47653.879559109,
+      "top": "TestModelProjectOwnerUpdateHTTPRootBinding"
+    },
+    {
+      "event": "result",
+      "monotonic": 47660.593608211,
+      "observed_seconds": 6.714049101996352,
+      "reported_seconds": 6.72,
+      "state": "PASS",
+      "top": "TestModelProjectOwnerUpdateHTTPRootBinding"
+    },
+    {
+      "event": "run",
+      "monotonic": 47660.593608211,
+      "top": "TestModelProjectUsageHTTPRootBinding"
+    },
+    {
+      "event": "result",
+      "monotonic": 47664.987979474,
+      "observed_seconds": 4.394371262998902,
+      "reported_seconds": 4.39,
+      "state": "PASS",
+      "top": "TestModelProjectUsageHTTPRootBinding"
+    }
+  ],
+  "expected": [
+    "TestModelProjectConfigurationWriteHTTPDefaultRoot",
+    "TestModelProjectCredentialHTTPDefaultRoot",
+    "TestModelProjectOwnerUpdateHTTPRootBinding",
+    "TestModelProjectUsageHTTPRootBinding"
+  ],
+  "failures": []
+}

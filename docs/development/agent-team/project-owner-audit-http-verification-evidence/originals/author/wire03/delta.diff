@@ -1,0 +1,23 @@
+--- wire02/internal/central/audit/http/project_wire_test.go
++++ wire03/internal/central/audit/http/project_wire_test.go
+@@ -84,6 +84,12 @@
+ 	if extreme && (strings.HasPrefix(tc.action, "secret.") || tc.action == "outbound.access.deny") {
+ 		tc.service = identity.ProjectInitialization
+ 	}
++	if extreme && strings.HasPrefix(tc.action, "object.") {
++		tc.service = identity.ObjectMaintenance
++	}
++	if extreme && tc.action == "outbound.access.deny" {
++		tc.resource = "secret"
++	}
+ 	if extreme && strings.HasPrefix(tc.action, "secret.") {
+ 		tc.outcome = c.Unknown
+ 	}
+@@ -159,6 +165,7 @@
+ 		}
+ 		if tc.action == "outbox.delivery.requeue" {
+ 			m["handler_id"] = strings.Repeat("a", 128)
++			m["reason_code"] = "dependency_restored"
+ 		}
+ 		raw, _ = json.Marshal(m)
+ 	}

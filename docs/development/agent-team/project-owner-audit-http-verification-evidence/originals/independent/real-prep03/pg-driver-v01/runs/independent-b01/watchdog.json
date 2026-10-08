@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 48132.901324533,
+      "top": "TestIndependentProjectAuditTerminalAndRoot"
+    },
+    {
+      "event": "result",
+      "monotonic": 48137.296701252,
+      "observed_seconds": 4.395376719003252,
+      "reported_seconds": 4.39,
+      "state": "PASS",
+      "top": "TestIndependentProjectAuditTerminalAndRoot"
+    }
+  ],
+  "expected": [
+    "TestIndependentProjectAuditTerminalAndRoot"
+  ],
+  "failures": []
+}

@@ -1,0 +1,90 @@
+{
+  "status": "PRIVATE_A01_FIX_PREPARED_OFFLINE_PASS_RESOURCES_NOT_AUTHORIZED",
+  "candidate": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/candidate02/manifest.json",
+    "sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d"
+  },
+  "private": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/independent_project_audit_test.go",
+    "sha256": "2c8f57c44cb262c46b84374d7fd68f3f79072f96fceba9766be2004f21f115c0"
+  },
+  "delta": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/private.delta.diff",
+    "sha256": "f67b22c9d71725431c86869e71ad2dd43d0238981a195287ac0f2080560f6fb7"
+  },
+  "first_failure": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/result.json",
+    "sha256": "c7fabc52f4c47772181d477908423979224b582c3b7d6bc55b1227686dca2849"
+  },
+  "raw": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep02/pg-driver-v01/runs/independent-a01/raw.log",
+    "sha256": "52a0718a1690526b3e4a7862ed09cc36e181bf6f3a89092935aa77ac8efe197a"
+  },
+  "failure_observed": "private negative-fixture UPDATE metadata={} returned DATABASE_SQL_FAILED at line97 before tested List call; no SQLSTATE or constraint name captured",
+  "static_attribution": "fixed migration13 project typed check disallows {}; fixed migration2 request_id ordinary uuid and no Project-branch UUID-version SQL constraint; scanner NewEntry/Associations.Validate requires v7",
+  "change": "only private fixture request_id is temporarily a PostgreSQL-legal UUIDv4; preserve original via coalesce and defer NULLIF restore; typed metadata/order/all DDL unchanged",
+  "production_changed": false,
+  "b_changed": false,
+  "graph": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/actual-graph-full01.json",
+    "sha256": "23092cc0efa19867428b5da383be2accf97e283f94140e091afa9898166cf45c"
+  },
+  "graph_reuse": "SQL/string-only private source change; imports/filesets/embed unchanged; actual graph reused with source fingerprint delta, no new graph execution claimed",
+  "input": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/input01.json",
+    "sha256": "3bf6d41e560c0b129ea0fb52a168556094a67a6deaa9f6b93ff25201f2af3110"
+  },
+  "binary": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/independent-model.test",
+    "sha256": "bca5d229c445f2cee92c03b00ba05a8a16f8127914d67ed3a92ed2f281a497d4"
+  },
+  "checks": [
+    {
+      "name": "integration-compile01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/integration-compile01/result.json",
+        "sha256": "6b55664fb680edf87dfe9980b225178a852b0e519833b9547bc693951ce01380"
+      },
+      "seconds": 8.715793912000663,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    },
+    {
+      "name": "list01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/list01/result.json",
+        "sha256": "d5ac0370907e6589786bd71a29d0b832aed9580615ad781d239201590b87482a"
+      },
+      "seconds": 1.9854824979993282,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    },
+    {
+      "name": "resource-inputcheck01",
+      "result": {
+        "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/resource-inputcheck01/result.json",
+        "sha256": "fb09ef39798e920e1ce9c546a9b8c1d12fe0cd0b6fec51cd3a671c3f00832880"
+      },
+      "seconds": 2.044929672003491,
+      "actual_wait": true,
+      "double_owned_empty": true,
+      "input_same": true
+    }
+  ],
+  "driver": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/driver.py",
+    "sha256": "dfa490dcc37d9467cd43a2b22ad063ad7536ae5d6e342de4ab3d84302d01b1a8"
+  },
+  "closure": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/closure.json",
+    "sha256": "b2a7020e4adbde754f1fa9dfd5eb8299c07dc277c79adca96bce2ca5aeecd0d4"
+  },
+  "proposal": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/proposal-freeze.json",
+    "sha256": "0e50276615bdc5ab4166a32d7e7ea56245992de559ce064770a46026541691b6"
+  },
+  "resource_authorization": false,
+  "resource_state": "A01 ended actualwait/7 exact double clear/0 forced, daemon4 separately nonowned-notwait; no B started, window returned root"
+}

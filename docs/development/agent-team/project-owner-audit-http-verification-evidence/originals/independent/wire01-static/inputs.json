@@ -1,0 +1,82 @@
+{
+  "wire_manifest": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/wire01/manifest.json",
+    "sha256": "1466739d27373170b0e06c4bb0387259fbf7a86ccd9c86ec78cc4f16d13acba8"
+  },
+  "fixed_sources": {
+    "api/openapi/project-audit.json": {
+      "sha256": "072ff0de5d503825bf4a4e4278615f9d87d3d14b4c925d662e8e44eb42b3f650",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire01/src/api/openapi/project-audit.json"
+    },
+    "internal/central/audit/http/project_wire_test.go": {
+      "sha256": "204558ac641ee0a4cd49249b68870e60b06b5a284682eb2b66e99b0eba9d4894",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/wire01/src/internal/central/audit/http/project_wire_test.go"
+    }
+  },
+  "production_static_result": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/production01-static/result.json",
+    "sha256": "2f269b318311505019fa871a9395fc091ca683f8a5a10965902dec626b20ff09"
+  },
+  "accepted_common": {
+    "path": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed/api/openapi/common.json",
+    "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+  },
+  "author_rounds": [
+    {
+      "name": "wire-compile02",
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-compile02/result.json",
+      "sha256": "572381ec013acc411e28ca1d497f7e4e1dce86c66b6c35ac21d34d8867190a1f",
+      "exit": 0,
+      "actualwait": true,
+      "two_owned_empty": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "wire-run01",
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run01/result.json",
+      "sha256": "7f7bce945b7d719312474adda0aeb8f87090a576eb4d07f867bb894780fd0727",
+      "exit": 1,
+      "actualwait": true,
+      "two_owned_empty": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "wire-run02",
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run02/result.json",
+      "sha256": "5abdd4931394085cda74cf42b84211af4393bec2dc3fd99400666ada1a1ab09d",
+      "exit": 1,
+      "actualwait": true,
+      "two_owned_empty": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "wire-run03",
+      "path": "/workspace/scratch/project-owner-audit-http-author/wire-run03/result.json",
+      "sha256": "da8630ce484090168bf0e4c9a352ae059be5db5a2d6efe0090e8137edae2dc70",
+      "exit": 0,
+      "actualwait": true,
+      "two_owned_empty": 2,
+      "inputs_match": true
+    }
+  ],
+  "private_rounds": [
+    {
+      "name": "probe01",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/wire01-static/probe01/result.json",
+      "sha256": "e5845eb97b836af3181649557f7a478994939e9233342687467695845861e09a",
+      "exit": 1,
+      "actualwait": true,
+      "two_owned_empty": 2,
+      "inputs_match": true
+    },
+    {
+      "name": "probe02",
+      "path": "/workspace/scratch/project-owner-audit-http-verification/wire01-static/probe02/result.json",
+      "sha256": "31874753f9430cd72e8ce54ec294801f56cd528b0fc1baa295c6a0195fb0557f",
+      "exit": 1,
+      "actualwait": true,
+      "two_owned_empty": 2,
+      "inputs_match": true
+    }
+  ]
+}

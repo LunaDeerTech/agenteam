@@ -1,0 +1,71 @@
+{
+  "kind": "DERIVED early actual graph input-gate correction, not original map",
+  "versions": [
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-audit-http-author/graph-normal01/actual-graph.json",
+        "sha256": "ef7ab93bdf1735c9cf69c0ded003a1fd76fd2923e8a852255060b6230b58e7ec",
+        "bytes": 418041,
+        "mode": "fingerprint_only",
+        "reason": "Large actual graph, retained counts/extra-paths in explicit derived proof"
+      },
+      "packages_count": 397,
+      "files_count": 2475,
+      "generated_testmain": [
+        {
+          "path": "/workspace/.cache/go-build/1c/1c90cba21b4543d048d668ff77f9a64eb486ccdb3f290c8f868907b92e7c00b4-d",
+          "sha256": "1c90cba21b4543d048d668ff77f9a64eb486ccdb3f290c8f868907b92e7c00b4"
+        },
+        {
+          "path": "/workspace/.cache/go-build/89/896c738cd399c8ce1055bde442b4ecfc8b597b83703f1fd366987c595127545e-d",
+          "sha256": "896c738cd399c8ce1055bde442b4ecfc8b597b83703f1fd366987c595127545e"
+        },
+        {
+          "path": "/workspace/.cache/go-build/c1/c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa-d",
+          "sha256": "c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa"
+        }
+      ],
+      "extra": [
+        "/workspace/agenteam/internal/central/audit/http/handler_test.go",
+        "/workspace/agenteam/internal/central/audit/model_test.go",
+        "/workspace/agenteam/internal/central/audit/project_test.go",
+        "/workspace/agenteam/internal/central/audit/service_test.go",
+        "/workspace/agenteam/internal/central/audit/system_query_test.go"
+      ],
+      "omitted_json_pointers": [
+        "/packages",
+        "/files"
+      ]
+    },
+    {
+      "original": {
+        "source": "/workspace/scratch/project-owner-audit-http-author/graph-normal02/actual-graph.json",
+        "sha256": "0abcbfffe084c2d2fef23358ff89d07cbe6bc1cfdd5b7e3dbd0a348613750ab7",
+        "bytes": 417701,
+        "mode": "fingerprint_only",
+        "reason": "Large actual graph, retained counts/extra-paths in explicit derived proof"
+      },
+      "packages_count": 397,
+      "files_count": 2475,
+      "generated_testmain": [
+        {
+          "path": "/workspace/.cache/go-build/1c/1c90cba21b4543d048d668ff77f9a64eb486ccdb3f290c8f868907b92e7c00b4-d",
+          "sha256": "1c90cba21b4543d048d668ff77f9a64eb486ccdb3f290c8f868907b92e7c00b4"
+        },
+        {
+          "path": "/workspace/.cache/go-build/89/896c738cd399c8ce1055bde442b4ecfc8b597b83703f1fd366987c595127545e-d",
+          "sha256": "896c738cd399c8ce1055bde442b4ecfc8b597b83703f1fd366987c595127545e"
+        },
+        {
+          "path": "/workspace/.cache/go-build/c1/c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa-d",
+          "sha256": "c1d4c1c81d2dd577acdfe5e9a890fbfc1ded69db4ed478db25f8c0b2a692d8fa"
+        }
+      ],
+      "extra": [],
+      "omitted_json_pointers": [
+        "/packages",
+        "/files"
+      ]
+    }
+  ]
+}

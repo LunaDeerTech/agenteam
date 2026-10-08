@@ -1,0 +1,16 @@
+--- accepted-cc/account.go
++++ production01/account.go
+@@ -452,8 +452,12 @@
+ 	if err != nil {
+ 		return err
+ 	}
++	projectAudit, err := projectAuditHandler(auditor, core, cfg.PublicOrigin())
++	if err != nil {
++		return err
++	}
+ 	if !accounts.install(ctx, func() {
+-		accounts.handler = projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler)
++		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
+ 	}) {
+ 		return context.Canceled
+ 	}

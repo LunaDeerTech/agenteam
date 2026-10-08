@@ -1,0 +1,300 @@
+{
+  "status": "REUSED_AUTHOR_OFFLINE_AND_NATIVE_RAW_CHECKS_PASS_ONLY",
+  "candidate01": "7a819357211ab745c8b7ceb88a72959d72b69994e8726211549b0ae81f5b04d0",
+  "candidate02_compatibility": "only two integration test paths changed; offline model checks require02 affected results, query/http/app/native production and tests unchanged",
+  "offline_summary": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/offline-summary01.json",
+    "sha256": "1dda8d34fca60a62ef6084152cf5a0a66677a0c70f4bc4a398b4e5109ac17ad9"
+  },
+  "native_summary": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/result-summary.json",
+    "sha256": "47c7e12f1545c6f04f12c6951646049de7f3edfa4a3ac4c4056de585c0420979"
+  },
+  "offline_runs": [
+    {
+      "name": "final-graph-normal01",
+      "command_sha256": "bc4489107f7650d4d1aa79b698565d0dcbe78a44681d15e838cc5b7bcce0bf01",
+      "result_sha256": "5ed94f04ec51170709af9c9e4999f54e7462d0a2dea9159a916c06be7d57ead2",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "final-graph-race01",
+      "command_sha256": "f806cfa64122da24c099dab3b42fddca1747bdc268142d2bd99be7ee8d38134a",
+      "result_sha256": "b77e6e592e8c801766a34f12bba95849b2c003b95e88cbe8edbf1e0616ad6708",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "full-fixture-graph01",
+      "command_sha256": "c17ae5189a6385a7a36d0a82164a16dfb30952658a69b584365706796fce4b74",
+      "result_sha256": "db7479db41fa2822a614e8a800cbc30e10d66d8356fc5f8aa9c0a4e393eae947",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "dynamic-cmd-graph01",
+      "command_sha256": "e615dd81f3c8830118355f074ea7b58ab66a87fe407d680877fd5a68e98793ea",
+      "result_sha256": "543c442ca2e6bfee3b268507a07222b075a410d633e27acf44ea9beafb7c03fc",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "query-final-normal01",
+      "command_sha256": "581e465b7787130613e350c4f0b068171218326dd4e0a729fd0f814136c2a312",
+      "result_sha256": "bc24b6d2c3c8484fdbb94605d83fdb469cc762e312f3f502456bc5b3da536c68",
+      "tops": 8,
+      "subcases": 46
+    },
+    {
+      "name": "http-final-normal01",
+      "command_sha256": "738a290b8e5fcc95b57b3996dce2d236e6406d344448e49d8437be3dbe688113",
+      "result_sha256": "92d1705b72158f8793711b3776674511fda469e4e49ccbad3af54c6b3d784646",
+      "tops": 11,
+      "subcases": 531
+    },
+    {
+      "name": "app-final-normal01",
+      "command_sha256": "dc4a91895853f448d9d0f4bcccfe3c1282f6863f8bd099b08f362ec25d327655",
+      "result_sha256": "ba7dce3fdf339cb8c958ddcd3868aab8a59438a3f149a7bfec757c67575012bf",
+      "tops": 8,
+      "subcases": 148
+    },
+    {
+      "name": "query-racecompile01",
+      "command_sha256": "e5cf6f25f3939d4b9e4d11df4a2b4b84b8b74534111bb13cbbc97c657372c2dd",
+      "result_sha256": "37a6b1d7e3f9734f332898ead308047fabf8071d2abd88823f8daf8fff43c7d1",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "query-final-race01",
+      "command_sha256": "c4d4bd045c0d75fc744cccb02da06d7065180739540a04107a0987addc9ed10f",
+      "result_sha256": "50b056b3577706d5e0ae7a7fecd54422136c83c9a7e34e8a692f52014ac17b08",
+      "tops": 8,
+      "subcases": 46
+    },
+    {
+      "name": "query-racevet01",
+      "command_sha256": "c1d4af545689e7d36af32bf1cc2a4a21b7d6f450b24138fa441d2922ef1a1a8c",
+      "result_sha256": "c571615b385b63ae49e3c0cd9dbee1e23eb8b5cf4ae33d4e431fa9f7ae9718ca",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "http-racecompile01",
+      "command_sha256": "004f7b27cff44267f6408c25d546f9b0a19e55fdf917a6ff6bc7d59a2e2243bc",
+      "result_sha256": "86e329b96bfac6ce173a6cf2e14f3843f9cce1b9dd0bc56b5c4cf698cfe99505",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "http-final-race01",
+      "command_sha256": "6b1b05b053554d0a301a2e67de8a126dad7b021cb5eb1424c1db71174b1cbc17",
+      "result_sha256": "3a636cb9d5e60a1ad2c6478aec2282c63e78e7b1625368e0ec0112eb7d75f187",
+      "tops": 11,
+      "subcases": 531
+    },
+    {
+      "name": "wire-final-race01",
+      "command_sha256": "56eb2d0b6d47c8ab95a0b34d497482550cf5611c40af06a5c57b84cc532cca88",
+      "result_sha256": "3992a08fbfd5c1506f05987624b0e267a38b817ef33e8722818244d946dbfa66",
+      "tops": 1,
+      "subcases": 31
+    },
+    {
+      "name": "native-list01",
+      "command_sha256": "2617215109435374a9d154dae20497faeaba0026dcb50a0c2aafa8d358776467",
+      "result_sha256": "b1526f191737560b6bd5b78e33cefa55dd3f489968281420753b4a6d4c10bfed",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "http-racevet01",
+      "command_sha256": "359372ae9a06bc16782c0eaf5e81ef2a3b535f414e06b35d3036cd1c2cbb6282",
+      "result_sha256": "7c26fbb778da85ad759e0591d83762aad467cf470a8e2e80338b3502cd2d2d26",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "app-racecompile01",
+      "command_sha256": "7960bfd947c86b638137951ebc90ed6c155c0a2a0922c90c7f7e0a5689e4b505",
+      "result_sha256": "bd13df78d6bf0e336be858e746a36879c48e4bdce35bb55092cdf70a739c3d7e",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "app-final-race01",
+      "command_sha256": "fc6a10f2f4159f1fcaf5be024ea593cf3c24d80abc222b46396767245b97bfa4",
+      "result_sha256": "23441d2513acae60a7b1dc9715f36ea0a68fb86daecdd969d9cf5cbace4a6d3a",
+      "tops": 8,
+      "subcases": 148
+    },
+    {
+      "name": "app-racevet01",
+      "command_sha256": "74be4c8d2617011eee80bfc246367bfaa75a7f372298c4d7fa42da4cf63d2fd7",
+      "result_sha256": "5db2f0d03ce120e4247d3beb37c16c814d4f562ff6df3ce7555ab90020116817",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "model-integration-list01",
+      "command_sha256": "451fc0bab2203419dafda14ecec5e26be153fbf34928a0660656985992eec8b9",
+      "result_sha256": "36fde6a23c3f64c8990e2582a55c7e020bc1c34a08252d0e83aaf162314477f6",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "model-integration-vet01",
+      "command_sha256": "0da062eefc5d0c9b78143441f909bf23cf0b69f6c452065c22e5bef514d7a012",
+      "result_sha256": "a0ab5fca090f8519b25c1459422ea65ea448ea56a7dd4f050e6d4776b08d26e2",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "build-agenteam01",
+      "command_sha256": "3caee65186e28594405c19ad4f3c06df3465121ce0c973234b552f3524140777",
+      "result_sha256": "8e50659d091eee3674196a809415588f2965dfa959cba36c6e2ad76466b8021c",
+      "tops": 0,
+      "subcases": 0
+    },
+    {
+      "name": "build-agenteam-runner01",
+      "command_sha256": "a0697c48a2db34716b3c973cba5f2e9c7bfcfa523dd27a703a5f8cb18c477e21",
+      "result_sha256": "ff6b38acdaacb161b9a836f4a2c3912433cbff436096c0415db81e05c80264bd",
+      "tops": 0,
+      "subcases": 0
+    }
+  ],
+  "native_runs": [
+    {
+      "mode": "keepalive",
+      "command_sha256": "c442736777bc47e8858b7889682abc43b6eaf53d5e44dd52c7133b5d79faf5ee",
+      "cleanup_sha256": "b248b179f4525b491d8fcc52b642fb8fb40adffc8e56bb77b524b78f7f06c112",
+      "listeners": [
+        32891
+      ],
+      "seconds": 1.2410527219981304,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1177764,
+          "starttime": "4627538",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420324.7965438
+        },
+        {
+          "role": "adopted",
+          "pid": 1177768,
+          "starttime": "4627538",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420324.8025951
+        }
+      ],
+      "trace_sha256": "74eba12cf598c31be44cc4cf7f7635188f855ab7123a589eafa555ce07593044",
+      "test_results": {
+        "top_passes": [
+          "TestProjectAuditHTTPNativeEOFAndKeepAlive"
+        ],
+        "sub_passes": [],
+        "test_bodies": true
+      }
+    },
+    {
+      "mode": "slowbody",
+      "command_sha256": "c5e60761972fefd00e6987541c49c26a6d3b173d15afaa4373f29cbf5cd202b7",
+      "cleanup_sha256": "2c1735b86b7a8ea691f3f392b8137dde645cb58e7d50ff57c03e87d78559c1e3",
+      "listeners": [
+        40579,
+        44751,
+        45763
+      ],
+      "seconds": 7.17207591800252,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1178880,
+          "starttime": "4635952",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420414.8654077
+        },
+        {
+          "role": "adopted",
+          "pid": 1178884,
+          "starttime": "4635952",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420414.8716178
+        }
+      ],
+      "trace_sha256": "ba981f840c26d0ef212100a818f1ccf00e660a10028f6793e1b6155a851ef125",
+      "test_results": {
+        "top_passes": [
+          "TestProjectAuditHTTPNativeSlowBodyBudgets"
+        ],
+        "sub_passes": [
+          "TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-Close",
+          "TestProjectAuditHTTPNativeSlowBodyBudgets/earlier-parent-Close",
+          "TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-chunk-Read"
+        ],
+        "test_bodies": true
+      }
+    },
+    {
+      "mode": "writeclose",
+      "command_sha256": "1d2eb8892221285fdd1aa07f1454b3393bed3240e0fe5ac1100fbd9aeb5e8265",
+      "cleanup_sha256": "14e1b499b01ed95f11d7c073375cbd1439a98f1ebea1efd2e8acebb3086a159f",
+      "listeners": [
+        33349,
+        39683,
+        42671,
+        43379,
+        44303
+      ],
+      "seconds": 7.190268266997009,
+      "actual_waits": [
+        {
+          "role": "direct",
+          "pid": 1179691,
+          "starttime": "4643382",
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420489.1907895
+        },
+        {
+          "role": "adopted",
+          "pid": 1179695,
+          "starttime": "4643383",
+          "wait_status": 0,
+          "returncode": 0,
+          "actual_wait": true,
+          "time": 1791420489.1979656
+        }
+      ],
+      "trace_sha256": "792910e69f81f5d9f80040b7abd992d352b0b864552f06fab76dc1f848bcc5fd",
+      "test_results": {
+        "top_passes": [
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort"
+        ],
+        "sub_passes": [
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/short-write-GET",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-GET",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/flush-error-HEAD",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-write-GET",
+          "TestProjectAuditHTTPNativeWriteAndFlushAbort/blocked-flush-HEAD"
+        ],
+        "test_bodies": true
+      }
+    }
+  ],
+  "not_claimed": [
+    "author PG complete",
+    "independent A/B executed",
+    "complete product accepted"
+  ]
+}

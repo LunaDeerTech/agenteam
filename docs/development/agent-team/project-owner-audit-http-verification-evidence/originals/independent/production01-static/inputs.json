@@ -1,0 +1,48 @@
+{
+  "manifest": {
+    "path": "/workspace/scratch/project-owner-audit-http-author/production01/manifest.json",
+    "sha256": "b5cedcd9ddd148ac6769909ed31a00d2534d1e3224d79184bd4907daecf0c68b"
+  },
+  "sources": [
+    {
+      "card_path": 1,
+      "path": "internal/central/audit/project_query.go",
+      "sha256": "20ef9c44e53d6a50d515bfb2485981194cddc979e883fc75229922fc31c23456",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/audit/project_query.go"
+    },
+    {
+      "card_path": 3,
+      "path": "internal/central/audit/http/project.go",
+      "sha256": "dbf8dd786da702e0c0b52f7dd5a12bc703f5e03bebd88768b9aebe5e0d181d7a",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/audit/http/project.go"
+    },
+    {
+      "card_path": 4,
+      "path": "internal/central/audit/http/project_wire.go",
+      "sha256": "4346d306e6bb5c04a96ec6301a82e59da434f46d84f2880cc1437538f431a17e",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/audit/http/project_wire.go"
+    },
+    {
+      "card_path": 9,
+      "path": "internal/central/app/project_audit.go",
+      "sha256": "92870eb558c98078fce9bb168cfdedd47925f16d49bced98be49c47ecc639d96",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/app/project_audit.go"
+    },
+    {
+      "card_path": 11,
+      "path": "internal/central/app/account.go",
+      "sha256": "c8afd6286fccef135f53667a66f8522553a77cc187fa9f32a2813ef1e926eb98",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-author/production01/src/internal/central/app/account.go"
+    }
+  ],
+  "reuse_query_static": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/query01-static/result.json",
+    "sha256": "55606d896a120ca2b9fea3e64cba37b656ca15282f3d97d8f436e82225686970"
+  },
+  "reuse_fixed_inputs": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/prep01/inputs.json",
+    "sha256": "4c6434adfcf3fbdcc86111c8d913b63c4a27bedaec81b59e848abb1658a93c41"
+  },
+  "account_diff_sha256": "daff35fb6b01eade766b2b1168dcb8d383ae28de85e658d919d79c4d7a718deb",
+  "fixed_contract_base": "cc850b2244cad771eb862a2c82d99887d5da7284; unchanged accepted core proven in query01-static/prep01"
+}

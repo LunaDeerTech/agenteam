@@ -1,0 +1,276 @@
+{
+  "kind": "independent product verification preparation only",
+  "accepted_product_commit": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "spec_sections_1_to_8_same_as_accepted_formal": true,
+  "fixed_sources": [
+    {
+      "path": "docs/development/work-items/d04-project-owner-audit-http.md",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/docs/development/work-items/d04-project-owner-audit-http.md",
+      "bytes": 63173,
+      "sha256": "504ce392a4352a395c527bd7928fca5abef94e0aa313b733be12677c0ac79f55",
+      "git_blob": "c19de67194dcc97bc9e1e3cb8e0db4cf19124b93"
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/internal/central/app/account.go",
+      "bytes": 16108,
+      "sha256": "89d01abf651ca247515ae8226c739469b86ed01ac6cb4a717cdd3091633e79e7",
+      "git_blob": "3837dfa2dfc5758b729f7280b78527880ac4edb4"
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/internal/central/app/security.go",
+      "bytes": 1857,
+      "sha256": "0804ec5ab4c3b8566d3f933881415779bf354eaa89a1bb85e0fb4fb09bd0a7a4",
+      "git_blob": "edf5a88ee28c9fb0d3c0c8cc3de34f741a511dfa"
+    },
+    {
+      "path": "internal/central/app/project_models.go",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/internal/central/app/project_models.go",
+      "bytes": 1637,
+      "sha256": "1efb3f0c95f05639db8f3da96cabb036d2a266859f425b418a031bebef57f5d0",
+      "git_blob": "67e9afaaff348eb75494aded99ff75620546970f"
+    },
+    {
+      "path": "internal/central/app/project_models_test.go",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/internal/central/app/project_models_test.go",
+      "bytes": 3809,
+      "sha256": "039912e56b1278d60d42e220d162b09ab7f8106484c5ae4ca3101f2ba7f46cc4",
+      "git_blob": "3c30e66a6d2879618596ef5494dc766e26632f84"
+    },
+    {
+      "path": "tests/model/project_configuration_write_http_fixture_test.go",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/tests/model/project_configuration_write_http_fixture_test.go",
+      "bytes": 9636,
+      "sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380",
+      "git_blob": "660db7feeb9d97344f0018c751cf70d749245b59"
+    },
+    {
+      "path": "tests/model/project_configuration_write_http_root_test.go",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/tests/model/project_configuration_write_http_root_test.go",
+      "bytes": 10125,
+      "sha256": "f0adb77b3c330f45662b48d0f8d85f85c76f62fb00069ec2c518566d965cb656",
+      "git_blob": "f6940ae19a5e1d75b57f0827a7e5be063414b552"
+    },
+    {
+      "path": "tests/model/project_credentials_http_fixture_test.go",
+      "snapshot": "/workspace/scratch/project-owner-audit-http-verification/prep01/fixed/tests/model/project_credentials_http_fixture_test.go",
+      "bytes": 9905,
+      "sha256": "cfdc4107891cf0be9a6ba2d963ca90550932a577825a6e2a5743774c537ba38b",
+      "git_blob": "f91fba666d428cdeea663db3bc6858cbece7a610"
+    }
+  ],
+  "unchanged_contract_source_blobs": [
+    {
+      "path": "internal/central/audit/query.go",
+      "old_git_blob": "8a24e10fac01fd4dd779384e551f88a223760c97",
+      "new_git_blob": "8a24e10fac01fd4dd779384e551f88a223760c97",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/system_query.go",
+      "old_git_blob": "15124c702afbdef16caa30e495d998aaa499c8dc",
+      "new_git_blob": "15124c702afbdef16caa30e495d998aaa499c8dc",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/service.go",
+      "old_git_blob": "3ba349c7c316dfc09752185e46427104923a5602",
+      "new_git_blob": "3ba349c7c316dfc09752185e46427104923a5602",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/contract/access.go",
+      "old_git_blob": "d550c158c6e3043fb24dece099c1ed3397c9237e",
+      "new_git_blob": "d550c158c6e3043fb24dece099c1ed3397c9237e",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/contract/types.go",
+      "old_git_blob": "295170e6f48788f772e03b61142afca5734393ce",
+      "new_git_blob": "295170e6f48788f772e03b61142afca5734393ce",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/contract/metadata.go",
+      "old_git_blob": "13538ff6a994ed740b2f92b021297f8345fa701b",
+      "new_git_blob": "13538ff6a994ed740b2f92b021297f8345fa701b",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/contract/project.go",
+      "old_git_blob": "aa18033cf7bf34725fb4251372c221cde186ba61",
+      "new_git_blob": "aa18033cf7bf34725fb4251372c221cde186ba61",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/http/handler.go",
+      "old_git_blob": "8899a76bf5c49731d68434e8bbe315bf1eb9296e",
+      "new_git_blob": "8899a76bf5c49731d68434e8bbe315bf1eb9296e",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/http/wire.go",
+      "old_git_blob": "49e8187e117cec265f548ecd798faa128069ee92",
+      "new_git_blob": "49e8187e117cec265f548ecd798faa128069ee92",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "old_git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4",
+      "new_git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/project/contract/lifecycle.go",
+      "old_git_blob": "f7f0829a87bde8cfda7ed5c59f50117bd2f6fe79",
+      "new_git_blob": "f7f0829a87bde8cfda7ed5c59f50117bd2f6fe79",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/contract/model.go",
+      "old_git_blob": "e8a764e3c1b8ef0846b7cf73a67051924a014c24",
+      "new_git_blob": "e8a764e3c1b8ef0846b7cf73a67051924a014c24",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/contract/knowledge.go",
+      "old_git_blob": "8caceef17717d77ecb73b588b4779e03bfb52ed1",
+      "new_git_blob": "8caceef17717d77ecb73b588b4779e03bfb52ed1",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/contract/account.go",
+      "old_git_blob": "25a8f62fc1e10295cc98032ce756ebf8cd81b0ba",
+      "new_git_blob": "25a8f62fc1e10295cc98032ce756ebf8cd81b0ba",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/error.go",
+      "old_git_blob": "58ab74d590762d4cd731512cd3469aa8c42f6ef8",
+      "new_git_blob": "58ab74d590762d4cd731512cd3469aa8c42f6ef8",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/foundation/tx.go",
+      "old_git_blob": "3988c8d4ab53261e784fcd175f27b88395b5087d",
+      "new_git_blob": "3988c8d4ab53261e784fcd175f27b88395b5087d",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/foundation/fault.go",
+      "old_git_blob": "114e98b7b68d536be0dc9aad22221447b098991b",
+      "new_git_blob": "114e98b7b68d536be0dc9aad22221447b098991b",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/foundation/cause.go",
+      "old_git_blob": "4027e70d18735dd54d1f59b23382a0699022bee4",
+      "new_git_blob": "4027e70d18735dd54d1f59b23382a0699022bee4",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/foundation/lock.go",
+      "old_git_blob": "f907283e5fc67482c99eb5c14add91923788ad2a",
+      "new_git_blob": "f907283e5fc67482c99eb5c14add91923788ad2a",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/foundation/instant.go",
+      "old_git_blob": "b6113cd662e75bd8b1505af6ea39fc36e819782b",
+      "new_git_blob": "b6113cd662e75bd8b1505af6ea39fc36e819782b",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/foundation/page.go",
+      "old_git_blob": "83cbeea722ddedbc907f23ac64a0a2bee702b067",
+      "new_git_blob": "83cbeea722ddedbc907f23ac64a0a2bee702b067",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "old_git_blob": "fd13667713bf1248111aa1f18687296be9c3cde0",
+      "new_git_blob": "fd13667713bf1248111aa1f18687296be9c3cde0",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/account/http_boundary.go",
+      "old_git_blob": "2c96df37be1f070ef440f21b4372eb66cb958d89",
+      "new_git_blob": "2c96df37be1f070ef440f21b4372eb66cb958d89",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/httpapi/response_writer.go",
+      "old_git_blob": "6f3ca6b0cb76752adccde7cac5be47e3ca333776",
+      "new_git_blob": "6f3ca6b0cb76752adccde7cac5be47e3ca333776",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/httpapi/problem.go",
+      "old_git_blob": "f489d6b96621bc8dfdac29a63575d2b6ceba9dd5",
+      "new_git_blob": "f489d6b96621bc8dfdac29a63575d2b6ceba9dd5",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/cursor/cursor.go",
+      "old_git_blob": "f12c75aa6d76a3792b038c0bfdc04fe99da175e4",
+      "new_git_blob": "f12c75aa6d76a3792b038c0bfdc04fe99da175e4",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/system_query_test.go",
+      "old_git_blob": "e88a015570530532563fbc6998a417c7073c0140",
+      "new_git_blob": "e88a015570530532563fbc6998a417c7073c0140",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "internal/central/audit/http/handler_test.go",
+      "old_git_blob": "eacef5de8f5e3c759aa37fbd78cc53e79a68956d",
+      "new_git_blob": "eacef5de8f5e3c759aa37fbd78cc53e79a68956d",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    },
+    {
+      "path": "api/openapi/common.json",
+      "old_git_blob": "22f7d8e5f560f05380ca9c8031260f2d941ad273",
+      "new_git_blob": "22f7d8e5f560f05380ca9c8031260f2d941ad273",
+      "unchanged": true,
+      "reuse_snapshot_root": "/workspace/scratch/project-owner-audit-http-spec-verification/rev1/fixed"
+    }
+  ],
+  "old_account_blob_unchanged_since_spec": true,
+  "configuration_future_selectors_now_present_textually": [
+    "TestProjectModelConfigurationHTTPComposition",
+    "TestModelProjectConfigurationWriteHTTPDefaultRoot"
+  ],
+  "go_list_executed": false,
+  "active_author_source_read": false,
+  "resources_executed": false
+}

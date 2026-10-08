@@ -1,0 +1,155 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/slowbody/command.json",
+    "sha256": "c5e60761972fefd00e6987541c49c26a6d3b173d15afaa4373f29cbf5cd202b7",
+    "bytes": 1387019
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/before",
+      "type": "dict",
+      "items": 3
+    },
+    {
+      "json_pointer": "/after",
+      "type": "dict",
+      "items": 3
+    }
+  ],
+  "retained_fields": {
+    "mode": "slowbody",
+    "driver_sha256": "9508ac5eb92dd66186c842b1ca81bfc13603718f89bdc42fa0a706d5e70644d4",
+    "driver_pid": 1178857,
+    "driver_stat": {
+      "pid": 1178857,
+      "starttime": "4635870",
+      "ppid": 850,
+      "pgrp": 1178857,
+      "state": "R",
+      "name": "python3"
+    },
+    "subreaper": true,
+    "command": [
+      "/usr/bin/strace",
+      "-D",
+      "-f",
+      "-ttt",
+      "-yy",
+      "-e",
+      "trace=socket,bind,listen,connect,accept,accept4,getsockname,getpeername,shutdown,close",
+      "-o",
+      "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/slowbody/trace.raw",
+      "/workspace/scratch/project-owner-audit-http-author/http-race01.test",
+      "-test.count=1",
+      "-test.parallel=1",
+      "-test.timeout=40s",
+      "-test.run=^TestProjectAuditHTTPNativeSlowBodyBudgets$",
+      "-test.v"
+    ],
+    "env": {
+      "PATH": "/workspace/toolchains/go1.27.1/bin:/usr/bin:/bin",
+      "TMPDIR": "/workspace/scratch/project-owner-audit-http-author/native-driver-v01/slowbody/tmp",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOPROXY": "off",
+      "GOSUMDB": "off",
+      "GOPATH": "/workspace/go",
+      "GOMODCACHE": "/workspace/go/pkg/mod",
+      "GOCACHE": "/workspace/.cache/go-build",
+      "GOWORK": "off",
+      "CGO_ENABLED": "1",
+      "GOFLAGS": "-mod=readonly -p=1",
+      "GOMAXPROCS": "2",
+      "AGENTEAM_PROJECT_AUDIT_NATIVE": "1"
+    },
+    "cwd": "/workspace/agenteam/internal/central/audit/http",
+    "budget_seconds": 45,
+    "cleanup_grace_seconds": 15,
+    "started": 1791420407.6932545,
+    "direct_pid": {
+      "pid": 1178880,
+      "starttime": "4635952",
+      "ppid": 1178857,
+      "pgrp": 1178880,
+      "state": "R",
+      "name": "strace"
+    },
+    "execution_elapsed_seconds": 7.17207591800252,
+    "exit": 0,
+    "actual_waits": [
+      {
+        "role": "direct",
+        "pid": 1178880,
+        "starttime": "4635952",
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791420414.8654077
+      },
+      {
+        "role": "adopted",
+        "pid": 1178884,
+        "starttime": "4635952",
+        "wait_status": 0,
+        "returncode": 0,
+        "actual_wait": true,
+        "time": 1791420414.8716178
+      }
+    ],
+    "signals": [],
+    "owned_processes": [
+      {
+        "pid": 1178880,
+        "starttime": "4635952",
+        "ppid": 1178857,
+        "pgrp": 1178880,
+        "state": "R",
+        "name": "strace",
+        "first_observed": 1791420407.6937304
+      },
+      {
+        "pid": 1178884,
+        "starttime": "4635952",
+        "ppid": 1178857,
+        "pgrp": 1178880,
+        "state": "S",
+        "name": "strace",
+        "first_observed": 1791420407.7045255
+      }
+    ],
+    "execution_finished": 1791420414.8780606,
+    "inputs_unchanged": true,
+    "finished": 1791420476.6000595,
+    "listener_ports": [
+      40579,
+      44751,
+      45763
+    ],
+    "all_ports": [
+      34606,
+      40579,
+      41650,
+      44751,
+      45763,
+      55108
+    ],
+    "double_all_port_and_process_zero": true,
+    "trace_sha256": "ba981f840c26d0ef212100a818f1ccf00e660a10028f6793e1b6155a851ef125",
+    "raw_sha256": "f44c59303d342b4ad19df23e7ffc258519e2109138463d17ed3e5bb780e4f4a5",
+    "test_results": {
+      "top_passes": [
+        "TestProjectAuditHTTPNativeSlowBodyBudgets"
+      ],
+      "sub_passes": [
+        "TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-Close",
+        "TestProjectAuditHTTPNativeSlowBodyBudgets/earlier-parent-Close",
+        "TestProjectAuditHTTPNativeSlowBodyBudgets/natural-three-second-chunk-Read"
+      ],
+      "test_bodies": true
+    },
+    "exact_test_results": true,
+    "expected_listeners_observed": true,
+    "expected_connection_pairs": 3,
+    "pass": true
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "status": "NEEDS_FIX",
+  "blocking_ids": [
+    "AUD-WIRE-01",
+    "AUD-WIRE-02",
+    "AUD-WIRE-03"
+  ],
+  "review_sha256": "4a124f869bb1d13f2a1315f4f0dbf91f121e1383e939560577c5e1a3c87e7c72",
+  "findings_sha256": "19d8dcb0667d6a4af5cd33668f6c1f3843340da84c88713bd160a5f13682cc27",
+  "inputs_sha256": "dde4a2e9bebf11538a906154425551702b3e93efb56b33d2b0905f332d54069a",
+  "private_probe_result": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/wire01-static/probe02-results.json",
+    "sha256": "7a3885f9cf8ca46022531c485901e5fdf1062bf343245201d6f5ce4451a15756",
+    "vectors": 40,
+    "mismatch": 2
+  },
+  "author_dynamic": "wire-run03 accepted only measured scope",
+  "no_product_change": true,
+  "no_go_native_pg": true
+}

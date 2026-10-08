@@ -1,0 +1,306 @@
+{
+  "kind": "DERIVED selected top-level fields, not original bytes",
+  "original": {
+    "source": "/workspace/scratch/project-owner-audit-http-author/model-integrationcompile01/result.json",
+    "sha256": "ccfd2c036883103d8f7f0100940c8605f64f84169eef84541b07d6cece5615be",
+    "bytes": 536729
+  },
+  "omitted_repeated_large_fields": [
+    {
+      "json_pointer": "/inputs_after",
+      "type": "dict",
+      "items": 3756
+    }
+  ],
+  "retained_fields": {
+    "command_exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 29.293914963003772,
+    "direct_child_pid": 1169925,
+    "direct_child_joined": true,
+    "subreaper": true,
+    "adopted_reaped": [],
+    "processes_seen": [
+      {
+        "pid": 1169925,
+        "ppid": 1169922,
+        "pgid": 1169925,
+        "state": "Z",
+        "starttime": "4567448"
+      },
+      {
+        "pid": 1169944,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4567465"
+      },
+      {
+        "pid": 1169968,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4567513"
+      },
+      {
+        "pid": 1169973,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4567589"
+      },
+      {
+        "pid": 1170021,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4568049"
+      },
+      {
+        "pid": 1170044,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4568132"
+      },
+      {
+        "pid": 1170097,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4568717"
+      },
+      {
+        "pid": 1170122,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4568765"
+      },
+      {
+        "pid": 1170126,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4568815"
+      },
+      {
+        "pid": 1170130,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4568829"
+      },
+      {
+        "pid": 1170134,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4568895"
+      },
+      {
+        "pid": 1170158,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4569144"
+      },
+      {
+        "pid": 1170162,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4569168"
+      },
+      {
+        "pid": 1170188,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4569288"
+      },
+      {
+        "pid": 1170192,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "Z",
+        "starttime": "4569332"
+      },
+      {
+        "pid": 1170196,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4569360"
+      },
+      {
+        "pid": 1170220,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4569396"
+      },
+      {
+        "pid": 1170227,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4569479"
+      },
+      {
+        "pid": 1170231,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4569485"
+      },
+      {
+        "pid": 1170278,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4569999"
+      },
+      {
+        "pid": 1170305,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570003"
+      },
+      {
+        "pid": 1170317,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570132"
+      },
+      {
+        "pid": 1170321,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570135"
+      },
+      {
+        "pid": 1170325,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570141"
+      },
+      {
+        "pid": 1170329,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570156"
+      },
+      {
+        "pid": 1170333,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570163"
+      },
+      {
+        "pid": 1170337,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570184"
+      },
+      {
+        "pid": 1170341,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570188"
+      },
+      {
+        "pid": 1170345,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570193"
+      },
+      {
+        "pid": 1170349,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570196"
+      },
+      {
+        "pid": 1170353,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570202"
+      },
+      {
+        "pid": 1170378,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570215"
+      },
+      {
+        "pid": 1170382,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570218"
+      },
+      {
+        "pid": 1170386,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570223"
+      },
+      {
+        "pid": 1170390,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "S",
+        "starttime": "4570227"
+      },
+      {
+        "pid": 1170394,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570230"
+      },
+      {
+        "pid": 1170398,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570234"
+      },
+      {
+        "pid": 1170402,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570241"
+      },
+      {
+        "pid": 1170406,
+        "ppid": 1169925,
+        "pgid": 1169925,
+        "state": "R",
+        "starttime": "4570244"
+      }
+    ],
+    "actions": [],
+    "remaining_descendants": [],
+    "inputs_match": true,
+    "owned_clear_observations": 2,
+    "exit_code": 0,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

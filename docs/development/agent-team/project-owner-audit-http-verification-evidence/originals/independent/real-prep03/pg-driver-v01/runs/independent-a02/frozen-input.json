@@ -1,0 +1,21 @@
+{
+  "root_authorized_resources": true,
+  "permitted_groups": [
+    "independent-a",
+    "independent-b"
+  ],
+  "driver_sha256": "dfa490dcc37d9467cd43a2b22ad063ad7536ae5d6e342de4ab3d84302d01b1a8",
+  "candidate_sha256": "455ce25a490a85bb597f420e81f30a20b152f33e7c84019f2d46353b415a181d",
+  "closure": {
+    "path": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/closure.json",
+    "sha256": "b2a7020e4adbde754f1fa9dfd5eb8299c07dc277c79adca96bce2ca5aeecd0d4"
+  },
+  "driver_runtime_files": {
+    "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/driver.py": "dfa490dcc37d9467cd43a2b22ad063ad7536ae5d6e342de4ab3d84302d01b1a8",
+    "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/groups.json": "900e1dd6303b4bc5476a15744505268a9f9ab03f63ade89e38d45e7caeff031a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "check_only_ready": true,
+  "authorization": "PREPARED ONLY after A01 private injection failed; root must authorize new resource run",
+  "overlay_file": "/workspace/scratch/project-owner-audit-http-verification/real-prep03/pg-driver-v01/overlay.json"
+}
