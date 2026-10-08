@@ -1,0 +1,246 @@
+{
+  "status": "DTO_SUGGESTION_NOT_IMPLEMENTED",
+  "protocol": "project-owner-models.v1",
+  "base": "/api/v1/projects/{project_id}",
+  "fields_exact": [
+    "operation",
+    "method",
+    "path",
+    "family",
+    "target",
+    "query",
+    "effects"
+  ],
+  "operations": [
+    {
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "path": "/model-providers",
+      "family": "read",
+      "target": null,
+      "query": "page",
+      "effects": [
+        "before_dispatch_hold",
+        "after_complete_hold"
+      ]
+    },
+    {
+      "operation": "getProjectModelProvider",
+      "method": "GET",
+      "path": "/model-providers/{provider_id}",
+      "family": "read",
+      "target": "provider",
+      "query": "none",
+      "effects": [
+        "before_dispatch_hold",
+        "after_complete_hold"
+      ]
+    },
+    {
+      "operation": "listProjectModels",
+      "method": "GET",
+      "path": "/models",
+      "family": "read",
+      "target": null,
+      "query": "page",
+      "effects": [
+        "before_dispatch_hold",
+        "after_complete_hold"
+      ]
+    },
+    {
+      "operation": "getProjectModel",
+      "method": "GET",
+      "path": "/models/{model_id}",
+      "family": "read",
+      "target": "model",
+      "query": "none",
+      "effects": [
+        "before_dispatch_hold",
+        "after_complete_hold"
+      ]
+    },
+    {
+      "operation": "listProjectAvailableChatModels",
+      "method": "GET",
+      "path": "/available-chat-models",
+      "family": "read",
+      "target": null,
+      "query": "page",
+      "effects": [
+        "before_dispatch_hold",
+        "after_complete_hold"
+      ]
+    },
+    {
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "path": "/model-providers",
+      "family": "mutation",
+      "target": null,
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "updateProjectModelProvider",
+      "method": "PUT",
+      "path": "/model-providers/{provider_id}",
+      "family": "mutation",
+      "target": "provider",
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "deleteProjectModelProvider",
+      "method": "DELETE",
+      "path": "/model-providers/{provider_id}",
+      "family": "mutation",
+      "target": "provider",
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "createProjectModel",
+      "method": "POST",
+      "path": "/models",
+      "family": "mutation",
+      "target": null,
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "updateProjectModel",
+      "method": "PUT",
+      "path": "/models/{model_id}",
+      "family": "mutation",
+      "target": "model",
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "deleteProjectModel",
+      "method": "DELETE",
+      "path": "/models/{model_id}",
+      "family": "mutation",
+      "target": "model",
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "lookupProjectModelConfiguration",
+      "method": "POST",
+      "path": "/model-commands/lookup",
+      "family": "lookup",
+      "target": null,
+      "query": "none",
+      "effects": []
+    },
+    {
+      "operation": "getProjectModelCredentialMetadata",
+      "method": "GET",
+      "path": "/model-credentials/{credential_id}",
+      "family": "read",
+      "target": "credential",
+      "query": "none",
+      "effects": [
+        "before_dispatch_hold",
+        "after_complete_hold"
+      ]
+    },
+    {
+      "operation": "createProjectModelCredential",
+      "method": "POST",
+      "path": "/model-credentials",
+      "family": "mutation",
+      "target": null,
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "updateProjectModelCredential",
+      "method": "PUT",
+      "path": "/model-credentials/{credential_id}",
+      "family": "mutation",
+      "target": "credential",
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "deleteProjectModelCredential",
+      "method": "DELETE",
+      "path": "/model-credentials/{credential_id}",
+      "family": "mutation",
+      "target": "credential",
+      "query": "none",
+      "effects": [
+        "after_complete_hold",
+        "after_complete_cut",
+        "after_complete_disconnect"
+      ]
+    },
+    {
+      "operation": "lookupProjectModelCredential",
+      "method": "POST",
+      "path": "/model-credential-commands/lookup",
+      "family": "lookup",
+      "target": null,
+      "query": "none",
+      "effects": []
+    }
+  ],
+  "private_session": {
+    "operation": "getCurrentSession",
+    "method": "GET",
+    "path": "/api/v1/session",
+    "project": null,
+    "target_id": null,
+    "query": null,
+    "effects": [
+      "before_dispatch_hold"
+    ]
+  },
+  "ipc_actions": [
+    "counts",
+    "arm",
+    "control-state",
+    "release",
+    "snapshot",
+    "logout",
+    "archive-recovery-project",
+    "reference-fact",
+    "rename-reuse"
+  ],
+  "operation_notes": "Exact T1 client endpoint keys. Target IDs and page cursors must be case-registered; no provider_id list filter. Lookups are counted and validated normal requests, not writable fault-control targets. Session is an already allowed private control, not an eighteenth new business API."
+}

@@ -1,0 +1,765 @@
+# D27 Project Owner 模型设置 UI — rev1
+
+状态：2026-10-08 正式规格安装；完整语义沿已获 root 接受的整合候选 c5674d4e，独立 SPEC STATIC d411c2ce 无必修。本次只完成 Audit 前置状态、T1 最小共享源码交接、永久定义引用及 T4 正式路径/唯一作者归位；安装差量与交接仍待独立复核和 root 接受。正式卡安装不是产品实施、工具运行或资源授权，实施启动由 root 另行下发。
+
+## 0. 固定依据、当前基线与交接状态
+
+唯一语义基准为整合候选 SHA-256 c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3（84300 B）；原候选与旧 pending/FAIL 原件保持。完整独审 review=d411c2ce0dfe46b7417aa87e6846f95d3a9507e644f6ba10fd95f9b000e76871，evidence=3bd930dc22dfd1dfb2a6a5f45e74f12bb1e47857562dc1a04455fcd5ac246727，manifest=852f0f87a3b0fddb3528743a8d1fcecb078654753de35b24383c266406ec4028，均已由 root 读取/核同接受。
+
+| 已组合来源 | 固定身份与适用范围 |
+| --- | --- |
+| rev0 规格 / 独审 | 8b78072a / 463cd09a；两叶子、29路径、完整数据/身份/写恢复矩阵 |
+| rev1 工程 / 独审 | 9197fc97 / 691ab122；17 typed方法/action、第15依赖、14旧selector、6新top；protocol83e3e652、selectorsc36bed42 |
+| T3 精确DTO / 独审 | 8c82af7c / 0e60d1ae；endpoints6c85ae88、freeze03ae01a8 |
+| 前后端同SHA确认 | frontend931da9f6、backend22754edd；静态可消费，三tuple仅恢复代表可排布 |
+
+上述规则已完整内嵌 §2–10。历史 scratch 原件只有来源身份，尚未另归档者不声称已有永久档；不要求执行者从临时文件取得关键定义。唯一精确端点附件为 [d27-project-owner-model-settings-ui-endpoints.json](d27-project-owner-model-settings-ui-endpoints.json)，原字节 SHA-256 6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa（6087 B）。附件原 status 表示来源当时未实施，保留其字节；本卡采用其 operation/method/path/target/query/effects 闭集，不生成第二套协议。
+
+[Audit UI 完整验收](../agent-team/project-owner-audit-ui-verification.md)已获 root 接受：最终22路径独审442ad7809fee233c37057c89b5749795c473b48651ea1feab820b10bcd9bb1f0 / manifest0bba9745e558e9f490a397c84d23c3336ccc54e60179e6cac0c2cb1e0aceb0f6；沿[永久21技术源表](../agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json) bf66509901d83abd2e69dc6b609baa6fb4278ce3a5fbaaebdef0d7c8d3ea6707，加 README 5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e / 84744 B。原三次 browser FAIL、受控 RED/最终49、各版本实际轮及视觉可见范围仍按原验收分列，不变成当前HEAD单次fresh全测。
+
+Audit17 web 的既有版本链保持055c727b5bd1fb2f2794d402ce214ef5f95bd38b，其中 View3bb842a2/test480b2cfb；Go两源3fff89ba/77d36746，JS两源2524a04e/a91d3ab7由上述永久表完整绑定。技术提交及本次只读观察的 main/HEAD 均为75411e27d0f2f5b998ae9a88e31fc9befa431095；README是已接受、尚待root文档提交的5fba工作树版本。root已确认技术/README/资源reader停止及global原3恢复；本轮不读取或验证dist/host资源。后续纯文档提交允许更新HEAD锚，但不能静默替换下表任一源码字节。
+
+### 0.1 T1 最小共享源码与实际签名
+
+下表为本次必要14输入的精确读取：13技术（10个后继可写既有文件＋3只读接口）及README末件。13技术当时均无工作树改动；不复制源码树，不扫描完整import/Go图。Audit重叠9源与bf665099永久表相同；App.vue、session.spec.ts及project-owner.ts与[Owner24源表](../agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json) a8e19c17相同；account.ts与已审rev1固定源7d84b31d相同。这里只复用既有接受链，未重跑其检查。
+
+| 现有输入 | 后继作用 | 字节 | SHA-256 |
+| --- | --- | ---: | --- |
+| web/src/api/client.ts | §8既有写域 | 40512 | 6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd |
+| web/src/api/account.ts | 只读契约 | 18878 | 7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37 |
+| web/src/api/project-owner.ts | 只读契约 | 12215 | 7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea |
+| web/src/composables/useSession.ts | §8既有写域 | 163959 | 8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7 |
+| web/src/composables/useProjectWorkspace.ts | 只读契约 | 26022 | 07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943 |
+| web/src/App.vue | §8既有写域 | 10338 | d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5 |
+| web/src/router/auth.ts | §8既有写域 | 10910 | 9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562 |
+| web/src/router/index.ts | §8既有写域 | 5428 | 68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709 |
+| web/src/views/projects/ProjectSettingsView.vue | §8既有写域 | 907 | 06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069 |
+| web/src/components/layout/ProjectNav.vue | §8既有写域 | 1973 | 7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55 |
+| web/src/tests/authentication.spec.ts | §8既有写域 | 24670 | 1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f |
+| web/src/tests/project-workspace.spec.ts | §8既有写域 | 11815 | 89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd |
+| web/src/tests/session.spec.ts | §8既有写域 | 23661 | 941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a |
+| docs/development/frontend/README.md | #29最后另授 | 84744 | 5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e |
+
+T1 实际签名/接入点（以下行号只定位本表版本）：
+
+- account.ts:81 的 WriteOptions 为 Readonly<{ csrfToken: string; key: string; signal?: AbortSignal }>；旧参数和可选 signal 保持。
+- useSession.ts:475–490 的 createSessionController 仍依次默认注入 api、systemAPI、invitationAPI、providerAPI、modelAPI、selectionAPI、accountSecurityAPI、smtpAPI、smtpDeliveryAPI、outboundAPI、auditAPI、runtimeInformationAPI、projectAPI、projectAuditAPI，共14项；§6.1只追加第15项。原 runAuthorized<T>(identity: PersonalIdentity, work: (op: Operation, current: () => boolean) => Promise<T>, command?: PersonalCommand, kind=personal): Promise<T> 位于1267；既有Project/Audit显式身份分派及1421实际finally释放owner均保持。
+- useProjectWorkspace.ts:30 的 createProjectWorkspace(auth: SessionController = useSession(), replaceRoute: (path: string) => Promise<unknown> = async () => undefined)；:140公开只读 currentReadContext，形状 Readonly<{ identity: PersonalIdentity; projectID: string; generation: number; readGeneration: number }> | null；:586 confirmLeave(target?: string) 返回Promise<boolean>。本卡不新增workspace写权，也不把此读归属当Mutate授权。
+- App.vue:53创建/provide唯一workspace，:109–121 Logout仍逐项等待9个confirmLeave，:160起停止navigation并dispose原owners；§6.1追加独立本域，不替换原9项及Selection内Summary双intent。
+- auth.ts:38 projectRoute(value: unknown) 当前返回 username/project_name/path 与 suffix=''|'/settings'|'/settings/general'|'/settings/audit' 或null，:44仍拒raw百分号/反斜线/query/hash，:109 installProjectNavigation采用confirmLeave(target?: string)及afterNavigation(to,from)。router/index.ts:116–135只有general/audit两child和general默认；新两literal只按§6.1添加。
+- ProjectSettingsView.vue:6只消费workspace visible/detail/paths，原两组为项目资料/安全记录；ProjectNav.vue:8–18只对同Project general/audit设置current。现authentication/project-workspace/session测试及client封闭endpoint/typed overload，均按表固定，未执行。
+
+T1完成的是最小静态基线/签名交接；实现后的真实源码及传递import、工具、schema、私有build、binary discovery与执行门禁仍按§9另行冻结，不由本表预填完成。
+
+| 门槛 | rev1安装时状态 |
+| --- | --- |
+| 三HTTP、Owner24、Audit22、既有规则及T2 selector静态定位 | 已接受；不代替模型设置实现后的检查 |
+| T3精确DTO及前后端同SHA确认 | 已静态闭合；完整恢复矩阵及每case上限保持 |
+| T1最小共享源码/签名/main交接 | 已记录上述固定输入；随本次安装差量交独审/root接受 |
+| 完整候选SPEC | d411c2ce已接受；其业务语义原样采用 |
+| T4正式卡/原字节附件/唯一writer | 本次安装，最终行政差量独审及root实施移交仍待 |
+| 实施后完整输入、精确discovery、driver/filegate/逐轮grant | pending；没有本卡执行许可 |
+| 28技术完整接受后的README第29末件 | pending，最后另授 |
+
+## 1. 完整结果与开工门槛
+
+本卡交付一个完整结果：当前 Human Owner 在 Project 设置中管理本 Project chat Providers/Models、Model-purpose Credential，并浏览安全的 System/Project 可用 chat 目录；所有写入具有明确结果、版本冲突和原请求恢复。两个菜单叶子遵守正式 project-settings §1/4：Providers 与可用模型。本 Project Models 的管理放在 Providers 叶子的内部“项目 Models”面板，不新增第三个设置叶子。
+
+| 直接依赖 | 正式接受与本卡消费 | 仍不据此完成 |
+| --- | --- | --- |
+| Project Model 五读 HTTP | a0b012ce，[project-model-owner-read-http-verification.md](../agent-team/project-model-owner-read-http-verification.md)；Provider/Model list/get、七字段 available、当前逐页 Owner/Session、8 MiB完整表示 | 配置可调用、外部Provider网络或生产Resolver |
+| Project Model Credential HTTP | e4b1b891，[project-model-credentials-http-verification.md](../agent-team/project-model-credentials-http-verification.md)；Create/Update/Delete、metadata、被动lookup、默认根 | 材料GET、Credential列表、跨命令原子绑定 |
+| Project Model 配置写 HTTP | cc850b22，[project-model-configuration-write-http-verification.md](../agent-team/project-model-configuration-write-http-verification.md)；六写、found/receipt lookup、同默认根读写 | Agent rewrite、删除preview、Project selector |
+| Owner UI 最终24 | [project-owner-workspace-ui-final24-verification.md](../agent-team/project-owner-workspace-ui-final24-verification.md)，14d9d717/末件0a939a7f；稳定ID、Resolve→Get、Session、导航确认、当前Owner与只读生命周期 | 创建/归档/恢复/删除UI或生命周期链完整绑定 |
+| 既有 System/账号前端基础 | frontend README 对应完整验收；复用唯一Cookie owner、Ui/Dialog/SettingsShell、严格标量/Instant等纯工具 | 不复用System端点、admin谓词、按Provider分页或Impact状态机 |
+| Audit UI 完整22接受 | 已接受442ad780；client/useSession/router/ProjectSettings/ProjectNav/相关旧测试及只读currentReadContext按§0.1固定交接 | 有限版本组合，不声称所有producer或当前HEAD一次全新全测 |
+
+后端三卡已提供此UI所需全部公开协议，无新增迁移、公共contract、SQL或生产root修改理由。29个产品路径（28技术＋README末件）是同一设置结果的有限范围；不先做只有列表的界面卡。Provider与Credential是显式独立命令，Model共享这些稳定引用和当前Owner，不引入自动创建/补偿工作流。若实现确需额外共享路径，先报精确理由并修订正式卡，不凭本卡扩大。
+
+完整候选SPEC、Audit整卡和T3同SHA确认已接受，当前共享源码/签名见§0.1。root须在本次行政安装差量独审接受后另行下发实施，按客户端/API→Session/state→UI→私有harness逐段冻结；§8唯一作者分工不等于已启动。实现后的工具/完整输入以及运行资源、Go/cache、资产窗口仍分别固定、另授，其它任务窗口不属于本任务。
+
+## 2. 路由、布局与用户行为
+
+只追加以下两个合法Project设置后缀，其他Owner/Audit路由与默认基本信息保持：
+
+- `/:username/:project_name/settings/model-providers`：Providers列表/详情/表单，以及内部“项目 Models”面板/表单。
+- `/:username/:project_name/settings/available-models`：只读安全可用chat目录。
+
+安全return仍按既有raw path闭集验证；query/hash、编码绕过、未知尾部不能成为返回目标。ProjectNav仅将这两个同Project合法后缀认作“设置”当前项，默认href仍general。只在当前Owner Get完成后显示页面与入口，不从路由username、admin角色、Resolve候选或旧缓存推导权限。三个列表均独立页态，默认25，可选50/100；不是HTTP缺省50的变更。
+
+Providers面板显示name/protocol/enabled/稳定ID，正式详情显示本Project配置、version、时间与credential_ref；协议创建后只读。Models面板标题明确“项目 Models（全部 Providers）”，不要求先选一个Provider才能列表，不在请求附provider_id、不静默筛掉本页其他Provider的行。模型归属用稳定ProviderID；已加载同Project Provider名称可作附加显示，未知时显示ID，不自动扫全库或按行发N+1查询。创建Model从一个正式读取的本Project Provider选择（独立分页）或其详情进入；编辑Model的Provider/type只读，协议依据同Project Provider正式Get，不从名字猜测。
+
+可用模型仅显示七字段与capabilities的安全子信息，标明System/Project来源。System行没有编辑按钮、System管理链接或补读完整System配置；本Project行也不能把目录七字段当作编辑详情，明确编辑时另走Project Get。Provider/Model配置enabled与可用目录是不同观察，禁用Provider仍可管理合法配置；保存不声称已连通、能调用或已用于Agent。
+
+所有列表/详情/表单独立loading/empty/error；empty只来自完整合法200空页。已读页可保留为明确旧观察，不冒当前状态；cursor只在内存，不进URL/storage，翻前页重新读原cursor、刷新回首页、limit变更回首页。CURSOR_INVALID保条件与错误，用户明确从第一页重读，无自动扫页/重试。三列表cursor互不共用，首水位不解释为配置快照；无total或本地计算的全库总数。
+
+复用双导航、SettingsShell和Ui组件。桌面表单正常换行，390窄屏单列/行堆叠，菜单Drawer与对话框键盘/Tab/Escape/焦点遵原框架。长ID/URL文本不成为自动可点击外链，不使用v-html。页面标题、字段错误与反馈可访问；动作禁用说明当前原因，不能只靠颜色。
+
+## 3. 闭合数据、API与容量
+
+新增Project专用read/write类型，不能把System Provider/Model强转为Project DTO。合法读取与当前写policy分开：HTTP可读取的非空配置对象或合法非空reasoning_efforts不能被客户端静默删掉/压缩。当前编辑器只支持§4的写集合，遇合法但超出该集合的既有值可完整安全只读并说明编辑限制，不能清空后提交。
+
+| DTO | 必有闭集 |
+| --- | --- |
+| ProjectProvider | id,scope,input,version,created_at,updated_at；scope恰kind=project/project_id=本请求ID；input恰name/protocol/base_url/enabled/credential_ref/options |
+| ProjectModel | id,provider_id,scope,input,version,created_at,updated_at；scope同上；input恰name/provider_model_id/type/enabled/parameters/request_overwrite/header_overwrite/capabilities，type=chat |
+| AvailableChatModel | 恰id/provider_id/scope/name/provider_name/version/capabilities；scope为system或本Project，无第八字段，无endpoint/protocol/credential/原生型号/参数/时间 |
+| 三种Page | 恰items非null数组、next_cursor显式null或合法token；≤请求limit≤100，ID不重复；空页cursor=null，非null cursor要求满页；Provider/Model按公开created_at/id严格倒序，目录不伪验不存在的created_at |
+| ConfigurationReceipt | kind/resource_id/version/affected_references四字段；六kind；本已绑Project能力的成功affected_references必须"0" |
+| ConfigurationLookup | found=false/receipt=null，或found=true/合法receipt；不是Secret observation |
+| CredentialMetadata | credential_id/purpose=model/version三字段 |
+| CredentialMutation | Metadata＋deleted；create版本1且false，update=expected+1且false，delete=expected+1且true |
+| CredentialLookup | observed=false/result=null，或observed=true/合法Mutation；无in_progress，不是Owner Update三态 |
+
+UUID用canonical v7；version/计数/容量用精确十进制字符串，不经JS Number。配置expected_version接受1..MaxInt64；首次递增溢出交原InvalidState，不能把配置界改成凭据的Max−1。Credential update/delete/lookup expected_version为1..9223372036854775806，metadata/result仍完整正int64。Instant沿既有UTC微秒及日历/created≤updated校验。严格Unicode/字节/rune规则，拒lone surrogate，不trim名称、base_url、型号或材料。
+
+Capabilities十字段沿正式schema：四bool、四非null数组、context_length/max_output必有null或正int64字符串；parallel→tools，非reasoning时efforts空，modalities四值与structured两值闭集去重，effort safeToken≤32B、**无新业务数组总数上限**，两容量有值时max_output≤context_length。读投影保原顺序，不把写policy当读取损坏判据。
+
+两新API模块共17个封闭方法，参数只收ProjectID、typed ID/input/query、AbortSignal或既有私有WriteOptions；不收任意URL、scope/actor/user/header/cap。所有输入在await前同步捕获/验证/冻结，调用者后改数组/对象不改变请求：
+
+| 方法组 | 精确资源与请求 |
+| --- | --- |
+| 5读 | GET `/projects/{P}/model-providers`、其`/{provider}`、`/models`、其`/{model}`、`/available-chat-models`；均位于`/api/v1`。列表只cursor/limit，详情无query/body；不发key/CSRF |
+| Provider三写 | POST collection `{input}`；PUT detail `{expected_version,input}`；DELETE detail `{expected_version}` |
+| Model三写 | POST collection `{provider_id,input}`；PUT detail `{expected_version,input}`；DELETE detail `{expected_version,replacement}`，replacement必有null或非自身ModelID |
+| 配置lookup | POST `/projects/{P}/model-commands/lookup`，body恰`{command:<六kind>}`；原key，不能发target/input/expected或selector kind |
+| Credential metadata | GET `/projects/{P}/model-credentials/{C}`，无query/body/key/CSRF |
+| Credential三写 | POST collection `{value}`；PUT detail `{expected_version,value}`；DELETE detail `{expected_version}` |
+| Credential lookup | POST `/projects/{P}/model-credential-commands/lookup`；create恰`{kind:"create"}`，update/delete恰kind/credential_id/expected_version；不含value |
+
+所有写及两个POST lookup均同源Cookie、CSRF、恰一原Idempotency-Key；无PATCH、无collection Credential GET、无HEAD客户端功能扩张。ID逐段校验后编码，ProjectID始终来自稳定当前绑定；query一次编码、无裸?、原32KiB/8192B cursor界。新动作须独立Project分类，不能进入System/admin或现Owner64KiB分支。
+
+五读成功cap统一8,388,608B；配置receipt/lookup、Credential metadata/mutation/lookup成功cap1,024B；Problem保原600000B。配置七POST/PUT/DELETE请求cap1,048,576B；Credential create/update 409600B、delete/lookup 1024B，decoded value1..65536B，不能复用System 512KiB材料请求界。原其他端点cap不变，不给caller可调cap。
+
+transport必须实际chunk累计/fatal UTF8/EOF/完整JSON/全对象refinement后一次发布不可变结果；不信Content-Length，不截断、丢坏末行、减limit或额外查详情救坏页。完整200 application/json/no-store及既有RequestID/Problem校验保持。body/reader.cancel、releaseLock与真实transport finally结束前不释放Cookie owner。cap是响应准入界，不宣称Go/浏览器全RSS或后端事务硬期限。
+
+### 3.1 精确 typed 方法、Session action 与 endpoint
+
+两新API文件保持原写域#2/#3。下列签名为本卡沿已接受候选采用的精确接口建议；ID/版本仍string以兼容既有风格，但捕获时严格UUIDv7/精确十进制校验，不代表任意string合法。`WriteOptions`原样取`api/account.ts:81`，仅Session私有owner注入CSRF/key/signal。读取query恰cursor?/limit?，limit验证1..100；UI可选25/50/100不缩窄HTTP typed API。无provider_id、任意path/header/scope/actor或caller cap。
+
+```ts
+type ProjectChatProtocol = 'openai-chat-completions' | 'anthropic-messages';
+type ProjectModelPageQuery = Readonly<{ cursor?: string; limit?: number }>;
+type ProjectModelPage<T> = Readonly<{ items: readonly T[]; next_cursor: string | null }>;
+type EmptyObject = Readonly<Record<string, never>>;
+type ProjectProviderWriteInput = Readonly<{
+  name: string; protocol: ProjectChatProtocol; base_url: string;
+  enabled: boolean; credential_ref: string | null; options: EmptyObject;
+}>;
+type ProjectModelWriteInput = Readonly<{
+  name: string; provider_model_id: string; type: 'chat'; enabled: boolean;
+  parameters: EmptyObject; request_overwrite: EmptyObject; header_overwrite: EmptyObject;
+  capabilities: ProjectChatWriteCapabilities;
+}>;
+type ProjectModelWriteContext = Readonly<{ provider_id: string; protocol: ProjectChatProtocol }>;
+type ProjectModelWriteTarget = ProjectModelWriteContext & Readonly<{ id: string }>;
+type ProjectConfigurationKind = 'provider.create' | 'provider.update' | 'provider.delete'
+  | 'model.create' | 'model.update' | 'model.delete';
+type ProjectConfigurationReceipt<K extends ProjectConfigurationKind = ProjectConfigurationKind> =
+  Readonly<{ kind: K; resource_id: string; version: string; affected_references: '0' }>;
+type ProjectConfigurationCommand =
+  | Readonly<{ kind: 'provider.create'; input: ProjectProviderWriteInput }>
+  | Readonly<{ kind: 'provider.update'; id: string; expected_version: string; input: ProjectProviderWriteInput }>
+  | Readonly<{ kind: 'provider.delete'; id: string; expected_version: string }>
+  | (ProjectModelWriteContext & Readonly<{ kind: 'model.create'; input: ProjectModelWriteInput }>)
+  | (ProjectModelWriteTarget & Readonly<{ kind: 'model.update'; expected_version: string; input: ProjectModelWriteInput }>)
+  | Readonly<{ kind: 'model.delete'; id: string; expected_version: string; replacement: string | null }>;
+type ProjectConfigurationObservation = Readonly<{ found: false; receipt: null }>
+  | Readonly<{ found: true; receipt: ProjectConfigurationReceipt }>;
+type ProjectCredentialLookupTarget = Readonly<{ kind: 'create' }>
+  | Readonly<{ kind: 'update' | 'delete'; credential_id: string; expected_version: string }>;
+type ProjectCredentialMetadata = Readonly<{ credential_id: string; purpose: 'model'; version: string }>;
+type ProjectCredentialCreated = ProjectCredentialMetadata & Readonly<{ version: '1'; deleted: false }>;
+type ProjectCredentialUpdated = ProjectCredentialMetadata & Readonly<{ deleted: false }>;
+type ProjectCredentialDeleted = ProjectCredentialMetadata & Readonly<{ deleted: true }>;
+type ProjectCredentialObservation = Readonly<{ observed: false; result: null }>
+  | Readonly<{ observed: true; result: ProjectCredentialCreated | ProjectCredentialUpdated | ProjectCredentialDeleted }>;
+interface ProjectModelsAPI {
+  listProviders(projectID: string, query: ProjectModelPageQuery, signal: AbortSignal): Promise<ProjectModelPage<ProjectProvider>>;
+  getProvider(projectID: string, providerID: string, signal: AbortSignal): Promise<ProjectProvider>;
+  listModels(projectID: string, query: ProjectModelPageQuery, signal: AbortSignal): Promise<ProjectModelPage<ProjectModel>>;
+  getModel(projectID: string, modelID: string, signal: AbortSignal): Promise<ProjectModel>;
+  listAvailableChatModels(projectID: string, query: ProjectModelPageQuery, signal: AbortSignal): Promise<ProjectModelPage<ProjectAvailableChatModel>>;
+  createProvider(projectID: string, input: ProjectProviderWriteInput, options: WriteOptions): Promise<ProjectConfigurationReceipt<'provider.create'>>;
+  updateProvider(projectID: string, providerID: string, expectedVersion: string, input: ProjectProviderWriteInput, options: WriteOptions): Promise<ProjectConfigurationReceipt<'provider.update'>>;
+  deleteProvider(projectID: string, providerID: string, expectedVersion: string, options: WriteOptions): Promise<ProjectConfigurationReceipt<'provider.delete'>>;
+  createModel(projectID: string, context: ProjectModelWriteContext, input: ProjectModelWriteInput, options: WriteOptions): Promise<ProjectConfigurationReceipt<'model.create'>>;
+  updateModel(projectID: string, target: ProjectModelWriteTarget, expectedVersion: string, input: ProjectModelWriteInput, options: WriteOptions): Promise<ProjectConfigurationReceipt<'model.update'>>;
+  deleteModel(projectID: string, modelID: string, expectedVersion: string, replacement: string | null, options: WriteOptions): Promise<ProjectConfigurationReceipt<'model.delete'>>;
+  lookupConfiguration(projectID: string, command: ProjectConfigurationCommand, options: WriteOptions): Promise<ProjectConfigurationObservation>;
+}
+interface ProjectModelCredentialsAPI {
+  getCredentialMetadata(projectID: string, credentialID: string, signal: AbortSignal): Promise<ProjectCredentialMetadata>;
+  createCredential(projectID: string, value: string, options: WriteOptions): Promise<ProjectCredentialCreated>;
+  updateCredential(projectID: string, credentialID: string, expectedVersion: string, value: string, options: WriteOptions): Promise<ProjectCredentialUpdated>;
+  deleteCredential(projectID: string, credentialID: string, expectedVersion: string, options: WriteOptions): Promise<ProjectCredentialDeleted>;
+  lookupCredential(projectID: string, command: ProjectCredentialLookupTarget, options: WriteOptions): Promise<ProjectCredentialObservation>;
+}
+type ProjectModelSettingsAPI = ProjectModelsAPI & ProjectModelCredentialsAPI;
+```
+
+`ProjectProvider`、`ProjectModel`、七字段`ProjectAvailableChatModel`和只读Capabilities使用本卡§3全DTO；不得alias成System DTO或以上较窄WriteInput。`ProjectChatWriteCapabilities`为原十字段、四bool、modalities/structured闭集、reasoning_efforts恰readonly []、两容量原nullable string；协议相关policy在捕获的`context.protocol`检查。读取的合法非空options/overwrite/efforts继续完整接受并只读。此补充不改变本卡§3/4任何字节/policy边界。
+
+Context/Target中的protocol/provider_id是从原正式Provider/Model观察捕获的本地校验背景；create HTTP仅发provider_id+input，update HTTP仅发expected_version+input。protocol从不额外上网，update不改变provider_id/type；原重放不用新Get查现Provider。Provider编辑保原protocol，正式后端仍判不可变；无新增Provider Get前置。delete不用Context强迫无关Provider读取，replacement必有null或明确候选；有reference仍DependencyUnbound。
+
+lookupConfiguration接收已捕获六kind完整Command以核receipt目标/版本，但HTTP体只发`{command: command.kind}`；Credential lookup只发上述闭集target且绝不发value。found/observed结果都是历史观察，不能严格确认输入或材料。API不会借lookup做额外Get、自动Execute或新key。
+
+所有路径以下列相对`/api/v1/projects/{project_id}`定义，均预期200 application/json；每行唯一transport分类和Session Action，不折叠进System或Owner64KiB分支。
+
+| # | typed方法 | Session action | client endpoint key | HTTP与相对path |
+| --- | --- | --- | --- | --- |
+| 1 | `listProviders` | `project-model-provider-list` | `listProjectModelProviders` | GET `/model-providers` |
+| 2 | `getProvider` | `project-model-provider-get` | `getProjectModelProvider` | GET `/model-providers/{provider_id}` |
+| 3 | `listModels` | `project-model-list` | `listProjectModels` | GET `/models` |
+| 4 | `getModel` | `project-model-get` | `getProjectModel` | GET `/models/{model_id}` |
+| 5 | `listAvailableChatModels` | `project-model-available-list` | `listProjectAvailableChatModels` | GET `/available-chat-models` |
+| 6 | `createProvider` | `project-model-provider-create` | `createProjectModelProvider` | POST `/model-providers` |
+| 7 | `updateProvider` | `project-model-provider-update` | `updateProjectModelProvider` | PUT `/model-providers/{provider_id}` |
+| 8 | `deleteProvider` | `project-model-provider-delete` | `deleteProjectModelProvider` | DELETE `/model-providers/{provider_id}` |
+| 9 | `createModel` | `project-model-create` | `createProjectModel` | POST `/models` |
+| 10 | `updateModel` | `project-model-update` | `updateProjectModel` | PUT `/models/{model_id}` |
+| 11 | `deleteModel` | `project-model-delete` | `deleteProjectModel` | DELETE `/models/{model_id}` |
+| 12 | `lookupConfiguration` | `project-model-configuration-lookup` | `lookupProjectModelConfiguration` | POST `/model-commands/lookup` |
+| 13 | `getCredentialMetadata` | `project-model-credential-get` | `getProjectModelCredentialMetadata` | GET `/model-credentials/{credential_id}` |
+| 14 | `createCredential` | `project-model-credential-create` | `createProjectModelCredential` | POST `/model-credentials` |
+| 15 | `updateCredential` | `project-model-credential-update` | `updateProjectModelCredential` | PUT `/model-credentials/{credential_id}` |
+| 16 | `deleteCredential` | `project-model-credential-delete` | `deleteProjectModelCredential` | DELETE `/model-credentials/{credential_id}` |
+| 17 | `lookupCredential` | `project-model-credential-lookup` | `lookupProjectModelCredential` | POST `/model-credential-commands/lookup` |
+
+前5成功cap8MiB，余12成功cap1KiB；Problem统一原600000B。6配置写+配置lookup请求1MiB；Credential create/update400KiB，delete/lookup1KiB，decoded65536B；六GET不发key/CSRF。9mutation+2POST lookup共11调用使用原WriteOptions。DTO、capture与body一次冻结，所有HTTP前无await；发布要真实EOF、严格UTF8/JSON/全对象验证。cap只管准入，不当RSS保证。
+
+## 4. 表单与独立凭据命令
+
+Provider支持name、两chat协议openai-chat-completions/anthropic-messages、base_url、enabled、nullable credential_ref，options固定{}。协议创建后只读；scope不由用户编辑。名称1..128 rune且≤512B，URL沿原http/https、有host、无userinfo/query/fragment/空port等endpoint规则，≤8192B且不规范化成另一串。
+
+Model支持name、provider_model_id、enabled及capabilities；Provider创建时选择、之后只读；type始终chat。parameters/request_overwrite/header_overwrite固定{}，reasoning_efforts固定[]，无任意JSON/header/effort编辑器。chat输入允许text/image/file/vector子集，输出仅text子集；四bool沿正式约束；OpenAI structured可text/json_schema，Anthropic仅text。context_length/max_output可空且精确字符串。保原CAPABILITY_UNSUPPORTED和typed InvalidArgument边界，不修改后台policy或暗示这些声明经过实际模型调用验证。
+
+Credential没有目录。入口仅为：Provider已绑定ref的安全metadata；用户明确输入同Project CredentialID并读取metadata；在本页创建新Credential后保留其安全ID。不得列出所有Credential、Get材料、用System credential或Project Variable/Secret替代。metadata与材料分区：已有材料不回显；新值以password输入，空输入表示不旋转，删除为独立确认动作。
+
+**显式分步，禁止自动链式写：** 用户单独确认“创建凭据”后生成Credential intent并执行。只有严格Execute Mutation确认才清材料并把安全ref作为“已创建、尚未绑定”的本地候选；用户再明确选择/使用该ref到Provider草稿，再明确保存Provider。不会在Credential callback自动发Provider写，不自动创建默认Model，不做失败补偿删除。Provider失败保已确认Credential事实与ref，重读冲突后新Provider保存不能再次创建Credential。显示可复制的安全CredentialID以便随后手动metadata管理；key/材料/digest不可复制或展示。
+
+rotate/delete仅针对当前明确读取的metadata ID/version，分别冻结新value或expected_version。Secret删除有引用或lease时保RESOURCE_BUSY；用户可另行编辑Provider解绑并确认保存后，再明确重读metadata、重新发新删除，不自动解绑/删Provider/释放lease。删除Provider只释放其引用，不删除Credential；历史ref已删除不应阻断已捕获原写重放。
+
+Provider/Model配置与已读baseline无变化时禁保存；Credential无法从metadata判断新旧材料是否相同，仅空输入不旋转，不能把相同长度或旧version当作材料相同证明。原字段值保留且验证错误零网络。409版本/当前状态冲突保输入，由用户显式重读、核对、选择采用当前值后形成新意图；不换版本自动提交，不自动合并。已确认写后GET失败保写确认，只提供读重试，不重复写或以当前对象缺失取消历史确认。
+
+## 5. 删除与引用边界
+
+Provider删除前显示对象及影响说明并捕获当前version；**全Project Models某页为空、首项不属于该Provider或本地未见其Model都不能证明该Provider无Model**。没有按Provider查询或删除preview，因此不虚构影响数、不自动扫全部页；最终DeleteProvider由正式库判断，有任何Model按原INVALID_STATE拒绝。
+
+Model删除确认捕获正式Get的目标ID/version。replacement必由用户明确选择“无替代”(null)或从独立分页的安全available目录选非自身System/本Project chat；不从目录补System Get，不用当前Models页证明目录资格。候选启用和引用竞态最终由DELETE重验；UI预选不冻结它们。
+
+当前已接受Project能力：有任何Model reference返回DEPENDENCY_UNBOUND，无论候选是否提供；不能把没有preview、索引没有公开计数或目录可见说成“无引用”。用户说明为“仍被使用的模型暂不能在此删除”，保原记录、选择、输入和错误。无引用的合法删除实际affected_references=0；成功也不得宣称更新Agent/approval_model/Project Summary。不增加引用迁移、Agent编辑、selector/Summary override或后端替代adapter。
+
+## 6. 唯一Session owner与App期状态
+
+createSessionController在§0.1移交的实际参数末尾追加一个带默认值的ProjectModelSettings API依赖（内部可组合两新API），旧参数位置/省略调用不变。新增17个明确action及本域revision/封闭facade，使用原runAuthorized与私有Cookie/CSRF持有者；不导出任意callback，不重建fetch队列，不伪装personal/System/旧project-read。
+
+当前predicate要求authenticated Human、完整user/session/identity epoch、operation generation与本域revision；普通Owner和admin Owner同样处理，每次正式API仍由后端当前Owner授权。System denied/admin变化不能授予或撤销本Project；局部403/404不能污染System。当前合法401会话错误、当前写CSRF失败沿既有全局失效链；旧identity/generation的晚401/403/finally不得清新Session。
+
+App创建/provide唯一`useProjectModelSettings(auth,workspace)`，生命周期跨Session checking临时卸载。只读消费workspace已公开currentReadContext来绑定稳定ProjectID/完整identity/读代次，**它仅是UI读归属，不是Mutate grant**；当前detail同ID/phase=current时的lifecycle用于新编辑提示，后端重验Mutate。不要拿workspace.canSave/readOnly中的Owner基本资料冲突或旧草稿状态代替Model权限，也不改workspace自己的draft/intent。
+
+状态区分读页/详情观察、用户draft、已确认write receipt、历史lookup observation、pending原intent。Provider配置、Model配置、Credential分别持有准确kind/目标；共同遵唯一实际owner。同一确认流内只允许一个待决提交，若另一类待决需先明确保留/查证/放弃，不能覆盖其原材料。已确认但未绑定的Credential事实独立于Provider draft，回退不撤销它。
+
+同完整identity checking或Owner当前读取暂不可用：隐藏受保护数据和模态、停止新请求；保内存dirty/未决/已准备ref以便同identity恢复，旧只读页失效，重新获得同stable Project当前Get后才可显示编辑和发请求。真正user/session/CSRF epoch变化、Logout、失去本Project当前Owner归属、切换稳定Project或确认离开，清本域旧材料/观察/代次；无localStorage/history/URL恢复旧key。名字只用于路由定位，旧名复用到新Project不可带入任何草稿。不能以read generation刷新自动覆盖dirty草稿或原expected。
+
+导航到另一个本组叶子、其他Project、System、history返回及Logout接入App既有聚合确认；取消保持URL/输入/原焦点，确认才放弃相应本地追踪。分别保System四用途和Summary的现有独立草稿，不默认同意其确认。不确定/dirty注册既有beforeunload约束；关闭或放弃不撤销服务端命令。焦点/await/nextTick回调须再核identity/Project/页面实例，不能抢新层焦点。
+
+30秒可见截止与实际owner分开。已发请求即使取消/超时/卸载仍持owner直到fetch/body/cancel/finally真实结束，Logout/Session恢复/旧域操作均不能越过。只读取消提供显式重读，尾部结束只解锁；不自动发写或查证。后端五读/lookup2s、写30s保持，Model原ctx私有Unknown确认与Secret不自动确认的差异不能在UI抹平。
+
+### 6.1 既有默认依赖位置与封闭分派
+
+当前`createSessionController`（useSession:475–489）有14个默认依赖，位置按次序为：1 api、2 systemAPI、3 invitationAPI、4 providerAPI、5 modelAPI、6 selectionAPI、7 accountSecurityAPI、8 smtpAPI、9 smtpDeliveryAPI、10 outboundAPI、11 auditAPI、12 runtimeInformationAPI、13 projectAPI、14 projectAuditAPI。建议仅追加：
+
+```ts
+projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(), // 15
+```
+
+组合factory放#2 `project-models.ts`，仅组合自己的12方法factory与#3凭据5方法factory；默认同一个可选Fetch注入用于受控测试，不增加第三API路径，不导出System callback。旧0..14参数、省略调用、System Selection第6参数内的Summary组合保持。Session facade建议`auth.projectModelSettings`：相同17方法名，但读方法去除signal，9写去除WriteOptions，两个lookup改无参、只消费本域原intent；显式retryOriginal复用原9写之一的action，不新增第18HTTP。`abandonReads`/`abandonPending`为本域封闭控制，不接受callback/URL/key。
+
+Action union为表内17个literal。建议按action持17个revision计数，以6读/6配置写+lookup/3凭据写+lookup分组；普通读取消只退休六读，不清三类写intent或旧域。runAuthorized:1288–1338的revision/current分派及:1397失败分派均显式接本17种，当前authenticated Human+完整user/session/epoch/op/revision，绝不落旧admin默认。6GET的CSRF_FAILED不触发身份门禁；9写和2POST lookup的有效current CSRF拒绝按私有CSRF失效语义；其余局部权限错误不设System denied。same-identity checking只隐藏观察和暂停新提交，保原写材料；真正identity/CSRF变化清本域原材料。实际finally才释放owner。
+
+App唯一创建/provide/dispose新controller；:109现有9个confirmLeave及selection所持双intent不替换。新confirm接同一聚合流程，逐域保留明确选择，不能顺带丢Owner/System/Summary。router/auth只在其现有私有导航注册域添加新controller的闭合confirm；workspace只读currentReadContext/detail，绝不新增workspace写方法。
+
+两个后缀是`/settings/model-providers`、`/settings/available-models`。`projectRoute`返回suffix union（auth.ts:41与:54）及同一个raw regexp（:46）同时加两literal；原`[%\\?#]`拒绝、用户名/保留根/大小写规范不变，不开任意settings子树。router/index现Project Settings children仅新增`model-providers`（name project-model-providers）和`available-models`（name project-available-models），settings默认redirect仍general。ProjectNav仅把同username/同project两suffix加入设置current条件，href仍general；ProjectSettings新增“模型与Provider”组两个leaf，general与Audit原组不删。authentication.spec增加两合法后缀及`/`、child、query、hash、percent、backslash反例；project-workspace菜单期待最小兼容，原Owner导航/恢复不改。
+
+## 7. 写结果、Unknown与原请求恢复
+
+明确保存才生成一次随机合法key，私有冻结完整identity/原CSRF/ProjectID/kind/target/provider/replacement/expected_version/完整typed输入及最终body bytes。表单后改、双击、query变化不能改变它；输入验证未派发为零网络。Credential材料只在password输入/必要私有内存中持有，发出后不在反馈/历史详情重新显示；严格确认、身份清理或明确放弃时清输入和引用，不承诺JS字符串物理擦除。
+
+首次明确拒绝必须是完整合法Problem、此前无不确定，code/status及not_started/not_committed同时匹配下表；unknown无条件优先。这里的闭集是保守UI分类，未列情况仍不确定，不修改服务端错误语义。
+
+| 首次响应来源 | 可解释为明确拒绝的原配对与UI行为 |
+| --- | --- |
+| 任一新配置/Credential写的严格输入边界 | 400 INVALID_ARGUMENT、413 PAYLOAD_TOO_LARGE、415 UNSUPPORTED_MEDIA_TYPE；保草稿，用户明确修正后再保存，不自动换key |
+| 六配置写业务拒绝 | 409 VERSION_CONFLICT/INVALID_STATE/RESOURCE_BUSY/PROJECT_NOT_ACTIVE，422 CAPABILITY_UNSUPPORTED，503 DEPENDENCY_UNBOUND；保原错误及输入；版本/状态冲突须明确重读，引用未绑不能解释成已替换 |
+| Credential三写业务拒绝 | 409 VERSION_CONFLICT/INVALID_STATE/RESOURCE_BUSY/PROJECT_NOT_ACTIVE；用途或目标404按下一行，不能用metadata证明材料同义 |
+| 当前权限/目标拒绝 | 401 UNAUTHENTICATED/SESSION_REVOKED；403 FORBIDDEN/CSRF_FAILED/ORIGIN_DENIED；404 NOT_FOUND。仅合法完整Problem与上述明确commit态才说明本次被拒；显示/材料清理按§6与真实identity/current-Owner变化，404不可武断区分“目标删除”与“Project失权”，隐藏不可确认内容并经Owner显式重读再决定 |
+| 原key发生异义 | 409 IDEMPOTENCY_KEY_REUSED，单独冲突态：禁原重放/自动新key/把别的receipt当本意图确认；既往未知不得降为未执行 |
+
+503 DEPENDENCY_UNAVAILABLE、500 INTERNAL_ERROR、未知code/status或其它未列配对即便携not_started，也不在本稿首次拒绝闭集；保守待决并提供原恢复。只读和lookup的失败不产生新mutation intent；对既有intent只更新观察错误。任何一次之后的拒绝都不能抹掉此前不确定。
+
+Unknown、超时、断线、body截断、错200/DTO/媒体、写后响应不能完整验证均保原intent不确定。此前不确定有粘性：后一次拒绝/未观察/新GET相等/资源404都不能改成“从未执行”。IDEMPOTENCY_KEY_REUSED禁止自动换key与原重放，保说明并只许明确放弃追踪；不拿另一body历史当成功。普通读Unknown只属读取失败，无写intent或自动lookup。
+
+| 恢复请求 | 页面精确解释 |
+| --- | --- |
+| 配置lookup found=false | 本次未观察到，非回滚证明；保原intent |
+| 配置lookup found=true | 六kind、receipt闭合并与已知原目标/版本可比字段校验；是该命令identity的历史观察，不验证原input semantic；**不作为严格Execute确认，不自动推进后续操作** |
+| Credential lookup observed=false | 同样非回滚证明，不代表可安全换key |
+| Credential lookup observed=true | 历史Mutation按kind/ref/version/deleted校验；不验证完整value，不清材料、不自动发Provider或宣布材料同义确认 |
+| 用户显式原重放 | 同完整当前identity/原CSRF、原P/path/kind/key/body/版本/候选/材料完全一致，走原Execute；不先用当前GET/metadata/候选存在性阻断历史，仍由服务器授权/semantic判断 |
+
+没有任意key查证控制台、自动轮询、自动retry、新key修复、查证后自动重放。只有原Execute的严格成功DTO才能确认对应写；create版本1，update/delete正确target及expected+1、kind/deleted/affected严格。损坏lookup只是本次观察失败，原写仍待决；不能造in_progress或借Model锁等待超时输出not found。
+
+| 当前Project事实 | 配置六写 | Credential三写 | 两类lookup/metadata/配置读 |
+| --- | --- | --- | --- |
+| active且当前Owner/Session有效 | 允许新写/合法原重放，库终局判定 | 允许新写/合法原重放，Purpose/材料由库检查 | 正常只读当前授权 |
+| archiving/archived且当前Owner有效 | 禁新草稿提交；**保已捕获原Execute重放**，库Read→历史可返回旧receipt | 禁新写且**禁Execute重放，连已有receipt也先Mutate拒绝**；保待决与显式lookup，不伪称已撤销 | Read允许；Credential observation仍不是材料同义确认 |
+| deleting/未初始化/不存在/失Owner/会话撤销 | 不越权恢复 | 不越权恢复 | 保原gate错误，不从历史绕过；清/隐藏按§6 |
+
+UI内存跨checking恢复不扩大为跨新Session恢复；真正新Session/CSRF后旧材料清除。后端同User新Session可能接受历史语义是后端能力，本卡不因此持久保存原请求。
+
+## 8. 唯一产品写域与作者
+
+下表为正式29产品路径闭集；本次仅安装规格，尚不授权产品写入。root后继派工时 frontend_worker 为#1–23/#26–28唯一作者，backend_worker 为新Go #24–25唯一作者；两者需接到实际实施任务再开始。README #29须全部28技术接受后由root另授唯一文档作者；Git/协调/资产与资源调度归root。其他旧Go/JS helper及共享Ui/样式/HTTP/schema/生产后端不授写。architecture_worker本轮只写本正式卡及原字节端点附件，两份规格文件不增加第30个产品路径。
+
+| # | 路径 | 最小作用 |
+| --- | --- | --- |
+| 1 | web/src/api/client.ts | 17封闭Project model操作、路径/请求/成功cap；旧分类不变 |
+| 2 | 新web/src/api/project-models.ts | 五读＋六写＋lookup typed输入/完整Project投影 |
+| 3 | 新web/src/api/project-model-credentials.ts | metadata/三写/lookup及Project材料界 |
+| 4 | web/src/composables/useSession.ts | 追加默认依赖/17 action/本域revision/私有原intent/单owner |
+| 5 | 新web/src/composables/useProjectModelSettings.ts | App期Coordinator、三类草稿/恢复、独立页态与确认 |
+| 6 | web/src/App.vue | 唯一controller provide/dispose及既有聚合离开确认 |
+| 7 | web/src/router/auth.ts | 仅两新Project合法return后缀 |
+| 8 | web/src/router/index.ts | 两受保护Project child，无新全局navigation |
+| 9 | web/src/views/projects/ProjectSettingsView.vue | 模型与Provider组/两叶子，general默认与audit位置保持 |
+| 10 | web/src/components/layout/ProjectNav.vue | 同Project两后缀设置选中；原href/品牌保持 |
+| 11 | 新web/src/views/projects/ProjectModelProvidersView.vue | Providers主面板、详情、内部Models面板入口与Provider删除 |
+| 12 | 新web/src/views/projects/ProjectModelsPanel.vue | 全Project Model列表、Provider归属、创建/编辑/删除入口 |
+| 13 | 新web/src/views/projects/ProjectAvailableModelsView.vue | 七字段安全只读目录 |
+| 14 | 新web/src/views/projects/ProjectProviderEditor.vue | 受控Provider表单/凭据ref选择，无自动跨命令写 |
+| 15 | 新web/src/views/projects/ProjectModelEditor.vue | chat及原policy支持的能力表单 |
+| 16 | 新web/src/views/projects/ProjectModelCredentialEditor.vue | metadata、独立create/rotate/delete、write-only输入 |
+| 17 | 新web/src/views/projects/ProjectModelDeleteDialog.vue | 捕获目标/版本、nullable候选、安全删除说明 |
+| 18 | 新web/src/tests/project-models-client.spec.ts | 五读/配置请求、Project scope/目录/8MiB/lookup |
+| 19 | 新web/src/tests/project-model-credentials-client.spec.ts | 400KiB/65536B/Max−1/Mutation/Observation |
+| 20 | 新web/src/tests/project-model-settings-state.spec.ts | 真实Session/workspace factory、原请求/身份/尾部/归档差异 |
+| 21 | 新web/src/tests/project-model-settings.spec.ts | App/router/组件与原聚合确认/焦点/分页 |
+| 22 | web/src/tests/authentication.spec.ts | 两后缀合法及绕过拒绝代表 |
+| 23 | web/src/tests/project-workspace.spec.ts | 原设置菜单期待的精确兼容，不改Owner写契约 |
+| 24 | 新tests/account/project_owner_models_web_fixture_test.go | 真实root/私有dist/正式事实、安全body/有界私有控制与actualjoin |
+| 25 | 新tests/account/project_owner_models_web_test.go | 六完整新top及证据键，旧top原样 |
+| 26 | 新tests/account-captcha-web/project-owner-models.config.js | 六case/单worker/零retry/45s/固定工具与私有输出 |
+| 27 | 新tests/account-captcha-web/e2e/project-owner-models.spec.ts | 六真实UI场景、同body/schema/client及8图 |
+| 28 | web/src/tests/session.spec.ts | 本域与旧mutator单owner/安全错误隔离兼容 |
+| 29 | docs/development/frontend/README.md | 技术接受后能力/边界/真实命令末件 |
+
+workspace仅消费公开currentReadContext/detail，不新增workspace写域。System API/composables只读，纯类型/标量工具能原样复用才引用，不能导出System callback或调用其HTTP。默认不改ProjectGeneral/ProjectWorkspaceView、原account TestMain、test-objects/security/postgres脚本、旧browser spec、公共fixture、schema/contract/store/root/迁移/锁文件。若实际旧测试只有菜单期待变化，限#23；其它新的必要修改交root精确评估。
+
+## 9. 必要验收与执行前提
+
+正式实施者先读design/vue-development/vue-testing-best-practices；Go harness读Go技能，独立负责人读verification，真实browser再读可用Playwright技能。此稿不执行下面命令，也不发安装/网络研究；工具和锁沿当时接受环境，正式执行前冻结实际必要输入及原件。
+
+离线：新增两个API、state、App/router组合和#22/#23/#28；完整`npm run check --prefix web`及私有outDir生产build。Go两新源只作精确integration/race compile/vet与精确six-top discovery，再由root另授真实窗；编译/list不是业务通过。不要机械复制System/Audit大图；只导入既有受接受实际图与真正新增文件/运行时浏览器imports，图/filename sets变化须明确处理。
+
+pure/controlled必须覆盖：17个request分类；全Project models query拒provider_id；三个Page和详情正确scope/ID/最后项/完整EOF；七字段目录敏感字段和值canary拒绝且无System请求；五读合法>600000B、8MiB边界/cap+1/实际reader取消join，合法大reasoning数组与非法最后项；1KiB写/lookup cap；Credential最大decoded65536B含末字节/合法最坏转义/raw cap、不得泄漏；MaxInt64配置与CredentialMax−1不同界；typed输入已冻结后caller改对象无效；两协议及所有当前写policy反例；两个lookup union不可互用；Model/Secret/Owner三种恢复差别；首次拒绝与未知粘性、key-reused、坏写receipt、lookup异常、已确认后GET失败；same-identity checking、变Session/CSRF、换Project/旧名复用、晚401/403/ finally、真实transport/body/cancel hold使所有旧操作不能抢owner；App旧Selection/Summary两个未决域与新域聚合确认互不默认清除。
+
+拟六个新top，每轮一个精确锚定名称：
+
+| top | 真实代表与最小证据 |
+| --- | --- |
+| TestAccountProjectOwnerModelsWebConfigurationLifecycle | 正常Owner经默认root创建/改Provider与chat Model、两协议/type/provider不可变、enabled与目录重读、空Provider删除及有Model拒绝；配置事实/receipt/引用与Audit按正式生产者 |
+| TestAccountProjectOwnerModelsWebCredentialLifecycle | create→仅ref准备→显式Provider绑定、metadata/rotate、被引用delete拒绝、显式解绑后delete、Credential已确认但Provider失败的保留与后续Provider单步重试 |
+| TestAccountProjectOwnerModelsWebOriginalRecovery | 严格目标私有proxy丢/截已完成安全响应，配置与Credential各至少一个真实原请求恢复；lookup仅观察且零隐式write；至少一次资源已删后的原DELETE重放，不以新GET修复；原请求bytes等值只报布尔/长度，不公开body/key/material或其digest |
+| TestAccountProjectOwnerModelsWebReadAndPagination | ≥26Providers、跨≥2Providers的≥26Project Models、混System/Project的≥26available；逐页当前权限、无provider_id、无System补读、详情、disabled配置与目录区别；坏页/大页的受控证据不冒真实PG大页 |
+| TestAccountProjectOwnerModelsWebAuthorityAndIdentity | 非admin Owner成功、另一admin/另一Owner拒绝；会话checking/恢复、当前revocation与项目切换、辅助archived读/新写拒绝；配置原重放与Credential仅lookup差别；带reference原DEPENDENCY_UNBOUND无Agent rewrite |
+| TestAccountProjectOwnerModelsWebNavigationAndLayouts | Providers/Models面板/available实际导航、dirty/待决/部分成功离开确认、键盘/焦点；浅深×1440x900/390x844×正常/减少动效共8图（凭据输入已清空且模态安全退出后） |
+
+root/fixtures须使用正式Account/Project/Secret/Model API和当前同一Authority。Project持久创建可沿已接受私有Skills fixture；辅助归档状态与私有隔离reference准备均准确标明，不证明生产Skills、完整归档执行链或Agent adapter。Model引用负例按原完整scope/target谓词设置及恢复，不能改生产consumer或让假adapter成功。控制代理限本轮独立Project、精确method/path/请求token和已注册请求；outerhandler实际终局后才记join，body读完、浏览器EOF、pending请求与事务提交分别观察。所有server/handler/child/控制goroutine/finally必须注册并actual join；无宽泛截获、网络I/O绕过或重复强制终局。
+
+真实schema对安全原response bytes及实际method/path/status/Content-Type/Content-Length/X-Request-ID/目标/run/input绑定，以已固定标准Python/jsonschema本地refs核；同原body还经原生browser内的新client解析，不用手造重编码样本。日志/截图/trace/video/证据不得采集Credential材料、原key/body、Cookie/CSRF、登录材料、DB协议帧；合成配置/capability仅在可公开fixture安全集合内。禁止在凭据输入/原材料未清时截图。
+
+### 9.1 精确14旧回归及资产 reader
+
+固定14个受影响旧top，不以旧输入PASS代替。各一轮精确`^名称$`；不合并大regex。列表是源码已存在的static selector，不是当前binary discovery或运行许可。原selectors c36bed42的精确命令模板为`sh scripts/test-objects.sh -run <one exact anchored selector>`，包`./tests/account`；实际工具、ENV、完整闭包及逐轮grant另行固定。下表与本节资产ENV自含其固定分类。
+
+| 组 | 精确selector | tests/account来源 | 资产 | 必要理由 |
+| --- | --- | --- | --- | --- |
+| auth-lifecycle | `^TestAccountAuthenticationWebSessionLifecycle$` | `authentication_web_test.go:11` | global | 原bootstrap/Login/Session/Logout及两条正式审计事实；第15依赖不能改变省略调用。 |
+| auth-revocation | `^TestAccountAuthenticationWebRevocationAndExpiry$` | `authentication_web_test.go:51` | global | 原revocation与expiry两subcase；失效后隐藏受保护内容，两个browser各45s仍共用原120s top。 |
+| owner-edit | `^TestAccountProjectOwnerWebEditAndRename$` | `project_owner_web_test.go:46` | owner-private | 原更新、版本冲突、rename与dirty-navigation；两后缀和App新确认不能损坏基本资料。 |
+| owner-recovery | `^TestAccountProjectOwnerWebOriginalRecovery$` | `project_owner_web_test.go:50` | owner-private | Owner三态lookup/原PATCH与新Model两类历史观察区分，保原key/body与local-abandon。 |
+| owner-identity | `^TestAccountProjectOwnerWebIdentityAndOwnership$` | `project_owner_web_test.go:54` | owner-private | 同Session checking、换Session/Owner、late-read、aggregate与正式Logout。 |
+| audit-authority | `^TestAccountProjectOwnerAuditWebAuthorityAndRecovery$` | `project_owner_audit_web_test.go:151` | audit-private | 旧独立Audit action/revision及actual body/cancel尾部与新域单owner互不混淆；依Audit最终accepted版本重绑。 |
+| audit-navigation | `^TestAccountProjectOwnerAuditWebNavigationAndLayouts$` | `project_owner_audit_web_test.go:154` | audit-private | 原settings-current/default-general/raw-return/focus与既有写草稿guard；两新leaf不能改Audit与ProjectNav。 |
+| provider-recovery | `^TestAccountSystemProvidersWebOutcomeRecovery$` | `system_providers_web_test.go:37` | global | 现top同时有credential_replayed/provider_replayed/historical_only/confirmed_read_failure，足够作旧System凭据＋Provider恢复代表。 |
+| model-recovery | `^TestAccountSystemModelsWebOutcomeRecovery$` | `system_models_web_test.go:41` | global | 原create/update/delete重放、历史lookup与删后原请求，保System DTO及容量分类。 |
+| selection-recovery | `^TestAccountSystemModelSelectionWebOutcomeRecovery$` | `system_model_selection_web_test.go:40` | global | accepted-cut、lookup-only、old404、same-original；新的Project配置不得误用selector command。 |
+| summary-recovery | `^TestAccountSystemMeetingSummaryWebRecovery$` | `system_meeting_summary_web_test.go:30` | summary-private | 真实双intent/cross-key/local-abandon保持，防新域清Summary或旧Selection未决材料。 |
+| summary-authority-navigation | `^TestAccountSystemMeetingSummaryWebAuthorityNavigation$` | `system_meeting_summary_web_test.go:33` | summary-private | 现有aggregate/checking/new-session/current403/logout/owner/focus，覆盖App和旧两个intent的聚合确认。 |
+| personal-theme | `^TestAccountPersonalSettingsWebThemeAndNavigation$` | `personal_settings_web_test.go:43` | global-via-auth | App theme preview/cancel、dirty-menu/back/logout与同Session checking的最小旧personal代表。 |
+| system-audit-authority | `^TestAccountSystemAuditWebAuthorityAndOwnership$` | `system_audit_web_test.go:41` | global | 旧admin只读分支代表：ordinary-forbidden、两GET、cancel-join/cross-domain/logout/late-isolated；防新Project分支吞旧System默认分类。 |
+
+旧System Provider Outcome已含credential与Provider原请求恢复，不默认再跑其整6组；Model/Selection同取恢复代表。Summary Recovery保双intent、AuthorityNavigation保aggregate，不能只留一个。Owner新增OriginalRecovery是为新恢复分类不能吞旧committed三态。SystemAudit取一个只读admin/actual-tail代表；Runtime专用分支、leaf和导航若最终未改，不另加其两top；仅当最终diff修改runtime-information专有operation/cap/failure分支，才回报并重绑`^TestAccountSystemRuntimeInformationWebReadAndAuthority$`；仅当修改该leaf、其owner导航或busy-pageshow语义，才回报并重绑`^TestAccountSystemRuntimeInformationWebNavigationAndLifecycle$`。这两项沿原selectors c36bed42的conditional_not_scheduled，仍未排入14轮，不由本卡自动增加执行。全旧pure check仍按本节执行。
+
+Owner三轮用`AGENTEAM_PROJECT_OWNER_WEB_DIST`；Audit两轮用`AGENTEAM_PROJECT_AUDIT_WEB_DIST`；Summary两轮用`AGENTEAM_MEETING_SUMMARY_WEB_DIST`。其余7轮读旧global dist（personal经authentication fixture）。新6轮只私有dist。future root须让这些asset reader使用同一个已审新build；global唯一备份/交换/最后reader退休恢复另授，不能从ENV存在推断私有支持。独立driver若仍逐组校验global/private相等，也算global reader。
+
+新case45s、workers1/retries0；每Go top120s含cleanup、包6m、TCP尾75s、fresh≥5GiB。每轮实际4容器＋3网络7个ID，direct/adopted actualwait、watchdogjoin、两次精确资源不存在/owned runtime/进程与TCP观察按旧正式driver验；现有root/innerjoin限制不声称修复。资源串行，失败保存、完整退休后STOP不自动重跑。新Go私有dist；旧组若读global dist，root独占交换/备份/最后reader退休后恢复，禁止并行改资产。单独独验至少配置/凭据恢复一个组合与当前权限/归档一个不同构造；审查者未参与实现，限定复用已验HTTP语义，不为UI重跑全后端套件。
+
+### 9.2 每轮预算、独立验证与执行件
+
+六新top每轮1case、workers1/retries0、browser45s含同body检查；Go top120s含cleanup，建议准备35+browser45+终局事实10+实际cleanup30秒。总包原6m，TCP尾75s，fresh5GiB；每轮4容器/3网络共7ID，direct/adopted实际wait、watchdog实际join，两次exact absent/owned与runtime/browser-runtime空。14旧轮原budget/内部subcase保持；AuthRevocation两case共用同120s，不能倍增。IPC单ack8s计入45s，不加额外case时间。预算耗尽只能FAIL/完整退休后STOP，不能先pass后清理或自动续轮。
+
+每轮唯一root资源/Go-cache/asset窗口，阶段不能并行占用；本卡总顺序为6新top→14必要旧top（每轮单独冻结/退役），失败停止，无自动重跑。独立至少再2轮：不同构造的配置＋Credential Unknown/原Execute组合，以及current权限＋归档两恢复路径组合；其selector/source尚需独立作者冻结，不借作者结果预填。外层可执行driver/watchdog/完整input gate与每轮grant是执行前固定件，当前没有可执行true模板或授权。
+
+## 10. 私有 harness 协议与精确 DTO
+
+协议仍为 `project-owner-models.v1`。本节完整组合已审 T3 rev2 的精确字段，补足原 rev1 抽象描述；没有第18业务操作、第10IPC或第30产品路径。下列 typed 代码是规格，不是 TypeScript/Go 实现或已编译 schema。
+
+所有下述对象均恰含所列字段，必需 nullable 用显式 null，不用缺字段；重复/未知键、第二个JSON值、坏UTF8及非法 union 拒绝。`ID`=正式小写 UUIDv7；`Version`=1..MaxInt64 的 canonical decimal string；`DBCount`=0..MaxInt64 decimal string；`Count`=非负安全整数。配置 expected 可到 MaxInt64，凭据 expected 只到 MaxInt64−1，沿正式写 DTO。Token 是本 case Go 登记器按序产生的 `r000001`/`a0001`；与 input_hash 一起解释，重启/另一case无效，不取自 key、body 或任何digest。
+
+### 10.1. material：安全 ID 期望与原登录 bootstrap
+
+material 顶层仍恰 `protocol,input_hash,mode,actors,projects,expected,system`。actors 固定 `owner,other_owner,other_admin`，每个仍恰 `email,password,user_id,username`。这只保留原私有0600登录bootstrap文件及原退休删除规则，不能复制进证据；**Credential value、原写body/key及其digest从不进入material或任何其它文件**。原 fixture 登录密码和产品待写 Credential 是两种不同材料，不能用“私有文件”给后者新增落盘许可。
+
+Node 每 case 在内存生成 Credential value→实际受保护输入→由产品正式HTTP提交；代理只在受控内存捕获/比较原字节。不得通过新IPC送值、绕过UI填充、存入trace/video/截图/console/error、`expect(value)`差异输出或digest。填充失败也必须把可能含 fill 参数的 Playwright 错误净化为固定安全消息；只在受保护值已清空、材料对话框关闭后拍图。不承诺JS string/Go decoder所有内部副本可可靠擦除。
+
+```ts
+type Mode = 'configuration'|'credential'|'recovery'|'read'|'authority'|'navigation';
+type ProjectKey = 'main'|'second'|'other'|'admin_owned'|'archiving'|'archived'
+ |'deleting'|'pending'|'config_recovery'|'credential_recovery'|'referenced';
+type ProjectLocator = { id:ID; username:string; name:string; normalized_name:string;
+ owner_user_id:ID; initialized:boolean; lifecycle:'active'|'archiving'|'archived'|'deleting' };
+type ProviderRef = { id:ID; project_id:ID; name:string;
+ protocol:'openai-chat-completions'|'anthropic-messages'; version:Version; credential_ref:ID|null };
+type ModelRef = { id:ID; project_id:ID; provider_id:ID; name:string; version:Version };
+type CredentialRef = { project_id:ID; credential_id:ID; purpose:'model'; version:Version };
+type SeedRefs = { providers:ProviderRef[]; models:ModelRef[]; credentials:CredentialRef[] };
+type DirectoryRef = { id:ID; provider_id:ID; scope:{kind:'system'}|{kind:'project';project_id:ID};
+ name:string; provider_name:string; version:Version };
+```
+
+`ProjectLocator` 保原7字段，不添猜测版本；archive 控制的 expected_version 唯一取自下一节 `snapshot.project.version`。Provider/Model Ref 只作 fixture 期望，不取代原HTTP完整安全DTO；DirectoryRef 是期望用安全子集，不是七字段目录响应的新版本，正式 `capabilities` 仍由实际HTTP＋公开client/schema验证。禁止从System Get补目录字段。
+
+projects 与 expected.projects 的键集按mode精确相同：configuration/credential只有main；recovery为main/config_recovery/credential_recovery；read/navigation为main/second；authority为全部11个ProjectKey。值分别为ProjectLocator/SeedRefs。所有Ref所属Project、Model.provider_id与相应Provider、Provider.credential_ref与相应Credential须一致；ID不得重复，数组按ID排序。空数组为[]，不是省略。登记集只包含该case正式准备得到的safe ID/版本及后述正式create结果；不允许任意新ID/SQL/URL。
+
+expected 是以下闭合联合：除read外恰 `{projects:<上述精确键表>}`；read恰 `{projects,pagination}`，pagination恰 `{provider_ids,model_ids,available}`，前两数组分别恰26个不同本main ID，available恰26个DirectoryRef且含本main和system两scope。Models的26条来自两Provider；完整顺序/分页取实际GET结果核验，ID数组只作覆盖集合，不能编造排序列。所有正式DTO、版本及名字仍由同root准备实值填入，不复制大配置/options/overwrite/efforts/材料。
+
+system 在非navigation模式必须null；navigation恰：
+
+```ts
+type SystemDraftFacts = {
+ selection:{ initial:{id:ID;version:Version;configured:
+   {embedding:ID;memory:ID;reranker:ID|null;image:ID|null}|null};
+   draft:{purpose:'memory';model:{id:ID;name:string}} };
+ summary:{ initial:{id:ID;version:Version;model:ID|null}; draft:{model:{id:ID;name:string}} };
+};
+```
+
+只给现有System Selection与统一Meeting Summary两表单的安全初值和一个不同的可选项，测试草稿/确认隔离，不新增Project selector、独立initial/update字段或Summary override。navigation的owner登录身份必须经正式账户准备就是admin且确为main/second Owner；实际Session响应再核role/user，禁止改role SQL或在组件里豁免权限。非navigation原ordinary Owner代表保持。
+
+### 10.2. snapshot：当前资源、历史提交、原请求比较分开
+
+`snapshot` args仍恰 `{project:ProjectKey}`，必须是本mode已登记key。只读同root Store、同一有界read Tx内的本Project安全列；结果只能在该Tx成功提交且ctx有效后发布。无额外HTTP、自动lookup/Execute、授权替代、后台读取或SQL输入。私有fixture事实不作为产品授权。不得复制旧fixture的 `to_jsonb(row)` 全行快照到ack。
+
+```ts
+type ProviderFact = {id:ID;present:true;version:Version;credential_ref:ID|null}
+ |{id:ID;present:false;version:null;credential_ref:null};
+type ModelFact = {id:ID;present:true;version:Version;provider_id:ID}
+ |{id:ID;present:false;version:null;provider_id:null};
+type CredentialFact = {credential_id:ID;metadata:{credential_id:ID;purpose:'model';version:Version}|null};
+type ConfigReceipt = {kind:'provider.create'|'provider.update'|'provider.delete'|
+ 'model.create'|'model.update'|'model.delete';resource_id:ID;version:Version;affected_references:'0'};
+type CredentialResult = {credential_id:ID;purpose:'model';version:Version;deleted:boolean};
+type ReplayComparison = {request_token:RequestToken;
+ body_equal:boolean;key_equal:boolean;target_equal:boolean;identity_equal:boolean;method_equal:boolean;
+ original_body_bytes:Count;replay_body_bytes:Count};
+type OriginFact = {origin_token:RequestToken;original_request_token:RequestToken;
+ operation:MutationOperation;project_id:ID;target_id:ID|null;original_body_bytes:Count;
+ history:{family:'configuration';committed_rows:'0';receipt:null}
+   |{family:'configuration';committed_rows:'1';receipt:ConfigReceipt}
+   |{family:'credential';committed_rows:'0';result:null}
+   |{family:'credential';committed_rows:'1';result:CredentialResult};
+ comparison_count:Count;comparison:ReplayComparison|null};
+type SnapshotResult = {
+ project:{project_id:ID;version:Version;initialized:boolean;lifecycle:ProjectLocator['lifecycle']};
+ current:{providers:ProviderFact[];models:ModelFact[];credentials:CredentialFact[]};
+ history:{configuration:{committed_commands:DBCount;audit_records:DBCount;events:DBCount};
+   credential:{committed_commands:DBCount;audit_records:DBCount}};
+ reference_presence:{models:{id:ID;present:boolean}[];credentials:{credential_id:ID;present:boolean}[]};
+ origins:OriginFact[];
+ fixture_only:{archive_recovery_applied:boolean;reference_fact_state:'present'|'absent'|null;
+   rename_reuse_applied:boolean};
+};
+```
+
+current只返回登记ID；不存在时null/false不能推成历史删除成功。Credential没有canonical行就metadata=null，不能补造deleted Mutation；deleted只来自正式安全历史result。history中的配置计数严格本Project `agenteam_model.commands.phase='committed'`、Audit/Outbox `producer='model'`；Credential计数严格本Project Secret receipt及 `producer='secret'` Audit。Nonce/payload/prepared计划不属于这些提交计数，拒绝时不能要求整个DB零变化；也不把Credential说成产生Model/Project事件。两族当前/历史不可混淆，HTTP尝试和POST lookup次数不进这些计数。
+
+每origin历史仅查其私有内存内正式identity：配置namespace model.project/owners=[Project,Human]，Credential secret/相同owners及正式digest计算；只取安全receipt列。0行不证明原Unknown回滚，committed_rows=1须有同族完整receipt/result，否则fixture_failed/无候选。各Project的Audit/Event总数是明确的同scope总数，不能冒充逐origin Audit关联；测试比较串行步骤前后差量，并另核该origin唯一receipt。引用查询只本Project/登记Model或Credential，不能读全库ref；fixture_only三项单列，不宣称真实归档或引用owner adapter绑定。
+
+origin_token **等于首个由arm选中的mutation真实original_request_token**，最多4个。每个 `(ProjectKey, operation, target_id)` 只允许一个selected origin；collection create的target_id=null仍只一项，避免根据key“匹配”而漏掉换key。后续同精确端点请求只成为比较候选，不依赖key相等来决定配对；这不是同command identity的证明，更不能把正常新意图写冒称原重放。受控case须用既有不同recovery Project/operation隔离同端点其它合法新意图，并结合key/body布尔及明确UI原Execute动作判断。只有两份完整有界body、header key、登记身份均实际捕获后才产生comparison，尚未比较为null。latest comparison＋comparison_count足够逐步骤检查；不存重放body历史。若同tuple需要第二个独立origin则本卡该case不能猜关联/覆盖，必须在具体case实施前报告root并精确调整已有case安排，不增加IPC动作或产品能力。
+
+原body通过正式请求被实际消费时的有界tap收集，不预读后重构请求；原/重放UTF8 bytes与header key原样比较，不trim/排序/remarshal。identity_equal指原命令的稳定Human+Project+namespace+kind，Session不是命令identity组成部分；仅来自已登记正式Login/Session的私有关联，不接受caller声明。未知身份/不完整捕获的comparison必须null并让要求该证据的case失败，不能false冒已比较。该布尔不是当前授权判定；同User新Session可原同义重放，当前Session有效性仍由真实请求验证。Secret材料和request/key/digest仅内存，不进snapshot/日志/sidecar。
+
+历史found/observed、current GET相等/404、snapshot已提交都不能令UI确认/清材料；仅显式原Execute严格成功才可。archiving/archived上配置可原同义Execute，Credential被动lookup可见但原Execute仍Mutate拒绝。失败/Unknown不自动重key、补GET或后台重放。
+
+### 10.3. 精确IPC与请求token、终局
+
+request仍恰 `{protocol,input_hash,sequence,action,args}`，严格next sequence1..128；ack仍恰 `{protocol,input_hash,sequence,action,ok,result,error}`。ok=true时error=null、result是该action精确DTO；ok=false时result=null，error仅固定 `invalid_envelope|invalid_sequence|invalid_action|invalid_arguments|unknown_target|arm_busy|token_mismatch|not_ready|budget_exhausted|fixture_failed`，无message/stack/SQL。未知/错误控制置安全失败标记并触发原已注册退休，不能继续装作PASS。8KiB request/64KiB ack/8s ack界原样保留。
+
+17 operation literal及方法/路径/target/query条件见[唯一精确端点附件](d27-project-owner-model-settings-ui-endpoints.json)（原字节6c85ae88）；只再允许既定私有 `getCurrentSession` GET。Project target只能material已登记ID或**完整正式create安全结果中产生的新ID**；后者在施加cut/disconnect之前原子登记，即使browser没收到也能供后续原请求/metadata精确控制。必须同时核scope/operation/receipt类型和resource ID，不能据任意JSON `id`登记。分页cursor同样只取本case完整正式safe页，仍通过原cursor校验。
+
+arm args精确 `{operation,project,target_id,query,effect}`，所有字段必有；Session为project/target_id/query=null；17端点中的collection无target，detail必登记target；非list query=null。list query是`CanonicalPageQuery`字符串：只含0/1个cursor、0/1个limit，limit1..100，cursor取上述登记值，按正式编码、无重复/额外key/ForceQuery；记住此原字符串并与下一真实请求RawQuery逐字比较，不能放宽为任意query字典。所有canonical path由操作表＋登记ID生成，无URL/method/header参数。
+
+```ts
+type Effect = 'before_dispatch_hold'|'after_complete_hold'|
+ 'after_complete_cut'|'after_complete_disconnect';
+type ArmResult = {arm_id:ArmToken;state:'armed'};
+type ControlState = {arm_id:ArmToken;request_token:RequestToken|null;
+ origin_token:RequestToken|null;
+ state:'armed'|'claimed'|'upstream_complete'|'released'|'joined';
+ held:boolean;release_requested:boolean;upstream_complete:boolean;safe_admitted:boolean;
+ effect_applied:boolean;joined:boolean};
+type ReleaseResult = {arm_id:ArmToken;request_token:RequestToken;release_requested:true};
+```
+
+一次只有一个未实际终局的arm，且只claim下一匹配browser请求一次。before_dispatch_hold仅六read/Session；after_complete_hold仅六read/九mutation；cut/disconnect仅九mutation且必须先收到200完整、严格绑定的safe final receipt/result，不控制lookup或伪造COMMIT Unknown。此处read精确指六GET；两个POST lookup不在故障effect域，仍正常正式执行/计数/安全取证。Session只before_dispatch_hold、不留其body。arm不命中须仍有原界内取消/退休；不能给handler/body另加预算。
+
+control-state args恰 `{arm_id}`；token由该真实outer handler入场时登记，arm无请求时null。state是派生快照，不能假设统一顺序：joined优先，其次release_requested，其次upstream_complete，再claimed/armed；例如取消可令joined=true而upstream_complete=false。held表示该token实际进入hold，safe_admitted只表示完整上游通过安全证据准入（Session固定false），effect_applied单列。任何字段都不声称浏览器收到、Tx提交或Cookie owner已释放。
+
+release args恰 `{arm_id,request_token}`，两者必须匹配且已进入hold；重复相同release可返回同一收取事实，但不能释放下一arm、null或wildcard。ack只表示释放许可；随后必须从同一control-state观察joined=true，并对实际hold核held恰增1、held_joined==held，最后server_finished==server_started。只有D1已接受的outer handler返回/unwind（ReverseProxy body/write/ErrorHandler实际退出后）可以记joined；失败/Fatal之前注册所有release+join，不在ctx.Done/Close/release处提前加数。
+
+`counts` args={}，result精确 `{operations,session,server,controls,browser_eof,schema_bodies,client_bodies}`：operations是按endpoints表顺序恰17行 `{operation,setup,browser,control,upstream_complete,handler_joined}`（Count）；session是 `{setup,browser,control}`；server是 `{started,finished}`；controls是 `{armed,claimed,held,held_joined,cut,disconnected}`。后三个browser_eof/schema_bodies/client_bodies **固定null**，Go控制器没有其观察权。总数分source、mutation和lookup由精确operation表归类，不与提交计数混用。
+
+Node独立保持native EOF/typed client/schema验证记录，final_result的counts精确 `{server:<最后counts结果>,browser:{attempts,complete_eof,typed_client_ok,schema_ok,incomplete}}`（均Count）；旧顶层schema_bodies/client_bodies须与此一致。无第10个“browser上报”IPC。Go最终只验证Node原子result文件与已取证字节/实际child终局，不能在counts IPC伪造这些数。server.joined、native body/cancel/finally的Cookie owner、snapshot读Tx提交是三个独立事实，禁止建立“owner必持至server.joined”的假因果。
+
+其余五action保持原精确形状：
+
+| action | args | result及界 |
+| --- | --- | --- |
+| snapshot | `{project}` | 上述SnapshotResult；同Tx、完整输出后发布 |
+| logout | `{session_id}` | `{session_id,revoked:true}`；只能已登记正式browser Session，调用正式Logout，不写revoked_at |
+| archive-recovery-project | `{project:'config_recovery'|'credential_recovery',expected_version}` | `{project_id,initialized:true,lifecycle:'archived',fixture_only:true}`；snapshot版本作CAS、预登记active→archived辅助事实；不承诺参与者运行或推断version增量 |
+| reference-fact | `{project:'referenced',state:'present'|'absent'}` | `{project_id,model_id,reference_present,fixture_only:true}`；唯一预分配slot，真实delete仍DEPENDENCY_UNBOUND，不改Agent |
+| rename-reuse | `{project:'main'}` | `{renamed:ProjectLocator,replacement:ProjectLocator}`；正式Update＋既有私有创建fixture，旧稳定ID不变，新ID与旧名注册给本case，不冒完整创建/生命周期绑定 |
+
+所有snapshot/ack先完整有界编码，超过64KiB失败不截断；ID数组只本case登记集，未知形状或额外材料不先落盘。原sidecar仅已闭集合格的安全response；Login/Session、原body/key及其digest、Credential材料不留证。原45s/120s含cleanup/6m/75s/5GiB/7ID预算和串行root资源窗原样，未给任何执行许可。
+
+### 10.4 文件、取证、成功键与原预算的闭集
+
+下列对象逐项原样取 rev1 `83e3e652` 中未被精确 DTO 补充替换的运行契约；是静态规格数据，不是可执行 driver/grant。私有路径仍为候选，正式实际路径另行固定；产品路径仍恰 §8 的29项。`final_result.counts` 使用本节10.3的明确形状，不能再采用旧 counts 描述冒充浏览器观察。原 material/expected/system、各action粗略result描述与旧pending状态不在此重复，已由10.1–10.3和§0明确替换。
+
+```json
+{
+  "files": {
+    "material": "project-models-material.json",
+    "request": "project-models-ipc.json",
+    "ack": "project-models-ack-{sequence}.json",
+    "result": "project-models-result.json"
+  },
+  "environment": {
+    "go_required": [
+      "AGENTEAM_AUTH_WEB_RUNTIME",
+      "AGENTEAM_PROJECT_MODELS_WEB_DIST",
+      "AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE",
+      "AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH"
+    ],
+    "node_explicit": [
+      "AGENTEAM_AUTH_WEB_ORIGIN",
+      "AGENTEAM_AUTH_WEB_PRIVATE",
+      "AGENTEAM_AUTH_WEB_CHROMIUM",
+      "AGENTEAM_PROJECT_MODELS_WEB_CASE",
+      "AGENTEAM_PROJECT_MODELS_WEB_DIST",
+      "AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE",
+      "AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH"
+    ],
+    "navigation_additional": "AGENTEAM_AUTH_WEB_IMAGES absolute path; trace/video off, no automatic failure screenshot with private input"
+  },
+  "private_paths_proposed_only": {
+    "fixture": "tests/account/project_owner_models_web_fixture_test.go",
+    "tops": "tests/account/project_owner_models_web_test.go",
+    "config": "tests/account-captcha-web/project-owner-models.config.js",
+    "spec": "tests/account-captcha-web/e2e/project-owner-models.spec.ts",
+    "private_dist_proposed": "/workspace/scratch/project-model-settings-ui/dist-ui01",
+    "browser_runtime_parent_proposed": "/workspace/scratch/pmui"
+  },
+  "ipc_publication": "0600 temp+atomic rename under exact task directory; no symlink/traversal; full JSON+EOF, exact members; fixed error enum only and result/error exclusive",
+  "ipc_unknown_control": "never dispatch SQL/HTTP or fake an ok; store safe failure flag, cancel owned work and fail after real retirement",
+  "proxy_registration_and_join": "register servers, each handler, observer, control loop, Node/schema children, prep Store/root and cleanup before start; held joined only at actual outer-handler return/unwind after ReverseProxy body/write/ErrorHandler. Release/body-close/EOF alone cannot join. Apply the accepted D1 boundary; do not reopen stopped join repairs.",
+  "evidence": {
+    "source": [
+      "setup",
+      "browser",
+      "control"
+    ],
+    "filenames": "response-{sequence:03}.json and body-{sha256}.json0600 only after safe response admission",
+    "sidecar_keys": [
+      "protocol",
+      "sequence",
+      "source_run",
+      "input_hash",
+      "source",
+      "operation",
+      "method",
+      "endpoint",
+      "query",
+      "status",
+      "content_type",
+      "content_length",
+      "request_id",
+      "project_id",
+      "resource_id",
+      "request_token",
+      "body_file",
+      "body_sha256",
+      "body_bytes",
+      "transfer_kind",
+      "body_stage"
+    ],
+    "transfer_kind": [
+      "forwarded",
+      "hold",
+      "cut",
+      "failure"
+    ],
+    "body_stage": "complete_formal_upstream; not browser EOF or commit proof",
+    "admission": "Only own fixed Project17 endpoints safe typed responses/Problems; synthetic configuration values allowlisted. Unknown shape/echo/private material is failed in memory, never written. Auth/Session/material request bodies excluded. Response metadata/Mutation/receipt safe body is allowed, raw Credential value is not.",
+    "browser_correlation": "exact request-token correlation observed privately plus method/path/query/status/content-type/length/request-id and full browser bytes/EOF; upstream-full, browser-complete, controlled-tail and durable Tx are separate sets",
+    "schema": "same original safe admitted response bytes, actual operation/status and two formal Project models/credentials schemas with exact local common/security references; fixed Python/jsonschema import bundle; no network resolver",
+    "client": "same retained original response bytes passed through actual browser-native new public17 APIs with exact request/response adapter; production request still actual root; replay parser request side effects disabled; no remarshal sample or fabricated DTO",
+    "screenshots": "navigation exactly8: light/dark ×1440x900/390x844 ×normal/reduced; capture only after material input cleared and safe modal closed; actual image review needed"
+  },
+  "checks_by_mode": {
+    "configuration": [
+      "owner_formal_commands",
+      "two_chat_protocols",
+      "immutable_provider_protocol_and_model_provider_type",
+      "enabled_and_catalog_separate",
+      "empty_provider_delete",
+      "provider_with_models_rejected",
+      "unique_durable_facts",
+      "safe_schema_client"
+    ],
+    "credential": [
+      "create_safe_ref_only",
+      "explicit_provider_bind",
+      "metadata",
+      "rotation",
+      "referenced_delete_rejected",
+      "explicit_unbind_delete",
+      "partial_success_retained",
+      "original_provider_only_recovery",
+      "safe_schema_client"
+    ],
+    "recovery": [
+      "configuration_response_loss",
+      "credential_response_loss",
+      "lookup_observation_only",
+      "same_original_bytes_and_key",
+      "unique_committed_facts",
+      "deleted_target_original_delete",
+      "no_implicit_writes_or_rekey",
+      "actual_owner_tail",
+      "safe_schema_client"
+    ],
+    "read": [
+      "providers_26",
+      "models_26_cross_two_providers",
+      "available_26_mixed_scopes",
+      "cursor_limit_only",
+      "no_provider_id",
+      "no_system_detail_bypass",
+      "safe_seven_fields",
+      "metadata_no_material",
+      "explicit_page_recovery",
+      "safe_schema_client"
+    ],
+    "authority": [
+      "ordinary_owner",
+      "admin_owner_only",
+      "other_owner_and_admin_rejected",
+      "current_revocation",
+      "same_session_checking",
+      "true_identity_change",
+      "cross_project_and_name_reuse",
+      "aux_lifecycle_gates",
+      "archived_config_original_replay",
+      "archived_credential_lookup_only",
+      "reference_unbound",
+      "late_tail_isolation",
+      "safe_schema_client"
+    ],
+    "navigation": [
+      "two_suffixes",
+      "default_general_and_audit",
+      "raw_return_rejection",
+      "draft_pending_partial_guard",
+      "selection_summary_separate_intents",
+      "keyboard_focus_drawer",
+      "private_input_cleared",
+      "eight_layouts",
+      "reduced_motion",
+      "no_overflow",
+      "no_debug",
+      "safe_schema_client"
+    ]
+  },
+  "final_result_keys": [
+    "protocol",
+    "input_hash",
+    "completed",
+    "mode",
+    "checks",
+    "counts",
+    "schema_bodies",
+    "client_bodies",
+    "layouts"
+  ],
+  "final_result_completed": true,
+  "final_result_checks": "exact true keys from checks_by_mode; never publish completed before every required check + body validator succeeds",
+  "final_result_failure_boundary": "on failure retain evidence already produced; missing finish/schema/client/DOM remain unobserved, not reconstructed as pass",
+  "budgets": {
+    "workers": 1,
+    "retries": 0,
+    "browser_case_seconds": 45,
+    "top_including_cleanup_seconds": 120,
+    "new_top_allocation_seconds": {
+      "preparation": 35,
+      "browser_including_schema_and_client": 45,
+      "final_facts": 10,
+      "actual_cleanup": 30
+    },
+    "package_minutes": 6,
+    "tcp_tail_seconds": 75,
+    "fresh_disk_GiB": 5,
+    "resources_each": {
+      "containers": 4,
+      "networks": 3,
+      "exact_ids": 7
+    },
+    "ipc_ack_seconds_within_browser": 8,
+    "old_groups": "original45s case/120s top retained; auth revocation two browser subcases share one120s top, not two budgets",
+    "timeout": "fail closed; registered owned actual waits/joins and both retirement observations still required; exceeding budget cannot pass or authorize successor; root owns only serial resource/cache/asset grants. Outer driver watchdog must be frozen as execution artifact before run; no permission implied here."
+  }
+}
+```
+
+### 10.5 双作者确认与完整恢复矩阵
+
+前端 `931da9f6`、后端 `22754edd` 确认的是同一 `03ae01a8` / `8c82af7c` / `6c85ae88`。这些确认补足协议可消费性，不替代 §7 全部错误/Unknown/历史观察/原Execute/归档差异矩阵、§9 pure/controlled与六top、10.4的逐mode检查。
+
+后端三tuple仅说明原 Recovery top 的最低代表可在现有限额中排布；不得用三行替代完整矩阵，也不得认定每个未知/坏receipt/拒绝/身份/放弃场景都已实际覆盖。false lookup、坏receipt、未知粘性、明确拒绝、KeyReused、局部放弃、配置与Credential两类归档差异、Selection/Summary独立intent以及每个原要求全部保留。最多4个selected origin是每case限制，六新top不得合成一个case。未来详细步骤若出现同tuple第二origin或超过4个独立origin，必须先报告具体冲突并由root处理；不得覆盖/重置origin、删场景、扩IPC、扩预算或自动拆轮。tuple仅选择候选，最终还须真实完整key/body/target/identity/method比较与明确UI原Execute动作，不能把正常新意图冒作重放。
+
+所有安全准入、材料输入失败净化、原请求比较、原子result文件及实际join均仍待真实实现与验证；agreement本身不证明这些行为已运行。
+
+## 11. 正式化、唯一写权与交付
+
+无新增用户产品待决。本卡保留一个完整结果、29产品路径（28技术＋README末件）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。
+
+本正式卡rev1与唯一原字节端点附件由architecture_worker安装，语义基础是已完整独审的c5674d4e，T1当前共享输入见§0.1。此刻不执行§8产品写域；root在行政差量独审接受后另下发业务实施和唯一作者实际ACK。静态/离线/实际阶段按依赖冻结；作者自查后交未参与实现的独立负责人，原失败保留，只复验受影响差量。源码及导入闭包、Go/Node/Python工具、两HTTP schema实际refs、最终私有build与所有global reader必须在执行前闭合；不复制大型图、不机械使用历史输入数。Go/cache/业务资源和资产交换始终由root单独授予并串行，完整退休前不能接下一轮。
+
+唯一分工按§8：frontend_worker负责#1–23/#26–28，backend_worker负责#24–25；README#29为28技术接受后另授末件；root负责Git、三协调文档、资产和资源调度。需要范围外修改先给精确路径/原因/影响，不能以本卡预授。Audit原Go/JS/helper、Object/Provider tools/SPA停止路径及Image来源阻塞线保持只读停止。角色必读技能与冻结/独验流程遵[团队流程](../agent-team/README.md)；前端遵[现有开发基础](../frontend/README.md)及[Project设置设计](../../frontend-design/layouts/project-settings.md)。
+
+本卡不包括Project创建/生命周期/Owner转移、Agent配置或引用替代、非chat Project模型、生产调用/Resolver root/Invocations、平台selector、Project Summary override/默认复制、凭据目录或明文读取、连接测试、Provider discovery、生产SPA发布与E01。三硬停止与Jina停止保持，完整D09/D26/D27/D28与E01不因该卡完成。
+
+本次只完成正式规格两文件安装及必要静态源码/签名交接，未改产品/原候选/旧报告，没有执行Go/Node/browser/网络/资源或Git写入。只读Git记录当时main/HEAD及14输入状态。**rev1安装 STOP，交行政差量＋T1/T4独验；业务实施、实际工具/闭包/资源及README末件仍未授权。**
