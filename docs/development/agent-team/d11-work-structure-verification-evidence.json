@@ -1,0 +1,2131 @@
+{
+  "schema": "d11-work-structure-technical-verification/v1",
+  "state": "ROOT_ACCEPTED_17_TECHNICAL_SOURCE_COMBINATION_ARCHIVE_STOP_README18_PENDING",
+  "authority": {
+    "path": "/workspace/scratch/d11-work-structure-root-grants/technical-acceptance01.json",
+    "bytes": 7378,
+    "sha256": "3cfd72ffca9e4eb37bf212a3081e4ef2ce715c35538c612b7c1b6247a85452fe"
+  },
+  "formal_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d11-work-structure.md",
+    "bytes": 60230,
+    "sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f"
+  },
+  "accepted_semantic_card_sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c",
+  "permanent_spec_reused": {
+    "report": {
+      "path": "/workspace/agenteam/docs/development/agent-team/d11-work-structure-spec-verification.md",
+      "bytes": 5067,
+      "sha256": "6734a650a408999add6ba46f2d479e58c98668625998d859ab2c869d096a1f65"
+    },
+    "manifest": {
+      "path": "/workspace/agenteam/docs/development/agent-team/d11-work-structure-spec-verification-evidence/manifest.json",
+      "bytes": 1673,
+      "sha256": "6054e3de981551b7c56febd7283701ccb5cb130b30e743754df688d3f7a7eccd"
+    }
+  },
+  "source_map": [
+    {
+      "repository_path": "internal/central/work/contract/structure.go",
+      "bytes": 30084,
+      "sha256": "485ddab3e8f53313ff1d886eff3c815c88a1f5b469d0fbd508801bbef81d8d39"
+    },
+    {
+      "repository_path": "internal/central/work/contract/structure_test.go",
+      "bytes": 17190,
+      "sha256": "dc97433b8f8ad787b9835c407e0761a75486f19520933b7cde6ba8bb5b83e8c6"
+    },
+    {
+      "repository_path": "internal/central/work/contract/events.go",
+      "bytes": 10590,
+      "sha256": "3db5751b8fa349755c6fa80b385f48829a5ff7adf5186847278813c635490ae9"
+    },
+    {
+      "repository_path": "internal/central/work/contract/events_test.go",
+      "bytes": 5249,
+      "sha256": "b0e28df310c1b0b6ede3687750b4e36990d53ca6837c9a4bf6900fe2e9740c13"
+    },
+    {
+      "repository_path": "internal/central/work/service.go",
+      "bytes": 3559,
+      "sha256": "244d368c4eceec23506f28356144a1c327ddf059d09352225960f934a3c3ae3b"
+    },
+    {
+      "repository_path": "internal/central/work/structure.go",
+      "bytes": 33511,
+      "sha256": "5e8202d24084f2360687c8e898ab718aa5505a3d8f439abf090b97036f3eefdf"
+    },
+    {
+      "repository_path": "internal/central/work/rank.go",
+      "bytes": 4259,
+      "sha256": "dab61abaff9e0309cc59ac33f52432c5480a344fd6013ee14269a68bacafcce8"
+    },
+    {
+      "repository_path": "internal/central/work/reader.go",
+      "bytes": 11714,
+      "sha256": "e33e75cc10fd73eb718cf7b856b776904f24c2b797bddbacf3275940bb5191ad"
+    },
+    {
+      "repository_path": "internal/central/work/repository.go",
+      "bytes": 24060,
+      "sha256": "9a19e48423883cd8cc85015e5ace1ba0b1a890ebc1fb2bc14d84f156383afbf2"
+    },
+    {
+      "repository_path": "internal/central/work/events.go",
+      "bytes": 10263,
+      "sha256": "b98bb27b72ba9b483c6d4428c06ce3bb9aa7b6064b3386f1984c9bb308a1f3d5"
+    },
+    {
+      "repository_path": "internal/central/work/structure_test.go",
+      "bytes": 28264,
+      "sha256": "a180c47782ce12489996c7e9cd156c58e0cbd145dfee3b2333712ae02bc7fed3"
+    },
+    {
+      "repository_path": "internal/central/project/work_event_authority.go",
+      "bytes": 3296,
+      "sha256": "9317a994514d12be5e8f1c10ede34dc82da65453c7f23d82b73d09b13aa83b79"
+    },
+    {
+      "repository_path": "internal/central/project/events.go",
+      "bytes": 12568,
+      "sha256": "dad67f6379891cd75cd2ba3122d269f62fe47a1933cde9d96d80c989e0f836ef"
+    },
+    {
+      "repository_path": "db/migrations/00021_work_structure.sql",
+      "bytes": 5127,
+      "sha256": "a7c541546af5bf7892abeebee1a46089683ebea7a81e5951403752ee50d392ad"
+    },
+    {
+      "repository_path": "tests/work/fixture_test.go",
+      "bytes": 37961,
+      "sha256": "fa437258e76de68065cf90ccb234d34e20d78b4a0fa0430c6e5e45b9a424585c"
+    },
+    {
+      "repository_path": "tests/work/structure_test.go",
+      "bytes": 39046,
+      "sha256": "86c051609e14294a9989d264ecbcb41e9eca3024e6d380c015ee34b0b42a8dfa"
+    },
+    {
+      "repository_path": "tests/work/structure_concurrency_test.go",
+      "bytes": 32526,
+      "sha256": "f7885efe1b90a8cc1a844caaf22ea0f7ad913ad1dd6b82f4582eb2f20a97d2e5"
+    }
+  ],
+  "source_map_authority": {
+    "path": "/workspace/scratch/d11-work-structure-backend-author01/final-inputs-v02/accepted-sources.json",
+    "bytes": 6532,
+    "sha256": "d08d15891f42d16cf89e739190dc763c38d2f17f77c0d2bbd2eb1c661501a188"
+  },
+  "source_verification_scope": "Root already hashed all 17 current source bytes against accepted-sources. This archive reuses that fixed receipt; no new whole-source scan or Git assertion.",
+  "version_composition": {
+    "before_U1": {
+      "structure_sha256": "3db32cb23b2ffcfe1948cd57bcca78a147dd220ba00eb0614f5ba5470aa9848e",
+      "pure_test_sha256": "fd93a5079ec1f9bcc4109b52d17b9e185324a9a689f36909ca5ddd44931daf9d",
+      "actual_successes": "first five author new PG rounds only"
+    },
+    "U1": {
+      "structure_sha256": "5e8202d24084f2360687c8e898ab718aa5505a3d8f439abf090b97036f3eefdf",
+      "pure_test_sha256": "a180c47782ce12489996c7e9cd156c58e0cbd145dfee3b2333712ae02bc7fed3",
+      "runtime_delta": "only structure.go; pure test is verification-only",
+      "actual_successes": "corrected Unknown, five Project/Outbox regressions, independent A/B",
+      "successor_review": {
+        "path": "/workspace/scratch/architecture-d11-u1-successor-v02-review/review.md",
+        "bytes": 2621,
+        "sha256": "e23340fa3a16e499a41e859b0a02e13f70e39b3d7670ceb655ae9b9e89890111"
+      }
+    },
+    "independent_probe": {
+      "source": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/formatted/independent_structure_ab_test.go",
+        "bytes": 46175,
+        "sha256": "1681a04c3398b2443a4138cd16111e9f8680aca837192345bfae1f5fda0e8aad"
+      },
+      "overlay": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/formatted/overlay.json",
+        "bytes": 202,
+        "sha256": "6df5e9007dacf1c5cd55c483adbeb6d0cc754ad9c6726b4017c4942548ccae88"
+      },
+      "virtual_target": "tests/work/independent_structure_ab_test.go"
+    },
+    "closure_refs_only_not_copied": [
+      {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/final-inputs-v01/closure.json",
+        "bytes": 80757,
+        "sha256": "e7f3baba44959c28669e9dbf8f8f358f77992713331578b907cd326d1e6c3645"
+      },
+      {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/final-inputs-v02/closure.delta.json",
+        "bytes": 919,
+        "sha256": "d2d3f9033615c109c3b0f0e2bf22bb15a8200b8996951342cdd530cdaa48eb25"
+      },
+      {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-final01/closure.delta.json",
+        "bytes": 2143,
+        "sha256": "29e979c58b43fa78f43934a0ae23526b74b073588dde66a612da8655504a7274"
+      }
+    ],
+    "not_claimed": "No single current-source rerun of the first five original author PG rounds; no new graph build or all-D11 completion."
+  },
+  "static_and_failure_history": [
+    {
+      "id": "contract-C1-C2",
+      "meaning": "STATIC FAIL 后两源窄修：Placement 聚合 cap 派生为 2×MaxRequestBytes；命令/receipt 仍 256KiB。直接 UnmarshalJSON 完整 raw 与对象内部空白反例替代被标准 json.Unmarshal 外层裁剪的无效反例。",
+      "final_review": {
+        "path": "/workspace/scratch/architecture-d11-contract-v02-review/review.md",
+        "bytes": 2122,
+        "sha256": "1ef0802d1b3385eca6ce2d3c243220d34ec2519bbda99ca9d01e9d5e842dfe30"
+      },
+      "original_review": {
+        "path": "/workspace/scratch/architecture-d11-contract-v01-review/review.md",
+        "bytes": 4697,
+        "sha256": "81c6ee5ce9596d7a774424600e2195d20d1e086281c89b79c540e6509ce59fc1"
+      }
+    },
+    {
+      "id": "library-L1-L2",
+      "meaning": "STATIC FAIL 后四源窄修：首个 Work SQL 前验证 own issuer、完整已持锁和真实当前 Project Read，保留最终 exact binding；私有 commitFailure 保原 CommitResult/Attempt/Cause，确认结果不能覆盖原 writer 来源。",
+      "final_review": {
+        "path": "/workspace/scratch/architecture-d11-library-v02-review/review.md",
+        "bytes": 3481,
+        "sha256": "d88c7258a034c6e52dbd155ced5f0c2254d38ec4e7345c2fc1080bdb178640b5"
+      },
+      "original_review": {
+        "path": "/workspace/scratch/architecture-d11-library-v01-review/review.md",
+        "bytes": 5577,
+        "sha256": "a1a9c35a4285ff076526fd0eb5f72b83e755062e2e4ee63041d6a53d09c3080a"
+      }
+    },
+    {
+      "id": "PG-P1-P2-P3",
+      "meaning": "STATIC FAIL 后测试前提修正：A final 真实持 EX 后 B 成为同 key waiter；actual caller Tx PID/key/mode/blocker 与 Lookup 先等待再取消；全部 spectator、generation 和 no-op 持久事实。旧计划拒绝可为 Forbidden，未改成 Busy 或吞任意错误。",
+      "final_review": {
+        "path": "/workspace/scratch/architecture-d11-pg-v02-review/review.md",
+        "bytes": 3304,
+        "sha256": "c1cc6507bc5d66b6c75c5583bfc420563643548b278599fe8bc7b4cc0b69cbef"
+      },
+      "original_review": {
+        "path": "/workspace/scratch/architecture-d11-pg-v01-review/review.md",
+        "bytes": 6548,
+        "sha256": "e0aa29aa5914605619e9708167d5734f4a7ce1a995f4af89eefb30f5c57f3594"
+      }
+    },
+    {
+      "id": "PG-compile",
+      "meaning": "首实际编译 FAIL：LockKey 含 func，request.Key != key 不可比较。唯一一行改用 foundation.CompareLockKeys，保 rank/kindRank/Canonical 语义；原失败和此前 STATIC 的局限保留。",
+      "final_review": {
+        "path": "/workspace/scratch/architecture-d11-pg-v03-review/review.md",
+        "bytes": 1588,
+        "sha256": "9aee1ae2f6f6da8cc0429c830fb8fd59d16905fa693b5a4683513f38e70d2448"
+      },
+      "original_compile_failure": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline01/freeze.json",
+        "bytes": 6746,
+        "sha256": "0880df9a85b16c0df4cdc12620e3816b337971b455897281959860156dc5cbcc"
+      }
+    },
+    {
+      "id": "driver-D1",
+      "meaning": "STATIC D1 后 helper 诊断继承父级取消，短诊断实际 Wait/WaitDelay；105+15、120、2 IDs 与尾部退休规则不扩。",
+      "final_review": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/d11-pg-driver-v02-review/review.md",
+        "bytes": 2227,
+        "sha256": "f33e88f6eb0ae6fb5cef6f6b86a2092bf63527afe6ec753b9f5b279f44c3f056"
+      },
+      "original_review": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/d11-pg-driver-v01-review/review.md",
+        "bytes": 4601,
+        "sha256": "c4bd5c441cd873896a3eb3dd1a1daf19330c25a55ba1a301615a12d56e7c01e6"
+      }
+    },
+    {
+      "id": "independent-AB1",
+      "meaning": "原完整 STATIC 42471cde 的比较缺陷保留：先 Validate 两原 DTO，再把 clone 的 rank 归一到已验证 before.ManualRank；外部真实 rank/order/spectator 断言不删除。",
+      "final_review": {
+        "path": "/workspace/scratch/architecture-d11-independent-ab-source02-review/review.md",
+        "bytes": 1438,
+        "sha256": "e25ecc07cba8c38b0bc30ce78822188621c2393e3f77b5101ac2d0d1905bc8fc"
+      },
+      "original_full_review_prefix": "42471cde"
+    },
+    {
+      "id": "U1",
+      "meaning": "真实 Unknown 原轮两子分支取消断言失败。仅 Lookup WithinTx 已明确 NotCommitted 且 caller ctx.Err 非空时返回零结果与安全包装的 context 取消原因；Committed、Unknown、writer confirmation provenance 均不改。",
+      "final_review": {
+        "path": "/workspace/scratch/architecture-d11-lookup-cancellation-v01-review/review.md",
+        "bytes": 2190,
+        "sha256": "a95ac0ad846d782d28e23d4f39154643da1d866d6219c50b8dd89475df089c44"
+      },
+      "original_review": {
+        "path": "/workspace/scratch/architecture-d11-workunknown01-review/review.md",
+        "bytes": 3033,
+        "sha256": "a39949b4c4065fbdd85b4d388f89fedf21a51db9094f559329d98405fd7e36d0"
+      }
+    }
+  ],
+  "offline_checks": [
+    {
+      "id": "contract",
+      "freeze": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/contract-offline01/freeze.json",
+        "bytes": 5184,
+        "sha256": "7e358170a27d6295d6d47534990c1f39ea53ba495a4c6b5bc79c4a84074d2a84"
+      },
+      "actual_steps": [
+        {
+          "step": "test-race01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/contract-offline01/test-race01/result.json",
+            "bytes": 1762,
+            "sha256": "6860a0ed5d1d03f7b2d53b60794490c2f822ab110196646a2bbd0d931e0a13a9"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "test",
+            "-race",
+            "-count=1",
+            "-timeout=30s",
+            "./internal/central/work/contract"
+          ],
+          "exit_code": 0,
+          "seconds": 2.7756342089996906,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "vet01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/contract-offline01/vet01/result.json",
+            "bytes": 1282,
+            "sha256": "3e7d2fd641f6d9bfb37088c4063b828a32158b913ddb717954b316da08415a88"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "vet",
+            "./internal/central/work/contract"
+          ],
+          "exit_code": 0,
+          "seconds": 0.20766516600269824,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        }
+      ]
+    },
+    {
+      "id": "library",
+      "freeze": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/library-offline01/freeze.json",
+        "bytes": 9860,
+        "sha256": "1705f2dbefbf68d44d6d2058b4b510324b2e5de36a0a2ff68779664467d997eb"
+      },
+      "actual_steps": [
+        {
+          "step": "test-race01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/library-offline01/test-race01/result.json",
+            "bytes": 3562,
+            "sha256": "8488256fab2d946b9388fbe547aade7f933c1236db69b6a821a41263e2b0a494"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "test",
+            "-race",
+            "-count=1",
+            "-timeout=30s",
+            "./internal/central/work",
+            "./internal/central/project"
+          ],
+          "exit_code": 0,
+          "seconds": 11.794752737994713,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "vet01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/library-offline01/vet01/result.json",
+            "bytes": 2279,
+            "sha256": "07735ec7c08ce344d964e9d36bbe3490cf05246f903ad2582614aca49ce8486c"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "vet",
+            "./internal/central/work",
+            "./internal/central/project"
+          ],
+          "exit_code": 0,
+          "seconds": 2.270060670998646,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        }
+      ]
+    },
+    {
+      "id": "PG3",
+      "freeze": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/freeze.json",
+        "bytes": 9078,
+        "sha256": "650bac4434b5623e8e5b8dc0351e0b317205e7c8499af1abe4289770e8359887"
+      },
+      "actual_steps": [
+        {
+          "step": "compile-work01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/compile-work01/result.json",
+            "bytes": 1639,
+            "sha256": "475a19de028ba9ebaa3fb78fcf809e93a395c8db19b439084e4420e3364d9190"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "test",
+            "-tags=integration",
+            "-race",
+            "-c",
+            "-o",
+            "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/bin/work.test",
+            "./tests/work"
+          ],
+          "exit_code": 0,
+          "seconds": 2.409040502003336,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "vet-work01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/vet-work01/result.json",
+            "bytes": 1960,
+            "sha256": "69e1d76e9768006f8154607662e4c15b2880b7fc43007f517e672e85ddf4add6"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "vet",
+            "-tags=integration",
+            "./tests/work"
+          ],
+          "exit_code": 0,
+          "seconds": 1.0553399349955725,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "list-work01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/list-work01/result.json",
+            "bytes": 1002,
+            "sha256": "c061d0e52f1f040e45ddb324f56ceebdf47e512d4caf3576556f6d895999b985"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/bin/work.test",
+            "-test.list=^(TestWorkStructureMigration|TestWorkStructurePersistenceAndPaging|TestWorkStructureAuthorityAndReplay|TestWorkStructureAtomicityAndProducer|TestWorkStructureConcurrencyAndRank|TestWorkStructureCommitUnknown)$",
+            "-test.run=^$"
+          ],
+          "exit_code": 0,
+          "seconds": 1.0641972700032056,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "list-project01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/list-project01/result.json",
+            "bytes": 1801,
+            "sha256": "8e6f59b0122f0c07975983a1ae1f5ad069eb2d0c4832188cd17b2ad4fef21388"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "test",
+            "-tags=integration",
+            "-race",
+            "-list=^(TestProjectB02OwnerPortRequiresCallerTransactionLocks|TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp|TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal)$",
+            "-run=^$",
+            "./tests/project"
+          ],
+          "exit_code": 0,
+          "seconds": 3.928844645000936,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "list-outbox01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/list-outbox01/result.json",
+            "bytes": 1322,
+            "sha256": "ebad09520acb0ea1c858585afa7692b08528628c172a0c2c6ecc311d6fd7bde5"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "test",
+            "-tags=integration",
+            "-race",
+            "-list=^(TestOutboxAtomicAppendCurrentAuthorityAndReplay|TestOutboxMissingLocksPoisonAndMappingChangeRollsBack)$",
+            "-run=^$",
+            "./tests/outbox"
+          ],
+          "exit_code": 0,
+          "seconds": 1.9230239340031403,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        }
+      ],
+      "selector_names": {
+        "list-work01": [
+          "TestWorkStructureMigration",
+          "TestWorkStructurePersistenceAndPaging",
+          "TestWorkStructureAuthorityAndReplay",
+          "TestWorkStructureAtomicityAndProducer",
+          "TestWorkStructureConcurrencyAndRank",
+          "TestWorkStructureCommitUnknown"
+        ],
+        "list-project01": [
+          "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+          "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+          "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal"
+        ],
+        "list-outbox01": [
+          "TestOutboxAtomicAppendCurrentAuthorityAndReplay",
+          "TestOutboxMissingLocksPoisonAndMappingChangeRollsBack"
+        ]
+      },
+      "original_list_order_checker_failure_preserved": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/list-order-check-original-failure.json",
+        "bytes": 863,
+        "sha256": "8a7bc5d6d885a8a96dce17e5b93585f3f68e6b9057cec6fcbe4e3699e3a890a6"
+      },
+      "list_order_checker_correction": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-offline02/list-order-check-correction.json",
+        "bytes": 1009,
+        "sha256": "c158fae19d64f54e739f1d662734b7b00f9c3ab2e3d4acb66f9d3cf6fc76d372"
+      }
+    },
+    {
+      "id": "author-helper",
+      "freeze": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/helper-offline01/freeze.json",
+        "bytes": 5541,
+        "sha256": "ab0a46952804a0661516e4fdfbd666cd371ac4c3b5aab3bac0bb8f8a74ab4a6c"
+      },
+      "actual_steps": [
+        {
+          "step": "build01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/helper-offline01/build01/result.json",
+            "bytes": 1480,
+            "sha256": "a3a6335f2c0926724ecd83000197447701ab973395c8c21a88da6e4d531ed12a"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "build",
+            "-overlay=/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/overlay.json",
+            "-o",
+            "/workspace/scratch/d11-work-structure-backend-author01/helper-offline01/bin/pg-fixture",
+            "./tests/testsupport/postgres/cmd/fixture"
+          ],
+          "exit_code": 0,
+          "seconds": 0.7562922549986979,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "vet01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/helper-offline01/vet01/result.json",
+            "bytes": 1321,
+            "sha256": "0c025c3f94e4a273ba6dddd88b468dd92d4cf3b7b0ad3e874ad54155aee37527"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "vet",
+            "-overlay=/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/overlay.json",
+            "./tests/testsupport/postgres/cmd/fixture"
+          ],
+          "exit_code": 0,
+          "seconds": 0.30521012299868744,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        }
+      ]
+    },
+    {
+      "id": "U1",
+      "freeze": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/actual-freeze.json",
+        "bytes": 6691,
+        "sha256": "d6c48730f5a1113cb6aa2658bcba1c7f01f18bba6bf828f2af17fa60aaed83d6"
+      },
+      "actual_steps": [
+        {
+          "step": "format01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/format01/result.json",
+            "bytes": 1256,
+            "sha256": "e114a863abe7d18ee00e5851133b29fa67187d753d5736f66966aeb796a46a5b"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/gofmt",
+            "-w",
+            "/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/formatted-v01/internal/central/work/structure.go",
+            "/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/formatted-v01/internal/central/work/structure_test.go"
+          ],
+          "exit_code": 0,
+          "seconds": 0.09270694700535387,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "test-race01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/test-race01/result.json",
+            "bytes": 5396,
+            "sha256": "5b4b193b55549bebe96c9a80132f2e222da18b193938d6ab995aea9cc7e8be04"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "test",
+            "-overlay=/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/formatted-v01/overlay.json",
+            "-race",
+            "-count=1",
+            "-json",
+            "-timeout=30s",
+            "./internal/central/work"
+          ],
+          "exit_code": 0,
+          "seconds": 3.1220861799956765,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        },
+        {
+          "step": "vet01",
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/vet01/result.json",
+            "bytes": 1308,
+            "sha256": "6951f47a637bef18e31c24def32ad88e3e66bb6b809f1759cb9bc89205ca559b"
+          },
+          "argv": [
+            "/usr/bin/timeout",
+            "--signal=TERM",
+            "--kill-after=4s",
+            "40s",
+            "/workspace/toolchains/go1.27.1/bin/go",
+            "vet",
+            "-overlay=/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/formatted-v01/overlay.json",
+            "./internal/central/work"
+          ],
+          "exit_code": 0,
+          "seconds": 0.3607730170042487,
+          "actual_wait": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true
+        }
+      ],
+      "scope": "24 RUN/PASS（11 top+13 nested）；新增两个 top 含9状态格及 Stop 保原 writer。result-only Store 不证明真实 SQL；格式零差量。"
+    },
+    {
+      "id": "independent-probe",
+      "result": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/offline-result.json",
+        "bytes": 10351,
+        "sha256": "b91b686e33f70450d8d7ac140981484ec8dc8cb0d3a4a1b1966558af4d7a6842"
+      },
+      "steps": [
+        {
+          "step": "gofmt01",
+          "exit_code": 0,
+          "elapsed_seconds": 0.1734425439935876,
+          "actual_direct_wait_completed": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true,
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/gofmt01/result.json",
+            "bytes": 1212,
+            "sha256": "f3bf90ba1f4ed987a69d42e46ac750e51dedcaf0c4bd28784002324aa82f3dc1"
+          }
+        },
+        {
+          "step": "race-c01",
+          "exit_code": 0,
+          "elapsed_seconds": 2.593001995992381,
+          "actual_direct_wait_completed": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true,
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/race-c01/result.json",
+            "bytes": 2164,
+            "sha256": "c1d1ed21470b0265f20784cb6a1d98f9a86d05b8165aa0f608f1d0839d1b8e80"
+          }
+        },
+        {
+          "step": "vet01",
+          "exit_code": 0,
+          "elapsed_seconds": 0.6129096549993847,
+          "actual_direct_wait_completed": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true,
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/vet01/result.json",
+            "bytes": 1461,
+            "sha256": "713e7559b6416f264eabf4ba3207097aa3ae71dd76cf5c941c20db5fda19374d"
+          }
+        },
+        {
+          "step": "list01",
+          "exit_code": 0,
+          "elapsed_seconds": 1.251131394004915,
+          "actual_direct_wait_completed": true,
+          "watcher_joined": true,
+          "inputs_unchanged": true,
+          "result": {
+            "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/list01/result.json",
+            "bytes": 1303,
+            "sha256": "fc06b64f2d091caa51f2aa53e69ad00f844c78a61bb19f2aefe334a6273b5c79"
+          }
+        }
+      ],
+      "exact_listed_names": [
+        "TestWorkStructureIndependentAuthorityOrdering",
+        "TestWorkStructureIndependentCommitRank"
+      ],
+      "source": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/formatted/independent_structure_ab_test.go",
+        "bytes": 46175,
+        "sha256": "1681a04c3398b2443a4138cd16111e9f8680aca837192345bfae1f5fda0e8aad"
+      },
+      "overlay": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-offline01/formatted/overlay.json",
+        "bytes": 202,
+        "sha256": "6df5e9007dacf1c5cd55c483adbeb6d0cc754ad9c6726b4017c4942548ccae88"
+      },
+      "test_bodies_run_in_this_offline_phase": false
+    }
+  ],
+  "actual_runs": [
+    {
+      "run": "workmigration01",
+      "group": "new-migration",
+      "version": "before-U1",
+      "top": "TestWorkStructureMigration",
+      "counts_including_top_and_nested": {
+        "run": 12,
+        "pass": 12,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 4.77,
+      "meaning": "fresh 与 populated 00020→00021、重复迁移、五表/无跨域 FK、约束错误与真实 DDL 失败回滚；原 Account/Project 快照不变。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workmigration01/result.json",
+        "bytes": 51758,
+        "sha256": "bee8fb56820c0cc29baf50d44ead63075ed53f0f9bfda792d1ca0a5a9720a8b3"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workmigration01/result.json",
+        "bytes": 1408,
+        "sha256": "3b67b9bad3756fc8c1c3938c051b769c46e54cab8eecb3cb70d8edfd28d0e3cb"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workmigration01/raw.log",
+        "bytes": 11571,
+        "sha256": "748cdf7df2fc36a81de4da25fa57bde3fc46cd72c705a966e6333371d6f3809a"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-workmigration01-review/review.md",
+        "bytes": 2197,
+        "sha256": "fe572abc05485e64cd9009b9f78e854f83a85438295242c6a3d4361fde980326"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureMigration$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "ded1f632f7466c070ece17d4b42e0a641718658b1e4dacb779f73eb44fd4bb19",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 71.22722822800279
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 9.614
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 6.794588742,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 10.92842518100224,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 59.47170806000213,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "7f804706160d820e39467b7465b5e33737ca9b0598432d9e0945bc070fd36d51",
+        "before_after_byte_equal": true,
+        "closure_sha256": "e7f3baba44959c28669e9dbf8f8f358f77992713331578b907cd326d1e6c3645"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 14,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workpersistence01",
+      "group": "new-persistence",
+      "version": "before-U1",
+      "top": "TestWorkStructurePersistenceAndPaging",
+      "counts_including_top_and_nested": {
+        "run": 7,
+        "pass": 7,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 11.6,
+      "meaning": "六命令、205项分页、cursor 身份/父组/轮换/stale、内容更新不使排序 cursor stale、回执 clone、同 Tx placement 及非法事实拒绝。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workpersistence01/result.json",
+        "bytes": 52563,
+        "sha256": "bfbefd90f88c48a3e7f79a164d2968af1206a62d93a5e66b4e31392d6c3823c9"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workpersistence01/result.json",
+        "bytes": 1418,
+        "sha256": "2dd13aa3ae4c31f72c8bf87e83d105f24756f2283b981d90c24f346b3465f4ae"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workpersistence01/raw.log",
+        "bytes": 7922,
+        "sha256": "015130036b1e530966d3f2a2cddd2d400a95bb044258256070c29488a1bf3f94"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-workpersistence01-review/review.md",
+        "bytes": 1912,
+        "sha256": "08ef01fd90fa024d82cac29b05b2d24a0b11669dbdfcb060b0aa0ab95b100710"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructurePersistenceAndPaging$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "ff85f20de3af79d7d938a5078442009cee3ff0a48074a2efe2237599d3b42738",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 80.53868451600283
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 18.99
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 13.588798514,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 20.29275618299289,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 59.44786117700278,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "7f804706160d820e39467b7465b5e33737ca9b0598432d9e0945bc070fd36d51",
+        "before_after_byte_equal": true,
+        "closure_sha256": "e7f3baba44959c28669e9dbf8f8f358f77992713331578b907cd326d1e6c3645"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 11,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workauthority01",
+      "group": "new-authority",
+      "version": "before-U1",
+      "top": "TestWorkStructureAuthorityAndReplay",
+      "counts_including_top_and_nested": {
+        "run": 7,
+        "pass": 7,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 2.48,
+      "meaning": "当前 Session/Owner、非Owner管理员隔离、跨User/Project/command、生命周期当前读与历史重放、prepared 非成功、容量与版本。fixture facts 非生产登录/归档。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workauthority01/result.json",
+        "bytes": 52717,
+        "sha256": "60178c22c2b803532bb42073357fd615e7397bf83d25c2c80bc170b78ade7faf"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workauthority01/result.json",
+        "bytes": 1407,
+        "sha256": "f93f8dbbb78729b9876f3d441df8c92b30cbc048168fa20dda291efbc9c2caf6"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workauthority01/raw.log",
+        "bytes": 10142,
+        "sha256": "fcb33d34cfc2ec652da17a82ab398c5c85a7d9e0ee476f90e7268dc8a7846356"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-workauthority01-review/review.md",
+        "bytes": 2057,
+        "sha256": "19335b38c74539498a5e0862cf81d28af4fca912b02326f8b6c26ba4b7ef9cfc"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureAuthorityAndReplay$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "9009d39a0f796a9a483dcc11f4230e2c91a3d27b8eb38acb0fb3053ad870fcbd",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 70.7525391280069
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 10.166
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 4.548189147,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 11.477714527994976,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.443771707010455,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "7f804706160d820e39467b7465b5e33737ca9b0598432d9e0945bc070fd36d51",
+        "before_after_byte_equal": true,
+        "closure_sha256": "e7f3baba44959c28669e9dbf8f8f358f77992713331578b907cd326d1e6c3645"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 13,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workatomicity01",
+      "group": "new-atomicity",
+      "version": "before-U1",
+      "top": "TestWorkStructureAtomicityAndProducer",
+      "counts_including_top_and_nested": {
+        "run": 11,
+        "pass": 11,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 1.63,
+      "meaning": "canonical/group/receipt/Event/Activity 同 Tx 回滚；exact producer 与历史事件规则、同 Store/live Tx/已持锁、Rows poison/Drain/连接复用及无 Work Audit。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workatomicity01/result.json",
+        "bytes": 52876,
+        "sha256": "83f5563c91b3b39b52e2ea9c847b36a843246ea3497dd2415e30ae581cd87ebb"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workatomicity01/result.json",
+        "bytes": 1407,
+        "sha256": "329e6b67c0c2947da124edae98794a716c17ebe33b5bd497cf8fc39720d7438a"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workatomicity01/raw.log",
+        "bytes": 11589,
+        "sha256": "baddd7bec9bbff6a4983c88cab37b587fc098afd5353cfb7e3d8053e01c20487"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-workatomicity01-review/review.md",
+        "bytes": 2139,
+        "sha256": "7abc470f72a938cb678125f85d265f81feb9ff6ee92a8e8d30aed6380a54f0f3"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureAtomicityAndProducer$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "41696f4d8eb2b606e8a75c29041f1d337cd11e5bc3bd57221d23ed78a57068f1",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 70.3823272580048
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 8.817
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 3.584192399,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 10.088727560010739,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 59.44140531399171,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "7f804706160d820e39467b7465b5e33737ca9b0598432d9e0945bc070fd36d51",
+        "before_after_byte_equal": true,
+        "closure_sha256": "e7f3baba44959c28669e9dbf8f8f358f77992713331578b907cd326d1e6c3645"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 11,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workconcurrency01",
+      "group": "new-concurrency",
+      "version": "before-U1",
+      "top": "TestWorkStructureConcurrencyAndRank",
+      "counts_including_top_and_nested": {
+        "run": 7,
+        "pass": 7,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 3.39,
+      "meaning": "两 Service Command EX 竞争与历史 replay、User EX waiter/version winner、六 future 真 join、全部 spectator/no-op facts、旧 cursor、重新规划与三轮封顶。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workconcurrency01/result.json",
+        "bytes": 53037,
+        "sha256": "a6f69cf319541e8ad0e5cb247a62fdb9b42d77f1905511e80446a09535a1e577"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workconcurrency01/result.json",
+        "bytes": 1418,
+        "sha256": "1d5e8cd8384b1dedbf74fc770f7854d50f15673bce0d44efea92f4c5e3990825"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workconcurrency01/raw.log",
+        "bytes": 10241,
+        "sha256": "646bd9d421a8b75b29e1252a9f3660c3da7a8c540f3fb15d2a143556748173e6"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-workconcurrency01-review/review.md",
+        "bytes": 2141,
+        "sha256": "5aa51b2bab139f46bbc812fa31cd18417d53c5c3079c842c66d060047fd8503b"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureConcurrencyAndRank$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "481a105b01156bbccdc301ab3d75493c4e50b134a788c39f1cfc68c3a68afe1e",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 70.68826195200381
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 10.166
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 5.3905344379999995,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 11.451256671003648,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.443503314003465,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "7f804706160d820e39467b7465b5e33737ca9b0598432d9e0945bc070fd36d51",
+        "before_after_byte_equal": true,
+        "closure_sha256": "e7f3baba44959c28669e9dbf8f8f358f77992713331578b907cd326d1e6c3645"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 14,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workunknown01",
+      "group": "new-unknown",
+      "version": "before-U1-failed",
+      "top": "TestWorkStructureCommitUnknown",
+      "counts_including_top_and_nested": {
+        "run": 11,
+        "pass": 8,
+        "fail": 3,
+        "skip": 0
+      },
+      "top_seconds": 8.5,
+      "meaning": "原实际 FAIL 保留：planned/commit=false 与 completed/commit=true 在精确 Lookup waiter 取消后返回 INTERNAL_ERROR，未满足 errors.Is(context.Canceled)+零结果；后续恢复断言未到达。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workunknown01/result.json",
+        "bytes": 53186,
+        "sha256": "69e79e084e0384ff6e24d208c124a9ef65785b8ed52e4fce29ab930b232eead8"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workunknown01/result.json",
+        "bytes": 1400,
+        "sha256": "7d93d59456e0599e8cdf128b9c381eb7cc440e50fed5b84e68c6163483c1eeaf"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workunknown01/raw.log",
+        "bytes": 15664,
+        "sha256": "ad64d9077a1b3786910f52412b20f919cb9d8398b99273a303205fae09c99172"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-workunknown01-review/review.md",
+        "bytes": 3033,
+        "sha256": "a39949b4c4065fbdd85b4d388f89fedf21a51db9094f559329d98405fd7e36d0"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureCommitUnknown$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "21f90abd6a6d321a83fdb83dae6c82bbd6501aa3d8fb4faac24b74e499ea2503",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": false,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 1,
+          "seconds": 76.13980121500208
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 255,
+          "seconds": 14.504
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": true,
+          "elapsed_seconds": 9.479763495,
+          "exit_code": -1
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 15.789177086000564,
+      "top_watchdog_complete": false,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 59.46259991500119,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "7f804706160d820e39467b7465b5e33737ca9b0598432d9e0945bc070fd36d51",
+        "before_after_byte_equal": true,
+        "closure_sha256": "e7f3baba44959c28669e9dbf8f8f358f77992713331578b907cd326d1e6c3645"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 10,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit1",
+      "failure_note": "Inner driver/helper exit255 and Go terminated after actual top FAIL; top_watchdog_complete=false because selected top did not PASS, with active[] and joined thread. Not a timeout or missing terminal."
+    },
+    {
+      "run": "workunknown02",
+      "group": "new-unknown",
+      "version": "U1",
+      "top": "TestWorkStructureCommitUnknown",
+      "counts_including_top_and_nested": {
+        "run": 11,
+        "pass": 11,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 14.26,
+      "meaning": "四个真实 COMMIT hold 的 planned/completed×commit/rollback 全到达取消及显式原命令恢复；SQL/撤权确认保原 writer Attempt→Cause；Stop 真 join 注册确认；known commit 取消仍成功。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workunknown02/result.json",
+        "bytes": 54604,
+        "sha256": "ecfba545ddb1d2293614ceedc847d2841a819f265aa1f1c74d0c649535e7bf33"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workunknown02/result.json",
+        "bytes": 1397,
+        "sha256": "ce191635b4cf6360639c471c9db6433cf4434617b2cf964762eca7912b09ae72"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workunknown02/raw.log",
+        "bytes": 15587,
+        "sha256": "77402226d39075ae077283de49fbd5a42e5e2e8231b11f1ab0a765e59519c899"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-workunknown02-review/review.md",
+        "bytes": 2352,
+        "sha256": "2b6ba632440856b858349b51ad186258c9115b2b811144cc43557210d6454e7e"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureCommitUnknown$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "b7d4efba8837531ac3a1509e2b3cd36c199a4ba427cf5b095348e62671848baa",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 85.0066281969921
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 23.35
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 18.532307415,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 24.640872300005867,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 59.464139386007446,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "be605c6527ea172d795c0764b77905e8a0d2c8931a87be15c9e779a44d2c7381",
+        "before_after_byte_equal": true,
+        "closure_sha256": "d2d3f9033615c109c3b0f0e2bf22bb15a8200b8996951342cdd530cdaa48eb25"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 14,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workoldlocks02",
+      "group": "old-project-locks",
+      "version": "U1",
+      "top": "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+      "counts_including_top_and_nested": {
+        "run": 1,
+        "pass": 1,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 1.1,
+      "meaning": "Project Owner caller Tx/完整锁；无Tx拒绝，缺User锁 poison 即使吞错仍 NotCommitted，完整已持锁可提交。非锁竞争证明。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldlocks02/result.json",
+        "bytes": 55416,
+        "sha256": "f04e0a52a4f2644138d1cebdf18c3cb1d5d3ffda21d01474b6ff05d95f8a2f77"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workoldlocks02/result.json",
+        "bytes": 1413,
+        "sha256": "fadabd43f0d3a4202597d6e08da37c68e8755d60b5761718166c8380cd73d788"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldlocks02/raw.log",
+        "bytes": 1778,
+        "sha256": "d18fd053d7ac04362c08c6cbd6e8824208c20a38d44f0614df80b73600788c04"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-old-regressions02-review/review.md",
+        "bytes": 2577,
+        "sha256": "6f3bcbd0cd6eb98f1e5c2ceb1ba5b5524f03c4972c87f110d620f10f834ecc68"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestProjectB02OwnerPortRequiresCallerTransactionLocks$",
+        "./tests/project"
+      ],
+      "root_grant_sha256": "d8d4813aee62a57c0f0dfa82afe3d686765409d89d90cdb3cb0c37b6d9cf857d",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 68.96044669100957
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 8.398
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 3.151428339,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 9.686880487992312,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.4508730200032,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "be605c6527ea172d795c0764b77905e8a0d2c8931a87be15c9e779a44d2c7381",
+        "before_after_byte_equal": true,
+        "closure_sha256": "d2d3f9033615c109c3b0f0e2bf22bb15a8200b8996951342cdd530cdaa48eb25"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 12,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workoldatomic02",
+      "group": "old-project-atomicity",
+      "version": "U1",
+      "top": "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+      "counts_including_top_and_nested": {
+        "run": 3,
+        "pass": 3,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 1.18,
+      "meaning": "Project Audit/Event/receipt/Activity 注错原子回滚、成功retry/replay；no-op无额外Audit/Event。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldatomic02/result.json",
+        "bytes": 55576,
+        "sha256": "7dee8faf11d0f1a2763ecb067aee5b10191135164dca9845971d72d81a033c7d"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workoldatomic02/result.json",
+        "bytes": 1424,
+        "sha256": "df44cfc613ae710678cfd300f1f4a3207360592f7d220c7c1a1fc6f868a7d114"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldatomic02/raw.log",
+        "bytes": 3713,
+        "sha256": "e7a670a042724ab49a0e96996ed3f230e460d5793943eb5d07a4c63eb47ad7d4"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-old-regressions02-review/review.md",
+        "bytes": 2577,
+        "sha256": "6f3bcbd0cd6eb98f1e5c2ceb1ba5b5524f03c4972c87f110d620f10f834ecc68"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp$",
+        "./tests/project"
+      ],
+      "root_grant_sha256": "7f5afabd45db89937cb57c4a790a6556aba44f94761e9cb116f931beb833068d",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 68.89157008600887
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 8.273
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 3.190726304,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 9.569808240994462,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.45558769100171,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "be605c6527ea172d795c0764b77905e8a0d2c8931a87be15c9e779a44d2c7381",
+        "before_after_byte_equal": true,
+        "closure_sha256": "d2d3f9033615c109c3b0f0e2bf22bb15a8200b8996951342cdd530cdaa48eb25"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 11,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workoldreplay02",
+      "group": "old-project-replay",
+      "version": "U1",
+      "top": "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+      "counts_including_top_and_nested": {
+        "run": 1,
+        "pass": 1,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 1.12,
+      "meaning": "撤销Session先于Project历史；持久新test Session同User重放原Create receipt，不依赖initializer/不Touch；非正式Login流程。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldreplay02/result.json",
+        "bytes": 55748,
+        "sha256": "68c519f6ebcaacb403ad25991e6be5ab67659442d869f806408a13a396764c13"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workoldreplay02/result.json",
+        "bytes": 1418,
+        "sha256": "3e6edf0ae513a931abdf22d54a67ca2bb288719da8b2b0d45f9e07112d95cb35"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldreplay02/raw.log",
+        "bytes": 1856,
+        "sha256": "916dec59b57a5b1240f5be0d0835c212c0b1f71e0862411554083842773d631a"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-old-regressions02-review/review.md",
+        "bytes": 2577,
+        "sha256": "6f3bcbd0cd6eb98f1e5c2ceb1ba5b5524f03c4972c87f110d620f10f834ecc68"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal$",
+        "./tests/project"
+      ],
+      "root_grant_sha256": "fd72ba4a34f149351731b22b30dfaab17a867910d26e6c1c151b5cd5e4745426",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 68.93325657700188
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 8.219
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 3.099179105,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 9.574963082995964,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.47157677299401,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "be605c6527ea172d795c0764b77905e8a0d2c8931a87be15c9e779a44d2c7381",
+        "before_after_byte_equal": true,
+        "closure_sha256": "d2d3f9033615c109c3b0f0e2bf22bb15a8200b8996951342cdd530cdaa48eb25"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 10,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workoldoutbox02",
+      "group": "old-outbox-atomicity",
+      "version": "U1",
+      "top": "TestOutboxAtomicAppendCurrentAuthorityAndReplay",
+      "counts_including_top_and_nested": {
+        "run": 1,
+        "pass": 1,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 1.12,
+      "meaning": "Outbox caller Tx visibility/rollback/commit、当前fixture authority与历史/新fact、payload/schema及不可变事件；不是Work producer的新独立证明。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldoutbox02/result.json",
+        "bytes": 55887,
+        "sha256": "69e805f8daf0fd0dad4c49954f647d73d45a1c00eceb1c26be1d78cc58d896ea"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workoldoutbox02/result.json",
+        "bytes": 1422,
+        "sha256": "7f348e6371ae62dd1dabbde747844e7f2bc5700ed04f552534dfe336e5913101"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldoutbox02/raw.log",
+        "bytes": 1730,
+        "sha256": "3a4587f7bac0d251597048e5bacb9b8a627bd56da02824d70b155210b29b934a"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-old-regressions02-review/review.md",
+        "bytes": 2577,
+        "sha256": "6f3bcbd0cd6eb98f1e5c2ceb1ba5b5524f03c4972c87f110d620f10f834ecc68"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestOutboxAtomicAppendCurrentAuthorityAndReplay$",
+        "./tests/outbox"
+      ],
+      "root_grant_sha256": "f212b7a3762e914519e5f5d77a8b1e6d891cc910837a3dbc606952395de9b7de",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 68.24180754199915
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 7.659
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 3.036013255,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 8.944974899990484,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.46080598900153,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "be605c6527ea172d795c0764b77905e8a0d2c8931a87be15c9e779a44d2c7381",
+        "before_after_byte_equal": true,
+        "closure_sha256": "d2d3f9033615c109c3b0f0e2bf22bb15a8200b8996951342cdd530cdaa48eb25"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 13,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "workoldoutlocks02",
+      "group": "old-outbox-locks",
+      "version": "U1",
+      "top": "TestOutboxMissingLocksPoisonAndMappingChangeRollsBack",
+      "counts_including_top_and_nested": {
+        "run": 6,
+        "pass": 6,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 1.09,
+      "meaning": "Outbox五类缺锁忽略错误仍poison/零事件；父映射变化在真实持原锁后ResourceBusy原子回滚。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldoutlocks02/result.json",
+        "bytes": 56056,
+        "sha256": "7857b5930b0a75e7874fd8dc35d5f7b6cd9bae760b1f6a36414b77f692708136"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/launches/workoldoutlocks02/result.json",
+        "bytes": 1420,
+        "sha256": "3ef417f99c79d5df89126047441589eb7f4412139e0633bde92918a199f9bb6a"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/runs/workoldoutlocks02/raw.log",
+        "bytes": 6505,
+        "sha256": "0e7665b28f0336c168fa4d00aa07e0a3043cc7d12fe4a80546177f820e35b9cb"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-old-regressions02-review/review.md",
+        "bytes": 2577,
+        "sha256": "6f3bcbd0cd6eb98f1e5c2ceb1ba5b5524f03c4972c87f110d620f10f834ecc68"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestOutboxMissingLocksPoisonAndMappingChangeRollsBack$",
+        "./tests/outbox"
+      ],
+      "root_grant_sha256": "da53c4b8527d91dab7007cb0803b2df2e95bb245aa2178f158bb13c3c04d9844",
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 69.27339361399936
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 8.647
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 2.9750590150000003,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 9.969493112992495,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.444613261992345,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 430,
+        "digest": "be605c6527ea172d795c0764b77905e8a0d2c8931a87be15c9e779a44d2c7381",
+        "before_after_byte_equal": true,
+        "closure_sha256": "d2d3f9033615c109c3b0f0e2bf22bb15a8200b8996951342cdd530cdaa48eb25"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 13,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "ind-work-a01",
+      "group": "ind-work-a",
+      "version": "U1-independent-overlay",
+      "top": "TestWorkStructureIndependentAuthorityOrdering",
+      "counts_including_top_and_nested": {
+        "run": 1,
+        "pass": 1,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 2.04,
+      "meaning": "不同构造：撤权Tx先持门槛、读SH/写EX真实waiter、两个Service隔离；新Session原回执；archive先赢保planned，Work final先赢后archive等待，历史当前授权。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-driver01/runs/ind-work-a01/result.json",
+        "bytes": 56189,
+        "sha256": "8c9a9bc8a07e963ed61bc183889613a02f8683b0d9bb8ab59cd6d9368b50630a"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-driver01/launches/ind-work-a01/result.json",
+        "bytes": 1379,
+        "sha256": "85e30816d155aabf4965f3e28b0f64b9614446cb94087bd13a473e74533e19b2"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-driver01/runs/ind-work-a01/raw.log",
+        "bytes": 3591,
+        "sha256": "e9d603a0e4da5bc2b39039cf363eede2120ee7d609818c98f4253d466cc0e3cd"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-independent-ab-actual01-review/review.md",
+        "bytes": 2934,
+        "sha256": "abaeb0f9b5c5ede528a048311bd3146c4c3ee9b0b4d27aa0e27cf55a74940b31"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureIndependentAuthorityOrdering$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "9097b3248c8b728ac16d650984c34748d89eab0ad5dc76ea32a42d2c08b47689",
+      "driver_sha256": "9df5ef187388b872785ebbb30fa17cf9856b3d022dc5b7b80fb9f0a03f55b188",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 71.25723770300101
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 10.652
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 5.25802325,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 11.956027759006247,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.46176531299716,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 432,
+        "digest": "a0f33700e378c887b9d5a433686e48edc681b15bb37a31f187975fbb20edfd2f",
+        "before_after_byte_equal": true,
+        "closure_sha256": "29e979c58b43fa78f43934a0ae23526b74b073588dde66a612da8655504a7274"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 15,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "ROOT_REPORTED_exit0"
+    },
+    {
+      "run": "ind-work-b01",
+      "group": "ind-work-b",
+      "version": "U1-independent-overlay",
+      "top": "TestWorkStructureIndependentCommitRank",
+      "counts_including_top_and_nested": {
+        "run": 3,
+        "pass": 3,
+        "fail": 0,
+        "skip": 0
+      },
+      "top_seconds": 10.11,
+      "meaning": "不同构造：low/high四对象rank几何，真实COMMIT/ROLLBACK hold、原Lookup取消、竞争User锁、原Attempt、全部spectator字段/version/time、cursor、no-op与history；两子分支均后续完成。",
+      "inner": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-driver01/runs/ind-work-b01/result.json",
+        "bytes": 56341,
+        "sha256": "10430a8e85079be42f67976e42e06279173b283b5cbbbee9ece92d313aaa6981"
+      },
+      "outer": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-driver01/launches/ind-work-b01/result.json",
+        "bytes": 1379,
+        "sha256": "f5294d848a54a337d7158f2d9742b645fe7f33d2075682dd93a25ad7b7250389"
+      },
+      "raw": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-driver01/runs/ind-work-b01/raw.log",
+        "bytes": 9005,
+        "sha256": "4137ed30b119438df306b097b55e15854cbd7188857899c956967154ec511e82"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/architecture-d11-independent-ab-actual01-review/review.md",
+        "bytes": 2934,
+        "sha256": "abaeb0f9b5c5ede528a048311bd3146c4c3ee9b0b4d27aa0e27cf55a74940b31"
+      },
+      "actual_go_command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-json",
+        "-tags=integration",
+        "-race",
+        "-count=1",
+        "-timeout=6m",
+        "-run=^TestWorkStructureIndependentCommitRank$",
+        "./tests/work"
+      ],
+      "root_grant_sha256": "4aa0220963443f6cd8678d7f3cb071f965d97e96cc747e801311610e96865134",
+      "driver_sha256": "9df5ef187388b872785ebbb30fa17cf9856b3d022dc5b7b80fb9f0a03f55b188",
+      "accepted": true,
+      "actual_waits": {
+        "launcher_to_driver": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 77.35118145600427
+        },
+        "driver_to_helper": {
+          "completed": true,
+          "exit": 0,
+          "seconds": 16.777
+        },
+        "helper_to_go": {
+          "actual_wait_completed": true,
+          "context_ended": false,
+          "elapsed_seconds": 12.117246604,
+          "exit_code": 0
+        }
+      },
+      "round_seconds_including_fixture_cleanup": 18.043780923006125,
+      "top_watchdog_complete": true,
+      "watchdog_thread_joined": true,
+      "double_cleanup": true,
+      "supplementary_host_tcp_tail_seconds": 58.452452833007555,
+      "host_tcp_delta_double_clear": true,
+      "inputs": {
+        "count": 432,
+        "digest": "a0f33700e378c887b9d5a433686e48edc681b15bb37a31f187975fbb20edfd2f",
+        "before_after_byte_equal": true,
+        "closure_sha256": "29e979c58b43fa78f43934a0ae23526b74b073588dde66a612da8655504a7274"
+      },
+      "adopted_waits": 0,
+      "observed_processes_not_wait_count": 12,
+      "non_owned_shims_not_waited": 1,
+      "browser_node": [
+        0,
+        0
+      ],
+      "external_tool_terminal": "NOT_RETRIEVED_session20487"
+    }
+  ],
+  "actual_success_totals": {
+    "author_new_tops": 6,
+    "author_new_run_pass_including_nested": 55,
+    "old_regression_tops": 5,
+    "old_regression_run_pass_including_nested": 12,
+    "independent_tops": 2,
+    "independent_run_pass_including_nested": 4,
+    "original_failed_invocation_excluded_from_success_totals": true
+  },
+  "retirement_common_scope": {
+    "each_run": "root single-round grant; original launcher→driver, driver→helper and helper→Go actual Wait records; original exact network/container IDs absent twice, owned/runtime empty twice, input equality, watchdog thread joined; see FAIL exception and external tool gap separately",
+    "budget": "105s execution +15s fixture cleanup within120s round; package timeout6m is a separate upper bound; supplementary host TCP delta tail two-clear observation≤75s after cleanup; startup fresh free disk≥5GiB, not a memory cap",
+    "observation_limit": "Observed process count is not Wait count. Each run has one non-owned containerd shim not waited; no all-host ECHILD or short-connection/tuple-ownership claim.",
+    "browser_node": 0,
+    "fixture_boundary": "Test-owned persistent Account/Session rows use real current Authority; Project Create and persistent test-only Skill receipt. Not formal Bootstrap/Login/production Skills/Archive/Start/Complete or Object stopped proof."
+  },
+  "B_external_tool_terminal_gap": {
+    "session": 20487,
+    "external_terminal_observed": false,
+    "resume_result": "Unknown process id after environment starting→ready",
+    "original_supervisor_chain_and_retirement": "all actual Wait exit0 records present; outer ended2026-10-08T22:38:33.671428+00:00",
+    "later_current_clearance": {
+      "path": "/workspace/scratch/d11-work-structure-root-grants/ind-b-recovery01/receipt.json",
+      "bytes": 3629,
+      "sha256": "681d24f514b3afa12b9a74c6f91322be2643de64e93ac7292993a7858d96b4f4"
+    },
+    "scope": "Two exact launcher/driver PID+start identities absent twice, exact original network/container IDs inspect notfound twice with actual wait, original runtime empty twice, four original hashes unchanged; no create/delete/rerun.",
+    "not_claimed": [
+      "not the original external tool Wait/exit",
+      "not full host process tree/ECHILD",
+      "not evidence of machine reboot"
+    ]
+  },
+  "embedded_small_originals": [
+    {
+      "id": "root_technical_acceptance",
+      "original": {
+        "path": "/workspace/scratch/d11-work-structure-root-grants/technical-acceptance01.json",
+        "bytes": 7378,
+        "sha256": "3cfd72ffca9e4eb37bf212a3081e4ef2ce715c35538c612b7c1b6247a85452fe"
+      },
+      "exact_utf8": "{\n  \"state\": \"ROOT_TECHNICAL_17_SOURCE_ACCEPTANCE_README_AND_PERMANENT_ARCHIVE_PENDING\",\n  \"source_manifest\": {\n    \"path\": \"/workspace/scratch/d11-work-structure-backend-author01/final-inputs-v02/accepted-sources.json\",\n    \"bytes\": 6532,\n    \"sha256\": \"d08d15891f42d16cf89e739190dc763c38d2f17f77c0d2bbd2eb1c661501a188\"\n  },\n  \"sources\": [\n    {\n      \"repository_path\": \"internal/central/work/contract/structure.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/contract/structure.go\",\n      \"bytes\": 30084,\n      \"sha256\": \"485ddab3e8f53313ff1d886eff3c815c88a1f5b469d0fbd508801bbef81d8d39\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/contract/structure_test.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/contract/structure_test.go\",\n      \"bytes\": 17190,\n      \"sha256\": \"dc97433b8f8ad787b9835c407e0761a75486f19520933b7cde6ba8bb5b83e8c6\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/contract/events.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/contract/events.go\",\n      \"bytes\": 10590,\n      \"sha256\": \"3db5751b8fa349755c6fa80b385f48829a5ff7adf5186847278813c635490ae9\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/contract/events_test.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/contract/events_test.go\",\n      \"bytes\": 5249,\n      \"sha256\": \"b0e28df310c1b0b6ede3687750b4e36990d53ca6837c9a4bf6900fe2e9740c13\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/service.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/service.go\",\n      \"bytes\": 3559,\n      \"sha256\": \"244d368c4eceec23506f28356144a1c327ddf059d09352225960f934a3c3ae3b\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/structure.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/structure.go\",\n      \"bytes\": 33511,\n      \"sha256\": \"5e8202d24084f2360687c8e898ab718aa5505a3d8f439abf090b97036f3eefdf\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/rank.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/rank.go\",\n      \"bytes\": 4259,\n      \"sha256\": \"dab61abaff9e0309cc59ac33f52432c5480a344fd6013ee14269a68bacafcce8\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/reader.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/reader.go\",\n      \"bytes\": 11714,\n      \"sha256\": \"e33e75cc10fd73eb718cf7b856b776904f24c2b797bddbacf3275940bb5191ad\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/repository.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/repository.go\",\n      \"bytes\": 24060,\n      \"sha256\": \"9a19e48423883cd8cc85015e5ace1ba0b1a890ebc1fb2bc14d84f156383afbf2\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/events.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/events.go\",\n      \"bytes\": 10263,\n      \"sha256\": \"b98bb27b72ba9b483c6d4428c06ce3bb9aa7b6064b3386f1984c9bb308a1f3d5\"\n    },\n    {\n      \"repository_path\": \"internal/central/work/structure_test.go\",\n      \"path\": \"/workspace/agenteam/internal/central/work/structure_test.go\",\n      \"bytes\": 28264,\n      \"sha256\": \"a180c47782ce12489996c7e9cd156c58e0cbd145dfee3b2333712ae02bc7fed3\"\n    },\n    {\n      \"repository_path\": \"internal/central/project/work_event_authority.go\",\n      \"path\": \"/workspace/agenteam/internal/central/project/work_event_authority.go\",\n      \"bytes\": 3296,\n      \"sha256\": \"9317a994514d12be5e8f1c10ede34dc82da65453c7f23d82b73d09b13aa83b79\"\n    },\n    {\n      \"repository_path\": \"internal/central/project/events.go\",\n      \"path\": \"/workspace/agenteam/internal/central/project/events.go\",\n      \"bytes\": 12568,\n      \"sha256\": \"dad67f6379891cd75cd2ba3122d269f62fe47a1933cde9d96d80c989e0f836ef\"\n    },\n    {\n      \"repository_path\": \"db/migrations/00021_work_structure.sql\",\n      \"path\": \"/workspace/agenteam/db/migrations/00021_work_structure.sql\",\n      \"bytes\": 5127,\n      \"sha256\": \"a7c541546af5bf7892abeebee1a46089683ebea7a81e5951403752ee50d392ad\"\n    },\n    {\n      \"repository_path\": \"tests/work/fixture_test.go\",\n      \"path\": \"/workspace/agenteam/tests/work/fixture_test.go\",\n      \"bytes\": 37961,\n      \"sha256\": \"fa437258e76de68065cf90ccb234d34e20d78b4a0fa0430c6e5e45b9a424585c\"\n    },\n    {\n      \"repository_path\": \"tests/work/structure_test.go\",\n      \"path\": \"/workspace/agenteam/tests/work/structure_test.go\",\n      \"bytes\": 39046,\n      \"sha256\": \"86c051609e14294a9989d264ecbcb41e9eca3024e6d380c015ee34b0b42a8dfa\"\n    },\n    {\n      \"repository_path\": \"tests/work/structure_concurrency_test.go\",\n      \"path\": \"/workspace/agenteam/tests/work/structure_concurrency_test.go\",\n      \"bytes\": 32526,\n      \"sha256\": \"f7885efe1b90a8cc1a844caaf22ea0f7ad913ad1dd6b82f4582eb2f20a97d2e5\"\n    }\n  ],\n  \"accepted_reports\": [\n    {\n      \"path\": \"/workspace/scratch/architecture-d11-u1-successor-v02-review/review.md\",\n      \"bytes\": 2621,\n      \"sha256\": \"e23340fa3a16e499a41e859b0a02e13f70e39b3d7670ceb655ae9b9e89890111\"\n    },\n    {\n      \"path\": \"/workspace/scratch/architecture-d11-workunknown02-review/review.md\",\n      \"bytes\": 2352,\n      \"sha256\": \"2b6ba632440856b858349b51ad186258c9115b2b811144cc43557210d6454e7e\"\n    },\n    {\n      \"path\": \"/workspace/scratch/architecture-d11-old-regressions02-review/review.md\",\n      \"bytes\": 2577,\n      \"sha256\": \"6f3bcbd0cd6eb98f1e5c2ceb1ba5b5524f03c4972c87f110d620f10f834ecc68\"\n    },\n    {\n      \"path\": \"/workspace/scratch/architecture-d11-independent-ab-actual01-review/review.md\",\n      \"bytes\": 2934,\n      \"sha256\": \"abaeb0f9b5c5ede528a048311bd3146c4c3ee9b0b4d27aa0e27cf55a74940b31\"\n    },\n    {\n      \"path\": \"/workspace/scratch/d11-work-structure-independent-ab-result01/review.md\",\n      \"bytes\": 2662,\n      \"sha256\": \"244ad94e621c6d14f755391e22c8f77c83b3887c13f4f98eadba86a8e323b9fa\"\n    }\n  ],\n  \"inherited_acceptance\": \"Reuse previously root-accepted contract/library/PG3 STATIC and offline records, original first-five author PG rounds and their independent reviews. U1 affects proven-NotCommitted Lookup cancellation only; actual corrected Unknown plus five regressions and independent A/B use current U1 source. Old first-five author runs retain their old source identity.\",\n  \"original_failure_disposition\": {\n    \"path\": \"/workspace/scratch/d11-work-structure-root-grants/workunknown01-disposition.json\",\n    \"bytes\": 1981,\n    \"sha256\": \"1c498f2e8e0e2957f6173708799aaab100b551c7c35d13f002301bea684af82a\"\n  },\n  \"b_terminal_recovery\": {\n    \"path\": \"/workspace/scratch/d11-work-structure-root-grants/ind-b-recovery01/receipt.json\",\n    \"bytes\": 3629,\n    \"sha256\": \"681d24f514b3afa12b9a74c6f91322be2643de64e93ac7292993a7858d96b4f4\"\n  },\n  \"b_external_tool_terminal_observed\": false,\n  \"b_limit\": \"Original launcher/driver/helper/Go actual Wait and original resource retirement are present. External tool session20487 terminal was unavailable after environment notification; current scoped read-only clearance does not backfill that wait or exit.\",\n  \"scope\": \"Milestone/Sprint Structure library, same-transaction placement reader, two typed events/Project gate and migration00021. Task membership, Task/lifecycle cleanup, HTTP, production root orchestration and whole D11/platform remain unbound/incomplete.\",\n  \"next\": \"Review and install final README path18, archive accepted evidence with limits, then root Git delivery. No further redundant technical tests or resource reruns.\"\n}\n"
+    },
+    {
+      "id": "original_unknown_failure_disposition",
+      "original": {
+        "path": "/workspace/scratch/d11-work-structure-root-grants/workunknown01-disposition.json",
+        "bytes": 1981,
+        "sha256": "1c498f2e8e0e2957f6173708799aaab100b551c7c35d13f002301bea684af82a"
+      },
+      "exact_utf8": "{\n  \"state\": \"ROOT_DISPOSED_RETIRED_INVOCATION\",\n  \"root_authorized_continue\": true,\n  \"run\": \"workunknown01\",\n  \"original_hashes\": {\n    \"root-grant.json\": \"21f90abd6a6d321a83fdb83dae6c82bbd6501aa3d8fb4faac24b74e499ea2503\",\n    \"intent.json\": \"bc5fb99b5183bf66305ece8f5416f87de66df1e465422f645979e1a9525aa135\",\n    \"launch.json\": \"6194e7b71315daf233d4104f617df7c7dd832d026b36d47ced278ba4d7736b53\",\n    \"outer-result.json\": \"7d93d59456e0599e8cdf128b9c381eb7cc440e50fed5b84e68c6163483c1eeaf\",\n    \"inner-result.json\": \"69e79e084e0384ff6e24d208c124a9ef65785b8ed52e4fce29ab930b232eead8\",\n    \"cleanup.json\": \"f02627e1da61648c2c2494c98eab46afed1817f14711f35533558100c8f23ee8\"\n  },\n  \"reason\": \"Original selected top and two cancellation branches actually failed, with complete bound retirement. Root accepts independent failure analysis and U1 single-body cancellation correction: preserve ctx.Err only after proven NotCommitted; committed and unknown retain their original handling. Original failures remain immutable. Continue only with expected-current two-file installation and successor metadata preparation; any actual PG invocation requires a new immutable single-round grant.\",\n  \"acceptance\": {\n    \"original_failure_review\": {\n      \"path\": \"/workspace/scratch/architecture-d11-workunknown01-review/review.md\",\n      \"bytes\": 3033,\n      \"sha256\": \"a39949b4c4065fbdd85b4d388f89fedf21a51db9094f559329d98405fd7e36d0\"\n    },\n    \"repair_static\": {\n      \"path\": \"/workspace/scratch/architecture-d11-lookup-cancellation-v01-review/review.md\",\n      \"bytes\": 2190,\n      \"sha256\": \"a95ac0ad846d782d28e23d4f39154643da1d866d6219c50b8dd89475df089c44\"\n    },\n    \"pure_result\": {\n      \"path\": \"/workspace/scratch/d11-work-structure-backend-author01/lookup-cancellation-offline-prepare01/actual-freeze.json\",\n      \"bytes\": 6691,\n      \"sha256\": \"d6c48730f5a1113cb6aa2658bcba1c7f01f18bba6bf828f2af17fa60aaed83d6\"\n    }\n  },\n  \"resource_execution_authorized_by_this_document\": false\n}\n"
+    },
+    {
+      "id": "B_later_current_clearance",
+      "original": {
+        "path": "/workspace/scratch/d11-work-structure-root-grants/ind-b-recovery01/receipt.json",
+        "bytes": 3629,
+        "sha256": "681d24f514b3afa12b9a74c6f91322be2643de64e93ac7292993a7858d96b4f4"
+      },
+      "exact_utf8": "{\n  \"state\": \"READ_ONLY_CURRENT_CLEARANCE_WITH_ORIGINAL_TOOL_TERMINAL_GAP\",\n  \"originals\": {\n    \"inner\": {\n      \"path\": \"/workspace/scratch/d11-work-structure-independent-ab-driver01/runs/ind-work-b01/result.json\",\n      \"bytes\": 56341,\n      \"sha256\": \"10430a8e85079be42f67976e42e06279173b283b5cbbbee9ece92d313aaa6981\"\n    },\n    \"outer\": {\n      \"path\": \"/workspace/scratch/d11-work-structure-independent-ab-driver01/launches/ind-work-b01/result.json\",\n      \"bytes\": 1379,\n      \"sha256\": \"f5294d848a54a337d7158f2d9742b645fe7f33d2075682dd93a25ad7b7250389\"\n    },\n    \"intent\": {\n      \"path\": \"/workspace/scratch/d11-work-structure-independent-ab-driver01/launches/ind-work-b01/intent.json\",\n      \"bytes\": 418,\n      \"sha256\": \"b46e8fcb8d7f8de34c98e944b0cb6af59c4db27196b9ad87191fd74a2e8a22f1\"\n    },\n    \"cleanup\": {\n      \"path\": \"/workspace/scratch/d11-work-structure-independent-ab-driver01/runs/ind-work-b01/cleanup.json\",\n      \"bytes\": 123887,\n      \"sha256\": \"66c3f430e9c12a6b267ac91471c8ba21be5bafe81fec2f18888582da49e626f8\"\n    }\n  },\n  \"originals_unchanged\": true,\n  \"original_supervisor_result_pass\": true,\n  \"original_external_tool_session\": 20487,\n  \"recovered_external_tool_terminal\": false,\n  \"external_tool_gap\": \"Resuming original session after starting-to-ready notification returned Unknown process id. No external tool exit or wait is backfilled.\",\n  \"observations\": [\n    {\n      \"identities\": [\n        {\n          \"role\": \"launcher\",\n          \"pid\": 1341285,\n          \"start\": 6891100,\n          \"observed\": null,\n          \"original_identity_absent\": true\n        },\n        {\n          \"role\": \"driver\",\n          \"pid\": 1341288,\n          \"start\": 6891104,\n          \"observed\": null,\n          \"original_identity_absent\": true\n        }\n      ],\n      \"resources\": [\n        {\n          \"id\": \"081e6c5e087162fc2dbe3272532a0691c034bc8e194830911b7b5fa572ed69bb\",\n          \"kind\": \"network\",\n          \"absent\": true,\n          \"exit_code\": 1,\n          \"inspection_actual_wait\": true\n        },\n        {\n          \"id\": \"8b9afcbf506a2b608682a0710b203243ecafba0f981b5965f22d83ef337171dd\",\n          \"kind\": \"container\",\n          \"absent\": true,\n          \"exit_code\": 1,\n          \"inspection_actual_wait\": true\n        }\n      ],\n      \"runtime_entries\": []\n    },\n    {\n      \"identities\": [\n        {\n          \"role\": \"launcher\",\n          \"pid\": 1341285,\n          \"start\": 6891100,\n          \"observed\": null,\n          \"original_identity_absent\": true\n        },\n        {\n          \"role\": \"driver\",\n          \"pid\": 1341288,\n          \"start\": 6891104,\n          \"observed\": null,\n          \"original_identity_absent\": true\n        }\n      ],\n      \"resources\": [\n        {\n          \"id\": \"081e6c5e087162fc2dbe3272532a0691c034bc8e194830911b7b5fa572ed69bb\",\n          \"kind\": \"network\",\n          \"absent\": true,\n          \"exit_code\": 1,\n          \"inspection_actual_wait\": true\n        },\n        {\n          \"id\": \"8b9afcbf506a2b608682a0710b203243ecafba0f981b5965f22d83ef337171dd\",\n          \"kind\": \"container\",\n          \"absent\": true,\n          \"exit_code\": 1,\n          \"inspection_actual_wait\": true\n        }\n      ],\n      \"runtime_entries\": []\n    }\n  ],\n  \"elapsed_seconds\": 0.11102866999863181,\n  \"current_fixed_scope_clear\": true,\n  \"root_releases_shared_window\": true,\n  \"scope\": \"Only two original PID/start identities, exact recorded container/network IDs and original runtime directory. This is new read-only clearance, not original launcher wait, complete host/process-tree clearance or ECHILD; no resources were created/deleted and no business test was rerun.\"\n}\n"
+    }
+  ],
+  "unbound": [
+    "Task canonical/membership Source of Truth and Task placement writer are not implemented by Structure; missing ports must remain DependencyUnbound, never fake empty.",
+    "Execution/Dispatch occupancy, Agent/Tool consumers and Work lifecycle cleanup remain unbound.",
+    "Sprint start/complete/rollover/delete positive, Milestone delete and cross-Milestone move are excluded.",
+    "Project current_sprint pointer identity is retained; this library is not its writer.",
+    "No Work HTTP/schema/UI/Audit route or App/production root orchestration/handler binding; ready503 unchanged.",
+    "D11 whole module and platform not complete; README path18 and root delivery are separate from this technical archive.",
+    "Object runtime join, OpenAI tools independent acceptance, SPA concurrent publication remain stopped; Image/Jina source blockage unchanged."
+  ],
+  "archive_scope": "Only this report/JSON and own checks are new. Safe facts and three exact small originals are permanent here. Raw logs, source/graph trees, binaries and full cleanup inventories are not copied; their original locations and exact hashes are trace locators, not a claim those files became permanent repository artifacts. No Go/Node/driver/gate/host/SQL/resource/network/Git action in this archive step.",
+  "runtime_executor_bindings": [
+    {
+      "id": "author-U1",
+      "prepared_false_reference": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/final-inputs-v02/freeze.false.json",
+        "bytes": 14587,
+        "sha256": "cdf4ca42fd0620b6ba5730d679bede05378bb526c9b01ed3477484545687ddcc"
+      },
+      "driver_sha256": "721226a60b95e5b6f1dd65110842e718edef7dbd87258d145ec14df431b5dbff",
+      "launcher_sha256": "aa2b6ab492d1d71960c9aa0ac23105d0723c6e5571e2e8f3081f106d7c2230cf",
+      "helper_binary_reference_only": {
+        "path": "/workspace/scratch/d11-work-structure-backend-author01/pg-driver-v02/bin/pg-fixture",
+        "bytes": 15430768,
+        "sha256": "43c2c06db7d410643f077c1057b5515619bad27f3cc188aeaa3a90a66c72d043"
+      },
+      "go_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+      "prepared_false_is_not_resource_authorization": true
+    },
+    {
+      "id": "independent",
+      "prepared_false_reference": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-final01/freeze.false.json",
+        "bytes": 14782,
+        "sha256": "dc11394646f58ef54d72c8b4319530ba9f309f6be57b2df954bd23363adf5472"
+      },
+      "driver_sha256": "9df5ef187388b872785ebbb30fa17cf9856b3d022dc5b7b80fb9f0a03f55b188",
+      "launcher_sha256": "aa2b6ab492d1d71960c9aa0ac23105d0723c6e5571e2e8f3081f106d7c2230cf",
+      "helper_binary_reference_only": {
+        "path": "/workspace/scratch/d11-work-structure-independent-ab-driver01/bin/pg-fixture",
+        "bytes": 15429768,
+        "sha256": "c79fca1100a2f0b8931aa63911cf7d527f3aadd0e7e1571e2c75000067a9f8e0"
+      },
+      "go_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+      "prepared_false_is_not_resource_authorization": true
+    }
+  ],
+  "subsequent_full18_acceptance": {
+    "state": "ROOT_FULL_18_PATH_STRUCTURE_CARD_ACCEPTED_GIT_DELIVERY_PENDING",
+    "scope": "All18 Structure card accepted by explicit version composition; whole D11/platform remain incomplete. This is a later acceptance, not a rewrite of the original technical17 state or evidence.",
+    "root_original": {
+      "path": "/workspace/scratch/d11-work-structure-root-grants/full18-acceptance01.json",
+      "bytes": 2464,
+      "sha256": "74c3fbbe2cd13777af20b6c9c6b7fa5a6f56bf04ba8d29fc829e926bb372ea77"
+    },
+    "exact_root_original_utf8": "{\n  \"state\": \"ROOT_FULL_18_PATH_STRUCTURE_CARD_ACCEPTED_GIT_DELIVERY_PENDING\",\n  \"technical_acceptance\": {\n    \"path\": \"/workspace/scratch/d11-work-structure-root-grants/technical-acceptance01.json\",\n    \"bytes\": 7378,\n    \"sha256\": \"3cfd72ffca9e4eb37bf212a3081e4ef2ce715c35538c612b7c1b6247a85452fe\"\n  },\n  \"readme\": {\n    \"path\": \"/workspace/agenteam/docs/development/backend/README.md\",\n    \"bytes\": 80200,\n    \"sha256\": \"b6b5b281266483f781224d4c4a8e8f7af927d112b737e4630f234a9433629469\"\n  },\n  \"readme_independent_review\": {\n    \"path\": \"/workspace/scratch/architecture-d11-readme-v01-review/review.md\",\n    \"bytes\": 1886,\n    \"sha256\": \"bd2c403772d133488a8f3db1deba7c1829264962706ae3bf13e8b9a67a2b4b09\"\n  },\n  \"readme_installation\": {\n    \"path\": \"/workspace/scratch/d11-work-structure-backend-author01/readme-installation01/installation.json\",\n    \"bytes\": 2633,\n    \"sha256\": \"544ba023af8492183f9c8cc0b09dcd47b52af50ed8f1c9d4698b535ca80bbc46\"\n  },\n  \"technical_archive_reviewed\": {\n    \"path\": \"/workspace/agenteam/docs/development/agent-team/d11-work-structure-verification.md\",\n    \"bytes\": 11373,\n    \"sha256\": \"3dbcf7a325d5400145361af61ecb8f6b4f48010048a2c8a87735d0735c9171c0\"\n  },\n  \"technical_evidence_reviewed\": {\n    \"path\": \"/workspace/agenteam/docs/development/agent-team/d11-work-structure-verification-evidence.json\",\n    \"bytes\": 96903,\n    \"sha256\": \"5d16b0774009dd3df30213f9020546f9f042f24a5f9890c0808fcf03f4df84f4\"\n  },\n  \"root_checks\": \"Read full technical archive, README insertion and independent review; all 106 unique archive refs match. Final17 technical bytes match accepted source manifest; installed README matches exact candidate and two links exist. No additional technical execution.\",\n  \"scope\": \"Complete18-path Milestone/Sprint Structure card by explicit version composition. Previous five new author rounds retain old source. U1 corrected Unknown, current five old regressions and independent A/B accepted. Original failures and B external tool terminal unavailable remain.\",\n  \"not_completed\": [\n    \"Whole D11\",\n    \"Task canonical/membership\",\n    \"Sprint lifecycle/delete/move\",\n    \"Execution/Dispatch adapters\",\n    \"Tool/HTTP/UI/App/production Work root\",\n    \"Production readiness\",\n    \"D08-D28/E01\"\n  ],\n  \"next\": \"Archive this final acceptance as a small explicit supplement without rewriting old17 acceptance history, then root stage only accepted Work paths and documentation; Model unaccepted files excluded.\"\n}\n",
+    "readme_installed": {
+      "path": "/workspace/agenteam/docs/development/backend/README.md",
+      "bytes": 80200,
+      "sha256": "b6b5b281266483f781224d4c4a8e8f7af927d112b737e4630f234a9433629469"
+    },
+    "readme_installation": {
+      "path": "/workspace/scratch/d11-work-structure-backend-author01/readme-installation01/installation.json",
+      "bytes": 2633,
+      "sha256": "544ba023af8492183f9c8cc0b09dcd47b52af50ed8f1c9d4698b535ca80bbc46"
+    },
+    "readme_independent_review": {
+      "path": "/workspace/scratch/architecture-d11-readme-v01-review/review.md",
+      "bytes": 1886,
+      "sha256": "bd2c403772d133488a8f3db1deba7c1829264962706ae3bf13e8b9a67a2b4b09"
+    },
+    "prior_technical_archive": {
+      "report_original_identity": {
+        "path": "/workspace/agenteam/docs/development/agent-team/d11-work-structure-verification.md",
+        "bytes": 11373,
+        "sha256": "3dbcf7a325d5400145361af61ecb8f6b4f48010048a2c8a87735d0735c9171c0"
+      },
+      "evidence_original_identity": {
+        "path": "/workspace/agenteam/docs/development/agent-team/d11-work-structure-verification-evidence.json",
+        "bytes": 96903,
+        "sha256": "5d16b0774009dd3df30213f9020546f9f042f24a5f9890c0808fcf03f4df84f4"
+      },
+      "report_preserved_copy": {
+        "path": "/workspace/scratch/architecture-d11-technical-archive02/technical17-report.md",
+        "bytes": 11373,
+        "sha256": "3dbcf7a325d5400145361af61ecb8f6b4f48010048a2c8a87735d0735c9171c0"
+      },
+      "evidence_preserved_copy": {
+        "path": "/workspace/scratch/architecture-d11-technical-archive02/technical17-evidence.json",
+        "bytes": 96903,
+        "sha256": "5d16b0774009dd3df30213f9020546f9f042f24a5f9890c0808fcf03f4df84f4"
+      }
+    },
+    "technical_execution_added": false,
+    "original_B_external_tool_terminal_observed": false,
+    "Git_delivery_status": "pending root action; no Git executed by archive author",
+    "original_fields_unchanged": true
+  }
+}

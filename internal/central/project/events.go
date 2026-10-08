@@ -304,6 +304,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
 	if d.Kind == oc.AppendProject && d.Event.Producer == "model" {
 		return a.discoverModelEvent(request)
 	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "work" {
+		return a.discoverWorkEvent(request)
+	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
 	}
@@ -334,6 +337,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request 
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "model" {
 		return a.validateModelEventInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "work" {
+		return a.validateWorkEventInTx(ctx, tx, request, deps)
 	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return fault(foundation.DependencyUnbound)
