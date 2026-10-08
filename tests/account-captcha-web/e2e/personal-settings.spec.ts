@@ -52,6 +52,7 @@ type SettingsJSONWindow = Window & {
   };
 };
 type SettingsJSONTarget =
+  | { path: "/api/v1/me"; method: "PATCH"; status: 400 }
   | { path: "/api/v1/me/preferences"; method: "PUT"; status: 409 }
   | { path: "/api/v1/sessions/login"; method: "POST"; status: 401 }
   | { path: "/api/v1/me/change-password"; method: "POST"; status: 400 };
@@ -431,14 +432,12 @@ test("[profile] current profile, exact final inputs and three real static avatar
     " 资料 final X ",
   );
   await page.locator("#profile-username").fill("settings-existing");
-  const duplicate = await responseFor(
+  const duplicate = await settingsJSONFor(
     page,
+    { path: "/api/v1/me", method: "PATCH", status: 400 },
     () => page.getByRole("button", { name: "保存资料", exact: true }).click(),
-    "/api/v1/me",
-    "PATCH",
-    400,
   );
-  expect((await duplicate.json()).field_errors).toContainEqual({
+  expect(duplicate.field_errors).toContainEqual({
     path: "/username",
     code: "ALREADY_EXISTS",
   });

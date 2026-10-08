@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前限定交付（2026-10-08）：额外legacy单路径personal-settings.spec.ts两hunk取证修正已独审PASS/STOP（096892da），sourcea0fede；原helper/全部断言/预算保，显式strict TS补DOM.Iterable后PASS。原helper格式例外基线171/当前172（早称169为hunk起点）、原v1格式/v3类型/oldprofile01 FAIL均留。仅该测试静态交付，不代表profile正文/UI/facts实际通过；final05/old14资源、实际A/B/README22/完整D27仍待，原3restore无窗口，生产与三停止保持，详台账。
+
 当前永久归档（2026-10-08）：旧16首批永久档已root核104逻辑/65指纹/48Git，原2PASS/1FAIL/13未跑与3轮21ID/3direct16adopted退役独核保持。窄legacy补丁2处source候选a0fede；格式唯一提示原helper169旧行，formatter仅改该无关行后已恢复，原v1 FAIL/v2输出均留，root授v3仅显式TS检查，source未接受/资源未授。原3恢复，实际A/B/README22/完整D27未验，详台账，生产/三停止保持。
 
 当前窄修授权（2026-10-08）：oldprofile01归因限定CDP取body阶段失败/原400已匹配，正文和后续UI/facts未证。独审与作者诊断一致最小必要额外legacy单路径personal-settings.spec.ts，root已授仅PATCH/me400 target+duplicate取值复用现有settingsJSONFor，全部断言/预算不变；不扩原24卡接受/不称产品PASS。作者有限格式/type后STOP独审，资源未授；原3恢复，旧16后13/A-B/README22/full未验，详台账，生产/三停止保持。

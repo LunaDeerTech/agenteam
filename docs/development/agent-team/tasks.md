@@ -1,5 +1,15 @@
 # 团队任务台账
 
+## 2026-10-08：额外legacy单测试路径窄修独审接受
+
+单路径tests/account-captcha-web/e2e/personal-settings.spec.ts sourcea0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603，逐字节等于Git367/155b基线加两处授权替换：PATCH/me400闭集target和duplicate调用复用既有settingsJSONFor/对象field_errors。原helper4694 bytes不变，400、/username ALREADY_EXISTS、aria-invalid/currentread/avatar/facts等后段断言与预算保，root本地patch diff-check无新增格式问题。
+
+作者v4 freeze76058b575eb4d8efb3233b450b7b2b49530f1f9b9f7e9ce115e134ae0648fc20，唯一显式personal spec strict/noEmit/Bundler TS lib补DOM.Iterable后actualexit0/1.473606s/PID283343 start1517411 actualwait/owned双空/24输入同、无诊断。此lib与既有web环境一致，源/strict不改；原v3缺DOM.Iterable导致原NodeList spread TS2488 FAIL保留。原v1 formatFAIL/v2formatter唯一无关旧行恢复也留，例外精确基线171/当前172，先前169指hunk起点，未宣称fullfile新PrettierPASS。
+
+独立正式STATIC+固定类型/owned原件PASS/STOP：legacy-profile-json-static-review/review.md SHA096892daf6b09d72168638e2c848b24a8f895e3fdfe79680f72e716333eba1a5，evidence7ff2b6feef90dc305f264e949daa3fc0aaf9d213e61d69f0deb4067f707c3039，manifest75350c5ea5fda899c0e12d56ca07d38eedfc5506d4e579db3e457533cf0df563；四freeze/41列明原件逐SHA/bytes核同。root明确仅交付这个必要额外legacy取证路径，不扩大原24卡接受，原oldprofile01真实FAIL和正文/UI/facts证据缺口留至新真轮。
+
+下一步root小source提交/push后唯一53准备窗口，backend正式final05一个legacy源闭包delta/一次file-only门禁，indprepared接受后root另immutable truecopy授old14原预算条件串行；不重建955图/cache、不Go/JS业务/build/list，不越v04 FAIL守卫。原auth2限定复用条件与A-B逐轮执行要求保持，资源尚未授，原3restore无当前窗口。README22/完整D27/生产未绑定/ready503/D08–D28/E01与三停止不变，以下为历史。
+
 ## 2026-10-08：旧16失败首批永久档与旧格式例外
 
 [old16首批永久报告](project-owner-ui-recovered-old16batch01-verification.md)已STOP，root核104逻辑原件1221820 bytes source/archive一致、65指纹/48Git定位同；新增62实体834054 bytes，复用18已发表实体129964 bytes（37逻辑）。72run原件900775 bytes+3launch完整核，同原2PASS/1FAIL/13NOT_RUN、3direct exit0/0/1+16adopted/3watchdog/21不同ID双清/input同/root原3restore；12nonowned未waitshim单列，原profile441 CDP无body与后段未到不回填。

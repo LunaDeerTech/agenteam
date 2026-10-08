@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新限定交付：旧profile JSON取证修正静态通过
+
+额外单legacy测试两hunk sourcea0fede已独审STATIC+固定类型原件PASS/STOP，原helper/全部断言/预算保；原格式例外171→172（hunk169）与v1/v3失败保留，不称真实profilePASS。root小块交付后将装53准备窗口、仅授final05一legacy源差量/一次filegate，实际old14/A-B/README22/full待后继；当前原3restore/资源未授。精确refs与限制见[台账](tasks.md)，生产与三停止保持。
+
 ## 最新永久档：旧16首批失败与窄修待验
 
 [old16首批永久报告](project-owner-ui-recovered-old16batch01-verification.md)104逻辑/65指纹/48Git root核同，原2PASS/1FAIL/13未跑和3轮退役/无body证据缺口保持。额外单legacy补丁2处已落地，唯一格式提示在原helper169旧行；无关formatter改动已恢复，原格式FAIL/输出保留，v3仅显式TS检查待交。old14计划限定STATIC PASS但source/final05 pending，无资源；原3已恢复，A-B/README22/full未验。精确计数和授权见[台账](tasks.md)，生产与三停止保持。
