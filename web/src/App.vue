@@ -17,6 +17,7 @@ import {
   installAccountSecurityNavigation,
   installSMTPSettingsNavigation,
   installOutboundPolicyNavigation,
+  installProjectNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
@@ -44,10 +45,14 @@ import {
   createSystemOutboundPolicy,
   systemOutboundPolicyKey,
 } from './composables/useSystemOutboundPolicy'
+import { createProjectWorkspace, projectWorkspaceKey } from './composables/useProjectWorkspace'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
   router = useRouter()
+const projects = createProjectWorkspace(auth, (path) => router.replace(path))
+provide(projectWorkspaceKey, projects)
+const stopProjectNavigation = installProjectNavigation(router, projects)
 const settings = createPersonalSettings(auth)
 provide(personalSettingsKey, settings)
 const stopPersonalNavigation = installPersonalNavigation(router, settings)
@@ -110,7 +115,8 @@ async function logout() {
     (await selection.confirmLeave()) &&
     (await accountSecurity.confirmLeave()) &&
     (await smtpSections.confirmLeave()) &&
-    (await outboundPolicy.confirmLeave())
+    (await outboundPolicy.confirmLeave()) &&
+    (await projects.confirmLeave())
   )
     await auth.logout()
 }
@@ -139,6 +145,7 @@ watch(
   },
 )
 onMounted(() => {
+  projects.afterNavigation(route.fullPath, '')
   entry.afterNavigation(route.fullPath, '')
   invitations.afterNavigation(route.fullPath, '')
   providers.afterNavigation(route.fullPath, '')
@@ -153,6 +160,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopProjectNavigation()
+  projects.dispose()
   stopPersonalNavigation()
   stopEntryNavigation()
   stopInvitationNavigation()
@@ -216,6 +225,19 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
+  <UiDialog
+    :open="projects.confirmation.open"
+    :title="projects.confirmation.title"
+    @update:open="!$event && projects.finishConfirmation(false)"
+  >
+    <p>{{ projects.confirmation.message }}</p>
+    <template #footer>
+      <UiButton variant="ghost" @click="projects.finishConfirmation(false)">继续编辑</UiButton>
+      <UiButton @click="projects.finishConfirmation(true)">{{
+        projects.confirmation.label
+      }}</UiButton>
+    </template>
+  </UiDialog>
   <UiDialog
     :open="settings.confirmation.open"
     :title="settings.confirmation.title"

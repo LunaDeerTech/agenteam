@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/auth/LoginView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
-import { installAuthentication } from './auth'
+import { installAuthentication, projectRoute } from './auth'
 import { installAccountLinkCapture, type AccountEntryMode } from './account-link'
 installAccountLinkCapture()
 export const pages: RouteRecordRaw[] = import.meta.env.DEV
@@ -91,8 +91,48 @@ export const router = createRouter({
         { path: 'password', component: () => import('../views/settings/PasswordSettings.vue') },
       ],
     },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: () => import('../views/projects/ProjectListView.vue'),
+      meta: {
+        authentication: true,
+        protected: true,
+        projectWorkspace: true,
+        navigation: { label: '项目', order: 10 },
+      },
+    },
+    {
+      path: '/:username/:project_name',
+      component: () => import('../views/projects/ProjectWorkspaceView.vue'),
+      meta: { authentication: true, protected: true, projectWorkspace: true },
+      children: [
+        {
+          path: '',
+          name: 'project-home',
+          component: () => import('../views/projects/ProjectHomeView.vue'),
+        },
+        {
+          path: 'settings',
+          component: () => import('../views/projects/ProjectSettingsView.vue'),
+          redirect: (to) => {
+            const address = projectRoute(to.fullPath)
+            return address
+              ? address.path + '/general'
+              : { name: 'not-found', params: { pathMatch: to.path.slice(1).split('/') } }
+          },
+          children: [
+            {
+              path: 'general',
+              name: 'project-general',
+              component: () => import('../views/projects/ProjectGeneralSettings.vue'),
+            },
+          ],
+        },
+      ],
+    },
     ...pages,
-    { path: '/:pathMatch(.*)*', component: NotFoundView },
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView },
   ],
 })
 installAuthentication(router)
@@ -101,6 +141,7 @@ declare module 'vue-router' {
     navigation?: { label: string; order: number }
     authentication?: boolean
     protected?: boolean
+    projectWorkspace?: boolean
     systemAdmin?: boolean
     accountEntry?: AccountEntryMode
   }

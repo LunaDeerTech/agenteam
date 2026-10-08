@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前接续（2026-10-08）：Owner UI `ui-v1` 19源已通过独立STATIC＋Session/workspace受控29项，作者2077/type/build/format固定证据复核；本批15源交付，4源复用客户端。真实browser/PG、新5旧16及完整D27未接受；Go candidate04限定STATIC与68路由通过，资源driver清理异常修复、JS准备中，资源未启、资产未换。详情见[台账](docs/development/agent-team/tasks.md)。三停止及生产未绑定/ready503/D08–D28/E01边界保持。
+
 当前接续（2026-10-08）：Owner UI五源客户端／pure safe return已独立接受并推送 `7dbd42a3`（258项），[永久验收](docs/development/agent-team/project-owner-ui-client-verification.md)已归档；[固定依赖恢复](docs/development/agent-team/environment-test-dependencies-2026-10-08.md) `20d45a72` 已推送。Session/controller/App/路由/六页面与真实Go/browser仍未整卡接受，Go候选仅STATIC/离线阶段，真实资源未启；旧candidate04丢失说明及三停止保持，当前所有权和下一步见台账。
 
 本次恢复（2026-10-08）：快照 `work/2cf00e06` 干净，实际远端已有初始化收敛产品与归档，已安全快进本地 `main/ff396a4e` 并推送核一致；旧 UI candidate04/harness/scratch 未恢复，重新按已接受 rev2.1 实现及独验，不冒称保留源码或浏览器 PASS。当前四新实例已 ACK，文件/资源所有权与下一步见 [恢复记录](docs/development/agent-team/recovery-2026-10-08-environment.md)。历史接受及三停止边界保持。

@@ -434,7 +434,7 @@ describe('System user directory page and shared shells', () => {
         .getRoutes()
         .filter((route) => route.meta.navigation)
         .map((route) => route.path),
-    ).toEqual(['/system'])
+    ).toEqual(['/system', '/projects'])
     router.options.history.destroy()
   })
 })

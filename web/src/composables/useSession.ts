@@ -127,6 +127,35 @@ import {
   type SystemRuntimeInformationAPI,
 } from '../api/system-runtime-information'
 
+import {
+  createProjectOwnerAPI,
+  captureProjectUpdate,
+  type ProjectOwnerAPI,
+  type Project,
+  type ProjectQuery,
+  type ProjectAddress,
+  type ProjectUpdate,
+  type ProjectLookup,
+} from '../api/project-owner'
+type ProjectAction = 'project-read' | 'project-update' | 'project-lookup'
+export type ProjectProgress = Readonly<{
+  targetID: string
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  receipt: Project | null
+  observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
+type ProjectIntent = {
+  targetID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  payload: { input: ProjectUpdate | null; body: string | null }
+  uncertain: boolean
+  keyConflict: boolean
+}
+
 type OutboundPolicyAction = 'outbound-policy-read' | 'outbound-policy-write'
 export type SystemOutboundPolicyProgress = Readonly<{
   phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
@@ -341,6 +370,7 @@ type Action =
   | SMTPAction
   | SMTPDeliveryAction
   | OutboundPolicyAction
+  | ProjectAction
 interface Operation {
   generation: number
   kind: Action
@@ -448,6 +478,7 @@ export function createSessionController(
   outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI(),
   auditAPI: SystemAuditAPI = createSystemAuditAPI(),
   runtimeInformationAPI: SystemRuntimeInformationAPI = createSystemRuntimeInformationAPI(),
+  projectAPI: ProjectOwnerAPI = createProjectOwnerAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -513,6 +544,17 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const projectRevisions: Record<ProjectAction, number> = {
+    'project-read': 0,
+    'project-update': 0,
+    'project-lookup': 0,
+  }
+  const isProjectAction = (kind: Action): kind is ProjectAction =>
+    Object.hasOwn(projectRevisions, kind)
+  let projectIntent: ProjectIntent | null = null
+  const projectState = shallowReactive<{
+    progress: Omit<ProjectProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   const outboundRevisions: Record<OutboundPolicyAction, number> = {
     'outbound-policy-read': 0,
     'outbound-policy-write': 0,
@@ -659,6 +701,7 @@ export function createSessionController(
     state.user = null
     state.session = null
     if (invalidate) {
+      clearProjectState()
       clearInvitationState()
       clearProviderState()
       clearModelState()
@@ -721,6 +764,7 @@ export function createSessionController(
       previous.sessionID === view.session.id &&
       (!sessionCSRF || sessionCSRF === view.csrf_token)
     if (!same) {
+      clearProjectState()
       ++personalRevision
       personalContext.identity = Object.freeze({
         userID: view.user.id,
@@ -1226,35 +1270,38 @@ export function createSessionController(
       | AccountSecurityAction
       | SMTPAction
       | SMTPDeliveryAction
-      | OutboundPolicyAction = 'personal',
+      | OutboundPolicyAction
+      | ProjectAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      kind === 'system'
-        ? systemRevision
-        : kind === 'audit-read'
-          ? auditRevision
-          : kind === 'runtime-information-read'
-            ? runtimeInformationRevision
-            : kind === 'invitation-read'
-              ? invitationReadRevision
-              : kind === 'invitation-write'
-                ? invitationRevision
-                : kind === 'personal'
-                  ? personalRevision
-                  : isModelAction(kind)
-                    ? modelRevisions[kind]
-                    : isSelectionAction(kind)
-                      ? selectionRevisions[kind]
-                      : isAccountSecurityAction(kind)
-                        ? accountSecurityRevisions[kind]
-                        : isSMTPAction(kind)
-                          ? smtpRevisions[kind]
-                          : isSMTPDeliveryAction(kind)
-                            ? smtpDeliveryRevisions[kind]
-                            : isOutboundPolicyAction(kind)
-                              ? outboundRevisions[kind]
-                              : providerRevisions[kind]
+      isProjectAction(kind)
+        ? projectRevisions[kind]
+        : kind === 'system'
+          ? systemRevision
+          : kind === 'audit-read'
+            ? auditRevision
+            : kind === 'runtime-information-read'
+              ? runtimeInformationRevision
+              : kind === 'invitation-read'
+                ? invitationReadRevision
+                : kind === 'invitation-write'
+                  ? invitationRevision
+                  : kind === 'personal'
+                    ? personalRevision
+                    : isModelAction(kind)
+                      ? modelRevisions[kind]
+                      : isSelectionAction(kind)
+                        ? selectionRevisions[kind]
+                        : isAccountSecurityAction(kind)
+                          ? accountSecurityRevisions[kind]
+                          : isSMTPAction(kind)
+                            ? smtpRevisions[kind]
+                            : isSMTPDeliveryAction(kind)
+                              ? smtpDeliveryRevisions[kind]
+                              : isOutboundPolicyAction(kind)
+                                ? outboundRevisions[kind]
+                                : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1269,7 +1316,12 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (state.phase === 'authenticated' && state.user?.role === 'admin' && !systemDenied()))
+        (isProjectAction(kind)
+          ? state.phase === 'authenticated' &&
+            personalContext.phase === 'current' &&
+            state.user?.id === identity.userID &&
+            state.session?.id === identity.sessionID
+          : state.phase === 'authenticated' && state.user?.role === 'admin' && !systemDenied()))
     owner = op
     state.busy = true
     let resolveVisible!: (value: T) => void, rejectVisible!: (failure: AccountFailure) => void
@@ -1328,8 +1380,9 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e =
-          kind !== 'personal'
+        const e = isProjectAction(kind)
+          ? projectFailure(identity, op, error)
+          : kind !== 'personal'
             ? systemFailure(identity, op, current, error)
             : personalFailure(identity, error)
         if (command && personalIntent === command) {
@@ -3403,6 +3456,228 @@ export function createSessionController(
       return performSMTPDelivery(smtpDeliveryIntent)
     },
   }
+  function projectContext(original: Pick<ProjectIntent, 'identity' | 'csrf'>) {
+    return (
+      sameIdentity(original.identity, personalContext.identity) &&
+      personalContext.phase === 'current' &&
+      state.phase === 'authenticated' &&
+      state.user?.id === original.identity.userID &&
+      state.session?.id === original.identity.sessionID &&
+      !!sessionCSRF &&
+      original.csrf === sessionCSRF
+    )
+  }
+  function clearProjectPayload(original: ProjectIntent | null) {
+    if (original) {
+      original.payload.input = null
+      original.payload.body = null
+    }
+  }
+  function clearProjectState() {
+    const retiring = owner && isProjectAction(owner.kind) ? owner : null
+    for (const key of Object.keys(projectRevisions) as ProjectAction[]) ++projectRevisions[key]
+    clearProjectPayload(projectIntent)
+    projectIntent = null
+    projectState.progress = null
+    retiring?.abandon?.()
+  }
+  function projectFailure(identity: PersonalIdentity, op: Operation, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    // A local Project denial never changes the independent System admin gate.
+    if (
+      sameIdentity(identity, personalContext.identity) &&
+      generation === op.generation &&
+      (unavailableSession(e) || (e.problem?.status === 403 && e.problem.code === 'CSRF_FAILED'))
+    ) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  function publishProject(
+    original: ProjectIntent,
+    phase: ProjectProgress['phase'],
+    receipt: Project | null = null,
+    observation: ProjectProgress['observation'] = 'none',
+  ) {
+    projectState.progress = Object.freeze({
+      targetID: original.targetID,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function performProject(
+    original: ProjectIntent,
+    lookup = false,
+  ): Promise<Project | ProjectLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (projectIntent !== original || !original.payload.input || !projectContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: ProjectAction = lookup ? 'project-lookup' : 'project-update'
+    const revision = projectRevisions[kind]
+    const live = () =>
+      projectIntent === original && revision === projectRevisions[kind] && projectContext(original)
+    let dispatched = false
+    if (!lookup) publishProject(original, 'submitting')
+    return runAuthorized<Project | ProjectLookup>(
+      original.identity,
+      async (op, current) => {
+        const input = original.payload.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          return lookup
+            ? await projectAPI.lookup(original.targetID, original.identity.userID, input, options)
+            : await projectAPI.update(original.targetID, original.identity.userID, input, options)
+        } finally {
+          if (projectIntent !== original) clearProjectPayload(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          publishProject(original, 'uncertain', null, value.state)
+          return value
+        }
+        const receipt = 'state' in value ? value.result.project : value
+        publishProject(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        if (!live()) {
+          clearProjectPayload(original)
+          throw new AccountFailure('cancelled')
+        }
+        clearProjectPayload(original)
+        projectIntent = null
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          projectIntent === original &&
+          revision === projectRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (p &&
+              (p.commit_state === 'not_started' || p.commit_state === 'not_committed') &&
+              ((p.status === 400 && p.code === 'INVALID_ARGUMENT') ||
+                (p.status === 409 &&
+                  ['VERSION_CONFLICT', 'INVALID_STATE', 'PROJECT_NOT_ACTIVE'].includes(p.code)) ||
+                (p.status === 409 &&
+                  p.code === 'RESOURCE_BUSY' &&
+                  p.field_errors?.length === 1 &&
+                  p.field_errors[0]?.path === '/name' &&
+                  p.field_errors[0].code === 'NAME_TAKEN')))
+          original.keyConflict ||= p?.status === 409 && p.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= lookup || !known || original.keyConflict
+          publishProject(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
+  }
+  function projectRead<T>(work: (identity: PersonalIdentity, signal: AbortSignal) => Promise<T>) {
+    try {
+      const identity = personalIdentity()
+      return runAuthorized(
+        identity,
+        (op) => work(identity, op.abort.signal),
+        undefined,
+        'project-read',
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  const projects = {
+    get progress(): ProjectProgress | null {
+      const value = projectState.progress
+      if (!value) return null
+      const contextValid = !!projectIntent && projectContext(projectIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!projectIntent?.payload.input &&
+          projectIntent.uncertain &&
+          !projectIntent.keyConflict &&
+          value.observation !== 'in_progress' &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    list(query: ProjectQuery) {
+      return projectRead((_identity, signal) => projectAPI.list(query, signal))
+    },
+    resolve(address: ProjectAddress) {
+      return projectRead((identity, signal) => projectAPI.resolve(address, identity.userID, signal))
+    },
+    get(id: string) {
+      return projectRead((identity, signal) => projectAPI.get(id, identity.userID, signal))
+    },
+    abandonRead() {
+      ++projectRevisions['project-read']
+      if (owner?.kind === 'project-read') owner.abandon?.()
+    },
+    abandon: clearProjectState,
+    editRejected() {
+      if (
+        owner ||
+        !projectIntent ||
+        projectIntent.uncertain ||
+        projectState.progress?.phase !== 'rejected' ||
+        !projectContext(projectIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearProjectState()
+    },
+    startUpdate(id: string, value: ProjectUpdate) {
+      try {
+        const identity = personalIdentity()
+        if (projectIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (!uuid7.test(id)) throw new AccountFailure('invalid-input')
+        const input = captureProjectUpdate(value)
+        const original: ProjectIntent = {
+          targetID: id,
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          payload: { input, body: JSON.stringify(input) },
+          uncertain: false,
+          keyConflict: false,
+        }
+        projectIntent = original
+        return performProject(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!projectIntent?.uncertain || !projectContext(projectIntent))
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performProject(projectIntent, true)
+    },
+    retryOriginal() {
+      if (!projectIntent || !projects.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performProject(projectIntent)
+    },
+  }
   function clearOutboundPolicyPayload(original: SystemOutboundPolicyIntent | null) {
     if (!original) return
     original.payload.input = null
@@ -4175,6 +4450,7 @@ export function createSessionController(
   return {
     state: readonly(state),
     personalContext: readonly(personalContext),
+    projects,
     personal,
     system,
     entry,

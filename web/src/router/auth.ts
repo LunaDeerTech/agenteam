@@ -99,8 +99,40 @@ export function installPersonalNavigation(
   }
 }
 
+const projectNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installProjectNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  projectNavigation.set(router, owner)
+  return () => {
+    if (projectNavigation.get(router) === owner) projectNavigation.delete(router)
+  }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
+    if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
+      return {
+        name: 'not-found',
+        params: { pathMatch: to.path.slice(1).split('/') },
+        replace: true,
+      }
+    if (
+      from.meta.projectWorkspace &&
+      to.fullPath !== from.fullPath &&
+      !((await projectNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
     // Ask before Session revalidation can temporarily unmount the dirty page.
     if (
       from.path === '/system/outbound-policy' &&
@@ -174,6 +206,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
     return true
   })
   router.afterEach((to, from, failure) => {
+    if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)

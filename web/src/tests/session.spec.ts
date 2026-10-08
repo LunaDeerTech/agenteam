@@ -501,3 +501,132 @@ describe('Account Session ownership', () => {
     expect(c.state.phase).toBe('anonymous')
   })
 })
+
+// The additional Owner facade shares the original Cookie owner and does not
+// weaken any existing personal/System gate.
+describe('Project facade compatibility', () => {
+  it('keeps all old mutators behind an active Project actual tail', async () => {
+    const { api } = fixture()
+    api.getSession.mockResolvedValue(view)
+    const tail = deferred<import('../api/project-owner').Project>()
+    const value: import('../api/project-owner').Project = {
+      id,
+      owner_user_id: id,
+      name: 'demo',
+      normalized_name: 'demo',
+      description: '',
+      lifecycle: 'active',
+      version: '1',
+      current_sprint_id: null,
+      created_at: time,
+      updated_at: time,
+      archived_at: null,
+    }
+    const projects: import('../api/project-owner').ProjectOwnerAPI = {
+      list: vi.fn(),
+      resolve: vi.fn(),
+      get: vi.fn(async () => tail.promise),
+      update: vi.fn(),
+      lookup: vi.fn(),
+    }
+    const auth = createSessionController(
+      api,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      projects,
+    )
+    await auth.restore()
+    const reading = auth.projects.get(id)
+    try {
+      await Promise.resolve()
+      await Promise.resolve()
+      const mutations = [
+        () => auth.personal.updateProfile({ version: '1', display_name: 'x' }),
+        () => auth.personal.setPreferences({ version: '1', theme: 'dark' }),
+        () =>
+          auth.personal.putAvatar({
+            version: '1',
+            file: new File([], 'x.png'),
+            mediaType: 'image/png',
+          }),
+        () => auth.personal.deleteAvatar({ version: '1' }),
+        () => auth.personal.changePassword({} as never),
+        () => auth.system.createInvitation({ email: 'invite@example.test' }),
+        () => auth.system.providers.start({} as never),
+        () => auth.system.models.start({} as never),
+        () => auth.system.selection.start({} as never),
+        () => auth.system.selection.meetingSummary.start({} as never),
+        () => auth.system.accountSecurity.start({} as never),
+        () => auth.system.smtp.startUpdate({} as never),
+        () => auth.system.smtpDelivery.startTest({} as never),
+        () => auth.system.outboundPolicy.startUpdate({} as never),
+      ]
+      for (const mutation of mutations)
+        await expect(mutation()).rejects.toMatchObject({ kind: 'busy' })
+      expect(api.updateProfile).not.toHaveBeenCalled()
+      expect(api.logout).not.toHaveBeenCalled()
+      expect(auth.state.busy).toBe(true)
+    } finally {
+      tail.resolve(value)
+      await reading
+      auth.leave()
+    }
+  })
+  it('Project forbidden preserves independent admin authority and System denial preserves Owner reads', async () => {
+    const { api } = fixture()
+    api.getSession.mockResolvedValue({
+      ...view,
+      user: { ...view.user, username: 'admin', role: 'admin' },
+    })
+    const users = { listUsers: vi.fn(async () => ({ items: [] })) }
+    const projects: import('../api/project-owner').ProjectOwnerAPI = {
+      list: vi.fn(async () => ({ items: [], next_cursor: null })),
+      resolve: vi.fn(),
+      get: vi.fn(async () => {
+        throw problem('FORBIDDEN', 403)
+      }),
+      update: vi.fn(),
+      lookup: vi.fn(),
+    }
+    const auth = createSessionController(
+      api,
+      users,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      projects,
+    )
+    try {
+      await auth.restore()
+      await expect(auth.projects.get(id)).rejects.toMatchObject({ kind: 'problem' })
+      expect(auth.system.denied).toBe(false)
+      await expect(auth.system.listUsers({})).resolves.toEqual({ items: [] })
+      users.listUsers.mockRejectedValueOnce(problem('FORBIDDEN', 403))
+      await expect(auth.system.listUsers({})).rejects.toMatchObject({ kind: 'problem' })
+      expect(auth.system.denied).toBe(true)
+      await expect(auth.projects.list({ limit: 25 })).resolves.toEqual({
+        items: [],
+        next_cursor: null,
+      })
+      expect(auth.system.denied).toBe(true)
+    } finally {
+      auth.leave()
+    }
+  })
+})

@@ -1,5 +1,15 @@
 # 团队任务台账
 
+## 2026-10-08：Owner 工作区前端受控子能力接受
+
+D27 rev2.1 的 `ui-v1` 完整19前端固定输入通过独立STATIC与真实Session/controller受控补集；本批15源实际改动、4源沿用已接受客户端字节。Project列表、稳定ID详情、基本信息编辑、冲突fresh Get后显式采用、unknown原请求恢复、App聚合确认及路由接入可作为前端子能力交付。Session继续唯一持有Cookie owner，14旧mutator与Project双向互斥，Project/System权限状态隔离；管理员统一Meeting Summary规则不变。
+
+独立终局 `/workspace/scratch/owner-ui-verification/ui-v1/review.md` SHA `00e1dcdf4a31318eb579c306028820f8f7c3ba728d1415dbf9b809410462f7ab`、`result.json` SHA `aa77e590295b7c50e7416c8f3b3d3f5cc4db50db2d7cb1ea16045d30b1811ae1` 为PASS且无未关闭必修。实际run02 29/29、2.006s、direct actual wait0、无adopted、owned两扫空，52运行输入前后同；37源码绑定含完整19freeze。原run01 28/29是独立探针缺旧Selection activeRoute上下文，仅修探针、产品零改，原件保留。作者52文件2077/2077、type/build及19源格式三轮输入各180项核一致，原失败保持；复用API258、不重跑整包。53项独有dist静态核同、无Debug，不代表生产SPA接受。
+
+root核19当前字节、限定差异及终局；产品以本节与15源同批Git历史定位，提交后立即推送并核远端。必要永久小原件由独验负责人后续另档，不因归档排版延迟已验源码交付。前端19源无活动写入/命令；#20–21 browser脚本另在离线准备，#18–19 Go candidate04仅STATIC/compile与独立68路由检查通过，资源driver清理异常路径正在修复。真实资源和原web/dist交换尚未启动，第一轮仅new-read，待固定JS/driver审查/资产门禁就绪后由root安排。
+
+这是前端STATIC＋受控接受，完整D27、新5/旧16真实top、视觉/键盘/焦点/窄屏、真实HTTP同body schema/client、真实PG三态恢复尚未验收。生产Skills/root/创建HTTP/Resolution/Invocations/D24仍未绑定、ready503，D08–D28/E01未完成、E01未开始，三历史停止保持。Jina有界调研失败/准备永久档 `a985cf27` 已推送核同，零官方字段事实、不冻结实施卡。
+
 ## 2026-10-08：客户端小块永久独验归档
 
 [Owner UI 客户端与安全返回验收](project-owner-ui-client-verification.md)及必要小原件已冻结。root逐项复核68逻辑原件与实际source／archive SHA和字节、产品 `7dbd42a3`／固定基线的10个Git输入与链接，范围与258项限定结论一致；纯归档不重复业务测试。原格式/旧期待失败和原JSON无末换行保持。产品已推送并核远端一致，后继auth导航集成不回写api-v1输入。
