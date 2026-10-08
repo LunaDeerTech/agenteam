@@ -3,6 +3,7 @@ import { useSession, type SessionController } from '../composables/useSession'
 
 const returnTargets = [
   '/',
+  '/projects',
   '/settings/profile',
   '/settings/appearance',
   '/settings/password',
@@ -17,11 +18,46 @@ const returnTargets = [
   '/system/audit',
   '/system/runtime-information',
 ] as const
-type ReturnTarget = (typeof returnTargets)[number]
-export function safeReturnTarget(value: unknown): ReturnTarget {
-  return typeof value === 'string' && returnTargets.includes(value as ReturnTarget)
-    ? (value as ReturnTarget)
-    : '/'
+// Inspect the raw path before Vue Router decodes params. No URL parser or decode pass.
+const reservedProjectRoots = new Set([
+  'api',
+  'assets',
+  'auth',
+  'login',
+  'logout',
+  'invite',
+  'reset',
+  'settings',
+  'system',
+  'personal',
+  'diagnostics',
+  'livez',
+  'readyz',
+  'debug',
+])
+export function projectRoute(value: unknown): {
+  username: string
+  project_name: string
+  suffix: '' | '/settings' | '/settings/general'
+  path: string
+} | null {
+  if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
+  const match =
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/general)?)?$/.exec(
+      value,
+    )
+  if (!match) return null
+  const username = match[1]!.toLowerCase(),
+    project_name = match[2]!.toLowerCase()
+  if (reservedProjectRoots.has(username) || project_name === '.' || project_name === '..')
+    return null
+  const suffix = (match[3] ?? '') as '' | '/settings' | '/settings/general'
+  return { username, project_name, suffix, path: `/${username}/${project_name}${suffix}` }
+}
+export function safeReturnTarget(value: unknown): string {
+  if (typeof value === 'string' && (returnTargets as readonly string[]).includes(value))
+    return value
+  return projectRoute(value)?.path ?? '/'
 }
 export function isAccountSwitch(value: unknown): boolean {
   return value === '1'

@@ -54,6 +54,11 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  listOwnerProjects: ['GET', '/api/v1/projects', 200],
+  getOwnerProject: ['GET', '/api/v1/projects/{id}', 200],
+  resolveOwnerProject: ['GET', '/api/v1/projects/resolve', 200],
+  updateOwnerProject: ['PATCH', '/api/v1/projects/{id}', 200],
+  lookupOwnerProject: ['POST', '/api/v1/projects/{id}/commands/lookup', 200],
   bootstrap: ['GET', '/api/v1/auth/bootstrap', 200],
   session: ['GET', '/api/v1/session', 200],
   login: ['POST', '/api/v1/sessions/login', 200],
@@ -584,7 +589,35 @@ type AuditOptions<E extends AuditEndpoint> = E extends 'listSystemAudit'
   ? { signal: AbortSignal; audit: AuditWireQuery }
   : { signal: AbortSignal; target: string }
 
+type ProjectEndpoint =
+  | 'listOwnerProjects'
+  | 'getOwnerProject'
+  | 'resolveOwnerProject'
+  | 'updateOwnerProject'
+  | 'lookupOwnerProject'
+type ProjectWireQuery = Readonly<{ limit: number; lifecycle?: readonly string[]; cursor?: string }>
+type ProjectWireAddress = Readonly<{ username: string; project_name: string }>
+type ProjectOptions<E extends ProjectEndpoint> = E extends 'listOwnerProjects'
+  ? { signal: AbortSignal; projects: ProjectWireQuery }
+  : E extends 'resolveOwnerProject'
+    ? { signal: AbortSignal; projectAddress: ProjectWireAddress }
+    : E extends 'getOwnerProject'
+      ? { signal: AbortSignal; target: string }
+      : { signal: AbortSignal; target: string; body: unknown; csrf: string; key: string }
+const projectEndpoints: readonly ProjectEndpoint[] = [
+  'listOwnerProjects',
+  'getOwnerProject',
+  'resolveOwnerProject',
+  'updateOwnerProject',
+  'lookupOwnerProject',
+]
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends ProjectEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: ProjectOptions<E>,
+  ): Promise<T>
   function request<T>(
     endpoint: 'getSystemRuntimeInformation',
     parse: (value: unknown) => T,
@@ -649,6 +682,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
   function request<T>(
     endpoint: Exclude<
       keyof typeof endpoints,
+      | ProjectEndpoint
       | 'systemUsers'
       | 'systemInvitations'
       | InvitationTarget
@@ -675,13 +709,94 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       models?: Readonly<{ provider_id: string; cursor?: string }>
       mailJobs?: Readonly<{ cursor?: string }>
       audit?: AuditWireQuery
+      projects?: ProjectWireQuery
+      projectAddress?: ProjectWireAddress
       target?: string
     },
   ): Promise<T> {
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if (endpoint === 'getSystemRuntimeInformation') {
+    if (projectEndpoints.includes(endpoint as ProjectEndpoint)) {
+      try {
+        const hasTarget = basePath.includes('{id}')
+        shape(options, [
+          'signal',
+          ...(hasTarget ? ['target'] : []),
+          ...(method !== 'GET' ? ['body', 'csrf', 'key'] : []),
+          ...(endpoint === 'listOwnerProjects' ? ['projects'] : []),
+          ...(endpoint === 'resolveOwnerProject' ? ['projectAddress'] : []),
+        ])
+        if (hasTarget) {
+          if (!uuid7.test(string(options.target, 36, 36))) throw new Error()
+          path = basePath.replace('{id}', options.target!)
+        }
+        const params = new URLSearchParams()
+        if (endpoint === 'listOwnerProjects') {
+          const query = shape(options.projects, ['limit'], ['lifecycle', 'cursor'])
+          if (
+            typeof query.limit !== 'number' ||
+            !Number.isInteger(query.limit) ||
+            query.limit < 1 ||
+            query.limit > 100
+          )
+            throw new Error()
+          params.set('limit', String(query.limit))
+          if (Object.hasOwn(query, 'lifecycle')) {
+            const states = ['active', 'archiving', 'archived', 'deleting']
+            if (
+              !Array.isArray(query.lifecycle) ||
+              !query.lifecycle.length ||
+              query.lifecycle.length > 4 ||
+              new Set(query.lifecycle).size !== query.lifecycle.length ||
+              !query.lifecycle.every((v) => states.includes(v))
+            )
+              throw new Error()
+            params.set(
+              'lifecycle',
+              states.filter((v) => (query.lifecycle as string[]).includes(v)).join(','),
+            )
+          }
+          if (Object.hasOwn(query, 'cursor')) {
+            const cursor = string(query.cursor, 1, 8192)
+            if (
+              new TextEncoder().encode(cursor).byteLength > 8192 ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)
+            )
+              throw new Error()
+            params.set('cursor', cursor)
+          }
+        }
+        if (endpoint === 'resolveOwnerProject') {
+          const address = shape(options.projectAddress, ['username', 'project_name'])
+          const username = string(address.username, 3, 32),
+            name = string(address.project_name, 1, 64)
+          if (
+            !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])$/.test(username) ||
+            !/^[a-z0-9._-]+$/.test(name) ||
+            name === '.' ||
+            name === '..'
+          )
+            throw new Error()
+          params.set('username', username)
+          params.set('project_name', name)
+        }
+        if (params.size) path += '?' + params.toString()
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+        if (
+          endpoint === 'lookupOwnerProject' &&
+          shape(options.body, ['command']).command !== 'update'
+        )
+          throw new Error()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (endpoint === 'getSystemRuntimeInformation') {
       try {
         shape(options, ['signal'])
       } catch {
@@ -789,6 +904,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         throw new AccountFailure('invalid-input')
       }
     } else if (
+      Object.hasOwn(options, 'projects') ||
+      Object.hasOwn(options, 'projectAddress') ||
       Object.hasOwn(options, 'audit') ||
       Object.hasOwn(options, 'users') ||
       Object.hasOwn(options, 'invitations') ||
@@ -814,15 +931,19 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
       const maximum =
-        endpoint === 'updateOutboundPolicy'
-          ? 1024 * 1024
-          : endpoint === 'createModelCredential'
-            ? 512 * 1024
-            : endpoint === 'createProvider' ||
-                endpoint === 'updateProvider' ||
-                endpoint === 'updateSMTPSettings'
-              ? 32 * 1024
-              : 16 * 1024
+        endpoint === 'updateOwnerProject'
+          ? 64 * 1024
+          : endpoint === 'lookupOwnerProject'
+            ? 1024
+            : endpoint === 'updateOutboundPolicy'
+              ? 1024 * 1024
+              : endpoint === 'createModelCredential'
+                ? 512 * 1024
+                : endpoint === 'createProvider' ||
+                    endpoint === 'updateProvider' ||
+                    endpoint === 'updateSMTPSettings'
+                  ? 32 * 1024
+                  : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -888,13 +1009,17 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          endpoint === 'getSystemRuntimeInformation' && success
-            ? 16 * 1024
-            : endpoint === 'listProviders' && success
-              ? 2 * 1024 * 1024
-              : (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') && success
-                ? 1024 * 1024
-                : 600_000,
+          endpoint === 'listOwnerProjects' && success
+            ? 5 * 1024 * 1024
+            : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+              ? 64 * 1024
+              : endpoint === 'getSystemRuntimeInformation' && success
+                ? 16 * 1024
+                : endpoint === 'listProviders' && success
+                  ? 2 * 1024 * 1024
+                  : (endpoint === 'listSystemAudit' || endpoint === 'getSystemAudit') && success
+                    ? 1024 * 1024
+                    : 600_000,
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')

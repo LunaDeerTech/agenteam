@@ -217,15 +217,9 @@ describe('formal authentication pages', () => {
     await p.router.push('/no-such-page')
     await flushPromises()
     expect(p.api.getSession).not.toHaveBeenCalled()
-    for (const target of [
-      'https://example.com/',
-      '//example.com',
-      '/projects/123',
-      ['/'],
-      '/#other',
-      undefined,
-    ])
+    for (const target of ['https://example.com/', '//example.com', ['/'], '/#other', undefined])
       expect(safeReturnTarget(target)).toBe('/')
+    expect(safeReturnTarget('/projects/123')).toBe('/projects/123')
     expect(safeReturnTarget('/')).toBe('/')
   })
   for (const reason of ['abandon', 'csrf'])
@@ -495,4 +489,54 @@ describe('formal authentication pages', () => {
         expect(p.auth.state.passReady).toBe(false)
       }
     })
+})
+
+describe('Project login return closed paths', () => {
+  it.each(['Admin', 'root', 'support', 'projects', 'forgot-password', 'reset-password'])(
+    'accepts existing Owner username %s and canonicalizes only the closed path',
+    (username) => {
+      for (const suffix of ['', '/settings', '/settings/general']) {
+        expect(safeReturnTarget(`/${username}/DeMo${suffix}`)).toBe(
+          `/${username.toLowerCase()}/demo${suffix}`,
+        )
+      }
+      expect(safeReturnTarget(`/${username}/demo?token=private`)).toBe('/')
+      expect(safeReturnTarget(`/${username}/demo/extra`)).toBe('/')
+    },
+  )
+  it.each([
+    '/system/users/extra',
+    '/settings/unknown',
+    '/api/v1',
+    '/api/v1/projects',
+    '/assets/demo',
+    '/auth/demo',
+    '/debug/demo',
+    '/login/demo',
+    '//admin/demo',
+    '/admin/demo/',
+    '/admin//demo',
+    '/admin/.',
+    '/admin/..',
+    '/admin/%2e%2e',
+    '/admin/demo%2Fsettings',
+    '/admin/demo?return=x',
+    '/admin/demo#x',
+    '/admin\\demo',
+    'https://example.com/admin/demo',
+    ['/admin/demo'],
+    '/forgot-password',
+    '/reset-password',
+    '/a/demo',
+    '/-admin/demo',
+    '/admin-/demo',
+    '/ADMIN/demo/SETTINGS',
+  ])('rejects raw path outside Project branch: %j', (value) => {
+    expect(safeReturnTarget(value)).toBe('/')
+  })
+  it('preserves old static targets alongside the new list', () => {
+    expect(safeReturnTarget('/system/users')).toBe('/system/users')
+    expect(safeReturnTarget('/settings/profile')).toBe('/settings/profile')
+    expect(safeReturnTarget('/projects')).toBe('/projects')
+  })
 })

@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：Owner UI 客户端与安全回跳小块接受
+
+D27 rev2.1 的 API／pure safe return 子能力 `api-v1` 五源已通过独立限定验收：`web/src/api/client.ts`、`web/src/api/project-owner.ts`、`web/src/router/auth.ts`、`web/src/tests/project-owner-client.spec.ts`、`web/src/tests/authentication.spec.ts`。作者最终 api-unit03 112/112、format-check02 与 api-types01 通过；后者之后仅旧测试期待及格式变化。独立最终 258/258（183 独立＋60 作者客户端＋15 既有 Account）通过，1.725s，五源前后 SHA 同、direct actual wait 0、无 adopted、owned 两扫空；root 核五安装字节与 freeze 一致并审关键差异。
+
+独立冻结终局 `/workspace/scratch/owner-ui-verification/api-v1/review.md` / `result.json` 状态为 `PASS_BOUNDED_FIVE_PATH_API_AND_SAFE_RETURN`、无必修；必要永久证据正由该负责人归档，后继归档复用本次产品提交五源，不因报告排版延迟交付。原格式／旧期待失败保留；末尾行终止字符仅静态疑虑，20 定点反例全部正确拒绝，不称产品缺陷。产品提交以本节及五源同批 Git 历史定位，推送由 root 紧接提交执行并核远端。
+
+这不是 Session／实际 Router/App／Go／PG/browser／完整 UI 接受：独立 pure return 隔离了 Session 导入。controller、六页面与真实 harness 尚在实施，后续消费此子能力；auth 两源交还原前端作者继续导航集成。真实 PG/browser 尚未运行。Go 锁定依赖、两个固定 PG digest、精确 MinIO SHA 和浏览器依赖已恢复，相关依赖报告独立归档中。完整 D08–D28/E01 未完成，E01 未开始，三停止及既定 Summary/ready503 边界不变。
+
 ## 2026-10-08：恢复快照与远端增量核对
 
 本次环境初始检出 `work` / `2cf00e06`，工作树干净；`/workspace/scratch` 和 `/tmp` 未包含此前 UI candidate04、Go harness 或其运行目录。旧记录和已归档原件保留，但不得把失落的未提交源码或未归档运行证据声称为已恢复。
