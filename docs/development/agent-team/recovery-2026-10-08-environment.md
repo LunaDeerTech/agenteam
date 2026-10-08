@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 12:25 UTC：客户端已交付，后端两个限定修订
+
+Audit API五源b0714899已推远端核同，state受控独验与剩余页面/JS并行。Go完整STATIC仅hold joined过早D1，原candidate02保留，作者窄修实际outer handler终局；尚无真实资源。Embedding rev2规格小档15实体已root核接受，当前卡rev3仅澄清既有canonical lease的有ref Agent mismatch先Forbidden与无refsemantic冲突区别，不改store/resolver。policy/pure仅scratch STATIC无必修、实际Go未验，PG6继续scratch。全局dist原3/旧53stage、三停止/Jina、生产未绑/ready503与完整模块/E01边界保持。
+
 ## Audit API接受；两个后继阶段独审
 
 root正式接受API五源1a2bcdf4＋独审5669b67d的STATIC/受控组合，独立71、新86/旧102/type/format通过，原FAIL与时点边界保持。本次只交五API源；state六源c730a2e8已作者285/type/format通过，独审活跃，frontend仅余8源活跃。Go两源candidate02已安装离线通过，完整STATIC尚未结束且初识joined计数问题；无真实资源。Embedding SPEC小档15原件已root核；policy/pure仅scratch-v2独审，PG6作者继续scratch。全局dist原3/53stage保持，三停止/Jina与生产/E01边界不变。

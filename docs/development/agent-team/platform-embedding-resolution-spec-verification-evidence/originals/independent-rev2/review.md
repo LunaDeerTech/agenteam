@@ -1,0 +1,9 @@
+Platform embedding Resolver rev2：D1/D2差量＋最终组合 SPEC STATIC PASS，STOP；无剩余规格必修。
+
+固定卡67d372523d2ab94db5e60e2e85518171985e15a739e3812d564b18b6f61964d7（23391B），freeze f67412a776f87f02bb09bb614c2a22365e596f86da00ea51357614a1a330babc，完整diff11eeeaacbd74bee7897e3090fa17ab521930c356a78162411a54dc1afd836fd5。复用原完整独审4b16dd825901e451566ba9146e814e20f6e383a093c8a35e57bccfc83cb205bc，不重做其余契约审查。
+
+D1关闭：direct明确完整保留原C0合法agent/tool chat用途，包含ToolConsumer/ApprovalAuto；在既定新pure的原分支对照中加入该代表，不扩接口或生产绑定。D2关闭：InTx先核原Store/活Tx/完整持锁及绑定，随后沿同一调用者Tx进行必要SQL读写和planned Secret Acquire，禁止的是补锁、内层Tx及Provider/外部网络I/O，原原子边界不再有歧义。
+
+独立纯文件比对确认：完整diff等于实际rev1→rev2，恰四个单行replacement；安装卡与冻结卡相同，freeze五原件和原独审三件匹配。九路径、全部top、§7命令/预算及后继/停止边界原字节不变；49来源清单逐byte复用（未重扫49源），原rev1及CHANGES_REQUIRED记录保持。8技术＋README9时序与所有权不变。
+
+此次仅必要文件读取、Python stdlib字节/指纹比较及自有scratch报告；无产品检查、Go/Node/browser/SQL/网络/资源/Git、仓库或产品写入。此PASS仅正式规格最终组合，不构成实施、动态验收或资源授权，后续由root移交。

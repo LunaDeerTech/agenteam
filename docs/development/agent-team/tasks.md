@@ -1,5 +1,9 @@
 # 团队任务台账
 
+## 2026-10-08：Embedding rev2规格归档与并行窄修
+
+[Embedding rev2规格永久档](platform-embedding-resolution-spec-verification.md)报告2034e79d已root实核：15原件72479B、17逻辑定位、manifest14730b73/source-map d822b4a0及固定48f8293e卡Gitblob核同；原diff11eeeaac的10个尾白行保留、无EOF例外。仅保存已接受规格，不扩大为实现验收。Audit API五源b0714899b5f3724b797acfdbb3020a4b5998bae2已推核远端同；state六源独验正在受控检查，frontend余8源继续。Audit Go完整独审313a16f8仅D1 held joined提前，backend获两原新源窄修，candidate02编译原件保留、暂不重跑。Embedding两scratch源STATIC无必修待封报告；PG作者发现卡无条件Memory Agent同Call语义错误，root实读resolution_store.go canonical检查及resolver readErr优先序，architecture仅卡rev3窄澄清，有ref绑定不匹配Forbidden/无ref合法事实后IdempotencyKeyReused分别覆盖，产品store/resolver不扩改。所有真实资源窗口仍关闭，原dist3/53stage、三停止/Jina、生产ready503与D08–D28/E01未完保持。
+
 ## 2026-10-08：Audit API五源正式接受
 
 root限定接受卡#1/#2/#3/#11/#12的API阶段：独审[固定短报告](/workspace/scratch/owner-audit-ui-verification/api-v1/review.md)5669b67d4c3bf8286137b03f712df48d101bc3b3dc07864a37e8f489561dc4e1、result765e40c0、final-input3050eec0；root通读报告/result与client关键差量，核五安装源/冻结及所有12原件指纹。独立71/71实际exit0，0.823s/终局1.086s，32固定input同/direct actualwait/owned双空；覆盖31合法输出、53/25过滤、跨scope/条件投影/Go JSON计数及真实stream EOF/cap/cancel尾部。作者86/type10.333s/format1.219s及首轮实际旧102按未变产品组合复用；原首3新测试前提FAIL和两test原件保留，fulltype仅API时点185文件，不冒当前活动UI。仅五API源可提交，不代表Cookie owner或完整22卡。

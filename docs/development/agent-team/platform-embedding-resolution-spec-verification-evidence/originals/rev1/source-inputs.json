@@ -1,0 +1,252 @@
+{
+  "baseline": "5320a187",
+  "baseline_source": "root supplied; no Git command used in this SPEC task",
+  "scope": "bounded static source and acceptance references; no active Audit UI product inputs",
+  "files": [
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "bytes": 4804,
+      "sha256": "4e4b4ed8801a3def44dd6394b61be1358a3190fc03917eb25032edf8a1e1d038"
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "bytes": 14572,
+      "sha256": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d"
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "bytes": 10354,
+      "sha256": "577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59"
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "bytes": 11225,
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45"
+    },
+    {
+      "path": "internal/central/model/resolution_secret.go",
+      "bytes": 6738,
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df"
+    },
+    {
+      "path": "internal/central/model/authority.go",
+      "bytes": 5004,
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba"
+    },
+    {
+      "path": "internal/central/model/store.go",
+      "bytes": 11314,
+      "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da"
+    },
+    {
+      "path": "internal/central/model/configuration_policy.go",
+      "bytes": 3692,
+      "sha256": "0802ff9e5fbd14f485b91fb407fe86d1c46a2916469e1c8ac52e98ca21e5a912"
+    },
+    {
+      "path": "internal/central/model/references.go",
+      "bytes": 7021,
+      "sha256": "4c0b7e19587bf7d38da9a21d7aa415d9974d5a3a4a845d38048968917c96357c"
+    },
+    {
+      "path": "internal/central/model/contract/types.go",
+      "bytes": 19439,
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    },
+    {
+      "path": "internal/central/model/contract/configuration.go",
+      "bytes": 19103,
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c"
+    },
+    {
+      "path": "internal/central/model/contract/resolution.go",
+      "bytes": 5129,
+      "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64"
+    },
+    {
+      "path": "internal/central/model/contract/authority.go",
+      "bytes": 16899,
+      "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a"
+    },
+    {
+      "path": "internal/central/model/adapter/openai_embeddings.go",
+      "bytes": 11081,
+      "sha256": "19fdc6fd6b52f4a191b6c4b28c7e3795c4de6df9896938b18167821563db255a"
+    },
+    {
+      "path": "db/migrations/00015_model_configuration.sql",
+      "bytes": 14847,
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af"
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "bytes": 4094,
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837"
+    },
+    {
+      "path": "db/migrations/00020_model_meeting_summary_selection.sql",
+      "bytes": 1114,
+      "sha256": "5e2e71ba542fe02b6726d79a6ee335719ccd3e4107d0ba98a44396c5628236ec"
+    },
+    {
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "bytes": 16271,
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6"
+    },
+    {
+      "path": "tests/model/current_resolution_selection_test.go",
+      "bytes": 10326,
+      "sha256": "e87158298aee54a2ead5b5aa10f36fadb7c08add1849e4323ac0ec8e19184562"
+    },
+    {
+      "path": "tests/model/current_resolution_atomicity_test.go",
+      "bytes": 8230,
+      "sha256": "d3a20c8bf68f609f9f2d3c34e0d27d92615a6a10b9d1824a1bcca78c2e12679f"
+    },
+    {
+      "path": "tests/model/current_resolution_authorization_test.go",
+      "bytes": 8007,
+      "sha256": "d76e68d2c02306aecf9d5f20459ad8d775bcc6fda2cd420b97db03651f09e435"
+    },
+    {
+      "path": "tests/model/current_resolution_unknown_test.go",
+      "bytes": 6342,
+      "sha256": "ccc2235ea76b078ef601488d95621b72787fbd342ea9908126bc7b324edc32fc"
+    },
+    {
+      "path": "tests/model/meeting_summary_resolution_fixture_test.go",
+      "bytes": 17160,
+      "sha256": "69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b"
+    },
+    {
+      "path": "tests/model/meeting_summary_resolution_selection_test.go",
+      "bytes": 8138,
+      "sha256": "af952554891ddffc85561d47c82b725ffbdfd34590cc6fcd7649cae7e0e47916"
+    },
+    {
+      "path": "tests/model/meeting_summary_resolution_atomicity_test.go",
+      "bytes": 6430,
+      "sha256": "2328c310216212635032ed36d65357234f5204516a3a637afe57744c928b8b3e"
+    },
+    {
+      "path": "tests/model/meeting_summary_resolution_replay_test.go",
+      "bytes": 5192,
+      "sha256": "3ff5a1119160bf0adc5cde7c35f569f6f25ba6dd41911bd2658849ae010464d3"
+    },
+    {
+      "path": "internal/central/model/resolution_policy_test.go",
+      "bytes": 5048,
+      "sha256": "3c3faddcc248c659b47a69ff5b3194d68179f0f009c4bc5b32939c2f473366d0"
+    },
+    {
+      "path": "internal/central/model/resolver_test.go",
+      "bytes": 6698,
+      "sha256": "6226fe1095419a47ad8520e7d48a14b4c5f5cd734c998cf6f41c12315ca02e19"
+    },
+    {
+      "path": "tests/model/system_configuration_integration_test.go",
+      "bytes": 53704,
+      "sha256": "7d46b46766659386f7d643be76ab56526d9c5e911cc14fbc2fd3b81967afab32"
+    },
+    {
+      "path": "scripts/test-objects.sh",
+      "bytes": 1029,
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87"
+    },
+    {
+      "path": "scripts/test-security.sh",
+      "bytes": 1117,
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be"
+    },
+    {
+      "path": "scripts/test-models.sh",
+      "bytes": 290,
+      "sha256": "f9187e2e17cd58bc22557d75af8cf60ab32362a6e9a6848569c298860291374b"
+    },
+    {
+      "path": "internal/central/foundation/lock.go",
+      "bytes": 5196,
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384"
+    },
+    {
+      "path": "go.mod",
+      "bytes": 1468,
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    {
+      "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "bytes": 70084,
+      "sha256": "2597bcceb2f200b5143a91f74d3f0afee14468aeced5aabe53f70719052996c5"
+    },
+    {
+      "path": "docs/development/work-items/d09-model-system-token-usage.md",
+      "bytes": 11913,
+      "sha256": "928c20d4f29586622e615af2c8a3f6b6d9fcd0db425951a13158b722f6f4831e"
+    },
+    {
+      "path": "docs/development/work-items/d09-b01-system-configuration.md",
+      "bytes": 20160,
+      "sha256": "19524b3022b55f5018a3d650974e985c5c6a707cb8e0966a10383389acf3885d"
+    },
+    {
+      "path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "bytes": 39350,
+      "sha256": "2a698720f2879eea62384f570ea5086d50aaebc578c8a6fe2ce113c93e7e57f6"
+    },
+    {
+      "path": "docs/development/work-items/d09-system-meeting-summary-resolution.md",
+      "bytes": 25565,
+      "sha256": "7309efa2e484ea0f88815e57e7c79d56f01a75faee700cdda900c47b3569c1a8"
+    },
+    {
+      "path": "docs/development/work-items/d09-openai-embeddings-wire.md",
+      "bytes": 20385,
+      "sha256": "db1ff99ef845ac5c84708c2e873d524aa78b4f2429539260a7aa96ac6303ddaa"
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/model-system/model-resolution.md",
+      "bytes": 9486,
+      "sha256": "25552b7ce4ebe8874cae06bf9525c241bbe86f7999fa0f3728cc2e3e0a9f9d63"
+    },
+    {
+      "path": "docs/development/agent-team/current-model-resolution-verification.md",
+      "bytes": 8745,
+      "sha256": "3da2b502e01432017c73240f09bab1a8fbe1d93b59dee1be21b971741f39baee"
+    },
+    {
+      "path": "docs/development/agent-team/system-meeting-summary-resolution-verification.md",
+      "bytes": 9098,
+      "sha256": "dcdca9e22f46ea69b8b03c108873422a77aa4a644108d37f6beed2c0c6205ec1"
+    },
+    {
+      "path": "docs/development/agent-team/d09-secret-model-usage-verification.md",
+      "bytes": 7684,
+      "sha256": "61fa1b3180509bbfc7829fb0a82c0fc18cf3b03f22e96dc25cbc9c452b244dc7"
+    },
+    {
+      "path": "docs/development/agent-team/openai-embeddings-wire-verification.md",
+      "bytes": 11367,
+      "sha256": "14023f1ccdcbd71fe02aa6052f895a2dbf146770603c61761193d7264a837227"
+    },
+    {
+      "path": "docs/development/agent-team/system-model-root-verification.md",
+      "bytes": 8526,
+      "sha256": "58fa9160f53ac880b758f56eca295a09be89696bf7431b7b6ad6e054c8323a01"
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-read-http-verification.md",
+      "bytes": 9670,
+      "sha256": "0a8fcce3e0360179e35ed079332b220219c0f500f0cd9576e58b7c67c0efbc6e"
+    },
+    {
+      "path": ".agents/skills/agenteam-design/SKILL.md",
+      "bytes": 3874,
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+    },
+    {
+      "path": ".agents/skills/agenteam-go-development/SKILL.md",
+      "bytes": 3637,
+      "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b"
+    }
+  ]
+}

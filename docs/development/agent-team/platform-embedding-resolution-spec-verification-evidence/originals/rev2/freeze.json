@@ -1,0 +1,66 @@
+{
+  "revision": "rev2",
+  "author_status": "STOP",
+  "independent_spec_status": "PENDING_DELTA_AND_FINAL_COMBINATION",
+  "baseline": "5320a187",
+  "baseline_source": "root supplied",
+  "created_utc": "2026-10-08T12:03:55.366090+00:00",
+  "repository_card": "docs/development/work-items/d09-platform-embedding-resolution.md",
+  "repository_card_sha256": "67d372523d2ab94db5e60e2e85518171985e15a739e3812d564b18b6f61964d7",
+  "revision_scope": "Only D1/D2 plus revision status; four exact replacements; no added product path, public API, budget or source",
+  "original_rev1": {
+    "card": "/workspace/scratch/platform-embedding-resolution-spec-v1/card.md",
+    "card_sha256": "c531d6e746bdb266509f1a9719651c8d02455869a50cee199f0e2e3aabf39d17",
+    "freeze": "/workspace/scratch/platform-embedding-resolution-spec-v1/freeze.json",
+    "freeze_sha256": "fadabece6cbec323232cdfa8db526a2c3138b8779050aef460cc7b1502a9dadf",
+    "review_status": "SPEC_STATIC_CHANGES_REQUIRED_STOP",
+    "review_references": [
+      {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-resolution-spec-rev1-review/review.md",
+        "bytes": 2772,
+        "sha256": "4b16dd825901e451566ba9146e814e20f6e383a093c8a35e57bccfc83cb205bc"
+      },
+      {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-resolution-spec-rev1-review/evidence.json",
+        "bytes": 9041,
+        "sha256": "58aa7cd34f0c454f9c941672104e5946e01411528071eb18cb81276fafd61aca"
+      },
+      {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-resolution-spec-rev1-review/manifest.json",
+        "bytes": 713,
+        "sha256": "c53f5468f8452b619914beef5f8d7b8adbaa6fb0685aed26dbd220828637ce39"
+      }
+    ],
+    "frozen_files_and_failure_report_unchanged": true
+  },
+  "source_manifest_exact_reuse": true,
+  "source_count": 49,
+  "implementation_or_resources_authorized": false,
+  "files": [
+    {
+      "path": "card.md",
+      "bytes": 23391,
+      "sha256": "67d372523d2ab94db5e60e2e85518171985e15a739e3812d564b18b6f61964d7"
+    },
+    {
+      "path": "rev1-to-rev2.diff",
+      "bytes": 7464,
+      "sha256": "11eeeaacbd74bee7897e3090fa17ab521930c356a78162411a54dc1afd836fd5"
+    },
+    {
+      "path": "source-inputs.json",
+      "bytes": 9229,
+      "sha256": "e53ed0dcb300e8501919842bb70a5f0522ce18dfedeac6e34db7a1801885a2b5"
+    },
+    {
+      "path": "source-summary.md",
+      "bytes": 1404,
+      "sha256": "659fcf33ffe8b4cc3eb540e475e080ec70d3faf35f0c4f7dcbb24808aef38543"
+    },
+    {
+      "path": "author-static-checks.json",
+      "bytes": 3279,
+      "sha256": "6fa8c3900f3a6c098d3ee95929d7f09a0b09a691fbdd9c15876ce47c05c6fb60"
+    }
+  ]
+}

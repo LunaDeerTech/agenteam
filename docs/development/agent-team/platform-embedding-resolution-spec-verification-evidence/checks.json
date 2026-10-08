@@ -1,0 +1,78 @@
+{
+  "status": "ARCHIVE_FILE_CHECKS_PASS",
+  "performed_utc": "2026-10-08T12:11:10.396457+00:00",
+  "performed_with": "Python stdlib pure file read/copy/hash/JSON/format/link checks; no saved original evidence code executed",
+  "source_archive_byte_match": true,
+  "physical_originals": 15,
+  "original_bytes": 72479,
+  "logical_entries": 17,
+  "original_json_parsed": 9,
+  "rev2_card_current_bytes_match_fixed_sha": true,
+  "git_commit_verification": "root supplied commit/remote fact only; archiver did not execute Git or claim its own blob read",
+  "report_local_links": [
+    {
+      "target": "../work-items/d09-platform-embedding-resolution.md",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/originals/independent-rev2/review.md",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/originals/rev1/card.md",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/originals/independent-rev1/review.md",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/originals/rev2/rev1-to-rev2.diff",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/originals/rev2/freeze.json",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/originals/independent-rev2/evidence.json",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/source-map.json",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/checks.json",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/format.json",
+      "exists": true
+    },
+    {
+      "target": "platform-embedding-resolution-spec-verification-evidence/manifest.json",
+      "exists": true
+    }
+  ],
+  "markdown_structure_reviewed": true,
+  "original_diff_exceptions_count": 10,
+  "all_other_original_format_valid": true,
+  "not_run": [
+    "Git",
+    "Go",
+    "Node",
+    "browser",
+    "SQL",
+    "network",
+    "resource",
+    "product checks",
+    "SPEC review rerun",
+    "source-tree/closure scan"
+  ],
+  "write_scope": [
+    "docs/development/agent-team/platform-embedding-resolution-spec-verification.md",
+    "docs/development/agent-team/platform-embedding-resolution-spec-verification-evidence/"
+  ],
+  "stop_status": "No owned resources or background command; archive writer stops after final file verification"
+}

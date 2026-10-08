@@ -1,0 +1,37 @@
+--- rev1/card.md
++++ rev2/card.md
+@@ -1,6 +1,6 @@
+ # D09：平台 Embedding current-selection Resolver
+ 
+-修订：rev1，2026-10-08。状态：规格候选，待完整独立 STATIC 与 root 采纳；当前只授权本卡和作者自有 scratch，未授权产品实施、测试、资源或生产装配。基线为 root 指定的 `main@5320a187`；本轮 Audit UI 活动产品不作为输入。作者只读分析 `e28547a8373ba9532f26610a3dc67715e93c263811a9dd3ea0bed9daff648268` 已获 root 采纳，采纳分析不等于本规格或产品通过。
++修订：rev2，2026-10-08。状态：仅修 rev1 完整独审的 D1/D2，待独立差量与最终组合 STATIC 及 root 采纳；当前只授权本卡和作者自有 scratch，未授权产品实施、测试、资源或生产装配。基线为 root 指定的 `main@5320a187`；本轮 Audit UI 活动产品不作为输入。作者只读分析 `e28547a8373ba9532f26610a3dc67715e93c263811a9dd3ea0bed9daff648268` 已获 root 采纳，采纳分析不等于本规格或产品通过。
+ 
+ 依据：[D09 设计 §4](d09-model-system-token-usage-design.md#4-正式规划授权与-secret-组合)、[Model Resolution](../../architecture/platform-infrastructure/model-system/model-resolution.md)、[已接受 current-resolution](recovery-d09-current-model-resolution.md)、[已接受 S3](d09-system-meeting-summary-resolution.md)、[Embeddings float wire §2–5](d09-openai-embeddings-wire.md)、[开发计划 D09](../development-plan.md#d09-model-system-与-token-usage)。必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)及角色对应的[设计](../../../.agents/skills/agenteam-design/SKILL.md)、[Go](../../../.agents/skills/agenteam-go-development/SKILL.md)、[验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。
+ 
+@@ -54,7 +54,7 @@
+ | Memory | `MemoryConsumer` + `MemoryEmbedding`；必需ProjectID/AgentID/OperationID；ExecutionID/MeetingID均无 |
+ | Purpose/owner | request.Purpose等于Consumer.Purpose；原`model_call` owner ID为该逻辑CallID。两个purpose都不建立Agent Execution；显式execution owner与其结构不符，沿原输入拒绝 |
+ | Actor/effort | Actor沿C0完整匹配；合法Actor不证明当前权限或操作存在。非chat ReasoningEffort必须空，非空在现`ResolveRequest.Validate`即InvalidArgument，不伪称Chat的unsupported分支 |
+-| 其它选择 | direct只保持原Agent用途；错purpose/selector、额外ModelRef或非法结构为原InvalidArgument。结构合法的serving_snapshot及旧project_summary仍DependencyUnbound，reranker/image等未交付variant仍CapabilityUnsupported |
++| 其它选择 | direct完整保留原C0合法agent/tool chat用途（含ToolConsumer/ApprovalAuto）；错purpose/selector、额外ModelRef或非法结构为原InvalidArgument。结构合法的serving_snapshot及旧project_summary仍DependencyUnbound，reranker/image等未交付variant仍CapabilityUnsupported |
+ 
+ 只读原 `loadSelection` 的四用途singleton；该行缺失或Configured=false沿原 `INVALID_STATE`，不是optional absent成功。使用Embedding字段与该行version；新Select/尚未提交Resolve的显式Version不符为`RESOURCE_BUSY`。旧四用途任一配置改变都会改变同一version，即使embedding ID未变也必须按原版本语义处理；Summary独立version不混入本分支。SQL/缺表失败沿原DependencyUnavailable，已授权目标缺失沿NotFound，缺Provider沿原unavailable；不存在或错误配置不选备用模型。
+ 
+@@ -66,7 +66,7 @@
+ 
+ 完整行为继承[原Resolver卡](recovery-d09-current-model-resolution.md)与[S3 §4–5](d09-system-meeting-summary-resolution.md#4-授权锁与跨域事实)，本节只固定新增分支必须遵守的接缝：
+ 
+-- 使用原Command/`model-references` SH/Project gate、四用途`model-platform-selection` SH、实际Provider/Model SH、本域preparation/snapshot记录、完整consumer锁和适用Secret锁，一次原有union排序；InTx只核sameStore/活Tx/RequireHeld、opaque issuer/完整request与mapping，不能补锁、开内层Tx或发I/O。selector更新与Model删除替换通过原EX串行，锁后重读；当前权限先于候选配置存在性错误。
++- 使用原Command/`model-references` SH/Project gate、四用途`model-platform-selection` SH、实际Provider/Model SH、本域preparation/snapshot记录、完整consumer锁和适用Secret锁，一次原有union排序；InTx先核sameStore/活Tx/完整RequireHeld及opaque issuer/完整request与mapping绑定，沿调用者同一Tx执行必要SQL读写和planned Secret Acquire；禁止补锁、开内层Tx及Provider/外部网络I/O。selector更新与Model删除替换通过原EX串行，锁后重读；当前权限先于候选配置存在性错误。
+ - prepared仍保持原SnapshotID；配置draft改变按原算法重新Discover并推进plan_version。consumer事实/mapping改变由其authority重新发现和重验，使旧plan失效，不据此承诺Model plan_version必然增加；显式旧Selection.Version不因重规划自动替换。committed同Project+model_call单位保持原snapshot、selection version、endpoint/parameters/capabilities/revision与lease；新合法Call才取当前配置。旧direct/Memory/Summary format1、稳定semantic与bytes不改。
+ - 持久semantic继续以稳定initiator区分，内存binding含完整Actor/Session。新Session同义重入仍核当前授权，旧plan不能跨Session/实例使用；当前授权与新请求事实成立后，同Call换purpose、Project内另Operation、Memory Agent、selector或其他原semantic字段拒IdempotencyKeyReused，不能自动换CallID逃避。另一Project隔离沿原身份规则，不发明全局CallID唯一。
+ - 有System CredentialRef时沿同最终Tx的planned Acquire及exact-Tx witness取得metadata；同Call/ref复用canonical LeaseID，不同Call独立、released不复活。无ref只代表解析无lease且零Secret调用，不宣称以后可以匿名发送。input接受事实、snapshot/binding/lease全提交或全回滚；错误不可吞成合法提交，InTx返回只属provisional。
+@@ -89,7 +89,7 @@
+ 
+ ## 6. 适用验收与精确top
+ 
+-纯测试新增 `TestModelPlatformEmbeddingResolutionProfileMatrix`、`TestModelPlatformEmbeddingResolutionEntryGuards`：覆盖两个purpose、结构和错误优先级、完整profile正反/MaxOutput/ContextLength、unbound/取消零返回、clone与安全投影、原direct/Memory/Summary闭集。现public类型及原unit断言保持，不为本卡改旧预期。原float adapter固定输入的`TestOpenAIEmbeddingsProfileAndSafeViews`、`TestOpenAIEmbeddingsPrepareAndIsolation`结果可复用；新snapshot的闭集逐项静态/纯验证，不能用Start/Do做隐藏网络检查。
++纯测试新增 `TestModelPlatformEmbeddingResolutionProfileMatrix`、`TestModelPlatformEmbeddingResolutionEntryGuards`：覆盖两个purpose、结构和错误优先级、完整profile正反/MaxOutput/ContextLength、unbound/取消零返回、clone与安全投影、原direct（包括ToolConsumer/ApprovalAuto代表）/Memory/Summary闭集。现public类型及原unit断言保持，不为本卡改旧预期。原float adapter固定输入的`TestOpenAIEmbeddingsProfileAndSafeViews`、`TestOpenAIEmbeddingsPrepareAndIsolation`结果可复用；新snapshot的闭集逐项静态/纯验证，不能用Start/Do做隐藏网络检查。
+ 
+ | 精确新顶层 | 必须观察的完整结果 |
+ | --- | --- |

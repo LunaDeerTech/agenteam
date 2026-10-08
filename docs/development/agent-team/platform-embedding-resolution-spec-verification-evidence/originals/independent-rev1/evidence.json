@@ -1,0 +1,196 @@
+{
+  "status": "SPEC_STATIC_CHANGES_REQUIRED_STOP",
+  "created_utc": "2026-10-08T11:59:08.154683+00:00",
+  "reviewer": "verification_runtime",
+  "candidate": {
+    "path": "/workspace/scratch/platform-embedding-resolution-spec-v1/card.md",
+    "sha256": "c531d6e746bdb266509f1a9719651c8d02455869a50cee199f0e2e3aabf39d17",
+    "bytes": 23158
+  },
+  "freeze": {
+    "path": "/workspace/scratch/platform-embedding-resolution-spec-v1/freeze.json",
+    "sha256": "fadabece6cbec323232cdfa8db526a2c3138b8779050aef460cc7b1502a9dadf",
+    "bytes": 1019
+  },
+  "source_summary": {
+    "path": "/workspace/scratch/platform-embedding-resolution-spec-v1/source-summary.md",
+    "sha256": "f9fea268665675ba7a59d91348d8b2530a5a5841582ae5cd7b3b97e963cc2f8d",
+    "bytes": 1807
+  },
+  "author_sources": {
+    "path": "/workspace/scratch/platform-embedding-resolution-spec-v1/source-inputs.json",
+    "sha256": "e53ed0dcb300e8501919842bb70a5f0522ce18dfedeac6e34db7a1801885a2b5",
+    "bytes": 9229
+  },
+  "author_checks": {
+    "path": "/workspace/scratch/platform-embedding-resolution-spec-v1/author-static-checks.json",
+    "sha256": "b9607f0762e45ef607ad14b0419011a017d76c6697c6a8736207b0dcac0452cb",
+    "bytes": 4190
+  },
+  "scope": "Full frozen rev1 SPEC STATIC; reuse readonly prerequisite preparation; no implementation participation or delegation",
+  "full_card_reviewed": true,
+  "pure_file_checks": {
+    "frozen_4_refs_sha_bytes_match": true,
+    "repository_card_equals_fixed_card": true,
+    "selected_11_sources_match_author_manifest": true,
+    "candidate_paths": 9,
+    "technical_paths": 8,
+    "readme_final_number": 9
+  },
+  "findings": [
+    {
+      "id": "D1",
+      "severity": "must_fix_contract_regression",
+      "card_line": 57,
+      "title": "Original direct scope incorrectly narrowed to Agent only",
+      "evidence": [
+        {
+          "path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+          "line": 50,
+          "fact": "Accepted direct explicitly covers valid agent/tool chat purposes"
+        },
+        {
+          "path": "internal/central/model/contract/configuration.go",
+          "line": 157,
+          "fact": "SelectionRequest direct requires chat and excludes Memory/Meeting, not Tool"
+        },
+        {
+          "path": "internal/central/model/contract/types.go",
+          "line": 253,
+          "fact": "ToolConsumer with ApprovalAuto is an existing valid chat-purpose consumer"
+        },
+        {
+          "path": "internal/central/model/resolution_policy.go",
+          "line": 14,
+          "fact": "Original direct variant has no Agent-only restriction"
+        }
+      ],
+      "minimal_fix": "Preserve original C0-valid agent/tool direct purposes including approval_auto. Add the relevant compatibility assertion in the already proposed new pure test; no added API, production binding or path."
+    },
+    {
+      "id": "D2",
+      "severity": "must_clarify_transaction_spec",
+      "card_line": 69,
+      "title": "Unqualified InTx I/O prohibition contradicts necessary same-transaction SQL",
+      "evidence": [
+        {
+          "path": "internal/central/model/resolver.go",
+          "line": 359,
+          "fact": "ResolveModelInTx reads persisted preparation via its active executor"
+        },
+        {
+          "path": "internal/central/model/resolver.go",
+          "line": 399,
+          "fact": "completeResolution persists snapshot/binding in the same Tx"
+        },
+        {
+          "path": "internal/central/model/resolver.go",
+          "line": 402,
+          "fact": "planned Secret Acquire executes in that exact Tx"
+        }
+      ],
+      "minimal_fix": "State the validation prerequisites, then explicitly retain necessary SQL reads/writes and planned Acquire inside the caller transaction; prohibit incremental lock acquisition, nested Tx and Provider/external-network I/O. Do not change implementation or scope."
+    }
+  ],
+  "accepted_static_facts_not_product_acceptance": [
+    "Knowledge/Memory purpose, Consumer and model_call structures follow C0; nonchat effort rejects as InvalidArgument before policy",
+    "Select remains current Human/Project read and zero acceptance facts; strict consumer authorization is required for actual Resolve",
+    "Embedding profile includes exact protocol/profile/revision, text-vector, no streaming/tools/reasoning/structured, MaxOutput nil and empty options/parameters/overwrites",
+    "System-only selection, shared four-purpose version and independent Summary version, expected errors and no fallback align with loaders",
+    "Current versus committed immutable history, same-call semantics, current authorization, canonical lease, provisional InTx and Unknown/zero-candidate limits are explicit",
+    "prepared draft changes increment plan_version at resolver.go:204-205; consumer-only changes are not promised to increment it and are invalidated by authority mapping validation",
+    "00017 has generic format1 JSON checks; DTO/ConfigSnapshot/ResolvedModel allow legitimate embedding, supporting no-migration premise only",
+    "Strict relational two-purpose fixture includes real formal identity, current Project Mutate/Agent/subject/operation/input/version locks, same-Tx acceptance and no always-allow authority",
+    "All nine old PG top names, five old pure names and two reusable adapter pure names exist; five new PG tops map to proposed files",
+    "offline45s/top120s including Cleanup/package6m/inner20s-or-earlier, fixed roots/actual joins/owned cleanup and failure-stop are explicit",
+    "Independent A/B requires own scenarios or triggers, not just replaying author logs; producer/consumer, dimension/serving/Invocation/production boundaries stay unbound"
+  ],
+  "prepared_version_source_refs": [
+    {
+      "path": "internal/central/model/resolver.go",
+      "lines": [
+        204,
+        205,
+        218,
+        352
+      ]
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "line": 255
+    }
+  ],
+  "selected_verified_sources": [
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "sha256": "4e4b4ed8801a3def44dd6394b61be1358a3190fc03917eb25032edf8a1e1d038",
+      "bytes": 4804
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolver.go",
+      "sha256": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d",
+      "bytes": 14572
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolution_plan.go",
+      "sha256": "577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59",
+      "bytes": 10354
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/store.go",
+      "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da",
+      "bytes": 11314
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/types.go",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "bytes": 19439
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/configuration.go",
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+      "bytes": 19103
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/resolution.go",
+      "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64",
+      "bytes": 5129
+    },
+    {
+      "path": "/workspace/agenteam/db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "sha256": "2a698720f2879eea62384f570ea5086d50aaebc578c8a6fe2ce113c93e7e57f6",
+      "bytes": 39350
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-system-meeting-summary-resolution.md",
+      "sha256": "7309efa2e484ea0f88815e57e7c79d56f01a75faee700cdda900c47b3569c1a8",
+      "bytes": 25565
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-openai-embeddings-wire.md",
+      "sha256": "db1ff99ef845ac5c84708c2e873d524aa78b4f2429539260a7aa96ac6303ddaa",
+      "bytes": 20385
+    }
+  ],
+  "limits": {
+    "go_node_browser_or_tests_run": false,
+    "sql_network_resources_run": false,
+    "git_commands_run": false,
+    "product_or_repository_docs_written": false,
+    "only_scratch_report_written": true,
+    "wholegraph_or_all49_source_hash_rescan": false,
+    "spec_accepted": false,
+    "product_or_resource_readiness": false
+  },
+  "notes": [
+    "Author file/link checks PASS remains author-only; this review found two semantic wording issues.",
+    "Readonly lookup of guessed selection_store.go found no file; corrected to actual model/store.go. No product execution or mutation followed.",
+    "Earlier prerequisite preparation remains readonly; active Audit UI source and active pre-STOP specification were not consumed."
+  ],
+  "stopped": true
+}

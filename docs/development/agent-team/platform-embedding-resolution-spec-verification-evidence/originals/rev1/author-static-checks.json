@@ -1,0 +1,134 @@
+{
+  "kind": "author_static_only",
+  "passed": true,
+  "problems": [],
+  "local_links": [
+    {
+      "target": "d09-model-system-token-usage-design.md#4-正式规划授权与-secret-组合",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-system/model-resolution.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "recovery-d09-current-model-resolution.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "d09-system-meeting-summary-resolution.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "d09-openai-embeddings-wire.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../development-plan.md#d09-model-system-与-token-usage",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../../../AGENTS.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../agent-team/README.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "d09-model-system-token-usage.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "d09-b01-system-configuration.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../agent-team/system-model-root-verification.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../agent-team/current-model-resolution-verification.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../agent-team/system-meeting-summary-resolution-verification.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../agent-team/d09-secret-model-usage-verification.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../agent-team/project-owner-read-http-verification.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "../agent-team/openai-embeddings-wire-verification.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "d09-openai-embeddings-wire.md#3-支持闭集体积与一次请求",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "recovery-d09-current-model-resolution.md",
+      "exists_and_fragment_valid": true
+    },
+    {
+      "target": "d09-system-meeting-summary-resolution.md#4-授权锁与跨域事实",
+      "exists_and_fragment_valid": true
+    }
+  ],
+  "candidate_paths": [
+    "internal/central/model/resolution_policy.go",
+    "internal/central/model/platform_embedding_resolution_test.go",
+    "tests/model/platform_embedding_resolution_fixture_test.go",
+    "tests/model/platform_embedding_resolution_selection_test.go",
+    "tests/model/platform_embedding_resolution_atomicity_test.go",
+    "tests/model/platform_embedding_resolution_authorization_test.go",
+    "tests/model/platform_embedding_resolution_replay_test.go",
+    "tests/model/platform_embedding_resolution_unknown_test.go",
+    "docs/development/backend/README.md"
+  ],
+  "technical_count": 8,
+  "readme_final_item": 9,
+  "new_paths_absent": true,
+  "old_real_tops_located": [
+    "TestModelCurrentResolutionSelection",
+    "TestModelCurrentResolutionReplay",
+    "TestModelCurrentResolutionAtomicity",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionUnknown",
+    "TestModelMeetingSummaryResolutionSelection",
+    "TestModelMeetingSummaryResolutionAtomicity",
+    "TestModelMeetingSummaryResolutionReplay"
+  ],
+  "line_count": 135,
+  "trailing_whitespace_lines": [],
+  "not_run": [
+    "Go",
+    "Node",
+    "browser",
+    "SQL",
+    "network",
+    "fixtures",
+    "resource commands",
+    "Git"
+  ],
+  "source_manifest_is": "bounded static sources; not an executable Go dependency graph",
+  "independent_review": "pending"
+}
