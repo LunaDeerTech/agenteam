@@ -1,0 +1,17 @@
+{
+  "exact_original_runner": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/run.py",
+    "bytes": 3366,
+    "sha256": "554eece1d3d0c68404fd152f5843cfb46a9547448cc1d389d9e6ededc16b3c09"
+  },
+  "new_exact_runner": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/run.py",
+    "bytes": 3366,
+    "sha256": "554eece1d3d0c68404fd152f5843cfb46a9547448cc1d389d9e6ededc16b3c09"
+  },
+  "allowed_invocations": [
+    "compile02",
+    "vet02"
+  ],
+  "no_driver_gate_changes": true
+}

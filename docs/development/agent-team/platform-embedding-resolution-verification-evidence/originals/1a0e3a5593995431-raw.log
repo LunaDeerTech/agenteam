@@ -1,0 +1,105 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.222.244.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=bbc12b8c3e54384cac4e1f1d1734b4af
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0222c19fc92ea8718d7de1a9c480dfe6
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.430s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/external-input-snapshot-binding-lease-same-commit
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/secret-error-rolls-back-external-input-too
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/selector-ex-serializes-both-selection-reads
+    platform_embedding_resolution_atomicity_test.go:84: actual advisory holder=125 waiter=127
+    platform_embedding_resolution_atomicity_test.go:84: actual advisory holder=127 waiter=125
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/real-selector-switch-invalidates-prepared-under-sh-ex
+    platform_embedding_resolution_atomicity_test.go:113: actual advisory holder=125 waiter=126
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/cross-provider-delete-replacement-holds-original-selector
+    platform_embedding_resolution_atomicity_test.go:155: actual advisory holder=126 waiter=127
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/canonical-call-ref-reentry-and-independent-call
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/external-input-snapshot-binding-lease-same-commit
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/secret-error-rolls-back-external-input-too
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/selector-ex-serializes-both-selection-reads
+    platform_embedding_resolution_atomicity_test.go:84: actual advisory holder=127 waiter=125
+    platform_embedding_resolution_atomicity_test.go:84: actual advisory holder=125 waiter=127
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/real-selector-switch-invalidates-prepared-under-sh-ex
+    platform_embedding_resolution_atomicity_test.go:113: actual advisory holder=127 waiter=126
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/cross-provider-delete-replacement-holds-original-selector
+    platform_embedding_resolution_atomicity_test.go:155: actual advisory holder=126 waiter=125
+=== RUN   TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/canonical-call-ref-reentry-and-independent-call
+--- PASS: TestModelPlatformEmbeddingResolutionAtomicity (7.23s)
+    --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding (1.61s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/external-input-snapshot-binding-lease-same-commit (0.38s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/secret-error-rolls-back-external-input-too (0.13s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/selector-ex-serializes-both-selection-reads (0.13s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/real-selector-switch-invalidates-prepared-under-sh-ex (0.21s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/cross-provider-delete-replacement-holds-original-selector (0.46s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/canonical-call-ref-reentry-and-independent-call (0.30s)
+    --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding (1.51s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/external-input-snapshot-binding-lease-same-commit (0.32s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/secret-error-rolls-back-external-input-too (0.10s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/selector-ex-serializes-both-selection-reads (0.11s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/real-selector-switch-invalidates-prepared-under-sh-ex (0.20s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/cross-provider-delete-replacement-holds-original-selector (0.46s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/canonical-call-ref-reentry-and-independent-call (0.34s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	8.268s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce 710bc3ce69bc449def96e64d011210f4
+D04 outbound fixture cleanup checked for nonce 0222c19fc92ea8718d7de1a9c480dfe6
+D05 object fixture exact resource cleanup checked nonce=bbc12b8c3e54384cac4e1f1d1734b4af

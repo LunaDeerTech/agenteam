@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 41073.271174638,
+      "top": "TestModelPlatformEmbeddingResolutionAuthorization"
+    },
+    {
+      "event": "result",
+      "monotonic": 41082.267437804,
+      "observed_seconds": 8.996263166001881,
+      "reported_seconds": 8.99,
+      "state": "PASS",
+      "top": "TestModelPlatformEmbeddingResolutionAuthorization"
+    }
+  ],
+  "expected": [
+    "TestModelPlatformEmbeddingResolutionAuthorization"
+  ],
+  "failures": []
+}

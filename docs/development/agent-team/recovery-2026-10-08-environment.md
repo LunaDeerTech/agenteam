@@ -1,5 +1,15 @@
 # 2026-10-08 环境恢复与当前交接
 
+Model提交格式补正（2026-10-08）：root首次git diff --cached --check实际exit2、helper仅预期12而assert exit1，未commit；raw3c75e6d2完整保留。原6 patch/diff实际60诊断＝12尾白＋48 context空格后tab，fixture仅format695e69e9/checksbc199d48/manifest77f327db补精确line-kind，原456实体及报告/README/计划卡不改。root核三JSON与实际集合后再提交，非产品/技术重跑；当前全部资源空。
+
+## 当前提交窗：旧认证两组已全 STOP
+
+Model完整九路径与最终文档已root接受，当前提交README/永久档/plan/card及三协调文档；HEAD仍055c，后继commit另记。Audit新导航及逐图视觉有限接受；oldauthlife01/result978f与oldauthrevoke01/cc142均actual0/7ID与owned-runtime双清，全资源已归还。独立final04纯gate3ff96a86/1185已接受，四实际仍未授。后续旧8/独4/最终21源/README#21待；global新59/794499B与原3backup保持。三停止/Jina/生产/E01不变。
+
+## 当前：九路径 Model 已接受；Audit 旧回归接续
+
+main055c727b已push核同；28dc为Model六PG，055c为Audit两源修复。Model最终九路径39890564/f1e86e15已root读核接受，README8df，fixture仅永久档/plan/卡顶部归位。Audit新build2be773aa及exchange02新59/794499B已接受并保持，原3backup未动；v04/1181 sourcecheck05实际PASS1.249s。auditnav02 result0d2e063e实际PASS/fullSTOP，13checks/17schema-client/8PNG，独核与逐图视觉进行，原nav01FAIL不补。backend唯一oldauthlife01/session4466资源窗，topPASS6.68s但整轮未终局；不Git/push/换资产，不自动后继。独立final04/1185 false元数据接受，runtime仅原wrapper纯filegate，4实际轮未授。完整Audit/生产/E01仍未完，三停止/Jina保持，详台账。
+
 ## 当前：Model 八技术接受，Audit 新构建准备
 
 HEAD159995ed已push核同。Model七作者＋独立A/B实际PASS/fullSTOP；最终八技术ab14ab6b/799c837f已root通读核固定原件接受，六PG待提交。fixture正永久归档且已获README#9末件安装，完整九路径待独验。Audit两源View3bb842a2/test480b2cfb窄修独核9b0453ea/root接受，最终49/49实际通过；原nav01 FAIL/原DOM缺口保留。frontend唯一private build-v02/dist-ui02进行，backend仅exact06cf新v04 false准备，root disposition0006fb3e授权范围仅准备；待新build STOP接受后root换global资产、filegate及单轮导航。Go/cache/业务资源全空，旧59及原3backup保持，构建期间不Git/换资产。原失败guard、三停止/Jina/生产/完整项目与E01未完不变。详最新台账。

@@ -1,0 +1,234 @@
+{
+  "state": "STOP",
+  "created_utc": "2026-10-08T14:37:32.463684+00:00",
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect02-stop01/author-stop.json",
+      "bytes": 9141,
+      "sha256": "45627ea582d279f666d3600bef63c71ee5f153f6c62629a3a9b02e1a4afd7a6e"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect02-stop01/handoff.md",
+      "bytes": 1821,
+      "sha256": "04cd2e4db1189f6876df85434597e1163770cb5389a8884502a01083c41b2226"
+    }
+  ],
+  "originals": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/cleanup.json",
+      "bytes": 74999,
+      "sha256": "bd55f021dffd1b1f4112e69d28af06a3ef4cfe6484e35a5a9f4f7d7e89090de4"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/command.json",
+      "bytes": 1982,
+      "sha256": "6a915e218299abfd2535a9a42a31a7bd909f67e79b0360def94747178afc118b"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "20cb13c872cda5c8a01c52b4597ec4c0d17c60a374f75fe20064b49cbcf06a05"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/disk-preflight.json",
+      "bytes": 200,
+      "sha256": "77cf107453a019a19b519bb048330bd0dfbf765a43b20b918f4927375541b39c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/driver.py.txt",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/frozen-input.json",
+      "bytes": 17708,
+      "sha256": "03068c0bc23054b86085ee74adfbe9bcd5373f3b64cf50d202cea23543c44f8d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/input-after.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/input-before.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/observed-processes.json",
+      "bytes": 13437,
+      "sha256": "554cb93817c48548822bebf6088650fafb590f9e0a169f2c59d3802ec6eabb8b"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/observed-resources.json",
+      "bytes": 5140,
+      "sha256": "152e73b77512c5bf3e3d764b1e37c208d15b5f9835c7c3b03acb6d5076087fef"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/prior-invocation-history.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/process-baseline.json",
+      "bytes": 27330,
+      "sha256": "9282f7e15b8180803c85b3d234bde528cb4d9a3490b973ecdca862666e934bb7"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/raw.log",
+      "bytes": 6104,
+      "sha256": "55abebe5d660d87ab8b6f54d360a553fc696c222ca51ce29be95443a3382915e"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/resource-id-chain.json",
+      "bytes": 619,
+      "sha256": "46e27c63ef53986dec00175b4be70a6789c4a818a556b96cb4da0e17517510c0"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/result.json",
+      "bytes": 32183,
+      "sha256": "9e1f9c1ba1aff995b8593392734deb7f0caaee7575232c8fff9a94e9d7303603"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "592d9af36077cc22b3d1e0974d578083300b2fee4026079b68243aa834020d01"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/tcp-observed-delta.json",
+      "bytes": 3145,
+      "sha256": "99c26b8450f57a94b6a771a37a86029e1703f67b4c8fd96e9f75307c86a01ee5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/tcp-tail-observation.json",
+      "bytes": 45831,
+      "sha256": "48f169263b0c6e227444b59538d78473cf66ccecfd2d3649a7b6b65724f2dbe9"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/verification-input.json",
+      "bytes": 183,
+      "sha256": "adf7f686b9c9f2a8dc870814d6b16cdf219fe252cfdfe2e740bd2885eb6d321a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/watchdog.json",
+      "bytes": 543,
+      "sha256": "1197c2d9e49302da4fbf791fe8170d99746bf5cd9effc4294e98f7cdd998e362"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/intent.json",
+      "bytes": 421,
+      "sha256": "61c35b0816931a961e358854d1f276a5455d47a10f3f70e0bc1d130eea3199d5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/launch.json",
+      "bytes": 1230,
+      "sha256": "8cde5828bd4b7d7ee0d59b594403dd7f43475113fa8f9db1188814811723e8cb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/prior-invocation-history.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/raw.stdout",
+      "bytes": 22902,
+      "sha256": "2853da1a2f3748f63c19b166a6fa54bbb8f6ef893755d239c66c035422850178"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/result.json",
+      "bytes": 1409,
+      "sha256": "dfed9e864397394fd010d2ba273179d563e3f81db796b0cade7dc3c8cffc2712"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/root-grant.json",
+      "bytes": 17708,
+      "sha256": "03068c0bc23054b86085ee74adfbe9bcd5373f3b64cf50d202cea23543c44f8d"
+    }
+  ],
+  "fixed_refs": {
+    "root_grant": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/embedselect02.json",
+      "bytes": 17708,
+      "sha256": "03068c0bc23054b86085ee74adfbe9bcd5373f3b64cf50d202cea23543c44f8d"
+    },
+    "failed_round_disposition": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/embedselect01-disposition.json",
+      "bytes": 1404,
+      "sha256": "b64ca04bd35c4d93c691cfa2dfcd22e61193a559c317f6910c365dfffb27274e"
+    },
+    "preparation_manifest": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/manifest.json",
+      "bytes": 1799,
+      "sha256": "a0cf7cb3c11f74f3be904dcf41dafef622afb2063630751b1d25a06a04720dd8"
+    },
+    "binding_delta": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/binding-delta.json",
+      "bytes": 5789,
+      "sha256": "bf665f394f50df17be8729ae1f3f97a9385da61a882ccd104af9e0c8082eeb54"
+    },
+    "source_stop": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+      "bytes": 4524,
+      "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+    },
+    "installation": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    "go_source_delta": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/closure.delta.json",
+      "bytes": 988,
+      "sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922"
+    },
+    "original_failed_round": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-result.json",
+      "bytes": 3319,
+      "sha256": "229ecd4f290eed5af4ca8c74539a4ec20d791b9394227d71c0d8c5e3d16617c3"
+    },
+    "original_failed_round_manifest": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-manifest.json",
+      "bytes": 10158,
+      "sha256": "cb072fb49f15ab0b15beca3d1977827ad355ee03ed20e165fac41f084aa55314"
+    }
+  },
+  "original_count": 33,
+  "original_bytes": 330354,
+  "raw_bytes_copied": false,
+  "hash_checks": "All 33 original files and nine fixed refs read and hashed; generated JSON parsed; local Markdown links checked; no live source/resource gate rerun"
+}

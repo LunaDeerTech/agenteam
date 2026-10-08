@@ -1,0 +1,80 @@
+{
+  "state": "STOP",
+  "files": [
+    {
+      "path": "installation.json",
+      "bytes": 603,
+      "sha256": "f8a042d0329f7c5de56821903b3fdd3059acaba4904c27306851d81d2d080d32"
+    },
+    {
+      "path": "run.py",
+      "bytes": 3052,
+      "sha256": "6ad78b9d141f497ad74b84f589067a191a53972a912ce7de2e861a62f4092ac1"
+    },
+    {
+      "path": "pure.diff",
+      "bytes": 1983,
+      "sha256": "7c8ed0ad35a208a61f419b059737261279f78f4e439e1c1725ce19e43d286409"
+    },
+    {
+      "path": "platform_embedding_resolution_test.go",
+      "bytes": 16692,
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    },
+    {
+      "path": "inputs-before-delta.json",
+      "bytes": 632,
+      "sha256": "114499d1323ff697a188e3cc5d5c24d24619d55c39a35a5f2540b29b69785e70"
+    },
+    {
+      "path": "result.json",
+      "bytes": 4522,
+      "sha256": "a6c36e7d401efac6310546c62608eb7b6deaafbc4442ac823e3ed9f7736005f3"
+    },
+    {
+      "path": "review.md",
+      "bytes": 1704,
+      "sha256": "6582ef64b09611ee3ad72d242f8929536d6e81c981d8e64bb6e22159b898f144"
+    },
+    {
+      "path": "format/launch.json",
+      "bytes": 816,
+      "sha256": "8a1ec990079260c2fbd9693eca027b576087723f1aaaa41b4d652320188450d0"
+    },
+    {
+      "path": "format/result.json",
+      "bytes": 467,
+      "sha256": "3d1829d6f4d946e8d4f7066a0d3fd3713b7992e985112a56c3b440a85dd540a0"
+    },
+    {
+      "path": "format/raw.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "format/raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "profile-race/launch.json",
+      "bytes": 889,
+      "sha256": "58e5c0688ca82a09434b3adae03b7770395efeddcf0e92f573ceea5ca90a6ee9"
+    },
+    {
+      "path": "profile-race/result.json",
+      "bytes": 469,
+      "sha256": "1dc34ad6e7a13c3e3fb62e4af4067fbf9fb5192cd5da090785f9a692cba0f1bb"
+    },
+    {
+      "path": "profile-race/raw.stdout",
+      "bytes": 3785,
+      "sha256": "3d6680f375d0b91a8f2b69badbd619fe538155656bfe87fddcbe05805279b37e"
+    },
+    {
+      "path": "profile-race/raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

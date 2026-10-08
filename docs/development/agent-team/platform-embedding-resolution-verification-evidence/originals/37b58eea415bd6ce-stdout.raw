@@ -1,0 +1,16 @@
+=== RUN   TestIndependentPlatformEmbeddingPolicyComplement
+=== RUN   TestIndependentPlatformEmbeddingPolicyComplement/identity_semantic_session
+=== RUN   TestIndependentPlatformEmbeddingPolicyComplement/identity_semantic_session/knowledge_embedding
+=== RUN   TestIndependentPlatformEmbeddingPolicyComplement/identity_semantic_session/memory_embedding
+=== RUN   TestIndependentPlatformEmbeddingPolicyComplement/public_valid_empty_representations
+    platform_embedding_independent_test.go:95: json: error calling MarshalJSON for type *foundation.Version: invalid scalar encoding
+=== RUN   TestIndependentPlatformEmbeddingPolicyComplement/no_ref_never_queries
+--- FAIL: TestIndependentPlatformEmbeddingPolicyComplement (0.00s)
+    --- PASS: TestIndependentPlatformEmbeddingPolicyComplement/identity_semantic_session (0.00s)
+        --- PASS: TestIndependentPlatformEmbeddingPolicyComplement/identity_semantic_session/knowledge_embedding (0.00s)
+        --- PASS: TestIndependentPlatformEmbeddingPolicyComplement/identity_semantic_session/memory_embedding (0.00s)
+    --- FAIL: TestIndependentPlatformEmbeddingPolicyComplement/public_valid_empty_representations (0.00s)
+    --- PASS: TestIndependentPlatformEmbeddingPolicyComplement/no_ref_never_queries (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model	0.006s
+FAIL

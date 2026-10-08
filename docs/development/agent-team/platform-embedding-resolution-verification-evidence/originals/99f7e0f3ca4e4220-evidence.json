@@ -1,0 +1,348 @@
+{
+  "status": "PASS_STOP_AUTHOR_ATOMICITY_ORIGINALS_AND_OWNED_RETIREMENT_ONLY",
+  "method": "Read stopped run/launcher originals and bounded necessary fixed metadata; no driver, Go, resources, schema, SQL, network, host/cache/dist reads or business rerun.",
+  "originals": {
+    "run_files": 26,
+    "run_bytes": 331599,
+    "launch_files": 7,
+    "launch_bytes": 45706
+  },
+  "actual": {
+    "top": "TestModelPlatformEmbeddingResolutionAtomicity",
+    "run_count": 15,
+    "top_count": 1,
+    "purpose_groups": 2,
+    "leaf_cases": 12,
+    "runs": [
+      "TestModelPlatformEmbeddingResolutionAtomicity",
+      "TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding",
+      "TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/external-input-snapshot-binding-lease-same-commit",
+      "TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/secret-error-rolls-back-external-input-too",
+      "TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/selector-ex-serializes-both-selection-reads",
+      "TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/real-selector-switch-invalidates-prepared-under-sh-ex",
+      "TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/cross-provider-delete-replacement-holds-original-selector",
+      "TestModelPlatformEmbeddingResolutionAtomicity/knowledge_embedding/canonical-call-ref-reentry-and-independent-call",
+      "TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding",
+      "TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/external-input-snapshot-binding-lease-same-commit",
+      "TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/secret-error-rolls-back-external-input-too",
+      "TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/selector-ex-serializes-both-selection-reads",
+      "TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/real-selector-switch-invalidates-prepared-under-sh-ex",
+      "TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/cross-provider-delete-replacement-holds-original-selector",
+      "TestModelPlatformEmbeddingResolutionAtomicity/memory_embedding/canonical-call-ref-reentry-and-independent-call"
+    ],
+    "advisory_holder_waiter_logs": 8,
+    "top_seconds": 7.23,
+    "package_seconds": 8.268,
+    "inner_command_seconds": 58.818,
+    "outer_seconds": 114.39486050199775,
+    "inner_exit": 0,
+    "outer_exit": 0
+  },
+  "input": {
+    "grant_sha256": "f2c79cf85931cd1113721d64520516d60facfd46b5654f8afea57d68260fa0c5",
+    "before_after_sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2",
+    "recorded_count": 996,
+    "recorded_digest": "8fefb2e8350c6d1d01766087765b02b62f461cf3cb8249b2964dd26d5bd9e701",
+    "atomicity_source": {
+      "path": "tests/model/platform_embedding_resolution_atomicity_test.go",
+      "bytes": 7252,
+      "sha256": "64471260c1a514d07c6408f776d1629e26348611b0b27e57d6a925303f2778f5"
+    },
+    "fixture_sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+  },
+  "retirement": {
+    "outer_actual_direct_waits": 1,
+    "inner_actual_direct_waits": 1,
+    "adopted_actual_waits": 0,
+    "observed_process_count_only": 83,
+    "resource_ids": [
+      "4cd8d43193d3b4014153fb4c44972922310b59980f46e524b10866242ce154e6",
+      "4de50015ddce723346aff1c943f7e1a50af35649f0b24992efa6606fa981cccc",
+      "52af4e4a733f8e9d4d6900c1298d3b88ab2952b696d077c89c4dbf7a156f18d1",
+      "5c2c3e36fd2a621ef7dc967c9b54bc2df6198ff92e6ee7301fb35a4609d2b127",
+      "9760efcd90c7dfb91e038779774db042542838da1cb7d3ba29a3fa99d0b7e322",
+      "cc0e7d829d4e140d4d56d204ff24f0507b614cdc5bb4cd3e65968bfa8724f7ba",
+      "f9adfb4936d21d35b281b711d9145e38b6303689b5bb89acb21f22514b78a36f"
+    ],
+    "prior_same_generation_run": "embedselect02",
+    "current_ids_disjoint_from_prior_seven_only": true,
+    "cleanup_times": [
+      "2026-10-08T14:43:56.364334+00:00",
+      "2026-10-08T14:43:57.048170+00:00"
+    ],
+    "tcp_tail_seconds": 52.437941025003965,
+    "tcp_last_two_times": [
+      "2026-10-08T14:44:49.786273+00:00",
+      "2026-10-08T14:44:49.990753+00:00"
+    ],
+    "nonowned_pid1_shims_not_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 778267,
+        "ppid": 1,
+        "starttime": "4045760",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 778719,
+        "ppid": 1,
+        "starttime": "4046130",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 779085,
+        "ppid": 1,
+        "starttime": "4046356",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 779631,
+        "ppid": 1,
+        "starttime": "4046536",
+        "state": "Z"
+      }
+    ]
+  },
+  "limits": [
+    "Author actual Atomicity plus independent original review, not independent actual A/B.",
+    "1 top + 2 purpose parent groups + 12 leaf cases, not 15 independent cases.",
+    "Current and prior Selection seven IDs are disjoint only within pg-driver-v03 generation; no cross-generation uniqueness assertion.",
+    "83 observed processes are not 83 actual waits; zero adopted waits.",
+    "No product/SQL/helper change or fresh source/cache/closure execution.",
+    "Original embedselect01 failure and its failed cleanup record remain; later recovery is not backfilled.",
+    "Other Model groups, complete card, README, production consumer/serving binding and historical hard stops are outside scope."
+  ],
+  "inspection_notes": [
+    "An initial read-only display helper treated prior-history list as dict and exited1; only display logic corrected.",
+    "A second read-only summary treated raw.stdout JSONL as one JSON document and exited1; two-line parse now binds final object exactly to inner result. Neither error executed candidate/business code or changed originals."
+  ],
+  "file_fingerprints": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/cleanup.json",
+      "bytes": 79151,
+      "sha256": "f914842550c11d76d6f8bb6bc161a8a3288a0dbc0a64d8ea0ab1074b11fbbf40"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/command.json",
+      "bytes": 1988,
+      "sha256": "8aae6b0dc6690afe17f533ab8f9ca0cc36fed1779ea2767bef8f49ecb63e1821"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "beae85b531aa0ba2e6295f7dee6786b4cb8b9b672fde9d6ccd5587b9afde4c07"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/disk-preflight.json",
+      "bytes": 200,
+      "sha256": "9a2f6805c3d77f8ebcba1d7c2f221b0b8e0e4ac4ad6bc30259b44c0432bf257f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/driver.py.txt",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/frozen-input.json",
+      "bytes": 17693,
+      "sha256": "f2c79cf85931cd1113721d64520516d60facfd46b5654f8afea57d68260fa0c5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/input-after.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/input-before.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/observed-processes.json",
+      "bytes": 13443,
+      "sha256": "acaae1baae566e6faccaad368995c0c5905f4b958eb31a5992a2fe2e6c654e93"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/observed-resources.json",
+      "bytes": 5156,
+      "sha256": "028852c7ef08cafe1ae300b6bef0c0a80222dae9148bd1c2bd2c951fbd80ac6a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/prior-invocation-history.json",
+      "bytes": 688,
+      "sha256": "06e2a3057be89225342d6e67c1bd889167ba47eb5103d23fe50aa2622e1e8d42"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/process-baseline.json",
+      "bytes": 28914,
+      "sha256": "bb28ccbb4f3b53b2d133af5f2c54a852af5e5546c4b943ec60aeb4aaef86a67a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/raw.log",
+      "bytes": 7914,
+      "sha256": "1a0e3a5593995431465c2bb5fe453c5108866a0bb6bcf7b8403dd296d8ca4678"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/resource-id-chain.json",
+      "bytes": 850,
+      "sha256": "29db1821eaf2c960dcbde883d3165d02e8ee7c90bda2e78d6e2c23ca55cf7534"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/result.json",
+      "bytes": 34074,
+      "sha256": "d6e4ececc519d446b2ef4a250c680712e1f06f5cb0d25f08ae9397cba3a6a193"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "05d868acd0198399818aa3dceae4a638de8a1a4ce0128bdaadbde669f5c0d7e1"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/tcp-observed-delta.json",
+      "bytes": 3425,
+      "sha256": "849d3651d9e1dd209dd9c6dd9bc9dc9115aa3e0b9247f1aac59df0bc4454ae8a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/tcp-tail-observation.json",
+      "bytes": 80104,
+      "sha256": "4a67e45901a8e17b026585c863dcae6af07e30cdab6ff70f69add8891b326706"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/verification-input.json",
+      "bytes": 183,
+      "sha256": "49b675447e272a5a1272da411fb214d0917eb4b42282bd0463f4d07c9019d17a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/watchdog.json",
+      "bytes": 542,
+      "sha256": "e5d89b0b8fac644ce598d40dbe1becf598d28768491006b533b481c80334af0a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/intent.json",
+      "bytes": 424,
+      "sha256": "27b092b4f03f6a486e7696f72cffd6e799f342e23d0fecf73979d124422b9937"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/launch.json",
+      "bytes": 1239,
+      "sha256": "3993079f4817cc0a484aa2a365eeda2b53c8eae3504995126e5e701b162a2c52"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/prior-invocation-history.json",
+      "bytes": 688,
+      "sha256": "14d1e7ab795338b97d211392d9d970a11357df2d85a3fc8c77ec3a5aaa9197c3"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/raw.stdout",
+      "bytes": 24244,
+      "sha256": "d8b263df52d05063bc0c9e9747113f6b765730ad6f0058201fd2e0055ca2eca5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/result.json",
+      "bytes": 1418,
+      "sha256": "ef2782843e132a30091ae3be93f83331459eec9eb43e658fc4ff0e0c3fbefe99"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/root-grant.json",
+      "bytes": 17693,
+      "sha256": "f2c79cf85931cd1113721d64520516d60facfd46b5654f8afea57d68260fa0c5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/closure.delta.json",
+      "bytes": 988,
+      "sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/binding-delta.json",
+      "bytes": 5789,
+      "sha256": "bf665f394f50df17be8729ae1f3f97a9385da61a882ccd104af9e0c8082eeb54"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/observed-resources.json",
+      "bytes": 5140,
+      "sha256": "152e73b77512c5bf3e3d764b1e37c208d15b5f9835c7c3b03acb6d5076087fef"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/cleanup.json",
+      "bytes": 74999,
+      "sha256": "bd55f021dffd1b1f4112e69d28af06a3ef4cfe6484e35a5a9f4f7d7e89090de4"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/result.json",
+      "bytes": 32183,
+      "sha256": "9e1f9c1ba1aff995b8593392734deb7f0caaee7575232c8fff9a94e9d7303603"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/intent.json",
+      "bytes": 421,
+      "sha256": "61c35b0816931a961e358854d1f276a5455d47a10f3f70e0bc1d130eea3199d5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/launch.json",
+      "bytes": 1230,
+      "sha256": "8cde5828bd4b7d7ee0d59b594403dd7f43475113fa8f9db1188814811723e8cb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/result.json",
+      "bytes": 1409,
+      "sha256": "dfed9e864397394fd010d2ba273179d563e3f81db796b0cade7dc3c8cffc2712"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/root-grant.json",
+      "bytes": 17708,
+      "sha256": "03068c0bc23054b86085ee74adfbe9bcd5373f3b64cf50d202cea23543c44f8d"
+    }
+  ]
+}

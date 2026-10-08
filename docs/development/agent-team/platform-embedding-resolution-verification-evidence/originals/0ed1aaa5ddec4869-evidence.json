@@ -1,0 +1,437 @@
+{
+  "status": "PASS_STOP_AUTHOR_AUTHORIZATION_ORIGINALS_AND_OWNED_RETIREMENT_ONLY",
+  "method": "Bounded stopped-original SHA/bytes/JSON relationships, raw RUN/PASS set, accepted fixed-source relevant assertions; no Go/driver/resources/SQL/network or current host/cache/dist inspection.",
+  "originals": {
+    "run_files": 26,
+    "run_bytes": 343860,
+    "launch_files": 7,
+    "launch_bytes": 46816
+  },
+  "execution": {
+    "runs": [
+      "TestModelPlatformEmbeddingResolutionAuthorization",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-project",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-kind",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-phase",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-version",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-subject",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/call",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/purpose",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/initiator",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/build-target",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-phase",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-version",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-identity",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-subject",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-digest",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-schema",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-version",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-phase",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/formal-logout-and-new-session",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/owner-is-not-domain-authority-and-admin-is-not-project-owner",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/current-project-gate-precedes-secret",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/opaque-plan-full-request-foreign-store-and-expired-tx",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/missing-low-selector-domain-lock-and-weak-mode-poison",
+      "TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/actual-secret-witness-exact-tx-and-signed-lease",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-project",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-kind",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-phase",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-version",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-subject",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/call",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/purpose",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/initiator",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/build-target",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-phase",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-version",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-identity",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-subject",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-digest",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-schema",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-version",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-phase",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-id",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-project",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-phase",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-version",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/formal-logout-and-new-session",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/owner-is-not-domain-authority-and-admin-is-not-project-owner",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/current-project-gate-precedes-secret",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/opaque-plan-full-request-foreign-store-and-expired-tx",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/missing-low-selector-domain-lock-and-weak-mode-poison",
+      "TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/actual-secret-witness-exact-tx-and-signed-lease"
+    ],
+    "count": 55,
+    "top": 1,
+    "purpose_parents": 2,
+    "fact_matrix_parents": 2,
+    "fact_variant_leaves": 38,
+    "other_leaves": 12,
+    "total_leaves": 50,
+    "knowledge_fact_rows": 17,
+    "memory_fact_rows": 21,
+    "top_seconds": 8.99,
+    "package_seconds": 10.029,
+    "fixture_command_seconds": 57.12,
+    "outer_seconds": 112.73018834300456,
+    "inner_exit": 0,
+    "outer_exit": 0
+  },
+  "authority_and_locks": {
+    "evidence_kind": "Completed fixed test assertions; no separate raw SQL state/witness dump.",
+    "bad_facts": "Old plan transaction and freshly committed bad facts both checked, target counter reached, Secret calls unchanged, zero atomic side effects; 17 knowledge rows/21 memory rows.",
+    "identity": "Formal logout/new Session; Owner/domain authority and admin/Project distinction; current archived Project gate before Secret.",
+    "opaque_context": "Full request/foreign issuer/same-db-other-Store/zero-or-expired Tx fixed assertions reused.",
+    "locks": "Missing user/selector/operation/input/domain locks, weakened EX and reversed acquisition poison transaction even when callback swallows error; reached flags and zero atomic facts asserted.",
+    "witness": "Successful usage then stale exact-Tx witness Forbidden and altered LeaseID InvalidArgument, reached while complete required locks held, original committed facts preserved.",
+    "source_ref": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_authorization_test.go",
+      "bytes": 17784,
+      "sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe"
+    }
+  },
+  "inputs": {
+    "grant_sha256": "249dee994604eca99d2516378f6d42b10af2d39264f5708e194527a23f5a78c3",
+    "before_after_sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2",
+    "recorded_count": 996,
+    "recorded_digest": "8fefb2e8350c6d1d01766087765b02b62f461cf3cb8249b2964dd26d5bd9e701",
+    "source_binding_reused": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    }
+  },
+  "retirement": {
+    "outer_actual_direct_waits": 1,
+    "inner_actual_direct_waits": 1,
+    "adopted_actual_waits": 0,
+    "observed_process_count_only": 83,
+    "ids": [
+      "0d7a98add9fcef97a0504bd67246e2fcf9918b9ce3b8399ac95eda9b765c3c1f",
+      "127a4612dc1d8db8a03dbdcb549d6b08b6f0979dacacad30da76ee859e6cac93",
+      "3f1050e0806440039dffd07f9449a036b15cd93391c0c521a72d3eebb75e119e",
+      "752465a3ca1fab7d2c0a323423f9d93aaf3e0b32775f923713d28e44fec166a3",
+      "c19929e0c0d9e8e4252d1cdef88a4aeb04c19ef045d772ff5478485be122fdc2",
+      "ce075ce85e8c8a18593f4ee10fc97f3997caa665fe80ed6ace151fceba6ca6f4",
+      "d380f9e41f6643fa4b1ac55164e63885531542c1434fd062f2cf19c29eb74974"
+    ],
+    "v03_three_round_unique_ids": 21,
+    "only_prior_rounds": [
+      "embedatomicity01",
+      "embedselect02"
+    ],
+    "cleanup_times": [
+      "2026-10-08T14:53:35.563420+00:00",
+      "2026-10-08T14:53:36.268412+00:00"
+    ],
+    "tcp_seconds": 52.44499044800614,
+    "tcp_last_two_times": [
+      "2026-10-08T14:54:29.018361+00:00",
+      "2026-10-08T14:54:29.222982+00:00"
+    ],
+    "nonowned_pid1_shims_not_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 790852,
+        "ppid": 1,
+        "starttime": "4103522",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 791290,
+        "ppid": 1,
+        "starttime": "4103780",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 791582,
+        "ppid": 1,
+        "starttime": "4103990",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 792202,
+        "ppid": 1,
+        "starttime": "4104202",
+        "state": "Z"
+      }
+    ]
+  },
+  "root_reported_outer_tool_receipt": {
+    "session_id": 14946,
+    "chunk_id": "c4af27",
+    "actual_exit": 0,
+    "provenance": "Root task message; not a separately read file or this verifier tool session."
+  },
+  "limits": [
+    "Author actual authorization plus independent original review, not independent actual A/B.",
+    "55 RUN entries include parents; 50 leaves.",
+    "Resource IDs unique only across these three v03 generation rounds, not all generations.",
+    "83 observed !=83 waits; zero adopted waits.",
+    "Four PID1 shims nonowned, not waited; supplementary TCP polling not complete host tracing.",
+    "Private consumer facts/controlled SQL negatives do not bind production consumers/serving.",
+    "Prior failure/cleanup records unchanged; other groups/replay/full card/README/production/historical hard stops outside this review."
+  ],
+  "file_fingerprints": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/cleanup.json",
+      "bytes": 80535,
+      "sha256": "8d4832007fa6104437dcbeeef175bcca3d72287b7b79f5b35b08e694e9a70f7b"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/command.json",
+      "bytes": 1981,
+      "sha256": "cc013a9c31b47a0335860cd91d575114241e8e42a3e90be22f514343ac9c5147"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "2acbe849d24506193ea335658f12d0dea3389b5cabd70cf18753a926c46792be"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/disk-preflight.json",
+      "bytes": 200,
+      "sha256": "3002f0b84cf33343aceecc64e723ff52c4d4176662d11b4490d8a2e052bd2c88"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/driver.py.txt",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/frozen-input.json",
+      "bytes": 17694,
+      "sha256": "249dee994604eca99d2516378f6d42b10af2d39264f5708e194527a23f5a78c3"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/input-after.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/input-before.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/observed-processes.json",
+      "bytes": 13443,
+      "sha256": "217c99ef88b5ddae19360669b45da745f7f207491a89485d463b06e11307adeb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/observed-resources.json",
+      "bytes": 5133,
+      "sha256": "c296507da4ef5f92428e61019937be8982fb10d07f6f49c1e57b826faf3b1671"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/prior-invocation-history.json",
+      "bytes": 1376,
+      "sha256": "5779f4cc7b1fd7c84f7a659bb686adc87e6df12336c40d2addbfae06e9d5e634"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/process-baseline.json",
+      "bytes": 29442,
+      "sha256": "4be018942ac01e7c21932f877c2552283cd8c6d1c7471001288ca3fa862a5b70"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/raw.log",
+      "bytes": 19136,
+      "sha256": "a54474cd53276965c9bb186620fe5c7b16b6d2ed89f02e533a8efde0008690bf"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/resource-id-chain.json",
+      "bytes": 1082,
+      "sha256": "b0e668095b8cafe8a3f0658b2f8d0a25025907d5e9d30c7b2b893b572f7f1024"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/result.json",
+      "bytes": 34695,
+      "sha256": "bf3261bd7b364935436fd61c7a5476c63247e9fe2213af08a50b5dc2a3d986ad"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "187f5bad6578fec1cf0f820c5c0af9f88cb96d4be2b041a56d036b69044a00b3"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/tcp-observed-delta.json",
+      "bytes": 3717,
+      "sha256": "144b5d3f50cdfda6e0fe126a5dec38ca91ac884b32dbae1d4481a8b22b64c0bd"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/tcp-tail-observation.json",
+      "bytes": 77415,
+      "sha256": "4d05258e425bf5408cc29b5474054cd4e064249acf89c5adaa05aee5ea847248"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/verification-input.json",
+      "bytes": 183,
+      "sha256": "e566c1fb4b987dc7724a60f97590a3241ede38b8f8e5a378ebd340874dc30d2a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/watchdog.json",
+      "bytes": 554,
+      "sha256": "a9553dfd6b61a78915065be61d9217c684d26637818add97aeefdc3fec966a26"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedauth01/intent.json",
+      "bytes": 423,
+      "sha256": "aae62f069188424d5d2909095fe08c95e877168623046c5c4cff09f2103d4c2e"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedauth01/launch.json",
+      "bytes": 1232,
+      "sha256": "9a5b6e8f6f7b91fce793fc0d56aa5246c1c916c1a3df596abf4c0b2fb67838dc"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedauth01/prior-invocation-history.json",
+      "bytes": 1376,
+      "sha256": "f5b89993aa52d13027eb629983e586ea32cc288e7283c9dbcad793f07369358e"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedauth01/raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedauth01/raw.stdout",
+      "bytes": 24680,
+      "sha256": "8af846271cabed9746c833d93dff731f2ae94cd15fa9b40bf7c5d619fb83b778"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedauth01/result.json",
+      "bytes": 1411,
+      "sha256": "930bf4cfd797fcb11583aa789e7bb7549771d6dcbe320eebcf1b493ac4b1162c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedauth01/root-grant.json",
+      "bytes": 17694,
+      "sha256": "249dee994604eca99d2516378f6d42b10af2d39264f5708e194527a23f5a78c3"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_authorization_test.go",
+      "bytes": 17784,
+      "sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/observed-resources.json",
+      "bytes": 5156,
+      "sha256": "028852c7ef08cafe1ae300b6bef0c0a80222dae9148bd1c2bd2c951fbd80ac6a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/observed-resources.json",
+      "bytes": 5140,
+      "sha256": "152e73b77512c5bf3e3d764b1e37c208d15b5f9835c7c3b03acb6d5076087fef"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/cleanup.json",
+      "bytes": 79151,
+      "sha256": "f914842550c11d76d6f8bb6bc161a8a3288a0dbc0a64d8ea0ab1074b11fbbf40"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/result.json",
+      "bytes": 34074,
+      "sha256": "d6e4ececc519d446b2ef4a250c680712e1f06f5cb0d25f08ae9397cba3a6a193"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/intent.json",
+      "bytes": 424,
+      "sha256": "27b092b4f03f6a486e7696f72cffd6e799f342e23d0fecf73979d124422b9937"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/launch.json",
+      "bytes": 1239,
+      "sha256": "3993079f4817cc0a484aa2a365eeda2b53c8eae3504995126e5e701b162a2c52"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/result.json",
+      "bytes": 1418,
+      "sha256": "ef2782843e132a30091ae3be93f83331459eec9eb43e658fc4ff0e0c3fbefe99"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedatomicity01/root-grant.json",
+      "bytes": 17693,
+      "sha256": "f2c79cf85931cd1113721d64520516d60facfd46b5654f8afea57d68260fa0c5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/cleanup.json",
+      "bytes": 74999,
+      "sha256": "bd55f021dffd1b1f4112e69d28af06a3ef4cfe6484e35a5a9f4f7d7e89090de4"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/result.json",
+      "bytes": 32183,
+      "sha256": "9e1f9c1ba1aff995b8593392734deb7f0caaee7575232c8fff9a94e9d7303603"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/intent.json",
+      "bytes": 421,
+      "sha256": "61c35b0816931a961e358854d1f276a5455d47a10f3f70e0bc1d130eea3199d5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/launch.json",
+      "bytes": 1230,
+      "sha256": "8cde5828bd4b7d7ee0d59b594403dd7f43475113fa8f9db1188814811723e8cb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/result.json",
+      "bytes": 1409,
+      "sha256": "dfed9e864397394fd010d2ba273179d563e3f81db796b0cade7dc3c8cffc2712"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/root-grant.json",
+      "bytes": 17708,
+      "sha256": "03068c0bc23054b86085ee74adfbe9bcd5373f3b64cf50d202cea23543c44f8d"
+    }
+  ]
+}

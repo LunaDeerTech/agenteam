@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.py", line 201, in <module>
+    expect('current launch cannot exempt a started run', lambda: history(True), False)
+  File "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.py", line 122, in expect
+    assert allowed, (name, value)
+           ^^^^^^^
+AssertionError: ('current launch cannot exempt a started run', [])

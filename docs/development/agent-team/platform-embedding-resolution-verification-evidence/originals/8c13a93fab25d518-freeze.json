@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "state": "STOP_POLICY_PURE_CANDIDATE_UNTESTED",
+  "created_utc": "2026-10-08T12:13:40.722947+00:00",
+  "author_scope": "scratch-only card #1\u20132; #3\u20138 separately pending; #9 not authorized",
+  "source_files": [
+    {
+      "card_path": 1,
+      "repository_path": "internal/central/model/resolution_policy.go",
+      "candidate": "candidate/internal/central/model/resolution_policy.go",
+      "bytes": 5611,
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a",
+      "baseline_sha256": "4e4b4ed8801a3def44dd6394b61be1358a3190fc03917eb25032edf8a1e1d038"
+    },
+    {
+      "card_path": 2,
+      "repository_path": "internal/central/model/platform_embedding_resolution_test.go",
+      "candidate": "candidate/internal/central/model/platform_embedding_resolution_test.go",
+      "bytes": 16395,
+      "sha256": "a5fbc31e9794bd812989709102f766e91b8d076f78a92aa8baa8fbfe34b7c594",
+      "baseline_sha256": null
+    }
+  ],
+  "tops": [
+    "TestModelPlatformEmbeddingResolutionProfileMatrix",
+    "TestModelPlatformEmbeddingResolutionEntryGuards"
+  ],
+  "gofmt_exit": 0,
+  "checks": {
+    "repository_policy_unchanged": true,
+    "utf8_lf_and_no_trailing_whitespace": true,
+    "go_compilation_or_tests": false,
+    "repository_source_installed": false
+  },
+  "artifacts": [
+    {
+      "path": "policy.diff",
+      "bytes": 2500,
+      "sha256": "248d66b012f95dbfb1da380e8108d1ce55e3f76d26745c65092147fa4501ca69"
+    },
+    {
+      "path": "source-inputs.json",
+      "bytes": 1940,
+      "sha256": "dc84297fafd9751bdf8415b2be56b2e6f28c5e13663e203501b1334fc0760661"
+    },
+    {
+      "path": "delivery.md",
+      "bytes": 1650,
+      "sha256": "4e6c23c8f7a81fa0eb533011efe4c1eb1bc571450690e3c60789cc07b5f82fa5"
+    },
+    {
+      "path": "gofmt.json",
+      "bytes": 396,
+      "sha256": "bb4e899c533dc96c75a14f8db2560737059bc93cfba8ae3519b62a25d7e96e84"
+    },
+    {
+      "path": "gofmt.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "gofmt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "supersedes_freeze_sha256": "9163429574f88f52bf832bca662b511b9c868c62232c795e4239d75213bf2778",
+  "author_static_correction": "Two nil Tx arguments replaced by the formal zero f.Tx{} value; found before Go compilation, not a runtime failure."
+}

@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 43127.952338455,
+      "top": "TestModelPlatformEmbeddingIndependentB"
+    },
+    {
+      "event": "result",
+      "monotonic": 43134.210517297,
+      "observed_seconds": 6.2581788419993245,
+      "reported_seconds": 6.28,
+      "state": "PASS",
+      "top": "TestModelPlatformEmbeddingIndependentB"
+    }
+  ],
+  "expected": [
+    "TestModelPlatformEmbeddingIndependentB"
+  ],
+  "failures": []
+}

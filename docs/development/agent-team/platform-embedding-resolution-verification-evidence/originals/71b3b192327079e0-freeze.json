@@ -1,0 +1,38 @@
+{
+  "state": "STOP_SINGLE_SQL_CANDIDATE_NOT_INSTALLED",
+  "stopped_utc": "2026-10-08T14:14:39.059357+00:00",
+  "repository_path": "tests/model/platform_embedding_resolution_fixture_test.go",
+  "baseline": {
+    "bytes": 21990,
+    "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/platform_embedding_resolution_fixture_test.go",
+    "bytes": 22024,
+    "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+  },
+  "patch": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/delta.patch",
+    "bytes": 668,
+    "sha256": "2e01911140c61a468361085d57abf643020ad1f4c563776a7ff22b7614c81a70"
+  },
+  "source_refs": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/source-refs.json",
+    "bytes": 2698,
+    "sha256": "d7c2600cef85d1c5dc6f88fc0d307162baaa3d7ad0a4d39a8659e4c774841a6b"
+  },
+  "impact": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/impact.json",
+    "bytes": 1266,
+    "sha256": "8e7fb88e12be64d8838cf075c3104dc247dae2b69b6a7de70cf5cf1a0e9ef40d"
+  },
+  "handoff": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/handoff.md",
+    "bytes": 1593,
+    "sha256": "a75c25bc65c64bd4cf308978222563f8ace10dddee23a06a5a4107503a2a424e"
+  },
+  "only_one_query_fragment_changed": true,
+  "reverse_exact_restoration": true,
+  "go_or_resources_run": false,
+  "product_sources_changed": false
+}

@@ -1,0 +1,80 @@
+{
+  "created_utc": "2026-10-08T14:19:36.249287+00:00",
+  "installed_sources": [
+    {
+      "path": "tests/model/platform_embedding_resolution_fixture_test.go",
+      "before": {
+        "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_fixture_test.go",
+        "bytes": 21990,
+        "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c"
+      },
+      "after": {
+        "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_fixture_test.go",
+        "bytes": 22024,
+        "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+      },
+      "candidate": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/platform_embedding_resolution_fixture_test.go",
+        "bytes": 22024,
+        "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+      }
+    }
+  ],
+  "current_pg_sources": [
+    {
+      "path": "tests/model/platform_embedding_resolution_fixture_test.go",
+      "bytes": 22024,
+      "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_selection_test.go",
+      "bytes": 10124,
+      "sha256": "115d60519161b31de0c0368ebd727059223572d8fb6c402ec2f9a3d46c6e5668"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_atomicity_test.go",
+      "bytes": 7252,
+      "sha256": "64471260c1a514d07c6408f776d1629e26348611b0b27e57d6a925303f2778f5"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_authorization_test.go",
+      "bytes": 17784,
+      "sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_replay_test.go",
+      "bytes": 12499,
+      "sha256": "b796560e0348ec1f6286bdef4ca1a6a6f327800685998fb4f57bd16918841ccf"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_unknown_test.go",
+      "bytes": 6857,
+      "sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d"
+    }
+  ],
+  "fixed_unchanged": [
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "path": "internal/central/model/platform_embedding_resolution_test.go",
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    },
+    {
+      "path": "docs/development/work-items/d09-platform-embedding-resolution.md",
+      "sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93"
+    }
+  ],
+  "prior_installation_reference": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/installation.json",
+    "bytes": 3195,
+    "sha256": "92ec487c641ab2c7331177a77525725846da654450d1c0f8d01d9899f696c223"
+  },
+  "candidate_freeze": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/freeze.json",
+    "bytes": 1638,
+    "sha256": "71b3b192327079e09f103773bf09d7158d5e2cc2c9a8f6f6700fbe45b2d7ceb3"
+  },
+  "only_authorized_repository_write": "tests/model/platform_embedding_resolution_fixture_test.go"
+}

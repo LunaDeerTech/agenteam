@@ -1,0 +1,56 @@
+{
+  "state": "PURE_PHASE_STOP_PASS",
+  "completed_utc": "2026-10-08T12:29:09.103025+00:00",
+  "installed_freeze_sha256": "8c13a93fab25d5183b354064f2f16436aa56beb51396ba04f3ca9ab7b43fd4ed",
+  "fixed_local_input_count": 352,
+  "inputs_after_all_match": true,
+  "changed_paths": [],
+  "actual_top_passes": [
+    "TestModelPlatformEmbeddingResolutionProfileMatrix",
+    "TestModelPlatformEmbeddingResolutionEntryGuards",
+    "TestModelCurrentResolutionProfileClosedMatrix",
+    "TestModelMeetingSummaryResolutionProfileMatrix",
+    "TestModelMeetingSummaryResolutionEntryGuards",
+    "TestModelCurrentResolutionConstructionAndClosedVariants",
+    "TestModelCurrentResolutionRegistrationAndTypedNil"
+  ],
+  "actual_run_ids": 74,
+  "actual_pass_ids": 74,
+  "commands": {
+    "version": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.012018360001093242,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    },
+    "inputs": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.17286296900056186,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    },
+    "pure-race": {
+      "exit_code": 0,
+      "elapsed_seconds": 6.259052500001417,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    },
+    "vet": {
+      "exit_code": 0,
+      "elapsed_seconds": 7.624199652000243,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    }
+  },
+  "owned_groups_second_observation": [],
+  "limits": [
+    "No PG/integration body or resource execution",
+    "No production consumer/serving/dimensions/Nonchat/Invocation/root binding",
+    "Original v1 static nil-Tx error retained; no failed test attempt was replaced",
+    "Revision 3 error-priority card clarification pending fixed handoff; it does not alter these two files"
+  ]
+}

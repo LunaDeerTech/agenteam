@@ -1,0 +1,11 @@
+--- a/tests/model/platform_embedding_resolution_fixture_test.go
++++ b/tests/model/platform_embedding_resolution_fixture_test.go
+@@ -364,7 +364,7 @@
+ func (v *platformEmbeddingResolutionFixture) noSecretRead(t *testing.T) {
+ 	t.Helper()
+ 	var count int
+-	if e := v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_audit.audit_records WHERE action='secret.resolve'`).Scan(&count); e != nil || count != 0 {
++	if e := v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_audit.audit_records WHERE action='secret.resolve' AND metadata->>'consumer'='model'`).Scan(&count); e != nil || count != 0 {
+ 		t.Fatal("resolution read material", count, e)
+ 	}
+ }

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.py"
+  ],
+  "cwd": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02",
+  "script_sha256": "881a3910cb20ecd6042ca7e69fcf5ab2b34a148db3a28965cbdcf1529e197849",
+  "started_utc": "2026-10-08T13:49:12.071047+00:00",
+  "actual_wait_completed": true,
+  "business_resources_started": false,
+  "pid": 703895,
+  "exit_code": 0,
+  "elapsed_seconds": 0.21723530100280186,
+  "ended_utc": "2026-10-08T13:49:12.288296+00:00",
+  "raw": {
+    ".stdout": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.stdout",
+      "sha256": "3a31e8d73641bb4cbd6a97f48bee4e958bfd13e2de6d1d257840a8bcc7bf906b"
+    },
+    ".stderr": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

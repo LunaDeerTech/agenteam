@@ -1,0 +1,33 @@
+{
+  "state": "PREPARED_FOR_ROOT_AUTHORIZED_TARGETED_SUCCESSOR",
+  "original_failure_handoff": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/handoff.json",
+    "bytes": 4762,
+    "sha256": "deace589d5cd708cb81488a3eeddeb27f78fdbc9598fb80943c51f76d5a213ac"
+  },
+  "source_delta": "Exactly four Marshal targets from private records to validated Inputs; all existing Marshal error checks retained.",
+  "selector": "'^TestIndependentPlatformEmbeddingPolicyComplement$/^public_valid_empty_representations$'",
+  "scope": "Only affected profile subgroup; first-run identity and no-ref passes reused; no author/product source edits.",
+  "files": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure02/independent_test.go",
+      "bytes": 9372,
+      "sha256": "03473926100faa2dcab2f80d0b50feed22219b3e0662f19f403fb43c23118eec"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure02/overlay.json",
+      "bytes": 221,
+      "sha256": "bf67a16a5f85e53485441affa0f8c717a482bbd051be797f15bacf23a5e456d1"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure02/run.py",
+      "bytes": 9548,
+      "sha256": "1f123bd37f2996a17a9edfb73b2dd47a1598622a9387dd27c2f0d55588c8acff"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure02/from-pure01.diff",
+      "bytes": 2524,
+      "sha256": "0e56ad45d5c0507d03459da08b99356f5fa2549634f3202057a2cff2d6412887"
+    }
+  ]
+}

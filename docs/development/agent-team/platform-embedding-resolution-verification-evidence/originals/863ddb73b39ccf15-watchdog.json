@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 41503.105625343,
+      "top": "TestModelPlatformEmbeddingResolutionUnknown"
+    },
+    {
+      "event": "result",
+      "monotonic": 41510.043680531,
+      "observed_seconds": 6.938055188002181,
+      "reported_seconds": 6.93,
+      "state": "PASS",
+      "top": "TestModelPlatformEmbeddingResolutionUnknown"
+    }
+  ],
+  "expected": [
+    "TestModelPlatformEmbeddingResolutionUnknown"
+  ],
+  "failures": []
+}

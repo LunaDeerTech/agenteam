@@ -1,0 +1,62 @@
+{
+  "audit_metadata_contract": {
+    "path": "/workspace/agenteam/internal/central/audit/contract/metadata.go",
+    "bytes": 21891,
+    "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646"
+  },
+  "secret_purpose_contract": {
+    "path": "/workspace/agenteam/internal/central/secret/contract/types.go",
+    "bytes": 8981,
+    "sha256": "2e9109c3278ef461166d41e4def3f6c76b0fde2cdd11fff7b755bdbcd1052cd7"
+  },
+  "shared_secret_material_audit_writer": {
+    "path": "/workspace/agenteam/internal/central/secret/model_usage.go",
+    "bytes": 8595,
+    "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d"
+  },
+  "legacy_secret_read_same_writer": {
+    "path": "/workspace/agenteam/internal/central/secret/lease.go",
+    "bytes": 12450,
+    "sha256": "e310f688beebb8d877f8ee4afbb4f92ec27fd8bf43666720f5fdeafdfc9bab23"
+  },
+  "model_resolution_grant": {
+    "path": "/workspace/agenteam/internal/central/model/resolution_secret.go",
+    "bytes": 6738,
+    "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df"
+  },
+  "account_system_grant": {
+    "path": "/workspace/agenteam/internal/central/account/secret_authority.go",
+    "bytes": 15606,
+    "sha256": "b5b1c947f7caa79da85bab4e446f7f45508f090560991195c9eb4035c2bf8926"
+  },
+  "formal_identity_setup": {
+    "path": "/workspace/agenteam/tests/model/meeting_summary_resolution_fixture_test.go",
+    "bytes": 17160,
+    "sha256": "69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b"
+  },
+  "formal_account_helper": {
+    "path": "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go",
+    "bytes": 17333,
+    "sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62"
+  },
+  "original_failed_result": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-result.json",
+    "bytes": 3319,
+    "sha256": "229ecd4f290eed5af4ca8c74539a4ec20d791b9394227d71c0d8c5e3d16617c3"
+  },
+  "original_failed_manifest": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-manifest.json",
+    "bytes": 10158,
+    "sha256": "cb072fb49f15ab0b15beca3d1977827ad355ee03ed20e165fac41f084aa55314"
+  },
+  "original_frozen_fixture": {
+    "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_fixture_test.go",
+    "bytes": 21990,
+    "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c"
+  },
+  "independent_ab_probe": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/platform_embedding_independent_test.go",
+    "bytes": 16094,
+    "sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614"
+  }
+}

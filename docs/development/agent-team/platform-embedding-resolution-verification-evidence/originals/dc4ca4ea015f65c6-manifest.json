@@ -1,0 +1,22 @@
+{
+  "status": "STOP",
+  "scope": "Author old Resolver 6 + Summary 3 actual regression and independent original/retirement review; no independent actual A/B or final card acceptance",
+  "files": [
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-combo02/review.md",
+      "bytes": 4030,
+      "sha256": "d5f3b19965646c9afe01619248a944128ce287c56e2d80ea726722e1084fd262"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-combo02/evidence.json",
+      "bytes": 19425,
+      "sha256": "0002538c9526701ff7576a4c8b16c0164defebfa87e08246550b2f45db456b70"
+    }
+  ],
+  "necessary_original_fingerprints": 44,
+  "combined_original_files": 66,
+  "combined_original_bytes": 1148315,
+  "writes": "this scratch directory only; stopped original reports and originals unchanged",
+  "checks": "Own JSON parse, counts, local report links, SHA256 and whitespace checks only; no source/resource/business rerun",
+  "format_exceptions": []
+}

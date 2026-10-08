@@ -1,5 +1,11 @@
 # Repository Guidelines
 
+Model提交格式补正（2026-10-08）：root首次git diff --cached --check实际exit2、helper仅预期12而assert exit1，未commit；raw3c75e6d2完整保留。原6 patch/diff实际60诊断＝12尾白＋48 context空格后tab，fixture仅format695e69e9/checksbc199d48/manifest77f327db补精确line-kind，原456实体及报告/README/计划卡不改。root核三JSON与实际集合后再提交，非产品/技术重跑；当前全部资源空。
+
+当前提交窗（2026-10-08）：旧authlife01与oldauthrevoke01均实际PASS/fullSTOP，后者cc142362/manifest6046acfd、direct＋8adopted、7ID/owned-runtime/TCP双清，全部资源空。Model最终文档delivery74747876/报告56265a5a/manifest817537df已root核新增19refs接受，完整九路径39890564保持，root现交README/永久档/计划卡与三协调文档。Audit导航独审39c88f8f及8图视觉018fe8c9已root读核接受有限范围；独立final04纯gate3ff96a86实际1.371s/1185 PASS、仅direct wait/identity双absent不冒ECHILD全树。新global59/原3backup保持，旧8轮/独4/完整Audit仍待。三停止/Jina/生产/E01不变。
+
+当前推进（2026-10-08，main055c727b已push核同）：Model完整九路径独审39890564/f1e86e15已root通读核4原件接受，README最终8dfab520；policy/pure fa4bc及六PG28dc已提交，永久档/计划/卡最后文档归位中，生产未扩。Audit两源修复055c727b及新build2be773aa已接受，root exchange02 4f2e3fef安装新59/794499B保原3backup；v04 sourcecheck05实际1.249s/1181 PASS。auditnav02实际PASS23.41/full70.578s、7ID/owned-runtime/TCP双清，result0d2e063e；13checks/schema17/client17/8PNG，独核与逐图视觉中。backend唯一oldauthlife01实际窗，尚未全STOP；其余旧9/独4未跑。独立final04 false1185元数据root接受，runtime仅纯filegate；新模型设置T1–T3草案691ab122限定接受仍待Audit整卡交接。资源窗不Git/换资产；三停止/Jina/ready503/生产未绑定/完整项目与E01未完保持。
+
 当前推进（2026-10-08）：Model八技术最终组合ab14ab6b已root通读并核manifest799c/三原件接受；作者七成功轮及独立A/B均实际PASS/fullSTOP，README#9现授末件安装、永久归档进行，完整九路径待验。Audit仅View3bb842a2/test480b2cfb规范化读取窄修已独核9b0453ea/root接受，最终受影响文件49/49实际PASS4.403s；原nav01FAIL/缺DOM不回填。frontend正唯一private build-v02/dist-ui02，backend只新v04 false准备，disposition0006fb3e保旧三代guards；global仍旧59、原3backup保持。全部Go/cache/业务资源当前空，新build/换资产/filegate/导航/旧10/独立4仍逐步接续。三停止/Jina/生产未绑定/ready503/完整项目与E01未完保持。
 
 当前推进（2026-10-08，159995ed已push核同）：Model作者七成功轮均实际PASS/全STOP，原Resolver6与Summary3后继已完成；v03共49ID，旧两组独核中。root已有限接受五新独核与八路径映射8c4c50a0，独立A单grant9bb67e63交runtime实际接续，B未授。Audit authority02实际PASS/全退役及独核6dce1378已root接受；nav01原FAIL/退役独核cb849ce6已root读核，第二大写直达上游200但browserready未达，0PNG/后段未验。frontend已获仅View#10/实际App测试#14受控返修，报告原产品同gate大写RED/小写PASS，确认规范化update误退休的受控竞态，原nav缺DOM不回填；两源活跃，a91d browser/Go/59资产不动。Audit旧10/独立4/新build与导航未完，独立final03仅false元数据未gate；README两件及下一模型设置UI仅scratch。当前不Git/push/换资产，三停止/Jina/生产/E01保持。

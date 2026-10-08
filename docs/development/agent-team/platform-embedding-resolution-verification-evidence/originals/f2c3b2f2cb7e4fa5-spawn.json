@@ -1,0 +1,26 @@
+{
+  "time": "2026-10-08T12:39:58.132832+00:00",
+  "direct_pid": 655143,
+  "identity": {
+    "pid": 655143,
+    "state": "R",
+    "ppid": 655140,
+    "pgrp": 655143,
+    "session": 655143,
+    "starttime": 3307285
+  },
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-mod=readonly",
+    "-p=1",
+    "-count=1",
+    "-timeout=40s",
+    "-overlay=/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure02/overlay.json",
+    "-run",
+    "^TestIndependentPlatformEmbeddingPolicyComplement$/^public_valid_empty_representations$",
+    "-v",
+    "./internal/central/model"
+  ],
+  "subreaper": true
+}

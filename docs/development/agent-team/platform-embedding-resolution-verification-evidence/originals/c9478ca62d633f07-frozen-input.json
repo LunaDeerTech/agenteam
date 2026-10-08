@@ -1,0 +1,313 @@
+{
+  "state": "ROOT_AUTHORIZED_ONE_INDEPENDENT_ROUND",
+  "root_authorized_resources": true,
+  "driver_sha256": "bbe8bdf4c9e128af219be7f2c3b9bea06546330c20f07cce2aeee024779146b8",
+  "launcher_sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+  "groups": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/groups.json",
+    "bytes": 1387,
+    "sha256": "c750429733ff346a4f334ea766a1facde237b52cd77bf72f94d639479a5b78f5"
+  },
+  "permitted_run_name": "ind-model-b01",
+  "permitted_groups": [
+    "ind-b"
+  ],
+  "closure": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-final02/closure.final.json",
+    "bytes": 1630,
+    "sha256": "8eccce74422c1c86bbf669c9ca3ce5ece50b5ba4d274e171ffb543b5c64419f4"
+  },
+  "offline_readiness": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-final02/offline-readiness.json",
+    "bytes": 11613,
+    "sha256": "c55de620538174d29a3a1de5f1a833accf790d866efc80eecbe9c94f4c2d4456"
+  },
+  "model_source_stop": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+    "bytes": 4524,
+    "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+  },
+  "model_installation": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+    "bytes": 3233,
+    "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+  },
+  "driver_runtime_files": {
+    "/usr/local/bin/docker": "27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b",
+    "/workspace/scratch/fixture-recovery-new/bin/minio": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/usr/bin/dash": "a6f559e00b69a4aa4d8cb607be18d9386c5aee55c509e2c075549dcf00e00fc7",
+    "/usr/bin/gcc": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+    "/usr/bin/as": "07dd8551ea0aa065975e4dddb8e1bb7dc308d12d54eca22c3858db79467c7cb9",
+    "/usr/bin/ld": "d2766988b6a1b1d1518cdc09242e726d1f24e151e16410ada3092b11ffd9081b",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/asm": "4720bbf4ea8c95da4bef7d716b89c914ce678b57e7833f327f3ea2c2f51d16a6",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/cgo": "a4d0ca3e67972d33fc28016a82b4e3a4fa551d9449a550f3cc68b0a7787281fd",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile": "3780fc07130d6d45096373acf062cc316940d253e2a1d892ece03a3bdd0d21d4",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link": "a29ac5e8f64111b0b5c5d31e452f18abf7ee79f44b421081b5509c8939d92ba9",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/preprofile": "4f4e30080736b81938c53865b7561347cc5b92d01f7f64745efa668da724d839",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/vet": "46e5add9e558ca24000deadf2fa072f3f374f42120907ab087119ec544498cb1",
+    "/usr/bin/sh": "a6f559e00b69a4aa4d8cb607be18d9386c5aee55c509e2c075549dcf00e00fc7",
+    "/usr/bin/dirname": "088e052097e35176c2714238a7cea6240c82ae3873f02ab77234b30263566768",
+    "/usr/bin/mktemp": "61f09af83b1ccbd744d424ba5ad19b2af4edb5ad67c367cc092f58422b7bbb7c",
+    "/usr/bin/rm": "c959a237e7b95d229eea44764b2246fcb61a95dc679a10ad0cc97ad84c2316c1",
+    "/usr/bin/rmdir": "d78acd70f897e47588f964663f26b0dd5f7787b25ce6d70a81d842563f952845",
+    "/usr/bin/x86_64-linux-gnu-gcc-14": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+    "/usr/bin/x86_64-linux-gnu-as": "07dd8551ea0aa065975e4dddb8e1bb7dc308d12d54eca22c3858db79467c7cb9",
+    "/usr/bin/x86_64-linux-gnu-ld.bfd": "d2766988b6a1b1d1518cdc09242e726d1f24e151e16410ada3092b11ffd9081b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/_bootstrap_external.py": "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipimport.py": "a96f1d7a7b6aaf421a3cf382b94b1422f4f0ad452fdd0bb61d635b560d7a4e91",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/codecs.py": "7b7839e53a77961153240aecfe11edc8054d05b1dedd83894450dae21ec05785",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/aliases.py": "6fdcc49ba23a0203ae6cf28e608f8e6297d7c4d77d52e651db3cb49b9564c6d2",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/__init__.py": "78c4744d407690f321565488710b5aaf6486b5afa8d185637aa1e7633ab59cd8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/utf_8.py": "ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/abc.py": "e558702a95cdce3febd289da021715d2b92bc43995b8a1bc58dfa1c3d8010287",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/io.py": "7cec3cb8ac004058dd0a5af246e6d950fb59c7ddd0058fda48bcb3fcb98d8822",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/stat.py": "052af0327eae6941b69b05c088b3e748f79995635f80ac4cc7125eb333eb4c77",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_collections_abc.py": "d4945c8410c4bab351741b04bca3de066f7c27ed7e38df89e206a96617102ffb",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/genericpath.py": "2b0b35d2206778af4081cf81dd9b513876e72c35a55bec941402e1fa62b1f1aa",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/posixpath.py": "03825681086638649a43480954f7f6a16b4da3bd41ece956864ae96e4f795cd9",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/os.py": "54c43a1fc69c979c70d8f7d097174cee163bfe59937723ee353043dd4a0211e1",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_sitebuiltins.py": "b9388bc1d6d12ed6be12da420ab1feca40f99c0e33ec315d92b1e01cb69b25bc",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/encodings/utf_8_sig.py": "1ef3da8d8aa08149e7f274dc64dbfce2155da812e5258ca8e8f832428d3b5c2d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/_distutils_hack/__init__.py": "ced72e54431ecf2d8d7dbd8a1e27724f1b171af3ca1503c304bf11c59a7fe861",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site.py": "b39ab288cc7a6d0cb3bb2655179221411340b22418e4efdee4c20175537a5fa2",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/types.py": "345474ef027a1273f353da9bdc1f7c18f65335e72e681bcc0376774cc51f2405",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/operator.py": "b2af20f67667203c1730e686cc5d0427becc94db4c97f1d3efe3ed2158473f6a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/keyword.py": "18c2be738c04ad20ad375f6a71db34b3823c7f40b0340f5294d0e89f3c9b093b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/reprlib.py": "e177bc70da83a7fbcde6fd261dc15da34e8a20873b1cccd4f9a1f8f27cca3779",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/collections/__init__.py": "7fdb04dd248ab37909f46d2085bfee56b32d7e91e49ad3a2fad99c453295659b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/functools.py": "de4a1d37c795e2a065124b5c49357893433bc6bb111b41277ccc9930ef08d4c9",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/enum.py": "f35e542d8c4c1d2b5e910138d726fa48774925f3c4dc5462793ebcb66aa55501",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_constants.py": "fa4fdb200f238f9e7817b63892b0d69833d8165134801e775e10cc113348a375",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_parser.py": "a51a85b37cf3f44ba7ff25754da5f31306e4ccfa6eb3c017f9d37bdf4e770840",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_casefix.py": "1b12d9136f23db6c3f6f26053fefc15ca964b886838c7b9c1fabf8d2efc1e5c8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_compiler.py": "c75620761098a70ed75b9accef63ef2881d8abb6d4e5cbfd10074bd165eefe4d",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/copyreg.py": "c8eda41f05c6bf95a4da4726a530409d2485ae060b8d019b3a8034389a15d3e9",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/__init__.py": "8ff3c37c63b917fcf8dc8d50993a502292a3dc159e41de4f4018c72a53d1c07b",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/warnings.py": "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/gettext.py": "a5c249a522b6b8e3aa6f1b12a8bcc09508b99ad612b58d2fc973db27ea3b7cc3",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/argparse.py": "7cc582dcb3b76e2c957f78a3f74e9809d6c311d6aab7bcaa2c9954d0cbff5f30",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/struct.py": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ctypes/_endian.py": "c5d692bdce10dfee242752620061bab684633bc72445a3def484961ef1bdbf3a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ctypes/__init__.py": "e048845f8f5c14a5fc873526a27da4a19d4eed25ab2f2a01fa6e0b79faca78d0",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/datetime.py": "ef20dc6b3554cd585dddffdc573f1f9a7a54c522f2a3fb4576c44edbb1e14238",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/hashlib.py": "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c423c613ab",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/scanner.py": "572958017eae8842eeddd0e3d18d3c56cc0a197348224915e1d87ce937841764",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py": "382cd02af6f7efede5a6d4abbcda1015e5c7a75794b0016022878f9cf32a24f6",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py": "52bfb1b66029cc70fa3bd7fe11df9f2e03922d413407a341b387a22c987f24f8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py": "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/fnmatch.py": "6683da36e47af523f3f41e18ad244d837783e19e98911cc0b7415dea81494ebc",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ntpath.py": "6c0d55ee892f98ef87b1ed3c50c9dfc7e267a98d2db47e08d3dc67529af56725",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/urllib/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ipaddress.py": "ba8d3389ff084fcb232b48204ec04f2b3ea4bd0eadf7b18c814947d185de2c64",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/urllib/parse.py": "e6af7f475262f1de335bb2e41e26adb94d6103977cf5fe1ddc430dc6a3b1623f",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py": "10ba48ae8063cfe7589436041d0d4628c05f427c7709cf8e75e486f8930cc32c",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_compression.py": "3ad5d60627477a60939ee44fc1bb3a05dbe8fb52f0f75039b8f5d8f1a278b981",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/bz2.py": "76ab3252924e71e859d7d90e8d3db13b6554975cfcac0fdadced4de7f8779330",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lzma.py": "58fb9d2fdc8a8af7b25e218f17ea3b51bdfa53bdf40f440ab33c605974ca5c2e",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/shutil.py": "53496e06742fe008fee2bccc8caeac77473e69923bec05358bd43eea467db1f8",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/signal.py": "0363c964c90ac0b3e515de5749205e6e6454051a1211058375d84d91eab6071a",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/locale.py": "3988c5419552d5b9f0bef3695102376f79357f0f440e9cd1f32c501f966e6ef3",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/_weakrefset.py": "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py": "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py": "8b7a477f978a8532852fd81e241c78182516bc4975d672d580a5848a76e11eb6",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/collections/abc.py": "9cb4208f99128a0489b6c8e6c61637617dd7d4250c59e065491957eda084dd10",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/selectors.py": "1eeb102373e18c96311203f30c516e785bd8642275aa0bd66e43a284c9692385",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py": "85d29b2bf0249f5436838298c9a60ee93508b1102e9ac43b001f8a7e7ae8f375",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/distutils-precedence.pth": "2638ce9e2500e572a5e0de7faed6661eb569d1b696fcba07b0dd223da5f5d224",
+    "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/driver.py": "bbe8bdf4c9e128af219be7f2c3b9bea06546330c20f07cce2aeee024779146b8",
+    "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/launch.py": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+    "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/groups.json": "c750429733ff346a4f334ea766a1facde237b52cd77bf72f94d639479a5b78f5",
+    "/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607"
+  },
+  "pending_inputs": [],
+  "shared_chain_candidate_for_later_binding_only": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/actual-union.json",
+    "sha256": "38316270d43b789c4c302ead795e469daefd6b885738a8217f071bf7c61d079f"
+  },
+  "accepted_driver_provenance": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "accepted_six_source_static": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+    "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+  },
+  "prior_failure_dispositions": {},
+  "shared_go_chain_manifest": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/manifest.json",
+    "bytes": 580,
+    "sha256": "a652c455e72f2e9e6eafacbb7347ee7b3402a32e4118b46c5bada44dd1296586"
+  },
+  "shared_go_chain_binding": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/binding.json",
+    "bytes": 1772,
+    "sha256": "9b7900a499c826e829a066632d532e14d9fc9b21cd4e0fd82506f96fca2e0d1d"
+  },
+  "actual_model_list_result": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-list01/run01/result.json",
+    "bytes": 1055,
+    "sha256": "6d3c0ae9bc78bef353d3094024142634c581feb266bef57f2c9e949221aa209b"
+  },
+  "original_v01_static_failure": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/model-pg-driver-v01/review.md",
+    "sha256": "88f676dc9c778f499504b06c01f71320b09294f23722ac2f58827fb91ce7bcab"
+  },
+  "executable": true,
+  "independent_overlay": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+    "bytes": 205,
+    "sha256": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607"
+  },
+  "probe_sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614",
+  "independent_preparation_receipts": [
+    {
+      "path": "/workspace/scratch/architecture-model-ab-probe-final-review/review.md",
+      "bytes": 1507,
+      "sha256": "82f2568f1c94f4f305657b13ea461c45a036523041c131eb9c68a54a2c785578"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/manifest.json",
+      "bytes": 8127,
+      "sha256": "5d070149dc12eabf76f2f5f69b56dc42e8a8a9d5a50eebe5e2597ec42d0660b9"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-list01/freeze.json",
+      "bytes": 2540,
+      "sha256": "0ca80d24ed12e07d6cdc583fab6a383792ab4e14ac4eca0e1849b0c7cbc09651"
+    }
+  ],
+  "author_v02_provenance": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/manifest.json",
+    "bytes": 5804,
+    "sha256": "87457c77e6f1fb358d77a8f651294140476f1a1369973143e1ba83a019e1d12e"
+  },
+  "original_independent_v01": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v01/freeze.prepared.json",
+    "bytes": 2874,
+    "sha256": "bbf6e976232148b9fcf62e2e84af3dfae63b0d6402ed5ebc4127851749ddac2d"
+  },
+  "original_probe_plan": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/probe.freeze.json",
+    "bytes": 2886,
+    "sha256": "cd35392aedf681e0ae1ed03e8b23496231562e24667b0c73457aa0927e8c6ea7"
+  },
+  "author_original_model_list_result": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-list-proposal01/run01/result.json",
+    "sha256": "f92074e95440298ec61abd7034fa30d9b9b275f16e232c29e7b903662f133e9e"
+  },
+  "status": "ROOT_SINGLE_ROUND_GRANT_NOT_RESULT",
+  "source_reuse": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/reuse.json",
+    "sha256": "011d296480a3c599a168fcc533b87888a7fca2dbbd7170b4b968a71c76cec770"
+  },
+  "tools": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/tools.json",
+    "sha256": "f7ad7608ac8a7553f0628b19b96fee78a095bb33586e7d2bcf762596a8057ad8"
+  },
+  "author_final_false": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/freeze.false.json",
+    "bytes": 16545,
+    "sha256": "92cd40cb43f59f9775bfb7273889858e83ec3be80c62f3e96a75ee0d504efc76"
+  },
+  "root_component_false": {
+    "path": "/workspace/scratch/platform-embedding-root-grants/filegate-v01.false.json",
+    "bytes": 16465,
+    "sha256": "50a357e3a3007596720f47433a5c808a37f1008ddb991cfb910eb110dae6b852"
+  },
+  "accepted_author_driver_static": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/model-pg-driver-v02/review.md",
+    "bytes": 3258,
+    "sha256": "c83dffc17f5d2ee00a2df553d0c2416c56b835e2575475922e78f2137e23ba94"
+  },
+  "accepted_independent_driver_static": {
+    "path": "/workspace/scratch/architecture-model-ab-driver-v02-review/review.md",
+    "bytes": 2361,
+    "sha256": "cb55a8cd58c9a273b8264103aaf0406305a98ff4bd2116183cf76b185c90b956"
+  },
+  "root_offline_preparation_acceptance": "Root explicitly accepted the current offline combination and authorized final02 false metadata preparation. Only pending preparation metadata is complete; no resource name/group or resource ownership is granted.",
+  "own_input_gate_executed": false,
+  "remaining_execution_actions": [
+    "Wait until author relevant new five PG scenarios have completed and all owners have stopped, or obtain an explicit different root direction",
+    "Root independently grants one immutable named round and exclusive Go/cache/resource ownership",
+    "The current driver must pass its actual input gate before fresh resources",
+    "Run actual A and B bodies in separately granted rounds and fully retire each round"
+  ],
+  "historical_author_v02_independent_acceptance_at_preparation": "Pending; source STOP permits derivation, not execution.",
+  "historical_readiness_template": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/readiness.template.json",
+    "bytes": 1334,
+    "sha256": "b1ac37ab0638442cbb1c8d2859968f6172075fb638daf806805051a5074c50c3"
+  },
+  "accepted_current_single_sql_review": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+    "bytes": 3158,
+    "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+  },
+  "accepted_current_model_offline_review": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-compile02-review01/review.md",
+    "bytes": 2155,
+    "sha256": "279de7c2243836191a012e322f1bdf65f40333b20991409b03b680afe77bc855"
+  },
+  "previous_final_false_manifest": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-final01/manifest.json",
+    "bytes": 1314,
+    "sha256": "77afb5d8d47b4937e685f8301e58756ab7dc388f60b82153454244fc5df7ba29"
+  },
+  "current_source_combination": {
+    "state": "ROOT_ACCEPTED_OFFLINE_COMBINATION_ONLY",
+    "independent_probe_sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614",
+    "independent_overlay": {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+      "bytes": 205,
+      "sha256": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607"
+    },
+    "original_independent_compile_manifest": {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/manifest.json",
+      "bytes": 8127,
+      "sha256": "5d070149dc12eabf76f2f5f69b56dc42e8a8a9d5a50eebe5e2597ec42d0660b9"
+    },
+    "original_independent_exact_two_name_list": {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-list01/run01/result.json",
+      "bytes": 1055,
+      "sha256": "6d3c0ae9bc78bef353d3094024142634c581feb266bef57f2c9e949221aa209b"
+    },
+    "current_author_model_compile_stop": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+      "bytes": 4524,
+      "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+    },
+    "current_author_installation": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    "accepted_single_sql_semantic_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+      "bytes": 3158,
+      "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+    },
+    "accepted_current_offline_delta_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-compile02-review01/review.md",
+      "bytes": 2155,
+      "sha256": "279de7c2243836191a012e322f1bdf65f40333b20991409b03b680afe77bc855"
+    },
+    "source_delta": "Only noSecretRead SQL literal consumer=model; no import/type/selector/filename or independent probe change.",
+    "version_limit": "Original independent compiled binary and its list2 are historical and do not contain the new SQL. Current author compile02 checks c433 but executes no binary/body. Future actual independent script compiles the current source under the unchanged overlay; no dynamic success follows from this combination.",
+    "old_failure_limit": "Original Selection FAIL and original double_cleanup=false remain fixed. Separate exact runtime recovery and query STATIC acceptance do not erase or retry that run.",
+    "no_new_independent_binary_list_filegate_or_resources": true
+  },
+  "root_single_round": {
+    "name": "ind-model-b01",
+    "group": "ind-b",
+    "previous_run": "ind-model-a01",
+    "previous_inner_sha256": "8587c0acba32bc38617fd34a27f3d89467aa1a3769e2d2701de2e04a5427aef1",
+    "previous_outer_sha256": "67dee6c2d5d67c3f946e01532775e1604b02d2790d5e715b15c542c0e0ff7332",
+    "previous_actual_wait_and_cleanup_accepted": true,
+    "previous_tool_exit_confirmed": "27382/e320b2/exit0",
+    "no_successor_or_retry_authorized": true,
+    "limits": "Original independent B only, unchanged source/overlay/budgets/7IDs. Preserve actual commit/rollback decoration vs physical ACK loss distinction. No Audit resources or global asset exchange; unrelated two frontend source changes excluded from Go inputs."
+  }
+}

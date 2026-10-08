@@ -1,0 +1,113 @@
+{
+  "state": "OFFLINE_PROBE_FORMAT_RACE_COMPILE_VET_PASS_STOP",
+  "completed_utc": "2026-10-08T13:39:04.226313+00:00",
+  "root_authorized_resources": false,
+  "repository_installed": false,
+  "Go_cache_owner_released": true,
+  "source": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/platform_embedding_independent_test.go",
+    "bytes": 16094,
+    "sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614"
+  },
+  "original_source": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/platform_embedding_independent_test.go",
+    "bytes": 16091,
+    "sha256": "117cda7a054cba5907774dfdebb03e84bca88885cdf82b8fa564a5ff49141179"
+  },
+  "format_delta": "Only three alignment spaces on LeaseRows; original frozen source unchanged.",
+  "overlay": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+    "bytes": 205,
+    "sha256": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607"
+  },
+  "virtual_target": "/workspace/agenteam/tests/model/platform_embedding_independent_test.go",
+  "virtual_target_absent": true,
+  "commands": {
+    "format01": {
+      "accepted": true,
+      "state": "STOP_PASS",
+      "completed_utc": "2026-10-08T13:37:17.815817+00:00",
+      "actual_exit": 0,
+      "actual_direct_wait_completed": true,
+      "adopted_waits": [],
+      "outer_seconds_including_retirement": 0.1520721710039652,
+      "owned_double_empty": true,
+      "repository_input_count": 0,
+      "repository_inputs_same": true,
+      "probe_inputs_same": true,
+      "forced": [],
+      "exception": null,
+      "no_external_resources_started": true,
+      "mode": "format01"
+    },
+    "compile01": {
+      "accepted": true,
+      "state": "STOP_PASS",
+      "completed_utc": "2026-10-08T13:37:54.259755+00:00",
+      "actual_exit": 0,
+      "actual_direct_wait_completed": true,
+      "adopted_waits": [],
+      "outer_seconds_including_retirement": 8.557813195002382,
+      "owned_double_empty": true,
+      "repository_input_count": 486,
+      "repository_inputs_same": true,
+      "probe_inputs_same": true,
+      "forced": [],
+      "exception": null,
+      "no_external_resources_started": true,
+      "mode": "compile01"
+    },
+    "vet01": {
+      "accepted": true,
+      "state": "STOP_PASS",
+      "completed_utc": "2026-10-08T13:38:01.090934+00:00",
+      "actual_exit": 0,
+      "actual_direct_wait_completed": true,
+      "adopted_waits": [],
+      "outer_seconds_including_retirement": 0.9994901050013141,
+      "owned_double_empty": true,
+      "repository_input_count": 486,
+      "repository_inputs_same": true,
+      "probe_inputs_same": true,
+      "forced": [],
+      "exception": null,
+      "no_external_resources_started": true,
+      "mode": "vet01"
+    }
+  },
+  "actual_outer_terminals": {
+    "format01": {
+      "exec_exit": 0
+    },
+    "compile01": {
+      "exec_session_id": 94136,
+      "actual_terminal_write_stdin_exit": 0
+    },
+    "vet01": {
+      "exec_exit": 0
+    }
+  },
+  "prior_full_probe_source_static": {
+    "path": "/workspace/scratch/architecture-model-ab-probe01-review/review.md",
+    "sha256": "4f575104c17259cad28d04801c156b37503653d6354582a445596b59032b018a"
+  },
+  "fixed_repository_inputs": "486 author pg compile named inputs reused by exact reference, verified before/after each compile/vet. No new graph/list. No web/dist input added.",
+  "compiled_binary": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/independent.test",
+    "bytes": 52660287,
+    "sha256": "3c5a008c0d95d9103eb4889cf11eec74a93c436ee41440d5c64e891dcaed5180"
+  },
+  "compiled_binary_executed": false,
+  "remaining": [
+    "Architecture final format/compile-bound combination review",
+    "Driver author-v02 gate/closure-loader fixes and independent overlay rebase",
+    "Separate exact binary discovery if root authorizes",
+    "Root-bound complete runtime inputs and separate real PG windows",
+    "Both A/B test body, assertions and cleanup not executed"
+  ],
+  "limitations": [
+    "Offline format, compilation and vet do not establish real PG behavior or retirement of future fixtures.",
+    "Owned observations cover the actual command process groups, not whole-host cleanliness.",
+    "Original probe, frozen plan and incorrect pre-command asset-count inference retained unchanged or explicitly corrected in preparation-correction.json."
+  ]
+}

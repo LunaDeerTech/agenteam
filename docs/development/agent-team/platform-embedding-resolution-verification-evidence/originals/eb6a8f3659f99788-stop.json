@@ -1,0 +1,45 @@
+{
+  "state": "STOP_COMPLETE_FALSE_BINDING_PENDING_ROOT_ACCEPTANCE_AND_FILE_ONLY_GATE",
+  "stopped_utc": "2026-10-08T14:02:03.489570+00:00",
+  "false_template": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/freeze.false.json",
+    "bytes": 16545,
+    "sha256": "92cd40cb43f59f9775bfb7273889858e83ec3be80c62f3e96a75ee0d504efc76"
+  },
+  "offline_readiness": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/offline-readiness.prepared.json",
+    "bytes": 5287,
+    "sha256": "08c089fc5674c85318d82e764f747253cb49b4b07a09ba5966a2116d17969c33"
+  },
+  "tools": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/tools.json",
+    "bytes": 6363,
+    "sha256": "f7ad7608ac8a7553f0628b19b96fee78a095bb33586e7d2bcf762596a8057ad8"
+  },
+  "python_runtime": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/python-runtime.json",
+    "bytes": 14710,
+    "sha256": "fe7ee4f8a426b6eb416834a6234228c4aa45034d27628957c8679e9f9933ded1"
+  },
+  "source_refs": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/source-refs.json",
+    "bytes": 4521,
+    "sha256": "94e3efa3226ccdc1336af8c1645023f51299f001dd93a13a9d228d9e0f38a758"
+  },
+  "checks": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/preparation-checks.json",
+    "bytes": 1129,
+    "sha256": "f9ba55ad494736195a951095f8f37394e68c6a7f4fb5c53b352b7b274afb938b"
+  },
+  "handoff": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/handoff.md",
+    "bytes": 2687,
+    "sha256": "8621f21d0bffe621b14233f12a67ce0469801ae12f0600207e16ba1cb740f647"
+  },
+  "root_authorized_resources": false,
+  "runtime_expected_file_count": 86,
+  "fixed_receipt_count": 20,
+  "commands_in_flight": false,
+  "filegate_driver_go_resources_executed": false,
+  "source_writes_stopped": true
+}

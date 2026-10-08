@@ -1,0 +1,40 @@
+{
+  "state": "PREPARED_ONLY_NOT_A_RESOURCE_GRANT",
+  "root_authorized_resources": false,
+  "driver_sha256": "8153667b93af1b68efab50af2459d3ef203b1b105c25110457d757fad0983a54",
+  "launcher_sha256": "e6553a63073c0cb84f9faaaf08c1085e42b6fb7e5913a019b02a3d885b60ede1",
+  "groups": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/groups.json",
+    "sha256": "fb7cf706c88a7c00ca61fdf442585100e529e1ad70a0927c71ab045bcbdbb6a8"
+  },
+  "permitted_run_name": null,
+  "permitted_groups": [],
+  "closure": null,
+  "offline_readiness": null,
+  "model_source_stop": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/stop.json",
+    "sha256": "892c24bea4881c8b4c1268ca4369c06759ca936e029605964064ebdd4c7c5900"
+  },
+  "model_installation": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/installation.json",
+    "sha256": "92ec487c641ab2c7331177a77525725846da654450d1c0f8d01d9899f696c223"
+  },
+  "driver_runtime_files": {},
+  "pending_inputs": [
+    "Shared stopped full-fixture/helper/dynamic-command/CGO0 closure with current minimal delta and package sets",
+    "Exact 14-name Model test discovery and required helper/two-command build receipts or justified fixed-input reuse",
+    "Final actual driver/tool runtime fingerprints and single-round immutable root grant"
+  ],
+  "shared_chain_candidate_for_later_binding_only": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/actual-union.json",
+    "sha256": "38316270d43b789c4c302ead795e469daefd6b885738a8217f071bf7c61d079f"
+  },
+  "accepted_driver_provenance": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "accepted_six_source_static": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+    "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+  }
+}

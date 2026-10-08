@@ -1,0 +1,19 @@
+{
+  "status": "STOP",
+  "assessment": "STATIC_PASS_NO_REQUIRED_FIX_FOUND",
+  "scope": "six frozen PG sources only; prior author compile/vet evidence checked; no independent Go or PG execution",
+  "frozen_candidate_sha256": "a442fcb8c14075b56511f012d97c9ecd3efb9a9d1f6c2e45b2e03599c11da22e",
+  "files": [
+    {
+      "path": "review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    {
+      "path": "evidence.json",
+      "bytes": 14267,
+      "sha256": "fb356abbb65f5329a15b70a4595f83b5ac78d5554ee87abdb2c6e8fce75a3572"
+    }
+  ],
+  "created_utc": "2026-10-08T13:15:17.702554+00:00"
+}

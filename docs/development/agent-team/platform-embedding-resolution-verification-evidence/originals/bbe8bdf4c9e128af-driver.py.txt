@@ -1,0 +1,886 @@
+#!/usr/bin/env python3
+"""Prepared D09 platform embedding Model fixture runner, derived from accepted Owner v05. --execute-authorized requires root's resource window."""
+import argparse
+import ctypes
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import threading
+import time
+
+ROOT = Path(__file__).resolve().parent
+REPO = Path('/workspace/agenteam')
+GO = '/workspace/toolchains/go1.27.1/bin/go'
+DOCKER = '/usr/local/bin/docker'
+DOCKER_SHA256 = '27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b'
+MODCACHE = '/workspace/go/pkg/mod'
+MINIO = '/workspace/scratch/fixture-recovery-new/bin/minio'
+GOCACHE = '/workspace/.cache/go-build'
+PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3'
+GROUPS = {'ind-a': ['TestModelPlatformEmbeddingIndependentA'], 'ind-b': ['TestModelPlatformEmbeddingIndependentB']}
+
+GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
+FROZEN = {}
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def load_bound(row):
+    path = Path(row['path'])
+    if sha(path) != row['sha256']:
+        raise RuntimeError('bound manifest mismatch: ' + str(path))
+    value = json.loads(path.read_text())
+    if 'base_closure' in value:
+        inherited = load_bound(value['base_closure'])
+        inherited['files'].update(value.get('files', {}))
+        inherited['package_file_sets'].update(value.get('package_file_sets', {}))
+        for key, data in value.items():
+            if key not in ('files', 'package_file_sets'):
+                inherited[key] = data
+        value = inherited
+    return value
+
+
+def digest(rows):
+    return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def actual_graph_input(actual_union):
+    # Reuse only exact external files selected by the already bound real graphs.
+    # The preparation step never invokes this function or indexes the cache.
+    external = {}
+    fields = actual_union['selected_fields']
+    for graph in actual_union['graphs']:
+        path = Path(graph['raw']['path'])
+        if sha(path) != graph['raw']['sha256']:
+            raise RuntimeError('actual graph raw changed')
+        raw, at, decoder = path.read_text(), 0, json.JSONDecoder()
+        while at < len(raw):
+            while at < len(raw) and raw[at].isspace():
+                at += 1
+            if at == len(raw):
+                break
+            package, at = decoder.raw_decode(raw, at)
+            directory = Path(package['Dir'])
+            if not (directory.is_relative_to('/workspace/toolchains/go1.27.1') or directory.is_relative_to(MODCACHE)):
+                continue
+            selected = external.setdefault(str(directory), {})
+            for field in fields:
+                for name in package.get(field, []):
+                    selected[str(directory / name)] = sha(directory / name)
+    groups = {directory: {'count': len(rows), 'sha256': digest(rows)} for directory, rows in external.items()}
+    return {'external_selected_groups_match': groups == actual_union['external_selected_groups']}
+
+
+def merge_execution_closure(inherited, layer, retain_names=None):
+    result = dict(inherited)
+    result['files'] = dict(inherited.get('files', {}))
+    result['package_file_sets'] = dict(inherited.get('package_file_sets', {}))
+    if retain_names is not None:
+        if not isinstance(retain_names, list) or any(not isinstance(name, str) or
+                Path(name).is_absolute() or '..' in Path(name).parts for name in retain_names):
+            raise RuntimeError('retain list must contain relative repository names')
+        allowed = {str(REPO / name) for name in retain_names}
+        result['files'] = {name: row for name, row in result['files'].items() if name in allowed}
+    for name in layer.get('remove_files', []):
+        result['files'].pop(name, None)
+    result['files'].update(layer.get('files', {}))
+    result['package_file_sets'].update(layer.get('package_file_sets', {}))
+    for key, value in layer.items():
+        if key not in ('files', 'package_file_sets'):
+            result[key] = value
+    return result
+
+
+def load_execution_closure(row):
+    path = Path(row['path'])
+    if sha(path) != row['sha256']:
+        raise RuntimeError('execution closure reference changed: ' + str(path))
+    layer = json.loads(path.read_bytes())
+    inherited = load_execution_closure(layer['base_closure']) if 'base_closure' in layer else {}
+    retain_names = None
+    if 'retain_files_from' in layer:
+        retain = layer['retain_files_from']
+        retain_path = Path(retain['path'])
+        if sha(retain_path) != retain['sha256']:
+            raise RuntimeError('retained source-name list changed')
+        retain_names = json.loads(retain_path.read_bytes())
+    return merge_execution_closure(inherited, layer, retain_names)
+
+
+def grant_errors(value, name, group, mode, driver_sha, launcher_sha, same_bytes):
+    errors = []
+    if value.get('root_authorized_resources') is not True:
+        errors.append('resource authorization must be boolean true')
+    if mode & 0o222 or not same_bytes:
+        errors.append('grant must be immutable and unchanged')
+    if re.fullmatch(r'[a-z0-9][a-z0-9-]{0,19}', name) is None:
+        errors.append('invalid invocation name')
+    if value.get('permitted_run_name') != name or value.get('permitted_groups') != [group]:
+        errors.append('grant must bind one exact name and group')
+    if value.get('pending_inputs') != []:
+        errors.append('preparation is still pending')
+    if value.get('driver_sha256') != driver_sha or value.get('launcher_sha256') != launcher_sha:
+        errors.append('both execution source hashes must match')
+    return errors
+
+
+def validate_execution_grant(path, raw, name, group):
+    value = json.loads(raw)
+    errors = grant_errors(value, name, group, path.stat().st_mode,
+                          hashlib.sha256((ROOT / 'driver.py').read_bytes()).hexdigest(),
+                          hashlib.sha256((ROOT / 'launch.py').read_bytes()).hexdigest(),
+                          path.read_bytes() == raw)
+    if errors:
+        raise RuntimeError('; '.join(errors))
+    return value
+
+
+def process_starttime(pid):
+    return int(Path(f'/proc/{pid}/stat').read_text().rsplit(') ', 1)[1].split()[19])
+
+
+def current_launch_errors(intent, grant_sha, name, group, driver_sha, launcher_sha,
+                          parent_pid, parent_starttime, copy_sha, copy_mode, intent_mode,
+                          run_exists, terminal_exists):
+    errors = []
+    expected = {'run': name, 'group': group, 'root_grant_sha256': grant_sha,
+                'driver_sha256': driver_sha, 'launcher_sha256': launcher_sha,
+                'launcher_pid': parent_pid, 'launcher_starttime_ticks': parent_starttime,
+                'state': 'PREPARED_TO_SPAWN'}
+    if any(intent.get(key) != value for key, value in expected.items()):
+        errors.append('current launch intent is not bound to this grant and actual parent')
+    if copy_sha != grant_sha or copy_mode & 0o222 or intent_mode & 0o222:
+        errors.append('current launch grant/intent copy is not immutable and exact')
+    if run_exists or terminal_exists:
+        errors.append('current invocation has already started or ended')
+    return errors
+
+
+def prior_terminal_errors(name, outer, launch, inner, intent, grant, hashes, disposition=None):
+    errors = []
+    if (intent.get('run') != name or grant.get('root_authorized_resources') is not True or
+            grant.get('permitted_run_name') != name or grant.get('permitted_groups') != [intent.get('group')] or
+            grant.get('driver_sha256') != intent.get('driver_sha256') or
+            grant.get('launcher_sha256') != intent.get('launcher_sha256')):
+        errors.append('prior intent/grant identity mismatch')
+    for value in (outer, launch):
+        if (value.get('run') != name or value.get('group') != intent.get('group') or
+                value.get('root_grant_sha256') != hashes['root-grant.json'] or
+                value.get('driver_sha256') != intent.get('driver_sha256') or
+                value.get('launcher_sha256') != intent.get('launcher_sha256') or
+                value.get('intent_sha256') != hashes['intent.json'] or
+                value.get('actual_direct_wait_completed') is not True or value.get('spawned') is not True):
+            errors.append('prior outer identity or actual wait is incomplete')
+    if (outer.get('driver_pid') != launch.get('driver_pid') or
+            outer.get('driver_starttime_ticks') != launch.get('driver_starttime_ticks') or
+            type(outer.get('driver_pid')) is not int or type(outer.get('driver_starttime_ticks')) is not int):
+        errors.append('prior outer process identity mismatch')
+    if (outer.get('driver_result_sha256') != hashes['inner-result.json'] or
+            outer.get('root_grant_bytes_unchanged') is not True or
+            intent.get('root_grant_sha256') != hashes['root-grant.json'] or
+            inner.get('run') != name or inner.get('actual_wait_completed') is not True or
+            inner.get('watchdog_thread_joined') is not True or inner.get('double_cleanup') is not True):
+        errors.append('prior inner result binding or retirement is incomplete')
+    passed = (type(outer.get('exit_code')) is int and outer.get('exit_code') == 0 and
+              type(launch.get('exit_code')) is int and launch.get('exit_code') == 0 and
+              outer.get('accepted') is True and outer.get('driver_accepted') is True and
+              type(inner.get('driver_exit')) is int and inner.get('driver_exit') == 0 and inner.get('accepted') is True)
+    if not passed:
+        # Disposition does not replace missing originals or actual retirement.
+        expected_hashes = {key: hashes[key] for key in
+                           ('root-grant.json', 'intent.json', 'launch.json', 'outer-result.json', 'inner-result.json', 'cleanup.json')}
+        if (not disposition or disposition.get('root_authorized_continue') is not True or
+                disposition.get('state') != 'ROOT_DISPOSED_RETIRED_INVOCATION' or
+                disposition.get('run') != name or disposition.get('original_hashes') != expected_hashes or
+                not isinstance(disposition.get('reason'), str) or not disposition['reason'].strip()):
+            errors.append('prior failed invocation has no exact root disposition')
+    return errors
+
+
+def check_invocation_history(name, group, grant, raw, inside_driver):
+    launch_root, run_root = ROOT / 'launches', ROOT / 'runs'
+    launch_names = {p.name for p in launch_root.iterdir()} if launch_root.exists() else set()
+    run_names = {p.name for p in run_root.iterdir()} if run_root.exists() else set()
+    if inside_driver:
+        current = launch_root / name
+        if name not in launch_names or not current.is_dir():
+            raise RuntimeError('resource driver requires its bound active outer launcher')
+        intent_path, copy_path = current / 'intent.json', current / 'root-grant.json'
+        intent = json.loads(intent_path.read_bytes())
+        errors = current_launch_errors(intent, hashlib.sha256(raw).hexdigest(), name, group,
+                                       grant['driver_sha256'], grant['launcher_sha256'],
+                                       os.getppid(), process_starttime(os.getppid()),
+                                       hashlib.sha256(copy_path.read_bytes()).hexdigest(),
+                                       copy_path.stat().st_mode, intent_path.stat().st_mode,
+                                       name in run_names, (current / 'result.json').exists())
+        if errors:
+            raise RuntimeError('; '.join(errors))
+    elif name in launch_names or name in run_names:
+        raise RuntimeError('invocation name already exists; no overwrite/retry')
+    records = []
+    for previous in sorted((launch_names | run_names) - ({name} if inside_driver else set())):
+        launch_dir, run_dir = launch_root / previous, run_root / previous
+        paths = {'root-grant.json': launch_dir / 'root-grant.json', 'intent.json': launch_dir / 'intent.json',
+                 'launch.json': launch_dir / 'launch.json', 'outer-result.json': launch_dir / 'result.json',
+                 'inner-result.json': run_dir / 'result.json', 'cleanup.json': run_dir / 'cleanup.json'}
+        if not all(path.is_file() for path in paths.values()):
+            raise RuntimeError('prior invocation has missing originals: ' + previous)
+        values, hashes = {}, {}
+        for key, path in paths.items():
+            original = path.read_bytes()
+            values[key] = json.loads(original)
+            hashes[key] = hashlib.sha256(original).hexdigest()
+        disposition = None
+        bound = grant.get('prior_failure_dispositions', {}).get(previous)
+        if bound:
+            path = Path(bound['path'])
+            original = path.read_bytes()
+            if path.stat().st_mode & 0o222 or hashlib.sha256(original).hexdigest() != bound['sha256']:
+                raise RuntimeError('root disposition is not immutable and exact')
+            disposition = json.loads(original)
+        errors = prior_terminal_errors(previous, values['outer-result.json'], values['launch.json'],
+                                       values['inner-result.json'], values['intent.json'],
+                                       values['root-grant.json'], hashes, disposition)
+        cleanup = values['cleanup.json']
+        if (not isinstance(cleanup, list) or len(cleanup) != 2 or
+                any(row.get('baseline_unchanged') is not True or row.get('remaining_new') or
+                    row.get('owned_processes') or row.get('runtime_entries') or
+                    not row.get('exact_absent') or any(item.get('absent') is not True for item in row['exact_absent'].values())
+                    for row in cleanup)):
+            errors.append('prior two original cleanup records are not complete')
+        if errors:
+            raise RuntimeError(previous + ': ' + '; '.join(errors))
+        records.append({'run': previous, 'original_hashes': hashes,
+                        'root_disposition': bound, 'prior_original_accepted': values['outer-result.json'].get('accepted') is True})
+    return records
+
+
+
+def source_input():
+    pending = list(FROZEN.get('pending_inputs', []))
+    for key in ('closure', 'offline_readiness'):
+        if not FROZEN.get(key):
+            pending.append('missing ' + key)
+    if pending:
+        return {'accepted': False, 'resources_started': False, 'pending_inputs': sorted(set(pending))}
+    closure = load_execution_closure(FROZEN['closure'])
+    load_bound(closure['candidate'])
+    actual_union = load_bound(closure['actual_union'])
+    readiness = load_bound(FROZEN['offline_readiness'])
+    if readiness.get('state') != 'ROOT_ACCEPTED_OFFLINE_PREPARATION' or readiness.get('pending_inputs'):
+        raise RuntimeError('offline preparation not accepted')
+    if readiness.get('closure_sha256') != FROZEN['closure']['sha256']:
+        raise RuntimeError('offline preparation binds a different closure')
+    if sorted(readiness.get('listed_tests', [])) != sorted(top for values in GROUPS.values() for top in values):
+        raise RuntimeError('exact two-name independent discovery receipt missing')
+    if not readiness.get('receipts'):
+        raise RuntimeError('fixed offline and STATIC source receipts missing')
+    for row in readiness['receipts']:
+        if sha(row['path']) != row['sha256']:
+            raise RuntimeError('offline/STATIC original receipt changed')
+    if load_bound(FROZEN['groups'])['groups'] != GROUPS:
+        raise RuntimeError('selector manifest differs from frozen driver')
+    expected = {p: row['sha256'] for p, row in closure['files'].items()}
+    expected.update(FROZEN['driver_runtime_files'])
+    # Add only the independently reviewed private probe; shadow no repository file.
+    overlay_path = Path('/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json')
+    probe_path = overlay_path.with_name('platform_embedding_independent_test.go')
+    virtual_path = REPO / 'tests/model/platform_embedding_independent_test.go'
+    mapping = {str(virtual_path): str(probe_path)}
+    binding = FROZEN.get('independent_overlay')
+    if not binding or binding.get('path') != str(overlay_path):
+        raise RuntimeError('independent overlay binding missing')
+    if load_bound(binding) != {'Replace': mapping} or virtual_path.exists():
+        raise RuntimeError('independent overlay must add exactly one absent Go test')
+    if closure.get('overlay_replace') != mapping:
+        raise RuntimeError('effective compilation set differs from actual overlay')
+    if (not FROZEN.get('probe_sha256') or
+            expected.get(str(probe_path)) != FROZEN['probe_sha256'] or
+            expected.get(str(overlay_path)) != binding['sha256']):
+        raise RuntimeError('independent probe and overlay must be frozen execution inputs')
+    source_rows = load_bound(FROZEN['model_source_stop'])['final_sources']
+    source_rows += load_bound(FROZEN['model_installation'])['fixed_unchanged']
+    for row in source_rows:
+        path = str(REPO / row['path'])
+        # The specification is bound separately and is not a Go input.
+        if row['path'].endswith('.go') and expected.get(path) != row['sha256']:
+            raise RuntimeError('exact accepted Model source not in execution closure: ' + path)
+        expected[path] = row['sha256']
+    missing, actual = [], {}
+    for path in sorted(expected):
+        try:
+            actual[path] = sha(path)
+        except OSError:
+            missing.append(path)
+    mismatches = sorted(path for path in actual if actual[path] != expected[path])
+    set_changes = []
+    for directory, row in closure['package_file_sets'].items():
+        names = sorted(p.name for p in Path(directory).iterdir() if p.is_file() and (p.suffix in GO_INPUT_SUFFIXES or row['embed_directory']))
+        effective = set(names)
+        for original, replacement in closure.get('overlay_replace', {}).items():
+            if str(Path(original).parent) == directory:
+                if replacement:
+                    effective.add(Path(original).name)
+                else:
+                    effective.discard(Path(original).name)
+        if sorted(effective) != row['names']:
+            set_changes.append(directory)
+    boundary = actual_graph_input(actual_union)
+    minio_ok = actual.get(MINIO) == 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
+    docker_ok = actual.get(DOCKER) == DOCKER_SHA256 and shutil.which('docker', path=runtime_environment(ROOT / 'auxiliary-tmp')['PATH']) == DOCKER
+    return {'docker_path_and_hash_match': docker_ok, 'files_count': len(expected), 'actual_digest': digest(actual), 'expected_digest': digest(expected),
+            'missing': missing, 'mismatches': mismatches, 'package_set_changes': set_changes,
+            'candidate_sha256': closure['candidate']['sha256'], 'closure_sha256': FROZEN['closure']['sha256'],
+            'minio_matches': minio_ok, 'actual_external_graph_boundary': boundary,
+            'accepted': not (missing or mismatches or set_changes) and minio_ok and docker_ok and boundary['external_selected_groups_match']}
+
+
+def runtime_environment(runtime):
+    # No inherited application credentials, Docker credentials, proxy or Go flags.
+    return {'PATH': '/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin',
+            'DOCKER_CONFIG': str(ROOT / 'docker-config'), 'GOPATH': '/workspace/go', 'GOMAXPROCS': '2',
+            'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off', 'GOPROXY': 'off', 'GOSUMDB': 'off',
+            'GOMODCACHE': MODCACHE, 'GOCACHE': GOCACHE, 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime),
+            'CGO_ENABLED': '1', 'GOTELEMETRY': 'off', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + FROZEN['independent_overlay']['path'],
+            'AGENTEAM_GO': GO, 'AGENTEAM_MINIO_BINARY': MINIO}
+
+
+def processes():
+    result = {}
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            stat = (entry / 'stat').read_text().rsplit(')', 1)[1].split()
+            try:
+                executable = Path(os.readlink(entry / 'exe')).name
+            except OSError:
+                executable = ''
+            result[int(entry.name)] = {'ppid': int(stat[1]), 'starttime': stat[19], 'state': stat[0],
+                                      'name': (entry / 'comm').read_text().strip(), 'executable': executable}
+        except (OSError, ValueError, IndexError):
+            pass
+    return result
+
+
+def is_main(row, main_identity):
+    return main_identity[1] is not None and row['pid'] == main_identity[0] and row['starttime'] == main_identity[1]
+
+
+def observe_processes(current, main_identity, observed):
+    # Only descendants/adopted children of this actual runner. Never read cmdline or environ.
+    # An already-reaped main PID must never seed a newly unrelated process tree.
+    owned = {pid for pid, row in current.items() if row['ppid'] == os.getpid()}
+    main = current.get(main_identity[0])
+    if main_identity[1] is not None and main and main['starttime'] == main_identity[1]:
+        owned.add(main_identity[0])
+    while True:
+        larger = owned | {pid for pid, row in current.items() if row['ppid'] in owned}
+        if larger == owned:
+            break
+        owned = larger
+    for pid in owned:
+        if pid in current:
+            row = current[pid]
+            key = str(pid) + ':' + row['starttime']
+            observed[key] = {'pid': pid, **row, 'executable': row['executable'] or observed.get(key, {}).get('executable', '')}
+
+
+def reap_adopted(observed, main_identity, waited):
+    current = processes()
+    observe_processes(current, main_identity, observed)
+    for value in list(observed.values()):
+        pid = value['pid']
+        row = current.get(pid)
+        if is_main(value, main_identity) or not row or row['starttime'] != value['starttime'] or row['ppid'] != os.getpid() or row['state'] != 'Z':
+            continue
+        try:
+            got, status = os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            continue
+        if got == pid:
+            waited.append({'pid': pid, 'starttime': value['starttime'], 'actual_wait': True, 'exit': os.waitstatus_to_exitcode(status), 'time': utc()})
+
+
+def write_retirement(evidence, value, errors):
+    # Evidence I/O failure must not interrupt process retirement.
+    try:
+        write(evidence, value)
+    except Exception as exc:
+        errors.append({'time': utc(), 'stage': 'retirement evidence', 'exception': type(exc).__name__, 'message': str(exc)})
+
+
+def retire_owned(main_identity, observed, waited, evidence, errors):
+    """After main actual wait, retain ownership of any orphaned test/compiler tail."""
+    started = time.monotonic()
+    actions = []
+    sent = set()
+    while True:
+        try:
+            reap_adopted(observed, main_identity, waited)
+            current = processes()
+            observe_processes(current, main_identity, observed)
+            remaining = [row for row in observed.values() if not is_main(row, main_identity) and
+                         row['pid'] in current and current[row['pid']]['starttime'] == row['starttime']]
+        except Exception as exc:
+            errors.append({'time': utc(), 'stage': 'retirement observation', 'exception': type(exc).__name__, 'message': str(exc)})
+            time.sleep(0.025)
+            continue
+        if not remaining:
+            write_retirement(evidence, {'actions': actions, 'remaining': [], 'actual_owned_completion': True}, errors)
+            return actions
+        sig = signal.SIGKILL if time.monotonic() - started >= 3 else signal.SIGTERM
+        for row in remaining:
+            pid = row['pid']
+            key = (pid, row['starttime'], sig)
+            if current[pid]['state'] == 'Z' or key in sent:
+                continue
+            # Revalidate identity immediately before signaling only our recorded descendant.
+            try:
+                latest = processes().get(pid)
+                if not latest or latest['starttime'] != row['starttime']:
+                    continue
+                os.kill(pid, sig)
+            except ProcessLookupError:
+                continue
+            except Exception as exc:
+                errors.append({'time': utc(), 'stage': 'owned signal', 'pid': pid, 'starttime': row['starttime'], 'exception': type(exc).__name__, 'message': str(exc)})
+                continue
+            sent.add(key)
+            actions.append({'pid': pid, 'starttime': row['starttime'], 'signal': sig, 'time': utc()})
+        write_retirement(evidence, {'actions': actions, 'remaining': remaining, 'actual_owned_completion': False}, errors)
+        time.sleep(0.025)
+
+
+class TopWatchdog:
+    """Exact top RUN through final result includes testing.T cleanup. Subcases never reset it."""
+    def __init__(self, expected, budget=120.0):
+        self.expected = set(expected)
+        self.budget = budget
+        self.active = {}
+        self.started = set()
+        self.finished = set()
+        self.events = []
+        self.failures = []
+        self.expired = set()
+
+    def consume(self, line, now):
+        start = re.fullmatch(r'=== RUN   (\S+)\s*', line)
+        end = re.fullmatch(r'--- (PASS|FAIL|SKIP): (\S+) \(([0-9.]+)s\)\s*', line)
+        if start and '/' not in start[1] and start[1] not in self.expected:
+            self.failures.append({'reason': 'unexpected top RUN', 'top': start[1]})
+        if start and start[1] in self.expected:
+            name = start[1]
+            if name in self.started:
+                self.failures.append({'reason': 'duplicate top RUN', 'top': name})
+                return
+            self.started.add(name)
+            self.active[name] = now
+            self.events.append({'event': 'run', 'top': name, 'monotonic': now})
+        if end and end[2] in self.expected:
+            name = end[2]
+            reported = float(end[3])
+            started = self.active.pop(name, None)
+            if started is None:
+                self.failures.append({'reason': 'result without active RUN', 'top': name})
+                return
+            self.finished.add(name)
+            if end[1] != 'PASS':
+                self.failures.append({'reason': 'selected top did not PASS', 'top': name, 'state': end[1]})
+            elapsed = now - started
+            self.events.append({'event': 'result', 'top': name, 'state': end[1], 'monotonic': now, 'observed_seconds': elapsed, 'reported_seconds': reported})
+            if reported > self.budget or elapsed > self.budget:
+                self.failures.append({'reason': 'top exceeded budget including cleanup', 'top': name, 'observed_seconds': elapsed, 'reported_seconds': reported})
+
+    def check(self, now):
+        for name, started in self.active.items():
+            if now - started >= self.budget and name not in self.expired:
+                self.expired.add(name)
+                self.failures.append({'reason': 'live top deadline', 'top': name, 'observed_seconds': now - started})
+        return bool(self.failures)
+
+    def result(self):
+        return {'budget_seconds': self.budget, 'expected': sorted(self.expected), 'events': self.events, 'failures': self.failures,
+                'active': sorted(self.active), 'complete': self.started == self.finished == self.expected and not self.active and not self.failures}
+
+
+def watch_output(path, watchdog, stop, request_stop, errors):
+    # Dedicated thread prevents Docker inspection latency from delaying the live deadline.
+    pending = ''
+    stopped = False
+    try:
+        with path.open(encoding='utf-8', errors='replace') as raw:
+            while True:
+                pending += raw.read()
+                lines = pending.split('\n')
+                pending = lines.pop()
+                now = time.monotonic()
+                for line in lines:
+                    watchdog.consume(line, now)
+                if watchdog.check(now) and not stopped:
+                    stopped = True
+                    request_stop(signal.SIGTERM, None)
+                if stop.is_set():
+                    if pending:
+                        watchdog.consume(pending, now)
+                    break
+                stop.wait(0.025)
+    except Exception as exc:
+        errors.append({'time': utc(), 'watchdog_error': str(exc)})
+        request_stop(signal.SIGTERM, None)
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def command(argv):
+    result = subprocess.run(argv, cwd=REPO, env=runtime_environment(ROOT / 'auxiliary-tmp'), capture_output=True, text=True, timeout=20)
+    if result.returncode:
+        raise RuntimeError('read command failed: ' + ' '.join(argv) + ': ' + result.stderr[:300])
+    return result.stdout
+
+
+def resources():
+    result = {}
+    for kind in ['container', 'network']:
+        for resource_id in command([DOCKER, kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else [DOCKER, kind, 'ls', '-aq', '--no-trunc']).split():
+            label = '.Config.Labels' if kind == 'container' else '.Labels'
+            try:
+                projection = '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}'
+                if kind == 'container':
+                    projection += '\t{{json .Mounts}}'
+                raw = command([DOCKER, kind, 'inspect', '--format', projection, resource_id]).strip().split('\t')
+            except RuntimeError as exc:
+                if 'No such' in str(exc) or 'not found' in str(exc):
+                    continue  # The fixture may remove an ID after the list call.
+                raise
+            value = dict(zip(['id', 'name', 'labels'], map(json.loads, raw)))
+            if kind == 'container':
+                keys = ['Type', 'Source', 'Destination', 'Name', 'Driver', 'Mode', 'RW', 'Propagation']
+                mounts = [{key: mount[key] for key in keys if key in mount} for mount in json.loads(raw[3]) or []]
+                value['mounts'] = sorted(mounts, key=lambda mount: json.dumps(mount, sort_keys=True))
+            value['kind'] = kind
+            result[resource_id] = value
+    return result
+
+
+
+def resource_topology(observed, smtp):
+    expected = {
+        'agenteam.d03.fixture': {'container': 2, 'network': 1},
+        'agenteam.d04.networkfixture': {'container': 1, 'network': 1},
+        'agenteam.d05.objectfixture': {'container': 1, 'network': 1},
+    }
+    if smtp:
+        expected['agenteam.d07.smtpfixture'] = {'container': 1, 'network': 1}
+    found, nonces = {}, {}
+    for row in observed.values():
+        labels = row.get('labels') or {}
+        ownership = [(key, labels[key]) for key in expected if key in labels]
+        if len(ownership) != 1 or re.fullmatch('[0-9a-f]{32}', ownership[0][1]) is None:
+            return False
+        label, nonce = ownership[0]
+        if label in nonces and nonces[label] != nonce:
+            return False
+        nonces[label] = nonce
+        kinds = found.setdefault(label, {})
+        kinds[row['kind']] = kinds.get(row['kind'], 0) + 1
+    return found == expected
+
+
+
+def tcp_snapshot():
+    rows = []
+    for table in ('tcp', 'tcp6'):
+        for line in Path('/proc/net/' + table).read_text().splitlines()[1:]:
+            fields = line.split()
+            if len(fields) < 10:
+                raise RuntimeError('incomplete host TCP table row')
+            rows.append({'table': table, 'local': fields[1], 'remote': fields[2],
+                         'state': fields[3], 'inode': fields[9]})
+    return rows
+
+
+def tcp_identity(row):
+    return (row['table'], row['local'], row['remote'], row['inode'])
+
+
+def tcp_delta(current, baseline):
+    return [row for row in current if tcp_identity(row) not in baseline]
+
+
+def retire_tcp_observation(run, baseline):
+    # This conservative host delta is supplementary, not proof of every short
+    # connection or ownership of a tuple. It never authorizes terminating a PID.
+    started, quiet, scans = time.monotonic(), 0, []
+    deadline = started + 75
+    while time.monotonic() < deadline:
+        rows = tcp_delta(tcp_snapshot(), baseline)
+        scans.append({'time': utc(), 'new_host_rows': rows,
+                      'active_rows': [row for row in rows if row['state'] != '06'],
+                      'time_wait_rows': [row for row in rows if row['state'] == '06']})
+        quiet = quiet + 1 if not rows else 0
+        remaining = deadline - time.monotonic()
+        if quiet >= 2 or remaining <= 0:
+            break
+        time.sleep(min(0.2 if quiet else 1, remaining))
+    result = {'role': 'supplementary host polling; not complete short-connection trace or ownership proof',
+              'cleanup_budget_seconds': 75, 'seconds': time.monotonic() - started,
+              'double_delta_clear': quiet >= 2, 'scans': scans,
+              'signals_sent_for_tcp': False}
+    write(run / 'tcp-tail-observation.json', result)
+    return result
+
+
+def main():
+    global FROZEN
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', required=True)
+    parser.add_argument('--group', choices=sorted(GROUPS), required=True)
+    parser.add_argument('--frozen', type=Path, required=True)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--check-input-only', action='store_true')
+    mode.add_argument('--execute-authorized', action='store_true')
+    args = parser.parse_args()
+    if re.fullmatch(r'[a-z0-9][a-z0-9-]{0,19}', args.name) is None:
+        raise ValueError('invalid run name')
+    frozen_bytes = args.frozen.read_bytes()
+    FROZEN = json.loads(frozen_bytes)
+    if sha(__file__) != FROZEN['driver_sha256']:
+        raise RuntimeError('driver differs from frozen input')
+    if args.execute_authorized:
+        FROZEN = validate_execution_grant(args.frozen, frozen_bytes, args.name, args.group)
+        prior_history = check_invocation_history(args.name, args.group, FROZEN, frozen_bytes, True)
+    before = source_input()
+    if args.check_input_only:
+        print(json.dumps({**before, 'resources_started': False}), flush=True)
+        return 0 if before['accepted'] else 1
+    if not before['accepted']:
+        raise RuntimeError('input gate failed before any resources')
+    if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+        raise RuntimeError('cannot become task child subreaper')
+    run = ROOT / 'runs' / args.name
+    run.mkdir(parents=True, mode=0o700)
+    driver_bytes = Path(__file__).read_bytes()
+    (run / 'driver.py.txt').write_bytes(driver_bytes)
+    (run / 'frozen-input.json').write_bytes(frozen_bytes)
+    write(run / 'verification-input.json', {'driver_sha256': sha(__file__), 'frozen_input_sha256': hashlib.sha256(frozen_bytes).hexdigest()})
+    write(run / 'input-before.json', before)
+    write(run / 'prior-invocation-history.json', prior_history)
+    runtime = run / 'runtime'
+    runtime.mkdir(mode=0o700)
+    minimum_free = 5 * (1 << 30)
+    disk = {'time': utc(), 'path': str(ROOT), 'free_bytes': shutil.disk_usage(ROOT).free, 'minimum_free_bytes': minimum_free}
+    write(run / 'disk-preflight.json', disk)
+    if disk['free_bytes'] < minimum_free:
+        raise RuntimeError('fresh disk minimum not met; no resources started')
+    docker_config = ROOT / 'docker-config'
+    docker_config.mkdir(mode=0o700, exist_ok=True)
+    if list(docker_config.iterdir()):
+        raise RuntimeError('task Docker config must remain empty')
+    fixed_images = ['pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc', 'pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782']
+    inspected = {}
+    for image in fixed_images:
+        argv = [DOCKER, 'image', 'inspect', '--format', '{{json .RepoDigests}}', image]
+        raw = command(argv)
+        if image not in json.loads(raw):
+            raise RuntimeError('exact local image digest unavailable; no pull permitted')
+        inspected[image] = {'argv': argv, 'raw': raw}
+    write(run / 'local-image-digests.json', inspected)
+    baseline_processes = processes()
+    write(run / 'process-baseline.json', baseline_processes)
+    baseline = resources()
+    write(run / 'baseline.json', baseline)
+    tcp_baselines = [{'time': utc(), 'rows': tcp_snapshot()}]
+    time.sleep(0.2)
+    tcp_baselines.append({'time': utc(), 'rows': tcp_snapshot()})
+    write(run / 'tcp-baseline.json', tcp_baselines)
+    tcp_baseline = {tcp_identity(row) for sample in tcp_baselines for row in sample['rows']}
+    tcp_observed = {}
+    env = runtime_environment(runtime)
+    expected = set(GROUPS[args.group])
+    selector = '^(' + '|'.join(GROUPS[args.group]) + ')$'
+    argv = ['sh', 'scripts/test-objects.sh', '-run', selector]
+    record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(), 'env': env,
+              'package_budget': 'original fixed fixture -timeout=6m', 'top_watchdog_streaming': 'GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1',
+              'testmain_dynamic_builds': ['./cmd/agenteam', './cmd/agenteam-runner']}
+    write(run / 'command.json', record)
+    observed_resources, observed_processes, errors, adopted_waits = {}, {}, [], []
+    disk_start = {'time': utc(), 'path': str(ROOT), 'free_bytes': shutil.disk_usage(ROOT).free, 'minimum_free_bytes': minimum_free}
+    write(run / 'disk-before-spawn.json', disk_start)
+    if disk_start['free_bytes'] < minimum_free:
+        raise RuntimeError('fresh disk minimum not met at launch; no resources started')
+    if args.frozen.read_bytes() != frozen_bytes or Path(__file__).read_bytes() != driver_bytes:
+        raise RuntimeError('runner inputs changed before launch')
+    start = time.monotonic()
+    cancellations = []
+    watchdog = TopWatchdog(expected)
+    watch_stop = threading.Event()
+    process, watcher = None, None
+    main_identity = (None, None)
+    owner_error = None
+    exit_code, tail_actions = None, []
+    def request_stop(signum, _frame):
+        cancellations.append({'signal': signum, 'time': utc(), 'target_pid': process.pid if process else None})
+        # Install this before Popen. A signal during Popen is remembered and
+        # forwarded once the direct child is available; actual waits still run.
+        if process is not None:
+            try:
+                process.send_signal(signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            except Exception as exc:
+                errors.append({'time': utc(), 'stage': 'direct TERM', 'exception': type(exc).__name__, 'message': str(exc)})
+    signal.signal(signal.SIGTERM, request_stop)
+    signal.signal(signal.SIGINT, request_stop)
+    with (run / 'raw.log').open('wb') as raw:
+        try:
+            process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+            # Every operation after successful spawn is under this owner's finally.
+            main_identity = (process.pid, None)
+            if cancellations:
+                request_stop(signal.SIGTERM, None)
+            main_row = processes()[process.pid]
+            main_identity = (process.pid, main_row['starttime'])
+            observed_processes[str(process.pid) + ':' + main_row['starttime']] = {'pid': process.pid, **main_row}
+            record.update(pid=process.pid, pid_starttime=main_identity[1], pid_stat=Path('/proc/' + str(process.pid) + '/stat').read_text())
+            write(run / 'command.json', record)
+            print(json.dumps({'run': args.name, 'pid': process.pid, 'selector': selector}), flush=True)
+            watcher = threading.Thread(target=watch_output, args=(run / 'raw.log', watchdog, watch_stop, request_stop, errors), name='platform-embedding-top-watchdog')
+            watcher.start()
+            next_resources = 0.0
+            while True:
+                observe_processes(processes(), main_identity, observed_processes)
+                try:
+                    for row in tcp_delta(tcp_snapshot(), tcp_baseline):
+                        tcp_observed[tcp_identity(row)] = row
+                except Exception as exc:
+                    errors.append({'time': utc(), 'tcp_observation_error': type(exc).__name__, 'message': str(exc)})
+                    request_stop(signal.SIGTERM, None)
+                if time.monotonic() >= next_resources:
+                    try:
+                        observed_resources.update({key: value for key, value in resources().items() if key not in baseline})
+                    except Exception as exc:
+                        errors.append({'time': utc(), 'error': str(exc)})
+                        request_stop(signal.SIGTERM, None)
+                    next_resources = time.monotonic() + 1.0
+                reap_adopted(observed_processes, main_identity, adopted_waits)
+                if process.poll() is not None:
+                    break
+                time.sleep(0.1)
+        except BaseException as exc:
+            owner_error = {'time': utc(), 'stage': 'spawn/startup/monitor', 'exception': type(exc).__name__, 'message': str(exc)}
+            errors.append(owner_error)
+            request_stop(signal.SIGTERM, None)
+        finally:
+            if process is not None:
+                # Evidence and monitoring can fail; none may skip direct wait,
+                # watcher actual join, or retirement of our adopted descendants.
+                while True:
+                    try:
+                        exit_code = process.wait()
+                        break
+                    except BaseException as exc:
+                        errors.append({'time': utc(), 'stage': 'direct wait', 'exception': type(exc).__name__, 'message': str(exc)})
+                        request_stop(signal.SIGTERM, None)
+                watch_stop.set()
+                if watcher is not None and watcher.ident is not None:
+                    while True:
+                        try:
+                            watcher.join()
+                            break
+                        except BaseException as exc:
+                            errors.append({'time': utc(), 'stage': 'watchdog join', 'exception': type(exc).__name__, 'message': str(exc)})
+                tail_actions = retire_owned(main_identity, observed_processes, adopted_waits, run / 'owned-tail-retirement.json', errors)
+    if process is None:
+        write_retirement(run / 'monitor-errors.json', errors, [])
+        raise RuntimeError('fixture process did not start: ' + str(owner_error))
+    watcher_joined = watcher is not None and watcher.ident is not None and not watcher.is_alive()
+    if owner_error is not None:
+        print(json.dumps({'owner_error': owner_error, 'actual_direct_wait_completed': True,
+                          'watcher_joined': watcher_joined, 'owned_tail_retirement_completed': True}), flush=True)
+    record.update(exit=exit_code, seconds=round(time.monotonic() - start, 3), ended_utc=utc(), actual_wait_completed=True, watchdog_thread_joined=watcher_joined)
+    write(run / 'command.json', record)
+    write(run / 'observed-resources.json', observed_resources)
+    write(run / 'monitor-errors.json', errors)
+    write(run / 'cancellation.json', cancellations)
+    write(run / 'watchdog.json', watchdog.result())
+    cleanups = []
+    for _ in range(2):
+        reap_adopted(observed_processes, main_identity, adopted_waits)
+        current, proc = resources(), processes()
+        observe_processes(proc, main_identity, observed_processes)
+        exact = {}
+        for resource_id, row in observed_resources.items():
+            result = subprocess.run([DOCKER, row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, env=env, timeout=20)
+            missing = b'No such' in result.stderr or b'not found' in result.stderr
+            exact[resource_id] = {'argv': [DOCKER, row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id],
+                                  'exit_code': result.returncode, 'stdout': result.stdout.decode('utf-8'),
+                                  'stderr': result.stderr.decode('utf-8'),
+                                  'absent': result.returncode != 0 and resource_id not in current and missing}
+        remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]
+        cleanups.append({'time': utc(), 'exact_absent': exact, 'baseline_unchanged': {key: current.get(key) for key in baseline} == baseline,
+                         'remaining_new': sorted(set(current) - set(baseline)), 'owned_processes': remaining,
+                         'runtime_entries': sorted(path.name for path in runtime.iterdir()),
+                         'pid1_zombies': [{'pid': pid, **row} for pid, row in proc.items() if row['ppid'] == 1 and row['state'] == 'Z']})
+        time.sleep(0.5)
+    write(run / 'cleanup.json', cleanups)
+    write(run / 'observed-processes.json', observed_processes)
+    write(run / 'adopted-waits.json', adopted_waits)
+    write(run / 'tcp-observed-delta.json', {'role': 'host polling; no ownership inference; may miss short connections', 'rows': list(tcp_observed.values())})
+    tcp_tail = retire_tcp_observation(run, tcp_baseline)
+    after = source_input()
+    write(run / 'input-after.json', after)
+    clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+    tops = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
+    prior_ids = set()
+    prior_runs = []
+    for earlier in sorted((ROOT / 'runs').iterdir()):
+        if earlier == run or not earlier.is_dir():
+            continue
+        previous = earlier / 'observed-resources.json'
+        prior_ids.update(json.loads(previous.read_text()))
+        prior_runs.append({'path': str(previous), 'sha256': sha(previous)})
+    repeated_ids = sorted(set(observed_resources) & prior_ids)
+    write(run / 'resource-id-chain.json', {'prior_runs': prior_runs, 'current_ids': sorted(observed_resources),
+          'repeated_ids': repeated_ids, 'all_current_ids_distinct_from_prior': not repeated_ids})
+    summary = {'run': args.name, 'resource_ids_unique_across_rounds': not repeated_ids, 'driver_exit': exit_code, 'actual_wait_completed': True,
+               'source_files_unchanged': before == after and after['accepted'],
+               'verification_inputs_unchanged': Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes,
+               'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+               'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run),
+               'forced_tail_actions': len(tail_actions),
+               'adopted_waits': len(adopted_waits), 'resource_topology_matches': resource_topology(observed_resources, False),
+               'top_levels': tops, 'selected_tests_passed': len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected,
+               'top_watchdog_complete': watchdog.result()['complete'], 'watchdog_thread_joined': watcher_joined,
+               'browser_processes': sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values()),
+               'node_processes': sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values()),
+               'historical_zombies_untouched': [{'pid': pid, **row} for pid, row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z'],
+               'new_pid1_zombies_not_owned_or_joined': [row for row in cleanups[-1]['pid1_zombies'] if row['pid'] not in baseline_processes or baseline_processes[row['pid']]['starttime'] != row['starttime']],
+               'new_non_owned_processes_at_final_scan': [{'pid': pid, **row} for pid, row in proc.items()
+                    if (pid not in baseline_processes or baseline_processes[pid]['starttime'] != row['starttime'])
+                    and str(pid) + ':' + row['starttime'] not in observed_processes],
+               'host_tcp_delta_double_clear': tcp_tail['double_delta_clear'],
+               'host_tcp_tail_seconds': tcp_tail['seconds'],
+               'host_tcp_scope': tcp_tail['role']}
+    summary['accepted'] = (exit_code == 0 and not repeated_ids and clean and len(observed_resources) == 7 and not errors and not cancellations and not tail_actions and summary['source_files_unchanged'] and summary['verification_inputs_unchanged'] and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] and summary['top_watchdog_complete'] and summary['watchdog_thread_joined'] and summary['host_tcp_delta_double_clear'])
+    write(run / 'result.json', summary)
+    print(json.dumps(summary), flush=True)
+    return 0 if summary['accepted'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

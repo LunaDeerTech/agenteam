@@ -1,0 +1,763 @@
+WORK=/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/tmp/go-build720816040
+mkdir -p $WORK/b007/
+mkdir -p $WORK/b006/
+mkdir -p $WORK/b009/
+mkdir -p $WORK/b012/
+mkdir -p $WORK/b011/
+mkdir -p $WORK/b013/
+mkdir -p $WORK/b014/
+mkdir -p $WORK/b015/
+mkdir -p $WORK/b016/
+mkdir -p $WORK/b017/
+mkdir -p $WORK/b018/
+mkdir -p $WORK/b019/
+mkdir -p $WORK/b020/
+mkdir -p $WORK/b022/
+mkdir -p $WORK/b024/
+mkdir -p $WORK/b023/
+mkdir -p $WORK/b021/
+mkdir -p $WORK/b025/
+mkdir -p $WORK/b026/
+mkdir -p $WORK/b028/
+mkdir -p $WORK/b027/
+mkdir -p $WORK/b030/
+mkdir -p $WORK/b031/
+mkdir -p $WORK/b032/
+mkdir -p $WORK/b033/
+mkdir -p $WORK/b029/
+mkdir -p $WORK/b034/
+mkdir -p $WORK/b035/
+mkdir -p $WORK/b036/
+mkdir -p $WORK/b010/
+mkdir -p $WORK/b005/
+mkdir -p $WORK/b004/
+mkdir -p $WORK/b040/
+mkdir -p $WORK/b039/
+mkdir -p $WORK/b041/
+mkdir -p $WORK/b038/
+mkdir -p $WORK/b037/
+mkdir -p $WORK/b042/
+mkdir -p $WORK/b043/
+mkdir -p $WORK/b044/
+mkdir -p $WORK/b003/
+mkdir -p $WORK/b045/
+mkdir -p $WORK/b002/
+mkdir -p $WORK/b049/
+mkdir -p $WORK/b051/
+mkdir -p $WORK/b050/
+mkdir -p $WORK/b048/
+mkdir -p $WORK/b047/
+mkdir -p $WORK/b046/
+mkdir -p $WORK/b054/
+mkdir -p $WORK/b055/
+mkdir -p $WORK/b053/
+mkdir -p $WORK/b062/
+mkdir -p $WORK/b061/
+mkdir -p $WORK/b060/
+mkdir -p $WORK/b059/
+mkdir -p $WORK/b063/
+mkdir -p $WORK/b067/
+mkdir -p $WORK/b068/
+mkdir -p $WORK/b069/
+mkdir -p $WORK/b066/
+mkdir -p $WORK/b072/
+mkdir -p $WORK/b071/
+mkdir -p $WORK/b070/
+mkdir -p $WORK/b073/
+mkdir -p $WORK/b065/
+mkdir -p $WORK/b064/
+mkdir -p $WORK/b058/
+mkdir -p $WORK/b077/
+mkdir -p $WORK/b076/
+mkdir -p $WORK/b079/
+mkdir -p $WORK/b080/
+mkdir -p $WORK/b084/
+mkdir -p $WORK/b083/
+mkdir -p $WORK/b082/
+mkdir -p $WORK/b085/
+mkdir -p $WORK/b086/
+mkdir -p $WORK/b087/
+mkdir -p $WORK/b081/
+mkdir -p $WORK/b078/
+mkdir -p $WORK/b075/
+mkdir -p $WORK/b074/
+mkdir -p $WORK/b089/
+mkdir -p $WORK/b088/
+mkdir -p $WORK/b090/
+mkdir -p $WORK/b057/
+mkdir -p $WORK/b091/
+mkdir -p $WORK/b056/
+mkdir -p $WORK/b052/
+mkdir -p $WORK/b092/
+mkdir -p $WORK/b094/
+mkdir -p $WORK/b093/
+mkdir -p $WORK/b097/
+mkdir -p $WORK/b096/
+mkdir -p $WORK/b095/
+mkdir -p $WORK/b099/
+mkdir -p $WORK/b100/
+mkdir -p $WORK/b101/
+mkdir -p $WORK/b102/
+mkdir -p $WORK/b104/
+mkdir -p $WORK/b103/
+mkdir -p $WORK/b105/
+mkdir -p $WORK/b107/
+mkdir -p $WORK/b106/
+mkdir -p $WORK/b098/
+mkdir -p $WORK/b109/
+mkdir -p $WORK/b108/
+mkdir -p $WORK/b112/
+mkdir -p $WORK/b113/
+mkdir -p $WORK/b111/
+mkdir -p $WORK/b116/
+mkdir -p $WORK/b115/
+mkdir -p $WORK/b114/
+mkdir -p $WORK/b120/
+mkdir -p $WORK/b119/
+mkdir -p $WORK/b118/
+mkdir -p $WORK/b122/
+mkdir -p $WORK/b121/
+mkdir -p $WORK/b117/
+mkdir -p $WORK/b128/
+mkdir -p $WORK/b127/
+mkdir -p $WORK/b129/
+mkdir -p $WORK/b130/
+mkdir -p $WORK/b126/
+mkdir -p $WORK/b133/
+mkdir -p $WORK/b132/
+mkdir -p $WORK/b131/
+mkdir -p $WORK/b125/
+mkdir -p $WORK/b124/
+mkdir -p $WORK/b134/
+mkdir -p $WORK/b137/
+mkdir -p $WORK/b136/
+mkdir -p $WORK/b140/
+mkdir -p $WORK/b139/
+mkdir -p $WORK/b141/
+mkdir -p $WORK/b143/
+mkdir -p $WORK/b144/
+mkdir -p $WORK/b148/
+mkdir -p $WORK/b147/
+mkdir -p $WORK/b146/
+mkdir -p $WORK/b149/
+mkdir -p $WORK/b145/
+mkdir -p $WORK/b151/
+mkdir -p $WORK/b152/
+mkdir -p $WORK/b154/
+mkdir -p $WORK/b153/
+mkdir -p $WORK/b156/
+mkdir -p $WORK/b155/
+mkdir -p $WORK/b157/
+mkdir -p $WORK/b160/
+mkdir -p $WORK/b159/
+mkdir -p $WORK/b161/
+mkdir -p $WORK/b158/
+mkdir -p $WORK/b150/
+mkdir -p $WORK/b164/
+mkdir -p $WORK/b163/
+mkdir -p $WORK/b162/
+mkdir -p $WORK/b166/
+mkdir -p $WORK/b165/
+mkdir -p $WORK/b169/
+mkdir -p $WORK/b168/
+mkdir -p $WORK/b172/
+mkdir -p $WORK/b171/
+mkdir -p $WORK/b173/
+mkdir -p $WORK/b174/
+mkdir -p $WORK/b170/
+mkdir -p $WORK/b167/
+mkdir -p $WORK/b175/
+mkdir -p $WORK/b176/
+mkdir -p $WORK/b177/
+mkdir -p $WORK/b179/
+mkdir -p $WORK/b178/
+mkdir -p $WORK/b180/
+mkdir -p $WORK/b182/
+mkdir -p $WORK/b181/
+mkdir -p $WORK/b183/
+mkdir -p $WORK/b184/
+mkdir -p $WORK/b186/
+mkdir -p $WORK/b187/
+mkdir -p $WORK/b188/
+mkdir -p $WORK/b190/
+mkdir -p $WORK/b191/
+mkdir -p $WORK/b192/
+mkdir -p $WORK/b194/
+mkdir -p $WORK/b193/
+mkdir -p $WORK/b195/
+cp /workspace/.cache/go-build/35/35ecbc01c116bd35989833b4c19548bb631e16537a61f6cf6fc2841cdb0db557-d $WORK/b195/_cgo_gotypes.go
+cp /workspace/.cache/go-build/a7/a738f277b45a4f200174705d537fb70dd52606f9d569cd4a35ff4f9f45ca1d98-d $WORK/b195/cgo.cgo1.go
+cp /workspace/.cache/go-build/53/5321468b095e313e93d81994f0d9047048ff3cd60921cd0a11f92bcc29cac58f-d $WORK/b195/_cgo_import.go
+mkdir -p $WORK/b189/
+cp /workspace/.cache/go-build/1c/1c315fb54dd1fee3cd91300cf670884ee961786c4b5d9162483397e875c9d355-d $WORK/b189/_cgo_gotypes.go
+cp /workspace/.cache/go-build/8d/8d56ebc16e914c1dbecc2ebaef5e68a92e90a3b9126e778fc3b653bfc9ba9174-d $WORK/b189/cgo_linux.cgo1.go
+cp /workspace/.cache/go-build/02/02acc9780460de3226827ecf4cd80cd30801f4a99c849645657af8840730aad2-d $WORK/b189/cgo_resnew.cgo1.go
+cp /workspace/.cache/go-build/7d/7dc41079f48c0fda54e395d60c089db14aecb0e06990f62044c9a806c5e9c841-d $WORK/b189/cgo_socknew.cgo1.go
+cp /workspace/.cache/go-build/16/160cdf9f85b8055857c0a815ff6958a409d5c3f3906b69d465eeb644db591645-d $WORK/b189/cgo_unix_cgo.cgo1.go
+cp /workspace/.cache/go-build/90/90f87b203ae917fbf10073477d292da620720d02da11b9a54df5411873a70158-d $WORK/b189/cgo_unix_cgo_res.cgo1.go
+cp /workspace/.cache/go-build/bc/bca71504e28a4bf5bcebbf30b08932aa5a2d1317cf2be7491937962171059a50-d $WORK/b189/_cgo_import.go
+mkdir -p $WORK/b196/
+mkdir -p $WORK/b197/
+mkdir -p $WORK/b185/
+mkdir -p $WORK/b142/
+mkdir -p $WORK/b201/
+mkdir -p $WORK/b202/
+mkdir -p $WORK/b200/
+mkdir -p $WORK/b203/
+mkdir -p $WORK/b199/
+mkdir -p $WORK/b204/
+mkdir -p $WORK/b198/
+mkdir -p $WORK/b205/
+mkdir -p $WORK/b207/
+mkdir -p $WORK/b206/
+mkdir -p $WORK/b208/
+mkdir -p $WORK/b209/
+mkdir -p $WORK/b210/
+mkdir -p $WORK/b212/
+mkdir -p $WORK/b213/
+mkdir -p $WORK/b214/
+mkdir -p $WORK/b211/
+mkdir -p $WORK/b138/
+mkdir -p $WORK/b135/
+mkdir -p $WORK/b215/
+mkdir -p $WORK/b123/
+mkdir -p $WORK/b216/
+mkdir -p $WORK/b217/
+mkdir -p $WORK/b218/
+mkdir -p $WORK/b223/
+mkdir -p $WORK/b224/
+mkdir -p $WORK/b222/
+mkdir -p $WORK/b221/
+mkdir -p $WORK/b226/
+mkdir -p $WORK/b228/
+mkdir -p $WORK/b227/
+mkdir -p $WORK/b232/
+mkdir -p $WORK/b231/
+mkdir -p $WORK/b233/
+mkdir -p $WORK/b234/
+mkdir -p $WORK/b235/
+mkdir -p $WORK/b236/
+mkdir -p $WORK/b237/
+mkdir -p $WORK/b238/
+mkdir -p $WORK/b240/
+mkdir -p $WORK/b239/
+mkdir -p $WORK/b246/
+mkdir -p $WORK/b245/
+mkdir -p $WORK/b247/
+mkdir -p $WORK/b244/
+mkdir -p $WORK/b243/
+mkdir -p $WORK/b248/
+mkdir -p $WORK/b249/
+mkdir -p $WORK/b242/
+mkdir -p $WORK/b250/
+mkdir -p $WORK/b252/
+mkdir -p $WORK/b251/
+mkdir -p $WORK/b253/
+mkdir -p $WORK/b241/
+mkdir -p $WORK/b254/
+cp /workspace/.cache/go-build/e5/e5a8916f2e2b0a4d143e99a1a80a0491295eb556b9004ea078d17b803da3d1bf-d $WORK/b254/_cgo_gotypes.go
+cp /workspace/.cache/go-build/fc/fceb08d27e77bb8e4ff241f877b7e8e59458ccbdf19417ebf92647c612b2bee7-d $WORK/b254/cgo_lookup_cgo.cgo1.go
+cp /workspace/.cache/go-build/10/10aebc9dfc30fe461aaf72e234fbc1cced0c138fd4a0c138d7e8757ffb671755-d $WORK/b254/getgrouplist_unix.cgo1.go
+cp /workspace/.cache/go-build/fc/fc774bde60825afb49f8900d9766a24209d9ab2ed2efed0784bca80c93c90ea6-d $WORK/b254/_cgo_import.go
+mkdir -p $WORK/b230/
+mkdir -p $WORK/b229/
+mkdir -p $WORK/b225/
+mkdir -p $WORK/b257/
+mkdir -p $WORK/b258/
+mkdir -p $WORK/b256/
+mkdir -p $WORK/b255/
+mkdir -p $WORK/b259/
+mkdir -p $WORK/b262/
+mkdir -p $WORK/b263/
+mkdir -p $WORK/b261/
+mkdir -p $WORK/b264/
+mkdir -p $WORK/b265/
+mkdir -p $WORK/b266/
+mkdir -p $WORK/b268/
+mkdir -p $WORK/b269/
+mkdir -p $WORK/b270/
+mkdir -p $WORK/b267/
+mkdir -p $WORK/b272/
+mkdir -p $WORK/b274/
+mkdir -p $WORK/b273/
+mkdir -p $WORK/b271/
+mkdir -p $WORK/b275/
+mkdir -p $WORK/b277/
+mkdir -p $WORK/b276/
+mkdir -p $WORK/b260/
+mkdir -p $WORK/b220/
+mkdir -p $WORK/b279/
+mkdir -p $WORK/b278/
+mkdir -p $WORK/b281/
+mkdir -p $WORK/b282/
+mkdir -p $WORK/b283/
+mkdir -p $WORK/b284/
+mkdir -p $WORK/b286/
+mkdir -p $WORK/b287/
+mkdir -p $WORK/b288/
+mkdir -p $WORK/b285/
+mkdir -p $WORK/b290/
+mkdir -p $WORK/b289/
+mkdir -p $WORK/b293/
+mkdir -p $WORK/b292/
+mkdir -p $WORK/b291/
+mkdir -p $WORK/b294/
+mkdir -p $WORK/b295/
+mkdir -p $WORK/b298/
+mkdir -p $WORK/b300/
+mkdir -p $WORK/b299/
+mkdir -p $WORK/b297/
+mkdir -p $WORK/b301/
+mkdir -p $WORK/b302/
+mkdir -p $WORK/b296/
+mkdir -p $WORK/b305/
+mkdir -p $WORK/b304/
+mkdir -p $WORK/b303/
+mkdir -p $WORK/b306/
+mkdir -p $WORK/b307/
+mkdir -p $WORK/b311/
+mkdir -p $WORK/b310/
+mkdir -p $WORK/b312/
+mkdir -p $WORK/b309/
+mkdir -p $WORK/b308/
+mkdir -p $WORK/b313/
+mkdir -p $WORK/b315/
+mkdir -p $WORK/b314/
+mkdir -p $WORK/b316/
+mkdir -p $WORK/b317/
+mkdir -p $WORK/b318/
+mkdir -p $WORK/b319/
+mkdir -p $WORK/b320/
+mkdir -p $WORK/b322/
+mkdir -p $WORK/b321/
+mkdir -p $WORK/b323/
+mkdir -p $WORK/b280/
+mkdir -p $WORK/b219/
+mkdir -p $WORK/b324/
+mkdir -p $WORK/b325/
+mkdir -p $WORK/b327/
+mkdir -p $WORK/b326/
+mkdir -p $WORK/b331/
+mkdir -p $WORK/b330/
+mkdir -p $WORK/b333/
+mkdir -p $WORK/b332/
+mkdir -p $WORK/b334/
+mkdir -p $WORK/b329/
+mkdir -p $WORK/b335/
+mkdir -p $WORK/b328/
+mkdir -p $WORK/b340/
+mkdir -p $WORK/b341/
+mkdir -p $WORK/b339/
+mkdir -p $WORK/b343/
+mkdir -p $WORK/b342/
+mkdir -p $WORK/b338/
+mkdir -p $WORK/b345/
+mkdir -p $WORK/b344/
+mkdir -p $WORK/b337/
+mkdir -p $WORK/b347/
+mkdir -p $WORK/b346/
+mkdir -p $WORK/b348/
+mkdir -p $WORK/b349/
+mkdir -p $WORK/b336/
+mkdir -p $WORK/b351/
+mkdir -p $WORK/b352/
+mkdir -p $WORK/b353/
+mkdir -p $WORK/b350/
+mkdir -p $WORK/b110/
+mkdir -p $WORK/b354/
+mkdir -p $WORK/b356/
+mkdir -p $WORK/b357/
+mkdir -p $WORK/b360/
+mkdir -p $WORK/b359/
+mkdir -p $WORK/b358/
+mkdir -p $WORK/b361/
+mkdir -p $WORK/b362/
+mkdir -p $WORK/b364/
+mkdir -p $WORK/b363/
+mkdir -p $WORK/b365/
+mkdir -p $WORK/b366/
+mkdir -p $WORK/b367/
+mkdir -p $WORK/b369/
+mkdir -p $WORK/b368/
+mkdir -p $WORK/b370/
+mkdir -p $WORK/b371/
+mkdir -p $WORK/b372/
+mkdir -p $WORK/b355/
+mkdir -p $WORK/b376/
+mkdir -p $WORK/b377/
+mkdir -p $WORK/b375/
+mkdir -p $WORK/b374/
+mkdir -p $WORK/b373/
+mkdir -p $WORK/b378/
+mkdir -p $WORK/b381/
+mkdir -p $WORK/b380/
+mkdir -p $WORK/b382/
+mkdir -p $WORK/b379/
+mkdir -p $WORK/b384/
+mkdir -p $WORK/b383/
+mkdir -p $WORK/b001/
+cat >/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/tmp/go-build720816040/b001/vet.cfg << 'EOF' # internal
+{
+	"ID": "github.com/LunaDeerTech/agenteam/tests/model_test",
+	"Compiler": "gc",
+	"Dir": "/workspace/agenteam/tests/model",
+	"ImportPath": "github.com/LunaDeerTech/agenteam/tests/model_test",
+	"GoFiles": [
+		"/workspace/agenteam/tests/model/current_resolution_atomicity_test.go",
+		"/workspace/agenteam/tests/model/current_resolution_authorization_test.go",
+		"/workspace/agenteam/tests/model/current_resolution_fixture_test.go",
+		"/workspace/agenteam/tests/model/current_resolution_schema_test.go",
+		"/workspace/agenteam/tests/model/current_resolution_selection_test.go",
+		"/workspace/agenteam/tests/model/current_resolution_unknown_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_fixture_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_http_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_replacement_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_resolution_atomicity_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_resolution_authorization_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_resolution_fixture_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_resolution_replay_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_resolution_selection_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_resolution_unknown_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_schema_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_selection_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_settings_fixture_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_settings_http_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_settings_root_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_unknown_test.go",
+		"/workspace/agenteam/tests/model/meeting_summary_upgrade_test.go",
+		"/workspace/agenteam/tests/model/openai_chat_structured_http_test.go",
+		"/workspace/agenteam/tests/model/openai_chat_structured_stream_test.go",
+		"/workspace/agenteam/tests/model/openai_chat_wire_fixture_test.go",
+		"/workspace/agenteam/tests/model/openai_chat_wire_http_test.go",
+		"/workspace/agenteam/tests/model/openai_chat_wire_stream_test.go",
+		"/workspace/agenteam/tests/model/openai_embeddings_wire_budget_test.go",
+		"/workspace/agenteam/tests/model/openai_embeddings_wire_fixture_test.go",
+		"/workspace/agenteam/tests/model/openai_embeddings_wire_http_test.go",
+		"/workspace/agenteam/tests/model/openai_embeddings_wire_terminal_test.go",
+		"/workspace/agenteam/tests/model/platform_embedding_resolution_atomicity_test.go",
+		"/workspace/agenteam/tests/model/platform_embedding_resolution_authorization_test.go",
+		"/workspace/agenteam/tests/model/platform_embedding_resolution_fixture_test.go",
+		"/workspace/agenteam/tests/model/platform_embedding_resolution_replay_test.go",
+		"/workspace/agenteam/tests/model/platform_embedding_resolution_selection_test.go",
+		"/workspace/agenteam/tests/model/platform_embedding_resolution_unknown_test.go",
+		"/workspace/agenteam/tests/model/project_audit_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_audit_http_root_test.go",
+		"/workspace/agenteam/tests/model/project_audit_http_test.go",
+		"/workspace/agenteam/tests/model/project_available_models_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_http_root_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_http_terminal_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_http_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_integration_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_unknown_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_write_http_authority_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_write_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_write_http_root_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_write_http_terminal_test.go",
+		"/workspace/agenteam/tests/model/project_configuration_write_http_test.go",
+		"/workspace/agenteam/tests/model/project_credentials_http_authority_test.go",
+		"/workspace/agenteam/tests/model/project_credentials_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_credentials_http_root_test.go",
+		"/workspace/agenteam/tests/model/project_credentials_http_test.go",
+		"/workspace/agenteam/tests/model/project_credentials_http_unknown_test.go",
+		"/workspace/agenteam/tests/model/project_owner_read_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_owner_read_http_root_test.go",
+		"/workspace/agenteam/tests/model/project_owner_read_http_terminal_test.go",
+		"/workspace/agenteam/tests/model/project_owner_read_http_test.go",
+		"/workspace/agenteam/tests/model/project_owner_update_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_owner_update_http_root_test.go",
+		"/workspace/agenteam/tests/model/project_owner_update_http_test.go",
+		"/workspace/agenteam/tests/model/project_owner_update_http_unknown_test.go",
+		"/workspace/agenteam/tests/model/project_usage_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/project_usage_http_root_test.go",
+		"/workspace/agenteam/tests/model/project_usage_http_terminal_test.go",
+		"/workspace/agenteam/tests/model/project_usage_http_test.go",
+		"/workspace/agenteam/tests/model/system_configuration_integration_test.go",
+		"/workspace/agenteam/tests/model/system_http_configuration_test.go",
+		"/workspace/agenteam/tests/model/system_http_credentials_test.go",
+		"/workspace/agenteam/tests/model/system_http_fixture_test.go",
+		"/workspace/agenteam/tests/model/system_management_boundaries_test.go",
+		"/workspace/agenteam/tests/model/system_management_impact_test.go",
+		"/workspace/agenteam/tests/model/system_management_metadata_test.go",
+		"/workspace/agenteam/tests/model/usage_authorization_test.go",
+		"/workspace/agenteam/tests/model/usage_fixture_test.go",
+		"/workspace/agenteam/tests/model/usage_ledger_test.go",
+		"/workspace/agenteam/tests/model/usage_query_test.go",
+		"/workspace/agenteam/tests/model/usage_schema_test.go",
+		"/workspace/agenteam/tests/model/usage_unknown_test.go"
+	],
+	"NonGoFiles": [],
+	"IgnoredFiles": [],
+	"Module": {
+		"Path": "github.com/LunaDeerTech/agenteam",
+		"Version": "",
+		"Replace": null,
+		"Time": null,
+		"Main": true,
+		"Indirect": false,
+		"Dir": "/workspace/agenteam",
+		"GoMod": "/workspace/agenteam/go.mod",
+		"GoVersion": "1.27.1",
+		"Error": null
+	},
+	"ImportMap": {
+		"bufio": "bufio",
+		"bytes": "bytes",
+		"context": "context",
+		"crypto/sha256": "crypto/sha256",
+		"encoding/base64": "encoding/base64",
+		"encoding/binary": "encoding/binary",
+		"encoding/hex": "encoding/hex",
+		"encoding/json": "encoding/json",
+		"errors": "errors",
+		"fmt": "fmt",
+		"github.com/LunaDeerTech/agenteam/db/migrations": "github.com/LunaDeerTech/agenteam/db/migrations",
+		"github.com/LunaDeerTech/agenteam/internal/central/account": "github.com/LunaDeerTech/agenteam/internal/central/account",
+		"github.com/LunaDeerTech/agenteam/internal/central/account/contract": "github.com/LunaDeerTech/agenteam/internal/central/account/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/accountmail": "github.com/LunaDeerTech/agenteam/internal/central/accountmail",
+		"github.com/LunaDeerTech/agenteam/internal/central/app": "github.com/LunaDeerTech/agenteam/internal/central/app",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit": "github.com/LunaDeerTech/agenteam/internal/central/audit",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit/contract": "github.com/LunaDeerTech/agenteam/internal/central/audit/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit/http": "github.com/LunaDeerTech/agenteam/internal/central/audit/http",
+		"github.com/LunaDeerTech/agenteam/internal/central/config": "github.com/LunaDeerTech/agenteam/internal/central/config",
+		"github.com/LunaDeerTech/agenteam/internal/central/cursor": "github.com/LunaDeerTech/agenteam/internal/central/cursor",
+		"github.com/LunaDeerTech/agenteam/internal/central/event/contract": "github.com/LunaDeerTech/agenteam/internal/central/event/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/foundation": "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+		"github.com/LunaDeerTech/agenteam/internal/central/httpapi": "github.com/LunaDeerTech/agenteam/internal/central/httpapi",
+		"github.com/LunaDeerTech/agenteam/internal/central/identity/contract": "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/model": "github.com/LunaDeerTech/agenteam/internal/central/model",
+		"github.com/LunaDeerTech/agenteam/internal/central/model/adapter": "github.com/LunaDeerTech/agenteam/internal/central/model/adapter",
+		"github.com/LunaDeerTech/agenteam/internal/central/model/contract": "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/object": "github.com/LunaDeerTech/agenteam/internal/central/object",
+		"github.com/LunaDeerTech/agenteam/internal/central/object/contract": "github.com/LunaDeerTech/agenteam/internal/central/object/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbound": "github.com/LunaDeerTech/agenteam/internal/central/outbound",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbox": "github.com/LunaDeerTech/agenteam/internal/central/outbox",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbox/contract": "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/postgres": "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+		"github.com/LunaDeerTech/agenteam/internal/central/project": "github.com/LunaDeerTech/agenteam/internal/central/project",
+		"github.com/LunaDeerTech/agenteam/internal/central/project/contract": "github.com/LunaDeerTech/agenteam/internal/central/project/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/project/http": "github.com/LunaDeerTech/agenteam/internal/central/project/http",
+		"github.com/LunaDeerTech/agenteam/internal/central/recoverylog": "github.com/LunaDeerTech/agenteam/internal/central/recoverylog",
+		"github.com/LunaDeerTech/agenteam/internal/central/secret": "github.com/LunaDeerTech/agenteam/internal/central/secret",
+		"github.com/LunaDeerTech/agenteam/internal/central/secret/contract": "github.com/LunaDeerTech/agenteam/internal/central/secret/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage": "github.com/LunaDeerTech/agenteam/internal/central/usage",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage/contract": "github.com/LunaDeerTech/agenteam/internal/central/usage/contract",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage/http": "github.com/LunaDeerTech/agenteam/internal/central/usage/http",
+		"github.com/LunaDeerTech/agenteam/internal/platform/logging": "github.com/LunaDeerTech/agenteam/internal/platform/logging",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore": "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/outbound": "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/postgres": "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres",
+		"github.com/jackc/pgx/v5": "github.com/jackc/pgx/v5",
+		"github.com/jackc/pgx/v5/pgconn": "github.com/jackc/pgx/v5/pgconn",
+		"io": "io",
+		"io/fs": "io/fs",
+		"log/slog": "log/slog",
+		"net": "net",
+		"net/http": "net/http",
+		"net/http/httptest": "net/http/httptest",
+		"net/http/httptrace": "net/http/httptrace",
+		"net/netip": "net/netip",
+		"net/url": "net/url",
+		"os": "os",
+		"os/exec": "os/exec",
+		"path/filepath": "path/filepath",
+		"reflect": "reflect",
+		"sort": "sort",
+		"strconv": "strconv",
+		"strings": "strings",
+		"sync": "sync",
+		"sync/atomic": "sync/atomic",
+		"testing": "testing",
+		"testing/fstest": "testing/fstest",
+		"time": "time",
+		"unicode/utf8": "unicode/utf8"
+	},
+	"PackageFile": {
+		"bufio": "/workspace/.cache/go-build/0a/0a149fb5d6bc8874b80ca5aacfd1b37c8c88b2da46e94a51e35e19a33c0b69a4-d",
+		"bytes": "/workspace/.cache/go-build/2c/2c796ca0a02efec59b39bdbde292555ca7c3c9b1d09a1ac90727722a02630b59-d",
+		"context": "/workspace/.cache/go-build/04/04a40109878c3372a52539d287409d171e1425a182f6994504a34bb0a66d61bc-d",
+		"crypto/sha256": "/workspace/.cache/go-build/84/84ba0955bb86fcbb3e430f9e0271c09bffb3910feb52de4c2e7518ea980f36d6-d",
+		"encoding/base64": "/workspace/.cache/go-build/55/559a6c8f375fced979387f4693901bfa9b30ea1abad23a9bef20407c00075051-d",
+		"encoding/binary": "/workspace/.cache/go-build/e1/e158b68c6ce1bca474c4189b36351e99424f31a38b91483353d71ce88a3a62b6-d",
+		"encoding/hex": "/workspace/.cache/go-build/a7/a79fa96c05c0be3b7c1120246d206141477cfd20d3d7a4d76e428a4354039f62-d",
+		"encoding/json": "/workspace/.cache/go-build/25/25634780681ff685701e2b409f6e0f9233841c00ce13f8f217a11642626ac017-d",
+		"errors": "/workspace/.cache/go-build/4d/4dd83234e9a005e62da25bc8c479849ad0511be18ef120a2d1acf5a0a17d9a99-d",
+		"fmt": "/workspace/.cache/go-build/fe/fe78233f6d3d340eb7b0727e2fbfa5982b628e4b11212b60fec78748f7b87b7a-d",
+		"github.com/LunaDeerTech/agenteam/db/migrations": "/workspace/.cache/go-build/5a/5a5cf7e124be0b1a4b403557649055cf33c9937d26d099f824d87b9889586c64-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/account": "/workspace/.cache/go-build/ad/ad5f3d855faddceace2e426b505f230ea25125dc6a78bd6cab03587f4e6b14d4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/account/contract": "/workspace/.cache/go-build/16/1605eef4d159dc8e90c76f89645df66d506fd7cffcc9805e8c54ea3ba5bd0547-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/accountmail": "/workspace/.cache/go-build/19/19b19b4650cb1e6af7e5cc4731d51e2b45e74fa5c863a2d2ee64c293292f1926-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/app": "/workspace/.cache/go-build/8f/8f605ca510e531030649dd7b19f82fe1319524f499ec840999c37be380fddd30-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit": "/workspace/.cache/go-build/86/868aec8c3105aab9b74e7a2e932da08ee2ab8f2dab070f420c69d61fe9cf9a79-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit/contract": "/workspace/.cache/go-build/3b/3b67a99d0e84d284167b0d0000b2b40f01874e02216b55a07c829c14d76769ec-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit/http": "/workspace/.cache/go-build/9f/9fc93da312c803e50ec056a1e59454aba00754a66f89a5ab9fa2da3c5ed746e6-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/config": "/workspace/.cache/go-build/df/df046f24c6dcc645cfac697157f6f8a8c66590b7d5652525ae2b5c9bac3b30a3-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/cursor": "/workspace/.cache/go-build/b7/b7492dea88d8aca8a69785efd93531bd9532a6ab85d68ca2eb986983fb2c3b38-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/event/contract": "/workspace/.cache/go-build/cc/ccf7f36a9ca610455d93c05dd0253e6481a051a96e1614d436671cc4df213bc0-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/foundation": "/workspace/.cache/go-build/b3/b38b7ad06ca530de1d58ed592e6db97aa3c693b48e65b7ced05e39c5f2cd9911-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/httpapi": "/workspace/.cache/go-build/91/91516e4da66c9169fbddff89357ce62be1013183b9be1f6648ecbb19f0fae877-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/identity/contract": "/workspace/.cache/go-build/9f/9fc89dbcd47f8afb8f98221080b0e2be85d98e560a871bdc10e5082310807a2f-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/model": "/workspace/.cache/go-build/bc/bca65a2226d1908db8fe93101489373b5e0414f87dc52bf1d831378aa4c588fc-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/model/adapter": "/workspace/.cache/go-build/cb/cbfa9b31b45b45ff9d4d629248d63637f7997656d789a849915d725f0c959fc2-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/model/contract": "/workspace/.cache/go-build/11/11b43e6a12063c622b68f4980317870e09845c0b62826a0949e4a5d9180e9b9d-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/object": "/workspace/.cache/go-build/9d/9dd104d31989309c669301305d56eb1bae0d7bcabe10f910ccea5265f35f7e9c-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/object/contract": "/workspace/.cache/go-build/93/938cc1fa7638897f6a8714678b6964edd6731805fda0338699a95231b6963909-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbound": "/workspace/.cache/go-build/b7/b7f60ab4e3dd67d828bb56401737710d848931aacf36ec63310173a28fc030e9-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbox": "/workspace/.cache/go-build/ca/ca91e6158ac8a9129a41e3b652e3e9665dd78b17020ba7f8074c7a53dcd0abf7-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbox/contract": "/workspace/.cache/go-build/96/9637ca2615bc018917445de18febc9561338a25b86c84bf469c31527e188e731-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/postgres": "/workspace/.cache/go-build/03/0329c3b8465d182f4cbaa3007835e20a2b86526ca93c63781a4c97c2898d6145-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/project": "/workspace/.cache/go-build/71/71c1da900c1bcfbd95dd618a9927bd662429f6fee1db150972568796376d5707-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/project/contract": "/workspace/.cache/go-build/43/43d7c1462a09bccacc0a40811964ca1db3d236956234646ca90a12bf8c4b26e6-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/project/http": "/workspace/.cache/go-build/57/57d9e9d703c03eed69243ba26b7a7f67ce78cf71fe6cfe01df554d9e686cde23-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/recoverylog": "/workspace/.cache/go-build/20/20b8d5dc8727bf3cac3e2c07f523176f2541606470e9ff285a87bdfe1e170812-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/secret": "/workspace/.cache/go-build/88/883ae96c0e117c3b65018d31ac7e2d9e3af40b10e34b34f1c254f224346a43e7-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/secret/contract": "/workspace/.cache/go-build/e8/e817aa9d4a5c300fdbcd5dbf38002fb2206ccabd2311b700bbcaa9a08aa59e2a-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage": "/workspace/.cache/go-build/82/823a9432af7234dada1e0954f941528c5421515304e9d826a69e204564b3b4dd-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage/contract": "/workspace/.cache/go-build/b8/b8d9300877a5309f923bc73b6ad5ba01d49e00ff23c63460cc2799e8155a68e6-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage/http": "/workspace/.cache/go-build/00/00062ee58339b9eb958cfaee0cf5edfc3bddeb0c7ea1fabe000634310dd4aa36-d",
+		"github.com/LunaDeerTech/agenteam/internal/platform/logging": "/workspace/.cache/go-build/ca/caa38ccf7cb553690fe2cfec57b32b4bb5887e095a12591a099ee574c04720ca-d",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore": "/workspace/.cache/go-build/68/687fc65d937eb8ed9cb987fc6d92dc91eb2d3d2fc3e71b1c2b8007bf55a8427d-d",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/outbound": "/workspace/.cache/go-build/f2/f2f093427a77445c5f33cbc4dc0d6b71f5838c78103cf6e542979c4af36503c2-d",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/postgres": "/workspace/.cache/go-build/22/22b5a42812c3bd4137ca99b0738bf5e02cecd9ecedef20d2dc0d19f821b8b305-d",
+		"github.com/jackc/pgx/v5": "/workspace/.cache/go-build/ee/eea2ee6f44da346fdfd9ffdfbf0d64a11f8a7a4ede4f6c2a33f06644181486b2-d",
+		"github.com/jackc/pgx/v5/pgconn": "/workspace/.cache/go-build/d5/d541a5e3d892d469d565be970cd48af9c44aa3ffd81648402fdfa6a537bca75a-d",
+		"io": "/workspace/.cache/go-build/ee/ee3d4c4036257cd4142ebf59da4246e6b12e47d5984ad98042e4db4cda759b3c-d",
+		"io/fs": "/workspace/.cache/go-build/19/19cf8919728662369d56924214e0d9f21d527f68c594e80c70a408d79bf112d7-d",
+		"log/slog": "/workspace/.cache/go-build/11/111f4b72273b629267b39fa6fe2515728c714910a15c171526c853a1d90dce45-d",
+		"net": "/workspace/.cache/go-build/2c/2c0e60a19a04466fbffd217efceab5a3e9a99f27d0a13c22bc4425573b914ef0-d",
+		"net/http": "/workspace/.cache/go-build/cb/cb03ccf1cd6f53c7edd8cbecfe4fb80d6bd75ba544249928d630dd1a09a05369-d",
+		"net/http/httptest": "/workspace/.cache/go-build/4b/4bf6298347442b68d0da721b4919c06b57f54128ec3ec0ba3dae24ca35a12924-d",
+		"net/http/httptrace": "/workspace/.cache/go-build/1e/1e699a0103419620ce4ddcf595a7dbbd5846307de67803edd3913107dfb374c8-d",
+		"net/netip": "/workspace/.cache/go-build/5e/5e20f8d1f94d6d36b8ab7f5e09f4fcc03def8ae0fcaced2a6601d8900ae01992-d",
+		"net/url": "/workspace/.cache/go-build/5d/5d2e34c62b747e7617ef3f1847e293ba49867460281fe28e9b8865eb1ccb74b1-d",
+		"os": "/workspace/.cache/go-build/f8/f873ebabc844334571d0955ad5b8c5590c688ea7b580809eeb3f0deed72a0403-d",
+		"os/exec": "/workspace/.cache/go-build/e4/e426d430409100d7d58bb62cdb33d6a9bb85404ff26dc05cd9f2396b17711d93-d",
+		"path/filepath": "/workspace/.cache/go-build/80/809d9397d085128d6a16686bd9e67ed38a1c7ee2b5ff766c29632279f00e0b27-d",
+		"reflect": "/workspace/.cache/go-build/da/daec322f55d77124ca6a40b3c8284fc25b3a8c5239ded02a4acb033267004ae3-d",
+		"sort": "/workspace/.cache/go-build/2c/2c20a12c1b8901b8a6c7fd9a15a60430281f7df59f95fe675e8ad7126ac1923f-d",
+		"strconv": "/workspace/.cache/go-build/1b/1b738e1e7a81061f528e9e88f58e0a24bf6c6a68ae2c09db1e7ba84a757a4526-d",
+		"strings": "/workspace/.cache/go-build/7f/7fa1987262e105307de4e55a65e6606a45899bc268e2b9be2809efd549a6bf62-d",
+		"sync": "/workspace/.cache/go-build/94/945a5e46f2a5759414e8e7f437c3ee76c7a0836a3deed3fd125c4c28d5161b22-d",
+		"sync/atomic": "/workspace/.cache/go-build/15/15323349ee5b9f09903e765524b2914e64f01da2e31faee75edca397438ca8e2-d",
+		"testing": "/workspace/.cache/go-build/10/10a375dbaa2ee781be75cb1984376bd6d7f78392af7c081883d7ff201b913ff8-d",
+		"testing/fstest": "/workspace/.cache/go-build/3f/3fdf32671e4124c8cf87de6d3b66a8c0afd8921e3854efbbb1a81c016679a599-d",
+		"time": "/workspace/.cache/go-build/06/06e2869800ee35c8b3710fccbbdd0e18c13bf87fed9fc025984e045e1f9df429-d",
+		"unicode/utf8": "/workspace/.cache/go-build/3f/3fc4f08cb705d953fc4066ebbc86896ee021ae4d2e2305db217ff818799999b5-d"
+	},
+	"Standard": {
+		"bufio": true,
+		"bytes": true,
+		"context": true,
+		"crypto/sha256": true,
+		"encoding/base64": true,
+		"encoding/binary": true,
+		"encoding/hex": true,
+		"encoding/json": true,
+		"errors": true,
+		"fmt": true,
+		"io": true,
+		"io/fs": true,
+		"log/slog": true,
+		"net": true,
+		"net/http": true,
+		"net/http/httptest": true,
+		"net/http/httptrace": true,
+		"net/netip": true,
+		"net/url": true,
+		"os": true,
+		"os/exec": true,
+		"path/filepath": true,
+		"reflect": true,
+		"sort": true,
+		"strconv": true,
+		"strings": true,
+		"sync": true,
+		"sync/atomic": true,
+		"testing": true,
+		"testing/fstest": true,
+		"time": true,
+		"unicode/utf8": true
+	},
+	"PackageVetx": {
+		"bufio": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"bytes": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"context": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"crypto/sha256": "/workspace/.cache/go-build/87/879e941c6cff8537553a4bd74a1249ca03d45c9b709e3096b54edb62ddd5a584-d",
+		"encoding/base64": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"encoding/binary": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"encoding/hex": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"encoding/json": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"errors": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"fmt": "/workspace/.cache/go-build/d4/d40e3d104d81d256c7a33c0feecdb2e57e6835346cef267147d73ebb97feff95-d",
+		"github.com/LunaDeerTech/agenteam/db/migrations": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/account": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/account/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/accountmail": "/workspace/.cache/go-build/af/afe0d2b6944f69be0e1b3631fef9570a35979739c690759261307aa8e69c0728-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/app": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/audit/http": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/config": "/workspace/.cache/go-build/af/afe0d2b6944f69be0e1b3631fef9570a35979739c690759261307aa8e69c0728-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/cursor": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/event/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/foundation": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/httpapi": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/identity/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/model": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/model/adapter": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/model/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/object": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/object/contract": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbound": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbox": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/outbox/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/postgres": "/workspace/.cache/go-build/fc/fcfa2afddc6931f754b8fcc8ac6745d292fadb12270ea35b9b3a3cfe5235070e-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/project": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/project/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/project/http": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/recoverylog": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/secret": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/secret/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage/contract": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/central/usage/http": "/workspace/.cache/go-build/5a/5a0a477de21f07a54b4b15e9ded8aaf58b4d073ff667f4adf7b4ce1c086605f4-d",
+		"github.com/LunaDeerTech/agenteam/internal/platform/logging": "/workspace/.cache/go-build/87/87f51506654b7ca17704dd79f4659d5e8fe8fc9651c2cf7b4d589d847e86c9f4-d",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore": "/workspace/.cache/go-build/28/289a86409642f89dcace3cce61a62cf09797b89cd370e88eebb5669c5022a7bc-d",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/outbound": "/workspace/.cache/go-build/28/289a86409642f89dcace3cce61a62cf09797b89cd370e88eebb5669c5022a7bc-d",
+		"github.com/LunaDeerTech/agenteam/tests/testsupport/postgres": "/workspace/.cache/go-build/0a/0a227589e982b6fd53730b98d7a9f6eea6c3de8f4fadcf047241cb59915131fa-d",
+		"github.com/jackc/pgx/v5": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"github.com/jackc/pgx/v5/pgconn": "/workspace/.cache/go-build/be/be22bf77574857e9f9aba903631f588827cd17003bad108bdadd373419b2d06c-d",
+		"io": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"io/fs": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"log/slog": "/workspace/.cache/go-build/a0/a0a45d93df93184e53e6a977f1c0d3d16b6868b2e637c7c5f934a463a86cba41-d",
+		"net": "/workspace/.cache/go-build/fe/fe2988d7e025896e75eb84774dda0d96cea36d9193b49e19ae6818fb3cb15897-d",
+		"net/http": "/workspace/.cache/go-build/d9/d9ec424b69553481a9797ba0ba9ae174ca9460b8afd57e16bce95216dd87d8d3-d",
+		"net/http/httptest": "/workspace/.cache/go-build/3c/3c177173c127dcb2af57498cd93a84e8d1c6d5bad42edf079ca848326e49021b-d",
+		"net/http/httptrace": "/workspace/.cache/go-build/5f/5f956a62e20f66a4618068c164aae0c395c4fb7a2001e9c5f76b30a663f45eac-d",
+		"net/netip": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"net/url": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"os": "/workspace/.cache/go-build/5e/5ef88d8213d15de277dd57fbbdfa841c86365fb5458aee271b8fa8df4d131d49-d",
+		"os/exec": "/workspace/.cache/go-build/94/94570e8afccd6151378c95364329b32c09e595fbfb03323586c3b17c44217f20-d",
+		"path/filepath": "/workspace/.cache/go-build/94/94570e8afccd6151378c95364329b32c09e595fbfb03323586c3b17c44217f20-d",
+		"reflect": "/workspace/.cache/go-build/94/94570e8afccd6151378c95364329b32c09e595fbfb03323586c3b17c44217f20-d",
+		"sort": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"strconv": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"strings": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"sync": "/workspace/.cache/go-build/94/94570e8afccd6151378c95364329b32c09e595fbfb03323586c3b17c44217f20-d",
+		"sync/atomic": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d",
+		"testing": "/workspace/.cache/go-build/ed/ede2dfaa3e19fb809ed2d90bd397051d091ecc8d8491f6da754150457510798f-d",
+		"testing/fstest": "/workspace/.cache/go-build/84/84a29939ddc251f8dcc4cdfa8eaac130b11b372a98d2ff38e6177e8caf2a619f-d",
+		"time": "/workspace/.cache/go-build/94/94570e8afccd6151378c95364329b32c09e595fbfb03323586c3b17c44217f20-d",
+		"unicode/utf8": "/workspace/.cache/go-build/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855-d"
+	},
+	"VetxOnly": false,
+	"VetxOutput": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/tmp/go-build720816040/b001/vet.out",
+	"Stdout": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/tmp/go-build720816040/b001/vet.stdout",
+	"GoVersion": "go1.27.1",
+	"FixArchive": "",
+	"SucceedOnTypecheckFailure": false
+}
+EOF
+cd /workspace/agenteam/tests/model
+TERM='dumb' /workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/vet -tags=integration -json $WORK/b001/vet.cfg

@@ -1,0 +1,44 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelPlatformEmbeddingResolutionUnknown)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-08T15:00:43.518830+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery-new/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOTMPDIR": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 809455,
+  "pid_starttime": "4145576",
+  "pid_stat": "809455 (sh) S 809382 809455 809455 0 -1 4194560 245 1771 0 0 0 0 0 0 20 0 1 0 4145576 2744320 160 18446744073709551615 94528084246528 94528084327521 140722978795312 0 0 0 0 0 81922 1 0 0 17 3 0 0 0 0 0 94528084356656 94528084361792 94528484614144 140722978798699 140722978798779 140722978798779 140722978799596 0\n",
+  "seconds": 62.474,
+  "started_utc": "2026-10-08T14:59:41.045019+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

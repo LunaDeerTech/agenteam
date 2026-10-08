@@ -1,0 +1,254 @@
+{
+  "status": "STATIC_G1_G2_AND_LOADER_PASS_STOP_NOT_READY",
+  "fixed_driver_sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442",
+  "fixed_launcher_sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+  "stop_sha256": "855de3ac05a901ccee0b979db21da10cc86c23d17d66055c35cf43ce4306104a",
+  "v01_failure_preserved": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/model-pg-driver-v01/review.md",
+    "sha256": "88f676dc9c778f499504b06c01f71320b09294f23722ac2f58827fb91ce7bcab"
+  },
+  "exact_full_delta": true,
+  "old_retirement_helpers_unchanged": [
+    "sha",
+    "load_bound",
+    "digest",
+    "processes",
+    "is_main",
+    "observe_processes",
+    "reap_adopted",
+    "write_retirement",
+    "retire_owned",
+    "watch_output",
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "resource_topology",
+    "tcp_snapshot",
+    "tcp_identity",
+    "tcp_delta",
+    "retire_tcp_observation"
+  ],
+  "v01_watchdog_environment_graph_unchanged": true,
+  "shared_gate_functions": [
+    "grant_errors",
+    "validate_execution_grant",
+    "process_starttime",
+    "current_launch_errors",
+    "prior_terminal_errors",
+    "check_invocation_history"
+  ],
+  "dedicated_loader_functions": [
+    "merge_execution_closure",
+    "load_execution_closure"
+  ],
+  "source_input_only_one_loader_call_change": true,
+  "driver_top_level_constants_unchanged": true,
+  "author_memory_gate_cases": {
+    "total": 73,
+    "allow": 6,
+    "block": 67,
+    "actual_process_retirement_tested": false
+  },
+  "author_repository_gate": {
+    "files": 909,
+    "sets": 63,
+    "phases": [
+      951,
+      903,
+      900,
+      909
+    ],
+    "digest": "8ce21289e0a3cf3aa1a48ec5e0c40eecab12b3e3fb8cb4b0898a03ed0af6bdcc",
+    "reviewer_rehashed_repository_files": false,
+    "external_runtime_ready": false
+  },
+  "actual_author_python_receipts": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.command.json",
+      "sha256": "ea60de02f94367c73ce5751280671b8b06ef8d1e6aead87214cb741059a1930c",
+      "seconds": 0.16467534600087674,
+      "actual_wait": true,
+      "exit": 0
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.command.json",
+      "sha256": "e506c0d3036ac1cf752a4c84391ab3e507c0bf53d70539d6e0dfb1fcefcb356e",
+      "seconds": 0.21723530100280186,
+      "actual_wait": true,
+      "exit": 0
+    }
+  ],
+  "original_selfcheck_failure": {
+    "exit": 1,
+    "preserved": true,
+    "delta": "--- original-check\n+++ corrected-check\n@@ -197,7 +197,7 @@\n     expect('current copy rejects writable ' + filename, lambda: history(True), False)\n reset()\n add_current()\n-MemoryPath.dirs.add('/memory/runs/next01')\n+MemoryPath.dirs.update(['/memory/runs', '/memory/runs/next01'])\n expect('current launch cannot exempt a started run', lambda: history(True), False)\n reset()\n add_current()\n"
+  },
+  "limits": [
+    "No driver, launcher, Go, test body, real resources, current dist or cache access by this review.",
+    "Six-record historical gate verifies actual waits and owned cleanup; exact root disposition is a separate explicit decision for a failed prior invocation, not proof of fresh host TCP observations.",
+    "Final full execution source/tool/external input gate, offline readiness and root immutable single-round grant remain pending."
+  ],
+  "inputs": {
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/manifest.json": {
+      "sha256": "87457c77e6f1fb358d77a8f651294140476f1a1369973143e1ba83a019e1d12e",
+      "bytes": 5804
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check-attempt01-failure/cause.json": {
+      "sha256": "1ee644fdd1983edf92974ac9a6b3a45e514e1c8d26a1eb5d81d5719428f68a4a",
+      "bytes": 369
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check-attempt01-failure/check_gates.command.json": {
+      "sha256": "3c4defc7407f82aed141170e340e1f857399deffe623356f085bb49393f1e61e",
+      "bytes": 1087
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check-attempt01-failure/check_gates.py": {
+      "sha256": "17f2b3c168947633620debf157b741f2636bc77b78803b53dbed44a094ef2f7e",
+      "bytes": 16245
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check-attempt01-failure/check_gates.stderr": {
+      "sha256": "c7ecaf637d74a22adb317b20c53d66b54557622ca63458645423e82dff150ec0",
+      "bytes": 480
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check-attempt01-failure/check_gates.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.command.json": {
+      "sha256": "e506c0d3036ac1cf752a4c84391ab3e507c0bf53d70539d6e0dfb1fcefcb356e",
+      "bytes": 1096
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.py": {
+      "sha256": "881a3910cb20ecd6042ca7e69fcf5ab2b34a148db3a28965cbdcf1529e197849",
+      "bytes": 5464
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_filegate.stdout": {
+      "sha256": "3a31e8d73641bb4cbd6a97f48bee4e958bfd13e2de6d1d257840a8bcc7bf906b",
+      "bytes": 2694
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.command.json": {
+      "sha256": "ea60de02f94367c73ce5751280671b8b06ef8d1e6aead87214cb741059a1930c",
+      "bytes": 1087
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.py": {
+      "sha256": "c821e2ef56326297f3be66ff19534f8b8098fb99c035e7092d0627258143148e",
+      "bytes": 16266
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.stdout": {
+      "sha256": "2269394c0e89908540abe50a9cf86988960874b5c8054bb09fb722071b9b88fb",
+      "bytes": 1274
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/driver.py": {
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442",
+      "bytes": 48924
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/filegate-checks.json": {
+      "sha256": "3a31e8d73641bb4cbd6a97f48bee4e958bfd13e2de6d1d257840a8bcc7bf906b",
+      "bytes": 2694
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/freeze.prepared.json": {
+      "sha256": "cbcd00853fae17f294ab632ede9e67e722dc738f591f39d753519271ab27ca8f",
+      "bytes": 3007
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/gate-block.py.txt": {
+      "sha256": "4e8289cb019d619bb85369d0f1c1f7f5a03475555e2e54ec3c0080ec8b162267",
+      "bytes": 9401
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/gate-checks.json": {
+      "sha256": "42fd81d5c7433341ed5054ea6db6e0fa9f3ffa8f412546930890e7a3470890d5",
+      "bytes": 15038
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/handoff.md": {
+      "sha256": "0d936ec483ba3a3a6ec8e95e5e33959bbe0d3588d562abbebf5e460cc263bf06",
+      "bytes": 3153
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/launch.py": {
+      "sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+      "bytes": 15046
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/loader-block.py.txt": {
+      "sha256": "32db77ced0ebdbe54ca6225e107418e8c7b2530e787901bb551ca3455256f281",
+      "bytes": 1749
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/prepare.py": {
+      "sha256": "2a64aa9d1e9bf55cb05c9e185070a382a409b825dafe43d48587b28621653631",
+      "bytes": 6672
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/stop.json": {
+      "sha256": "855de3ac05a901ccee0b979db21da10cc86c23d17d66055c35cf43ce4306104a",
+      "bytes": 2084
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/v01-to-v02.patch": {
+      "sha256": "71e833c5ac825b534ec19b8dbbf115fdf98cc810760f5f412a3f010afab22449",
+      "bytes": 29068
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/groups.json": {
+      "sha256": "fb7cf706c88a7c00ca61fdf442585100e529e1ad70a0927c71ab045bcbdbb6a8",
+      "bytes": 3307
+    },
+    "/workspace/scratch/project-audit-ui-backend/go-chain01/closure.delta.json": {
+      "sha256": "e2a1954fef51170af9f248e2d9f25316bfa7ad527a30b8e271d4913c835a9c83",
+      "bytes": 14102
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/stop.json": {
+      "sha256": "892c24bea4881c8b4c1268ca4369c06759ca936e029605964064ebdd4c7c5900",
+      "bytes": 2418
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/installation.json": {
+      "sha256": "92ec487c641ab2c7331177a77525725846da654450d1c0f8d01d9899f696c223",
+      "bytes": 3195
+    },
+    "/workspace/scratch/owner-ui-backend/resource-driver-v01/actual-union.json": {
+      "sha256": "38316270d43b789c4c302ead795e469daefd6b885738a8217f071bf7c61d079f",
+      "bytes": 64168
+    },
+    "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py": {
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744
+    },
+    "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md": {
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c",
+      "bytes": 5099
+    },
+    "/workspace/scratch/project-audit-ui-backend/go-chain01/manifest.json": {
+      "sha256": "0716db670bbb043ffb5fa157c406d54ba86c28d158f2a484e4d3ee4c91bb1264",
+      "bytes": 719
+    },
+    "/workspace/scratch/project-audit-ui-backend/go-chain01/binding.json": {
+      "sha256": "684073d05dec765e85a4f1edfe260a07ef4ef277215dace2f6dce2d25baaaf04",
+      "bytes": 9968
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-list-proposal01/run01/result.json": {
+      "sha256": "f92074e95440298ec61abd7034fa30d9b9b275f16e232c29e7b903662f133e9e",
+      "bytes": 2219
+    },
+    "/workspace/scratch/owner-audit-ui-verification/model-pg-driver-v01/review.md": {
+      "sha256": "88f676dc9c778f499504b06c01f71320b09294f23722ac2f58827fb91ce7bcab",
+      "bytes": 2657
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/driver.py": {
+      "sha256": "8153667b93af1b68efab50af2459d3ef203b1b105c25110457d757fad0983a54",
+      "bytes": 38263
+    },
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/launch.py": {
+      "sha256": "e6553a63073c0cb84f9faaaf08c1085e42b6fb7e5913a019b02a3d885b60ede1",
+      "bytes": 4966
+    },
+    "/workspace/scratch/owner-ui-backend/resource-driver-v01/closure.json": {
+      "sha256": "8d0ce424c05b056be08e530093886bf5e21d60c494073b3c53f8ff3e6c848dc3",
+      "bytes": 271553
+    },
+    "/workspace/scratch/owner-ui-backend/inputs.json": {
+      "sha256": "37482995716234a1eefcbb769f878ffad65a60791d049f9d08d79f432e54c889",
+      "bytes": 42403
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "state": "STOP_NARROW_PURE_FIX_PASS",
+  "completed_utc": "2026-10-08T12:44:19.245458+00:00",
+  "spec_rev3_sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93",
+  "changed_source": {
+    "path": "internal/central/model/platform_embedding_resolution_test.go",
+    "before_sha256": "a5fbc31e9794bd812989709102f766e91b8d076f78a92aa8baa8fbfe34b7c594",
+    "after_sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d",
+    "after_bytes": 16692
+  },
+  "unchanged_policy_sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a",
+  "corrections": [
+    "Marshal only Provider/Model Input projections, explicitly fail on before/after encoding errors; prior whole-record zero Version errors could cause an empty==empty comparison.",
+    "Compare ContextLength clone isolation with immutable typed constant 8192, including nil/non-nil branches, not a possibly aliased mutable local."
+  ],
+  "tests": {
+    "top_count": 1,
+    "actual_run_ids": 24,
+    "actual_pass_ids": 24,
+    "run_ids": [
+      "TestModelPlatformEmbeddingResolutionProfileMatrix",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/knowledge_embedding",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/memory_embedding",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/structured-text",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/structured-json",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/max-output",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/input-empty",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/tools",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/reasoning",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/input-vector",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/output-extra",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/chat-protocol",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/jina-protocol",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/chat-model",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/headers",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/parallel",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/input-image",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/output-empty",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/parameters",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/streaming",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/efforts",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/output-text",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/options",
+      "TestModelPlatformEmbeddingResolutionProfileMatrix/overwrite"
+    ],
+    "race": true,
+    "single_top_reason": "One exact top includes all 21 negative subtests and both positive purpose subtests without risking a selective regex omission."
+  },
+  "input_count": 352,
+  "all_inputs_after_match_expected_delta": true,
+  "unchanged_entry_guards_exact_bytes": true,
+  "commands": {
+    "format": {
+      "exit_code": 0,
+      "elapsed_seconds": 0.01173041999572888,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": [],
+      "raw": [
+        {
+          "path": "raw.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "profile-race": {
+      "exit_code": 0,
+      "elapsed_seconds": 6.6018840780016035,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": [],
+      "raw": [
+        {
+          "path": "raw.stdout",
+          "bytes": 3785,
+          "sha256": "3d6680f375d0b91a8f2b69badbd619fe538155656bfe87fddcbe05805279b37e"
+        },
+        {
+          "path": "raw.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  },
+  "second_owned_group_observation": [],
+  "not_run": [
+    "Other pure tops",
+    "Repeated vet",
+    "PG/integration bodies",
+    "Node/browser/resources/network/Git"
+  ],
+  "reused": "Original a5fbc31e full 74 PASS and vet results remain unchanged at ../pure-check01; this narrow repeat establishes the stronger ProfileMatrix assertions only."
+}

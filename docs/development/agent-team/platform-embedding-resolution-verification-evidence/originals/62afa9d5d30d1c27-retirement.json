@@ -1,0 +1,38 @@
+{
+  "actual_direct_wait": true,
+  "adopted_waits": [],
+  "observed_owned_identities": [
+    {
+      "pid": 696825,
+      "state": "Z",
+      "ppid": 696822,
+      "pgrp": 696825,
+      "session": 696825,
+      "starttime": 3655484
+    },
+    {
+      "pid": 696852,
+      "state": "R",
+      "ppid": 696825,
+      "pgrp": 696825,
+      "session": 696825,
+      "starttime": 3655513
+    }
+  ],
+  "double_observations": [
+    {
+      "time": "2026-10-08T13:38:00.974100+00:00",
+      "owned_group": [],
+      "proc_permission_unknown_count": 0,
+      "original_direct_absent": true
+    },
+    {
+      "time": "2026-10-08T13:38:01.078711+00:00",
+      "owned_group": [],
+      "proc_permission_unknown_count": 0,
+      "original_direct_absent": true
+    }
+  ],
+  "watchdog": "No asynchronous thread/process created; synchronous supervisor reached terminal path.",
+  "scope": "Only this new process group/session; no whole-host cleanup claim."
+}

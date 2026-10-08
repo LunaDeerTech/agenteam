@@ -1,5 +1,7 @@
 # D09：平台 Embedding current-selection Resolver
 
+最终验收记录（2026-10-08）：本卡完整九路径的固定版本组合已通过独验并获 root 正式接受；policy/pure 固定 `fa4bc1238ea1ee167af9948dda74a11da90ccda3`，六 PG 固定 `28dc84cf0cbec0188bbc4b9577d16bcabf0de2b7`，README 第 9 路径为 `8dfab520`。见[永久验收报告](../agent-team/platform-embedding-resolution-verification.md)及其中最终九路径独审 `39890564`。七轮作者成功、独立 A/B、纯阶段和原失败／恢复按各自固定版本组成结论，非当前 HEAD 单次全测，亦非生产接入或完整 D09/D13/D14；生产 consumer、serving、Invocation、默认 root 与原三停止边界保持。下文 rev3 规格全文保留原时点字节。
+
 修订：rev3，2026-10-08。状态：仅澄清原 Resolver 的 canonical lease 与 semantic 错误优先序，待独立差量与最终组合 STATIC 及 root 采纳；当前只授权本卡和作者自有 scratch，未授权产品实施、测试、资源或生产装配。基线为 root 指定的 `main@5320a187`；本轮 Audit UI 活动产品不作为输入。作者只读分析 `e28547a8373ba9532f26610a3dc67715e93c263811a9dd3ea0bed9daff648268` 已获 root 采纳，采纳分析不等于本规格或产品通过。
 
 依据：[D09 设计 §4](d09-model-system-token-usage-design.md#4-正式规划授权与-secret-组合)、[Model Resolution](../../architecture/platform-infrastructure/model-system/model-resolution.md)、[已接受 current-resolution](recovery-d09-current-model-resolution.md)、[已接受 S3](d09-system-meeting-summary-resolution.md)、[Embeddings float wire §2–5](d09-openai-embeddings-wire.md)、[开发计划 D09](../development-plan.md#d09-model-system-与-token-usage)。必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)及角色对应的[设计](../../../.agents/skills/agenteam-design/SKILL.md)、[Go](../../../.agents/skills/agenteam-go-development/SKILL.md)、[验证](../../../.agents/skills/agenteam-verification/SKILL.md)技能。

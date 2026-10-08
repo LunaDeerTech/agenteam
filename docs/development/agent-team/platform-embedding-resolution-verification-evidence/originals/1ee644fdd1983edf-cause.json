@@ -1,0 +1,7 @@
+{
+  "scope": "selfcheck fake-filesystem premise",
+  "cause": "Empty current run directory was injected without its parent; impossible on real filesystem. The tested wrapper correctly saw no run root in that inconsistent double.",
+  "fix": "Create both memory /runs parent and its child; driver and launcher unchanged.",
+  "exit_code": 1,
+  "resources_started": false
+}

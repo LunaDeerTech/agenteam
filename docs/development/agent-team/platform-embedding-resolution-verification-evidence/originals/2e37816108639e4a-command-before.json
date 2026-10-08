@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-mod=readonly",
+    "-p=1",
+    "-count=1",
+    "-timeout=40s",
+    "-overlay=/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/overlay.json",
+    "-run",
+    "^TestIndependentPlatformEmbeddingPolicyComplement$",
+    "-v",
+    "./internal/central/model"
+  ],
+  "cwd": "/workspace/agenteam",
+  "safe_env": {
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOMAXPROCS": "2",
+    "TMPDIR": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/tmp"
+  },
+  "started_utc": "2026-10-08T12:37:02.478350+00:00",
+  "wrapper_identity": {
+    "pid": 651617,
+    "state": "R",
+    "ppid": 842,
+    "pgrp": 651617,
+    "session": 651617,
+    "starttime": 3289716
+  },
+  "outer_limit_including_retirement_seconds": 45,
+  "child_termination_deadline_seconds": 40,
+  "go_test_timeout_seconds": 40,
+  "probe_input_sha256": {
+    "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/independent_test.go": "1c8dce58d2fd07fa250f57cf54b4d0ce49e63183c586a8155dbc5b6cfa0bd495",
+    "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/overlay.json": "12a184bf23a665e7b4b026c1814286f59540bf3f61a41101810af44813495f3a",
+    "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/run.py": "39af6479d4918c05256ee7a02827b44411e2462c580cfe329e74fb510abb2eed"
+  },
+  "go_binary_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "author_input_manifest_sha256": "dadf09108c5c0d0d9dee56d215b6c2975abd01987cd04ef132a5db5be17040de",
+  "cache_ownership": "Root handed over exclusive Go/cache window; reuse accepted cache without copying; own TMPDIR and output."
+}

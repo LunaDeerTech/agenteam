@@ -1,0 +1,159 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.98.131.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=731afb7d161054b010e8a636ffd8097d
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=53a1faa14777a0b2503b6ba7c9b9177a
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.370s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+=== RUN   TestModelPlatformEmbeddingResolutionReplay
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/live-switch-disable-endpoint-and-delete-do-not-rebind-history
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/new-authority-and-formal-new-session-use-durable-result
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/accepted-input-cannot-be-consistently-rewritten-to-borrow-snapshot
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/committed-subject-and-operation-still-require-current-permission
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/consumer-remapping-does-not-promise-draft-version-increment
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/explicit-version-is-not-silently-upgraded
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/released-canonical-lease-never-resurrected
+    platform_embedding_resolution_replay_test.go:175: controlled irreversible released metadata in this disposable fixture; no production release/material operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/live-switch-disable-endpoint-and-delete-do-not-rebind-history
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/new-authority-and-formal-new-session-use-durable-result
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/accepted-input-cannot-be-consistently-rewritten-to-borrow-snapshot
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/committed-subject-and-operation-still-require-current-permission
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/consumer-remapping-does-not-promise-draft-version-increment
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/explicit-version-is-not-silently-upgraded
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/released-canonical-lease-never-resurrected
+    platform_embedding_resolution_replay_test.go:175: controlled irreversible released metadata in this disposable fixture; no production release/material operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/prepared/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/prepared/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/prepared/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/committed/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/committed/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/committed/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/agent
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/agent
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/prepared/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/prepared/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/prepared/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/committed/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/committed/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/committed/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/agent
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/operation
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/explicit-version
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/cross-purpose
+=== RUN   TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/agent
+--- PASS: TestModelPlatformEmbeddingResolutionReplay (12.57s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding (2.00s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/live-switch-disable-endpoint-and-delete-do-not-rebind-history (0.52s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/new-authority-and-formal-new-session-use-durable-result (0.52s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/accepted-input-cannot-be-consistently-rewritten-to-borrow-snapshot (0.01s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/committed-subject-and-operation-still-require-current-permission (0.08s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/consumer-remapping-does-not-promise-draft-version-increment (0.08s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/explicit-version-is-not-silently-upgraded (0.19s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/released-canonical-lease-never-resurrected (0.06s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding (1.82s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/live-switch-disable-endpoint-and-delete-do-not-rebind-history (0.47s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/new-authority-and-formal-new-session-use-durable-result (0.56s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/accepted-input-cannot-be-consistently-rewritten-to-borrow-snapshot (0.01s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/committed-subject-and-operation-still-require-current-permission (0.08s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/consumer-remapping-does-not-promise-draft-version-increment (0.08s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/explicit-version-is-not-silently-upgraded (0.18s)
+        --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/released-canonical-lease-never-resurrected (0.06s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/prepared/operation (0.10s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/prepared/explicit-version (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/prepared/cross-purpose (0.10s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/committed/operation (0.20s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/committed/explicit-version (0.19s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/no-ref/committed/cross-purpose (0.19s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/operation (0.10s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/explicit-version (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/cross-purpose (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/prepared/agent (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/operation (0.17s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/explicit-version (0.18s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/cross-purpose (0.21s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/no-ref/committed/agent (0.17s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/prepared/operation (0.11s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/prepared/explicit-version (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/prepared/cross-purpose (0.10s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/committed/operation (0.18s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/committed/explicit-version (0.23s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/knowledge_embedding/same-call/ref/committed/cross-purpose (0.22s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/operation (0.11s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/explicit-version (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/cross-purpose (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/prepared/agent (0.08s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/operation (0.19s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/explicit-version (0.21s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/cross-purpose (0.19s)
+    --- PASS: TestModelPlatformEmbeddingResolutionReplay/memory_embedding/same-call/ref/committed/agent (0.24s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	13.606s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce 4e06ce47fd61c751e807fe99a476e6b6
+D04 outbound fixture cleanup checked for nonce 53a1faa14777a0b2503b6ba7c9b9177a
+D05 object fixture exact resource cleanup checked nonce=731afb7d161054b010e8a636ffd8097d

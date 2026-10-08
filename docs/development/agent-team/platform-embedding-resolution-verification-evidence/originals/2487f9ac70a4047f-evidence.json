@@ -1,0 +1,317 @@
+{
+  "status": "INDEPENDENT_A_AND_B_ACTUAL_PASS_FULLY_RETIRED_STOP",
+  "executor": "verification_runtime",
+  "original_refs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-model-a01-handoff.json",
+      "bytes": 10510,
+      "sha256": "4c0644f91de742c8a79266631ff07554413308a1ec07a3e26744195219e99c79"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/result.json",
+      "bytes": 39858,
+      "sha256": "c32876a0bc817001c8587226ffefa9cd0cf920c47572cce88a240f372e9e55d6"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/raw.log",
+      "bytes": 5981,
+      "sha256": "71bf07db0b00ad608c67e9c5bc331bdd1011d7eefe68529868241de40a1244a3"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/command.json",
+      "bytes": 2063,
+      "sha256": "4d9c18181a999e15290701df822a7187759c4b87d70f76005535783e39d4c989"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/watchdog.json",
+      "bytes": 522,
+      "sha256": "9d1df842e5c99bde5843d2e5391f021e6ac0f24b158cbad6fdc9d9ccee0a9ffb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/cleanup.json",
+      "bytes": 91929,
+      "sha256": "f916b6614a49ee2f5b8a4eb644647271a3068daf10ffa968e6fdc2157d39e14f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/observed-resources.json",
+      "bytes": 5148,
+      "sha256": "cce09a5cc3afed93d0ee1376f4cb08bd5ff39004d114aa13626e54daef9c8f88"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/resource-id-chain.json",
+      "bytes": 851,
+      "sha256": "f4cd00e2c6c65f01975be6fc9e154e4a5dede8072a262ff954af338e0cf5b8f6"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/tcp-tail-observation.json",
+      "bytes": 113703,
+      "sha256": "1d0eeb009f4f3a654baaf3be24a6cf8b7d5fcf7ab65850a39f7015cd6b66c106"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/input-before.json",
+      "bytes": 614,
+      "sha256": "a5228d477fcc4d6d147d56058f393d2dbd6a497e040521c9425846c7a557c494"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/input-after.json",
+      "bytes": 614,
+      "sha256": "a5228d477fcc4d6d147d56058f393d2dbd6a497e040521c9425846c7a557c494"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/frozen-input.json",
+      "bytes": 25140,
+      "sha256": "c9478ca62d633f07c803c9a976855c3029806d4240c9f2b71ade72c9735b2610"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-b01/verification-input.json",
+      "bytes": 183,
+      "sha256": "96b1c9c63614099f03ed6df986470eb9cff433d82635f5d756c0fec9b2fa1e74"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/launches/ind-model-b01/result.json",
+      "bytes": 1395,
+      "sha256": "547eb05aa96fb3fe67658b44ab0231c9672a4f73aff588cc0c32502b3f06c6f6"
+    }
+  ],
+  "rounds": {
+    "ind-model-a01": {
+      "top": "TestModelPlatformEmbeddingIndependentA",
+      "run_pass_count": 9,
+      "leaf_cases": 6,
+      "top_seconds": 6.43,
+      "package_seconds": 7.45,
+      "fixture_seconds": 63.889,
+      "outer_seconds": 118.58006874399871,
+      "adopted_waits": 0,
+      "observed_processes": 88,
+      "tcp_seconds": 51.42257292699651,
+      "inner_sha256": "8587c0acba32bc38617fd34a27f3d89467aa1a3769e2d2701de2e04a5427aef1",
+      "outer_sha256": "67dee6c2d5d67c3f946e01532775e1604b02d2790d5e715b15c542c0e0ff7332"
+    },
+    "ind-model-b01": {
+      "top": "TestModelPlatformEmbeddingIndependentB",
+      "run_count": 7,
+      "pass_count": 7,
+      "same_unique_names": true,
+      "leaf_cases": 4,
+      "top_seconds": 6.28,
+      "package_seconds": 7.314,
+      "fixture_seconds": 57.358,
+      "outer_seconds": 112.94792627100105,
+      "adopted_waits": 0,
+      "observed_processes": 84,
+      "tcp_seconds": 52.45311575699452,
+      "inner_sha256": "c32876a0bc817001c8587226ffefa9cd0cf920c47572cce88a240f372e9e55d6",
+      "outer_sha256": "547eb05aa96fb3fe67658b44ab0231c9672a4f73aff588cc0c32502b3f06c6f6"
+    }
+  },
+  "b_tool_receipt": {
+    "session_id": 53679,
+    "initial_chunk": "2e1989",
+    "terminal_chunk": "ac3b33",
+    "exit_code": 0,
+    "actual_terminal_observed": true
+  },
+  "execution_boundary": "Two separately granted real PostgreSQL rounds executed by independent verifier with the separately authored and architecture-reviewed overlay. These are not author top reruns or log-only review. No extra standalone compile/list/filegate/retry; each original granted driver first checked all 999 fixed inputs and compiled through the accepted fixture script.",
+  "source_binding": {
+    "driver": "bbe8bdf4c9e128af219be7f2c3b9bea06546330c20f07cce2aeee024779146b8",
+    "launcher": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+    "probe": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614",
+    "overlay": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607",
+    "closure": "8eccce74422c1c86bbf669c9ca3ce5ece50b5ba4d274e171ffb543b5c64419f4",
+    "current_helper": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+    "root_a_grant": "9bb67e6323a1c68ee7cd4e5bcbcf74639f6f67eedaf1070232d4a7fa33567204",
+    "root_b_grant": "c9478ca62d633f07c803c9a976855c3029806d4240c9f2b71ade72c9735b2610"
+  },
+  "inputs": {
+    "files_count_each": 999,
+    "digest": "6eb22ce21c08a35cb1c80ab4f98179b9a4fe07eb69fc0532b30cf3bd924ab416",
+    "four_captures_identical": true,
+    "both_first_gate_accepted": true,
+    "source_graph_rescanned_for_report": false
+  },
+  "actual_cases": {
+    "A": "Both purposes: real subject ownership movement and current input withdrawal while final acceptance waits on exact advisory key; actual holder/waiter and committed withdrawal joins. Provisional acceptance blocks formal current-selector writer until commit.",
+    "B": "Both purposes: actual final commit followed by controlled Unknown result decoration and delivery cancellation; fresh in-process Authority plus formal new Session confirm identical durable snapshot/lease after switching selector to opposite credential-reference choice. Caller cancellation after valid provisional snapshot/lease causes actual outer rollback of input/snapshot/binding/lease, followed by explicit same-plan acceptance.",
+    "model_material_read_audit": "Both actual top endings reach current noSecretRead consumer=model assertion. This only asserts zero persisted Model secret.resolve audit rows; it does not prove absence of rolled-back attempts."
+  },
+  "retirement": {
+    "both_inner_outer_actual_wait_exit0": true,
+    "fixture_direct_waits": 2,
+    "driver_direct_waits": 2,
+    "adopted_waits_total": 0,
+    "observed_process_counts_not_waits": [
+      88,
+      84
+    ],
+    "watchdog_joins": 2,
+    "resource_id_count_each": [
+      7,
+      7
+    ],
+    "resource_id_union": 14,
+    "cross_round_resource_id_intersection": [],
+    "b_resources": {
+      "5daec91c978cce4c046bd9c8ce908b4c6a5408a1f95638b458a145618e13fd43": {
+        "kind": "network",
+        "name": "agenteam-d03-2c168a583cc1c0dd48093cbe1990ee4f"
+      },
+      "b892a44be0eab592f8f71bd91dadefa4b86fd97ea3c81e22086965654b719268": {
+        "kind": "network",
+        "name": "agenteam-d04-net-3f4d8d71c4bb23ae6e723a82a03d27dc"
+      },
+      "c66744e2409aac5a3c9c9059bc5c29f783e45497238a07d014e9220531a9b4b3": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-3f4d8d71c4bb23ae6e723a82a03d27dc"
+      },
+      "cc3ac751fd2bd6f75cf71c11539724f8d986f688a92bc2d41f92dd7f30d0c4e0": {
+        "kind": "network",
+        "name": "agenteam-d05-object-b4acf1c2ced72bcbf44496fc11b2e322"
+      },
+      "d26a14e973cfe0222dc5d7bd284c19ffcb1cb6c2e8bd1bcd24d03cdbe5a1b76f": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-b4acf1c2ced72bcbf44496fc11b2e322"
+      },
+      "ed342b4fbe04ad4eafe7b1ee1d248ec49ccc926352dbfcaeef043719f28731ef": {
+        "kind": "container",
+        "name": "/agenteam-d03-2c168a583cc1c0dd48093cbe1990ee4f"
+      },
+      "efa11e5a0450b551d1417649219021ff726010c929ed8dfb48525ec5a8417b1c": {
+        "kind": "container",
+        "name": "/agenteam-d03-2c168a583cc1c0dd48093cbe1990ee4f-pg16"
+      }
+    },
+    "b_cleanup": [
+      {
+        "time": "2026-10-08T15:27:47.464116+00:00",
+        "exact7absent": true,
+        "baseline_unchanged": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": []
+      },
+      {
+        "time": "2026-10-08T15:27:48.185464+00:00",
+        "exact7absent": true,
+        "baseline_unchanged": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": []
+      }
+    ],
+    "b_owned_tail": {
+      "actions": [],
+      "actual_owned_completion": true,
+      "remaining": []
+    },
+    "b_tcp_final_two": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T15:28:40.939141+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T15:28:41.143692+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_limit": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_budget_each": 75,
+    "b_tcp_signals_sent": false,
+    "new_nonowned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 863754,
+        "ppid": 1,
+        "starttime": "4284414",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 864202,
+        "ppid": 1,
+        "starttime": "4284800",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 864546,
+        "ppid": 1,
+        "starttime": "4285002",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 865097,
+        "ppid": 1,
+        "starttime": "4285206",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 873790,
+        "ppid": 1,
+        "starttime": "4308936",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 874269,
+        "ppid": 1,
+        "starttime": "4309335",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 874639,
+        "ppid": 1,
+        "starttime": "4309562",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 875165,
+        "ppid": 1,
+        "starttime": "4309756",
+        "state": "Z"
+      }
+    ],
+    "new_nonowned_identity_count": 8,
+    "nonowned_shims_waited_or_modified": false,
+    "forced_actions_total": 0,
+    "monitor_errors_total": 0,
+    "all_owned_commands_joined": true,
+    "resources_and_cache_window_released": true
+  },
+  "limits": [
+    "Actual commit/rollback plus result decoration and cancellation, not physical PostgreSQL COMMIT ACK loss.",
+    "Fresh Authority/Session recovery is not an OS process restart.",
+    "Private strict Knowledge/Memory facts and transaction adapter are not production consumer binding.",
+    "No external Provider invocation, serving/dimensions/Invocation integration, migration or new production material delivery claimed.",
+    "No browser or Node execution; packages with no tests to run add no old behavior coverage.",
+    "Original author embedselect01 FAIL/cleanup=false and separate recovery, earlier pure/preparation failures remain unchanged.",
+    "Author new five and old two rounds are separate accepted evidence, not repeated in this report; no full-card/source-merge acceptance inferred."
+  ],
+  "stop": true
+}

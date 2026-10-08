@@ -1,5 +1,23 @@
 # 团队任务台账
 
+Model提交格式补正（2026-10-08）：root首次git diff --cached --check实际exit2、helper仅预期12而assert exit1，未commit；raw3c75e6d2完整保留。原6 patch/diff实际60诊断＝12尾白＋48 context空格后tab，fixture仅format695e69e9/checksbc199d48/manifest77f327db补精确line-kind，原456实体及报告/README/计划卡不改。root核三JSON与实际集合后再提交，非产品/技术重跑；当前全部资源空。
+
+## 2026-10-08：Model 最终交付文档接受；旧认证两组退役
+
+Model文档最终delivery74747876已root通读顶段并核19refs；11新增原件172487B、总456实体4791174B/594逻辑记录，原445实体复用，report56265a5a/manifest817537df及README8df不变，plan/card只顶部插入且历史原SHA还原。原12尾白例外按行保留，当前资源全空后由root暂存已接受范围。Audit导航独核39c88f8f/9190df20/91bbc7a3与作者逐图018fe8c9/07a8d8de已root读核接受，8图均900px部分视口，不扩大全页/动态可见范围。独立final04唯一puregate3ff96a86/raw83acb09c实际工具84805/fb4959 exit0、1.370603s/1185同，原identity双absent/无forced；children proc unavailable，不冒ECHILD或全树双空。
+
+旧authlife01实际top6.68/browser3.6/full58.996s，session4466 exit0/result978f7982/manifest607c98b5/handoffbab99266；direct＋4adopted/7ID/owned-runtime双清/TCP38.381052s/input同。旧authrevoke01实际top13.60，revocation7.97/expiry5.63，browser5.0/3.2/full64.599s，session64564 exit0/resultcc142362/manifest6046acfd/handoff5c16a51a；direct＋8adopted/7ID/owned-runtime双清/TCP38.371281s/input同。两轮global新59 gate前后同，各4非ownedshim不wait；旧域不计Project schema/client。当前全STOP，旧8/独4仍待逐轮授，root先交Model最终文档，59/原3backup不变；下一模型设置T3仅scratch补精确DTO，不实施。
+
+## 2026-10-08：Embedding 完整九路径接受；审计新导航实际通过
+
+root已将Model六PG提交28dc84cf0cbec0188bbc4b9577d16bcabf0de2b7及Audit两源修复055c727b5bd1fb2f2794d402ce214ef5f95bd38b推送，ls-remote核main055c一致。Model永久技术档430ce1a1/manifest316e4a05已root通读并实核445新实体4618687B与4生成件；583逻辑原件/10轮330完整run-launch保原FAIL、版本与12原diff尾白例外。README#9 v03仅插4段3229B、后v04净删83B内部待审句，最终8dfab520/76068B，余原394a精确保持。最终九路径39890564/20379d1a/3f3a860c/f1e86e15已root全文读并核4固定件，正式接受本卡完整九路径的版本组合；不称当前HEAD一次fresh全套或生产/完整D09D13D14。fixture仅最终档顶/增补末件/plan与卡顶部归位，无技术执行。
+
+Audit private build-v02唯一Vite实际1.036812s/exit0/owned双空，189web/70包1304tool＋12inputs同，59/794499B、4品牌SVG原bytes同；freeze2be773aa/assets a3c6cac1 root核18固定refs接受。root exchange02 4f2e3fef将旧global59更换为新private59并全部byte核同，原3backup逐byte保持。v04 exact06cf准备stopd2c6a4fc/freeze5d2cdaba/closuree4fcc821/binding46637663/manifestdc253da0经root28refs核接受；旧942不含View/unit，两新源直接绑定使944repo/66sets＋237runtime＝1181，Go909/63不变。sourcecheck05原纯输入实际wait1.248813s/exit0/digest0edbd007及private/global匹配，receipt7d84dce4。
+
+单grant8257ed7d的auditnav02/session46905实际top23.41s、package24.456/full70.578s PASS，result0d2e063e root读核；direct＋4adopted/watchdog、fresh7精确双absent/owned-runtime-browser双空、0forced/monitor错、TCP39.405485s双清/inputs同，100观察/15browser/2node不是wait数，4非ownedshim不wait。manifestb36b3499/handoffd843961c/images72273a38封67原件，18sidecars中17EOF=11list＋6detail，schema/client同bytes17，1incomplete排除；proxy117/117、13导航checks真、8PNG存在。architecture独核原件、frontend逐看8图中；root另看light390详情与dark1440滚动筛选可见部分未见缺陷，不外推整页。原nav01FAIL/缺DOM仍保。当前backend获旧authlife01 grant385ca388实际session4466/top6.68s PASS但外层未终局，唯一资源窗不Git/换资产；后继旧9未授。
+
+Audit独立final04 stop84edc6bb/manifest65716352/false83852678/preparationb767159a已root通读核12固定件134186B接受仅metadata：exacte893/98d1不变，944＋241＝1185/66，8runtime一换一/233保持，private/global新59必核；runtime仅一次原pure wrapper40＋5s已授，4实际轮未授。21技术版本映射499fd485/bba14d28/b6b65b74仅metadata root读核；最终源scan/旧10/独4/README#21待。下一模型设置工程补充9197fc97与独审691ab122/3c476c67/b42fbdbe已root全文读hash有限接受草案，17操作/14旧selector/9IPC/29路径闭合，T1最终Audit交接/T3精确DTOagreement/T4正式卡仍pending。三停止/Jina/生产/ready503/完整D08–D28/E01保持。
+
 ## 2026-10-08：Embedding 八技术正式接受；审计导航两源修复接受
 
 Model旧Resolver6＋Summary3最终独核d5f3b199/0002538c/dc4ca4ea已root接受；独立A grant9bb67e63、B grantc9478ca6分别实际exit0，top6.43/6.28s、outer118.580069/112.947926s，共16RUN/10叶，999输入同/14本代不同ID双absent、owned-runtime双空、TCP51.422573/52.453116s。正式c26b5095/2487f9ac/24f267be已root通读hash接受，0adopted、88/84仅观察数、8非owned shim不wait。最终八技术ab14ab6b/f40a3fe6/bfbecbd1/799c837f已root通读并核固定三原件，复用独审一次八当前源scan；六PG精确清单可提交，已提交policy/pure保持。原74纯组合、compile/list边界、作者996与overlay999版本、原Selection FAIL/cleanupfalse及独立恢复不回填；非当前HEAD一次全套。fixture获永久小档与#9 README末件安装，完整九路径待末件独验。

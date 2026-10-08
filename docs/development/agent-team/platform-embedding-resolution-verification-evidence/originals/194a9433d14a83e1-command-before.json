@@ -1,0 +1,47 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-race",
+    "-tags=integration",
+    "-mod=readonly",
+    "-p=1",
+    "-overlay=/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/agenteam",
+  "safe_env": {
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOMAXPROCS": "2",
+    "CGO_ENABLED": "1",
+    "TMPDIR": "/workspace/scratch/platform-embedding-independent-ab-compile01/tmp"
+  },
+  "started_utc": "2026-10-08T13:38:00.091441+00:00",
+  "wrapper_identity": {
+    "pid": 696822,
+    "state": "R",
+    "ppid": 842,
+    "pgrp": 696822,
+    "session": 696822,
+    "starttime": 3655477
+  },
+  "outer_limit_including_retirement_seconds": 45,
+  "child_termination_deadline_seconds": 40,
+  "probe_input_sha256": {
+    "/workspace/scratch/platform-embedding-independent-ab-compile01/platform_embedding_independent_test.go": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614",
+    "/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607",
+    "/workspace/scratch/platform-embedding-independent-ab-compile01/run.py": "8ff75136917bc0e47893a18af51ebeae7d86cce95bd852fb0b206dea6c6706f6",
+    "/workspace/scratch/platform-embedding-independent-ab-compile01/inputs-delta.json": "b0bc26d255f7255ab79e563c5e17a6116b2ef4c13a31b5b995320effb0048ba9"
+  },
+  "command_binary_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "author_input_manifest_sha256": "f7a2f86f0cd4c2457f3a4cd0dc626b0e7c75f79295b3486890a449e8d7101278",
+  "cache_ownership": "Root exclusive Go/cache grant for private format, exact tests/model race-c and vet only; no binary/list/body execution."
+}

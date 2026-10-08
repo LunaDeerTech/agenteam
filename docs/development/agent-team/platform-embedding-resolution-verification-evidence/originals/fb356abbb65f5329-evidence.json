@@ -1,0 +1,326 @@
+{
+  "status": "STOP",
+  "assessment": "STATIC_PASS_NO_REQUIRED_FIX_FOUND",
+  "spec": {
+    "path": "/workspace/scratch/platform-embedding-resolution-spec-v3/card.md",
+    "bytes": 24449,
+    "sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93"
+  },
+  "candidate_freeze": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/freeze.json",
+    "bytes": 4953,
+    "sha256": "a442fcb8c14075b56511f012d97c9ecd3efb9a9d1f6c2e45b2e03599c11da22e"
+  },
+  "six_sources": [
+    {
+      "path": "tests/model/platform_embedding_resolution_fixture_test.go",
+      "candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_fixture_test.go",
+      "bytes": 21990,
+      "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c",
+      "installed_equal": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_selection_test.go",
+      "candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_selection_test.go",
+      "bytes": 10124,
+      "sha256": "115d60519161b31de0c0368ebd727059223572d8fb6c402ec2f9a3d46c6e5668",
+      "installed_equal": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_atomicity_test.go",
+      "candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_atomicity_test.go",
+      "bytes": 7252,
+      "sha256": "64471260c1a514d07c6408f776d1629e26348611b0b27e57d6a925303f2778f5",
+      "installed_equal": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_authorization_test.go",
+      "candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_authorization_test.go",
+      "bytes": 17784,
+      "sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe",
+      "installed_equal": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_replay_test.go",
+      "candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_replay_test.go",
+      "bytes": 12499,
+      "sha256": "b796560e0348ec1f6286bdef4ca1a6a6f327800685998fb4f57bd16918841ccf",
+      "installed_equal": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_unknown_test.go",
+      "candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_unknown_test.go",
+      "bytes": 6857,
+      "sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d",
+      "installed_equal": true
+    }
+  ],
+  "author_compile_manifest": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/manifest.json",
+    "bytes": 3032,
+    "sha256": "39c8212b30da2e854f8b61e3cbc6cd8a0ac541b560dade1f3563d97ba52ffa3c"
+  },
+  "author_compile_artifacts_checked": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/installation.json",
+      "bytes": 3195,
+      "sha256": "92ec487c641ab2c7331177a77525725846da654450d1c0f8d01d9899f696c223"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/inputs-before.json",
+      "bytes": 47868,
+      "sha256": "f7a2f86f0cd4c2457f3a4cd0dc626b0e7c75f79295b3486890a449e8d7101278"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/run.py",
+      "bytes": 3366,
+      "sha256": "554eece1d3d0c68404fd152f5843cfb46a9547448cc1d389d9e6ededc16b3c09"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/stop.json",
+      "bytes": 2418,
+      "sha256": "892c24bea4881c8b4c1268ca4369c06759ca936e029605964064ebdd4c7c5900"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/observed-inputs.json",
+      "bytes": 43379,
+      "sha256": "090934a6f26d8bc60467db864df6f8d244a70b4ec12d788745e9e223af339055"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/result.json",
+      "bytes": 4292,
+      "sha256": "11d2946a78bf7c66d987b050f99b16ca606a3e44dc02fabf4162fdcbcb46ba23"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/review.md",
+      "bytes": 2716,
+      "sha256": "4bb1a46990a0b0aa8a864e01d4f01dc40e853833b7f610c9ff8d927609b94b75"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/compile01/launch.json",
+      "bytes": 933,
+      "sha256": "9725debb2ef9245803e2baa34d342e2571d28fc999032528000f5ae95b83c53c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/compile01/result.json",
+      "bytes": 469,
+      "sha256": "f889618ecc689e8ba7287da75dcdaeb8d07b2c121a8329e4433e7118345d0717"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/compile01/raw.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/compile01/raw.stderr",
+      "bytes": 74697,
+      "sha256": "73579d95eeeb4867469e3f52e148559ef78fae3dab19ab51279f47a8f977c174"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/vet01/launch.json",
+      "bytes": 802,
+      "sha256": "e350cf6d6833937c0f9de8ff7386ebb51e414a19f882a6487c7816b276d34035"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/vet01/result.json",
+      "bytes": 471,
+      "sha256": "fce787b471fce4ee93460a49ff3962b888bc9aac9d0a53f9d58061f29a1fd363"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/vet01/raw.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/vet01/raw.stderr",
+      "bytes": 1756048,
+      "sha256": "9310d6f727a8bf1ff0aa89a4a2facb2d089d9c017833a65f15ca434b7bca7c39"
+    }
+  ],
+  "limited_current_input_checks": [
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolution_policy.go",
+      "bytes": 5611,
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolver.go",
+      "bytes": 14572,
+      "sha256": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/resolution_store.go",
+      "bytes": 11225,
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/configuration.go",
+      "bytes": 19103,
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/types.go",
+      "bytes": 19439,
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/authority.go",
+      "bytes": 16899,
+      "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/current_resolution_fixture_test.go",
+      "bytes": 16271,
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/current_resolution_unknown_test.go",
+      "bytes": 6342,
+      "sha256": "ccc2235ea76b078ef601488d95621b72787fbd342ea9908126bc7b324edc32fc",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/meeting_summary_resolution_fixture_test.go",
+      "bytes": 17160,
+      "sha256": "69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_configuration_fixture_test.go",
+      "bytes": 22720,
+      "sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go",
+      "bytes": 17333,
+      "sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/system_configuration_integration_test.go",
+      "bytes": 53704,
+      "sha256": "7d46b46766659386f7d643be76ab56526d9c5e911cc14fbc2fd3b81967afab32",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/secret/rotation.go",
+      "bytes": 14378,
+      "sha256": "8f02521279874c67a2b2b8c3496b0fdcb11ede2989ed534b1b671ae8f91cd43d",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/secret/service.go",
+      "bytes": 7496,
+      "sha256": "26f6f876e502e7d26afe9b43c11732d72356826d787baa4950b44ed15dac6906",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/service.go",
+      "bytes": 7098,
+      "sha256": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/postgres/store.go",
+      "bytes": 7452,
+      "sha256": "6c2f607fd3c85aa9c5d65ff9c909c1b9012f10a2f62a340a34f6d17371798072",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_fixture_test.go",
+      "bytes": 21990,
+      "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_selection_test.go",
+      "bytes": 10124,
+      "sha256": "115d60519161b31de0c0368ebd727059223572d8fb6c402ec2f9a3d46c6e5668",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_atomicity_test.go",
+      "bytes": 7252,
+      "sha256": "64471260c1a514d07c6408f776d1629e26348611b0b27e57d6a925303f2778f5",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_authorization_test.go",
+      "bytes": 17784,
+      "sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_replay_test.go",
+      "bytes": 12499,
+      "sha256": "b796560e0348ec1f6286bdef4ca1a6a6f327800685998fb4f57bd16918841ccf",
+      "matches_existing_compile_input": true
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/platform_embedding_resolution_unknown_test.go",
+      "bytes": 6857,
+      "sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d",
+      "matches_existing_compile_input": true
+    }
+  ],
+  "current_input_check_count": 22,
+  "prior_pure_stage_reference": {
+    "path": "/workspace/agenteam/internal/central/model/platform_embedding_resolution_test.go",
+    "bytes": 16692,
+    "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d",
+    "scope": "prior accepted pure stage only, not a tests/model compilation input"
+  },
+  "reused_closed_graph": {
+    "existing_named_count": 486,
+    "author_before_after_equal": true,
+    "new_whole_graph_generated": false,
+    "current_all486_rescan": false,
+    "current_embed_or_global_dist_read": false,
+    "raw_vet_segments_verified": 41,
+    "actual_source_metadata_contains_six_new_files": true,
+    "asset_scope": "Historical compiler inputs only; later root Audit private59 dist exchange is outside this stage."
+  },
+  "author_commands": {
+    "compile01": {
+      "exit_code": 0,
+      "elapsed_seconds": 7.512086816997908,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    },
+    "vet01": {
+      "exit_code": 0,
+      "elapsed_seconds": 8.975299173005624,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    }
+  },
+  "author_second_owned_empty": true,
+  "independent_Go_or_business_execution": false,
+  "independent_work": "full six-source static review, necessary formal helper/source read, fixed original hashes only",
+  "read_only_preparation_failures": [
+    {
+      "tool_chunk_id": "41d955",
+      "exit_code": 1,
+      "error": "KeyError for internal/central/model/platform_embedding_resolution_test.go when intersecting needed refs with PG compilation graph",
+      "scope": "local evidence recorder; prior pure test is not imported into tests/model",
+      "correction": "retain pure as separate accepted-stage fingerprint; no graph expansion, Go run, candidate write or resource action"
+    },
+    "Earlier rg path-navigation misses were resolved using the correct repository cwd and actual helper filename; these were not product checks."
+  ],
+  "schema_maintenance_separate": {
+    "path": "/workspace/scratch/project-audit-openapi-409-installation01.json",
+    "bytes": 814,
+    "sha256": "90de11dd592f71ddae20312eb545b00f8bef85cf286d9473e8a3d167888f61c6"
+  },
+  "completed_utc": "2026-10-08T13:14:07.659049+00:00"
+}

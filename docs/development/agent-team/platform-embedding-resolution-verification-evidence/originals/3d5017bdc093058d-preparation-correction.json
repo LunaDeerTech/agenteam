@@ -1,0 +1,17 @@
+{
+  "status": "PREPARATION_ASSUMPTION_CORRECTED_BEFORE_EXECUTION",
+  "unsupported_initial_claim": "Old 486 inputs include 3 web assets plus 18 migration files.",
+  "actual_from_bound_records": {
+    "Go": 463,
+    "migration_sql": 20,
+    "weak_password_json": 1,
+    "module_locks": 2,
+    "web_paths": [],
+    "total": 486
+  },
+  "effect": "No web/dist read, copied input index, new asset binding or command executed from the incorrect assumption. Reuse exact bound 486 with only independent probe overlay delta.",
+  "bound_input_ref": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/inputs-before.json",
+    "sha256": "f7a2f86f0cd4c2457f3a4cd0dc626b0e7c75f79295b3486890a449e8d7101278"
+  }
+}

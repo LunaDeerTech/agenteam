@@ -1,0 +1,112 @@
+{
+  "state": "PREPARED_EXPECTED_RUNTIME_FILES_NOT_FINAL_FILEGATE",
+  "common_tool_reference": {
+    "path": "/workspace/scratch/project-audit-ui-backend/resource-inputs-v01/freeze.json",
+    "sha256": "ffc55d6001bdd3170a3af32949fc6a877ef29afc47fb799c623bf1edc11a1a45"
+  },
+  "python_actual_import_reference": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/python-runtime.json",
+    "sha256": "fe7ee4f8a426b6eb416834a6234228c4aa45034d27628957c8679e9f9933ded1"
+  },
+  "tool_files": {
+    "/usr/local/bin/docker": "27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b",
+    "/workspace/scratch/fixture-recovery-new/bin/minio": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+    "/workspace/toolchains/go1.27.1/bin/go": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "/usr/bin/dash": "a6f559e00b69a4aa4d8cb607be18d9386c5aee55c509e2c075549dcf00e00fc7",
+    "/usr/bin/gcc": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+    "/usr/bin/as": "07dd8551ea0aa065975e4dddb8e1bb7dc308d12d54eca22c3858db79467c7cb9",
+    "/usr/bin/ld": "d2766988b6a1b1d1518cdc09242e726d1f24e151e16410ada3092b11ffd9081b",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/asm": "4720bbf4ea8c95da4bef7d716b89c914ce678b57e7833f327f3ea2c2f51d16a6",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/cgo": "a4d0ca3e67972d33fc28016a82b4e3a4fa551d9449a550f3cc68b0a7787281fd",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile": "3780fc07130d6d45096373acf062cc316940d253e2a1d892ece03a3bdd0d21d4",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link": "a29ac5e8f64111b0b5c5d31e452f18abf7ee79f44b421081b5509c8939d92ba9",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/preprofile": "4f4e30080736b81938c53865b7561347cc5b92d01f7f64745efa668da724d839",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/vet": "46e5add9e558ca24000deadf2fa072f3f374f42120907ab087119ec544498cb1",
+    "/usr/bin/sh": "a6f559e00b69a4aa4d8cb607be18d9386c5aee55c509e2c075549dcf00e00fc7",
+    "/usr/bin/dirname": "088e052097e35176c2714238a7cea6240c82ae3873f02ab77234b30263566768",
+    "/usr/bin/mktemp": "61f09af83b1ccbd744d424ba5ad19b2af4edb5ad67c367cc092f58422b7bbb7c",
+    "/usr/bin/rm": "c959a237e7b95d229eea44764b2246fcb61a95dc679a10ad0cc97ad84c2316c1",
+    "/usr/bin/rmdir": "d78acd70f897e47588f964663f26b0dd5f7787b25ce6d70a81d842563f952845",
+    "/usr/bin/x86_64-linux-gnu-gcc-14": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+    "/usr/bin/x86_64-linux-gnu-as": "07dd8551ea0aa065975e4dddb8e1bb7dc308d12d54eca22c3858db79467c7cb9",
+    "/usr/bin/x86_64-linux-gnu-ld.bfd": "d2766988b6a1b1d1518cdc09242e726d1f24e151e16410ada3092b11ffd9081b"
+  },
+  "reused_common_tool_keys": [
+    "/usr/bin/as",
+    "/usr/bin/dash",
+    "/usr/bin/gcc",
+    "/usr/bin/ld",
+    "/usr/local/bin/docker",
+    "/workspace/scratch/fixture-recovery-new/bin/minio",
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/asm",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/cgo",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/preprofile",
+    "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/vet"
+  ],
+  "new_tool_entry_or_target_hashes": {
+    "/usr/bin/sh": "a6f559e00b69a4aa4d8cb607be18d9386c5aee55c509e2c075549dcf00e00fc7",
+    "/usr/bin/dirname": "088e052097e35176c2714238a7cea6240c82ae3873f02ab77234b30263566768",
+    "/usr/bin/mktemp": "61f09af83b1ccbd744d424ba5ad19b2af4edb5ad67c367cc092f58422b7bbb7c",
+    "/usr/bin/rm": "c959a237e7b95d229eea44764b2246fcb61a95dc679a10ad0cc97ad84c2316c1",
+    "/usr/bin/rmdir": "d78acd70f897e47588f964663f26b0dd5f7787b25ce6d70a81d842563f952845",
+    "/usr/bin/x86_64-linux-gnu-gcc-14": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+    "/usr/bin/x86_64-linux-gnu-as": "07dd8551ea0aa065975e4dddb8e1bb7dc308d12d54eca22c3858db79467c7cb9",
+    "/usr/bin/x86_64-linux-gnu-ld.bfd": "d2766988b6a1b1d1518cdc09242e726d1f24e151e16410ada3092b11ffd9081b"
+  },
+  "command_resolution": {
+    "sh": {
+      "path": "/usr/bin/sh",
+      "resolved_target": "/usr/bin/dash"
+    },
+    "dirname": {
+      "path": "/usr/bin/dirname",
+      "resolved_target": "/usr/bin/dirname"
+    },
+    "mktemp": {
+      "path": "/usr/bin/mktemp",
+      "resolved_target": "/usr/bin/mktemp"
+    },
+    "rm": {
+      "path": "/usr/bin/rm",
+      "resolved_target": "/usr/bin/rm"
+    },
+    "rmdir": {
+      "path": "/usr/bin/rmdir",
+      "resolved_target": "/usr/bin/rmdir"
+    },
+    "gcc": {
+      "path": "/usr/bin/gcc",
+      "resolved_target": "/usr/bin/x86_64-linux-gnu-gcc-14"
+    },
+    "as": {
+      "path": "/usr/bin/as",
+      "resolved_target": "/usr/bin/x86_64-linux-gnu-as"
+    },
+    "ld": {
+      "path": "/usr/bin/ld",
+      "resolved_target": "/usr/bin/x86_64-linux-gnu-ld.bfd"
+    }
+  },
+  "python_reused_exact_keys_count": 56,
+  "python_added_exact_keys": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/gettext.py",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/argparse.py",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ctypes/_endian.py",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/ctypes/__init__.py",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/signal.py",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/distutils-precedence.pth"
+  ],
+  "runtime_file_count": 86,
+  "driver_source_count": 2,
+  "excluded": [
+    "Go gofmt/fix/cover not invoked by this non-coverage fixture argv",
+    "Audit/Owner browser/Node/schema bundles and source tools",
+    "Old account/server binaries: rebuilt by the original fixture, receipt refs only"
+  ],
+  "scope": "Expected explicit executable/module files, not a whole OS shared-library or package inventory. Reused binary expectations are checked by the later separately authorized file-only gate.",
+  "resources_started": false
+}

@@ -1,0 +1,210 @@
+{
+  "state": "FINAL_NINE_PATH_DOCUMENT_INCREMENT_PASS",
+  "created_utc": "2026-10-08T15:44:18.368494+00:00",
+  "scope": {
+    "logical_originals": 594,
+    "logical_original_bytes": 5475718,
+    "distinct_original_contents": 461,
+    "new_original_files": 456,
+    "new_original_bytes": 4791174,
+    "prior_permanent_original_files_reused": 5,
+    "prior_permanent_original_bytes_reused": 14420,
+    "actual_run_launch_originals": 330,
+    "actual_run_launch_original_bytes": 4256052
+  },
+  "all_selected_source_archive_bytes_equal": true,
+  "all_selected_SHA256_and_bytes_match": true,
+  "original_JSON_logical_items_parsed": 461,
+  "run_launch_direct_file_counts": [
+    {
+      "run": "embedselect01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "embedselect02",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "embedatomicity01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "embedauth01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "embedreplay01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "embedunknown01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "embedoldresolver01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "embedoldsummary01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "ind-model-a01",
+      "run_files": 26,
+      "launch_files": 7
+    },
+    {
+      "run": "ind-model-b01",
+      "run_files": 26,
+      "launch_files": 7
+    }
+  ],
+  "generated_report_local_links_checked": 25,
+  "generated_UTF8_LF_trailing_space_check": true,
+  "archive_only_no_new_product_or_source_gate_validation": true,
+  "Git_not_executed": true,
+  "source_versions_inherited_from_final_independent_source_rows": true,
+  "original_reports_not_rewritten_to_current_status": true,
+  "archive_assembly_first_failure_preserved": {
+    "path": "/workspace/scratch/platform-embedding-resolution-archive01/assembly-attempt01-failure.json",
+    "bytes": 1182,
+    "sha256": "b0219b245adc928226800bee6c2ceaffd7cc3965b96aa5c006112c783b84b4a8"
+  },
+  "readme9": "Final fixed README 8dfab520 accepted by root with independent 39890564; unchanged during this documentation increment.",
+  "pending": [],
+  "git_source_reference": "Root-provided exact fa4bc123 and 28dc84cf commit:path references with accepted source SHA; no archivist Git/source reread.",
+  "updated_utc": "2026-10-08T16:02:59.676383+00:00",
+  "prior_full_archive_check": {
+    "report_sha256": "430ce1a16be61c13bcae2fde31f8e952db62b49c973b5065678024bb11ad421b",
+    "manifest_sha256": "316e4a0540f1212e981e785c01f3731341710de17f5baab731bf1ff84c856f75",
+    "checks_sha256": "0a22517516961171ed75900d9733adff8cca5a050cea7f6c3341e5c178fa88bd",
+    "prior_scope": {
+      "logical_originals": 583,
+      "logical_original_bytes": 5303231,
+      "distinct_original_contents": 450,
+      "new_original_files": 445,
+      "new_original_bytes": 4618687,
+      "prior_permanent_original_files_reused": 5,
+      "prior_permanent_original_bytes_reused": 14420,
+      "actual_run_launch_originals": 330,
+      "actual_run_launch_original_bytes": 4256052
+    },
+    "status": "Already checked and accepted by root; inherited, not rerun.",
+    "original_JSON_logical_items_previously_parsed": 454,
+    "prior_583_source_files_and_445_archive_entities_reread": false,
+    "prior_map_entries_and_manifest_original_entries_unchanged": true
+  },
+  "final_increment": {
+    "new_logical_originals": 11,
+    "new_physical_originals": 11,
+    "new_physical_original_bytes": 172487,
+    "new_original_JSON_items_parsed": 7,
+    "all_new_original_source_archive_bytes_SHA256_equal": true,
+    "four_review_originals_plus_manifest_and_four_readme_provenance_and_two_historical_entities": true,
+    "document_top_insertions": [
+      {
+        "before": {
+          "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+          "bytes": 8877,
+          "sha256": "430ce1a16be61c13bcae2fde31f8e952db62b49c973b5065678024bb11ad421b"
+        },
+        "after": {
+          "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+          "bytes": 9803,
+          "sha256": "56265a5a3300d134516babec513dfc3c1310bdfe183d79b0715706b0ded0541c"
+        },
+        "change": "one insertion immediately after original H1 and its blank line",
+        "inserted_bytes": 926,
+        "inserted_sha256": "d637bf4541813803fab7e0be8ff0333d6cebb6ce89ae9da4717e08b33cf9e361",
+        "removing_exact_insert_restores_all_prior_bytes": true,
+        "new_local_links": [
+          "platform-embedding-resolution-verification-evidence/originals/39890564b4c9abf5-review.md",
+          "platform-embedding-resolution-verification-evidence/originals/430ce1a16be61c13-prior-eight-technical-report.md",
+          "platform-embedding-resolution-verification-evidence/originals/316e4a0540f1212e-prior-eight-technical-manifest.json"
+        ]
+      },
+      {
+        "before": {
+          "path": "/workspace/agenteam/docs/development/development-plan.md",
+          "bytes": 91301,
+          "sha256": "2d3e769a6abad9ba078889481c1439acbcd3e24af1a4cf5257315bea7064f96e"
+        },
+        "after": {
+          "path": "/workspace/agenteam/docs/development/development-plan.md",
+          "bytes": 92069,
+          "sha256": "9e4bc45e6e0ee6d09bedc68e00ebea4e270adcce60c17e011de61f820d796e7c"
+        },
+        "change": "one insertion immediately after original H1 and its blank line",
+        "inserted_bytes": 768,
+        "inserted_sha256": "b9ea2421c464eefab9e6e1a4dbb2703ddd4ab12142f70d20ad5174fb7b23453e",
+        "removing_exact_insert_restores_all_prior_bytes": true,
+        "new_local_links": [
+          "work-items/d09-platform-embedding-resolution.md",
+          "agent-team/platform-embedding-resolution-verification.md"
+        ]
+      },
+      {
+        "before": {
+          "path": "/workspace/agenteam/docs/development/work-items/d09-platform-embedding-resolution.md",
+          "bytes": 24449,
+          "sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93"
+        },
+        "after": {
+          "path": "/workspace/agenteam/docs/development/work-items/d09-platform-embedding-resolution.md",
+          "bytes": 25162,
+          "sha256": "b3519a4c5bc900d7c75856a5a5e204795f0e1f1620492a3ce6ab0b666df53743"
+        },
+        "change": "one insertion immediately after original H1 and its blank line",
+        "inserted_bytes": 713,
+        "inserted_sha256": "99b81859b7edf5a34e5e719f2c61af6949c0e34f906f98a0d4c0d78624898710",
+        "removing_exact_insert_restores_all_prior_bytes": true,
+        "new_local_links": [
+          "../agent-team/platform-embedding-resolution-verification.md"
+        ]
+      }
+    ],
+    "unchanged_readme": {
+      "path": "/workspace/agenteam/docs/development/backend/README.md",
+      "bytes": 76068,
+      "sha256": "8dfab5209555299eea8605cec3af3d787b214883ea3917ed557be81e9de5c7ec"
+    },
+    "eight_technical_sources_reread": 0,
+    "new_original_format_issue_count": 0,
+    "raw_original_links_preserved_as_historical_not_rewritten": true
+  },
+  "root_actual_git_diff_check_correction": {
+    "raw": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/delivery-diff-check01.raw",
+      "bytes": 11089,
+      "sha256": "3c75e6d2b36770c0c168cb6a07bd39b8e29330a4e3888460983fc5b36c7b6e40"
+    },
+    "git_argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "git_exit_code": 2,
+    "root_assertion_helper_exit_code": 1,
+    "meaning": "Git reported preserved original patch whitespace; root helper expected only the earlier 12 entries and failed its count assertion. No product defect or new technical failure.",
+    "diagnostic_count": 60,
+    "diagnostic_entity_count": 6,
+    "kind_counts": {
+      "space_before_tab_in_indent": 48,
+      "trailing_whitespace": 12
+    },
+    "newly_registered_space_before_tab_diagnostics": 48,
+    "original_bytes_unchanged": true,
+    "archivist_executed_Git": false,
+    "root_raw_reused_in_place_not_copied": true
+  },
+  "Git_not_executed_scope": "No Git by archivist; root actual Git exit 2 and parent helper exit 1 are preserved separately."
+}

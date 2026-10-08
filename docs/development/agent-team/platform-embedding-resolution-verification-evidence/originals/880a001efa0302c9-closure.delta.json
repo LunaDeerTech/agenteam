@@ -1,0 +1,21 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/project-audit-ui-backend/go-chain01/closure.delta.json",
+    "sha256": "e2a1954fef51170af9f248e2d9f25316bfa7ad527a30b8e271d4913c835a9c83"
+  },
+  "files": {
+    "/workspace/agenteam/tests/model/platform_embedding_resolution_fixture_test.go": {
+      "bytes": 22024,
+      "role": "new full-fixture Go source",
+      "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+      "reason": "Accepted test-only noSecretRead consumer predicate; same file/import/package names."
+    }
+  },
+  "package_file_sets": {},
+  "source_compile_stop": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+    "bytes": 4524,
+    "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+  },
+  "scope": "One existing Go source hash replacement only; inherits effective909 files/63sets and four actual graphs/355 external groups. No current source gate claimed."
+}

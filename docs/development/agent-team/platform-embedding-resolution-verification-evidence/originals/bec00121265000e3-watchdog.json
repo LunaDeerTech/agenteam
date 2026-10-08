@@ -1,0 +1,94 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 42273.456805405,
+      "top": "TestModelCurrentResolutionAtomicity"
+    },
+    {
+      "event": "result",
+      "monotonic": 42275.505849548,
+      "observed_seconds": 2.0490441429938073,
+      "reported_seconds": 2.06,
+      "state": "PASS",
+      "top": "TestModelCurrentResolutionAtomicity"
+    },
+    {
+      "event": "run",
+      "monotonic": 42275.505849548,
+      "top": "TestModelCurrentResolutionCanonicalLease"
+    },
+    {
+      "event": "result",
+      "monotonic": 42277.307181324,
+      "observed_seconds": 1.8013317760050995,
+      "reported_seconds": 1.79,
+      "state": "PASS",
+      "top": "TestModelCurrentResolutionCanonicalLease"
+    },
+    {
+      "event": "run",
+      "monotonic": 42277.307181324,
+      "top": "TestModelCurrentResolutionAuthorization"
+    },
+    {
+      "event": "result",
+      "monotonic": 42278.746963999,
+      "observed_seconds": 1.439782674999151,
+      "reported_seconds": 1.43,
+      "state": "PASS",
+      "top": "TestModelCurrentResolutionAuthorization"
+    },
+    {
+      "event": "run",
+      "monotonic": 42278.746963999,
+      "top": "TestModelCurrentResolutionSelection"
+    },
+    {
+      "event": "result",
+      "monotonic": 42280.794389335,
+      "observed_seconds": 2.0474253360007424,
+      "reported_seconds": 2.05,
+      "state": "PASS",
+      "top": "TestModelCurrentResolutionSelection"
+    },
+    {
+      "event": "run",
+      "monotonic": 42280.794389335,
+      "top": "TestModelCurrentResolutionReplay"
+    },
+    {
+      "event": "result",
+      "monotonic": 42282.584309521,
+      "observed_seconds": 1.7899201859981986,
+      "reported_seconds": 1.78,
+      "state": "PASS",
+      "top": "TestModelCurrentResolutionReplay"
+    },
+    {
+      "event": "run",
+      "monotonic": 42282.584309521,
+      "top": "TestModelCurrentResolutionUnknown"
+    },
+    {
+      "event": "result",
+      "monotonic": 42284.555723496,
+      "observed_seconds": 1.9714139749994501,
+      "reported_seconds": 1.99,
+      "state": "PASS",
+      "top": "TestModelCurrentResolutionUnknown"
+    }
+  ],
+  "expected": [
+    "TestModelCurrentResolutionAtomicity",
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelCurrentResolutionReplay",
+    "TestModelCurrentResolutionSelection",
+    "TestModelCurrentResolutionUnknown"
+  ],
+  "failures": []
+}

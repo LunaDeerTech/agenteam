@@ -1,0 +1,22 @@
+{
+  "state": "STATIC_SCOPE_ONLY_NO_NEW_TEST_OR_RUNTIME",
+  "changed_paths": [
+    "tests/model/platform_embedding_resolution_fixture_test.go"
+  ],
+  "changed_query": "SELECT count(*) FROM agenteam_audit.audit_records WHERE action='secret.resolve' AND metadata->>'consumer'='model'",
+  "expected_count": 0,
+  "author_call_sites": {
+    "selection": 229,
+    "atomicity": 190,
+    "authorization": 324,
+    "replay": 264,
+    "unknown": 166
+  },
+  "independent_call_sites": {
+    "A": 240,
+    "B": 348
+  },
+  "coverage_scope": "Every persisted formal secret.resolve with consumer=model, across System and Project scope, every actor and historical/current credential/lease, including with-ref/no-ref and Unknown test groups. No project/actor/lease/time/baseline predicate.",
+  "limits": "Audit-row assertion, not a new claim about every rolled-back attempt. The old count5 has no captured row-level attribution; formal Account setup source can produce system events, but no retrospective SQL or assumption identifies those five rows.",
+  "unchanged": "Product/old helpers/5top bodies/A-B probe/driver/locks/imports/packages unchanged. Same package compile/vet and actual rerun remain pending; shared Go closure needs one expected hash replacement after acceptance."
+}

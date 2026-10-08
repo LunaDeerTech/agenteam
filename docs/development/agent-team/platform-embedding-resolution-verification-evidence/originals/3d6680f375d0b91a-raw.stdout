@@ -1,0 +1,50 @@
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/knowledge_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/memory_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/structured-text
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/structured-json
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/max-output
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/input-empty
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/tools
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/reasoning
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/input-vector
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/output-extra
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/chat-protocol
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/jina-protocol
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/chat-model
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/headers
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/parallel
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/input-image
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/output-empty
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/parameters
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/streaming
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/efforts
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/output-text
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/options
+=== RUN   TestModelPlatformEmbeddingResolutionProfileMatrix/overwrite
+--- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix (0.01s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/knowledge_embedding (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/memory_embedding (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/structured-text (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/structured-json (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/max-output (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/input-empty (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/tools (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/reasoning (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/input-vector (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/output-extra (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/chat-protocol (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/jina-protocol (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/chat-model (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/headers (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/parallel (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/input-image (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/output-empty (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/parameters (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/streaming (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/efforts (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/output-text (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/options (0.00s)
+    --- PASS: TestModelPlatformEmbeddingResolutionProfileMatrix/overwrite (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.029s

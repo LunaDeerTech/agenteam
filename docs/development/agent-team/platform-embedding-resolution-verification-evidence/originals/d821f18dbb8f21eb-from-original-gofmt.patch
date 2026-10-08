@@ -1,0 +1,11 @@
+--- /workspace/scratch/platform-embedding-independent-ab-prepare01/platform_embedding_independent_test.go
++++ /workspace/scratch/platform-embedding-independent-ab-compile01/platform_embedding_independent_test.go
+@@ -242,7 +242,7 @@
+ 
+ type independentEmbeddingDurable struct {
+ 	SnapshotID, SnapshotJSON, SnapshotDigest, LeaseID, Phase string
+-	LeaseRows                                             int
++	LeaseRows                                                int
+ }
+ 
+ func independentEmbeddingReadDurable(t *testing.T, v *platformEmbeddingResolutionFixture, r mc.ResolveRequest) independentEmbeddingDurable {

@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=4s",
+    "40s",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/compile01.test",
+    "-test.list=^TestModel(PlatformEmbeddingResolution(Selection|Atomicity|Authorization|Replay|Unknown)|CurrentResolution(Selection|Replay|Atomicity|CanonicalLease|Authorization|Unknown)|MeetingSummaryResolution(Selection|Atomicity|Replay))$",
+    "-test.run=^$",
+    "-test.timeout=40s"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOENV": "off",
+    "GOTELEMETRY": "off",
+    "GOMAXPROCS": "2",
+    "TMPDIR": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-list-proposal01/run01/tmp"
+  },
+  "started_utc": "2026-10-08T13:32:10.675446+00:00",
+  "owned_direct": {
+    "pid": 693058,
+    "pgrp": 693058,
+    "starttime_ticks": 3620539
+  },
+  "binary_sha256": "083d883905dad1248f3d4eb0f7b50e21e245a8db64effd7dc6a63c5f44cb0cca",
+  "runner_sha256": "8660e75bcfa5cf7369535f617d0fcba113a1dc446a993fd858a511d2a8aa775f",
+  "inner_timeout_seconds": 40,
+  "outer_wait_seconds": 45
+}

@@ -1,0 +1,118 @@
+{
+  "result": "EMBEDSELECT02_SINGLE_ROUND_EVIDENCE_PASS_STOP",
+  "run": "embedselect02",
+  "group": "new-selection",
+  "test_names": [
+    "TestModelPlatformEmbeddingResolutionSelection",
+    "TestModelPlatformEmbeddingResolutionSelection/missing-and-unconfigured-not-an-optional-success",
+    "TestModelPlatformEmbeddingResolutionSelection/safe-owner-select-does-not-authorize-or-accept-input",
+    "TestModelPlatformEmbeddingResolutionSelection/two-purposes-current-and-explicit-version-float-snapshot",
+    "TestModelPlatformEmbeddingResolutionSelection/four-purpose-version-changes-even-if-embedding-id-does-not",
+    "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback",
+    "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/model-disabled",
+    "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/provider-disabled",
+    "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/missing-text-capability",
+    "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/max-output",
+    "TestModelPlatformEmbeddingResolutionSelection/project-target-is-never-a-platform-fallback"
+  ],
+  "top_seconds": 5.99,
+  "package_seconds": 7.024,
+  "inner_actual_wait_seconds": 53.455,
+  "outer_actual_wait_seconds": 108.93989414600219,
+  "watchdog_observed_seconds": 6.0089597050027805,
+  "watchdog_joined": true,
+  "direct_wait_records": [
+    "fixture child",
+    "launcher driver child"
+  ],
+  "observed_identities_not_wait_count": 83,
+  "adopted_waits": 0,
+  "exact_resource_ids": [
+    "8243d75aad9dc18ad07145d6319fa2b4e6fd6037b847728ab530b234fecc9d9e",
+    "a76ca0dbba94246e29e675bf78345714032da9f2e0958a27fd6e3eb227df9d6d",
+    "b9d2a4498eca05399d753618c0b706eff296e59c637e1706dc9877751907aa9d",
+    "cac5f9827e55a090530473b3f9f28053be5bc1bd7661b84ee8ce67c8f2e19084",
+    "ddd243a8f99fa5e8c0256de496a782469e71ee0c9f516b05c7839c90e8b9b229",
+    "e4cfaa84d2dc7031b7ebc4bfc9f79927fad2dabbb3fc442ea8745cb20ad6a8ba",
+    "fecd7b6ccc7bf313a2d6340d9b170f709ca1a316cd3eebced40e1ccd50229233"
+  ],
+  "resource_kinds": {
+    "container": 4,
+    "network": 3
+  },
+  "double_cleanup_times": [
+    "2026-10-08T14:31:28.450308+00:00",
+    "2026-10-08T14:31:29.146978+00:00"
+  ],
+  "double_owned_runtime_empty": true,
+  "seven_ids_twice_exact_absent": true,
+  "tcp_tail_seconds": 52.43046350599616,
+  "tcp_final_two_scans": [
+    {
+      "active_rows": [],
+      "new_host_rows": [],
+      "time": "2026-10-08T14:32:21.876395+00:00",
+      "time_wait_rows": []
+    },
+    {
+      "active_rows": [],
+      "new_host_rows": [],
+      "time": "2026-10-08T14:32:22.081279+00:00",
+      "time_wait_rows": []
+    }
+  ],
+  "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+  "new_nonowned_pid1_shims_not_waited": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 746534,
+      "ppid": 1,
+      "starttime": "3971204",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 746888,
+      "ppid": 1,
+      "starttime": "3971457",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 747169,
+      "ppid": 1,
+      "starttime": "3971660",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 747766,
+      "ppid": 1,
+      "starttime": "3971853",
+      "state": "Z"
+    }
+  ],
+  "historical_pid1_zombies_untouched_count": 194,
+  "observed_browser_node_count": 0,
+  "input_before_after_byte_equal": true,
+  "recorded_file_count": 996,
+  "input_digest": "8fefb2e8350c6d1d01766087765b02b62f461cf3cb8249b2964dd26d5bd9e701",
+  "current_fixture_sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+  "prior_failure_review_reused": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+    "bytes": 3158,
+    "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+  },
+  "id_history_scope": "v03 generation prior_runs is empty; no new cross-generation uniqueness proof",
+  "review_activity": "Only stopped records and one exact fixture hash read. No current filegate, Go, binary, driver, SQL, network, host/cache inspection, or resource execution.",
+  "acceptance_limits": [
+    "Only author Selection round; remaining six author PG rounds are unrun/unaccepted by this report.",
+    "Independent A/B and whole card remain pending.",
+    "No production consumer, serving, dimensions-provider, Invocation or root binding accepted.",
+    "Original embedselect01 FAIL and cleanup=false preserved; 004a review reused without reauditing 39 records."
+  ]
+}

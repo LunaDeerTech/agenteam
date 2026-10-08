@@ -1,0 +1,27 @@
+{
+  "base_inputs": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/inputs-before.json",
+    "sha256": "f7a2f86f0cd4c2457f3a4cd0dc626b0e7c75f79295b3486890a449e8d7101278"
+  },
+  "reuse_exact_repository_input_count": 486,
+  "scope": "No new imports or product input delta; one private additive overlay and wrapper records only. No web assets.",
+  "virtual_target": "/workspace/agenteam/tests/model/platform_embedding_independent_test.go",
+  "virtual_target_absent_at_preparation": true,
+  "explicit_inputs": [
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/platform_embedding_independent_test.go",
+      "bytes": 16094,
+      "sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+      "bytes": 205,
+      "sha256": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/run.py",
+      "bytes": 11223,
+      "sha256": "8ff75136917bc0e47893a18af51ebeae7d86cce95bd852fb0b206dea6c6706f6"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "state": "ACTUAL_LIST_ONLY",
+  "exit_code": 0,
+  "elapsed_seconds": 1.2789154399943072,
+  "outer_timeout": false,
+  "actual_direct_wait_completed": true,
+  "owned_group_observations": [
+    {
+      "observed_utc": "2026-10-08T13:32:11.744246+00:00",
+      "remaining": []
+    },
+    {
+      "observed_utc": "2026-10-08T13:32:11.949156+00:00",
+      "remaining": []
+    }
+  ],
+  "listed_names": [
+    "TestModelCurrentResolutionAtomicity",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionSelection",
+    "TestModelCurrentResolutionReplay",
+    "TestModelCurrentResolutionUnknown",
+    "TestModelMeetingSummaryResolutionAtomicity",
+    "TestModelMeetingSummaryResolutionReplay",
+    "TestModelMeetingSummaryResolutionSelection",
+    "TestModelPlatformEmbeddingResolutionAtomicity",
+    "TestModelPlatformEmbeddingResolutionAuthorization",
+    "TestModelPlatformEmbeddingResolutionReplay",
+    "TestModelPlatformEmbeddingResolutionSelection",
+    "TestModelPlatformEmbeddingResolutionUnknown"
+  ],
+  "expected_names": [
+    "TestModelCurrentResolutionAtomicity",
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelCurrentResolutionReplay",
+    "TestModelCurrentResolutionSelection",
+    "TestModelCurrentResolutionUnknown",
+    "TestModelMeetingSummaryResolutionAtomicity",
+    "TestModelMeetingSummaryResolutionReplay",
+    "TestModelMeetingSummaryResolutionSelection",
+    "TestModelPlatformEmbeddingResolutionAtomicity",
+    "TestModelPlatformEmbeddingResolutionAuthorization",
+    "TestModelPlatformEmbeddingResolutionReplay",
+    "TestModelPlatformEmbeddingResolutionSelection",
+    "TestModelPlatformEmbeddingResolutionUnknown"
+  ],
+  "exact_14_names": true,
+  "test_run_guard": "^$",
+  "test_bodies_executed": false,
+  "binary_before_after_same": true,
+  "raw": [
+    {
+      "path": "raw.stdout",
+      "bytes": 575,
+      "sha256": "ce5d650f4a0c1b3d76d55fe4bcddb6a94401ac1a4859c832c5bc4772a19354c4"
+    },
+    {
+      "path": "raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "accepted": true
+}

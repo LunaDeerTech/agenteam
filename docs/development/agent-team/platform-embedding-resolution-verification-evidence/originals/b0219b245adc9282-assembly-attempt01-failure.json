@@ -1,0 +1,17 @@
+{
+  "state": "ARCHIVE_ASSEMBLY_FIRST_ATTEMPT_FAIL",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/platform-embedding-resolution-archive01/build_archive.py"
+  ],
+  "script_sha256": "e940f4897fa7d56416428e741a9987dc5859d961eb92bff9aec101196553940b",
+  "tool_chunk": "950287",
+  "exit_code": 1,
+  "wall_time_seconds": 0.102542439,
+  "raw_output": "Traceback (most recent call last):\n  File \"/workspace/scratch/platform-embedding-resolution-archive01/build_archive.py\", line 400, in <module>\n    assert (REPORT.parent / link.split('#')[0]).is_file(), link\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: platform-embedding-resolution-verification-evidence/checks.json\n",
+  "cause": "Generated report links checked before checks.json and manifest.json were written; original bytes already copied were not modified.",
+  "correction": "Allow only these two known not-yet-generated metadata targets during assembly; require every real link after manifest publication. Existing originals must compare exact before reuse.",
+  "product_or_resource_validation": false
+}

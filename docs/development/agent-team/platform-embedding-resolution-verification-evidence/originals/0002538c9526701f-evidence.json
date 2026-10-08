@@ -1,0 +1,423 @@
+{
+  "status": "PASS_STOP_AUTHOR_OLD_RESOLVER6_PLUS_SUMMARY3_ORIGINALS_COMBINATION",
+  "method": "Stopped original bytes/SHA/JSON/run-name/retirement check; reuse sealed Resolver report without rerun. No Go/SQL/driver/resource/network/current-host/source-tree check.",
+  "resolver_reused": {
+    "review": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-review01/review.md",
+      "bytes": 2691,
+      "sha256": "11575d1c773c8e5620b9ba2c697eafed7e49fb57abd366d47ea3e9fe6f9bbe8e"
+    },
+    "evidence": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-review01/resolver-evidence.json",
+      "bytes": 18083,
+      "sha256": "2a698c3a399f5473aef8f7b656e549adddd48c144f21159982cb833d4fb9add3"
+    },
+    "manifest": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-review01/manifest.json",
+      "bytes": 631,
+      "sha256": "5452134553d07ff1323c88f323fc9be7e8824973bb23b5df498f679b111f520d"
+    }
+  },
+  "summary_originals": {
+    "run_files": 26,
+    "run_bytes": 490987,
+    "launch_files": 7,
+    "launch_bytes": 52959
+  },
+  "summary_actual": {
+    "runs": [
+      "TestModelMeetingSummaryResolutionAtomicity",
+      "TestModelMeetingSummaryResolutionAtomicity/simulated-input-snapshot-binding-lease-commit-or-rollback",
+      "TestModelMeetingSummaryResolutionAtomicity/secret-failure-and-missing-summary-sh-poison",
+      "TestModelMeetingSummaryResolutionAtomicity/only-new-selector-ex-blocks-select-and-resolve",
+      "TestModelMeetingSummaryResolutionAtomicity/real-switch-and-cross-provider-delete-invalidate-prepared",
+      "TestModelMeetingSummaryResolutionAtomicity/same-call-canonical-different-call-independent-no-ref-zero-secret",
+      "TestModelMeetingSummaryResolutionReplay",
+      "TestModelMeetingSummaryResolutionReplay/current-switch-disable-endpoint-delete-replacement-do-not-rebind",
+      "TestModelMeetingSummaryResolutionReplay/new-authority-and-formal-session-preserve-stable-unit",
+      "TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict",
+      "TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/purpose",
+      "TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/meeting",
+      "TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/operation",
+      "TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/explicit-version",
+      "TestModelMeetingSummaryResolutionReplay/released-canonical-never-resurrected",
+      "TestModelMeetingSummaryResolutionSelection",
+      "TestModelMeetingSummaryResolutionSelection/missing-null-and-current-authority-before-state",
+      "TestModelMeetingSummaryResolutionSelection/safe-select-is-not-generation-authority",
+      "TestModelMeetingSummaryResolutionSelection/both-purposes-plain-text-independent-of-old-selector",
+      "TestModelMeetingSummaryResolutionSelection/structured-capability-retained-and-memory-unmodified",
+      "TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit",
+      "TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-model",
+      "TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-provider",
+      "TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/unsupported",
+      "TestModelMeetingSummaryResolutionSelection/legacy-summary-and-project-target-no-fallback"
+    ],
+    "top_count": 3,
+    "run_entries": 25,
+    "intermediate_parents": 2,
+    "leaf_cases": 20,
+    "tops": [
+      {
+        "event": "result",
+        "monotonic": 42587.285188362,
+        "observed_seconds": 5.924242587003391,
+        "reported_seconds": 5.92,
+        "state": "PASS",
+        "top": "TestModelMeetingSummaryResolutionAtomicity"
+      },
+      {
+        "event": "result",
+        "monotonic": 42592.659689872,
+        "observed_seconds": 5.374501509999391,
+        "reported_seconds": 5.38,
+        "state": "PASS",
+        "top": "TestModelMeetingSummaryResolutionReplay"
+      },
+      {
+        "event": "result",
+        "monotonic": 42597.349434315,
+        "observed_seconds": 4.689744442999654,
+        "reported_seconds": 4.69,
+        "state": "PASS",
+        "top": "TestModelMeetingSummaryResolutionSelection"
+      }
+    ],
+    "package_seconds": 17.022,
+    "fixture_seconds": 66.882,
+    "outer_seconds": 123.3458595550037,
+    "inner_exit": 0,
+    "outer_exit": 0
+  },
+  "combined_counts": {
+    "tops": 9,
+    "run_entries_including_parents": 66,
+    "leaf_cases": 55,
+    "current_round_resource_ids": 14,
+    "v03_seven_success_round_ids": 49,
+    "run_original_files": 52,
+    "run_original_bytes": 1043458,
+    "launch_original_files": 14,
+    "launch_original_bytes": 104857,
+    "inner_direct_waits": 2,
+    "outer_direct_waits": 2,
+    "adopted_waits": 0,
+    "observed_each_round_only": 81
+  },
+  "input_same": {
+    "before_after_sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2",
+    "recorded_count": 996,
+    "recorded_digest": "8fefb2e8350c6d1d01766087765b02b62f461cf3cb8249b2964dd26d5bd9e701",
+    "grant_sha256": "949788b27bb0c9b0fc829f88d683e605fe923dcb6c5e4652af80a2abbbecf20d"
+  },
+  "summary_retirement": {
+    "resource_ids": [
+      "283a7278590a18554cf85b03bdfdbeddb5087829f436398e448c004f96fa191d",
+      "3e1096141489c1233a478009c2b032a66d276c8fc8e8f69bfc9a97a2863423a2",
+      "841ef08edd83125fb77a0ae5ffedd6f94d59123de0098bfef6de71979ab6fe28",
+      "e7dfe543a8141426fa9a4942e4eaa67247ac12b685b149604c3fd4816d00f3eb",
+      "eeddde9c54007663c6f062039a2d6fba3d63ab33d32009d329f1625bc48a1923",
+      "f78fae4a8c2db476b2f384ac1531b61977e81db2c997227caf33fdc068dca833",
+      "fe176acc5ea2326e48b8ec0c70e65c9b5adf6a7b0fa1517f311e5d301b3bf6b2"
+    ],
+    "cleanup_times": [
+      "2026-10-08T15:18:50.448500+00:00",
+      "2026-10-08T15:18:51.148974+00:00"
+    ],
+    "tcp_seconds": 53.45526805499685,
+    "tcp_scan_count": 55,
+    "tcp_last_two_times": [
+      "2026-10-08T15:19:44.905109+00:00",
+      "2026-10-08T15:19:45.108696+00:00"
+    ],
+    "watchdog_top_budget_seconds": 120,
+    "package_budget": "6m",
+    "tcp_budget_seconds": 75,
+    "outer_elapsed_scope": "123.345859555s covers all3 tops plus setup/retirement, not one top or a raised120s top budget.",
+    "new_nonowned_original_six": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 852696,
+        "ppid": 1,
+        "starttime": "4254269",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 853223,
+        "ppid": 1,
+        "starttime": "4254643",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 853493,
+        "ppid": 1,
+        "starttime": "4254847",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 854096,
+        "ppid": 1,
+        "starttime": "4255036",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "sh",
+        "pid": 860607,
+        "ppid": 608,
+        "starttime": "4260573",
+        "state": "S"
+      },
+      {
+        "executable": "",
+        "name": "pg_isready",
+        "pid": 860635,
+        "ppid": 860607,
+        "starttime": "4260576",
+        "state": "R"
+      }
+    ],
+    "ownership_limit": "4 PID1 shims plus sh/pg_isready not claimed, waited, signalled, killed or assigned to any actor by this review. Original identity observations retained; no current-host investigation."
+  },
+  "root_reported_tool_receipt": {
+    "session": 86026,
+    "chunk": "111d48",
+    "exit": 0,
+    "scope": "Root task message, not this verifier personally waiting that tool cell."
+  },
+  "limits": [
+    "Author old9 actual regression plus independent original review, not independent actual A/B.",
+    "Resource ID uniqueness limited to v03 seven success rounds.",
+    "Nonowned observations preserved; not complete host clearance or short-connection tracing.",
+    "Existing private/simulated consumer inputs, result decoration, new Authority and release/serving boundaries unchanged.",
+    "Original failures/cleanup preserved; independent A/B, README9 and final full card pending."
+  ],
+  "file_fingerprints": [
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-review01/review.md",
+      "bytes": 2691,
+      "sha256": "11575d1c773c8e5620b9ba2c697eafed7e49fb57abd366d47ea3e9fe6f9bbe8e"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-review01/resolver-evidence.json",
+      "bytes": 18083,
+      "sha256": "2a698c3a399f5473aef8f7b656e549adddd48c144f21159982cb833d4fb9add3"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-review01/manifest.json",
+      "bytes": 631,
+      "sha256": "5452134553d07ff1323c88f323fc9be7e8824973bb23b5df498f679b111f520d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/cleanup.json",
+      "bytes": 89161,
+      "sha256": "56725e38452937dc9deea128439168dbba64b90047d27691d020a10ba8eb01f5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/command.json",
+      "bytes": 2070,
+      "sha256": "e1db86bf0c8cc55d148637cc943fd5cc0582ca57849bd894bbec2dd3d177e187"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "0ca517a3e25aba5c93465d706427bdfc6f5121c0ce4ec43991766e77c58c007b"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/disk-preflight.json",
+      "bytes": 200,
+      "sha256": "a87cb0650baba068c64373008280ba4526609a47e9033c68dfd9e6aaeab51482"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/driver.py.txt",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/frozen-input.json",
+      "bytes": 17913,
+      "sha256": "949788b27bb0c9b0fc829f88d683e605fe923dcb6c5e4652af80a2abbbecf20d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/input-after.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/input-before.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/observed-processes.json",
+      "bytes": 13121,
+      "sha256": "902218d0438e7026f06eea0138e79e7feceb8f7d759d73389b161db18d92da05"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/observed-resources.json",
+      "bytes": 5163,
+      "sha256": "e339d9ddfd0edd2e2b527e36f214c50de0d432d59bb9725b00faef1135eb6fb6"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/prior-invocation-history.json",
+      "bytes": 4120,
+      "sha256": "1a3073358ce87e35577aad7241a2f53928dd89ccc43812753d6a4a07d4e05c76"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/process-baseline.json",
+      "bytes": 32730,
+      "sha256": "d56767fe641f5d43bda151d94980bfab6834626014e811c2e9370f98b2e96abe"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/raw.log",
+      "bytes": 9025,
+      "sha256": "a0e1df9bc73a1a30de77f3dc8c43389f206d8e4b2791ce65e0f8cead841db629"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/resource-id-chain.json",
+      "bytes": 2002,
+      "sha256": "aebb0cae7f09d378b82df987095fff79d0c0e8aec20990f197f74098db7a7b23"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/result.json",
+      "bytes": 39069,
+      "sha256": "b692e88bfb7175d83bdf10b162dc59d7b292e280e3a61ee374c3405ba3f5ab5f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "a2953f8ca378a5da7d4431c2059ff541b8ad129e1797fd929b1f9148380c70ab"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/tcp-observed-delta.json",
+      "bytes": 8329,
+      "sha256": "ab302f5d6218fe7a51723531a8f279919a4fe6d007dbb2098ae6d5e0eed66428"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/tcp-tail-observation.json",
+      "bytes": 209281,
+      "sha256": "555c35accf7cbb4d103d0258c83b414ea523bf79b5c77058f08f20455cf9466f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/verification-input.json",
+      "bytes": 183,
+      "sha256": "331e7e51dc696be48a57c1ac504d455b5dddc9fc289806fa88e4d2ad31ba7994"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldsummary01/watchdog.json",
+      "bytes": 1346,
+      "sha256": "316ee5f19ebe5d3d40c413a73c8853a05095fd69b098dbb189277a1d911a3303"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldsummary01/intent.json",
+      "bytes": 423,
+      "sha256": "dec34f034f5232f184cc541c0d2476e5b46f52714907a0847ce2e0c9ae97b8f6"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldsummary01/launch.json",
+      "bytes": 1237,
+      "sha256": "1057310448a69b89cfdfffa6cc33b9ee0e4d53ce1532675ba9426c1eb5dcf9a4"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldsummary01/prior-invocation-history.json",
+      "bytes": 4120,
+      "sha256": "fef7e15dc40dd91c5d439710ff19ed2e68f35b4003d75232ba3d2117979d939a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldsummary01/raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldsummary01/raw.stdout",
+      "bytes": 27850,
+      "sha256": "5d61d9f571d456c417e305619f3421cc5e8ecba9fc0eedef13148f4e46297d6b"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldsummary01/result.json",
+      "bytes": 1416,
+      "sha256": "cfd39cdb048bd6f5c23ebff8db3b3cabba9a81c05e917e3f8147748df447f94a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldsummary01/root-grant.json",
+      "bytes": 17913,
+      "sha256": "949788b27bb0c9b0fc829f88d683e605fe923dcb6c5e4652af80a2abbbecf20d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/observed-resources.json",
+      "bytes": 5156,
+      "sha256": "028852c7ef08cafe1ae300b6bef0c0a80222dae9148bd1c2bd2c951fbd80ac6a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/observed-resources.json",
+      "bytes": 5133,
+      "sha256": "c296507da4ef5f92428e61019937be8982fb10d07f6f49c1e57b826faf3b1671"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldresolver01/observed-resources.json",
+      "bytes": 5160,
+      "sha256": "92477a340b14523614a11c054828524bda92aaa1fc5611dea3cbd91708a6c405"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/observed-resources.json",
+      "bytes": 5143,
+      "sha256": "2e63eb287f5f75c3878e9c9fb4f6a81b66b5b5851c1a69466da4cf6f445f32ff"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/observed-resources.json",
+      "bytes": 5140,
+      "sha256": "152e73b77512c5bf3e3d764b1e37c208d15b5f9835c7c3b03acb6d5076087fef"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/observed-resources.json",
+      "bytes": 5148,
+      "sha256": "24dce2bb4dccacc622909a062355505119da970c0e9d2a3fd5c0c200d9f7bfcb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedoldresolver01/result.json",
+      "bytes": 38340,
+      "sha256": "d40814a1d71a06e80528ec9d0f979bdc4cfc81a03e1eba493550741f606596ae"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedoldresolver01/result.json",
+      "bytes": 1422,
+      "sha256": "ccdeb003599272da451e5765fbcf8fccc12a89282150c1791415cd0ca6275dc2"
+    }
+  ]
+}

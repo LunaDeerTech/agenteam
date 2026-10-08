@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 39749.249238943,
+      "top": "TestModelPlatformEmbeddingResolutionSelection"
+    },
+    {
+      "event": "result",
+      "monotonic": 39755.258198648,
+      "observed_seconds": 6.0089597050027805,
+      "reported_seconds": 5.99,
+      "state": "PASS",
+      "top": "TestModelPlatformEmbeddingResolutionSelection"
+    }
+  ],
+  "expected": [
+    "TestModelPlatformEmbeddingResolutionSelection"
+  ],
+  "failures": []
+}

@@ -1,0 +1,5 @@
+{
+  "cause": "Python -I -B still runs site and its existing distutils-precedence.pth, loading _distutils_hack before the script. Initial all-stdlib assertion was too strict.",
+  "correction": "Bind only this actual startup shim plus the known .pth in addition to normal module files. No package installed or driver executed.",
+  "exit_code": 1
+}

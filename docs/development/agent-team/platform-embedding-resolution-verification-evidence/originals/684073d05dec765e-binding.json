@@ -1,0 +1,236 @@
+{
+  "audit_candidate03": {
+    "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+    "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+  },
+  "audit_current_compile_stop": {
+    "path": "/workspace/scratch/project-audit-ui-backend/offline02/freeze.json",
+    "sha256": "027101e01ec67cf5e6c3dda10621ee5a06117a440ca6c693cdaf95c2187df2a3"
+  },
+  "audit_d1_actual_stop": {
+    "path": "/workspace/scratch/project-audit-ui-backend/d1-overlay02/runs/d1-probe01/freeze.result.json",
+    "sha256": "284da213a9425eee85c73c6ccd2ae2c135003598c27c2e1a47a1ee56a81b962c"
+  },
+  "audit_exact_binary_list_stop": {
+    "path": "/workspace/scratch/project-audit-ui-backend/list-proposal01/list01/result.json",
+    "sha256": "38a4275606a4be466c2606c882684a8992806190b0825119a5004bcd79784bf5"
+  },
+  "changed_existing_go_sources": 1,
+  "counts_scope": "909 = original selected895 + two locks + three scripts + nine new Go sources; policy replacement adds no count. Four raw graphs are prior actual evidence plus bounded current delta, not newly run graphs.",
+  "external_selected_groups_reused": 355,
+  "go_commands_run": 0,
+  "import_check": {
+    "internal/central/model/platform_embedding_resolution_test.go": {
+      "imports": [
+        "context",
+        "encoding/json",
+        "errors",
+        "fmt",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/adapter",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/secret/contract",
+        "reflect",
+        "testing"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "internal/central/model/resolution_policy.go": {
+      "imports": [
+        "context",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/adapter",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+        "slices"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/account/project_owner_audit_web_fixture_test.go": {
+      "imports": [
+        "bytes",
+        "context",
+        "crypto/sha256",
+        "encoding/hex",
+        "encoding/json",
+        "errors",
+        "fmt",
+        "github.com/LunaDeerTech/agenteam/internal/central/account",
+        "github.com/LunaDeerTech/agenteam/internal/central/app",
+        "github.com/LunaDeerTech/agenteam/internal/central/audit",
+        "github.com/LunaDeerTech/agenteam/internal/central/audit/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/config",
+        "github.com/LunaDeerTech/agenteam/internal/central/event/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/object",
+        "github.com/LunaDeerTech/agenteam/internal/central/object/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/outbox",
+        "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+        "github.com/LunaDeerTech/agenteam/internal/central/project",
+        "github.com/LunaDeerTech/agenteam/internal/central/project/contract",
+        "github.com/LunaDeerTech/agenteam/internal/platform/logging",
+        "github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv",
+        "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore",
+        "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres",
+        "io",
+        "log/slog",
+        "net",
+        "net/http",
+        "net/http/httputil",
+        "net/url",
+        "os",
+        "os/exec",
+        "path/filepath",
+        "strconv",
+        "strings",
+        "sync",
+        "syscall",
+        "testing",
+        "time"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/account/project_owner_audit_web_test.go": {
+      "imports": [
+        "bytes",
+        "context",
+        "encoding/json",
+        "errors",
+        "io",
+        "os",
+        "path/filepath",
+        "testing",
+        "time"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/model/platform_embedding_resolution_atomicity_test.go": {
+      "imports": [
+        "context",
+        "errors",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/secret/contract",
+        "testing"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/model/platform_embedding_resolution_authorization_test.go": {
+      "imports": [
+        "context",
+        "github.com/LunaDeerTech/agenteam/internal/central/account",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+        "github.com/LunaDeerTech/agenteam/internal/central/secret/contract",
+        "strings",
+        "testing",
+        "time"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/model/platform_embedding_resolution_fixture_test.go": {
+      "imports": [
+        "context",
+        "encoding/json",
+        "errors",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/model",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+        "github.com/LunaDeerTech/agenteam/internal/central/project",
+        "github.com/LunaDeerTech/agenteam/internal/central/secret",
+        "github.com/LunaDeerTech/agenteam/internal/central/secret/contract",
+        "github.com/jackc/pgx/v5",
+        "sort",
+        "sync",
+        "sync/atomic",
+        "testing",
+        "time"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/model/platform_embedding_resolution_replay_test.go": {
+      "imports": [
+        "bytes",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "testing"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/model/platform_embedding_resolution_selection_test.go": {
+      "imports": [
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/adapter",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "reflect",
+        "testing"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    },
+    "tests/model/platform_embedding_resolution_unknown_test.go": {
+      "imports": [
+        "context",
+        "errors",
+        "fmt",
+        "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+        "github.com/LunaDeerTech/agenteam/internal/central/model",
+        "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+        "testing"
+      ],
+      "init_or_TestMain": false,
+      "missing_packages": []
+    }
+  },
+  "model_pg_compile_stop": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/stop.json",
+    "sha256": "892c24bea4881c8b4c1268ca4369c06759ca936e029605964064ebdd4c7c5900"
+  },
+  "model_pg_source_freeze": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/freeze.json",
+    "sha256": "a442fcb8c14075b56511f012d97c9ecd3efb9a9d1f6c2e45b2e03599c11da22e"
+  },
+  "new_selected_go_sources": 9,
+  "no_web_dist_go_embed": true,
+  "original_actual_union": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/actual-union.json",
+    "sha256": "38316270d43b789c4c302ead795e469daefd6b885738a8217f071bf7c61d079f"
+  },
+  "original_base_closure": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/closure.json",
+    "sha256": "8d0ce424c05b056be08e530093886bf5e21d60c494073b3c53f8ff3e6c848dc3"
+  },
+  "original_graph_selected_repository_count": 895,
+  "original_preparation_failure": {
+    "path": "/workspace/scratch/project-audit-ui-backend/go-chain01/preparation-attempt01.txt",
+    "sha256": "3baf508f26ee2631285fe5eda8576562c93eb25753ec2267bff9a7a669c910b9"
+  },
+  "original_source_name_list": {
+    "path": "/workspace/scratch/owner-ui-backend/inputs.json",
+    "sha256": "37482995716234a1eefcbb769f878ffad65a60791d049f9d08d79f432e54c889"
+  },
+  "package_file_sets_count": 63,
+  "repository_files_after_bounded_delta": 909,
+  "root_authorized_resources": false,
+  "scope": "Pure Go full fixture chain only; no browser/Node/dist/schema runtime",
+  "source_gate_executed": false,
+  "status": "STOP_PREPARED_REFERENCE_ONLY",
+  "unchanged_helpers_reuse": "Original accepted actual full-fixture/dynamic/CGO0 graphs plus unchanged helper/script source bindings reused. Current Audit offline02 rebuilt both commands after policy c8. Generated testmain cache artifacts are evidence, not repository source. No new Go list/helper build for HEAD alone."
+}

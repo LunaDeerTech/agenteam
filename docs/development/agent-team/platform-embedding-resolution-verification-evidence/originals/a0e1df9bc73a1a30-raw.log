@@ -1,0 +1,118 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.253.113.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=b239da94460dc834999434fdd180c204
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0440597323b3c8b2cf73e62337478ac7
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.375s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+=== RUN   TestModelMeetingSummaryResolutionAtomicity
+=== RUN   TestModelMeetingSummaryResolutionAtomicity/simulated-input-snapshot-binding-lease-commit-or-rollback
+=== RUN   TestModelMeetingSummaryResolutionAtomicity/secret-failure-and-missing-summary-sh-poison
+=== RUN   TestModelMeetingSummaryResolutionAtomicity/only-new-selector-ex-blocks-select-and-resolve
+=== RUN   TestModelMeetingSummaryResolutionAtomicity/real-switch-and-cross-provider-delete-invalidate-prepared
+=== RUN   TestModelMeetingSummaryResolutionAtomicity/same-call-canonical-different-call-independent-no-ref-zero-secret
+--- PASS: TestModelMeetingSummaryResolutionAtomicity (5.92s)
+    --- PASS: TestModelMeetingSummaryResolutionAtomicity/simulated-input-snapshot-binding-lease-commit-or-rollback (0.09s)
+    --- PASS: TestModelMeetingSummaryResolutionAtomicity/secret-failure-and-missing-summary-sh-poison (0.04s)
+    --- PASS: TestModelMeetingSummaryResolutionAtomicity/only-new-selector-ex-blocks-select-and-resolve (0.38s)
+    --- PASS: TestModelMeetingSummaryResolutionAtomicity/real-switch-and-cross-provider-delete-invalidate-prepared (0.67s)
+    --- PASS: TestModelMeetingSummaryResolutionAtomicity/same-call-canonical-different-call-independent-no-ref-zero-secret (0.38s)
+=== RUN   TestModelMeetingSummaryResolutionReplay
+=== RUN   TestModelMeetingSummaryResolutionReplay/current-switch-disable-endpoint-delete-replacement-do-not-rebind
+=== RUN   TestModelMeetingSummaryResolutionReplay/new-authority-and-formal-session-preserve-stable-unit
+=== RUN   TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict
+=== RUN   TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/purpose
+=== RUN   TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/meeting
+=== RUN   TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/operation
+=== RUN   TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/explicit-version
+=== RUN   TestModelMeetingSummaryResolutionReplay/released-canonical-never-resurrected
+    meeting_summary_resolution_replay_test.go:120: controlled released fact only; no production material read or lease retirement
+--- PASS: TestModelMeetingSummaryResolutionReplay (5.38s)
+    --- PASS: TestModelMeetingSummaryResolutionReplay/current-switch-disable-endpoint-delete-replacement-do-not-rebind (0.47s)
+    --- PASS: TestModelMeetingSummaryResolutionReplay/new-authority-and-formal-session-preserve-stable-unit (0.56s)
+    --- PASS: TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict (0.05s)
+        --- PASS: TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/purpose (0.01s)
+        --- PASS: TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/meeting (0.02s)
+        --- PASS: TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/operation (0.01s)
+        --- PASS: TestModelMeetingSummaryResolutionReplay/same-call-valid-canonical-but-different-semantics-conflict/explicit-version (0.01s)
+    --- PASS: TestModelMeetingSummaryResolutionReplay/released-canonical-never-resurrected (0.04s)
+=== RUN   TestModelMeetingSummaryResolutionSelection
+=== RUN   TestModelMeetingSummaryResolutionSelection/missing-null-and-current-authority-before-state
+=== RUN   TestModelMeetingSummaryResolutionSelection/safe-select-is-not-generation-authority
+=== RUN   TestModelMeetingSummaryResolutionSelection/both-purposes-plain-text-independent-of-old-selector
+=== RUN   TestModelMeetingSummaryResolutionSelection/structured-capability-retained-and-memory-unmodified
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-model
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-provider
+=== RUN   TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/unsupported
+=== RUN   TestModelMeetingSummaryResolutionSelection/legacy-summary-and-project-target-no-fallback
+--- PASS: TestModelMeetingSummaryResolutionSelection (4.69s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/missing-null-and-current-authority-before-state (0.02s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/safe-select-is-not-generation-authority (0.02s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/both-purposes-plain-text-independent-of-old-selector (0.06s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/structured-capability-retained-and-memory-unmodified (0.28s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit (0.32s)
+        --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-model (0.07s)
+        --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/disabled-provider (0.07s)
+        --- PASS: TestModelMeetingSummaryResolutionSelection/disabled-and-unsupported-remain-explicit/unsupported (0.08s)
+    --- PASS: TestModelMeetingSummaryResolutionSelection/legacy-summary-and-project-target-no-fallback (0.13s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	17.022s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+D03 fixture cleanup checked for nonce 48cac9c5277fc84e9ee14f9669abf096
+D04 outbound fixture cleanup checked for nonce 0440597323b3c8b2cf73e62337478ac7
+D05 object fixture exact resource cleanup checked nonce=b239da94460dc834999434fdd180c204

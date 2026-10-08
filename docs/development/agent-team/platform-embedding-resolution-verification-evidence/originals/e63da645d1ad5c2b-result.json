@@ -1,0 +1,30 @@
+{
+  "accepted": true,
+  "state": "STOP_PASS",
+  "completed_utc": "2026-10-08T13:37:17.815817+00:00",
+  "actual_exit": 0,
+  "actual_direct_wait_completed": true,
+  "adopted_waits": [],
+  "outer_seconds_including_retirement": 0.1520721710039652,
+  "owned_double_empty": true,
+  "repository_input_count": 0,
+  "repository_inputs_same": true,
+  "probe_inputs_same": true,
+  "forced": [],
+  "exception": null,
+  "raw": [
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/format01/stdout.raw",
+      "bytes": 16094,
+      "sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/format01/stderr.raw",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "no_external_resources_started": true,
+  "mode": "format01",
+  "scope": "Private gofmt or exact tests/model offline race-c/vet only. No compiled binary, list, test body, PG or other business resource execution."
+}

@@ -1,0 +1,44 @@
+{
+  "state": "STOP_FALSE_PREPARED_NOT_EXECUTED",
+  "stopped_utc": "2026-10-08T14:25:20.385090+00:00",
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/binding-delta.json",
+      "bytes": 5789,
+      "sha256": "bf665f394f50df17be8729ae1f3f97a9385da61a882ccd104af9e0c8082eeb54"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/checks.json",
+      "bytes": 606,
+      "sha256": "b92b2bf6e9550dcad24984e788d9ad71a067117fed90c4f7cf03dfca9ba9c0e1"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/driver.py",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/freeze.false.json",
+      "bytes": 17187,
+      "sha256": "fba6fded2348f7f08536a2e757f4e9cbd7947e8eb648cfa4760bd45999fb78e3"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/handoff.md",
+      "bytes": 1779,
+      "sha256": "7d59df4e9d96eb1fa1a959ece66dfbee5bd896748fd3ab171169f42d7445efc2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launch.py",
+      "bytes": 15046,
+      "sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/offline-readiness.json",
+      "bytes": 9154,
+      "sha256": "bfaa372f01f3c42c0ef6b697db43587789a84cc2c54e118860115b6b63b855d2"
+    }
+  ],
+  "copied_existing_execution_sources": 2,
+  "copied_other_source_cache_graph_tree": false,
+  "resources_started": false
+}

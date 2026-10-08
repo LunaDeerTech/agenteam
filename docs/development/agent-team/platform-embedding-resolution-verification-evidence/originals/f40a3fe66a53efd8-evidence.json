@@ -1,0 +1,278 @@
+{
+  "status": "PASS_STOP_FINAL_EIGHT_TECHNICAL_PATHS_VERSION_COMBINATION",
+  "scope": "Eight technical paths only; README ninth path remains uninstalled and unaccepted. No complete nine-path/card or production acceptance.",
+  "current_source_check": {
+    "manifest": "source-rows.json",
+    "source_count": 8,
+    "total_source_bytes": 98843,
+    "each_source_read_once_for_sha256": true,
+    "all_match_prior_accepted_versions": true,
+    "full_source_review_or_tree_graph_scan": false
+  },
+  "prior_mapping": "/workspace/scratch/owner-audit-ui-verification/model-eight-paths-version-map01/review.md",
+  "reused_earlier_reports": {
+    "pure_final": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pure-final-review/review.md",
+      "bytes": 2236,
+      "sha256": "0c31f9d6d2ef888b1e200a0a2b51b64718dc987b8a8f9bee1a51a68f1784d477"
+    },
+    "independent_pure": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure-result-review/review.md",
+      "bytes": 2539,
+      "sha256": "9f3768ef4418fdd1d405d5b0302b02252c06615bedf68005cbff2de80364d077"
+    },
+    "six_pg_static": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    "selection_failure_and_fixture_delta": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+      "bytes": 3158,
+      "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+    },
+    "compile02_independent": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-compile02-review01/review.md",
+      "bytes": 2155,
+      "sha256": "279de7c2243836191a012e322f1bdf65f40333b20991409b03b680afe77bc855"
+    },
+    "selection_actual": {
+      "path": "/workspace/scratch/architecture-model-embedselect02-review/review.md",
+      "bytes": 1748,
+      "sha256": "1adbd48bb735122df18299b9bd1857a4058059f04626651820bd84ef10cfd372"
+    },
+    "atomicity_actual": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedatomicity01-review/review.md",
+      "bytes": 3165,
+      "sha256": "462a545e3507489ddff70b11a457bb911e4c8e00ceb1d37356ef990b47a861fc"
+    },
+    "authorization_actual": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedauth01-review/review.md",
+      "bytes": 3263,
+      "sha256": "2b93e8113d4a52e19712c766179424f426384b9f8b220480258dd42884e51030"
+    },
+    "replay_actual": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedreplay01-review01/review.md",
+      "bytes": 1717,
+      "sha256": "de379ff4e9bc090a1121897a09dbbf4ebc3a6b3181461119a63eaa3fce492817"
+    },
+    "unknown_actual": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedunknown01-review/review.md",
+      "bytes": 2942,
+      "sha256": "1f02d9231d2577b289c7d820d74738e4c9f17e22156a3a51ac1cb86c11771797"
+    }
+  },
+  "pure_version_combination": {
+    "latest_profile_matrix_run_entries": 24,
+    "prior_unaffected_run_entries": 50,
+    "unique_author_run_entries": 74,
+    "independent_three_supplements": "Two actual rounds combined; original first probe FAIL and repaired profile-only PASS preserved.",
+    "fresh_final_all_suite": false
+  },
+  "compile_list_combination": "compile02 new c433 race-c/vet PASS, 486 input only one hash changed. Exact14 list from prior binary reused only because generated TestMain bytes are identical; list is not new helper behavior.",
+  "author_five_new_actual": [
+    {
+      "run": "embedselect02",
+      "review": "selection_actual",
+      "run_entries": 11,
+      "top_seconds": 5.99,
+      "package_seconds": 7.024
+    },
+    {
+      "run": "embedatomicity01",
+      "review": "atomicity_actual",
+      "run_entries": 15,
+      "top_seconds": 7.23,
+      "package_seconds": 8.268
+    },
+    {
+      "run": "embedauth01",
+      "review": "authorization_actual",
+      "run_entries": 55,
+      "top_seconds": 8.99,
+      "package_seconds": 10.029
+    },
+    {
+      "run": "embedreplay01",
+      "review": "replay_actual",
+      "run_entries": 45,
+      "top_seconds": 12.57,
+      "package_seconds": 13.606
+    },
+    {
+      "run": "embedunknown01",
+      "review": "unknown_actual",
+      "run_entries": 17,
+      "top_seconds": 6.93,
+      "package_seconds": 7.959
+    }
+  ],
+  "author_old_two_actual": {
+    "tops": 9,
+    "run_entries_including_parents": 66,
+    "leaf_cases": 55,
+    "current_round_resource_ids": 14,
+    "v03_seven_success_round_ids": 49,
+    "run_original_files": 52,
+    "run_original_bytes": 1043458,
+    "launch_original_files": 14,
+    "launch_original_bytes": 104857,
+    "inner_direct_waits": 2,
+    "outer_direct_waits": 2,
+    "adopted_waits": 0,
+    "observed_each_round_only": 81
+  },
+  "independent_actual_ab": {
+    "report_sha256": "c26b50951e19fbb64cbc5e7796d67d71b75bc94101463d09700011d97abb431f",
+    "executor": "verification_runtime",
+    "rounds": {
+      "ind-model-a01": {
+        "top": "TestModelPlatformEmbeddingIndependentA",
+        "run_pass_count": 9,
+        "leaf_cases": 6,
+        "top_seconds": 6.43,
+        "package_seconds": 7.45,
+        "fixture_seconds": 63.889,
+        "outer_seconds": 118.58006874399871,
+        "adopted_waits": 0,
+        "observed_processes": 88,
+        "tcp_seconds": 51.42257292699651,
+        "inner_sha256": "8587c0acba32bc38617fd34a27f3d89467aa1a3769e2d2701de2e04a5427aef1",
+        "outer_sha256": "67dee6c2d5d67c3f946e01532775e1604b02d2790d5e715b15c542c0e0ff7332"
+      },
+      "ind-model-b01": {
+        "top": "TestModelPlatformEmbeddingIndependentB",
+        "run_count": 7,
+        "pass_count": 7,
+        "same_unique_names": true,
+        "leaf_cases": 4,
+        "top_seconds": 6.28,
+        "package_seconds": 7.314,
+        "fixture_seconds": 57.358,
+        "outer_seconds": 112.94792627100105,
+        "adopted_waits": 0,
+        "observed_processes": 84,
+        "tcp_seconds": 52.45311575699452,
+        "inner_sha256": "c32876a0bc817001c8587226ffefa9cd0cf920c47572cce88a240f372e9e55d6",
+        "outer_sha256": "547eb05aa96fb3fe67658b44ab0231c9672a4f73aff588cc0c32502b3f06c6f6"
+      }
+    },
+    "source_binding": {
+      "driver": "bbe8bdf4c9e128af219be7f2c3b9bea06546330c20f07cce2aeee024779146b8",
+      "launcher": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+      "probe": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614",
+      "overlay": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607",
+      "closure": "8eccce74422c1c86bbf669c9ca3ce5ece50b5ba4d274e171ffb543b5c64419f4",
+      "current_helper": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+      "root_a_grant": "9bb67e6323a1c68ee7cd4e5bcbcf74639f6f67eedaf1070232d4a7fa33567204",
+      "root_b_grant": "c9478ca62d633f07c803c9a976855c3029806d4240c9f2b71ade72c9735b2610"
+    },
+    "inputs": {
+      "files_count_each": 999,
+      "digest": "6eb22ce21c08a35cb1c80ab4f98179b9a4fe07eb69fc0532b30cf3bd924ab416",
+      "four_captures_identical": true,
+      "both_first_gate_accepted": true,
+      "source_graph_rescanned_for_report": false
+    },
+    "actual_cases": {
+      "A": "Both purposes: real subject ownership movement and current input withdrawal while final acceptance waits on exact advisory key; actual holder/waiter and committed withdrawal joins. Provisional acceptance blocks formal current-selector writer until commit.",
+      "B": "Both purposes: actual final commit followed by controlled Unknown result decoration and delivery cancellation; fresh in-process Authority plus formal new Session confirm identical durable snapshot/lease after switching selector to opposite credential-reference choice. Caller cancellation after valid provisional snapshot/lease causes actual outer rollback of input/snapshot/binding/lease, followed by explicit same-plan acceptance.",
+      "model_material_read_audit": "Both actual top endings reach current noSecretRead consumer=model assertion. This only asserts zero persisted Model secret.resolve audit rows; it does not prove absence of rolled-back attempts."
+    },
+    "retirement_scope": {
+      "both_actual_wait_exit0": true,
+      "fixture_direct_waits": 2,
+      "driver_direct_waits": 2,
+      "adopted_waits": 0,
+      "watchdog_joins": 2,
+      "owned_runtime_double_clear": true,
+      "separate_14_resource_ids": true,
+      "nonowned_pid1_shims": 8,
+      "observed_not_waited": [
+        88,
+        84
+      ],
+      "no_cross_generation_resource_id_uniqueness_claim": true
+    }
+  },
+  "six_pg_paths_for_root_commit": [
+    "tests/model/platform_embedding_resolution_fixture_test.go",
+    "tests/model/platform_embedding_resolution_selection_test.go",
+    "tests/model/platform_embedding_resolution_atomicity_test.go",
+    "tests/model/platform_embedding_resolution_authorization_test.go",
+    "tests/model/platform_embedding_resolution_replay_test.go",
+    "tests/model/platform_embedding_resolution_unknown_test.go"
+  ],
+  "git_status_provenance": "Root identifies these six PG files as untracked; this verifier did not run Git.",
+  "fixed_latest_ref_fingerprints_observed_this_review": [
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-eight-paths-version-map01/review.md",
+      "bytes": 4831,
+      "sha256": "8c4c50a0fccf1f1904c8f63bdc9b0a12b7d138f5f62b47503dc110094fef5dd5"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-eight-paths-version-map01/mapping.json",
+      "bytes": 16485,
+      "sha256": "2fb1a8d6796153f359f0a6129403ba955b35c51205ad1d155f7fe29435dd5cac"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-eight-paths-version-map01/manifest.json",
+      "bytes": 597,
+      "sha256": "8429dad0951257b06997ee4d6ddf583cff5bcd8e5ebf47135b2612e2fa7dc18a"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-combo02/review.md",
+      "bytes": 4030,
+      "sha256": "d5f3b19965646c9afe01619248a944128ce287c56e2d80ea726722e1084fd262"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-combo02/evidence.json",
+      "bytes": 19425,
+      "sha256": "0002538c9526701ff7576a4c8b16c0164defebfa87e08246550b2f45db456b70"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-old-regressions-combo02/manifest.json",
+      "bytes": 1008,
+      "sha256": "dc4ca4ea015f65c66c32f880245666d93a7814a64964ad7cb77fabf086a2f410"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-model-ab01/review.md",
+      "bytes": 1578,
+      "sha256": "c26b50951e19fbb64cbc5e7796d67d71b75bc94101463d09700011d97abb431f"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-model-ab01/evidence.json",
+      "bytes": 12929,
+      "sha256": "2487f9ac70a4047f6d960a96d76e2268ee399bc73696dabbfe22ce38ff5897d5"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-model-ab01/manifest.json",
+      "bytes": 526,
+      "sha256": "24f267be7faabd812b318109c161678745f7bf33d2f340fde46045687e6c51a6"
+    }
+  ],
+  "historical_failures_preserved": [
+    "Original pure author coverage gap and independent probe premise FAIL",
+    "Original driver gate v01 STATIC failures and repaired versions",
+    "embedselect01 actual FAIL, original cleanup=false and subsequent separately recorded recovery"
+  ],
+  "version_limits": [
+    "Pure 74 is latest 24 plus unaffected prior 50; independent pure supplements combine two actual runs, not final-source fresh full-suite.",
+    "Original PG STATIC used previous helper; c433 SQL consumer=model delta and compile02 join it to final six sources.",
+    "Prior 14-name listing reused only as TestMain discovery equivalence; compile02 race-c/vet and actual current-helper rounds supply separate evidence.",
+    "Author actual rounds consume 996 fixed inputs; independent A/B consume separate reviewed overlay and 999 inputs. This is a bounded version combination, not one latest-HEAD all-suite run.",
+    "Old author 49 IDs are unique only within v03 seven successes; independent A/B 14 are only checked within their own pair.",
+    "Persisted model material audit zero is not absence of rolled-back attempts.",
+    "Real commit/rollback plus controlled Unknown result decoration is not physical COMMIT ACK loss.",
+    "New in-process Authority/formal Session is not an OS process restart.",
+    "Private Knowledge/Memory facts and released SQL are not production consumer/release APIs.",
+    "Owned retirement does not imply global host clearance; nonowned shims and Summary sh/pg_isready observations remain outside ownership.",
+    "Production Knowledge/Memory binding, external Provider calls, serving/dimensions/Invocation/root and original three stops/Jina boundaries remain excluded."
+  ],
+  "pending": [
+    "README path 9 final installation and bounded integration review",
+    "Complete nine-path/card final acceptance"
+  ],
+  "new_execution": "Only bounded local metadata/SHA/JSON and own report checks. No Go, Node, tests, filegate, resources, browser, network or Git; no repository or original writes.",
+  "stop": true
+}

@@ -1,0 +1,118 @@
+{
+  "state": "STOP_BYTE_IDENTICAL_NEW_GENERATION_WITH_CURRENT_BINDING",
+  "previous_generation": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02",
+  "current_generation": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03",
+  "execution_source_copies": {
+    "driver.py": {
+      "original": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/driver.py",
+        "bytes": 48924,
+        "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+      },
+      "current": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/driver.py",
+        "bytes": 48924,
+        "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+      },
+      "byte_equal": true
+    },
+    "launch.py": {
+      "original": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/launch.py",
+        "bytes": 15046,
+        "sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10"
+      },
+      "current": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launch.py",
+        "bytes": 15046,
+        "sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10"
+      },
+      "byte_equal": true
+    }
+  },
+  "go_source_change": "only accepted c433 fixture SQL; shared880a layer",
+  "runtime_entries_reused": 84,
+  "runtime_entries_replaced": {
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/driver.py": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/driver.py",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/launch.py": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launch.py"
+  },
+  "runtime_total": 86,
+  "actual_named_source_count": 909,
+  "filename_sets": 63,
+  "external_go_groups": 355,
+  "named_counts_scope": "Inherited stopped bindings; no new whole input gate performed here.",
+  "fresh_generation_has_no_prior_runs_or_launches": true,
+  "old_history_guard_and_records_unchanged": true,
+  "refs": {
+    "original_accepted_readiness": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/offline-readiness-v01.json",
+      "bytes": 5320,
+      "sha256": "25242a09b397d0bf01971f02d60b4ec69d781ba000af1ad7331f99fef0b97437"
+    },
+    "root_failed_round_disposition": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/embedselect01-disposition.json",
+      "bytes": 1404,
+      "sha256": "b64ca04bd35c4d93c691cfa2dfcd22e61193a559c317f6910c365dfffb27274e"
+    },
+    "current_source_layer": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/closure.delta.json",
+      "bytes": 988,
+      "sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922"
+    },
+    "current_source_layer_binding": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/binding.json",
+      "bytes": 1772,
+      "sha256": "9b7900a499c826e829a066632d532e14d9fc9b21cd4e0fd82506f96fca2e0d1d"
+    },
+    "current_compile_stop": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+      "bytes": 4524,
+      "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+    },
+    "current_installation": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    "current_compile_manifest": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/manifest.json",
+      "bytes": 3270,
+      "sha256": "2fedd1ece40acf7ba4e04605b555429dcb4b105c57996f05f808a5db51221bb3"
+    },
+    "original_listed_binary_generated_main": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/tmp/go-build2927488117/b001/_testmain.go",
+      "bytes": 12077,
+      "sha256": "db1ea9a6715c4bdd584f59e26e68bc17ad03ce702e1c06678f9c3e1cc44d6444"
+    },
+    "current_generated_main": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/tmp/go-build667425715/b001/_testmain.go",
+      "bytes": 12077,
+      "sha256": "db1ea9a6715c4bdd584f59e26e68bc17ad03ce702e1c06678f9c3e1cc44d6444"
+    },
+    "failure_recovery_fix_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+      "bytes": 3158,
+      "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+    },
+    "failure_recovery_fix_evidence": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/evidence.json",
+      "bytes": 15785,
+      "sha256": "f04c638a10f97434f4d4b25e05fa8f33ea63a9cab6693fe9a3f82bb989ad9b08"
+    },
+    "failure_recovery_fix_manifest": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/manifest.json",
+      "bytes": 851,
+      "sha256": "b0db166240019138193e6624557374e5ac4719c08b05a5280ac96d8d931ea143"
+    },
+    "original_failed_summary": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-result.json",
+      "bytes": 3319,
+      "sha256": "229ecd4f290eed5af4ca8c74539a4ec20d791b9394227d71c0d8c5e3d16617c3"
+    },
+    "original_failed_manifest": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-manifest.json",
+      "bytes": 10158,
+      "sha256": "cb072fb49f15ab0b15beca3d1977827ad355ee03ed20e165fac41f084aa55314"
+    }
+  }
+}

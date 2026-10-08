@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "state": "STOP_ACTUAL_FAIL_RETIRED",
+  "tool_session": 44659,
+  "tool_actual_exit": 1,
+  "classification": "Independent probe projection precondition error before profile call; not a product failure",
+  "first_failure": "independent_test.go:95 Marshal whole private records rejects zero foundation.Version",
+  "actual_result": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/result.json",
+    "bytes": 990,
+    "sha256": "97fb69fe51048e5339fecf55c97a9b7c8abb86d1abcf9a7a79567d0a15f07897"
+  },
+  "passed_groups_reusable": [
+    "identity_semantic_session/knowledge_embedding",
+    "identity_semantic_session/memory_embedding",
+    "no_ref_never_queries"
+  ],
+  "failed_group": "public_valid_empty_representations",
+  "profile_called_before_first_failure": false,
+  "author_test_gap": {
+    "source": "internal/central/model/platform_embedding_resolution_test.go",
+    "sha256": "a5fbc31e9794bd812989709102f766e91b8d076f78a92aa8baa8fbfe34b7c594",
+    "zero_record_construction_lines": [
+      41,
+      42
+    ],
+    "ignored_Marshal_error_lines": [
+      128,
+      131
+    ],
+    "comparison_line": 132,
+    "reason": "Whole private records have zero Version. Version.MarshalJSON uses minimum 1 (foundation/integer.go:29). Both ignored errors produce nil bytes; negative preservation check is vacuous. Error-code/revision checks remain effective.",
+    "must_fix": "Marshal p.Input/m.Input and explicitly fail on Marshal errors; no product change required"
+  },
+  "read_only_locator_error": {
+    "chunk_id": "62f8e3",
+    "exit_code": 2,
+    "reason": "Guessed foundation/scalars.go missing; corrected via rg to integer.go/scalar.go, chunk 0275f5 exit0"
+  },
+  "raw_files": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/independent_test.go",
+      "bytes": 9324,
+      "sha256": "1c8dce58d2fd07fa250f57cf54b4d0ce49e63183c586a8155dbc5b6cfa0bd495"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/overlay.json",
+      "bytes": 221,
+      "sha256": "12a184bf23a665e7b4b026c1814286f59540bf3f61a41101810af44813495f3a"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/run.py",
+      "bytes": 9511,
+      "sha256": "39af6479d4918c05256ee7a02827b44411e2462c580cfe329e74fb510abb2eed"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/command-before.json",
+      "bytes": 2028,
+      "sha256": "2e37816108639e4aa8deca8cd0f9620dbe0e882711d4ec6c7aff9f645a69a8e2"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/spawn.json",
+      "bytes": 610,
+      "sha256": "96e950083755f7cbaa0c2429de8b4f0b7e6b65e7752678e9330f6a20e3c9a8e5"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/inputs-before-check.json",
+      "bytes": 98,
+      "sha256": "b4cad869dd7ebec26b84839081d9512c846be42eadb536406dc25510e67adb92"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/stdout.raw",
+      "bytes": 1337,
+      "sha256": "37b58eea415bd6ce104885e6d256523a261b522186ab6cb3fac787e4e218cf38"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/stderr.raw",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/actual-wait.json",
+      "bytes": 297,
+      "sha256": "6acd87bd8a78c144fb84857ce04586d05bae9ceeb0e2c828e9f2bd369e9d0f8d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/retirement.json",
+      "bytes": 22541,
+      "sha256": "c516032aa82b1a906ff5e3524d995017eb9600381664c11987ffd7a14ec6bfe2"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/inputs-after-check.json",
+      "bytes": 676,
+      "sha256": "444142060d62ae863965da9bf10af0e001bd62d26933ae37292ead646bcfb519"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure01/result.json",
+      "bytes": 990,
+      "sha256": "97fb69fe51048e5339fecf55c97a9b7c8abb86d1abcf9a7a79567d0a15f07897"
+    }
+  ],
+  "resources_started": false,
+  "release": "Actual exit/directwait and owned group double empty; Go/cache window released before root separately authorized successor."
+}

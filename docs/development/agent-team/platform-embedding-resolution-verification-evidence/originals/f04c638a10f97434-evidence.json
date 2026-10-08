@@ -1,0 +1,366 @@
+{
+  "state": "STOP_ORIGINAL_FAIL_PRESERVED_SCOPED_RECOVERY_PASS_CANDIDATE_STATIC_PASS",
+  "sealed_utc": "2026-10-08T14:21:41.951971+00:00",
+  "reviewer": "/root/verification_runtime",
+  "review_scope": "Independent fixed-original and source review only; no new Go, binary, SQL, host, resource, driver, filegate, or repository write; active installation/compile02 excluded.",
+  "original_fixed_refs": {
+    "pg-embedselect01-result.md": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-result.md",
+      "bytes": 1687,
+      "sha256": "8cfb21901c68b44e5d26c30a57a1b38c9cbae81ef591b173ec93f7f3d48c780e"
+    },
+    "pg-embedselect01-result.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-result.json",
+      "bytes": 3319,
+      "sha256": "229ecd4f290eed5af4ca8c74539a4ec20d791b9394227d71c0d8c5e3d16617c3"
+    },
+    "pg-embedselect01-manifest.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-manifest.json",
+      "bytes": 10158,
+      "sha256": "cb072fb49f15ab0b15beca3d1977827ad355ee03ed20e165fac41f084aa55314"
+    }
+  },
+  "original_integrity_verification": {
+    "run_and_launch_originals": 33,
+    "run_and_launch_bytes": 330424,
+    "separate_recovery_originals": 6,
+    "all_hashes_matched": true,
+    "method": "Each fixed original was read and hashed during this review. This finalization reuses that completed verification and the original manifest rather than copying or rechecking the full original set."
+  },
+  "original_actual": {
+    "top": "TestModelPlatformEmbeddingResolutionSelection",
+    "result": "FAIL",
+    "top_reported_seconds": 5.5,
+    "nested_passes": 10,
+    "unique_run_names": 11,
+    "first_failure": "platform_embedding_resolution_selection_test.go:229: resolution read material 5 <nil>",
+    "old_query_error": null,
+    "old_global_secret_resolve_count": 5,
+    "per_row_provenance_captured": false,
+    "fixture_actual_wait": true,
+    "fixture_exit": 255,
+    "fixture_elapsed_seconds": 52.033,
+    "fixture_identity": {
+      "pid": 723722,
+      "starttime": 3821062
+    },
+    "adopted_actual_waits": [
+      {
+        "pid": 729737,
+        "starttime": 3826071,
+        "exit": -9
+      }
+    ],
+    "outer_driver_actual_wait": true,
+    "outer_exit": 1,
+    "outer_elapsed_seconds": 112.54763326399552,
+    "outer_launcher_pid": 723646,
+    "outer_driver_identity": {
+      "pid": 723649,
+      "starttime": 3820959
+    },
+    "watchdog_joined": true,
+    "top_watchdog_complete": false,
+    "top_watchdog_failure": "selected top did not PASS",
+    "forced_tail_actions": 0,
+    "term_on_failure_observed": true,
+    "observed_process_identities": 81,
+    "owned_empty_twice": true,
+    "exact_resource_ids": 7,
+    "each_id_absent_twice": true,
+    "baseline_unchanged_twice": true,
+    "original_double_cleanup": false,
+    "original_runtime_leftover": [
+      "go-build907913867"
+    ],
+    "tcp_double_delta_clear": true,
+    "tcp_tail_seconds": 57.45297968699742,
+    "tcp_limit": "Supplementary host polling, not complete short-connection tracing or proof of ownership.",
+    "input_paths": 996,
+    "inputs_unchanged": true,
+    "external_graph_matched": true,
+    "non_owned_pid1_shims": [
+      {
+        "pid": 724196,
+        "starttime": 3821564
+      },
+      {
+        "pid": 724630,
+        "starttime": 3821959
+      },
+      {
+        "pid": 725015,
+        "starttime": 3822215
+      },
+      {
+        "pid": 725642,
+        "starttime": 3822454
+      }
+    ],
+    "non_owned_shims_signalled_or_waited": false
+  },
+  "retirement_recovery": {
+    "fixed_refs": {
+      "result.json": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/result.json",
+        "bytes": 1113,
+        "sha256": "5ffbf09a2e23ca3e804c8962907a26e9f525cb1b8b0f6d5b9b827bf0443afc0a"
+      },
+      "command.json": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/command.json",
+        "bytes": 1058,
+        "sha256": "4514466d297d95703ad139e2bb9752ab727bb9f316893a72c8efe2b1f673738b"
+      },
+      "before.json": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/before.json",
+        "bytes": 3091,
+        "sha256": "960457ace1019fdc8a37dc2125d0f2a5a85fa62e45116a2c66d9eed4519066e1"
+      },
+      "retire-runtime.py": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/retire-runtime.py",
+        "bytes": 5877,
+        "sha256": "4117653dcb1d2bc86338844d04b91c6112b69a3865f5604bbbc7fb9e3610620c"
+      },
+      "raw.stdout": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/raw.stdout",
+        "bytes": 1005,
+        "sha256": "5da93d0dcc31fe1368dcbf2ddf8fc70b10b4be05cbc79635acefde2b51e66ec5"
+      },
+      "raw.stderr": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/raw.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "conclusion": "PASS limited to exact task-runtime filesystem retirement; original selected-top FAIL and double_cleanup=false remain unchanged.",
+    "single_deleted_path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/runtime/go-build907913867",
+    "safety_controls_reviewed": [
+      "Exact non-symlink task runtime and only child",
+      "Same device/inode/uid recheck immediately before deletion",
+      "Symlink-resistant shutil.rmtree implementation required",
+      "Two checks of original 81 PID/starttime identities absent before deletion",
+      "No shared cache or unrelated path deletion"
+    ],
+    "runtime_directory_identity": {
+      "inode": 1451331,
+      "device": 27,
+      "uid": 1000,
+      "mode": "0700"
+    },
+    "actual_command_wait": true,
+    "command_exit": 0,
+    "command_elapsed_seconds": 0.8677540529970429,
+    "owned_identity_absence_before_times": [
+      "2026-10-08T14:10:03.815929+00:00",
+      "2026-10-08T14:10:04.016907+00:00"
+    ],
+    "after_twice": [
+      {
+        "time": "2026-10-08T14:10:04.229452+00:00",
+        "target_exists": false,
+        "runtime_entries": [],
+        "remaining_same_owned_identity": []
+      },
+      {
+        "time": "2026-10-08T14:10:04.430535+00:00",
+        "target_exists": false,
+        "runtime_entries": [],
+        "remaining_same_owned_identity": []
+      }
+    ],
+    "original_eight_fixed_refs_unchanged": true,
+    "limits": [
+      "81 identities absent is not 81 direct waits",
+      "Original v02 prior-result gate still blocks; no historical result/disposition rewritten",
+      "Four non-owned PID1 shims untouched"
+    ]
+  },
+  "candidate_fixed_refs": {
+    "freeze.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/freeze.json",
+      "bytes": 1638,
+      "sha256": "71b3b192327079e09f103773bf09d7158d5e2cc2c9a8f6f6700fbe45b2d7ceb3"
+    },
+    "platform_embedding_resolution_fixture_test.go": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/platform_embedding_resolution_fixture_test.go",
+      "bytes": 22024,
+      "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+    },
+    "delta.patch": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/delta.patch",
+      "bytes": 668,
+      "sha256": "2e01911140c61a468361085d57abf643020ad1f4c563776a7ff22b7614c81a70"
+    },
+    "source-refs.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/source-refs.json",
+      "bytes": 2698,
+      "sha256": "d7c2600cef85d1c5dc6f88fc0d307162baaa3d7ad0a4d39a8659e4c774841a6b"
+    },
+    "impact.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/impact.json",
+      "bytes": 1266,
+      "sha256": "8e7fb88e12be64d8838cf075c3104dc247dae2b69b6a7de70cf5cf1a0e9ef40d"
+    },
+    "handoff.md": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/handoff.md",
+      "bytes": 1593,
+      "sha256": "a75c25bc65c64bd4cf308978222563f8ace10dddee23a06a5a4107503a2a424e"
+    }
+  },
+  "candidate_diff": {
+    "baseline": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_fixture_test.go",
+      "bytes": 21990,
+      "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c"
+    },
+    "candidate": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/platform_embedding_resolution_fixture_test.go",
+      "bytes": 22024,
+      "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+    },
+    "byte_delta": 34,
+    "changed_fragments": 1,
+    "forward_exact": true,
+    "reverse_exact": true,
+    "query": "WHERE action='secret.resolve' AND metadata->>'consumer'='model'",
+    "expected_count": 0,
+    "sql_error_still_fatal": true,
+    "no_other_bytes_changed": true
+  },
+  "source_refs": {
+    "audit_metadata_contract": {
+      "path": "/workspace/agenteam/internal/central/audit/contract/metadata.go",
+      "bytes": 21891,
+      "sha256": "bdffe42f77fa2525dbbc03a3d3749af7b7665cb6cf2f995d62b82863a2080646"
+    },
+    "secret_purpose_contract": {
+      "path": "/workspace/agenteam/internal/central/secret/contract/types.go",
+      "bytes": 8981,
+      "sha256": "2e9109c3278ef461166d41e4def3f6c76b0fde2cdd11fff7b755bdbcd1052cd7"
+    },
+    "shared_secret_material_audit_writer": {
+      "path": "/workspace/agenteam/internal/central/secret/model_usage.go",
+      "bytes": 8595,
+      "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d"
+    },
+    "legacy_secret_read_same_writer": {
+      "path": "/workspace/agenteam/internal/central/secret/lease.go",
+      "bytes": 12450,
+      "sha256": "e310f688beebb8d877f8ee4afbb4f92ec27fd8bf43666720f5fdeafdfc9bab23"
+    },
+    "model_resolution_grant": {
+      "path": "/workspace/agenteam/internal/central/model/resolution_secret.go",
+      "bytes": 6738,
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df"
+    },
+    "account_system_grant": {
+      "path": "/workspace/agenteam/internal/central/account/secret_authority.go",
+      "bytes": 15606,
+      "sha256": "b5b1c947f7caa79da85bab4e446f7f45508f090560991195c9eb4035c2bf8926"
+    },
+    "formal_identity_setup": {
+      "path": "/workspace/agenteam/tests/model/meeting_summary_resolution_fixture_test.go",
+      "bytes": 17160,
+      "sha256": "69d52fdf753c481c2ca52c0e6d374090d7b69ede90bc58ca4602bdcf1e96f80b"
+    },
+    "formal_account_helper": {
+      "path": "/workspace/agenteam/tests/model/project_usage_http_fixture_test.go",
+      "bytes": 17333,
+      "sha256": "c28e314a756150b5f517c4d90b8f22cc0a25cd5c251bb7c593b43a70ed0dab62"
+    },
+    "independent_ab_probe": {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-compile01/platform_embedding_independent_test.go",
+      "bytes": 16094,
+      "sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614"
+    },
+    "tests/model/system_http_fixture_test.go": {
+      "path": "/workspace/agenteam/tests/model/system_http_fixture_test.go",
+      "bytes": 20539,
+      "sha256": "917574ad6ffac121c845b9cbb11d29b35d0eb418d14d9d09820796510e077a5c",
+      "read_locations": [
+        374
+      ]
+    },
+    "internal/central/account/response.go": {
+      "path": "/workspace/agenteam/internal/central/account/response.go",
+      "bytes": 12740,
+      "sha256": "dc3f3483af9d298170221f3ce42eb0985ecbef97e3cb3363d3e9ce80c05e7fa2",
+      "read_locations": [
+        138,
+        361
+      ]
+    },
+    "internal/central/account/delivery.go": {
+      "path": "/workspace/agenteam/internal/central/account/delivery.go",
+      "bytes": 16313,
+      "sha256": "edbe9c62932b30a2af319b4a5108fff7f3ac0f5d4cd1e7308be5163965ec4ad8",
+      "read_locations": [
+        322,
+        385
+      ]
+    },
+    "internal/central/account/delivery_usage.go": {
+      "path": "/workspace/agenteam/internal/central/account/delivery_usage.go",
+      "bytes": 5234,
+      "sha256": "e79a52b991d2f66781b31c783e86931606713ef9bc667fc0d5665cb15caa4f7d",
+      "read_locations": [
+        67,
+        76,
+        119
+      ]
+    },
+    "internal/central/audit/service.go": {
+      "path": "/workspace/agenteam/internal/central/audit/service.go",
+      "bytes": 14639,
+      "sha256": "0e9efa8c36c0538617a4e499d9224894ebd22f61ec7de49f54ba8cbfce98b689",
+      "read_locations": [
+        277,
+        279
+      ]
+    },
+    "db/migrations/00002_audit.sql": {
+      "path": "/workspace/agenteam/db/migrations/00002_audit.sql",
+      "bytes": 5444,
+      "sha256": "89afdb623e7293dc83a189ff0cbed3a3a407794d0a2bd0ae26167d7d9517a45c",
+      "read_locations": [
+        18
+      ]
+    }
+  },
+  "source_reasoning": {
+    "formal_model_grant": "internal/central/model/resolution_secret.go:181 returns Consumer sc.Model; hash 9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df.",
+    "shared_writer": "secret/lease.go:319 and secret/model_usage.go:112 call resolveCredentialInTx; model_usage.go:149-153 binds metadata purpose/grant/lease, :182-195 constructs typed SecretResolveMetadata with grant.Consumer and appends in the same Tx before delivery.",
+    "persistent_metadata": "audit/contract/metadata.go defines model/system enum and consumer JSON field, validates constructor/action and preserves private raw metadata; audit/service.go persists its JSON to the formal JSONB metadata column.",
+    "setup_counterexample": "meetingResolutionIdentity performs admin/owner/other formal Login and two invitation delivery jobs; Account response.go:361 and delivery.go:385 legitimately read System material, with formal System grants. This statically establishes an overbroad counter, not retrospective attribution of the five observed rows.",
+    "coverage": "All persisted formal secret.resolve rows with consumer=model, across System and Project credentials, all actors and historical/current leases. No scope/actor/lease/time predicate, constant subtraction, or global baseline.",
+    "helper_call_sites": {
+      "author_selection": 229,
+      "author_atomicity": 190,
+      "author_authorization": 324,
+      "author_replay": 264,
+      "author_unknown": 166,
+      "independent_A": 240,
+      "independent_B": 348
+    }
+  },
+  "conclusions": {
+    "original_actual_round": "FAIL preserved",
+    "original_retirement": "double_cleanup=false preserved",
+    "separate_exact_runtime_recovery": "PASS",
+    "single_query_candidate": "STATIC PASS, no further required change in this delta",
+    "product_failure_proven": false,
+    "new_compile_or_actual_success_reviewed": false,
+    "independent_ab_dynamic_pass": false
+  },
+  "required_followup_outside_this_review": [
+    "Author installation/race compile/vet fixed successor evidence",
+    "One-helper expected source-hash rebind in author and independent closures",
+    "Fresh root-granted Selection and subsequent actual scenarios; no automatic continuation through old failed gate"
+  ],
+  "limits": [
+    "No captured row-level attribution for the original five audit rows",
+    "Persisted-audit assertion does not prove absence of every rolled-back material-read attempt",
+    "This source diagnosis does not retroactively turn the old top or cleanup into PASS",
+    "Current repository installation and compile02 are intentionally outside this review"
+  ]
+}

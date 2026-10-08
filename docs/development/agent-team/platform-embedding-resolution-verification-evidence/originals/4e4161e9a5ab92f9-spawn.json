@@ -1,0 +1,23 @@
+{
+  "time": "2026-10-08T13:38:00.122105+00:00",
+  "direct_pid": 696825,
+  "identity": {
+    "pid": 696825,
+    "state": "R",
+    "ppid": 696822,
+    "pgrp": 696825,
+    "session": 696825,
+    "starttime": 3655484
+  },
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-race",
+    "-tags=integration",
+    "-mod=readonly",
+    "-p=1",
+    "-overlay=/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+    "./tests/model"
+  ],
+  "subreaper": true
+}

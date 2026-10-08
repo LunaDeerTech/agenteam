@@ -1,0 +1,181 @@
+{
+  "status": "STATIC_FAIL_G1_G2_STOP_PREPARED_FALSE_PRESERVED",
+  "mandatory_fixes": [
+    {
+      "id": "G1",
+      "severity": "required_before_execution_preparation_acceptance",
+      "title": "Direct driver execution does not enforce the immutable strict root grant validated by its launcher",
+      "locations": [
+        "driver.py:459-477",
+        "launch.py:34-44"
+      ],
+      "source_facts": [
+        "launch requires root_authorized_resources is True, write bits clear, exact run/group and driver/launcher SHA",
+        "driver --execute-authorized is independently callable, accepts truthy authorization and does not check grant mode or launcher SHA",
+        "source input acceptance is followed by resource preflight and original fixture spawn without those missing validations"
+      ],
+      "minimal_static_path": "Given a complete accepted closure/readiness, an otherwise matching writable grant with true authorization reaches the direct driver resource path; the same grant is rejected by launch.py. A non-boolean truthy authorization is also accepted by the direct driver. This is code-path reasoning only, not an executed counterexample.",
+      "repair_boundary": "Unify the strict single-run immutable grant validation at each executable entry before resource operations; preserve check-input-only as non-resource mode and all existing helpers/budgets."
+    },
+    {
+      "id": "G2",
+      "severity": "required_before_execution_preparation_acceptance",
+      "title": "Previous invocation guard checks inner runs only and can overlook incomplete or failed outer launch",
+      "locations": [
+        "driver.py:478-481",
+        "launch.py:46-50",
+        "launch.py:71-108"
+      ],
+      "source_facts": [
+        "launch creates launches/name before Popen and before runs/name exists",
+        "driver checks only runs/*/result.json accepted; it does not inspect prior launches",
+        "outer launch can remain without result after a pre-Popen failure, or fail/be incomplete after an accepted inner driver result"
+      ],
+      "minimal_static_paths": [
+        "prior launches/r1 exists but runs/r1 does not after pre-Popen failure: next driver history loop sees no r1",
+        "prior runs/r1/result accepted=true but launches/r1/result absent or accepted=false: next driver history loop passes r1"
+      ],
+      "repair_boundary": "Prior invocations need bound outer and inner terminal originals with actual wait, exit/acceptance and matching inner-result SHA; missing/failed originals must block unless a specific root disposition is explicitly bound. Current launch is legitimately already created before driver starts: exclude only the current grant-bound in-progress invocation, not all missing launch results and not an arbitrary same-name historical failure."
+    }
+  ],
+  "input_manifest": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/manifest.json",
+    "bytes": 2060,
+    "sha256": "50a0e28397b1b53f8b4d802e3f855a28cb7a7be24be462641ce6befbadd28ff1"
+  },
+  "input_handoff": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/handoff.json",
+    "bytes": 2692,
+    "sha256": "480dd0891233f89d02cdef2b666ce2dc5c088756aee08e9fab6b8af6772520cc"
+  },
+  "fixed_originals_verified": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/prepare.py",
+      "bytes": 13721,
+      "sha256": "b24daac920d0bdb7ed614f051a04aee0b6989a24b8884208b2ea253a0891083c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/driver.py",
+      "bytes": 38263,
+      "sha256": "8153667b93af1b68efab50af2459d3ef203b1b105c25110457d757fad0983a54"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/launch.py",
+      "bytes": 4966,
+      "sha256": "e6553a63073c0cb84f9faaaf08c1085e42b6fb7e5913a019b02a3d885b60ede1"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/from-accepted-v05.patch",
+      "bytes": 23845,
+      "sha256": "296e92209920360276d3ade944d0278e74b43e434f462218730fe6dc9380ed7f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/groups.json",
+      "bytes": 3307,
+      "sha256": "fb7cf706c88a7c00ca61fdf442585100e529e1ad70a0927c71ab045bcbdbb6a8"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/freeze.prepared.json",
+      "bytes": 2031,
+      "sha256": "12dcad5bc4a36a92c2c94fee1a9788e0ca2c11573b1600ea9fda0677aeb0e9be"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/readiness.template.json",
+      "bytes": 609,
+      "sha256": "b65c1262ad46b830a1fdd2c73fa0fad0d7db1f3714c15810c0f7ff86cb854b24"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/plan.md",
+      "bytes": 7014,
+      "sha256": "c7e297ceec1c2e571da4db5cc37488fea16f52c3ca6200ce9ab1881b9aafb985"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/check_prepared.py",
+      "bytes": 4598,
+      "sha256": "96a60e8a449f378be451f405a7a3a58b5de0b6f01aa14bc3b2df8366278177d7"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/writing-checks.json",
+      "bytes": 2299,
+      "sha256": "3eb1e581c6de7e685285cc8d5e7f27847b39caf09325bdf496e5769a0d1f0b44"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/source-refs.json",
+      "bytes": 5284,
+      "sha256": "a2abc4772c47871a7f6f8c43d4fcd04a3eee005f769a0aff76d515b0214ce651"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v01/handoff.json",
+      "bytes": 2692,
+      "sha256": "480dd0891233f89d02cdef2b666ce2dc5c088756aee08e9fab6b8af6772520cc"
+    }
+  ],
+  "artifact_count": 12,
+  "artifact_bytes": 108629,
+  "accepted_baseline": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+    "bytes": 38744,
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "diff_exact_to_baseline": true,
+  "helpers_19_source_segments_byte_identical": {
+    "sha": "c989b6adfc22cd15923df959361c4c4b20c84b0bc1c88b39f0779db41d92460c",
+    "load_bound": "347cb4ef781535e22822564c81e2234a960af460ef4dea99927a5a67d82b20ee",
+    "digest": "aa3f31115b0f450ea841961f9fc469f663378f2a1b746233b63b147239e0497d",
+    "processes": "cef510a5761c0b550ed99eb8d09ab19f58325b07b3098bb719163cbfb8420754",
+    "is_main": "7707c8d935a96e267d927ba1b78b7145dfc81cf27d040dff183d618246060238",
+    "observe_processes": "966e9852aa61c577ce8f2a32e8cec2d0ef13e810b044211be7c1443656ed3191",
+    "reap_adopted": "d49ec444a42d734adb2e7831964de39806693e23da46212ee26ab278aac8181c",
+    "write_retirement": "76b7b3e39eb2ccb9dc117484d847e1a3fac3639d62fd54fdfe072d742e032092",
+    "retire_owned": "9c0e64ab92e6f84619dbe9a078c321b65dbe0b832b5d53e0819a097c1878a6b4",
+    "watch_output": "cfb5f949bbd0f8a4d5921d1201e9fe42befc4d22c478d38f2d61f137af5d5af1",
+    "utc": "0259c3fd12d9fd5d90946b8332083e089094e394260439c4e3bce02f9dfa8d48",
+    "write": "5fc748cd873d324bd421be07a1d96b2d6253d2b239f9821600f0c0728f929277",
+    "command": "906bc8fcfe428233ff7953e6944892476f02404741fae5ca956cf53a5c307006",
+    "resources": "e27dc26b9e15fba1b8db4ce8a89da2b80891b6ce876ee16c3fb82dc8179260e2",
+    "resource_topology": "7594dba31297089dba329caf367d2eef517ca4ea30d55e841ef3c686981e8726",
+    "tcp_snapshot": "1aa983f25af3972986a4c45a6dc6911d994bd2128699f553daab7e61ec52fe93",
+    "tcp_identity": "9862526af5bcf17f94f96c14e7ec2eb942db82891c0958bcd84a39b82692a1c8",
+    "tcp_delta": "6cdf7eabcea4e3ce0b047aabb0a143a15ca6f066cd0fa76a54665238ee7bfd6a",
+    "retire_tcp_observation": "9068255103a4c3771140b11f396b261e19db96965d013a3515c367b392a15a2d"
+  },
+  "changed_driver_functions": [
+    "actual_graph_input",
+    "source_input",
+    "runtime_environment",
+    "TopWatchdog",
+    "main"
+  ],
+  "removed_function": "browser_input",
+  "otherwise_reviewed": {
+    "selectors": "Seven explicit invocations / fourteen unique exact top names; five new individually, old CurrentResolution six, old MeetingSummary three; original sh scripts/test-objects.sh -run anchored argv; no loop advancing to next group.",
+    "input_gate": "False freeze has no closure/readiness/runtime fingerprints/run/group and retains pending reasons. Future gate requires bound closure/candidate/raw actual graphs/package file sets/external selected-source hashes, same closure SHA in readiness, exact14 discovery and original receipt hashes, accepted eight Go source fingerprints. No current ready claim.",
+    "environment": "Task-empty Docker config; Go1.27.1/local/offline/read-only flags, task runtime tmp, fixed Docker hash/PG digests/MinIO SHA. Browser/dist/Node env removed; any observed Node/browser makes result fail. Shared cache still requires root exclusive window.",
+    "budgets": "Two fresh disk >=5GiB checks; original package6m; top watchdog120s includes top result/Cleanup, no subtest reset; unexpected top and FAIL/SKIP now fail watcher. Existing watcher actual join preserved.",
+    "retirement": "Post-Popen inner owner finally retains actual direct wait, watcher join and adopted/PID-starttime retirement. Evidence failure does not replace actual waits; raw FAILED evidence is not rewritten. Exact Docker IDs/labels/nonces/full Mount baseline and two inspect absence scans preserved; inspect argv/exit/stdout/stderr are now retained.",
+    "cross_round": "Seven distinct planned resource IDs required; repeated prior observed IDs cause fail; prior resource manifest refs are retained. This is an additional identity check, not a substitute for missing outer completion in G2.",
+    "bounds": "PID1/daemon zombies stay non-owned and are not waited/signalled; host TCP double-clear is supplemental polling with75s tail, not complete connection tracing. No resources have been started by this review."
+  },
+  "pending_inputs": [
+    "Shared stopped full-fixture/helper/dynamic-command/CGO0 closure with current minimal delta and package sets",
+    "Exact 14-name Model test discovery and required helper/two-command build receipts or justified fixed-input reuse",
+    "Final actual driver/tool runtime fingerprints and single-round immutable root grant"
+  ],
+  "prepared_flags": {
+    "root_authorized_resources": false,
+    "closure": null,
+    "offline_readiness": null,
+    "permitted_run_name": null,
+    "permitted_groups": [],
+    "driver_runtime_files": {}
+  },
+  "author_writing_checks": "Original isolated5 watchdog/syntax report reused as author preparation only; not re-executed here and not process/resource retirement validation.",
+  "independent_actions": "Complete driver adaptation/launcher read, exact delta and19 helper source-segment comparison using AST extraction without exec/import, manifest SHA/bytes and selector algebra only. No resource driver, helper checker, Go, discovery, binary, network, Docker, PG, browser, business command or Git write executed.",
+  "not_accepted": [
+    "execution readiness/full shared Go closure",
+    "exact-name discovery/helper/two-command compile receipts",
+    "Model business/realPG/actual retirement",
+    "production serving/consumer/ExpectedDimensions/root",
+    "independentA/B/README9/fullcard"
+  ]
+}

@@ -1,0 +1,349 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"errors"
+	"sync"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// This independently authored supplement is a scratch-only overlay. It changes
+// neither the formal consumer contract nor the six accepted fixture sources.
+// The callback completes its real SQL work before the held checkpoint. Release
+// waits for WithinTx itself, and cleanup cannot substitute cancellation for it.
+func independentEmbeddingHoldTx(t *testing.T, v *platformEmbeddingResolutionFixture, locks []f.LockRequest, body func(context.Context, f.Tx) error) (int, func() f.CommitResult) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(testContext(t), 5*time.Second)
+	cause := recoveryCause(t)
+	held := make(chan int, 1)
+	release := make(chan struct{})
+	done := make(chan f.CommitResult, 1)
+	go func() {
+		done <- v.observed.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+			if err := v.observed.AcquireAll(ctx, tx, locks); err != nil {
+				return err
+			}
+			if err := body(ctx, tx); err != nil {
+				return err
+			}
+			x, err := v.observed.InTx(tx)
+			if err != nil {
+				return err
+			}
+			var pid int
+			if err = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
+				return err
+			}
+			held <- pid
+			select {
+			case <-release:
+				return nil
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		})
+	}()
+	var once sync.Once
+	var result f.CommitResult
+	finish := func() f.CommitResult {
+		once.Do(func() {
+			close(release)
+			result = <-done
+			cancel()
+			if result.State() != f.Committed {
+				t.Error("independent holder actually completed without commit", result.Fault())
+			}
+		})
+		return result
+	}
+	t.Cleanup(func() { finish() })
+	select {
+	case pid := <-held:
+		return pid, finish
+	case <-ctx.Done():
+		t.Fatal("independent SQL holder did not reach checkpoint", ctx.Err())
+	}
+	return 0, finish
+}
+
+func independentEmbeddingAccept(ctx context.Context, v *platformEmbeddingResolutionFixture, tx f.Tx, r mc.ResolveRequest, p mc.ResolutionPlan) error {
+	x, err := v.observed.InTx(tx)
+	if err != nil {
+		return err
+	}
+	_, err = x.Exec(ctx, `INSERT INTO platform_embedding_fixture.accepted(operation_id,input_id,digest,schema_version,input_version,snapshot_id) SELECT id,input_id,input_digest,input_schema,input_version,$2 FROM platform_embedding_fixture.operations WHERE id=$1`, r.Consumer.OperationID, p.Details().SnapshotID.String())
+	return err
+}
+
+func independentEmbeddingBlockedOn(t *testing.T, v *platformEmbeddingResolutionFixture, holder int, pending *platformEmbeddingPending, key f.LockKey, mode string) {
+	t.Helper()
+	waiter := v.blocked(t, holder, pending)
+	bits := uint64(key.AdvisoryKey())
+	var exact bool
+	err := v.raw.QueryRow(testContext(t), `SELECT EXISTS(SELECT 1 FROM pg_locks w JOIN pg_locks h ON h.locktype=w.locktype AND h.database=w.database AND h.classid=w.classid AND h.objid=w.objid AND h.objsubid=w.objsubid WHERE w.locktype='advisory' AND w.pid=$1 AND h.pid=$2 AND NOT w.granted AND h.granted AND w.classid::bigint=$3 AND w.objid::bigint=$4 AND w.objsubid=1 AND w.mode=$5 AND h.pid=ANY(pg_blocking_pids(w.pid)))`, waiter, holder, int64(uint32(bits>>32)), int64(uint32(bits)), mode).Scan(&exact)
+	if err != nil || !exact {
+		t.Fatal("independent waiter was not blocked on the exact intended key/mode", err)
+	}
+	t.Logf("independent exact advisory key=%s mode=%s holder=%d waiter=%d", key.Canonical(), mode, holder, waiter)
+}
+
+func TestModelPlatformEmbeddingIndependentA(t *testing.T) {
+	v := newPlatformEmbeddingResolutionFixture(t)
+	_, origin := v.embeddingConfig(t, true)
+	_, replacement := v.embeddingConfig(t, false)
+	foreign := v.createProject(t, v.identity.otherBrowser.actor)
+	for _, purpose := range []mc.Purpose{mc.KnowledgeEmbedding, mc.MemoryEmbedding} {
+		t.Run(string(purpose), func(t *testing.T) {
+			for _, mode := range []string{"move-real-ownership", "withdraw-current-input"} {
+				t.Run(mode, func(t *testing.T) {
+					v.choose(t, origin.ID)
+					r := v.request(t, purpose)
+					p := v.discover(t, r)
+					d, err := v.strict.facts(testContext(t), v.raw, r.Consumer.OperationID)
+					if err != nil {
+						t.Fatal(err)
+					}
+					locks := platformEmbeddingResolutionLocks(r, d)
+					var key f.LockKey
+					var query, restore string
+					var changedArgs, restoreArgs []any
+					switch {
+					case mode == "withdraw-current-input":
+						key, err = f.RecordLock(f.ReferenceRecordLock, "embedding-input:"+d.Input)
+						query = `UPDATE platform_embedding_fixture.inputs SET phase='revoked',version=version+1 WHERE id=$1`
+						restore = `UPDATE platform_embedding_fixture.inputs SET phase=$2,version=$3 WHERE id=$1`
+						changedArgs, restoreArgs = []any{d.Input}, []any{d.Input, d.InputPhase, d.InputVersion}
+					case purpose == mc.KnowledgeEmbedding:
+						key, err = f.KnowledgeTreeLock(d.Subject)
+						query = `UPDATE platform_embedding_fixture.subjects SET project_id=$2,version=version+1 WHERE id=$1`
+						restore = `UPDATE platform_embedding_fixture.subjects SET project_id=$2,version=$3 WHERE id=$1`
+						changedArgs, restoreArgs = []any{d.Subject, foreign.ID.String()}, []any{d.Subject, d.Project, d.SubjectVersion}
+					default:
+						key, err = f.AgentLock(d.Agent)
+						query = `UPDATE platform_embedding_fixture.agents SET project_id=$2,version=version+1 WHERE id=$1`
+						restore = `UPDATE platform_embedding_fixture.agents SET project_id=$2,version=$3 WHERE id=$1`
+						changedArgs, restoreArgs = []any{d.Agent, foreign.ID.String()}, []any{d.Agent, d.AgentProject, d.AgentVersion}
+					}
+					if err != nil {
+						t.Fatal(err)
+					}
+					upgraded := false
+					for i := range locks {
+						if locks[i].Key.Canonical() == key.Canonical() {
+							locks[i].Mode, upgraded = f.Exclusive, true
+						}
+					}
+					if !upgraded {
+						t.Fatal("canonical mutation lock absent")
+					}
+					// Registered before holder/waiter cleanups: even a failed checkpoint
+					// first retires the operations, then restores the controlled bad row.
+					t.Cleanup(func() {
+						v.sql(t, restore, restoreArgs...)
+						after, e := v.strict.facts(testContext(t), v.raw, r.Consumer.OperationID)
+						if e != nil || after != d {
+							t.Error("independent fact restoration", e)
+						}
+					})
+					holder, commit := independentEmbeddingHoldTx(t, v, locks, func(ctx context.Context, tx f.Tx) error {
+						x, e := v.observed.InTx(tx)
+						if e != nil {
+							return e
+						}
+						_, e = x.Exec(ctx, query, changedArgs...)
+						return e
+					})
+					calls, checked := v.tap.calls.Load(), v.strict.factsChecked.Load()
+					var out mc.ResolvedModel
+					pending := platformEmbeddingStart(t, func(ctx context.Context) error {
+						var e error
+						out, e = v.resolving.ResolveModel(ctx, r)
+						return e
+					})
+					independentEmbeddingBlockedOn(t, v, holder, pending, key, "ShareLock")
+					if commit().State() != f.Committed {
+						t.Fatal("ownership/input withdrawal did not commit")
+					}
+					err = pending.wait()
+					resolutionNoResult(t, out, err)
+					requireCode(t, err, f.Forbidden)
+					if v.strict.factsChecked.Load() <= checked || v.tap.calls.Load() != calls {
+						t.Fatal("withdrawal missed current domain check or reached Secret")
+					}
+					// Fresh discovery after the writer commits must reject the actual
+					// bad relation, independently of the blocked old mapping.
+					fresh, err := v.resolving.DiscoverResolve(testContext(t), r)
+					resolutionZeroPlan(t, fresh, err)
+					requireCode(t, err, f.Forbidden)
+					v.atomicFacts(t, r, p, 0)
+					t.Logf("independent committed withdrawal mode=%s holder=%d target=%s; waiter actually joined", mode, holder, key.Canonical())
+				})
+			}
+			t.Run("provisional-acceptance-serializes-current-selector-writer", func(t *testing.T) {
+				v.choose(t, origin.ID)
+				r := v.request(t, purpose)
+				p := v.discover(t, r)
+				state, err := v.service.GetPlatformSelection(testContext(t), v.admin)
+				if err != nil {
+					t.Fatal(err)
+				}
+				next := state.Configured.Clone()
+				next.Embedding = replacement.ID
+				change := mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: next}
+				var accepted mc.ResolvedModel
+				holder, commit := independentEmbeddingHoldTx(t, v, p.RequiredLocks(), func(ctx context.Context, tx f.Tx) error {
+					if e := independentEmbeddingAccept(ctx, v, tx, r, p); e != nil {
+						return e
+					}
+					var e error
+					accepted, e = v.resolving.ResolveModelInTx(ctx, tx, r, p)
+					return e
+				})
+				var receipt mc.CommandReceipt
+				pending := platformEmbeddingStart(t, func(ctx context.Context) error {
+					var e error
+					receipt, e = v.service.UpdatePlatformSelection(ctx, change)
+					return e
+				})
+				selectorKey, err := f.SystemConfigLock("model-platform-selection")
+				if err != nil {
+					t.Fatal(err)
+				}
+				independentEmbeddingBlockedOn(t, v, holder, pending, selectorKey, "ExclusiveLock")
+				v.atomicFacts(t, r, p, 0)
+				if commit().State() != f.Committed {
+					t.Fatal("provisional acceptance failed to commit")
+				}
+				if err = pending.wait(); err != nil || receipt.Version != state.Version+1 {
+					t.Fatal("selector writer after real acceptance", err)
+				}
+				v.atomicFacts(t, r, p, 1)
+				if accepted.Validate() != nil || accepted.Snapshot.Identity.ModelID != origin.ID {
+					t.Fatal("in-flight acceptance changed model")
+				}
+				historical := v.resolve(t, r)
+				current := v.resolve(t, v.request(t, purpose))
+				if resolutionDigest(historical.Snapshot) != resolutionDigest(accepted.Snapshot) || historical.CredentialLease == nil || accepted.CredentialLease == nil || historical.CredentialLease.LeaseID != accepted.CredentialLease.LeaseID || current.Snapshot.Identity.ModelID != replacement.ID || current.CredentialLease != nil {
+					t.Fatal("accepted/current selection boundary")
+				}
+				t.Logf("independent provisional acceptance holder=%d blocked formal selector update until commit", holder)
+			})
+		})
+	}
+	v.noSecretRead(t)
+}
+
+type independentEmbeddingDurable struct {
+	SnapshotID, SnapshotJSON, SnapshotDigest, LeaseID, Phase string
+	LeaseRows                                                int
+}
+
+func independentEmbeddingReadDurable(t *testing.T, v *platformEmbeddingResolutionFixture, r mc.ResolveRequest) independentEmbeddingDurable {
+	t.Helper()
+	var row independentEmbeddingDurable
+	err := v.raw.QueryRow(testContext(t), `SELECT p.snapshot_id::text,s.snapshot_data::text,s.snapshot_digest,b.lease_id::text,p.phase,(SELECT count(*) FROM agenteam_secret.secret_leases l WHERE l.id=b.lease_id) FROM agenteam_model.resolution_preparations p JOIN agenteam_model.snapshots s ON s.id=p.snapshot_id JOIN agenteam_model.snapshot_bindings b ON b.preparation_id=p.id AND b.snapshot_id=s.id WHERE p.project_id=$1 AND p.owner_kind='model_call' AND p.owner_id=$2`, r.Consumer.ProjectID.String(), r.LeaseOwner.Details().ID).Scan(&row.SnapshotID, &row.SnapshotJSON, &row.SnapshotDigest, &row.LeaseID, &row.Phase, &row.LeaseRows)
+	if err != nil || row.Phase != "committed" || row.LeaseID == "" || row.LeaseRows != 1 {
+		t.Fatal("independent durable snapshot/lease observation", err)
+	}
+	return row
+}
+
+func TestModelPlatformEmbeddingIndependentB(t *testing.T) {
+	v := newPlatformEmbeddingResolutionFixture(t)
+	_, origin := v.embeddingConfig(t, true)
+	_, replacement := v.embeddingConfig(t, false)
+	for _, purpose := range []mc.Purpose{mc.KnowledgeEmbedding, mc.MemoryEmbedding} {
+		t.Run(string(purpose), func(t *testing.T) {
+			t.Run("unknown-plus-delivery-cancel-before-history-confirmation", func(t *testing.T) {
+				v.choose(t, origin.ID)
+				r := v.request(t, purpose)
+				ctx, cancel := context.WithCancel(testContext(t))
+				defer cancel()
+				// Author cases separate Unknown from delivery cancellation. Here both
+				// happen after the real final commit, before the caller sees a result.
+				v.arm(t, 3, false, true, cancel)
+				out, err := v.resolving.ResolveModel(ctx, r)
+				v.observed.mu.Lock()
+				actual, returned, seen := v.observed.actual, v.observed.returned, v.observed.seen
+				v.observed.target, v.observed.after = 0, nil
+				v.observed.mu.Unlock()
+				resolutionNoResult(t, out, err)
+				var unknown *model.UnknownCommandError
+				if !errors.As(err, &unknown) || ctx.Err() != context.Canceled || actual.State() != f.Committed || returned.State() != f.Unknown || unknown.AttemptID() != returned.AttemptID() || unknown.Cause().Details().Primary.Canonical() != returned.Cause().Details().Primary.Canonical() {
+					t.Fatal("combined Unknown/cancellation lost original outcome", err)
+				}
+				before := independentEmbeddingReadDurable(t, v, r)
+				calls := v.tap.calls.Load()
+				out, err = v.resolving.ResolveModel(ctx, r)
+				resolutionNoResult(t, out, err)
+				if !errors.Is(err, context.Canceled) || v.tap.calls.Load() != calls {
+					t.Fatal("canceled caller retried Acquire", err)
+				}
+				v.observed.mu.Lock()
+				sameSeen := v.observed.seen == seen
+				v.observed.mu.Unlock()
+				if !sameSeen {
+					t.Fatal("canceled caller started a new resolution transaction")
+				}
+				v.choose(t, replacement.ID)
+				restarted := bindPlatformEmbeddingResolution(t, v.projectConfigurationFixture, v.identity)
+				current := r.Clone()
+				current.Actor = v.identity.login(t, v.identity.ownerBrowser.email).actor
+				confirmed := restarted.resolve(t, current)
+				after := independentEmbeddingReadDurable(t, v, r)
+				if before != after || confirmed.Snapshot.ID.String() != before.SnapshotID || confirmed.Snapshot.Identity.ModelID != origin.ID || confirmed.CredentialLease == nil || confirmed.CredentialLease.LeaseID.String() != before.LeaseID {
+					t.Fatal("fresh-session confirmation rebound committed history")
+				}
+				fresh := v.request(t, purpose)
+				fresh.Actor = current.Actor
+				newCall := restarted.resolve(t, fresh)
+				if newCall.Snapshot.Identity.ModelID != replacement.ID || newCall.Snapshot.ID == confirmed.Snapshot.ID || newCall.CredentialLease != nil {
+					t.Fatal("new Call failed to use opposite-ref current target")
+				}
+				t.Log("independent combined real final commit + decorated Unknown + delivery cancellation; fresh authority/Session confirmed exact durable snapshot/lease after opposite-ref selector switch; not physical ACK loss")
+			})
+			t.Run("caller-cancels-after-provisional-acceptance-before-rollback", func(t *testing.T) {
+				v.choose(t, origin.ID)
+				r := v.request(t, purpose)
+				p := v.discover(t, r)
+				ctx, cancel := context.WithCancel(testContext(t))
+				defer cancel()
+				var provisional mc.ResolvedModel
+				calls := v.tap.calls.Load()
+				result := v.observed.WithinTx(ctx, recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
+					if e := v.observed.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+						return e
+					}
+					if e := independentEmbeddingAccept(ctx, v, tx, r, p); e != nil {
+						return e
+					}
+					var e error
+					provisional, e = v.resolving.ResolveModelInTx(ctx, tx, r, p)
+					if e != nil {
+						return e
+					}
+					cancel()
+					return ctx.Err()
+				})
+				if result.State() != f.NotCommitted || ctx.Err() != context.Canceled || provisional.Validate() != nil || v.tap.calls.Load() != calls+1 {
+					t.Fatal("caller cancellation did not retire provisional transaction", result.Fault())
+				}
+				v.atomicFacts(t, r, p, 0)
+				accepted, result := v.final(t, r, p, true, false)
+				if result.State() != f.Committed || accepted.Validate() != nil || accepted.Snapshot.ID != provisional.Snapshot.ID || accepted.CredentialLease == nil || p.Details().LeaseID == nil || accepted.CredentialLease.LeaseID != *p.Details().LeaseID {
+					t.Fatal("same prepared unit failed after actual canceled rollback", result.Fault())
+				}
+				v.atomicFacts(t, r, p, 1)
+				t.Log("independent caller cancellation after valid provisional snapshot/lease rolled back input, snapshot, binding and lease; explicit same-plan outer acceptance followed actual rollback")
+			})
+		})
+	}
+	v.noSecretRead(t)
+}

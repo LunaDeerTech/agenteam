@@ -1,0 +1,259 @@
+{
+  "status": "INDEPENDENT_A_ACTUAL_PASS_FULLY_RETIRED_STOP",
+  "run": "ind-model-a01",
+  "group": "ind-a",
+  "executor": "verification_runtime",
+  "tool_receipt": {
+    "session_id": 27382,
+    "initial_chunk": "a37b20",
+    "terminal_chunk": "e320b2",
+    "exit_code": 0,
+    "terminal_actual_return_observed": true
+  },
+  "root_grant_sha256": "9bb67e6323a1c68ee7cd4e5bcbcf74639f6f67eedaf1070232d4a7fa33567204",
+  "original_refs": [
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/result.json",
+      "bytes": 39230,
+      "sha256": "8587c0acba32bc38617fd34a27f3d89467aa1a3769e2d2701de2e04a5427aef1"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/raw.log",
+      "bytes": 7872,
+      "sha256": "b3075723cede13036834d6fcb3e7e6f9790f8c9775ffd4f4714afd5f928d2706"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/command.json",
+      "bytes": 2063,
+      "sha256": "233a9f057076afa1a97b3992f71f52dbda01e6ff2243769e350f5b696d45949f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/watchdog.json",
+      "bytes": 521,
+      "sha256": "01a21c80a1a1c2c8411d09c602ac89c75285e1e2f4c3a59c164a14c7a415bbdc"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/cleanup.json",
+      "bytes": 90545,
+      "sha256": "ecca53f8ac957f1099598afc71dc310c2128279b47d3b91baeb4c3386370bd3f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/observed-resources.json",
+      "bytes": 5148,
+      "sha256": "6ea11e3beb9908c9d3d6f017e1a7b43b92de22d42f392809d7723642fdbf7532"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/resource-id-chain.json",
+      "bytes": 619,
+      "sha256": "c690970e2e8700dabb1c8381a34c7c6850b45e29fa52601962a1b4abcfdd8eab"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/tcp-tail-observation.json",
+      "bytes": 76925,
+      "sha256": "37dbfdc6a2e8592c3e1a185dfd2ab1136a6d2af4c083d2904eb1cf5fe3b7df59"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/input-before.json",
+      "bytes": 614,
+      "sha256": "a5228d477fcc4d6d147d56058f393d2dbd6a497e040521c9425846c7a557c494"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/input-after.json",
+      "bytes": 614,
+      "sha256": "a5228d477fcc4d6d147d56058f393d2dbd6a497e040521c9425846c7a557c494"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/frozen-input.json",
+      "bytes": 25369,
+      "sha256": "9bb67e6323a1c68ee7cd4e5bcbcf74639f6f67eedaf1070232d4a7fa33567204"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/verification-input.json",
+      "bytes": 183,
+      "sha256": "24e8c9fc41db8a86559058e4c036247178d06e213ae956953c2544de6455f429"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/launches/ind-model-a01/result.json",
+      "bytes": 1395,
+      "sha256": "67dee6c2d5d67c3f946e01532775e1604b02d2790d5e715b15c542c0e0ff7332"
+    }
+  ],
+  "execution": {
+    "top": "TestModelPlatformEmbeddingIndependentA",
+    "run_count": 9,
+    "pass_count": 9,
+    "same_unique_names": true,
+    "count_meaning": "one top + two purpose groups + six leaf tests",
+    "top_seconds": 6.43,
+    "package_seconds": 7.45,
+    "fixture_seconds": 63.889,
+    "outer_seconds": 118.58006874399871,
+    "direct_fixture_actual_wait": true,
+    "direct_driver_actual_wait": true,
+    "fixture_exit": 0,
+    "outer_exit": 0,
+    "adopted_waits": 0,
+    "observed_processes": 88,
+    "observed_processes_are_not_wait_count": true,
+    "watchdog_complete_and_joined": true,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0
+  },
+  "actual_assertion_scope": [
+    "KnowledgeEmbedding and MemoryEmbedding: real database ownership movement while final acceptance waits on exact subject advisory lock, followed by committed withdrawal and actual waiter join.",
+    "Both purposes: current input reference withdrawal under exact input advisory lock, with committed withdrawal and actual waiter join; final authorization/atomic rejection checks execute.",
+    "Both purposes: provisional acceptance holds the exact platform selector advisory lock; a formal selector update blocks until acceptance transaction commits, and exact holder/waiter backend IDs plus lock mode are observed.",
+    "Current c433 consumer=model noSecretRead is reached in the actual A test. No production Knowledge/Memory consumer or Invocation binding is claimed."
+  ],
+  "probe": {
+    "sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614",
+    "overlay_sha256": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607",
+    "driver_sha256": "bbe8bdf4c9e128af219be7f2c3b9bea06546330c20f07cce2aeee024779146b8",
+    "launcher_sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+    "actual_go_flags": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+    "standalone_new_build_or_list": false,
+    "build_scope": "Only the granted original actual fixture script compiled its current source with the fixed overlay."
+  },
+  "inputs": {
+    "first_and_final_actual_gate": true,
+    "count": 999,
+    "before_after_identical": true,
+    "digest": "6eb22ce21c08a35cb1c80ab4f98179b9a4fe07eb69fc0532b30cf3bd924ab416",
+    "missing_mismatch_set_changes": []
+  },
+  "retirement": {
+    "resources": {
+      "2ebdd7336c1b64deda3e57fe7061c33c86298e9ef95f468915b194263c8c7b53": {
+        "kind": "network",
+        "name": "agenteam-d04-net-ccf54152ed19148f07affad62a6f1cdc"
+      },
+      "3387be29ad44e8b74f838c0b9599660efef618ab9497700b3aa0b8ab4420206f": {
+        "kind": "container",
+        "name": "/agenteam-d03-2fd837d13b5ddddd7730b3322ceca3c8-pg16"
+      },
+      "59a05fc3f29f566a4ec89f055fa01968bc0aabf7855646affd6cb797599af4d3": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-772059e8213fcf7d5a80c1f81e13d9bb"
+      },
+      "5f9cb6e45f43c734b45a8c88fd3a414612c4367039f753b5095eac67ce82f3b0": {
+        "kind": "network",
+        "name": "agenteam-d05-object-772059e8213fcf7d5a80c1f81e13d9bb"
+      },
+      "6f2ab109673418dc4fc10d9e80159fe8d59ad779c45c9ce67e6a223d8956f153": {
+        "kind": "network",
+        "name": "agenteam-d03-2fd837d13b5ddddd7730b3322ceca3c8"
+      },
+      "a524aeabb31e4bcdcf14f5479e8ad513438364d10436d15061ec6176aa396de0": {
+        "kind": "container",
+        "name": "/agenteam-d03-2fd837d13b5ddddd7730b3322ceca3c8"
+      },
+      "fdb38cdcf6c84f01a6b726d67557df210744793c85441583d5f92d3f0bfe80bf": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-ccf54152ed19148f07affad62a6f1cdc"
+      }
+    },
+    "topology": {
+      "network": 3,
+      "container": 4
+    },
+    "scans": [
+      {
+        "time": "2026-10-08T15:23:48.743804+00:00",
+        "all_exact_seven_absent": true,
+        "baseline_unchanged": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": []
+      },
+      {
+        "time": "2026-10-08T15:23:49.455730+00:00",
+        "all_exact_seven_absent": true,
+        "baseline_unchanged": true,
+        "owned_processes": [],
+        "remaining_new": [],
+        "runtime_entries": []
+      }
+    ],
+    "owned_tail": {
+      "actions": [],
+      "actual_owned_completion": true,
+      "remaining": []
+    },
+    "tcp_budget_seconds": 75,
+    "tcp_seconds": 51.42257292699651,
+    "tcp_final_two_scans": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T15:24:41.178867+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T15:24:41.382634+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_signals": false,
+    "nonowned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 863754,
+        "ppid": 1,
+        "starttime": "4284414",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 864202,
+        "ppid": 1,
+        "starttime": "4284800",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 864546,
+        "ppid": 1,
+        "starttime": "4285002",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 865097,
+        "ppid": 1,
+        "starttime": "4285206",
+        "state": "Z"
+      }
+    ],
+    "nonowned_shims_waited_or_modified": false
+  },
+  "limits": [
+    "Only independent A executed; B and retry not authorized or started.",
+    "Original author embedselect01 FAIL and cleanup=false plus later separate recovery remain unchanged.",
+    "No browser or Node; no provider external-network/production consumer/serving/dimensions/Invocation claim.",
+    "Other packages with no tests to run are not old behavioral acceptance.",
+    "TCP host polling is supplementary, not a complete short-connection trace or all-machine ownership proof."
+  ],
+  "stop": {
+    "actual_resources_and_cache_window_released": true,
+    "all_fixture_and_launcher_commands_finished": true,
+    "originals_unchanged": true,
+    "no_following_resource_action": true
+  }
+}

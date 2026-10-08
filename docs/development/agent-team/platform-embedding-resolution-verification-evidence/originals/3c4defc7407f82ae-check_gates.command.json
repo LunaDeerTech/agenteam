@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.py"
+  ],
+  "cwd": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02",
+  "script_sha256": "17f2b3c168947633620debf157b741f2636bc77b78803b53dbed44a094ef2f7e",
+  "started_utc": "2026-10-08T13:48:26.087750+00:00",
+  "actual_wait_completed": true,
+  "business_resources_started": false,
+  "pid": 703397,
+  "exit_code": 1,
+  "elapsed_seconds": 0.16447362600592896,
+  "ended_utc": "2026-10-08T13:48:26.252241+00:00",
+  "raw": {
+    ".stdout": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".stderr": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/check_gates.stderr",
+      "sha256": "c7ecaf637d74a22adb317b20c53d66b54557622ca63458645423e82dff150ec0"
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "state": "EXACT_OWNED_RUNTIME_RECOVERY_READY",
+  "target": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/runtime/go-build907913867",
+  "runtime": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/runtime",
+  "realpath": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/runtime/go-build907913867",
+  "symlink": false,
+  "target_lstat": {
+    "inode": 1451331,
+    "device": 27,
+    "uid": 1000,
+    "mode": "0o700"
+  },
+  "originals": {
+    "result.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/result.json",
+      "bytes": 31416,
+      "sha256": "9e918dc5b18ace77f3f2ab7a03408fe2e15db1dc09d0341a063157ca18d1ed8d"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/command.json",
+      "bytes": 1984,
+      "sha256": "91112bca36115ac3123d63fab9804755163558f55e4edeaf183e10ae97fff6f3"
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/cleanup.json",
+      "bytes": 73355,
+      "sha256": "ade80ae6dd9e4dd1c70d986030013957ac272f85be3dfd159957381648830c46"
+    },
+    "adopted-waits.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/adopted-waits.json",
+      "bytes": 147,
+      "sha256": "7325e57d4067cedbedde9acfda57b4a58a410555867731e51888765af52a5763"
+    },
+    "owned-tail-retirement.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "observed-processes.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/observed-processes.json",
+      "bytes": 13083,
+      "sha256": "00b372fa0abb346a3bfe1b2b6214dae8912710819a494047c16314683b8f24ff"
+    },
+    "tcp-tail-observation.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/tcp-tail-observation.json",
+      "bytes": 51977,
+      "sha256": "a2741c1bf687eee7db071f2f3a6a7c8b4accca5fdece50ac50e637a27d6b7d29"
+    },
+    "outer-result.json": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/launches/embedselect01/result.json",
+      "bytes": 1411,
+      "sha256": "dfb457aefce2da773c12aca17e46992639521389d5c0bf5b85e66c4d9f9d3ddb"
+    }
+  },
+  "original_owned_observations_empty": true,
+  "current_owned_identity_checks": [
+    {
+      "time": "2026-10-08T14:10:03.815929+00:00",
+      "remaining_same_identity": []
+    },
+    {
+      "time": "2026-10-08T14:10:04.016907+00:00",
+      "remaining_same_identity": []
+    }
+  ],
+  "runtime_before": [
+    "go-build907913867"
+  ],
+  "historical_failure_not_changed": true
+}

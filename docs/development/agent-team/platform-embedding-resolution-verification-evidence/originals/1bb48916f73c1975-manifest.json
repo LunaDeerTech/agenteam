@@ -1,0 +1,35 @@
+{
+  "state": "STOP",
+  "artifacts": [
+    {
+      "path": "launch.json",
+      "bytes": 1206,
+      "sha256": "1ba0dab1be444efdab95b6c14d2798061d089cdbe88d7ff572ca2248d549886e"
+    },
+    {
+      "path": "result.json",
+      "bytes": 2219,
+      "sha256": "f92074e95440298ec61abd7034fa30d9b9b275f16e232c29e7b903662f133e9e"
+    },
+    {
+      "path": "raw.stdout",
+      "bytes": 575,
+      "sha256": "ce5d650f4a0c1b3d76d55fe4bcddb6a94401ac1a4859c832c5bc4772a19354c4"
+    },
+    {
+      "path": "raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "handoff.json",
+      "bytes": 956,
+      "sha256": "dafa2dd4874fc6fee916ebcf1c430562e6e04ea3f623a3713bac75127ac13006"
+    }
+  ],
+  "proposal_ref": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-list-proposal01/manifest.json",
+    "bytes": 503,
+    "sha256": "72391d926f60fe588226566d58e09a28e1a37c3c7c84fbd331cadcd763ad9d01"
+  }
+}

@@ -1,0 +1,358 @@
+{
+  "status": "STOP_VERSION_COMBINATION_MAP_ONLY_NOT_FINAL_EIGHT_OR_NINE_PATH_ACCEPTANCE",
+  "root_scope": "2026-10-08 request: eight technical source map; old Resolver6/Summary3 actual rounds, independent A/B and README final piece pending in this map.",
+  "card": {
+    "path": "docs/development/work-items/d09-platform-embedding-resolution.md",
+    "accepted_sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93",
+    "version": "rev3"
+  },
+  "technical_source_rows": [
+    {
+      "card_path_number": 1,
+      "repository_path": "internal/central/model/resolution_policy.go",
+      "accepted_source_sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a",
+      "bytes_from_installation_record": null,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": "fa4bc123",
+      "reused_acceptance_refs": [
+        "pure_final",
+        "independent_pure"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "Only existing product file; accepted pure stage, integration coverage via shared fixture/five author new tops."
+    },
+    {
+      "card_path_number": 2,
+      "repository_path": "internal/central/model/platform_embedding_resolution_test.go",
+      "accepted_source_sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d",
+      "bytes_from_installation_record": null,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": "fa4bc123",
+      "reused_acceptance_refs": [
+        "pure_final",
+        "independent_pure"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "Latest ProfileMatrix24 plus unaffected prior50; not one final-source fresh all-suite."
+    },
+    {
+      "card_path_number": 3,
+      "repository_path": "tests/model/platform_embedding_resolution_fixture_test.go",
+      "accepted_source_sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+      "bytes_from_installation_record": 22024,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": null,
+      "reused_acceptance_refs": [
+        "six_pg_static",
+        "selection_failure_and_fixture_delta",
+        "compile02_independent",
+        "selection_actual",
+        "atomicity_actual",
+        "authorization_actual",
+        "replay_actual",
+        "unknown_actual"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "Original cd738 static plus accepted consumer=model SQL predicate correction; current five actual rounds consume c433."
+    },
+    {
+      "card_path_number": 4,
+      "repository_path": "tests/model/platform_embedding_resolution_selection_test.go",
+      "accepted_source_sha256": "115d60519161b31de0c0368ebd727059223572d8fb6c402ec2f9a3d46c6e5668",
+      "bytes_from_installation_record": 10124,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": null,
+      "reused_acceptance_refs": [
+        "six_pg_static",
+        "compile02_independent",
+        "selection_actual"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "embedselect02 accepted author actual and independent original review."
+    },
+    {
+      "card_path_number": 5,
+      "repository_path": "tests/model/platform_embedding_resolution_atomicity_test.go",
+      "accepted_source_sha256": "64471260c1a514d07c6408f776d1629e26348611b0b27e57d6a925303f2778f5",
+      "bytes_from_installation_record": 7252,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": null,
+      "reused_acceptance_refs": [
+        "six_pg_static",
+        "compile02_independent",
+        "atomicity_actual"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "embedatomicity01 accepted author actual and independent original review."
+    },
+    {
+      "card_path_number": 6,
+      "repository_path": "tests/model/platform_embedding_resolution_authorization_test.go",
+      "accepted_source_sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe",
+      "bytes_from_installation_record": 17784,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": null,
+      "reused_acceptance_refs": [
+        "six_pg_static",
+        "compile02_independent",
+        "authorization_actual"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "embedauth01 accepted author actual and independent original review."
+    },
+    {
+      "card_path_number": 7,
+      "repository_path": "tests/model/platform_embedding_resolution_replay_test.go",
+      "accepted_source_sha256": "b796560e0348ec1f6286bdef4ca1a6a6f327800685998fb4f57bd16918841ccf",
+      "bytes_from_installation_record": 12499,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": null,
+      "reused_acceptance_refs": [
+        "six_pg_static",
+        "compile02_independent",
+        "replay_actual"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "embedreplay01 accepted author actual and independent original review; new Authority is not process restart."
+    },
+    {
+      "card_path_number": 8,
+      "repository_path": "tests/model/platform_embedding_resolution_unknown_test.go",
+      "accepted_source_sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d",
+      "bytes_from_installation_record": 6857,
+      "source_provenance": "Accepted compile02 installation metadata and accepted reports; no fresh working-tree source scan.",
+      "root_accepted_product_commit": null,
+      "reused_acceptance_refs": [
+        "six_pg_static",
+        "compile02_independent",
+        "unknown_actual"
+      ],
+      "status": "BOUNDED_PRIOR_PHASES_ACCEPTED_OVERALL_TECHNICAL_GATE_STILL_PENDING",
+      "note": "embedunknown01 controlled real commit/rollback decoration/cancellation; not physical ACK loss."
+    }
+  ],
+  "reports": {
+    "pure_final": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pure-final-review/review.md",
+      "bytes": 2236,
+      "sha256": "0c31f9d6d2ef888b1e200a0a2b51b64718dc987b8a8f9bee1a51a68f1784d477"
+    },
+    "independent_pure": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure-result-review/review.md",
+      "bytes": 2539,
+      "sha256": "9f3768ef4418fdd1d405d5b0302b02252c06615bedf68005cbff2de80364d077"
+    },
+    "six_pg_static": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    "selection_failure_and_fixture_delta": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+      "bytes": 3158,
+      "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+    },
+    "compile02_independent": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-compile02-review01/review.md",
+      "bytes": 2155,
+      "sha256": "279de7c2243836191a012e322f1bdf65f40333b20991409b03b680afe77bc855"
+    },
+    "selection_actual": {
+      "path": "/workspace/scratch/architecture-model-embedselect02-review/review.md",
+      "bytes": 1748,
+      "sha256": "1adbd48bb735122df18299b9bd1857a4058059f04626651820bd84ef10cfd372"
+    },
+    "atomicity_actual": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedatomicity01-review/review.md",
+      "bytes": 3165,
+      "sha256": "462a545e3507489ddff70b11a457bb911e4c8e00ceb1d37356ef990b47a861fc"
+    },
+    "authorization_actual": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedauth01-review/review.md",
+      "bytes": 3263,
+      "sha256": "2b93e8113d4a52e19712c766179424f426384b9f8b220480258dd42884e51030"
+    },
+    "replay_actual": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedreplay01-review01/review.md",
+      "bytes": 1717,
+      "sha256": "de379ff4e9bc090a1121897a09dbbf4ebc3a6b3181461119a63eaa3fce492817"
+    },
+    "unknown_actual": {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedunknown01-review/review.md",
+      "bytes": 2942,
+      "sha256": "1f02d9231d2577b289c7d820d74738e4c9f17e22156a3a51ac1cb86c11771797"
+    }
+  },
+  "offline_refs": {
+    "compile02_stop": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+      "bytes": 4524,
+      "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+    },
+    "compile02_installation": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    "exact14_list_result": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-list-proposal01/run01/result.json",
+      "bytes": 2219,
+      "sha256": "f92074e95440298ec61abd7034fa30d9b9b275f16e232c29e7b903662f133e9e"
+    }
+  },
+  "pure_combination": {
+    "latest_profile_matrix_run_entries": 24,
+    "prior_unaffected_run_entries": 50,
+    "unique_author_run_entries": 74,
+    "independent_three_supplements": "Two actual rounds combined; original first probe FAIL and repaired profile-only PASS preserved.",
+    "fresh_final_all_suite": false
+  },
+  "compile_list_combination": "compile02 new c433 race-c/vet PASS, 486 input only one hash changed. Exact14 list from prior binary reused only because generated TestMain bytes are identical; list is not new helper behavior.",
+  "five_author_actual_rounds": [
+    {
+      "run": "embedselect02",
+      "review": "selection_actual",
+      "run_entries": 11,
+      "top_seconds": 5.99,
+      "package_seconds": 7.024
+    },
+    {
+      "run": "embedatomicity01",
+      "review": "atomicity_actual",
+      "run_entries": 15,
+      "top_seconds": 7.23,
+      "package_seconds": 8.268
+    },
+    {
+      "run": "embedauth01",
+      "review": "authorization_actual",
+      "run_entries": 55,
+      "top_seconds": 8.99,
+      "package_seconds": 10.029
+    },
+    {
+      "run": "embedreplay01",
+      "review": "replay_actual",
+      "run_entries": 45,
+      "top_seconds": 12.57,
+      "package_seconds": 13.606
+    },
+    {
+      "run": "embedunknown01",
+      "review": "unknown_actual",
+      "run_entries": 17,
+      "top_seconds": 6.93,
+      "package_seconds": 7.959
+    }
+  ],
+  "common_actual_boundary": "Five author actual rounds plus independent original reviews, not independent actual A/B; 996 fixed input records/current c433. v03 five-round35 IDs only this generation, 0adopted/83observed not83wait, four nonowned shims per round not waited. Prior failures remain.",
+  "pending": [
+    {
+      "scope": "old-current-resolution actual regression round",
+      "top_names": [
+        "TestModelCurrentResolutionAtomicity",
+        "TestModelCurrentResolutionAuthorization",
+        "TestModelCurrentResolutionCanonicalLease",
+        "TestModelCurrentResolutionReplay",
+        "TestModelCurrentResolutionSelection",
+        "TestModelCurrentResolutionUnknown"
+      ],
+      "state": "NOT_ACCEPTED_IN_THIS_MAP"
+    },
+    {
+      "scope": "old-meeting-summary actual regression round",
+      "top_names": [
+        "TestModelMeetingSummaryResolutionAtomicity",
+        "TestModelMeetingSummaryResolutionReplay",
+        "TestModelMeetingSummaryResolutionSelection"
+      ],
+      "state": "NOT_ACCEPTED_IN_THIS_MAP"
+    },
+    {
+      "scope": "independent actual A/B",
+      "state": "PENDING_ACTUAL_RESULTS_AND_ACCEPTANCE; prior offline/prepared/filegate not test bodies"
+    },
+    {
+      "scope": "card path9 docs/development/backend/README.md",
+      "state": "CANDIDATE_ONLY_NOT_INSTALLED_OR_FINAL_ACCEPTED; root grants last piece after technical gate"
+    },
+    {
+      "scope": "final 8 technical / final9 combined acceptance",
+      "state": "PENDING above dependency results and final bounded integration"
+    }
+  ],
+  "persistent_limits": [
+    "No production Knowledge/Memory consumer or serving/dimension/Invocation/root expansion.",
+    "Unknown is controlled decoration after real commit/rollback, not physical COMMIT-ACK loss.",
+    "New Authority is not a process-restart test; released/private fact SQL not production APIs.",
+    "Original pure premise failures, source-v1 driver gate failures, embedselect01 FAIL and cleanupfalse/recovery remain distinct.",
+    "No new source review, full source graph/hash sweep, Go/list/build/tests/resources/network/Git or repository writes."
+  ],
+  "necessary_fixed_file_refs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pure-final-review/review.md",
+      "bytes": 2236,
+      "sha256": "0c31f9d6d2ef888b1e200a0a2b51b64718dc987b8a8f9bee1a51a68f1784d477"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure-result-review/review.md",
+      "bytes": 2539,
+      "sha256": "9f3768ef4418fdd1d405d5b0302b02252c06615bedf68005cbff2de80364d077"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+      "bytes": 3158,
+      "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-compile02-review01/review.md",
+      "bytes": 2155,
+      "sha256": "279de7c2243836191a012e322f1bdf65f40333b20991409b03b680afe77bc855"
+    },
+    {
+      "path": "/workspace/scratch/architecture-model-embedselect02-review/review.md",
+      "bytes": 1748,
+      "sha256": "1adbd48bb735122df18299b9bd1857a4058059f04626651820bd84ef10cfd372"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedatomicity01-review/review.md",
+      "bytes": 3165,
+      "sha256": "462a545e3507489ddff70b11a457bb911e4c8e00ceb1d37356ef990b47a861fc"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedauth01-review/review.md",
+      "bytes": 3263,
+      "sha256": "2b93e8113d4a52e19712c766179424f426384b9f8b220480258dd42884e51030"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedreplay01-review01/review.md",
+      "bytes": 1717,
+      "sha256": "de379ff4e9bc090a1121897a09dbbf4ebc3a6b3181461119a63eaa3fce492817"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/model-embedunknown01-review/review.md",
+      "bytes": 2942,
+      "sha256": "1f02d9231d2577b289c7d820d74738e4c9f17e22156a3a51ac1cb86c11771797"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+      "bytes": 4524,
+      "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-list-proposal01/run01/result.json",
+      "bytes": 2219,
+      "sha256": "f92074e95440298ec61abd7034fa30d9b9b275f16e232c29e7b903662f133e9e"
+    }
+  ]
+}

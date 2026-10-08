@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "state": "STOP_SPEC_STATIC_PASS",
+  "scope": "rev2 to rev3 three-line delta and final composition only",
+  "candidate": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-spec-v3/card.md",
+      "bytes": 24449,
+      "sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-spec-v3/freeze.json",
+      "bytes": 2000,
+      "sha256": "853d09f1c64fef4430fbb196834544ea433cbe0afef655e9ad1bf5e306ffccd9"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-spec-v3/rev2-to-rev3.diff",
+      "bytes": 8458,
+      "sha256": "65b866f0dd0e41360b9081b0d7af79c8259717ceb9b15a53c67a7c585265533e"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-spec-v3/source-inputs.json",
+      "bytes": 9229,
+      "sha256": "e53ed0dcb300e8501919842bb70a5f0522ce18dfedeac6e34db7a1801885a2b5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-spec-v3/author-static-checks.json",
+      "bytes": 3329,
+      "sha256": "52dc7ae0bdb69e641d0ecde7308edcb8c848018c5c31d06bd2682ddb6772bafb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-spec-v3/source-summary.md",
+      "bytes": 2655,
+      "sha256": "9533a4e519d848b9ca17850e5d81b0c2a364c8b01f4dce99304843a444e97d0e"
+    }
+  ],
+  "reused_reviews": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-resolution-spec-rev1-review/review.md",
+      "bytes": 2772,
+      "sha256": "4b16dd825901e451566ba9146e814e20f6e383a093c8a35e57bccfc83cb205bc"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-resolution-spec-rev2-review/review.md",
+      "bytes": 1552,
+      "sha256": "0badabfd45098b31b1e58c6ba82894f6d934efda1bff28a9bad1b68b1825c261"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pure-preparation01/plan.md",
+      "bytes": 3870,
+      "sha256": "113d3c5f4658cdd74d1bd30861c5ac0ac87124cf4bd7b9fbe82d053e0f10587c"
+    }
+  ],
+  "necessary_source_bindings": [
+    {
+      "path": "internal/central/model/resolver.go",
+      "bytes": 14572,
+      "sha256": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d"
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "bytes": 11225,
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45"
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "bytes": 10354,
+      "sha256": "577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59"
+    }
+  ],
+  "file_check": {
+    "chunk_id": "aa6973",
+    "exit_code": 0,
+    "method": "Python standard-library file SHA/byte/diff checks only",
+    "changed_lines": [
+      3,
+      71,
+      99
+    ],
+    "all_49_source_manifest_rehashed": false,
+    "source_manifest_exact_reuse": true,
+    "necessary_existing_sources_hashed": 3,
+    "technical_paths": 8,
+    "README_last_path": 9,
+    "all_test_names_and_links_unchanged": true,
+    "section7_8_exactly_unchanged": true,
+    "repository_card_equals_frozen_copy": true
+  },
+  "semantic_conditions_accepted": [
+    "Legal structurally valid rediscovery or Resolve of same Project/model_call unit",
+    "Current consumer authorization/full locks and writer/preparation reread before returning collected candidate errors",
+    "Exact owner/ref complete committed canonical identity mismatch -> Forbidden only with no earlier error",
+    "No-ref/no-existing-canonical/compatible identity -> semantic KeyReused only after every prerequisite and actual semantic mismatch",
+    "Committed uses original draft/ref irrespective of live selector changes",
+    "Changed request cannot reuse old opaque plan; different Project is separate unit but canonical Project check remains"
+  ],
+  "read_error_preserved": {
+    "chunk_id": "72d978",
+    "exit_code": 1,
+    "operation": "Read guessed selfcheck.json; file missing after valid freeze/diff output",
+    "corrective_read": "freeze-declared author-static-checks.json and source-summary.md",
+    "corrective_chunk_id": "23ac68",
+    "corrective_exit_code": 0,
+    "classification": "Read-only filename error; no product/spec failure and no mutation"
+  },
+  "go_node_git_network_resources_executed": false,
+  "active_candidate_read": false,
+  "repository_written": false,
+  "must_fix": [],
+  "limits": "SPEC acceptance only. No fresh compilation/pure/PG/authority/transaction/replay/Unknown/production acceptance."
+}

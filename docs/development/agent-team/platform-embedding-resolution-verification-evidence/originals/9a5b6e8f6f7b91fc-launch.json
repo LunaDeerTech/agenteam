@@ -1,0 +1,32 @@
+{
+  "run": "embedauth01",
+  "group": "new-authorization",
+  "spawned": true,
+  "intent_sha256": "aae62f069188424d5d2909095fe08c95e877168623046c5c4cff09f2103d4c2e",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/driver.py",
+    "--name",
+    "embedauth01",
+    "--group",
+    "new-authorization",
+    "--frozen",
+    "/workspace/scratch/platform-embedding-root-grants/embedauth01.json",
+    "--execute-authorized"
+  ],
+  "cwd": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03",
+  "started_utc": "2026-10-08T14:52:37.130482+00:00",
+  "root_grant_sha256": "249dee994604eca99d2516378f6d42b10af2d39264f5708e194527a23f5a78c3",
+  "driver_sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442",
+  "launcher_sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+  "outer_parent_pid": 790544,
+  "actual_direct_wait_completed": true,
+  "driver_pid": 790547,
+  "driver_starttime_ticks": 4103185,
+  "exit_code": 0,
+  "ended_utc": "2026-10-08T14:54:29.860616+00:00",
+  "elapsed_seconds": 112.73018834300456,
+  "cancellations": []
+}

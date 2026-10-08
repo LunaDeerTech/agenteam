@@ -1,0 +1,30 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": false,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 38255.205518879,
+      "top": "TestModelPlatformEmbeddingResolutionSelection"
+    },
+    {
+      "event": "result",
+      "monotonic": 38260.717421244,
+      "observed_seconds": 5.511902365004062,
+      "reported_seconds": 5.5,
+      "state": "FAIL",
+      "top": "TestModelPlatformEmbeddingResolutionSelection"
+    }
+  ],
+  "expected": [
+    "TestModelPlatformEmbeddingResolutionSelection"
+  ],
+  "failures": [
+    {
+      "reason": "selected top did not PASS",
+      "state": "FAIL",
+      "top": "TestModelPlatformEmbeddingResolutionSelection"
+    }
+  ]
+}

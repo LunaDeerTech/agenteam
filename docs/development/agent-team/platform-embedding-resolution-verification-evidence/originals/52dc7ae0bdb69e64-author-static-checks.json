@@ -1,0 +1,94 @@
+{
+  "kind": "author_static_spec_clarification_only",
+  "revision": "rev3",
+  "passed": true,
+  "problems": [],
+  "created_utc": "2026-10-08T12:26:51.337702+00:00",
+  "revision_reason": "root handoff of fixture_recovery finding: canonical lease authorization must retain its actual precedence before semantic conflict",
+  "only_changed_lines": [
+    {
+      "old_line": 3,
+      "new_line": 3
+    },
+    {
+      "old_line": 71,
+      "new_line": 71
+    },
+    {
+      "old_line": 99,
+      "new_line": 99
+    }
+  ],
+  "three_changes": "revision status; §4 precedence and conditions; existing Replay top expected classification",
+  "rev2_frozen_files_including_diff_unchanged": true,
+  "source_manifest_exact_copy": true,
+  "source_count": 49,
+  "all49_rehashed": false,
+  "necessary_sources_matched_original_fingerprints": [
+    {
+      "path": "internal/central/model/resolver.go",
+      "bytes": 14572,
+      "sha256": "3a85fab9db3ffa4d0831b6fef0bbdfce73d0740b2356f0d0ef5b31dd99ba2e5d"
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "bytes": 11225,
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45"
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "bytes": 10354,
+      "sha256": "577f6d28747c2666e91501e2a6702117bcc72ef59a1c0cdcbb32499741266f59"
+    },
+    {
+      "path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "bytes": 39350,
+      "sha256": "2a698720f2879eea62384f570ea5086d50aaebc578c8a6fe2ce113c93e7e57f6"
+    },
+    {
+      "path": "docs/development/agent-team/current-model-resolution-verification.md",
+      "bytes": 8745,
+      "sha256": "3da2b502e01432017c73240f09bab1a8fbe1d93b59dee1be21b971741f39baee"
+    }
+  ],
+  "links_unchanged": true,
+  "candidate_paths_unchanged": [
+    "internal/central/model/resolution_policy.go",
+    "internal/central/model/platform_embedding_resolution_test.go",
+    "tests/model/platform_embedding_resolution_fixture_test.go",
+    "tests/model/platform_embedding_resolution_selection_test.go",
+    "tests/model/platform_embedding_resolution_atomicity_test.go",
+    "tests/model/platform_embedding_resolution_authorization_test.go",
+    "tests/model/platform_embedding_resolution_replay_test.go",
+    "tests/model/platform_embedding_resolution_unknown_test.go",
+    "docs/development/backend/README.md"
+  ],
+  "test_top_names_unchanged": true,
+  "section7_and_downstream_entire_text_unchanged": true,
+  "classification_conditions": [
+    "legal new Discover/Resolve",
+    "current consumer ValidateInTx with full locks",
+    "original writer/preparation reread consistency",
+    "earlier cancellation/config/read/canonical errors preserved",
+    "committed exact canonical binding and incompatible Project/Agent/Execution required for specified Forbidden",
+    "otherwise semantic mismatch only after all prerequisites",
+    "committed original draft/ref controls lease interpretation",
+    "changed request cannot reuse old opaque plan"
+  ],
+  "not_run": [
+    "Go",
+    "Node",
+    "binary",
+    "SQL",
+    "network",
+    "resources",
+    "Git"
+  ],
+  "not_read": [
+    "active Audit Go sources",
+    "active webJS",
+    "other current source tree"
+  ],
+  "independent_spec_status": "PENDING_DELTA_AND_FINAL_COMBINATION",
+  "author_status": "STOP"
+}

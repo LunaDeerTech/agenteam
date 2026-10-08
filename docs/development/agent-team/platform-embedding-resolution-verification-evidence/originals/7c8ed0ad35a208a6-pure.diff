@@ -1,0 +1,40 @@
+--- v2/platform_embedding_resolution_test.go
++++ fixed/platform_embedding_resolution_test.go
+@@ -48,7 +48,8 @@
+ 		t.Run(string(purpose), func(t *testing.T) {
+ 			r := platformEmbeddingTestRequest(t, purpose)
+ 			p, m := platformEmbeddingTestProfile()
+-			contextLength := mc.TokenCount(8192)
++			const expectedContextLength mc.TokenCount = 8192
++			contextLength := expectedContextLength
+ 			for _, length := range []*mc.TokenCount{nil, &contextLength} {
+ 				m.Input.Capabilities.ContextLength = length
+ 				before, e := json.Marshal(m.Input)
+@@ -79,7 +80,7 @@
+ 				if copy.Snapshot.Capabilities.ContextLength != nil {
+ 					*copy.Snapshot.Capabilities.ContextLength = 1
+ 				}
+-				if string(out.Snapshot.Parameters) != "{}" || out.Snapshot.Capabilities.OutputModalities[0] != "vector" || len(out.Snapshot.HeaderOverwrite) != 0 || length != nil && *out.Snapshot.Capabilities.ContextLength != contextLength {
++				if string(out.Snapshot.Parameters) != "{}" || out.Snapshot.Capabilities.OutputModalities[0] != "vector" || len(out.Snapshot.HeaderOverwrite) != 0 || length != nil && (out.Snapshot.Capabilities.ContextLength == nil || *out.Snapshot.Capabilities.ContextLength != expectedContextLength) {
+ 					t.Fatal("caller mutation escaped result clone")
+ 				}
+ 			}
+@@ -125,10 +126,16 @@
+ 		t.Run(name, func(t *testing.T) {
+ 			p, m := platformEmbeddingTestProfile()
+ 			change(&p, &m)
+-			before, _ := json.Marshal([]any{p, m})
++			before, e := json.Marshal([]any{p.Input, m.Input})
++			if e != nil {
++				t.Fatal("encode profile inputs before resolution", e)
++			}
+ 			revision, e := resolutionProfile(&p, &m, selection)
+ 			requireCode(t, e, f.CapabilityUnsupported)
+-			after, _ := json.Marshal([]any{p, m})
++			after, e := json.Marshal([]any{p.Input, m.Input})
++			if e != nil {
++				t.Fatal("encode profile inputs after resolution", e)
++			}
+ 			if revision != "" || string(before) != string(after) {
+ 				t.Fatal("unsupported configuration was stripped or published")
+ 			}

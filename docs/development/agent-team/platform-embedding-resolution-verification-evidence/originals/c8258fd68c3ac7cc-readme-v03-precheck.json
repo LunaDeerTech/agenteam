@@ -1,0 +1,193 @@
+{
+  "status": "V03_STATIC_MATCH_LOW_IMPACT_STALE_PENDING_SENTENCE_REQUIRES_DELETION",
+  "freeze": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v03/freeze.json",
+    "sha256": "67dd6c73bbce49d7418fdd6cee0011db2249b834d0660502fc1438f5a8773f51"
+  },
+  "installed_v03_sha256": "d36a9392e5fbcfc4d895031d666d5d6fe50597c89f9928125a3b34ff21e324d1",
+  "candidate_matches_observed_installed_v03": true,
+  "single_insertion_hunk": true,
+  "inserted_bytes": 3229,
+  "inserted_lines": 8,
+  "inserted_paragraphs": 4,
+  "reconstructed_baseline": {
+    "bytes": 72922,
+    "sha256": "394a856acf52cf0be6eaa89f3fbce9f680f834f1de0bc0ac073f3462a1094696"
+  },
+  "new_added_lines_lf_and_whitespace_clean": true,
+  "generated_links_checked": [
+    {
+      "origin": "/workspace/agenteam/docs/development/backend/README.md",
+      "target": "../work-items/d09-platform-embedding-resolution.md",
+      "resolved": "/workspace/agenteam/docs/development/work-items/d09-platform-embedding-resolution.md",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/backend/README.md",
+      "target": "../agent-team/platform-embedding-resolution-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/ab14ab6b5832c2c9-review.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ab14ab6b5832c2c9-review.md",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/c26b50951e19fbb6-review.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c26b50951e19fbb6-review.md",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-spec-verification.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-spec-verification.md",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/0095e4ce8c387343-review.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0095e4ce8c387343-review.md",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/bfbecbd1360af4a2-source-rows.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bfbecbd1360af4a2-source-rows.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/9e918dc5b18ace77-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9e918dc5b18ace77-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/9e1f9c1ba1aff995-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9e1f9c1ba1aff995-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/d6e4ececc519d446-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d6e4ececc519d446-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/bf3261bd7b364935-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bf3261bd7b364935-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/f8793ba7c7dfc080-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f8793ba7c7dfc080-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/1767ccc6401bc634-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1767ccc6401bc634-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/d40814a1d71a06e8-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d40814a1d71a06e8-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/b692e88bfb7175d8-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b692e88bfb7175d8-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/8587c0acba32bc38-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8587c0acba32bc38-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/c32876a0bc817001-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c32876a0bc817001-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/d5f3b19965646c9a-review.md",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d5f3b19965646c9a-review.md",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/2e01911140c61a46-delta.patch",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2e01911140c61a46-delta.patch",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/originals/5ffbf09a2e23ca3e-result.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5ffbf09a2e23ca3e-result.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/source-map.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/source-map.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/checks.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/checks.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/format.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/format.json",
+      "exists": true
+    },
+    {
+      "origin": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "target": "platform-embedding-resolution-verification-evidence/manifest.json",
+      "resolved": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/manifest.json",
+      "exists": true
+    }
+  ],
+  "critical_permanent_originals": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ab14ab6b5832c2c9-review.md",
+      "bytes": 4581,
+      "sha256": "ab14ab6b5832c2c956ddccf32dd145b8969af920ba62f00819d02531516f64fe"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bfbecbd1360af4a2-source-rows.json",
+      "bytes": 3981,
+      "sha256": "bfbecbd1360af4a2bef5dbfa70532926433c1f23372d88f04d6781cc098be16a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c26b50951e19fbb6-review.md",
+      "bytes": 1578,
+      "sha256": "c26b50951e19fbb64cbc5e7796d67d71b75bc94101463d09700011d97abb431f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d5f3b19965646c9a-review.md",
+      "bytes": 4030,
+      "sha256": "d5f3b19965646c9afe01619248a944128ce287c56e2d80ea726722e1084fd262"
+    }
+  ],
+  "only_required_change": {
+    "delete_utf8": "；本 README 为第 9 路径说明末件，完整九路径仍待最终组合独验",
+    "bytes": 83,
+    "predicted_final_bytes": 76068,
+    "predicted_final_sha256": "8dfab5209555299eea8605cec3af3d787b214883ea3917ed557be81e9de5c7ec"
+  },
+  "limits": "No eight source rescan, full archive audit, dynamic check, repository write, Git or resource operation; final acceptance waits exact installed deletion."
+}

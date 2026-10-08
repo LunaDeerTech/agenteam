@@ -1,0 +1,28 @@
+{
+  "accepted": true,
+  "state": "STOP_PASS",
+  "completed_utc": "2026-10-08T12:40:02.341030+00:00",
+  "actual_exit": 0,
+  "actual_direct_wait_completed": true,
+  "adopted_waits": [],
+  "outer_seconds_including_retirement": 4.2391240280048805,
+  "owned_double_empty": true,
+  "inputs352_same": true,
+  "probe_inputs_same": true,
+  "forced": [],
+  "exception": null,
+  "raw": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure02/stdout.raw",
+      "bytes": 508,
+      "sha256": "18f14638c4bee3f0149147df7ac65426f2cc5bd6a45e210af37b3ee682c73d43"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-independent-pure02/stderr.raw",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "no_external_resources_started": true,
+  "scope": "One independent pure top only; no PG or runtime authority/transaction/replay/Unknown proof."
+}

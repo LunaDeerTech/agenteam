@@ -1,0 +1,73 @@
+{
+  "state": "ACTUAL_SELECTION_FAIL_STOP_TASK_RUNTIME_RECOVERY_PASS",
+  "stopped_utc": "2026-10-08T14:11:55.960477+00:00",
+  "run": "embedselect01",
+  "group": "new-selection",
+  "grant": {
+    "path": "/workspace/scratch/platform-embedding-root-grants/embedselect01.json",
+    "bytes": 16783,
+    "sha256": "d4e7940165264bc34afb2216d94f2380952fb9c55736039e11e49707e2c33066"
+  },
+  "original_inner": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/result.json",
+    "bytes": 31416,
+    "sha256": "9e918dc5b18ace77f3f2ab7a03408fe2e15db1dc09d0341a063157ca18d1ed8d"
+  },
+  "original_outer": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/launches/embedselect01/result.json",
+    "bytes": 1411,
+    "sha256": "dfb457aefce2da773c12aca17e46992639521389d5c0bf5b85e66c4d9f9d3ddb"
+  },
+  "original_raw": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/raw.log",
+    "bytes": 5872,
+    "sha256": "c9bd4a9d6cb1ded0d5341f0543a7b2448f4c9c0803163ade6e0a9eb76be30457"
+  },
+  "first_business_assertion": "platform_embedding_resolution_selection_test.go:229: resolution read material 5 <nil>",
+  "assertion_scope": "top-level final noSecretRead, after all ten emitted nested subtests PASS; cause not established by the raw log",
+  "unique_actual_run_names": 11,
+  "selected_top_passed": false,
+  "top_reported_seconds": 5.5,
+  "fixture_direct_actual_wait": true,
+  "fixture_exit": 255,
+  "adopted_actual_waits": 1,
+  "outer_direct_actual_wait": true,
+  "outer_exit": 1,
+  "outer_elapsed_seconds": 112.54763326399552,
+  "source_files_unchanged": true,
+  "verification_inputs_unchanged": true,
+  "exact_resource_ids": 7,
+  "original_owned_empty_twice": true,
+  "original_ids_absent_twice": true,
+  "original_double_cleanup": false,
+  "original_runtime_leftover": [
+    "go-build907913867"
+  ],
+  "independent_runtime_recovery": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/result.json",
+    "bytes": 1113,
+    "sha256": "5ffbf09a2e23ca3e804c8962907a26e9f525cb1b8b0f6d5b9b827bf0443afc0a"
+  },
+  "independent_runtime_recovery_command": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/command.json",
+    "bytes": 1058,
+    "sha256": "4514466d297d95703ad139e2bb9752ab727bb9f316893a72c8efe2b1f673738b"
+  },
+  "runtime_empty_after_recovery_twice": true,
+  "tcp": {
+    "original": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/runs/embedselect01/tcp-tail-observation.json",
+      "bytes": 51977,
+      "sha256": "a2741c1bf687eee7db071f2f3a6a7c8b4accca5fdece50ac50e637a27d6b7d29"
+    },
+    "double_delta_clear": true,
+    "seconds": 57.45297968699742,
+    "scope": "supplementary host polling; not complete short-connection trace or ownership proof"
+  },
+  "non_owned_new_pid1_shim_count": 4,
+  "non_owned_wait_claimed": false,
+  "retry_or_next_round": false,
+  "remaining_owner_commands_or_resources": false,
+  "root_resource_window_returned": true,
+  "gate_limitation": "v02 original prior-result gate still blocks because original inner.double_cleanup=false; no disposition is fabricated and no historical record rewritten."
+}

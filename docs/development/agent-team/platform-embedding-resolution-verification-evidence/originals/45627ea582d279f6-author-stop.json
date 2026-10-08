@@ -1,0 +1,202 @@
+{
+  "state": "AUTHOR_SINGLE_ROUND_PASS_STOP",
+  "sealed_utc": "2026-10-08T14:37:32.463684+00:00",
+  "run": "embedselect02",
+  "group": "new-selection",
+  "resource_window_returned": true,
+  "original_inner_result": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/result.json",
+    "bytes": 32183,
+    "sha256": "9e1f9c1ba1aff995b8593392734deb7f0caaee7575232c8fff9a94e9d7303603"
+  },
+  "original_outer_result": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedselect02/result.json",
+    "bytes": 1409,
+    "sha256": "dfed9e864397394fd010d2ba273179d563e3f81db796b0cade7dc3c8cffc2712"
+  },
+  "executed_once": true,
+  "tool_session_id": 82966,
+  "tool_exit_code": 0,
+  "retry_or_next_round": false,
+  "business": {
+    "top": "TestModelPlatformEmbeddingResolutionSelection",
+    "top_count": 1,
+    "nested_count": 10,
+    "unique_run_names": [
+      "TestModelPlatformEmbeddingResolutionSelection",
+      "TestModelPlatformEmbeddingResolutionSelection/missing-and-unconfigured-not-an-optional-success",
+      "TestModelPlatformEmbeddingResolutionSelection/safe-owner-select-does-not-authorize-or-accept-input",
+      "TestModelPlatformEmbeddingResolutionSelection/two-purposes-current-and-explicit-version-float-snapshot",
+      "TestModelPlatformEmbeddingResolutionSelection/four-purpose-version-changes-even-if-embedding-id-does-not",
+      "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback",
+      "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/model-disabled",
+      "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/provider-disabled",
+      "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/missing-text-capability",
+      "TestModelPlatformEmbeddingResolutionSelection/disabled-and-valid-but-unsupported-have-no-fallback/max-output",
+      "TestModelPlatformEmbeddingResolutionSelection/project-target-is-never-a-platform-fallback"
+    ],
+    "all_11_names_passed": true,
+    "top_reported_seconds": 5.99,
+    "watchdog_observed_seconds": 6.0089597050027805,
+    "model_package_seconds": 7.024,
+    "fixture_sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+    "new_sql_actual_result": "PASS: final noSecretRead query completed without SQL error and counted zero persisted secret.resolve rows with metadata.consumer=model",
+    "query": "SELECT count(*) FROM agenteam_audit.audit_records WHERE action='secret.resolve' AND metadata->>'consumer'='model'",
+    "query_scope": "All persisted Model-consumer material audit rows, System and Project, without project/actor/current-lease/time/baseline filtering; does not separately prove rolled-back internal attempts"
+  },
+  "retirement": {
+    "fixture_direct_actual_wait": true,
+    "fixture_exit": 0,
+    "fixture_seconds": 53.455,
+    "outer_direct_actual_wait": true,
+    "outer_exit": 0,
+    "outer_seconds": 108.93989414600219,
+    "watchdog_joined": true,
+    "adopted_actual_waits": 0,
+    "observed_process_identities": 83,
+    "observed_count_is_not_direct_wait_count": true,
+    "owned_empty_twice": true,
+    "runtime_empty_twice": true,
+    "remaining_new_resources_empty_twice": true,
+    "baseline_unchanged_twice": true,
+    "exact_resource_ids": [
+      "8243d75aad9dc18ad07145d6319fa2b4e6fd6037b847728ab530b234fecc9d9e",
+      "a76ca0dbba94246e29e675bf78345714032da9f2e0958a27fd6e3eb227df9d6d",
+      "b9d2a4498eca05399d753618c0b706eff296e59c637e1706dc9877751907aa9d",
+      "cac5f9827e55a090530473b3f9f28053be5bc1bd7661b84ee8ce67c8f2e19084",
+      "ddd243a8f99fa5e8c0256de496a782469e71ee0c9f516b05c7839c90e8b9b229",
+      "e4cfaa84d2dc7031b7ebc4bfc9f79927fad2dabbb3fc442ea8745cb20ad6a8ba",
+      "fecd7b6ccc7bf313a2d6340d9b170f709ca1a316cd3eebced40e1ccd50229233"
+    ],
+    "exact_7_ids_absent_twice": true,
+    "resource_topology_matches": true,
+    "id_history_scope": "v03 generation has no prior run; this round ID-chain prior_runs is empty",
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "tcp_seconds": 52.43046350599616,
+    "tcp_double_delta_clear": true,
+    "signals_sent_for_tcp": false,
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "new_non_owned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 746534,
+        "ppid": 1,
+        "starttime": "3971204",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 746888,
+        "ppid": 1,
+        "starttime": "3971457",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 747169,
+        "ppid": 1,
+        "starttime": "3971660",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 747766,
+        "ppid": 1,
+        "starttime": "3971853",
+        "state": "Z"
+      }
+    ],
+    "non_owned_wait_or_kill_claimed": false,
+    "historical_zombie_count_untouched": 194
+  },
+  "inputs": {
+    "before_and_after_records_equal": true,
+    "source_files_unchanged": true,
+    "verification_inputs_unchanged": true,
+    "files_count": 996,
+    "repository_go_source_count": 909,
+    "filename_sets": 63,
+    "external_go_groups": 355,
+    "actual_digest": "8fefb2e8350c6d1d01766087765b02b62f461cf3cb8249b2964dd26d5bd9e701",
+    "closure_sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922",
+    "no_added_graph_list_build_or_fixture_command_for_metadata": true
+  },
+  "previous_failures_kept_separate": [
+    {
+      "run": "embedselect01",
+      "selected_top_passed": false,
+      "original_double_cleanup": false,
+      "disposition": "Original FAIL and cleanup=false preserved; separate exact runtime recovery accepted before this fresh generation",
+      "original_record": {
+        "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-result.json",
+        "bytes": 3319,
+        "sha256": "229ecd4f290eed5af4ca8c74539a4ec20d791b9394227d71c0d8c5e3d16617c3"
+      }
+    },
+    {
+      "run": "Audit read01",
+      "scope": "Outside this Model result; no Audit failure is reclassified by embedselect02"
+    }
+  ],
+  "limits": [
+    "Only this Selection top is actually accepted here; remaining six author rounds still require separate root grants.",
+    "Independent A/B has not run.",
+    "No production consumer/serving/ExpectedDimensions/Nonchat/Invocation/root binding is accepted here; existing stops and Jina boundary unchanged.",
+    "This metadata step made no Go, test, driver, Docker, network or other resource invocation."
+  ],
+  "fixed_refs": {
+    "root_grant": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/embedselect02.json",
+      "bytes": 17708,
+      "sha256": "03068c0bc23054b86085ee74adfbe9bcd5373f3b64cf50d202cea23543c44f8d"
+    },
+    "failed_round_disposition": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/embedselect01-disposition.json",
+      "bytes": 1404,
+      "sha256": "b64ca04bd35c4d93c691cfa2dfcd22e61193a559c317f6910c365dfffb27274e"
+    },
+    "preparation_manifest": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/manifest.json",
+      "bytes": 1799,
+      "sha256": "a0cf7cb3c11f74f3be904dcf41dafef622afb2063630751b1d25a06a04720dd8"
+    },
+    "binding_delta": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/binding-delta.json",
+      "bytes": 5789,
+      "sha256": "bf665f394f50df17be8729ae1f3f97a9385da61a882ccd104af9e0c8082eeb54"
+    },
+    "source_stop": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+      "bytes": 4524,
+      "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+    },
+    "installation": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    "go_source_delta": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/closure.delta.json",
+      "bytes": 988,
+      "sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922"
+    },
+    "original_failed_round": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-result.json",
+      "bytes": 3319,
+      "sha256": "229ecd4f290eed5af4ca8c74539a4ec20d791b9394227d71c0d8c5e3d16617c3"
+    },
+    "original_failed_round_manifest": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-embedselect01-manifest.json",
+      "bytes": 10158,
+      "sha256": "cb072fb49f15ab0b15beca3d1977827ad355ee03ed20e165fac41f084aa55314"
+    }
+  },
+  "original_count": 33,
+  "original_bytes": 330354,
+  "manifest": "manifest.json"
+}

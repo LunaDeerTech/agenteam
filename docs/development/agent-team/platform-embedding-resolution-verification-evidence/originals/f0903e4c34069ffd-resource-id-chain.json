@@ -1,0 +1,31 @@
+{
+  "all_current_ids_distinct_from_prior": true,
+  "current_ids": [
+    "199551843fb6d9b15db1cfc67b8e6a0292539e26dd071603a24f16c92a3b9744",
+    "2327c081e2746bc2850412bb526c10ba56995d359f754189ab1236f79dad17b5",
+    "3a14589b2bd4c1c78cf2edfc396757e45284d6b92afaea1a03e24282f5867def",
+    "607d4c9e40cfddd34111caa1ed2d2260290bbccefa666a5d3ddebdcd0dcf6115",
+    "64dd18827d0eacf3244cb6c2735571a9a5def22e6c33474b2a9ddc7b69fe1b69",
+    "9c231be7d0a23dc9a398c780bdfa7be8db2ab592c803649151b523effa636933",
+    "cc50c7aed7a076d880f979dda9140ed725c167d88b66b8e0b7738f6cee88455c"
+  ],
+  "prior_runs": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/observed-resources.json",
+      "sha256": "028852c7ef08cafe1ae300b6bef0c0a80222dae9148bd1c2bd2c951fbd80ac6a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/observed-resources.json",
+      "sha256": "c296507da4ef5f92428e61019937be8982fb10d07f6f49c1e57b826faf3b1671"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/observed-resources.json",
+      "sha256": "2e63eb287f5f75c3878e9c9fb4f6a81b66b5b5851c1a69466da4cf6f445f32ff"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/observed-resources.json",
+      "sha256": "152e73b77512c5bf3e3d764b1e37c208d15b5f9835c7c3b03acb6d5076087fef"
+    }
+  ],
+  "repeated_ids": []
+}

@@ -1,0 +1,11 @@
+--- a/docs/development/backend/README.md
++++ b/docs/development/backend/README.md
+@@ -19,0 +20,8 @@
++
++[平台 Embedding current-selection Resolver](../work-items/d09-platform-embedding-resolution.md) 已为 `knowledge_embedding` 与 `memory_embedding` 接入 `platform.embedding`：Knowledge 绑定 Project/Operation，Memory 另需真实 Agent 归属，二者均沿当前四用途 selector 的 Embedding 字段与共享 version，只接受 enabled System Provider/Model 和已验 OpenAI Embeddings float profile。未配置或不支持时明确拒绝，不猜默认模型。原 `direct` 的合法 agent/tool chat 用途（含 `ApprovalAuto`）与 `platform.memory` 的 `json_schema` chat 选择保持；Memory 的 embedding 用途读取 `platform.embedding`，不是原 memory chat 选择。
++
++`SelectModel` 仍只返回当前 Human Session/Project Read 下的安全 ID/version。Resolve 在完整锁计划中重验当前 Session、Project 和受信 consumer 的 subject/operation/input 事实，沿同一 Store、调用者 Tx 完成必要 SQL 与 planned Secret Acquire，使 input 接受、snapshot、binding 和适用 lease 全提交或全回滚；InTx 返回仍属 provisional。prepared 可重新发现计划，已提交的同 Project/model_call 保持原 snapshot、selector version、endpoint 与 canonical lease，新合法 Call 才取当前配置；released lease 不复活，新 Session 重入仍重验当前授权，旧 opaque plan 不跨 Session/实例使用。无更早错误时，已提交 canonical ref 的 Project/AgentID/ExecutionID 不相容先拒 `Forbidden`；其它前置均通过后的合法同单位改义沿 `IdempotencyKeyReused`，不能仅按有无 ref 判断错误码。
++
++`ResolveModel` 仅在实际 Committed 且原 context 仍有效时返回。prepare/final Unknown 沿原 cause/attempt 与 writer 屏障确认，未确认、取消或锁忙均不返回候选，不凭缺行猜回滚或自动重发；取消返回不代表原 writer 已 join。当前固定版本的作者 Selection、Atomicity、Authorization、Replay、Unknown 五个新顶层、原 Resolver 六组与 S3 三组已分七轮实际通过并完整退休；独立 A/B 另以不同构造完成两个实际轮次并退休。这是各固定版本与 overlay 的证据组合，八条技术路径的最终组合独验已获接受，详见[平台 Embedding 验证](../agent-team/platform-embedding-resolution-verification.md)；本 README 为第 9 路径说明末件，完整九路径仍待最终组合独验。原首次 Selection 失败、原清理不全及另行退休恢复记录保留。Unknown 证据限于真实 commit/rollback 后的结果装饰及取消边界，不是物理 COMMIT ACK 丢失证明。
++
++该 selector 只解析未来 Knowledge/Memory 新索引的构建目标；已 serving generation 的查询仍须绑定其原 embedding snapshot，本卡未接 `serving_snapshot`。`ExpectedDimensions` 仍需后继受信 IndexProfile/generation 事实提供并冻结，不从型号或响应猜默认维度。测试专属 Knowledge/Memory canonical 行不代替生产事实；生产 consumer/Resolution Facts、`Nonchat.Embed`、凭据材料读取、Provider 发送、Invocation/Usage 写入及 Resolver 的默认根组合仍未绑定。既有三停止、Jina 取证限制及 ready503 保持，完整 D09/D13/D14 未由本库完成。

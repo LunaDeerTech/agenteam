@@ -1,0 +1,243 @@
+{
+  "status": "PASS_AUTHOR_ACTUAL_RESULT_AND_INDEPENDENT_FIXED_EVIDENCE_REVIEW",
+  "reviewer": "verification_runtime",
+  "scope": "Only sealed embedreplay01/new-replay; no independent actual A/B execution or active Unknown input read",
+  "primary_input_hashes": {
+    "inner": "f8793ba7c7dfc080d5f0670275cdf23c52f4d88fbe0c88befc492cf248e60c41",
+    "outer": "6ce9e87581b0c9973f09c85922f1c1089145e0edb18c2cf1a0a198b67b5acfec"
+  },
+  "original_refs": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/result.json",
+      "bytes": 35320,
+      "sha256": "f8793ba7c7dfc080d5f0670275cdf23c52f4d88fbe0c88befc492cf248e60c41"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/raw.log",
+      "bytes": 14541,
+      "sha256": "794aa1e506bf7943b590316e5eae089a254a4fe3f5a84e82106c51da9ba15649"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/command.json",
+      "bytes": 1979,
+      "sha256": "2552344f45664cd820fc441060feaaff0dd4c2a70ec8e90aa9fef4f1b8a24b65"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/watchdog.json",
+      "bytes": 535,
+      "sha256": "6ab9739154b0659a443edb90fa51fce87e8af294edaa8012680dee665c715b19"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/resource-id-chain.json",
+      "bytes": 1309,
+      "sha256": "7254b8761c59447f710a7d4072161408797e3f78f19542b094e021a830da36d1"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/cleanup.json",
+      "bytes": 81919,
+      "sha256": "ed5ab873e86a9830c5bc38da06d40fc9f55fee0e84ea29717176d612fb9c7c04"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/input-before.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/input-after.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/verification-input.json",
+      "bytes": 183,
+      "sha256": "e222aabdaa178107f7afff6a7447102c7704f9c0fa8792c0150b0ceeba6db291"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/frozen-input.json",
+      "bytes": 17749,
+      "sha256": "8360b27dab7ee31e49ea541d288ad02154ed0c855c7759e5f9c9aa80ded534b1"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/tcp-tail-observation.json",
+      "bytes": 40637,
+      "sha256": "bde65965613bb9b326ee5a2a7ac20fd0d2a722e771c1cff42f93f4330db6ffb9"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/observed-resources.json",
+      "bytes": 5143,
+      "sha256": "2e63eb287f5f75c3878e9c9fb4f6a81b66b5b5851c1a69466da4cf6f445f32ff"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedreplay01/result.json",
+      "bytes": 1403,
+      "sha256": "6ce9e87581b0c9973f09c85922f1c1089145e0edb18c2cf1a0a198b67b5acfec"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_replay_test.go",
+      "bytes": 12499,
+      "sha256": "b796560e0348ec1f6286bdef4ca1a6a6f327800685998fb4f57bd16918841ccf"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-no-secret-read-v2/platform_embedding_resolution_fixture_test.go",
+      "bytes": 22024,
+      "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+    }
+  ],
+  "execution": {
+    "top": "TestModelPlatformEmbeddingResolutionReplay",
+    "run_count": 45,
+    "pass_count": 45,
+    "same_unique_names": true,
+    "count_meaning": "1 top + 2 purpose groups + 42 leaf tests (14 history/authorization leaves + 28 same-Call matrix leaves)",
+    "top_seconds": 12.57,
+    "package_seconds": 13.606,
+    "fixture_seconds": 65.477,
+    "outer_seconds": 119.96749017100228,
+    "outer_close_to_120_seconds": true,
+    "direct_wait_completed": true,
+    "fixture_exit_code": 0,
+    "outer_exit_code": 0,
+    "adopted_waits": 0,
+    "observed_processes": 83,
+    "observed_is_not_wait_count": true,
+    "watchdog_joined": true,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "resource_ids": [
+      "3b9e74a407305144bff3edf223363a74afe5778bda1fd387ff88ca3365e7b212",
+      "8524566d04d7a6dc7a1dd9c5debbd437220dd5f54edb310664bf57a57084ce88",
+      "9640c3e80729b169d431bb113f99287c256db6bffab16c7e9c56c5e75a342d22",
+      "96fd511d491618680d58217817b8f9fee83717d7f99b33edc274695b80051271",
+      "9d986a69a6eaa44923035c78ec42669236575ad3a0ffdc2ca0fe7976daa30409",
+      "cda96a4553eb6f457f27554e78d1530489aea26d5001ead6ec24de8da81fbeba",
+      "ef4c90a123ecee17ca03d4dba8fdbc8f60b7b4937909b58c7d9154b549578b76"
+    ],
+    "resource_kinds": {
+      "containers": 4,
+      "networks": 3
+    }
+  },
+  "retirement": {
+    "cleanup_scans": [
+      {
+        "time": "2026-10-08T14:57:42.109887+00:00",
+        "baseline_unchanged": true,
+        "exact_ids": [
+          "3b9e74a407305144bff3edf223363a74afe5778bda1fd387ff88ca3365e7b212",
+          "8524566d04d7a6dc7a1dd9c5debbd437220dd5f54edb310664bf57a57084ce88",
+          "9640c3e80729b169d431bb113f99287c256db6bffab16c7e9c56c5e75a342d22",
+          "96fd511d491618680d58217817b8f9fee83717d7f99b33edc274695b80051271",
+          "9d986a69a6eaa44923035c78ec42669236575ad3a0ffdc2ca0fe7976daa30409",
+          "cda96a4553eb6f457f27554e78d1530489aea26d5001ead6ec24de8da81fbeba",
+          "ef4c90a123ecee17ca03d4dba8fdbc8f60b7b4937909b58c7d9154b549578b76"
+        ],
+        "all_seven_absent": true,
+        "owned_processes": [],
+        "runtime_entries": [],
+        "remaining_new": []
+      },
+      {
+        "time": "2026-10-08T14:57:42.841949+00:00",
+        "baseline_unchanged": true,
+        "exact_ids": [
+          "3b9e74a407305144bff3edf223363a74afe5778bda1fd387ff88ca3365e7b212",
+          "8524566d04d7a6dc7a1dd9c5debbd437220dd5f54edb310664bf57a57084ce88",
+          "9640c3e80729b169d431bb113f99287c256db6bffab16c7e9c56c5e75a342d22",
+          "96fd511d491618680d58217817b8f9fee83717d7f99b33edc274695b80051271",
+          "9d986a69a6eaa44923035c78ec42669236575ad3a0ffdc2ca0fe7976daa30409",
+          "cda96a4553eb6f457f27554e78d1530489aea26d5001ead6ec24de8da81fbeba",
+          "ef4c90a123ecee17ca03d4dba8fdbc8f60b7b4937909b58c7d9154b549578b76"
+        ],
+        "all_seven_absent": true,
+        "owned_processes": [],
+        "runtime_entries": [],
+        "remaining_new": []
+      }
+    ],
+    "tcp_budget_seconds": 75,
+    "tcp_seconds": 51.45596609299537,
+    "tcp_double_clear": true,
+    "tcp_final_scans": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T14:58:34.593161+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T14:58:34.801253+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_limit": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "signals_for_tcp": false,
+    "nonowned_pid1_shims": [
+      {
+        "pid": 800487,
+        "starttime": 4127634
+      },
+      {
+        "pid": 800942,
+        "starttime": 4128053
+      },
+      {
+        "pid": 801303,
+        "starttime": 4128265
+      },
+      {
+        "pid": 801905,
+        "starttime": 4128463
+      }
+    ],
+    "nonowned_shims_waited_or_modified": false,
+    "prior_214_pid1_zombies": "historical, untouched; not owned retirement evidence"
+  },
+  "inputs": {
+    "count": 996,
+    "before_after_same": true,
+    "expected_actual_digest": "8fefb2e8350c6d1d01766087765b02b62f461cf3cb8249b2964dd26d5bd9e701",
+    "missing_mismatch_set_changes": [],
+    "shared_go_delta": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922",
+    "current_fixture_sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+  },
+  "assertions_reviewed": [
+    "Both KnowledgeEmbedding and MemoryEmbedding: selected Model change replans draft; old accepted plan is NotCommitted and four persisted atomic facts remain zero; current plan commits once.",
+    "Existing committed snapshot JSON and canonical lease ID remain identical after live selection changes, formal Provider/Model disable/endpoint changes and deletes; new Call resolves current selection with new snapshot/lease.",
+    "New in-process resolution Authority plus formal new Owner Session recovers durable history; old opaque plan is Forbidden. This is not an OS process restart.",
+    "Private strict subject/operation facts and accepted request digests remain mandatory; controlled rewritten accepted input, closed subject and cancelled operation reject before acquisition/persisted facts.",
+    "Consumer remapping changes opaque accepted mapping; it does not promise a Model plan_version increment. Explicit selection version is not silently upgraded.",
+    "Controlled SQL released=true remains irreversible in the disposable fixture; it is not a production release or material-read operation.",
+    "28 validated same-Call variants cover ref/no-ref, Prepared/Committed, operation/version/cross-purpose and Memory Agent. Changed requests preserve zero plan/no new acquisition/no added snapshot; committed canonical ref with Agent/cross-purpose mismatch preserves Forbidden before IdempotencyKeyReused.",
+    "Final noSecretRead reaches current consumer=model query and succeeds: zero persisted Model secret.resolve audit events across database, without scope/actor/lease filtering. This does not prove absence of rolled-back read attempts."
+  ],
+  "not_claimed": [
+    "independent actual A/B execution",
+    "Unknown result acceptance",
+    "production Knowledge/Memory consumer binding",
+    "serving/dimensions/Invocation or external Provider calls",
+    "process restart recovery",
+    "production release/material operation",
+    "complete host short-connection capture",
+    "all-machine process absence",
+    "old behavior execution in packages reporting no tests to run"
+  ],
+  "review_actions": "Read only the listed frozen originals and source, counted raw RUN/PASS and inspected existing records. No Go, Node, binary, driver, filegate, SQL, host scan, resources or network executed. No product/repository writes.",
+  "stop": true
+}

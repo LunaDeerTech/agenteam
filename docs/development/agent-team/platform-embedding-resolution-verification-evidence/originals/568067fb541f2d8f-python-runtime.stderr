@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/python-runtime.py", line 30, in <module>
+    assert 'site-packages' not in path.parts, (name, str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('_distutils_hack', '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/_distutils_hack/__init__.py')

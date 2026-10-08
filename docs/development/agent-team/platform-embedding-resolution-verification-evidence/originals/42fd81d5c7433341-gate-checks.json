@@ -1,0 +1,483 @@
+{
+  "actual_process_or_resource_retirement_tested": false,
+  "allow_cases": 6,
+  "block_cases": 67,
+  "case_count": 73,
+  "cases": [
+    {
+      "actual": "ALLOW",
+      "case": "immutable exact boolean grant",
+      "expected": "ALLOW"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject authorization False",
+      "expected": "BLOCK",
+      "reason": "resource authorization must be boolean true"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject authorization 1",
+      "expected": "BLOCK",
+      "reason": "resource authorization must be boolean true"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject authorization 'true'",
+      "expected": "BLOCK",
+      "reason": "resource authorization must be boolean true"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject authorization None",
+      "expected": "BLOCK",
+      "reason": "resource authorization must be boolean true"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject writable grant 0o600",
+      "expected": "BLOCK",
+      "reason": "grant must be immutable and unchanged"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject writable grant 0o420",
+      "expected": "BLOCK",
+      "reason": "grant must be immutable and unchanged"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject writable grant 0o402",
+      "expected": "BLOCK",
+      "reason": "grant must be immutable and unchanged"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject changed grant bytes",
+      "expected": "BLOCK",
+      "reason": "grant must be immutable and unchanged"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject wrong exact name",
+      "expected": "BLOCK",
+      "reason": "grant must bind one exact name and group"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject invalid invocation name",
+      "expected": "BLOCK",
+      "reason": "invalid invocation name; grant must bind one exact name and group"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject wrong group",
+      "expected": "BLOCK",
+      "reason": "grant must bind one exact name and group"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject changed pending_inputs",
+      "expected": "BLOCK",
+      "reason": "preparation is still pending"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject changed permitted_groups",
+      "expected": "BLOCK",
+      "reason": "grant must bind one exact name and group"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject changed driver_sha256",
+      "expected": "BLOCK",
+      "reason": "both execution source hashes must match"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject changed launcher_sha256",
+      "expected": "BLOCK",
+      "reason": "both execution source hashes must match"
+    },
+    {
+      "actual": "ALLOW",
+      "case": "first launcher before own directory exists",
+      "expected": "ALLOW"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "direct driver with no outer launcher is blocked",
+      "expected": "BLOCK",
+      "reason": "resource driver requires its bound active outer launcher"
+    },
+    {
+      "actual": "ALLOW",
+      "case": "only correctly bound current launch is exempt",
+      "expected": "ALLOW"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "launcher cannot reuse an existing name",
+      "expected": "BLOCK",
+      "reason": "invocation name already exists; no overwrite/retry"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects launcher_pid",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects launcher_starttime_ticks",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects root_grant_sha256",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects driver_sha256",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects launcher_sha256",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects run",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects group",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current intent rejects state",
+      "expected": "BLOCK",
+      "reason": "current launch intent is not bound to this grant and actual parent"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current copy rejects writable root-grant.json",
+      "expected": "BLOCK",
+      "reason": "current launch grant/intent copy is not immutable and exact"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current copy rejects writable intent.json",
+      "expected": "BLOCK",
+      "reason": "current launch grant/intent copy is not immutable and exact"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current launch cannot exempt a started run",
+      "expected": "BLOCK",
+      "reason": "current invocation has already started or ended"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "current launch cannot exempt an outer terminal",
+      "expected": "BLOCK",
+      "reason": "current invocation has already started or ended"
+    },
+    {
+      "actual": "ALLOW",
+      "case": "complete prior PASS permits next launcher",
+      "expected": "ALLOW"
+    },
+    {
+      "actual": "ALLOW",
+      "case": "complete prior PASS plus current bound launch permits driver",
+      "expected": "ALLOW"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "missing prior original blocks: root-grant.json",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "missing prior original blocks: intent.json",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "missing prior original blocks: launch.json",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "missing prior original blocks: outer-result.json",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "missing prior original blocks: inner-result.json",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "missing prior original blocks: cleanup.json",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "pre-Popen launch without run blocks next",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "inner PASS without outer launch blocks next",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "outer invalid accepted",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "outer invalid exit_code",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "outer invalid actual_direct_wait_completed",
+      "expected": "BLOCK",
+      "reason": "prior01: prior outer identity or actual wait is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "outer invalid driver_result_sha256",
+      "expected": "BLOCK",
+      "reason": "prior01: prior inner result binding or retirement is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "outer invalid root_grant_bytes_unchanged",
+      "expected": "BLOCK",
+      "reason": "prior01: prior inner result binding or retirement is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "outer invalid driver_pid",
+      "expected": "BLOCK",
+      "reason": "prior01: prior outer process identity mismatch"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "launch invalid actual_direct_wait_completed",
+      "expected": "BLOCK",
+      "reason": "prior01: prior outer identity or actual wait is incomplete; prior outer identity or actual wait is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "launch invalid spawned",
+      "expected": "BLOCK",
+      "reason": "prior01: prior outer identity or actual wait is incomplete; prior outer identity or actual wait is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "launch invalid exit_code",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "launch invalid intent_sha256",
+      "expected": "BLOCK",
+      "reason": "prior01: prior outer identity or actual wait is incomplete; prior outer identity or actual wait is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "inner invalid actual_wait_completed",
+      "expected": "BLOCK",
+      "reason": "prior01: prior inner result binding or retirement is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "inner invalid watchdog_thread_joined",
+      "expected": "BLOCK",
+      "reason": "prior01: prior inner result binding or retirement is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "inner invalid double_cleanup",
+      "expected": "BLOCK",
+      "reason": "prior01: prior inner result binding or retirement is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "inner invalid accepted",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "cleanup invalid remaining_new",
+      "expected": "BLOCK",
+      "reason": "prior01: prior two original cleanup records are not complete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "cleanup invalid owned_processes",
+      "expected": "BLOCK",
+      "reason": "prior01: prior two original cleanup records are not complete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "cleanup invalid runtime_entries",
+      "expected": "BLOCK",
+      "reason": "prior01: prior two original cleanup records are not complete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "cleanup invalid baseline_unchanged",
+      "expected": "BLOCK",
+      "reason": "prior01: prior two original cleanup records are not complete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "cleanup invalid exact_absent",
+      "expected": "BLOCK",
+      "reason": "prior01: prior two original cleanup records are not complete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "cleanup invalid exact_absent",
+      "expected": "BLOCK",
+      "reason": "prior01: prior two original cleanup records are not complete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "fully retired failure without disposition remains blocked",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "ALLOW",
+      "case": "exact immutable root disposition allows continuation but preserves failed result",
+      "expected": "ALLOW"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject disposition {'mode': 384}",
+      "expected": "BLOCK",
+      "reason": "root disposition is not immutable and exact"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject disposition {'bound_sha': 'stale'}",
+      "expected": "BLOCK",
+      "reason": "root disposition is not immutable and exact"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject disposition {'changes': {'root_authorized_continue': 1}}",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject disposition {'changes': {'original_hashes': {}}}",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject disposition {'changes': {'run': 'other01'}}",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "reject disposition {'changes': {'reason': ''}}",
+      "expected": "BLOCK",
+      "reason": "prior01: prior failed invocation has no exact root disposition"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "disposition never substitutes missing outer original",
+      "expected": "BLOCK",
+      "reason": "prior invocation has missing originals: prior01"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "disposition never substitutes missing actual wait",
+      "expected": "BLOCK",
+      "reason": "prior01: prior inner result binding or retirement is incomplete"
+    },
+    {
+      "actual": "BLOCK",
+      "case": "disposition never substitutes cleanup",
+      "expected": "BLOCK",
+      "reason": "prior01: prior two original cleanup records are not complete"
+    }
+  ],
+  "driver_imported_or_executed": false,
+  "exact_tops": 14,
+  "identical_gate_functions_in_both_entrypoints": [
+    "grant_errors",
+    "validate_execution_grant",
+    "process_starttime",
+    "current_launch_errors",
+    "prior_terminal_errors",
+    "check_invocation_history"
+  ],
+  "root_authorized_resources": false,
+  "scope": "AST-extracted gate functions using memory-only paths and a synthetic parent identity. No Go, process, Docker, listener, provider or test body.",
+  "selector_groups": 7,
+  "source_syntax_checked": [
+    "driver.py",
+    "launch.py",
+    "prepare.py",
+    "check_gates.py",
+    "check_filegate.py"
+  ],
+  "state": "V02_ISOLATED_GATE_CHECKS_PASS",
+  "unchanged_accepted_retirement_helpers": [
+    "sha",
+    "load_bound",
+    "digest",
+    "processes",
+    "is_main",
+    "observe_processes",
+    "reap_adopted",
+    "write_retirement",
+    "retire_owned",
+    "watch_output",
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "resource_topology",
+    "tcp_snapshot",
+    "tcp_identity",
+    "tcp_delta",
+    "retire_tcp_observation"
+  ],
+  "unchanged_watchdog_runtime_environment_and_actual_graph_reader": true
+}

@@ -1,0 +1,44 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelPlatformEmbeddingIndependentA)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-08T15:23:48.543968+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/fixture-recovery-new/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/docker-config",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/platform-embedding-independent-ab-compile01/overlay.json",
+    "GOMAXPROCS": "2",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOPATH": "/workspace/go",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOTMPDIR": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/runtime",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "PATH": "/workspace/toolchains/go1.27.1/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/scratch/platform-embedding-independent-ab-prepare01/driver-v02/runs/ind-model-a01/runtime"
+  },
+  "exit": 0,
+  "package_budget": "original fixed fixture -timeout=6m",
+  "pid": 863315,
+  "pid_starttime": "4283937",
+  "pid_stat": "863315 (sh) S 863220 863315 863315 0 -1 4194560 246 1755 0 0 0 0 0 0 20 0 1 0 4283937 2744320 160 18446744073709551615 94898080149504 94898080230497 140735407138304 0 0 0 0 0 81922 1 0 0 17 0 0 0 0 0 0 94898080259632 94898080264768 94899131080704 140735407143962 140735407144037 140735407144037 140735407144940 0\n",
+  "seconds": 63.889,
+  "started_utc": "2026-10-08T15:22:44.654624+00:00",
+  "testmain_dynamic_builds": [
+    "./cmd/agenteam",
+    "./cmd/agenteam-runner"
+  ],
+  "top_watchdog_streaming": "GOFLAGS -v -p=1; Go1.27.1 testShowPass && BuildP==1",
+  "watchdog_thread_joined": true
+}

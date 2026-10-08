@@ -1,0 +1,5 @@
+--- v03/docs/development/backend/README.md
++++ v04/docs/development/backend/README.md
+@@ -25 +25 @@
+-`ResolveModel` 仅在实际 Committed 且原 context 仍有效时返回。prepare/final Unknown 沿原 cause/attempt 与 writer 屏障确认，未确认、取消或锁忙均不返回候选，不凭缺行猜回滚或自动重发；取消返回不代表原 writer 已 join。当前固定版本的作者 Selection、Atomicity、Authorization、Replay、Unknown 五个新顶层、原 Resolver 六组与 S3 三组已分七轮实际通过并完整退休；独立 A/B 另以不同构造完成两个实际轮次并退休。这是各固定版本与 overlay 的证据组合，八条技术路径的最终组合独验已获接受，详见[平台 Embedding 验证](../agent-team/platform-embedding-resolution-verification.md)；本 README 为第 9 路径说明末件，完整九路径仍待最终组合独验。原首次 Selection 失败、原清理不全及另行退休恢复记录保留。Unknown 证据限于真实 commit/rollback 后的结果装饰及取消边界，不是物理 COMMIT ACK 丢失证明。
++`ResolveModel` 仅在实际 Committed 且原 context 仍有效时返回。prepare/final Unknown 沿原 cause/attempt 与 writer 屏障确认，未确认、取消或锁忙均不返回候选，不凭缺行猜回滚或自动重发；取消返回不代表原 writer 已 join。当前固定版本的作者 Selection、Atomicity、Authorization、Replay、Unknown 五个新顶层、原 Resolver 六组与 S3 三组已分七轮实际通过并完整退休；独立 A/B 另以不同构造完成两个实际轮次并退休。这是各固定版本与 overlay 的证据组合，八条技术路径的最终组合独验已获接受，详见[平台 Embedding 验证](../agent-team/platform-embedding-resolution-verification.md)。原首次 Selection 失败、原清理不全及另行退休恢复记录保留。Unknown 证据限于真实 commit/rollback 后的结果装饰及取消边界，不是物理 COMMIT ACK 丢失证明。

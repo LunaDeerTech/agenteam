@@ -1,0 +1,24 @@
+{
+  "state": "ACTUAL_486_BOUND_INPUTS_BEFORE_CURRENT_COMPILE",
+  "base_inputs": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/inputs-before.json",
+    "bytes": 47868,
+    "sha256": "f7a2f86f0cd4c2457f3a4cd0dc626b0e7c75f79295b3486890a449e8d7101278"
+  },
+  "actual_prior_graph_evidence": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/observed-inputs.json",
+    "bytes": 43379,
+    "sha256": "090934a6f26d8bc60467db864df6f8d244a70b4ec12d788745e9e223af339055"
+  },
+  "file_count": 486,
+  "replacement": [
+    {
+      "path": "tests/model/platform_embedding_resolution_fixture_test.go",
+      "bytes": 22024,
+      "sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f"
+    }
+  ],
+  "all_other_485_match": true,
+  "expected_actual_digest": "c32dddce32d39fd033803c76e86fcfceaabc38c945d7046bed31029135f1599a",
+  "scope": "Reuse original exact tests/model selected Go/nonGo/embed/lock names; one SQL string hash replacement. No new graph/list or expanded input index."
+}

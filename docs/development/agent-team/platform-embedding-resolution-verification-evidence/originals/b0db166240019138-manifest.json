@@ -1,0 +1,20 @@
+{
+  "state": "STOP",
+  "scope": "ORIGINAL_FAIL_AND_RETIREMENT_RECOVERY_REVIEW_PLUS_SINGLE_SQL_STATIC",
+  "files": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/review.md",
+      "bytes": 3158,
+      "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-embedselect01-review01/evidence.json",
+      "bytes": 15785,
+      "sha256": "f04c638a10f97434f4d4b25e05fa8f33ea63a9cab6693fe9a3f82bb989ad9b08"
+    }
+  ],
+  "candidate_sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+  "original_failure_manifest_sha256": "cb072fb49f15ab0b15beca3d1977827ad355ee03ed20e165fac41f084aa55314",
+  "no_new_execution": true,
+  "no_repository_write": true
+}

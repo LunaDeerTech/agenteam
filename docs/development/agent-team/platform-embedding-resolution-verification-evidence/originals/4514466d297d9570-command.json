@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/retire-runtime.py"
+  ],
+  "cwd": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01",
+  "script_sha256": "4117653dcb1d2bc86338844d04b91c6112b69a3865f5604bbbc7fb9e3610620c",
+  "started_utc": "2026-10-08T14:10:03.788856+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 0.8677540529970429,
+  "actual_wait_completed": true,
+  "resources_started": false,
+  "raw": {
+    "raw.stdout": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/raw.stdout",
+      "sha256": "5da93d0dcc31fe1368dcbf2ddf8fc70b10b4be05cbc79635acefde2b51e66ec5"
+    },
+    "raw.stderr": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-retirement-embedselect01/raw.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

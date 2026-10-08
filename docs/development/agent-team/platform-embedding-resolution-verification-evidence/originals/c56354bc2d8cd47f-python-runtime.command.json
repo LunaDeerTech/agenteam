@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/python-runtime.py"
+  ],
+  "cwd": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01",
+  "script_sha256": "f0823f73896af3c0afa241a56af57958d797fc59b9fac596c172c2b04e0ffbee",
+  "started_utc": "2026-10-08T13:55:07.070134+00:00",
+  "exit_code": 1,
+  "elapsed_seconds": 0.06427730600262294,
+  "actual_wait_completed": true,
+  "resources_started": false,
+  "raw": {
+    "python-runtime.stdout": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/python-runtime.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "python-runtime.stderr": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-inputs-v01/python-runtime.stderr",
+      "sha256": "568067fb541f2d8f5aa0db20e27fe6f7132135da184805676b30ed649aecadfc"
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "state": "SIX_PG_SOURCES_INSTALLED_OFFLINE_COMPILE_VET_PASS_STOP",
+  "completed_utc": "2026-10-08T12:59:55.666115+00:00",
+  "commands": {
+    "compile01": {
+      "exit_code": 0,
+      "elapsed_seconds": 7.512086816997908,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    },
+    "vet01": {
+      "exit_code": 0,
+      "elapsed_seconds": 8.975299173005624,
+      "outer_timeout": false,
+      "actual_direct_wait_completed": true,
+      "owned_process_group_remaining": []
+    }
+  },
+  "second_owned_process_group_remaining": [],
+  "before_candidate_input_count": 486,
+  "all_candidate_inputs_unchanged": true,
+  "changed_paths": [],
+  "final_sources": [
+    {
+      "path": "tests/model/platform_embedding_resolution_fixture_test.go",
+      "bytes": 21990,
+      "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c",
+      "equals_original_frozen_candidate": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_selection_test.go",
+      "bytes": 10124,
+      "sha256": "115d60519161b31de0c0368ebd727059223572d8fb6c402ec2f9a3d46c6e5668",
+      "equals_original_frozen_candidate": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_atomicity_test.go",
+      "bytes": 7252,
+      "sha256": "64471260c1a514d07c6408f776d1629e26348611b0b27e57d6a925303f2778f5",
+      "equals_original_frozen_candidate": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_authorization_test.go",
+      "bytes": 17784,
+      "sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe",
+      "equals_original_frozen_candidate": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_replay_test.go",
+      "bytes": 12499,
+      "sha256": "b796560e0348ec1f6286bdef4ca1a6a6f327800685998fb4f57bd16918841ccf",
+      "equals_original_frozen_candidate": true
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_unknown_test.go",
+      "bytes": 6857,
+      "sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d",
+      "equals_original_frozen_candidate": true
+    }
+  ],
+  "policy_and_pure_unchanged": true,
+  "test_binary_executed": false,
+  "go_list_executed": false,
+  "pg_or_other_business_resources_started": false,
+  "original_candidate_freeze_sha256": "a442fcb8c14075b56511f012d97c9ecd3efb9a9d1f6c2e45b2e03599c11da22e",
+  "source_version": "Original a442fcb8 six candidates, no compilation fixes",
+  "observed_input_summary": {
+    "actual_vet_local_packages": 41,
+    "actual_vet_go_files": 463,
+    "embed_assets": 21,
+    "module_files": 2,
+    "total_named_inputs": 486,
+    "all_unchanged": true
+  },
+  "binary": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/compile01.test",
+    "bytes": 52547665,
+    "sha256": "083d883905dad1248f3d4eb0f7b50e21e245a8db64effd7dc6a63c5f44cb0cca",
+    "executed": false,
+    "included_in_small_evidence_manifest": false
+  },
+  "report_limitations": [
+    "Compilation and vet only: no test body/list/PG/MinIO/model service or other business resource execution.",
+    "No independent STATIC or PG acceptance claimed; full card and README remain pending.",
+    "No production consumer/serving/ExpectedDimensions/Nonchat/Invocation/root binding.",
+    "Original pure-stage failures and assertion limitations remain in their sealed prior evidence.",
+    "Two empty observations cover only these owned process groups, not host-wide process cleanliness."
+  ],
+  "evidence_references": {
+    "initial_freeze": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/freeze.json",
+      "bytes": 4953,
+      "sha256": "a442fcb8c14075b56511f012d97c9ecd3efb9a9d1f6c2e45b2e03599c11da22e"
+    },
+    "runtime_stop": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/stop.json",
+      "bytes": 2418,
+      "sha256": "892c24bea4881c8b4c1268ca4369c06759ca936e029605964064ebdd4c7c5900"
+    },
+    "observed_inputs": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile01/observed-inputs.json",
+      "bytes": 43379,
+      "sha256": "090934a6f26d8bc60467db864df6f8d244a70b4ec12d788745e9e223af339055"
+    }
+  }
+}

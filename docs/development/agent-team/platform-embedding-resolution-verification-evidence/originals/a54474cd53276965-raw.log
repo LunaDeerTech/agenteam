@@ -1,0 +1,177 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.222.72.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=b6fb93251b35da6e03bca155e66f1cd7
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=175f5378dcf54275af2d5a1fd85b56eb
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.433s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-project
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-kind
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-phase
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-version
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-subject
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/call
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/purpose
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/initiator
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/build-target
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-phase
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-version
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-identity
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-subject
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-digest
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-schema
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-version
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-phase
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/formal-logout-and-new-session
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/owner-is-not-domain-authority-and-admin-is-not-project-owner
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/current-project-gate-precedes-secret
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/opaque-plan-full-request-foreign-store-and-expired-tx
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/missing-low-selector-domain-lock-and-weak-mode-poison
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/actual-secret-witness-exact-tx-and-signed-lease
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-project
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-kind
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-phase
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-version
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-subject
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/call
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/purpose
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/initiator
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/build-target
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-phase
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-version
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-identity
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-subject
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-digest
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-schema
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-version
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-phase
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-id
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-project
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-phase
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-version
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/formal-logout-and-new-session
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/owner-is-not-domain-authority-and-admin-is-not-project-owner
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/current-project-gate-precedes-secret
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/opaque-plan-full-request-foreign-store-and-expired-tx
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/missing-low-selector-domain-lock-and-weak-mode-poison
+=== RUN   TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/actual-secret-witness-exact-tx-and-signed-lease
+--- PASS: TestModelPlatformEmbeddingResolutionAuthorization (8.99s)
+    --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding (2.34s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns (0.83s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-project (0.06s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-kind (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-phase (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/subject-version (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-subject (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/call (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/purpose (0.06s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/initiator (0.06s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/build-target (0.06s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-phase (0.07s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/operation-version (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-identity (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-subject (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-digest (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-schema (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-version (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/independent-subject-operation-and-input-columns/input-phase (0.04s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/formal-logout-and-new-session (1.21s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/owner-is-not-domain-authority-and-admin-is-not-project-owner (0.10s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/current-project-gate-precedes-secret (0.02s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/opaque-plan-full-request-foreign-store-and-expired-tx (0.07s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/missing-low-selector-domain-lock-and-weak-mode-poison (0.05s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/knowledge_embedding/actual-secret-witness-exact-tx-and-signed-lease (0.06s)
+    --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding (2.35s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns (1.00s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-project (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-kind (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-phase (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/subject-version (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-subject (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/call (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/purpose (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/initiator (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/build-target (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-phase (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/operation-version (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-identity (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-subject (0.06s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-digest (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-schema (0.06s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-version (0.06s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/input-phase (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-id (0.05s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-project (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-phase (0.04s)
+            --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/independent-subject-operation-and-input-columns/agent-version (0.04s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/formal-logout-and-new-session (1.08s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/owner-is-not-domain-authority-and-admin-is-not-project-owner (0.08s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/current-project-gate-precedes-secret (0.02s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/opaque-plan-full-request-foreign-store-and-expired-tx (0.07s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/missing-low-selector-domain-lock-and-weak-mode-poison (0.05s)
+        --- PASS: TestModelPlatformEmbeddingResolutionAuthorization/memory_embedding/actual-secret-witness-exact-tx-and-signed-lease (0.05s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	10.029s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+D03 fixture cleanup checked for nonce 1a867447ac69653f7908409ae0fc2d79
+D04 outbound fixture cleanup checked for nonce 175f5378dcf54275af2d5a1fd85b56eb
+D05 object fixture exact resource cleanup checked nonce=b6fb93251b35da6e03bca155e66f1cd7

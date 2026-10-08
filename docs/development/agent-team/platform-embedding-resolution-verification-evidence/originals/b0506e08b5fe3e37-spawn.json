@@ -1,0 +1,17 @@
+{
+  "time": "2026-10-08T13:37:17.669239+00:00",
+  "direct_pid": 696330,
+  "identity": {
+    "pid": 696330,
+    "state": "R",
+    "ppid": 696327,
+    "pgrp": 696330,
+    "session": 696330,
+    "starttime": 3651239
+  },
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "/workspace/scratch/platform-embedding-independent-ab-prepare01/platform_embedding_independent_test.go"
+  ],
+  "subreaper": true
+}

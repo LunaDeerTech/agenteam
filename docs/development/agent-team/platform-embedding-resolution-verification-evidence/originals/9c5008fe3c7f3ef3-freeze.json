@@ -1,0 +1,45 @@
+{
+  "state": "README9_TEXT_ONLY_CORRECTION_INSTALLED_STOP",
+  "created_utc": "2026-10-08T15:49:04.210776+00:00",
+  "target": "/workspace/agenteam/docs/development/backend/README.md",
+  "before": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "bytes": 76151,
+    "sha256": "d36a9392e5fbcfc4d895031d666d5d6fe50597c89f9928125a3b34ff21e324d1"
+  },
+  "after": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "bytes": 76068,
+    "sha256": "8dfab5209555299eea8605cec3af3d787b214883ea3917ed557be81e9de5c7ec"
+  },
+  "prior_v03_freeze": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v03/freeze.json",
+    "bytes": 2851,
+    "sha256": "67dd6c73bbce49d7418fdd6cee0011db2249b834d0660502fc1438f5a8773f51"
+  },
+  "prior_v03_exact_source": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v03/README.md",
+    "bytes": 76151,
+    "sha256": "d36a9392e5fbcfc4d895031d666d5d6fe50597c89f9928125a3b34ff21e324d1"
+  },
+  "delta": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v04/v03-to-v04.patch",
+    "bytes": 2013,
+    "sha256": "f5ff9ca1d9505c0de42de4f274389664590d1a297d396211323e9ac25556f685"
+  },
+  "exact_old_fragment": "详见[平台 Embedding 验证](../agent-team/platform-embedding-resolution-verification.md)；本 README 为第 9 路径说明末件，完整九路径仍待最终组合独验。",
+  "exact_new_fragment": "详见[平台 Embedding 验证](../agent-team/platform-embedding-resolution-verification.md)。",
+  "removed_bytes_net": 83,
+  "checks": {
+    "only_requested_single_fragment_replaced": true,
+    "reverse_replacement_restores_all_prior_bytes": true,
+    "prior_v03_originals_unchanged": true,
+    "one_hunk": true,
+    "UTF8_LF_final_LF": true,
+    "new_whitespace_errors": false,
+    "verification_link_bytes_unchanged": true,
+    "no_other_repository_or_permanent_archive_file_written": true,
+    "no_technical_test_resource_or_Git_execution": true
+  },
+  "acceptance": "Only the independent reviewer requested wording correction; final nine-path acceptance remains with root."
+}

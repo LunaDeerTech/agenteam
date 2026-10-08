@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=4s",
+    "40s",
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "-timeout=40s",
+    "-run",
+    "^TestModel(PlatformEmbeddingResolution(ProfileMatrix|EntryGuards)|CurrentResolutionProfileClosedMatrix|MeetingSummaryResolutionProfileMatrix|CurrentResolutionConstructionAndClosedVariants|MeetingSummaryResolutionEntryGuards|CurrentResolutionRegistrationAndTypedNil)$",
+    "-v",
+    "./internal/central/model"
+  ],
+  "cwd": "/workspace/agenteam",
+  "safe_env": {
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOTELEMETRY": "off",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "TMPDIR": "/workspace/scratch/platform-embedding-resolution-author-v1/pure-check01/tmp"
+  },
+  "started_utc": "2026-10-08T12:28:04.856975+00:00",
+  "owned_direct": {
+    "pid": 643368,
+    "pgrp": 643368,
+    "starttime_ticks": 3235957
+  },
+  "outer_limit_seconds": 45
+}

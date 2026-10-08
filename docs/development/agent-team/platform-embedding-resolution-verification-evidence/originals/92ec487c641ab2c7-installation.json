@@ -1,0 +1,64 @@
+{
+  "created_utc": "2026-10-08T12:57:05.947723+00:00",
+  "freeze": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/freeze.json",
+  "freeze_sha256": "a442fcb8c14075b56511f012d97c9ecd3efb9a9d1f6c2e45b2e03599c11da22e",
+  "installed_sources": [
+    {
+      "path": "tests/model/platform_embedding_resolution_fixture_test.go",
+      "before": "absent",
+      "bytes": 21990,
+      "sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c",
+      "original_candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_fixture_test.go"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_selection_test.go",
+      "before": "absent",
+      "bytes": 10124,
+      "sha256": "115d60519161b31de0c0368ebd727059223572d8fb6c402ec2f9a3d46c6e5668",
+      "original_candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_selection_test.go"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_atomicity_test.go",
+      "before": "absent",
+      "bytes": 7252,
+      "sha256": "64471260c1a514d07c6408f776d1629e26348611b0b27e57d6a925303f2778f5",
+      "original_candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_atomicity_test.go"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_authorization_test.go",
+      "before": "absent",
+      "bytes": 17784,
+      "sha256": "9fce2b7f26d6f4acc1978d0c639af52bb94f11aa9c56e76aa348aa3ae2c912fe",
+      "original_candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_authorization_test.go"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_replay_test.go",
+      "before": "absent",
+      "bytes": 12499,
+      "sha256": "b796560e0348ec1f6286bdef4ca1a6a6f327800685998fb4f57bd16918841ccf",
+      "original_candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_replay_test.go"
+    },
+    {
+      "path": "tests/model/platform_embedding_resolution_unknown_test.go",
+      "before": "absent",
+      "bytes": 6857,
+      "sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d",
+      "original_candidate": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_unknown_test.go"
+    }
+  ],
+  "fixed_unchanged": [
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a"
+    },
+    {
+      "path": "internal/central/model/platform_embedding_resolution_test.go",
+      "sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d"
+    },
+    {
+      "path": "docs/development/work-items/d09-platform-embedding-resolution.md",
+      "sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93"
+    }
+  ],
+  "scope": "Only six absent #3\u20138 installed; no product/shared helper/README/lock modification."
+}

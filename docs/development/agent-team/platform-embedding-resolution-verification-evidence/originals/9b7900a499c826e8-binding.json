@@ -1,0 +1,32 @@
+{
+  "state": "STOP_SINGLE_FILE_SHARED_GO_DELTA_COMPILE_PASS",
+  "previous_shared_manifest": {
+    "path": "/workspace/scratch/project-audit-ui-backend/go-chain01/manifest.json",
+    "bytes": 719,
+    "sha256": "0716db670bbb043ffb5fa157c406d54ba86c28d158f2a484e4d3ee4c91bb1264"
+  },
+  "closure": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/go-chain02/closure.delta.json",
+    "bytes": 988,
+    "sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922"
+  },
+  "new_compile_stop": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/stop.json",
+    "bytes": 4524,
+    "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+  },
+  "new_installation": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+    "bytes": 3233,
+    "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+  },
+  "old_source_sha256": "cd738f93b35d232826f3c259a5987377955129ee76d6ce0d4ee14d2dfdd2fa5c",
+  "new_source_sha256": "c43365bf6d92480ac44942663c33dda1dcae77c445d9a7be55f690279b17f89f",
+  "changed_repository_path": "tests/model/platform_embedding_resolution_fixture_test.go",
+  "effective_repository_files": 909,
+  "effective_filename_sets": 63,
+  "actual_source_graph_rerun": false,
+  "model_driver_binding_requirement": "Replace BOTH model_source_stop and model_installation refs with these current objects; old a442/cd738 source stop is historical. Reuse19helpers/gates unchanged, new generation/disposition stays root-owned.",
+  "audit_requirement": "Consume this one-file layer or equivalent hash replacement once; no need to inherit Model driver/group/readiness metadata.",
+  "resources_started": false
+}

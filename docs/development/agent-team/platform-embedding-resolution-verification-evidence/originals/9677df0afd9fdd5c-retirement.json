@@ -1,0 +1,54 @@
+{
+  "actual_direct_wait": true,
+  "adopted_waits": [],
+  "observed_owned_identities": [
+    {
+      "pid": 655143,
+      "state": "S",
+      "ppid": 655140,
+      "pgrp": 655143,
+      "session": 655143,
+      "starttime": 3307285
+    },
+    {
+      "pid": 655163,
+      "state": "S",
+      "ppid": 655143,
+      "pgrp": 655143,
+      "session": 655143,
+      "starttime": 3307308
+    },
+    {
+      "pid": 655218,
+      "state": "S",
+      "ppid": 655143,
+      "pgrp": 655143,
+      "session": 655143,
+      "starttime": 3307613
+    },
+    {
+      "pid": 655227,
+      "state": "R",
+      "ppid": 655143,
+      "pgrp": 655143,
+      "session": 655143,
+      "starttime": 3307666
+    }
+  ],
+  "double_observations": [
+    {
+      "time": "2026-10-08T12:40:02.227779+00:00",
+      "owned_group": [],
+      "proc_permission_unknown_count": 0,
+      "original_direct_absent": true
+    },
+    {
+      "time": "2026-10-08T12:40:02.333062+00:00",
+      "owned_group": [],
+      "proc_permission_unknown_count": 0,
+      "original_direct_absent": true
+    }
+  ],
+  "watchdog": "No asynchronous thread/process created; synchronous supervisor reached terminal path.",
+  "scope": "Only this new process group/session; no whole-host cleanup claim."
+}

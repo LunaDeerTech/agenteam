@@ -1,0 +1,348 @@
+{
+  "state": "ORIGINAL_BYTE_EXCEPTIONS_PRESERVED",
+  "exception_entity_count": 6,
+  "issue_count": 60,
+  "kind_counts": {
+    "space_before_tab_in_indent": 48,
+    "trailing_whitespace": 12
+  },
+  "entries": [
+    {
+      "archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/248d66b012f95dbf-policy.diff",
+      "sha256": "248d66b012f95dbfb1da380e8108d1ce55e3f76d26745c65092147fa4501ca69",
+      "source_logical_ids": [
+        "platform-embedding-resolution-author-v1/policy-pure/policy.diff",
+        "platform-embedding-resolution-author-v1/policy-pure-v2/policy.diff"
+      ],
+      "original_bytes_preserved": true,
+      "issues": [
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 4
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 5
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 6
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 9
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 10
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 11
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 13
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 14
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 15
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 22
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 23
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 24
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 26
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 27
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 28
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 35
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 36
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 37
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 38
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 39
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 41
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 42
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 43
+        }
+      ]
+    },
+    {
+      "archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2e01911140c61a46-delta.patch",
+      "sha256": "2e01911140c61a468361085d57abf643020ad1f4c563776a7ff22b7614c81a70",
+      "source_logical_ids": [
+        "platform-embedding-resolution-author-v1/pg-no-secret-read-v2/delta.patch"
+      ],
+      "original_bytes_preserved": true,
+      "issues": [
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 5
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 6
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 9
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 10
+        }
+      ]
+    },
+    {
+      "archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/65b866f0dd0e4136-rev2-to-rev3.diff",
+      "sha256": "65b866f0dd0e41360b9081b0d7af79c8259717ceb9b15a53c67a7c585265533e",
+      "source_logical_ids": [
+        "platform-embedding-resolution-spec-v3/rev2-to-rev3.diff"
+      ],
+      "original_bytes_preserved": true,
+      "issues": [
+        {
+          "kind": "trailing_whitespace",
+          "line": 5
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 8
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 10
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 12
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 19
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/71e833c5ac825b53-v01-to-v02.patch",
+      "sha256": "71e833c5ac825b534ec19b8dbbf115fdf98cc810760f5f412a3f010afab22449",
+      "source_logical_ids": [
+        "platform-embedding-resolution-author-v1/pg-driver-v02/v01-to-v02.patch"
+      ],
+      "original_bytes_preserved": true,
+      "issues": [
+        {
+          "kind": "trailing_whitespace",
+          "line": 5
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 6
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 245
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 246
+        }
+      ]
+    },
+    {
+      "archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7c8ed0ad35a208a6-pure.diff",
+      "sha256": "7c8ed0ad35a208a61f419b059737261279f78f4e439e1c1725ce19e43d286409",
+      "source_logical_ids": [
+        "platform-embedding-resolution-author-v1/pure-profile-fix01/pure.diff"
+      ],
+      "original_bytes_preserved": true,
+      "issues": [
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 4
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 5
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 6
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 10
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 11
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 12
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 14
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 15
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 16
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 19
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 20
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 21
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 23
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 24
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 25
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 31
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 32
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 38
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 39
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 40
+        }
+      ]
+    },
+    {
+      "archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d821f18dbb8f21eb-from-original-gofmt.patch",
+      "sha256": "d821f18dbb8f21ebb9ac873694a59f4c53272f986b83f8204994dd5e56d57d85",
+      "source_logical_ids": [
+        "platform-embedding-independent-ab-compile01/from-original-gofmt.patch"
+      ],
+      "original_bytes_preserved": true,
+      "issues": [
+        {
+          "kind": "trailing_whitespace",
+          "line": 4
+        },
+        {
+          "kind": "space_before_tab_in_indent",
+          "line": 6
+        },
+        {
+          "kind": "trailing_whitespace",
+          "line": 10
+        }
+      ]
+    }
+  ],
+  "generated_files_require_clean_UTF8_LF": true,
+  "git_diff_check": "Root actual staged Git check is recorded below; archivist did not execute Git. Every path/line/kind matches that complete raw output.",
+  "final_nine_path_increment": {
+    "new_original_entities_checked": 11,
+    "new_exception_entities": 0,
+    "new_issue_count": 0,
+    "prior_exception_entries_preserved_without_rescan": true,
+    "only_added_plan_card_report_text_checked_for_new_whitespace": true,
+    "historical_raw_originals_not_normalized": true
+  },
+  "root_actual_git_diff_check": {
+    "raw": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/delivery-diff-check01.raw",
+      "bytes": 11089,
+      "sha256": "3c75e6d2b36770c0c168cb6a07bd39b8e29330a4e3888460983fc5b36c7b6e40"
+    },
+    "git_argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "git_exit_code": 2,
+    "root_assertion_helper_exit_code": 1,
+    "meaning": "Git reported preserved original patch whitespace; root helper expected only the earlier 12 entries and failed its count assertion. No product defect or new technical failure.",
+    "diagnostic_count": 60,
+    "diagnostic_entity_count": 6,
+    "kind_counts": {
+      "space_before_tab_in_indent": 48,
+      "trailing_whitespace": 12
+    },
+    "newly_registered_space_before_tab_diagnostics": 48,
+    "original_bytes_unchanged": true,
+    "archivist_executed_Git": false,
+    "root_raw_reused_in_place_not_copied": true
+  }
+}

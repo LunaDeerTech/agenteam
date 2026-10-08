@@ -1,0 +1,29 @@
+--- pure01/independent_test.go
++++ pure02/independent_test.go
+@@ -91,10 +91,10 @@
+                 if publicProvider.Validate() != nil || publicModel.Validate() != nil { t.Fatal("positive representation not public-contract legal") }
+                 p := providerRecord{Input: providerInput{Name: publicProvider.Name, Protocol: publicProvider.Protocol, BaseURL: publicProvider.BaseURL, Enabled: publicProvider.Enabled, Options: publicProvider.Options}}
+                 m := modelRecord{Input: publicModel}
+-                before, err := json.Marshal([]any{p, m})
++                before, err := json.Marshal([]any{p.Input, m.Input})
+                 if err != nil { t.Fatal(err) }
+                 revision, err := resolutionProfile(&p, &m, selection)
+-                after, marshalErr := json.Marshal([]any{p, m})
++                after, marshalErr := json.Marshal([]any{p.Input, m.Input})
+                 if err != nil || marshalErr != nil || revision != adapter.OpenAIEmbeddingsFloatRevision || p.Input.Protocol.Profile() != mc.OpenAIEmbeddingsV1 { t.Fatal("legal empty representation rejected", err, marshalErr) }
+                 if !bytes.Equal(before, after) || string(p.Input.Options) != raw || string(m.Input.Parameters) != raw || string(m.Input.RequestOverwrite) != raw || *m.Input.Capabilities.ContextLength != 16384 {
+                     t.Fatal("profile check normalized or mutated caller-owned data")
+@@ -111,11 +111,11 @@
+             if publicProvider.Validate() != nil || publicModel.Validate() != nil { t.Fatal("negative representation must be public-contract legal", field) }
+             p := providerRecord{Input: providerInput{Name: publicProvider.Name, Protocol: publicProvider.Protocol, BaseURL: publicProvider.BaseURL, Enabled: publicProvider.Enabled, Options: publicProvider.Options}}
+             m := modelRecord{Input: publicModel}
+-            before, err := json.Marshal([]any{p, m})
++            before, err := json.Marshal([]any{p.Input, m.Input})
+             if err != nil { t.Fatal(err) }
+             revision, err := resolutionProfile(&p, &m, selection)
+             var fault *f.Fault
+-            after, marshalErr := json.Marshal([]any{p, m})
++            after, marshalErr := json.Marshal([]any{p.Input, m.Input})
+             if !errors.As(err, &fault) || fault.Code != f.CapabilityUnsupported || revision != "" || marshalErr != nil || !bytes.Equal(before, after) { t.Fatal("null-valued nonempty config accepted or stripped", field, err) }
+             negatives++
+         }

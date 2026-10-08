@@ -1,0 +1,129 @@
+{
+  "state": "PREPARED_ONLY",
+  "groups": {
+    "new-selection": [
+      "TestModelPlatformEmbeddingResolutionSelection"
+    ],
+    "new-atomicity": [
+      "TestModelPlatformEmbeddingResolutionAtomicity"
+    ],
+    "new-authorization": [
+      "TestModelPlatformEmbeddingResolutionAuthorization"
+    ],
+    "new-replay": [
+      "TestModelPlatformEmbeddingResolutionReplay"
+    ],
+    "new-unknown": [
+      "TestModelPlatformEmbeddingResolutionUnknown"
+    ],
+    "old-resolver": [
+      "TestModelCurrentResolutionSelection",
+      "TestModelCurrentResolutionReplay",
+      "TestModelCurrentResolutionAtomicity",
+      "TestModelCurrentResolutionCanonicalLease",
+      "TestModelCurrentResolutionAuthorization",
+      "TestModelCurrentResolutionUnknown"
+    ],
+    "old-summary": [
+      "TestModelMeetingSummaryResolutionSelection",
+      "TestModelMeetingSummaryResolutionAtomicity",
+      "TestModelMeetingSummaryResolutionReplay"
+    ]
+  },
+  "order": [
+    "new-selection",
+    "new-atomicity",
+    "new-authorization",
+    "new-replay",
+    "new-unknown",
+    "old-resolver",
+    "old-summary"
+  ],
+  "invocations": [
+    {
+      "group": "new-selection",
+      "top_count": 1,
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelPlatformEmbeddingResolutionSelection)$"
+      ]
+    },
+    {
+      "group": "new-atomicity",
+      "top_count": 1,
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelPlatformEmbeddingResolutionAtomicity)$"
+      ]
+    },
+    {
+      "group": "new-authorization",
+      "top_count": 1,
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelPlatformEmbeddingResolutionAuthorization)$"
+      ]
+    },
+    {
+      "group": "new-replay",
+      "top_count": 1,
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelPlatformEmbeddingResolutionReplay)$"
+      ]
+    },
+    {
+      "group": "new-unknown",
+      "top_count": 1,
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelPlatformEmbeddingResolutionUnknown)$"
+      ]
+    },
+    {
+      "group": "old-resolver",
+      "top_count": 6,
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelCurrentResolutionSelection|TestModelCurrentResolutionReplay|TestModelCurrentResolutionAtomicity|TestModelCurrentResolutionCanonicalLease|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionUnknown)$"
+      ]
+    },
+    {
+      "group": "old-summary",
+      "top_count": 3,
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelMeetingSummaryResolutionSelection|TestModelMeetingSummaryResolutionAtomicity|TestModelMeetingSummaryResolutionReplay)$"
+      ]
+    }
+  ],
+  "top_budget_seconds": 120,
+  "package_budget": "original -timeout=6m",
+  "test_flags": [
+    "-tags=integration",
+    "-race",
+    "-count=1",
+    "-p=1"
+  ],
+  "failure_policy": "Retire the current invocation and STOP; no automatic next group/retry/rebudget.",
+  "expected_top_count": 14,
+  "expected_resource_topology_each": {
+    "containers": 4,
+    "networks": 3
+  },
+  "resource_count_is_plan_only": true
+}

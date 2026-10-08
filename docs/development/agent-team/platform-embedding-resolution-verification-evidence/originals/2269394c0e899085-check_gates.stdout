@@ -1,0 +1,49 @@
+{
+  "state": "V02_ISOLATED_GATE_CHECKS_PASS",
+  "case_count": 73,
+  "allow_cases": 6,
+  "block_cases": 67,
+  "identical_gate_functions_in_both_entrypoints": [
+    "grant_errors",
+    "validate_execution_grant",
+    "process_starttime",
+    "current_launch_errors",
+    "prior_terminal_errors",
+    "check_invocation_history"
+  ],
+  "unchanged_accepted_retirement_helpers": [
+    "sha",
+    "load_bound",
+    "digest",
+    "processes",
+    "is_main",
+    "observe_processes",
+    "reap_adopted",
+    "write_retirement",
+    "retire_owned",
+    "watch_output",
+    "utc",
+    "write",
+    "command",
+    "resources",
+    "resource_topology",
+    "tcp_snapshot",
+    "tcp_identity",
+    "tcp_delta",
+    "retire_tcp_observation"
+  ],
+  "unchanged_watchdog_runtime_environment_and_actual_graph_reader": true,
+  "source_syntax_checked": [
+    "driver.py",
+    "launch.py",
+    "prepare.py",
+    "check_gates.py",
+    "check_filegate.py"
+  ],
+  "selector_groups": 7,
+  "exact_tops": 14,
+  "root_authorized_resources": false,
+  "driver_imported_or_executed": false,
+  "actual_process_or_resource_retirement_tested": false,
+  "scope": "AST-extracted gate functions using memory-only paths and a synthetic parent identity. No Go, process, Docker, listener, provider or test body."
+}

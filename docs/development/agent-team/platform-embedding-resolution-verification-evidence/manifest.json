@@ -1,0 +1,2385 @@
+{
+  "state": "STOP_COMPLETE_NINE_PATH_FIXED_VERSION_COMBINATION_ACCEPTED",
+  "created_utc": "2026-10-08T15:44:18.368494+00:00",
+  "scope": {
+    "logical_originals": 594,
+    "logical_original_bytes": 5475718,
+    "distinct_original_contents": 461,
+    "new_original_files": 456,
+    "new_original_bytes": 4791174,
+    "prior_permanent_original_files_reused": 5,
+    "prior_permanent_original_bytes_reused": 14420,
+    "actual_run_launch_originals": 330,
+    "actual_run_launch_original_bytes": 4256052
+  },
+  "generated": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+      "bytes": 9803,
+      "sha256": "56265a5a3300d134516babec513dfc3c1310bdfe183d79b0715706b0ded0541c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/source-map.json",
+      "bytes": 440405,
+      "sha256": "aa9d6e73568a6173dd848c4c66780b4009ed7490d43735d5c8eb82d2d9303842"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/checks.json",
+      "bytes": 8341,
+      "sha256": "bc199d48f5b0694d5cecd63eb51b2e50ff2213388da6f548d74dbe6d609cd6af"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/format.json",
+      "bytes": 9626,
+      "sha256": "695e69e96e45e344d4879fed784a674bb319d69fa49da78579efc154961a571c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/development-plan.md",
+      "bytes": 92069,
+      "sha256": "9e4bc45e6e0ee6d09bedc68e00ebea4e270adcce60c17e011de61f820d796e7c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-platform-embedding-resolution.md",
+      "bytes": 25162,
+      "sha256": "b3519a4c5bc900d7c75856a5a5e204795f0e1f1620492a3ce6ab0b666df53743"
+    }
+  ],
+  "new_originals": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0002538c9526701f-evidence.json",
+      "bytes": 19425,
+      "sha256": "0002538c9526701ff7576a4c8b16c0164defebfa87e08246550b2f45db456b70"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/002ea4404217fa8f-launch.json",
+      "bytes": 724,
+      "sha256": "002ea4404217fa8f9cd6cd31c6252a68a8da75ada731c2bb2d4ccef8f19f24d4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/004a1ec0d795e8fc-review.md",
+      "bytes": 3158,
+      "sha256": "004a1ec0d795e8fcd86184e3a90a1569bd5fddb611e4d9d89e47fea3995aeaa3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0095e4ce8c387343-review.md",
+      "bytes": 2072,
+      "sha256": "0095e4ce8c38734358726b62957ff9275bcf68346175ad6ce8e1cf9016820609"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/00b372fa0abb346a-observed-processes.json",
+      "bytes": 13083,
+      "sha256": "00b372fa0abb346a3bfe1b2b6214dae8912710819a494047c16314683b8f24ff"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/011d296480a3c599-reuse.json",
+      "bytes": 3099,
+      "sha256": "011d296480a3c599a168fcc533b87888a7fca2dbbd7170b4b968a71c76cec770"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0183676c141a648b-input-after.json",
+      "bytes": 614,
+      "sha256": "0183676c141a648b3aecc0fad89c95501718f9d3e007f0582d165a1228ecc411"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/01a21c80a1a1c2c8-watchdog.json",
+      "bytes": 521,
+      "sha256": "01a21c80a1a1c2c8411d09c602ac89c75285e1e2f4c3a59c164a14c7a415bbdc"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/028852c7ef08cafe-observed-resources.json",
+      "bytes": 5156,
+      "sha256": "028852c7ef08cafe1ae300b6bef0c0a80222dae9148bd1c2bd2c951fbd80ac6a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/02b7221f949a9e7b-cleanup.json",
+      "bytes": 87777,
+      "sha256": "02b7221f949a9e7b98ced3bc5b516bc2f38ef6c09c2a278c6ef55b8ec4d2bae5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/03068c0bc23054b8-frozen-input.json",
+      "bytes": 17708,
+      "sha256": "03068c0bc23054b86085ee74adfbe9bcd5373f3b64cf50d202cea23543c44f8d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/03473926100faa2d-independent_test.go",
+      "bytes": 9372,
+      "sha256": "03473926100faa2dcab2f80d0b50feed22219b3e0662f19f403fb43c23118eec"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0446b995f4e9fbff-review.md",
+      "bytes": 1851,
+      "sha256": "0446b995f4e9fbff371c13a79eeeb11630c97450ecc03761259b7772abb789f5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/04cd2e4db1189f68-handoff.md",
+      "bytes": 1821,
+      "sha256": "04cd2e4db1189f6876df85434597e1163770cb5389a8884502a01083c41b2226"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/05d868acd0198399-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "05d868acd0198399818aa3dceae4a638de8a1a4ce0128bdaadbde669f5c0d7e1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/06e2a3057be89225-prior-invocation-history.json",
+      "bytes": 688,
+      "sha256": "06e2a3057be89225342d6e67c1bd889167ba47eb5103d23fe50aa2622e1e8d42"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0716db670bbb043f-manifest.json",
+      "bytes": 719,
+      "sha256": "0716db670bbb043ffb5fa157c406d54ba86c28d158f2a484e4d3ee4c91bb1264"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/081cf4cb6d37b0ca-prior-invocation-history.json",
+      "bytes": 3430,
+      "sha256": "081cf4cb6d37b0ca36cbe1bb024e34b9d5266bdb8dd7bb5c8d481787505b76a6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/09f2746c90100039-raw.stdout",
+      "bytes": 25116,
+      "sha256": "09f2746c90100039e512f8e5a9fe50aab8f8b7636488f75b39325a81ac281a6d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/09fb789f055f5b4a-raw.stderr",
+      "bytes": 43409,
+      "sha256": "09fb789f055f5b4aab777e0235e672e1bfc0e4905ea49278952f7d7b0a262e49"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0ae754855e322edf-evidence.json",
+      "bytes": 18443,
+      "sha256": "0ae754855e322edf6e5e23ef738557c0792a999b902048502746fafdfcbd7f3d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0b0227344772d4d1-prior-invocation-history.json",
+      "bytes": 2059,
+      "sha256": "0b0227344772d4d149c5c8bfd8e24154484d66aa885f436d7941e89864d56638"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0c31f9d6d2ef888b-review.md",
+      "bytes": 2236,
+      "sha256": "0c31f9d6d2ef888b1e200a0a2b51b64718dc987b8a8f9bee1a51a68f1784d477"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0ca517a3e25aba5c-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "0ca517a3e25aba5c93465d706427bdfc6f5121c0ce4ec43991766e77c58c007b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0db6126a55a6c6c4-evidence.json",
+      "bytes": 5917,
+      "sha256": "0db6126a55a6c6c401d0940a636e865ea5359f96ede5cf57b0d6828e3ddbe7da"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0e11ace45f30f57c-tcp-tail-observation.json",
+      "bytes": 266248,
+      "sha256": "0e11ace45f30f57ccefc994a9879d4156a067e9b9ed1b405e25ef8bf5e509c49"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0e56ad45d5c0507d-from-pure01.diff",
+      "bytes": 2524,
+      "sha256": "0e56ad45d5c0507d03459da08b99356f5fa2549634f3202057a2cff2d6412887"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/0ed1aaa5ddec4869-evidence.json",
+      "bytes": 24772,
+      "sha256": "0ed1aaa5ddec4869b7cfff97ce08e81a4a2a319869144ac85fb1dee6f75adc77"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1050d6215eedbc24-process-baseline.json",
+      "bytes": 33258,
+      "sha256": "1050d6215eedbc24eca6be1a14a33a39f4285226218651265ef072caf25a0856"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1057310448a69b89-launch.json",
+      "bytes": 1237,
+      "sha256": "1057310448a69b89cfdfffa6cc33b9ee0e4d53ce1532675ba9426c1eb5dcf9a4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/109a01e23d2c1c1e-manifest.json",
+      "bytes": 1105,
+      "sha256": "109a01e23d2c1c1e1395a37ddd07c2e39c1c120c95b6231551b0051b5281d6ba"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/114499d1323ff697-inputs-before-delta.json",
+      "bytes": 632,
+      "sha256": "114499d1323ff697a188e3cc5d5c24d24619d55c39a35a5f2540b29b69785e70"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1183fe681b5b40d4-process-baseline.json",
+      "bytes": 33786,
+      "sha256": "1183fe681b5b40d41b5daafc3be453bd67d6415d4bd85acbd463ba99514784d7"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1197c2d9e49302da-watchdog.json",
+      "bytes": 543,
+      "sha256": "1197c2d9e49302da4fbf791fe8170d99746bf5cd9effc4294e98f7cdd998e362"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/11d2946a78bf7c66-result.json",
+      "bytes": 4292,
+      "sha256": "11d2946a78bf7c66d987b050f99b16ca606a3e44dc02fabf4162fdcbcb46ba23"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1213a93cb72e5ca0-spawn.json",
+      "bytes": 620,
+      "sha256": "1213a93cb72e5ca0f04e4ce3686f242110bb575491d373195b2144a4d24d87d6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/12a184bf23a665e7-overlay.json",
+      "bytes": 221,
+      "sha256": "12a184bf23a665e7b4b026c1814286f59540bf3f61a41101810af44813495f3a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/12dcad5bc4a36a92-freeze.prepared.json",
+      "bytes": 2031,
+      "sha256": "12dcad5bc4a36a92c2c94fee1a9788e0ca2c11573b1600ea9fda0677aeb0e9be"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/144b5d3f50cdfda6-tcp-observed-delta.json",
+      "bytes": 3717,
+      "sha256": "144b5d3f50cdfda6e0fe126a5dec38ca91ac884b32dbae1d4481a8b22b64c0bd"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/14d1e7ab795338b9-prior-invocation-history.json",
+      "bytes": 688,
+      "sha256": "14d1e7ab795338b97d211392d9d970a11357df2d85a3fc8c77ec3a5aaa9197c3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/152e73b77512c5bf-observed-resources.json",
+      "bytes": 5140,
+      "sha256": "152e73b77512c5bf3e3d764b1e37c208d15b5f9835c7c3b03acb6d5076087fef"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/155e14582ea6fe62-observed-resources.json",
+      "bytes": 5143,
+      "sha256": "155e14582ea6fe621587b4ab87b744c4af8e7fcfb1a6d81f55e8a9e7c340d097"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1767ccc6401bc634-result.json",
+      "bytes": 35951,
+      "sha256": "1767ccc6401bc634fc504f76856af586fefa89a377bdd93a6830b92c5f1ed0b8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/17e87a324ade9bf6-manifest.json",
+      "bytes": 653,
+      "sha256": "17e87a324ade9bf6956685c831f677bbb8353ddd5d867a80c5580ee8154d7e04"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/17f2b3c168947633-check_gates.py",
+      "bytes": 16245,
+      "sha256": "17f2b3c168947633620debf157b741f2636bc77b78803b53dbed44a094ef2f7e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/187f5bad6578fec1-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "187f5bad6578fec1cf0f820c5c0af9f88cb96d4be2b041a56d036b69044a00b3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/18f14638c4bee3f0-stdout.raw",
+      "bytes": 508,
+      "sha256": "18f14638c4bee3f0149147df7ac65426f2cc5bd6a45e210af37b3ee682c73d43"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/194a9433d14a83e1-command-before.json",
+      "bytes": 2004,
+      "sha256": "194a9433d14a83e15e7f39f4074a7200645057ee59ed722c33350eac00c712f8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1a0e3a5593995431-raw.log",
+      "bytes": 7914,
+      "sha256": "1a0e3a5593995431465c2bb5fe453c5108866a0bb6bcf7b8403dd296d8ca4678"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1a3073358ce87e35-prior-invocation-history.json",
+      "bytes": 4120,
+      "sha256": "1a3073358ce87e35577aad7241a2f53928dd89ccc43812753d6a4a07d4e05c76"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1adbd48bb735122d-review.md",
+      "bytes": 1748,
+      "sha256": "1adbd48bb735122df18299b9bd1857a4058059f04626651820bd84ef10cfd372"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1ba0dab1be444efd-launch.json",
+      "bytes": 1206,
+      "sha256": "1ba0dab1be444efdab95b6c14d2798061d089cdbe88d7ff572ca2248d549886e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1bb48916f73c1975-manifest.json",
+      "bytes": 998,
+      "sha256": "1bb48916f73c1975eeca7d2d44e793efe1da8605043948e3893359aafe8a017f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1c27976fbf568c65-inputs-after-check.json",
+      "bytes": 676,
+      "sha256": "1c27976fbf568c6550e5518ffa6b9b91e2764e2467c56f477d5019362b7549f1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1c8dce58d2fd07fa-independent_test.go",
+      "bytes": 9324,
+      "sha256": "1c8dce58d2fd07fa250f57cf54b4d0ce49e63183c586a8155dbc5b6cfa0bd495"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1d0eeb009f4f3a65-tcp-tail-observation.json",
+      "bytes": 113703,
+      "sha256": "1d0eeb009f4f3a654baaf3be24a6cf8b7d5fcf7ab65850a39f7015cd6b66c106"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1dc34ad6e7a13c3e-result.json",
+      "bytes": 469,
+      "sha256": "1dc34ad6e7a13c3e3fb62e4af4067fbf9fb5192cd5da090785f9a692cba0f1bb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1e61858c5db3ca9b-inputs-before-check.json",
+      "bytes": 98,
+      "sha256": "1e61858c5db3ca9b12380aa3ba58332eeeed76c0b4a9b6637b435b37216d4c2c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1eb4041b96eea719-resource-id-chain.json",
+      "bytes": 1768,
+      "sha256": "1eb4041b96eea719dff4643418e41b8a53bf3764c970344b89cc5532f8ab4bf7"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1ee644fdd1983edf-cause.json",
+      "bytes": 369,
+      "sha256": "1ee644fdd1983edf92974ac9a6b3a45e514e1c8d26a1eb5d81d5719428f68a4a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1f02d9231d2577b2-review.md",
+      "bytes": 2942,
+      "sha256": "1f02d9231d2577b289c7d820d74738e4c9f17e22156a3a51ac1cb86c11771797"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1f123bd37f2996a1-run.py",
+      "bytes": 9548,
+      "sha256": "1f123bd37f2996a17a9edfb73b2dd47a1598622a9387dd27c2f0d55588c8acff"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/1f945c6833e143be-launch.json",
+      "bytes": 1228,
+      "sha256": "1f945c6833e143bee9d008aece6de62d1c725bfc5627f98455ff21e10e5d8049"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/20cb13c872cda5c8-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "20cb13c872cda5c8a01c52b4597ec4c0d17c60a374f75fe20064b49cbcf06a05"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/20f517924ff6482e-result.json",
+      "bytes": 465,
+      "sha256": "20f517924ff6482e62640ef9da2b9bcd77adf19b50823daf59b85f52a06a5820"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/217c99ef88b5ddae-observed-processes.json",
+      "bytes": 13443,
+      "sha256": "217c99ef88b5ddae19360669b45da745f7f207491a89485d463b06e11307adeb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2269394c0e899085-check_gates.stdout",
+      "bytes": 1274,
+      "sha256": "2269394c0e89908540abe50a9cf86988960874b5c8054bb09fb722071b9b88fb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/229ecd4f290eed5a-pg-embedselect01-result.json",
+      "bytes": 3319,
+      "sha256": "229ecd4f290eed5af4ca8c74539a4ec20d791b9394227d71c0d8c5e3d16617c3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/233a9f057076afa1-command.json",
+      "bytes": 2063,
+      "sha256": "233a9f057076afa1a97b3992f71f52dbda01e6ff2243769e350f5b696d45949f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/24005b0070ccfb06-inputs-before.delta.json",
+      "bytes": 1067,
+      "sha256": "24005b0070ccfb06b1ab35f867cd78c91033d0b1c3caf583d01686166e8113e0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2487f9ac70a4047f-evidence.json",
+      "bytes": 12929,
+      "sha256": "2487f9ac70a4047f6d960a96d76e2268ee399bc73696dabbfe22ce38ff5897d5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/248d66b012f95dbf-policy.diff",
+      "bytes": 2500,
+      "sha256": "248d66b012f95dbfb1da380e8108d1ce55e3f76d26745c65092147fa4501ca69"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/249dee994604eca9-frozen-input.json",
+      "bytes": 17694,
+      "sha256": "249dee994604eca99d2516378f6d42b10af2d39264f5708e194527a23f5a78c3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/24dce2bb4dccacc6-observed-resources.json",
+      "bytes": 5148,
+      "sha256": "24dce2bb4dccacc622909a062355505119da970c0e9d2a3fd5c0c200d9f7bfcb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/24e8c9fc41db8a86-verification-input.json",
+      "bytes": 183,
+      "sha256": "24e8c9fc41db8a86559058e4c036247178d06e213ae956953c2544de6455f429"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/24f267be7faabd81-manifest.json",
+      "bytes": 526,
+      "sha256": "24f267be7faabd812b318109c161678745f7bf33d2f340fde46045687e6c51a6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2552344f45664cd8-command.json",
+      "bytes": 1979,
+      "sha256": "2552344f45664cd820fc441060feaaff0dd4c2a70ec8e90aa9fef4f1b8a24b65"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/25e3b908498b91ff-inputs-before-check.json",
+      "bytes": 219,
+      "sha256": "25e3b908498b91ff4b42e30d7be87ac423833aba7fd945b07b5d4057a4929e7e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2685f85585961b98-result.json",
+      "bytes": 469,
+      "sha256": "2685f85585961b9898cedcff50b089271e49b7365973c6cf4debdfa4bed26e25"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2688756c30a01ce5-resource-id-chain.json",
+      "bytes": 619,
+      "sha256": "2688756c30a01ce59caffc0bbcdf6e846ca3eb4b504abbcf4cdbb075aa60703c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/279de7c224383619-review.md",
+      "bytes": 2155,
+      "sha256": "279de7c2243836191a012e322f1bdf65f40333b20991409b03b680afe77bc855"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/27b092b4f03f6a48-intent.json",
+      "bytes": 424,
+      "sha256": "27b092b4f03f6a486e7696f72cffd6e799f342e23d0fecf73979d124422b9937"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2853da1a2f3748f6-raw.stdout",
+      "bytes": 22902,
+      "sha256": "2853da1a2f3748f63c19b166a6fa54bbb8f6ef893755d239c66c035422850178"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2895db31155e186b-cause.json",
+      "bytes": 346,
+      "sha256": "2895db31155e186b0222dfbff3c9a10ab508e1bc3c2a2db896f9486497501d5e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/29db1821eaf2c960-resource-id-chain.json",
+      "bytes": 850,
+      "sha256": "29db1821eaf2c960dcbde883d3165d02e8ee7c90bda2e78d6e2c23ca55cf7534"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2acbe849d2450619-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "2acbe849d24506193ea335658f12d0dea3389b5cabd70cf18753a926c46792be"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2b228039cab79e77-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "2b228039cab79e775fa5acd3e8a9d85464747fb416f6054037cb048deeaa97ed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2b93e8113d4a52e1-review.md",
+      "bytes": 3263,
+      "sha256": "2b93e8113d4a52e19712c766179424f426384b9f8b220480258dd42884e51030"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2d612392f2c4976d-result.json",
+      "bytes": 1068,
+      "sha256": "2d612392f2c4976d8e6aaebb171006a7e4ba80ff640f5d9903f36a2734dd0feb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2e01911140c61a46-delta.patch",
+      "bytes": 668,
+      "sha256": "2e01911140c61a468361085d57abf643020ad1f4c563776a7ff22b7614c81a70"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2e37816108639e4a-command-before.json",
+      "bytes": 2028,
+      "sha256": "2e37816108639e4aa8deca8cd0f9620dbe0e882711d4ec6c7aff9f645a69a8e2"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2e63eb287f5f75c3-observed-resources.json",
+      "bytes": 5143,
+      "sha256": "2e63eb287f5f75c3878e9c9fb4f6a81b66b5b5851c1a69466da4cf6f445f32ff"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2e9def9d7b136f95-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "2e9def9d7b136f95ab92117210ef5d9b850f37815ad8b6dfbefa5e608a604c2d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2fb1a8d6796153f3-mapping.json",
+      "bytes": 16485,
+      "sha256": "2fb1a8d6796153f359f0a6129403ba955b35c51205ad1d155f7fe29435dd5cac"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/2fedd1ece40acf7b-manifest.json",
+      "bytes": 3270,
+      "sha256": "2fedd1ece40acf7ba4e04605b555429dcb4b105c57996f05f808a5db51221bb3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3002f0b84cf33343-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "3002f0b84cf33343aceecc64e723ff52c4d4176662d11b4490d8a2e052bd2c88"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3163c0b4e25b7274-verification-input.json",
+      "bytes": 183,
+      "sha256": "3163c0b4e25b72744af5d0545f1fffcdf87f2221ae1e92880e8970acba4341d5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/316ee5f19ebe5d3d-watchdog.json",
+      "bytes": 1346,
+      "sha256": "316ee5f19ebe5d3d40c413a73c8853a05095fd69b098dbb189277a1d911a3303"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/331e7e51dc696be4-verification-input.json",
+      "bytes": 183,
+      "sha256": "331e7e51dc696be48a57c1ac504d455b5dddc9fc289806fa88e4d2ad31ba7994"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/33c30a3f97068885-manifest.json",
+      "bytes": 1542,
+      "sha256": "33c30a3f97068885e634be5085a68f4eed5385ef61fff0e37ca9e69a465906da"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/348dccae9e1541a9-stdout.raw",
+      "bytes": 16094,
+      "sha256": "348dccae9e1541a9466a5a83363ee7fd2b0b665a1874578358c4d9fbd89dc614"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/35d62a94b6a01e16-observed-processes.json",
+      "bytes": 13443,
+      "sha256": "35d62a94b6a01e16c5237642e0aacdecf87ca3679a0711dd032ec15b56a852f5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/36ee9fda56be9bca-inputs-after-check.json",
+      "bytes": 779,
+      "sha256": "36ee9fda56be9bcaea85b9aab6149f6389df14c894795937bb5cc4f402b67776"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/37b58eea415bd6ce-stdout.raw",
+      "bytes": 1337,
+      "sha256": "37b58eea415bd6ce104885e6d256523a261b522186ab6cb3fac787e4e218cf38"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/37ba3bda622df77d-handoff.json",
+      "bytes": 4391,
+      "sha256": "37ba3bda622df77d263349c0728978eddd7138b854c7e0f69e02d367e049b744"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/37dbfdc6a2e8592c-tcp-tail-observation.json",
+      "bytes": 76925,
+      "sha256": "37dbfdc6a2e8592c3e1a185dfd2ab1136a6d2af4c083d2904eb1cf5fe3b7df59"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3809d8168f7b7431-evidence.json",
+      "bytes": 4873,
+      "sha256": "3809d8168f7b7431be815212898046edd7e09f7bfd1d8b0bd3884168b018fa3a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/392511ebe9c685b1-verification-input.json",
+      "bytes": 183,
+      "sha256": "392511ebe9c685b162d067b75c4b1d4e52fc06c9e6a888e8b6a2adf0effdee79"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3993079f4817cc0a-launch.json",
+      "bytes": 1239,
+      "sha256": "3993079f4817cc0a484aa2a365eeda2b53c8eae3504995126e5e701b162a2c52"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/39af6479d4918c05-run.py",
+      "bytes": 9511,
+      "sha256": "39af6479d4918c05256ee7a02827b44411e2462c580cfe329e74fb510abb2eed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/39c8212b30da2e85-manifest.json",
+      "bytes": 3032,
+      "sha256": "39c8212b30da2e854f8b61e3cbc6cd8a0ac541b560dade1f3563d97ba52ffa3c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/39c89527ee0fee8c-result.json",
+      "bytes": 989,
+      "sha256": "39c89527ee0fee8c2db6e6eaf1ee598bff18de0b4541c1afac842a6ac6032c54"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/39e98025ca35afec-overlay.json",
+      "bytes": 205,
+      "sha256": "39e98025ca35afec0f82402765a9b0ed7237fcd84f60457d68e2a9f795eb1607"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3a31e8d73641bb4c-filegate-checks.json",
+      "bytes": 2694,
+      "sha256": "3a31e8d73641bb4cbd6a97f48bee4e958bfd13e2de6d1d257840a8bcc7bf906b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3b3d2bff72b4c852-command-before.json",
+      "bytes": 2065,
+      "sha256": "3b3d2bff72b4c8524657031539062997142aed545448e6ab83efda6cd093e6be"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3c4defc7407f82ae-check_gates.command.json",
+      "bytes": 1087,
+      "sha256": "3c4defc7407f82aed141170e340e1f857399deffe623356f085bb49393f1e61e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3cc7fb1ada128c58-intent.json",
+      "bytes": 425,
+      "sha256": "3cc7fb1ada128c582289c1900eb18dc54ca9b073c1cace88e42811e25a467d83"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3d1829d6f4d946e8-result.json",
+      "bytes": 467,
+      "sha256": "3d1829d6f4d946e8d4f7066a0d3fd3713b7992e985112a56c3b440a85dd540a0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3d5017bdc093058d-preparation-correction.json",
+      "bytes": 733,
+      "sha256": "3d5017bdc093058d511836c7127de14090e009f036fab6055c47a9ead7da0785"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3d6680f375d0b91a-raw.stdout",
+      "bytes": 3785,
+      "sha256": "3d6680f375d0b91a8f2b69badbd619fe538155656bfe87fddcbe05805279b37e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3d793dc402a4ab69-disk-preflight.json",
+      "bytes": 201,
+      "sha256": "3d793dc402a4ab6981a2b520ecdcd028a7fe2443768aaf6e7432154a56a06311"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3e0d41343c6a97d8-manifest.json",
+      "bytes": 655,
+      "sha256": "3e0d41343c6a97d880c3619ea443f40a65d9d5605833682fc04e3dd43b9eda38"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3e445ba87e6b5798-launch.json",
+      "bytes": 1098,
+      "sha256": "3e445ba87e6b5798bc81605bf30d33ff5b5cb78d9624dc31ba7882029897a986"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3e8fc34fecbaf02e-delivery.md",
+      "bytes": 1391,
+      "sha256": "3e8fc34fecbaf02ed814e9d85035668f9f79d55dd03878c942bcad7a74c7489a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/40255c689d5cb337-inputs-after-check.json",
+      "bytes": 779,
+      "sha256": "40255c689d5cb33747dd66165ce35f5800d7e6906d669f8217f577ecd80ad0a3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/405307d6430cf169-prior-invocation-history.json",
+      "bytes": 2744,
+      "sha256": "405307d6430cf16978d062db6828d4dd05255c117f226d27815db5d76cbe0b78"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4117653dcb1d2bc8-retire-runtime.py",
+      "bytes": 5877,
+      "sha256": "4117653dcb1d2bc86338844d04b91c6112b69a3865f5604bbbc7fb9e3610620c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/42fd81d5c7433341-gate-checks.json",
+      "bytes": 15038,
+      "sha256": "42fd81d5c7433341ed5054ea6db6e0fa9f3ffa8f412546930890e7a3470890d5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/444142060d62ae86-inputs-after-check.json",
+      "bytes": 676,
+      "sha256": "444142060d62ae863965da9bf10af0e001bd62d26933ae37292ead646bcfb519"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4514466d297d9570-command.json",
+      "bytes": 1058,
+      "sha256": "4514466d297d95703ad139e2bb9752ab727bb9f316893a72c8efe2b1f673738b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/45627ea582d279f6-author-stop.json",
+      "bytes": 9141,
+      "sha256": "45627ea582d279f666d3600bef63c71ee5f153f6c62629a3a9b02e1a4afd7a6e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/462a545e3507489d-review.md",
+      "bytes": 3165,
+      "sha256": "462a545e3507489ddff70b11a457bb911e4c8e00ceb1d37356ef990b47a861fc"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/46e27c63ef53986d-resource-id-chain.json",
+      "bytes": 619,
+      "sha256": "46e27c63ef53986dec00175b4be70a6789c4a818a556b96cb4da0e17517510c0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/46e888359198ad9d-tcp-observed-delta.json",
+      "bytes": 2707,
+      "sha256": "46e888359198ad9deda93c8a03a2078e6fa20aa3c43ef66a156fff12b5929667"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/47ab2445ac11ac71-result.json",
+      "bytes": 469,
+      "sha256": "47ab2445ac11ac71b31bdad9949120d8e5b65fed2ad1bd3b32d3869e3446b0a0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/47dc3a0e475ecb78-observed-processes.json",
+      "bytes": 14244,
+      "sha256": "47dc3a0e475ecb78d1fc75ffba98fc78522a8379e39ecfdd8f139807e9d538cc"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/47f4518b4bd61829-command-before.json",
+      "bytes": 1614,
+      "sha256": "47f4518b4bd618297918c9db7233577590d8027b5f489ced9741888dc4da33b5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/48f169263b0c6e22-tcp-tail-observation.json",
+      "bytes": 45831,
+      "sha256": "48f169263b0c6e227444b59538d78473cf66ccecfd2d3649a7b6b65724f2dbe9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/492e225878d51315-actual-wait.json",
+      "bytes": 297,
+      "sha256": "492e225878d51315ec33ab353c599c5c0281eb6bf2179c3d13766eb7a95cd6af"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/49b675447e272a5a-verification-input.json",
+      "bytes": 183,
+      "sha256": "49b675447e272a5a1272da411fb214d0917eb4b42282bd0463f4d07c9019d17a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4a67e45901a8e17b-tcp-tail-observation.json",
+      "bytes": 80104,
+      "sha256": "4a67e45901a8e17b026585c863dcae6af07e30cdab6ff70f69add8891b326706"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4bb1a46990a0b0aa-review.md",
+      "bytes": 2716,
+      "sha256": "4bb1a46990a0b0aa8a864e01d4f01dc40e853833b7f610c9ff8d927609b94b75"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4be018942ac01e7c-process-baseline.json",
+      "bytes": 29442,
+      "sha256": "4be018942ac01e7c21932f877c2552283cd8c6d1c7471001288ca3fa862a5b70"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4c0644f91de742c8-ind-model-a01-handoff.json",
+      "bytes": 10510,
+      "sha256": "4c0644f91de742c8a79266631ff07554413308a1ec07a3e26744195219e99c79"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4d05258e425bf540-tcp-tail-observation.json",
+      "bytes": 77415,
+      "sha256": "4d05258e425bf5408cc29b5474054cd4e064249acf89c5adaa05aee5ea847248"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4d9c18181a999e15-command.json",
+      "bytes": 2063,
+      "sha256": "4d9c18181a999e15290701df822a7187759c4b87d70f76005535783e39d4c989"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4e12461ac17c7e67-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "4e12461ac17c7e679b09587c3dc77d4eb788d57b5067799544af3fd0747853c1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4e4161e9a5ab92f9-spawn.json",
+      "bytes": 496,
+      "sha256": "4e4161e9a5ab92f99a495d7cec6484f7ad706397ce50fac1f2361de062bd9162"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4e6c23c8f7a81fa0-delivery.md",
+      "bytes": 1650,
+      "sha256": "4e6c23c8f7a81fa0eb533011efe4c1eb1bc571450690e3c60789cc07b5f82fa5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4eafcbc3c382d43f-frozen-input.json",
+      "bytes": 17755,
+      "sha256": "4eafcbc3c382d43ff9f8b5e66efd4fed998fc839b270b71e9f574682bce8b4be"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/4ec6a43ad133ab22-command.json",
+      "bytes": 1982,
+      "sha256": "4ec6a43ad133ab2279f58c510533298e66cfeba86984d54e7520cac37bb47804"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/50cd492b400ef9f6-process-baseline.json",
+      "bytes": 32202,
+      "sha256": "50cd492b400ef9f65b57bb5025a8b1e179c1c07c7277096275d136b2790ead36"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/52dc7ae0bdb69e64-author-static-checks.json",
+      "bytes": 3329,
+      "sha256": "52dc7ae0bdb69e641d0ecde7308edcb8c848018c5c31d06bd2682ddb6772bafb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/547eb05aa96fb3fe-result.json",
+      "bytes": 1395,
+      "sha256": "547eb05aa96fb3fe67658b44ab0231c9672a4f73aff588cc0c32502b3f06c6f6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/554cb93817c48548-observed-processes.json",
+      "bytes": 13437,
+      "sha256": "554cb93817c48548822bebf6088650fafb590f9e0a169f2c59d3802ec6eabb8b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/554eece1d3d0c684-run.py",
+      "bytes": 3366,
+      "sha256": "554eece1d3d0c68404fd152f5843cfb46a9547448cc1d389d9e6ededc16b3c09"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/555c35accf7cbb4d-tcp-tail-observation.json",
+      "bytes": 209281,
+      "sha256": "555c35accf7cbb4d103d0258c83b414ea523bf79b5c77058f08f20455cf9466f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/55abebe5d660d87a-raw.log",
+      "bytes": 6104,
+      "sha256": "55abebe5d660d87ab8b6f54d360a553fc696c222ca51ce29be95443a3382915e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/56725e38452937dc-cleanup.json",
+      "bytes": 89161,
+      "sha256": "56725e38452937dc9deea128439168dbba64b90047d27691d020a10ba8eb01f5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/568067fb541f2d8f-python-runtime.stderr",
+      "bytes": 424,
+      "sha256": "568067fb541f2d8f5aa0db20e27fe6f7132135da184805676b30ed649aecadfc"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/571edcf34fa1346a-observed-processes.json",
+      "bytes": 13115,
+      "sha256": "571edcf34fa1346ad494c8026537a3533a87951e2c21a3912143b2426eca8033"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5779f4cc7b1fd7c8-prior-invocation-history.json",
+      "bytes": 1376,
+      "sha256": "5779f4cc7b1fd7c84f7a659bb686adc87e6df12336c40d2addbfae06e9d5e634"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5796504503b7279b-tcp-observed-delta.json",
+      "bytes": 3425,
+      "sha256": "5796504503b7279b04893a7915cda8c0dd5305a555259d8c0348ec0afabfe685"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/57b9563e2d1f7c6e-launch.json",
+      "bytes": 1230,
+      "sha256": "57b9563e2d1f7c6ecd9616da0849df00e7550b58a1ce56684f3ebe055b63078d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5852a911999f2a66-runner-provenance.json",
+      "bytes": 549,
+      "sha256": "5852a911999f2a66b72ea040bc384d41852a7887808ab51d31ccf4d3883927fd"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/588998dc90e8e1b7-result.json",
+      "bytes": 4432,
+      "sha256": "588998dc90e8e1b79b920fbaa5358c6f3db68663114c4c0aea50675c69b7e6a0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/58e5c0688ca82a09-launch.json",
+      "bytes": 889,
+      "sha256": "58e5c0688ca82a09434b3adae03b7770395efeddcf0e92f573ceea5ca90a6ee9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/58f0900d8fbf986f-command.json",
+      "bytes": 2166,
+      "sha256": "58f0900d8fbf986f163cf4622456a7a4cbc579c49c799f699c63982204845207"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/592d9af36077cc22-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "592d9af36077cc22b3d1e0974d578083300b2fee4026079b68243aa834020d01"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5bff86092a209f78-launch.json",
+      "bytes": 1243,
+      "sha256": "5bff86092a209f7859fc16a44666fe8a7651a23b492b35408dd4dd83fc91aa77"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5d070149dc12eabf-manifest.json",
+      "bytes": 8127,
+      "sha256": "5d070149dc12eabf76f2f5f69b56dc42e8a8a9d5a50eebe5e2597ec42d0660b9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5d61d9f571d456c4-raw.stdout",
+      "bytes": 27850,
+      "sha256": "5d61d9f571d456c417e305619f3421cc5e8ecba9fc0eedef13148f4e46297d6b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5da93d0dcc31fe13-raw.stdout",
+      "bytes": 1005,
+      "sha256": "5da93d0dcc31fe1368dcbf2ddf8fc70b10b4be05cbc79635acefde2b51e66ec5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5dd8d22c8f15141c-review.md",
+      "bytes": 1391,
+      "sha256": "5dd8d22c8f15141c9af141364a8263aa59bc7580b531f7981b0705f71f42d310"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5f82448532c137f2-evidence.json",
+      "bytes": 13561,
+      "sha256": "5f82448532c137f2ada3179e06b5d4f8253a5b7ea0cb34ed73e15315865fad51"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/5ffbf09a2e23ca3e-result.json",
+      "bytes": 1113,
+      "sha256": "5ffbf09a2e23ca3e804c8962907a26e9f525cb1b8b0f6d5b9b827bf0443afc0a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/60627f41680b7a2a-tcp-observed-delta.json",
+      "bytes": 3705,
+      "sha256": "60627f41680b7a2a597f5d765cede48c0857243d5554749a4d9e6bb21a034a71"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/607a282d3f27a556-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "607a282d3f27a556aec8d229ac1d30f62152c1ac2ac71d820c87c117c52bc0ad"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/608a906369be1e81-observed-processes.json",
+      "bytes": 13443,
+      "sha256": "608a906369be1e8141e2013cb64ed5a9a53edbb7c81902168639953141e8ed9a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/60ba0abc6a24fc24-raw.stdout",
+      "bytes": 25565,
+      "sha256": "60ba0abc6a24fc243d10a2503d4b1c4230ae15448099e767e9449f4cc95cbccf"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/61c35b0816931a96-intent.json",
+      "bytes": 421,
+      "sha256": "61c35b0816931a961e358854d1f276a5455d47a10f3f70e0bc1d130eea3199d5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6245a34007bfc6d2-process-baseline.json",
+      "bytes": 29970,
+      "sha256": "6245a34007bfc6d2b4be0651f31f7dff2033a39a9b8deb18ce2585f6f71fc266"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/62afa9d5d30d1c27-retirement.json",
+      "bytes": 941,
+      "sha256": "62afa9d5d30d1c27463c4e0671f8e051c8be1cde16f71939c7bed5f0081961da"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/630fb0a8bca31f26-retirement.json",
+      "bytes": 791,
+      "sha256": "630fb0a8bca31f26239b1b3e4799ca59f9e524534ee36bf2d23ff1cde0669bb6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/63d74943455ef283-manifest.json",
+      "bytes": 961,
+      "sha256": "63d74943455ef2831c779a0f7fab47f5f11f03fdb05fe5978073091a49faa29a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6582ef64b09611ee-review.md",
+      "bytes": 1704,
+      "sha256": "6582ef64b09611ee3ad72d242f8929536d6e81c981d8e64bb6e22159b898f144"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/65b866f0dd0e4136-rev2-to-rev3.diff",
+      "bytes": 8458,
+      "sha256": "65b866f0dd0e41360b9081b0d7af79c8259717ceb9b15a53c67a7c585265533e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/67dee6c2d5d67c3f-result.json",
+      "bytes": 1395,
+      "sha256": "67dee6c2d5d67c3f946e01532775e1604b02d2790d5e715b15c542c0e0ff7332"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/684073d05dec765e-binding.json",
+      "bytes": 9968,
+      "sha256": "684073d05dec765e85a4f1edfe260a07ef4ef277215dace2f6dce2d25baaaf04"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/699ce4265f111107-tcp-observed-delta.json",
+      "bytes": 2269,
+      "sha256": "699ce4265f11110756e846e235833f561928c25ad3d62056f67d9fb6c845729a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6a915e218299abfd-command.json",
+      "bytes": 1982,
+      "sha256": "6a915e218299abfd2535a9a42a31a7bd909f67e79b0360def94747178afc118b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6ab9739154b0659a-watchdog.json",
+      "bytes": 535,
+      "sha256": "6ab9739154b0659a443edb90fa51fce87e8af294edaa8012680dee665c715b19"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6acd87bd8a78c144-actual-wait.json",
+      "bytes": 297,
+      "sha256": "6acd87bd8a78c144fb84857ce04586d05bae9ceeb0e2c828e9f2bd369e9d0f8d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6ad78b9d141f497a-run.py",
+      "bytes": 3052,
+      "sha256": "6ad78b9d141f497ad74b84f589067a191a53972a912ce7de2e861a62f4092ac1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6ce9e87581b0c997-result.json",
+      "bytes": 1403,
+      "sha256": "6ce9e87581b0c9973f09c85922f1c1089145e0edb18c2cf1a0a198b67b5acfec"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6ea11e3beb9908c9-observed-resources.json",
+      "bytes": 5148,
+      "sha256": "6ea11e3beb9908c9d3d6f017e1a7b43b92de22d42f392809d7723642fdbf7532"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/6eac245a8a0347c8-intent.json",
+      "bytes": 420,
+      "sha256": "6eac245a8a0347c862801f2d5d2ef3e9e2a40141b4f5505ab8903ec682bca10e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/71b3b192327079e0-freeze.json",
+      "bytes": 1638,
+      "sha256": "71b3b192327079e09f103773bf09d7158d5e2cc2c9a8f6f6700fbe45b2d7ceb3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/71bf07db0b00ad60-raw.log",
+      "bytes": 5981,
+      "sha256": "71bf07db0b00ad608c67e9c5bc331bdd1011d7eefe68529868241de40a1244a3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/71e833c5ac825b53-v01-to-v02.patch",
+      "bytes": 29068,
+      "sha256": "71e833c5ac825b534ec19b8dbbf115fdf98cc810760f5f412a3f010afab22449"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7254b8761c59447f-resource-id-chain.json",
+      "bytes": 1309,
+      "sha256": "7254b8761c59447f710a7d4072161408797e3f78f19542b094e021a830da36d1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7325e57d4067cedb-adopted-waits.json",
+      "bytes": 147,
+      "sha256": "7325e57d4067cedbedde9acfda57b4a58a410555867731e51888765af52a5763"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/73579d95eeeb4867-raw.stderr",
+      "bytes": 74697,
+      "sha256": "73579d95eeeb4867469e3f52e148559ef78fae3dab19ab51279f47a8f977c174"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/74f3ede9755099c2-frozen-input.json",
+      "bytes": 17952,
+      "sha256": "74f3ede9755099c296bde3034b27b203e778528eb601371c44c29dc4d2b2d4f2"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7634b5292d95d0b7-process-baseline.json",
+      "bytes": 30498,
+      "sha256": "7634b5292d95d0b7297ddb8bcdb8ddcf7d939fe82592f507beb7ca4ea73813a2"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/77cf107453a019a1-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "77cf107453a019a19b519bb048330bd0dfbf765a43b20b918f4927375541b39c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/790cbe3e872cfd79-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "790cbe3e872cfd79d34e1e9cd9158a303ac34b332be7a03ad4269f4d482ffc8f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/794aa1e506bf7943-raw.log",
+      "bytes": 14541,
+      "sha256": "794aa1e506bf7943b590316e5eae089a254a4fe3f5a84e82106c51da9ba15649"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/79739d14689f2c90-driver.py.txt",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/799c837fd61d4323-manifest.json",
+      "bytes": 1095,
+      "sha256": "799c837fd61d43239f306b5c0fdcce310d67d6fdfd910263eed3dca6a56465f5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/79de79b29cb9645c-evidence.json",
+      "bytes": 3708,
+      "sha256": "79de79b29cb9645c06ac3f19bdcce3e1a1342bc1103726af0a278d79606b5c1e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7a98c0d9f7a65e08-prior-invocation-history.json",
+      "bytes": 2744,
+      "sha256": "7a98c0d9f7a65e086a2dac6b4d5547903439d86f5ffda4e1f8dbe1087d916779"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7be48be72e52f915-manifest.json",
+      "bytes": 5400,
+      "sha256": "7be48be72e52f915cb67fd43f841e08de43d49a2d727e145597164893bd6aede"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7c8ed0ad35a208a6-pure.diff",
+      "bytes": 1983,
+      "sha256": "7c8ed0ad35a208a61f419b059737261279f78f4e439e1c1725ce19e43d286409"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7d4f4b58dab58a60-intent.json",
+      "bytes": 413,
+      "sha256": "7d4f4b58dab58a601816b81d87ead9216877cbb9f738ddb3ad440f36bcc35c1d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7df355caaefc7224-result.json",
+      "bytes": 1407,
+      "sha256": "7df355caaefc72245e5fb568bfa152243664238438de3b3ebc2b54cbf9f6a380"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7e12b712a5425363-inputs-before-check.json",
+      "bytes": 221,
+      "sha256": "7e12b712a542536300c9d62efb2e12b996e88211eb39b0580e73e97cb19b2862"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/7e8298d4b734a653-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "7e8298d4b734a6535dee07e0516769ea788be1958cd437fe8b5db89533aac5ec"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/822dd12ab698a3f5-verification-input.json",
+      "bytes": 183,
+      "sha256": "822dd12ab698a3f5b119f8c9c6f561a5b4676b0293d69499c414bd18504529b9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/830a186014772956-result.json",
+      "bytes": 11484,
+      "sha256": "830a186014772956011b572472592e0f6933d560e6dae33887f66efca25845bb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8360b27dab7ee31e-frozen-input.json",
+      "bytes": 17749,
+      "sha256": "8360b27dab7ee31e49ea541d288ad02154ed0c855c7759e5f9c9aa80ded534b1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8429dad0951257b0-manifest.json",
+      "bytes": 597,
+      "sha256": "8429dad0951257b06997ee4d6ddf583cff5bcd8e5ebf47135b2612e2fa7dc18a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/849d3651d9e1dd20-tcp-observed-delta.json",
+      "bytes": 3425,
+      "sha256": "849d3651d9e1dd209dd9c6dd9bc9dc9115aa3e0b9247f1aac59df0bc4454ae8a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/84fa960bfe45f8e9-raw.stdout",
+      "bytes": 27426,
+      "sha256": "84fa960bfe45f8e94cbaabed55448657a311bdbb3e372ee09d86f2e8acc2cf40"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/853d09f1c64fef44-freeze.json",
+      "bytes": 2000,
+      "sha256": "853d09f1c64fef4430fbb196834544ea433cbe0afef655e9ad1bf5e306ffccd9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/855de3ac05a901cc-stop.json",
+      "bytes": 2084,
+      "sha256": "855de3ac05a901ccee0b979db21da10cc86c23d17d66055c35cf43ce4306104a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8587c0acba32bc38-result.json",
+      "bytes": 39230,
+      "sha256": "8587c0acba32bc38617fd34a27f3d89467aa1a3769e2d2701de2e04a5427aef1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/863ddb73b39ccf15-watchdog.json",
+      "bytes": 536,
+      "sha256": "863ddb73b39ccf15b3348393e90758632e610b56be6c1336a4d43ce344bc454a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8655deaf088e2628-result.json",
+      "bytes": 1057,
+      "sha256": "8655deaf088e26280dd3b5222b326cebfbbf693d94c28ff4ca76f884ba450391"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/865f5fc679ce3e34-manifest.json",
+      "bytes": 595,
+      "sha256": "865f5fc679ce3e340d937137bb271df74d8b29ecd8ee8c8ca75fde1a0c8019b8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/870616cd02711cab-prior-invocation-history.json",
+      "bytes": 688,
+      "sha256": "870616cd02711cabfb84c01fcb1fa7374592bdd21b3027194b7c89eda9210421"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/87457c77e6f1fb35-manifest.json",
+      "bytes": 5804,
+      "sha256": "87457c77e6f1fb358d77a8f651294140476f1a1369973143e1ba83a019e1d12e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/88030aa3b18ddf8c-manifest.json",
+      "bytes": 562,
+      "sha256": "88030aa3b18ddf8c26490a68570618325e593380afc7ac1d8a6b74212fbb9881"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/880a001efa0302c9-closure.delta.json",
+      "bytes": 988,
+      "sha256": "880a001efa0302c9c3b1ff0baed07318720b31e84bf0b607bbd4f35d2866f922"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/88f676dc9c778f49-review.md",
+      "bytes": 2657,
+      "sha256": "88f676dc9c778f499504b06c01f71320b09294f23722ac2f58827fb91ce7bcab"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/892c24bea4881c8b-stop.json",
+      "bytes": 2418,
+      "sha256": "892c24bea4881c8b4c1268ca4369c06759ca936e029605964064ebdd4c7c5900"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8a1ec990079260c2-launch.json",
+      "bytes": 816,
+      "sha256": "8a1ec990079260c2fbd9693eca027b576087723f1aaaa41b4d652320188450d0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8aae6b0dc6690afe-command.json",
+      "bytes": 1988,
+      "sha256": "8aae6b0dc6690afe17f533ab8f9ca0cc36fed1779ea2767bef8f49ecb63e1821"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8ab9d4aecfea16be-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "8ab9d4aecfea16be1980f8b047bd79a540d35278dcf504d5ab5bdf21fcde949d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8af846271cabed97-raw.stdout",
+      "bytes": 24680,
+      "sha256": "8af846271cabed9746c833d93dff731f2ae94cd15fa9b40bf7c5d619fb83b778"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8c13a93fab25d518-freeze.json",
+      "bytes": 2462,
+      "sha256": "8c13a93fab25d5183b354064f2f16436aa56beb51396ba04f3ca9ab7b43fd4ed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8c4c50a0fccf1f19-review.md",
+      "bytes": 4831,
+      "sha256": "8c4c50a0fccf1f1904c8f63bdc9b0a12b7d138f5f62b47503dc110094fef5dd5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8c77e0b8a7192cde-disk-preflight.json",
+      "bytes": 201,
+      "sha256": "8c77e0b8a7192cde89bc6d52c042bf6b4462effccf158988eef44c159f2f846e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8cbe3da3299e6a91-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "8cbe3da3299e6a9116224700cc4bc783b412405ae1b4e4c652b80204b3206dd1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8cde5828bd4b7d7e-launch.json",
+      "bytes": 1230,
+      "sha256": "8cde5828bd4b7d7ee0d59b594403dd7f43475113fa8f9db1188814811723e8cb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8cfb21901c68b44e-pg-embedselect01-result.md",
+      "bytes": 1687,
+      "sha256": "8cfb21901c68b44e5d26c30a57a1b38c9cbae81ef591b173ec93f7f3d48c780e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8d4832007fa61044-cleanup.json",
+      "bytes": 80535,
+      "sha256": "8d4832007fa6104437dcbeeef175bcca3d72287b7b79f5b35b08e694e9a70f7b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8e7fb88e12be64d8-impact.json",
+      "bytes": 1266,
+      "sha256": "8e7fb88e12be64d8838cf075c3104dc247dae2b69b6a7de70cf5cf1a0e9ef40d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8f3d65f1cdd8bb01-disk-before-spawn.json",
+      "bytes": 201,
+      "sha256": "8f3d65f1cdd8bb018665bc0da3b8a215cadd9878142d4278e17dca95f5ed5743"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/8ff75136917bc0e4-run.py",
+      "bytes": 11223,
+      "sha256": "8ff75136917bc0e47893a18af51ebeae7d86cce95bd852fb0b206dea6c6706f6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9001100756309e2c-cancellation.json",
+      "bytes": 103,
+      "sha256": "9001100756309e2c4938a8ffe6ec9202c508e02f97f209024f18d11e0b6dde15"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/902218d0438e7026-observed-processes.json",
+      "bytes": 13121,
+      "sha256": "902218d0438e7026f06eea0138e79e7feceb8f7d759d73389b161db18d92da05"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/91112bca36115ac3-command.json",
+      "bytes": 1984,
+      "sha256": "91112bca36115ac3123d63fab9804755163558f55e4edeaf183e10ae97fff6f3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9163429574f88f52-freeze.json",
+      "bytes": 2216,
+      "sha256": "9163429574f88f52bf832bca662b511b9c868c62232c795e4239d75213bf2778"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9169a7033d8e79c2-launch.json",
+      "bytes": 1224,
+      "sha256": "9169a7033d8e79c2706e464171fb9d5f7bba99565aa73b28faedb734051e0233"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/92477a340b145236-observed-resources.json",
+      "bytes": 5160,
+      "sha256": "92477a340b14523614a11c054828524bda92aaa1fc5611dea3cbd91708a6c405"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9282f7e15b818080-process-baseline.json",
+      "bytes": 27330,
+      "sha256": "9282f7e15b8180803c85b3d234bde528cb4d9a3490b973ecdca862666e934bb7"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/92ec487c641ab2c7-installation.json",
+      "bytes": 3195,
+      "sha256": "92ec487c641ab2c7331177a77525725846da654450d1c0f8d01d9899f696c223"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/930bf4cfd797fcb1-result.json",
+      "bytes": 1411,
+      "sha256": "930bf4cfd797fcb11583aa789e7bb7549771d6dcbe320eebcf1b493ac4b1162c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/945f8911f213b98b-raw.stdout",
+      "bytes": 28316,
+      "sha256": "945f8911f213b98b6f5380577b12ff796baa9eb96512abd61e7f4d4a12705304"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/94633c3853bbea7d-intent.json",
+      "bytes": 418,
+      "sha256": "94633c3853bbea7d49b824d309d952f3b4835aaeeb1d0cdcfdbe2e5f8965db10"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/949788b27bb0c9b0-frozen-input.json",
+      "bytes": 17913,
+      "sha256": "949788b27bb0c9b0fc829f88d683e605fe923dcb6c5e4652af80a2abbbecf20d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/94e3efa3226ccdc1-source-refs.json",
+      "bytes": 4521,
+      "sha256": "94e3efa3226ccdc1336af8c1645023f51299f001dd93a13a9d228d9e0f38a758"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9533a4e519d848b9-source-summary.md",
+      "bytes": 2655,
+      "sha256": "9533a4e519d848b9ca17850e5d81b0c2a364c8b01f4dce99304843a444e97d0e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/953cebfc10300d64-intent.json",
+      "bytes": 413,
+      "sha256": "953cebfc10300d64a6c766efcbe269d3ff5522da9780b202d11342b75e5ba52d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/960457ace1019fdc-before.json",
+      "bytes": 3091,
+      "sha256": "960457ace1019fdc8a37dc2125d0f2a5a85fa62e45116a2c66d9eed4519066e1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9677df0afd9fdd5c-retirement.json",
+      "bytes": 1241,
+      "sha256": "9677df0afd9fdd5c7f13b9d11455b14e366ff6cdd728aca423fa5bfee31efbe6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/96b1c9c63614099f-verification-input.json",
+      "bytes": 183,
+      "sha256": "96b1c9c63614099f03ed6df986470eb9cff433d82635f5d756c0fec9b2fa1e74"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/96e950083755f7cb-spawn.json",
+      "bytes": 610,
+      "sha256": "96e950083755f7cbaa0c2429de8b4f0b7e6b65e7752678e9330f6a20e3c9a8e5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/971cc44a6dc0c5e7-result.json",
+      "bytes": 11786,
+      "sha256": "971cc44a6dc0c5e7746b0fc58793967d969d74df8eebff61500e5b3a1449d015"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9725debb2ef92458-launch.json",
+      "bytes": 933,
+      "sha256": "9725debb2ef9245803e2baa34d342e2571d28fc999032528000f5ae95b83c53c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/97fb69fe51048e53-result.json",
+      "bytes": 990,
+      "sha256": "97fb69fe51048e5339fecf55c97a9b7c8abb86d1abcf9a7a79567d0a15f07897"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/98e0d093094a8ea3-actual-wait.json",
+      "bytes": 297,
+      "sha256": "98e0d093094a8ea39fefb1ac4f3c35c850289f5b9681ab935c5c7637df4b0171"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/999453701d380018-watchdog.json",
+      "bytes": 686,
+      "sha256": "999453701d38001847448f728877ce30549e89656efddf76ce968ad716af690c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/99c26b8450f57a94-tcp-observed-delta.json",
+      "bytes": 3145,
+      "sha256": "99c26b8450f57a94b6a771a37a86029e1703f67b4c8fd96e9f75307c86a01ee5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/99f7e0f3ca4e4220-evidence.json",
+      "bytes": 16808,
+      "sha256": "99f7e0f3ca4e42208e86ca3b097d0e8e5a3c442aea32728537335f66f7006de3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9a2f6805c3d77f8e-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "9a2f6805c3d77f8ebcba1d7c2f221b0b8e0e4ac4ad6bc30259b44c0432bf257f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9a5b6e8f6f7b91fc-launch.json",
+      "bytes": 1232,
+      "sha256": "9a5b6e8f6f7b91fce793fc0d56aa5246c1c916c1a3df596abf4c0b2fb67838dc"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9b01799a32701233-raw.log",
+      "bytes": 12064,
+      "sha256": "9b01799a327012338da4e32cf22f85547ffcdfcd8433d8264dfc4cf5b5167eb6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9b7900a499c826e8-binding.json",
+      "bytes": 1772,
+      "sha256": "9b7900a499c826e829a066632d532e14d9fc9b21cd4e0fd82506f96fca2e0d1d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9bb67e6323a1c68e-frozen-input.json",
+      "bytes": 25369,
+      "sha256": "9bb67e6323a1c68ee7cd4e5bcbcf74639f6f67eedaf1070232d4a7fa33567204"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9ceb4e3f531796aa-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "9ceb4e3f531796aa7afb467871813fe945f244196dad1981797e9e50f1d7113c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9d1df842e5c99bde-watchdog.json",
+      "bytes": 522,
+      "sha256": "9d1df842e5c99bde5843d2e5391f021e6ac0f24b158cbad6fdc9d9ccee0a9ffb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9e1f9c1ba1aff995-result.json",
+      "bytes": 32183,
+      "sha256": "9e1f9c1ba1aff995b8593392734deb7f0caaee7575232c8fff9a94e9d7303603"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9e918dc5b18ace77-result.json",
+      "bytes": 31416,
+      "sha256": "9e918dc5b18ace77f3f2ab7a03408fe2e15db1dc09d0341a063157ca18d1ed8d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9ee02e0863da5867-process-baseline.json",
+      "bytes": 26682,
+      "sha256": "9ee02e0863da5867716afd21852b229d36e620dbe474e38312e551fa873b1335"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9f3768ef4418fdd1-review.md",
+      "bytes": 2539,
+      "sha256": "9f3768ef4418fdd1d405d5b0302b02252c06615bedf68005cbff2de80364d077"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a0b48f527b443214-raw.log",
+      "bytes": 9659,
+      "sha256": "a0b48f527b4432148b4867a69a8a3979136e060b7eebb03cd74b1eb912bab225"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a0cf7cb3c11f74f3-manifest.json",
+      "bytes": 1799,
+      "sha256": "a0cf7cb3c11f74f3be904dcf41dafef622afb2063630751b1d25a06a04720dd8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a0e1df9bc73a1a30-raw.log",
+      "bytes": 9025,
+      "sha256": "a0e1df9bc73a1a30de77f3dc8c43389f206d8e4b2791ce65e0f8cead841db629"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a0e2ee180e0f0527-actual-wait.json",
+      "bytes": 297,
+      "sha256": "a0e2ee180e0f05279a0894598e07b4c03ef7a2001fb76dfef9ed59b3c0cdf9d7"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a2741c1bf687eee7-tcp-tail-observation.json",
+      "bytes": 51977,
+      "sha256": "a2741c1bf687eee7db071f2f3a6a7c8b4accca5fdece50ac50e637a27d6b7d29"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a2953f8ca378a5da-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "a2953f8ca378a5da7d4431c2059ff541b8ad129e1797fd929b1f9148380c70ab"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a2c8b6fe7188ad6e-retirement.json",
+      "bytes": 1241,
+      "sha256": "a2c8b6fe7188ad6e71e8b9dd3d70a6c5a1e13015e3cbf81e375dca46295a4ae8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a37b4709268c4f0d-result.json",
+      "bytes": 470,
+      "sha256": "a37b4709268c4f0d3691c349bf9f8480b370972101a725dbd50c5912fca12afc"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a4cd8a152194ff50-manifest.json",
+      "bytes": 3382,
+      "sha256": "a4cd8a152194ff50f1b7737856c152ab526e3e0a37d4292121edde77d5c889c6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a505bdc7b5886345-tcp-tail-observation.json",
+      "bytes": 146631,
+      "sha256": "a505bdc7b5886345aa9acdab9f00da80268ee7b8d36783b4eb6287e03614ad33"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a5228d477fcc4d6d-input-after.json",
+      "bytes": 614,
+      "sha256": "a5228d477fcc4d6d147d56058f393d2dbd6a497e040521c9425846c7a557c494"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a54474cd53276965-raw.log",
+      "bytes": 19136,
+      "sha256": "a54474cd53276965c9bb186620fe5c7b16b6d2ed89f02e533a8efde0008690bf"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a652c455e72f2e9e-manifest.json",
+      "bytes": 580,
+      "sha256": "a652c455e72f2e9e6eafacbb7347ee7b3402a32e4118b46c5bada44dd1296586"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a6c36e7d401efac6-result.json",
+      "bytes": 4522,
+      "sha256": "a6c36e7d401efac6310546c62608eb7b6deaafbc4442ac823e3ed9f7736005f3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a75c25bc65c64bd4-handoff.md",
+      "bytes": 1593,
+      "sha256": "a75c25bc65c64bd4cf308978222563f8ace10dddee23a06a5a4107503a2a424e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a7611915104bc6a8-raw.stdout",
+      "bytes": 22365,
+      "sha256": "a7611915104bc6a83b8424d5dd3c562eb713d5e8de3a59af8382bd902c0e542d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a87cb0650baba068-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "a87cb0650baba068c64373008280ba4526609a47e9033c68dfd9e6aaeab51482"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/a9553dfd6b61a789-watchdog.json",
+      "bytes": 554,
+      "sha256": "a9553dfd6b61a78915065be61d9217c684d26637818add97aeefdc3fec966a26"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/aae62f069188424d-intent.json",
+      "bytes": 423,
+      "sha256": "aae62f069188424d5d2909095fe08c95e877168623046c5c4cff09f2103d4c2e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ab14ab6b5832c2c9-review.md",
+      "bytes": 4581,
+      "sha256": "ab14ab6b5832c2c956ddccf32dd145b8969af920ba62f00819d02531516f64fe"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ab302f5d6218fe7a-tcp-observed-delta.json",
+      "bytes": 8329,
+      "sha256": "ab302f5d6218fe7a51723531a8f279919a4fe6d007dbb2098ae6d5e0eed66428"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/acaae1baae566e6f-observed-processes.json",
+      "bytes": 13443,
+      "sha256": "acaae1baae566e6faccaad368995c0c5905f4b958eb31a5992a2fe2e6c654e93"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ade80ae6dd9e4dd1-cleanup.json",
+      "bytes": 73355,
+      "sha256": "ade80ae6dd9e4dd1c70d986030013957ac272f85be3dfd159957381648830c46"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/adf7f686b9c9f2a8-verification-input.json",
+      "bytes": 183,
+      "sha256": "adf7f686b9c9f2a8dc870814d6b16cdf219fe252cfdfe2e740bd2885eb6d321a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ae9faced2ccb1bdc-result.json",
+      "bytes": 1982,
+      "sha256": "ae9faced2ccb1bdcbe83031ef5d804c7a8c27032c0fee23fb753d5efc3b4260f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/aebb0cae7f09d378-resource-id-chain.json",
+      "bytes": 2002,
+      "sha256": "aebb0cae7f09d378b82df987095fff79d0c0e8aec20990f197f74098db7a7b23"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b0219b245adc9282-assembly-attempt01-failure.json",
+      "bytes": 1182,
+      "sha256": "b0219b245adc928226800bee6c2ceaffd7cc3965b96aa5c006112c783b84b4a8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b0506e08b5fe3e37-spawn.json",
+      "bytes": 413,
+      "sha256": "b0506e08b5fe3e378f0061ad09744335d5d06bd980aea939223e95fd07de8d72"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b0bc26d255f7255a-inputs-delta.json",
+      "bytes": 1202,
+      "sha256": "b0bc26d255f7255ab79e563c5e17a6116b2ef4c13a31b5b995320effb0048ba9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b0db166240019138-manifest.json",
+      "bytes": 851,
+      "sha256": "b0db166240019138193e6624557374e5ac4719c08b05a5280ac96d8d931ea143"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b0df40a0f727ed72-manifest.json",
+      "bytes": 728,
+      "sha256": "b0df40a0f727ed72c255197dc18857daef7a3586cf5c5520be6d4652338a14c1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b0e668095b8cafe8-resource-id-chain.json",
+      "bytes": 1082,
+      "sha256": "b0e668095b8cafe8a3f0658b2f8d0a25025907d5e9d30c7b2b893b572f7f1024"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b3075723cede1303-raw.log",
+      "bytes": 7872,
+      "sha256": "b3075723cede13036834d6fcb3e7e6f9790f8c9775ffd4f4714afd5f928d2706"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b34950dd78e777e0-input-after.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b35d37c6a1e313a4-manifest.json",
+      "bytes": 11094,
+      "sha256": "b35d37c6a1e313a4a23ef58c4203c06a77e03d0508d089e0d81318e00e31766e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b4cad869dd7ebec2-inputs-before-check.json",
+      "bytes": 98,
+      "sha256": "b4cad869dd7ebec26b84839081d9512c846be42eadb536406dc25510e67adb92"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b4d04a6980742bfe-prior-invocation-history.json",
+      "bytes": 688,
+      "sha256": "b4d04a6980742bfe42fc4ac3218bce17e06397984dcd9f913bba526c8946e6f9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b560157e6f43d601-launch.json",
+      "bytes": 933,
+      "sha256": "b560157e6f43d601ad38ea0699e6357d1131b8cee32063b161179a60011379db"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b64ca04bd35c4d93-embedselect01-disposition.json",
+      "bytes": 1404,
+      "sha256": "b64ca04bd35c4d93c691cfa2dfcd22e61193a559c317f6910c365dfffb27274e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b692e88bfb7175d8-result.json",
+      "bytes": 39069,
+      "sha256": "b692e88bfb7175d83bdf10b162dc59d7b292e280e3a61ee374c3405ba3f5ab5f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b6d1b1d878f3a062-launch.json",
+      "bytes": 1216,
+      "sha256": "b6d1b1d878f3a0623851d56a50c3c881f94a7df1ecdc2497ec4a601455b0bad6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b7a4aa4e89945e5d-installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/b92b2bf6e9550dca-checks.json",
+      "bytes": 606,
+      "sha256": "b92b2bf6e9550dcad24984e788d9ad71a067117fed90c4f7cf03dfca9ba9c0e1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bad936ff8ca0ae77-preparation.json",
+      "bytes": 1640,
+      "sha256": "bad936ff8ca0ae775a6433e0628352766672b16798351cbfc7879fbc026c3851"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bb28ccbb4f3b53b2-process-baseline.json",
+      "bytes": 28914,
+      "sha256": "bb28ccbb4f3b53b2d133af5f2c54a852af5e5546c4b943ec60aeb4aaef86a67a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bb790e84b397ca87-prior-invocation-history.json",
+      "bytes": 2059,
+      "sha256": "bb790e84b397ca87cdf9daa8aa2957617dadf153da09d7e103d44a5d227d68da"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bbe8bdf4c9e128af-driver.py.txt",
+      "bytes": 49493,
+      "sha256": "bbe8bdf4c9e128af219be7f2c3b9bea06546330c20f07cce2aeee024779146b8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bc22064cecd45cea-inputs-after-check.json",
+      "bytes": 470,
+      "sha256": "bc22064cecd45cea5d98e41503636139ddf9394abb760b0595a55ea6a6aa804f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bc5baddd785d28bd-launch.json",
+      "bytes": 752,
+      "sha256": "bc5baddd785d28bd264e569543c671019f6b8297040f410086e8953e84f6dcd9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bd55f021dffd1b1f-cleanup.json",
+      "bytes": 74999,
+      "sha256": "bd55f021dffd1b1f4112e69d28af06a3ef4cfe6484e35a5a9f4f7d7e89090de4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bd9502a103ccbaaf-manifest.json",
+      "bytes": 828,
+      "sha256": "bd9502a103ccbaafebffc88de81689eaa205697e0192e7f008cdd1b4fbb98af5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bde65965613bb9b3-tcp-tail-observation.json",
+      "bytes": 40637,
+      "sha256": "bde65965613bb9b326ee5a2a7ac20fd0d2a722e771c1cff42f93f4330db6ffb9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/be568cdc058a413a-manifest.json",
+      "bytes": 476,
+      "sha256": "be568cdc058a413a0eefea251462928e6c0ddf25c496ee026b00123e915b69fb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/beae85b531aa0ba2-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "beae85b531aa0ba2e6295f7dee6786b4cb8b9b672fde9d6ccd5587b9afde4c07"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bec00121265000e3-watchdog.json",
+      "bytes": 2479,
+      "sha256": "bec00121265000e36ba1c413ac513d8f02d7dad63b5adcbea7f4897a1685a20f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bf3261bd7b364935-result.json",
+      "bytes": 34695,
+      "sha256": "bf3261bd7b364935436fd61c7a5476c63247e9fe2213af08a50b5dc2a3d986ad"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bf665f394f50df17-binding-delta.json",
+      "bytes": 5789,
+      "sha256": "bf665f394f50df17be8729ae1f3f97a9385da61a882ccd104af9e0c8082eeb54"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bf67a16a5f85e534-overlay.json",
+      "bytes": 221,
+      "sha256": "bf67a16a5f85e53485441affa0f8c717a482bbd051be797f15bacf23a5e456d1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bfaa372f01f3c42c-offline-readiness.json",
+      "bytes": 9154,
+      "sha256": "bfaa372f01f3c42c0ef6b697db43587789a84cc2c54e118860115b6b63b855d2"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/bfbecbd1360af4a2-source-rows.json",
+      "bytes": 3981,
+      "sha256": "bfbecbd1360af4a2bef5dbfa70532926433c1f23372d88f04d6781cc098be16a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c02cf2648c5c56f8-raw.stdout",
+      "bytes": 27872,
+      "sha256": "c02cf2648c5c56f83c708f0647dcc80a0d7e761bc3560b94991b495958b06a01"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c12a1bc8555e0efe-result.json",
+      "bytes": 469,
+      "sha256": "c12a1bc8555e0efefafaa76866ee3321b56b25e99cdf9871a0815da782c16ef0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c1aa4f30025f81db-actual-wait.json",
+      "bytes": 297,
+      "sha256": "c1aa4f30025f81db249cc3a0d379afe3d329f8caddb59caf428277fedb631157"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c26b50951e19fbb6-review.md",
+      "bytes": 1578,
+      "sha256": "c26b50951e19fbb64cbc5e7796d67d71b75bc94101463d09700011d97abb431f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c296507da4ef5f92-observed-resources.json",
+      "bytes": 5133,
+      "sha256": "c296507da4ef5f92428e61019937be8982fb10d07f6f49c1e57b826faf3b1671"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c32876a0bc817001-result.json",
+      "bytes": 39858,
+      "sha256": "c32876a0bc817001c8587226ffefa9cd0cf920c47572cce88a240f372e9e55d6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c516032aa82b1a90-retirement.json",
+      "bytes": 22541,
+      "sha256": "c516032aa82b1a906ff5e3524d995017eb9600381664c11987ffd7a14ec6bfe2"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c56354bc2d8cd47f-python-runtime.command.json",
+      "bytes": 1047,
+      "sha256": "c56354bc2d8cd47f40692311ef5476274535766847875ece7bb990f3d1d7b153"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c5b6962ed25da47c-command-before.json",
+      "bytes": 2128,
+      "sha256": "c5b6962ed25da47c9a8c29879a01be246efce3354c8d30d5dcdd9dea0b3b09cc"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c690970e2e8700da-resource-id-chain.json",
+      "bytes": 619,
+      "sha256": "c690970e2e8700dabb1c8381a34c7c6850b45e29fa52601962a1b4abcfdd8eab"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c7e297ceec1c2e57-plan.md",
+      "bytes": 7014,
+      "sha256": "c7e297ceec1c2e571da4db5cc37488fea16f52c3ca6200ce9ab1881b9aafb985"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c7ecaf637d74a22a-check_gates.stderr",
+      "bytes": 480,
+      "sha256": "c7ecaf637d74a22adb317b20c53d66b54557622ca63458645423e82dff150ec0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c83dffc17f5d2ee0-review.md",
+      "bytes": 3258,
+      "sha256": "c83dffc17f5d2ee00a2df553d0c2416c56b835e2575475922e78f2137e23ba94"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c845dc81baf7d16e-evidence.json",
+      "bytes": 4599,
+      "sha256": "c845dc81baf7d16eed1f1d3e33d920b82d20d90a6b365e328d99c32a668daaf6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c9478ca62d633f07-frozen-input.json",
+      "bytes": 25140,
+      "sha256": "c9478ca62d633f07c803c9a976855c3029806d4240c9f2b71ade72c9735b2610"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c98ebc644d135320-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "c98ebc644d135320a1848e11c7a21f2ca2d29435f4acf8de6fb3104a84807219"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c9bd4a9d6cb1ded0-raw.log",
+      "bytes": 5872,
+      "sha256": "c9bd4a9d6cb1ded0d5341f0543a7b2448f4c9c0803163ade6e0a9eb76be30457"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/cab24d7cd1a06300-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "cab24d7cd1a063001f596ffa3b7a8a1fd9a81889ccaf2cb282c2b391ca6688ee"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/cb072fb49f15ab0b-pg-embedselect01-manifest.json",
+      "bytes": 10158,
+      "sha256": "cb072fb49f15ab0b15beca3d1977827ad355ee03ed20e165fac41f084aa55314"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/cc013a9c31b47a03-command.json",
+      "bytes": 1981,
+      "sha256": "cc013a9c31b47a0335860cd91d575114241e8e42a3e90be22f514343ac9c5147"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ccdeb003599272da-result.json",
+      "bytes": 1422,
+      "sha256": "ccdeb003599272da451e5765fbcf8fccc12a89282150c1791415cd0ca6275dc2"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/cce09a5cc3afed93-observed-resources.json",
+      "bytes": 5148,
+      "sha256": "cce09a5cc3afed93d0ee1376f4cb08bd5ff39004d114aa13626e54daef9c8f88"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ce1bbb05c1a2615b-observed-processes.json",
+      "bytes": 13604,
+      "sha256": "ce1bbb05c1a2615bb375e716a734bb348870be05dc6e296a0ea76b59c6281765"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ce5d650f4a0c1b3d-raw.stdout",
+      "bytes": 575,
+      "sha256": "ce5d650f4a0c1b3d76d55fe4bcddb6a94401ac1a4859c832c5bc4772a19354c4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ce7defd35a9ef303-manifest.json",
+      "bytes": 593,
+      "sha256": "ce7defd35a9ef303a25256f3c2a291ddec93408376345ae72b659fc2376ca5c7"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/cf3590a5f9fc034f-intent.json",
+      "bytes": 421,
+      "sha256": "cf3590a5f9fc034fff587992d3f680261ed33bbecc7c6840b1fcc0295f3f84a9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/cfd39cdb048bd6f5-result.json",
+      "bytes": 1416,
+      "sha256": "cfd39cdb048bd6f5c23ebff8db3b3cabba9a81c05e917e3f8147748df447f94a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d0dac1adfc4f8086-result.json",
+      "bytes": 4524,
+      "sha256": "d0dac1adfc4f808642b9bffbc4923644cd0d40529f284e73604c8a53df3ed5c9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d2be78b5e94ba62f-launch.py",
+      "bytes": 15046,
+      "sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d40814a1d71a06e8-result.json",
+      "bytes": 38340,
+      "sha256": "d40814a1d71a06e80528ec9d0f979bdc4cfc81a03e1eba493550741f606596ae"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d4e7940165264bc3-frozen-input.json",
+      "bytes": 16783,
+      "sha256": "d4e7940165264bc34afb2216d94f2380952fb9c55736039e11e49707e2c33066"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d53a18d1f7c484a1-inputs-before-check.json",
+      "bytes": 221,
+      "sha256": "d53a18d1f7c484a1414ea636ccf66dda0de6f8b5264fbb090666e812d17dd048"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d56767fe641f5d43-process-baseline.json",
+      "bytes": 32730,
+      "sha256": "d56767fe641f5d43bda151d94980bfab6834626014e811c2e9370f98b2e96abe"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d5f3b19965646c9a-review.md",
+      "bytes": 4030,
+      "sha256": "d5f3b19965646c9afe01619248a944128ce287c56e2d80ea726722e1084fd262"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d6e4ececc519d446-result.json",
+      "bytes": 34074,
+      "sha256": "d6e4ececc519d446b2ef4a250c680712e1f06f5cb0d25f08ae9397cba3a6a193"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d7b03a456d03cde7-tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "d7b03a456d03cde771f5153e73f4864804cf35fc447aabcce42012f744635e4c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d7c2600cef85d1c5-source-refs.json",
+      "bytes": 2698,
+      "sha256": "d7c2600cef85d1c5dc6f88fc0d307162baaa3d7ad0a4d39a8659e4c774841a6b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d821f18dbb8f21eb-from-original-gofmt.patch",
+      "bytes": 613,
+      "sha256": "d821f18dbb8f21ebb9ac873694a59f4c53272f986b83f8204994dd5e56d57d85"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d867d1e46f49c315-raw.stderr",
+      "bytes": 74690,
+      "sha256": "d867d1e46f49c31566f604b284c4843575ed2c9fb1c5eac75ad163620d9ec18c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/d8b263df52d05063-raw.stdout",
+      "bytes": 24244,
+      "sha256": "d8b263df52d05063bc0c9e9747113f6b765730ad6f0058201fd2e0055ca2eca5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/da648d4ffce6616a-review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/dafa2dd4874fc6fe-handoff.json",
+      "bytes": 956,
+      "sha256": "dafa2dd4874fc6fee916ebcf1c430562e6e04ea3f623a3713bac75127ac13006"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/dc4ca4ea015f65c6-manifest.json",
+      "bytes": 1008,
+      "sha256": "dc4ca4ea015f65c66c32f880245666d93a7814a64964ad7cb77fabf086a2f410"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/dcbc22c3644d4f0f-disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "dcbc22c3644d4f0f2add7fc67e8c25864825aa33a4df3eae6847112ed739578d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/de379ff4e9bc090a-review.md",
+      "bytes": 1717,
+      "sha256": "de379ff4e9bc090a1121897a09dbbf4ebc3a6b3181461119a63eaa3fce492817"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/deace589d5cd708c-handoff.json",
+      "bytes": 4762,
+      "sha256": "deace589d5cd708cb81488a3eeddeb27f78fdbc9598fb80943c51f76d5a213ac"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/dec34f034f5232f1-intent.json",
+      "bytes": 423,
+      "sha256": "dec34f034f5232f184cc541c0d2476e5b46f52714907a0847ce2e0c9ae97b8f6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/df75147b33c1ed55-raw.stdout",
+      "bytes": 12227,
+      "sha256": "df75147b33c1ed5532bec1b58b3b9689de8e1ced6aa984c24507248c7e80b8d7"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/dfb457aefce2da77-result.json",
+      "bytes": 1411,
+      "sha256": "dfb457aefce2da773c12aca17e46992639521389d5c0bf5b85e66c4d9f9d3ddb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/dfed9e864397394f-result.json",
+      "bytes": 1409,
+      "sha256": "dfed9e864397394fd010d2ba273179d563e3f81db796b0cade7dc3c8cffc2712"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e1db86bf0c8cc55d-command.json",
+      "bytes": 2070,
+      "sha256": "e1db86bf0c8cc55d148637cc943fd5cc0582ca57849bd894bbec2dd3d177e187"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e222aabdaa178107-verification-input.json",
+      "bytes": 183,
+      "sha256": "e222aabdaa178107f7afff6a7447102c7704f9c0fa8792c0150b0ceeba6db291"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e2a1954fef51170a-closure.delta.json",
+      "bytes": 14102,
+      "sha256": "e2a1954fef51170af9f248e2d9f25316bfa7ad527a30b8e271d4913c835a9c83"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e339d9ddfd0edd2e-observed-resources.json",
+      "bytes": 5163,
+      "sha256": "e339d9ddfd0edd2e2b527e36f214c50de0d432d59bb9725b00faef1135eb6fb6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e350cf6d6833937c-launch.json",
+      "bytes": 802,
+      "sha256": "e350cf6d6833937c0f9de8ff7386ebb51e414a19f882a6487c7816b276d34035"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e3b0c44298fc1c14-raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e3d18d3fd5dea98e-disk-preflight.json",
+      "bytes": 200,
+      "sha256": "e3d18d3fd5dea98e784f5a30c576ae4fa38bba182de1e0eadd71ba49b32b5a88"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e506c0d3036ac1cf-check_filegate.command.json",
+      "bytes": 1096,
+      "sha256": "e506c0d3036ac1cf752a4c84391ab3e507c0bf53d70539d6e0dfb1fcefcb356e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e566c1fb4b987dc7-verification-input.json",
+      "bytes": 183,
+      "sha256": "e566c1fb4b987dc7724a60f97590a3241ede38b8f8e5a378ebd340874dc30d2a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e5872b95257c6afa-installation.json",
+      "bytes": 902,
+      "sha256": "e5872b95257c6afa2004a1c5c0893b28f1b6f73c148e80ff4e4466c3618f90bb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e5d89b0b8fac644c-watchdog.json",
+      "bytes": 542,
+      "sha256": "e5d89b0b8fac644ce598d40dbe1becf598d28768491006b533b481c80334af0a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e601680321745a13-run.py",
+      "bytes": 3517,
+      "sha256": "e601680321745a134c11cbaf6737d2b14dcea76b82efee1eba5063bfb3f6583b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e63da645d1ad5c2b-result.json",
+      "bytes": 1068,
+      "sha256": "e63da645d1ad5c2b6928af064dced8048281cea07cec49ddde459534b05f86bb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/e7766a3874aa58c0-tcp-observed-delta.json",
+      "bytes": 4423,
+      "sha256": "e7766a3874aa58c0fd06d9bebfe515b1dc56affc7aeb8d30c766f986235934e4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ea60de02f94367c7-check_gates.command.json",
+      "bytes": 1087,
+      "sha256": "ea60de02f94367c73ce5751280671b8b06ef8d1e6aead87214cb741059a1930c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/eb6a8f3659f99788-stop.json",
+      "bytes": 1975,
+      "sha256": "eb6a8f3659f9978899cb60351b090eb88129c516990a102f34bf2c6df8f7a113"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ecca53f8ac957f10-cleanup.json",
+      "bytes": 90545,
+      "sha256": "ecca53f8ac957f1099598afc71dc310c2128279b47d3b91baeb4c3386370bd3f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ed5ab873e86a9830-cleanup.json",
+      "bytes": 81919,
+      "sha256": "ed5ab873e86a9830c5bc38da06d40fc9f55fee0e84ea29717176d612fb9c7c04"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/ef2782843e132a30-result.json",
+      "bytes": 1418,
+      "sha256": "ef2782843e132a30091ae3be93f83331459eec9eb43e658fc4ff0e0c3fbefe99"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f04c638a10f97434-evidence.json",
+      "bytes": 15785,
+      "sha256": "f04c638a10f97434f4d4b25e05fa8f33ea63a9cab6693fe9a3f82bb989ad9b08"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f0823f73896af3c0-python-runtime.py",
+      "bytes": 2003,
+      "sha256": "f0823f73896af3c0afa241a56af57958d797fc59b9fac596c172c2b04e0ffbee"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f0903e4c34069ffd-resource-id-chain.json",
+      "bytes": 1538,
+      "sha256": "f0903e4c34069ffd6e4cb2f7ade0f5e1b037fa10273e4b4d37175caca218da81"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f2aaaa8bbb0d6aa6-launch.json",
+      "bytes": 802,
+      "sha256": "f2aaaa8bbb0d6aa60d968b670f3231d3c1b71d64930c8be3385ddbdee6aef4c1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f2c3b2f2cb7e4fa5-spawn.json",
+      "bytes": 647,
+      "sha256": "f2c3b2f2cb7e4fa542161a79428a7268c45503ccccb6e3e072ff23c90a362e67"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f2c79cf85931cd11-frozen-input.json",
+      "bytes": 17693,
+      "sha256": "f2c79cf85931cd1113721d64520516d60facfd46b5654f8afea57d68260fa0c5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f40a3fe66a53efd8-evidence.json",
+      "bytes": 13388,
+      "sha256": "f40a3fe66a53efd8c006a2ba174dd825090ab89c6ebae35d180aefa0f3ab1488"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f4cd00e2c6c65f01-resource-id-chain.json",
+      "bytes": 851,
+      "sha256": "f4cd00e2c6c65f01975be6fc9e154e4a5dede8072a262ff954af338e0cf5b8f6"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f4f61bf89b4bd073-cleanup.json",
+      "bytes": 83303,
+      "sha256": "f4f61bf89b4bd073fc7875ea8e9f68f8f8f26a29f37b19b72aa29076d19d3820"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f554cfdb85411c2b-raw.stdout",
+      "bytes": 32,
+      "sha256": "f554cfdb85411c2bb1d503df3f53dfbad1f753eb8271938833166a5d26a7547c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f5b89993aa52d130-prior-invocation-history.json",
+      "bytes": 1376,
+      "sha256": "f5b89993aa52d13027eb629983e586ea32cc288e7283c9dbcad793f07369358e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f76b1ad927e73ba0-disk-before-spawn.json",
+      "bytes": 201,
+      "sha256": "f76b1ad927e73ba0911342e15b8f17ece892794f1f6a5bd35e8f80f276954590"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f7ad7608ac8a7553-tools.json",
+      "bytes": 6363,
+      "sha256": "f7ad7608ac8a7553f0628b19b96fee78a095bb33586e7d2bcf762596a8057ad8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f85fd04e70934928-prior-invocation-history.json",
+      "bytes": 3430,
+      "sha256": "f85fd04e7093492890ac4608ce9201dc95866a550c8a7540336a32ff140736e1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f8793ba7c7dfc080-result.json",
+      "bytes": 35320,
+      "sha256": "f8793ba7c7dfc080d5f0670275cdf23c52f4d88fbe0c88befc492cf248e60c41"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f889618ecc689e8b-result.json",
+      "bytes": 469,
+      "sha256": "f889618ecc689e8ba7287da75dcdaeb8d07b2c121a8329e4433e7118345d0717"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f8a042d0329f7c5d-installation.json",
+      "bytes": 603,
+      "sha256": "f8a042d0329f7c5de56821903b3fdd3059acaba4904c27306851d81d2d080d32"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f914842550c11d76-cleanup.json",
+      "bytes": 79151,
+      "sha256": "f914842550c11d76d6f8bb6bc161a8a3288a0dbc0a64d8ea0ab1074b11fbbf40"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f916b6614a49ee2f-cleanup.json",
+      "bytes": 91929,
+      "sha256": "f916b6614a49ee2f5b8a4eb644647271a3068daf10ffa968e6fdc2157d39e14f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f92074e95440298e-result.json",
+      "bytes": 2219,
+      "sha256": "f92074e95440298ec61abd7034fa30d9b9b275f16e232c29e7b903662f133e9e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f97b24214f63e880-evidence.json",
+      "bytes": 11674,
+      "sha256": "f97b24214f63e880c6f70077b03de71a91dd032b57cd343cce3491b7fa821dee"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fb356abbb65f5329-evidence.json",
+      "bytes": 14267,
+      "sha256": "fb356abbb65f5329a15b70a4595f83b5ac78d5554ee87abdb2c6e8fce75a3572"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fb7cf706c88a7c00-groups.json",
+      "bytes": 3307,
+      "sha256": "fb7cf706c88a7c00ca61fdf442585100e529e1ad70a0927c71ab045bcbdbb6a8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fba6fded2348f7f0-freeze.false.json",
+      "bytes": 17187,
+      "sha256": "fba6fded2348f7f08536a2e757f4e9cbd7947e8eb648cfa4760bd45999fb78e3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fbd477566d8a0a4a-tcp-observed-delta.json",
+      "bytes": 12113,
+      "sha256": "fbd477566d8a0a4a2465d7d9f975e09bd5705c4f6ffae639a3d9e10347f88de3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fce787b471fce4ee-result.json",
+      "bytes": 471,
+      "sha256": "fce787b471fce4ee93460a49ff3962b888bc9aac9d0a53f9d58061f29a1fd363"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fe6f4c9dffae633d-manifest.json",
+      "bytes": 2327,
+      "sha256": "fe6f4c9dffae633de420b43e968082887257a9c56561f8858837005b6420f732"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fe8c2879e0ef815d-launch.json",
+      "bytes": 1216,
+      "sha256": "fe8c2879e0ef815d57f303d9fcd54494d531ba3223233c62793e17bbe5fa485f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/fef7e15dc40dd91c-prior-invocation-history.json",
+      "bytes": 4120,
+      "sha256": "fef7e15dc40dd91c5d439710ff19ed2e68f35b4003d75232ba3d2117979d939a"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/39890564b4c9abf5-review.md",
+      "bytes": 3060,
+      "sha256": "39890564b4c9abf5e68ec17b41a4be05d01ab05a4d7dbc5196474546e042fc69"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/20379d1a95408283-evidence.json",
+      "bytes": 5017,
+      "sha256": "20379d1a9540828312fb49565f62aa6d0317285d7cd6a3baf0d87d4f9a9e194d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/3f3a860c91d389fb-nine-source-rows.json",
+      "bytes": 5420,
+      "sha256": "3f3a860c91d389fb0735e96da6b98394c0dbbf2cfaed1c02fa0dab0e90f7eac4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/c8258fd68c3ac7cc-readme-v03-precheck.json",
+      "bytes": 11828,
+      "sha256": "c8258fd68c3ac7cc8a5790fdfe07634d55262950adabbd72e96e31aa5f1e8e0e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f1e86e1500323dce-manifest.json",
+      "bytes": 1316,
+      "sha256": "f1e86e1500323dce77edad8265c902c0f50ae49691ebe9b2bed07bb892bb57b0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/67dd6c73bbce49d7-freeze.json",
+      "bytes": 2851,
+      "sha256": "67dd6c73bbce49d7418fdd6cee0011db2249b834d0660502fc1438f5a8773f51"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/efd85acf9dd7f85c-README.patch",
+      "bytes": 3337,
+      "sha256": "efd85acf9dd7f85ccb8843e33a3ee5873424a5f664efce438b9fb5d98a5493df"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/9c5008fe3c7f3ef3-freeze.json",
+      "bytes": 2176,
+      "sha256": "9c5008fe3c7f3ef3dd5526a7b4789273ccc694e5c2b7fba13422436bd6befcf1"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/f5ff9ca1d9505c0d-v03-to-v04.patch",
+      "bytes": 2013,
+      "sha256": "f5ff9ca1d9505c0de42de4f274389664590d1a297d396211323e9ac25556f685"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/430ce1a16be61c13-prior-eight-technical-report.md",
+      "bytes": 8877,
+      "sha256": "430ce1a16be61c13bcae2fde31f8e952db62b49c973b5065678024bb11ad421b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/316e4a0540f1212e-prior-eight-technical-manifest.json",
+      "bytes": 126592,
+      "sha256": "316e4a0540f1212e981e785c01f3731341710de17f5baab731bf1ff84c856f75"
+    }
+  ],
+  "reused_prior_originals": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-spec-verification-evidence/originals/rev1/source-inputs.json",
+      "bytes": 9229,
+      "sha256": "e53ed0dcb300e8501919842bb70a5f0522ce18dfedeac6e34db7a1801885a2b5"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    }
+  ],
+  "source_map_has_all_logical_originals": true,
+  "source_graph_binary_cache_runtime_copied": false,
+  "pending": [],
+  "updated_utc": "2026-10-08T16:02:59.676383+00:00",
+  "final_increment": {
+    "new_original_files": 11,
+    "new_original_bytes": 172487,
+    "prior_manifest_archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/316e4a0540f1212e-prior-eight-technical-manifest.json",
+    "prior_report_archive_path": "docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals/430ce1a16be61c13-prior-eight-technical-report.md",
+    "old_445_original_entity_rows_preserved": true,
+    "old_original_entities_rescanned": false,
+    "generated_extra_files_are_top_insertion_only_plan_and_card": true
+  },
+  "metadata_only_format_correction": {
+    "root_raw": {
+      "path": "/workspace/scratch/platform-embedding-root-grants/delivery-diff-check01.raw",
+      "bytes": 11089,
+      "sha256": "3c75e6d2b36770c0c168cb6a07bd39b8e29330a4e3888460983fc5b36c7b6e40"
+    },
+    "registered_diagnostics": 60,
+    "entities": 6,
+    "kind_counts": {
+      "space_before_tab_in_indent": 48,
+      "trailing_whitespace": 12
+    },
+    "Git_exit_code": 2,
+    "root_helper_exit_code": 1,
+    "all_456_original_entities_and_report_README_plan_card_source_map_prior_delivery_unchanged": true
+  }
+}

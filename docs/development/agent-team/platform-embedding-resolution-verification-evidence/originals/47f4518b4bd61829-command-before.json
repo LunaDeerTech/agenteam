@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "/workspace/scratch/platform-embedding-independent-ab-prepare01/platform_embedding_independent_test.go"
+  ],
+  "cwd": "/workspace/agenteam",
+  "safe_env": {
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOMAXPROCS": "2",
+    "CGO_ENABLED": "1",
+    "TMPDIR": "/workspace/scratch/platform-embedding-independent-ab-compile01/tmp"
+  },
+  "started_utc": "2026-10-08T13:37:17.663778+00:00",
+  "wrapper_identity": {
+    "pid": 696327,
+    "state": "R",
+    "ppid": 842,
+    "pgrp": 696327,
+    "session": 696327,
+    "starttime": 3651234
+  },
+  "outer_limit_including_retirement_seconds": 45,
+  "child_termination_deadline_seconds": 40,
+  "probe_input_sha256": {
+    "/workspace/scratch/platform-embedding-independent-ab-prepare01/platform_embedding_independent_test.go": "117cda7a054cba5907774dfdebb03e84bca88885cdf82b8fa564a5ff49141179",
+    "/workspace/scratch/platform-embedding-independent-ab-compile01/run.py": "8ff75136917bc0e47893a18af51ebeae7d86cce95bd852fb0b206dea6c6706f6"
+  },
+  "command_binary_sha256": "86dd91f69254432a37ca365f964720677040fd6f049a412c23e25f8b3812f342",
+  "author_input_manifest_sha256": "f7a2f86f0cd4c2457f3a4cd0dc626b0e7c75f79295b3486890a449e8d7101278",
+  "cache_ownership": "Root exclusive Go/cache grant for private format, exact tests/model race-c and vet only; no binary/list/body execution."
+}

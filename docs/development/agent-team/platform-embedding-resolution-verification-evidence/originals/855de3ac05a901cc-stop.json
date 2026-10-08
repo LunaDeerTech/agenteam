@@ -1,0 +1,47 @@
+{
+  "state": "STOP_V02_GATE_AND_LOADER_READY_FOR_INDEPENDENT_STATIC",
+  "stopped_utc": "2026-10-08T13:50:36.255248+00:00",
+  "execution_sources": {
+    "driver.py": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/driver.py",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    "launch.py": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/launch.py",
+      "bytes": 15046,
+      "sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10"
+    }
+  },
+  "delta": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/v01-to-v02.patch",
+    "bytes": 29068,
+    "sha256": "71e833c5ac825b534ec19b8dbbf115fdf98cc810760f5f412a3f010afab22449"
+  },
+  "prepared": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/freeze.prepared.json",
+    "bytes": 3007,
+    "sha256": "cbcd00853fae17f294ab632ede9e67e722dc738f591f39d753519271ab27ca8f"
+  },
+  "gate_checks": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/gate-checks.json",
+    "bytes": 15038,
+    "sha256": "42fd81d5c7433341ed5054ea6db6e0fa9f3ffa8f412546930890e7a3470890d5"
+  },
+  "filegate_checks": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/filegate-checks.json",
+    "bytes": 2694,
+    "sha256": "3a31e8d73641bb4cbd6a97f48bee4e958bfd13e2de6d1d257840a8bcc7bf906b"
+  },
+  "handoff": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v02/handoff.md",
+    "bytes": 3153,
+    "sha256": "0d936ec483ba3a3a6ec8e95e5e33959bbe0d3588d562abbebf5e460cc263bf06"
+  },
+  "source_writes_stopped": true,
+  "commands_in_flight": false,
+  "driver_or_launcher_executed": false,
+  "resources_started": false,
+  "go_or_cache_commands": false,
+  "scope": "G1/G2 and required shared Go closure loader only; old19 helpers/budgets/business sources unchanged. Final readiness/resource authorization pending."
+}

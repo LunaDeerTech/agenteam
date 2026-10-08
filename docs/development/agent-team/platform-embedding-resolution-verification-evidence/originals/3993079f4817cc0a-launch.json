@@ -1,0 +1,32 @@
+{
+  "run": "embedatomicity01",
+  "group": "new-atomicity",
+  "spawned": true,
+  "intent_sha256": "27b092b4f03f6a486e7696f72cffd6e799f342e23d0fecf73979d124422b9937",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/driver.py",
+    "--name",
+    "embedatomicity01",
+    "--group",
+    "new-atomicity",
+    "--frozen",
+    "/workspace/scratch/platform-embedding-root-grants/embedatomicity01.json",
+    "--execute-authorized"
+  ],
+  "cwd": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03",
+  "started_utc": "2026-10-08T14:42:56.249369+00:00",
+  "root_grant_sha256": "f2c79cf85931cd1113721d64520516d60facfd46b5654f8afea57d68260fa0c5",
+  "driver_sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442",
+  "launcher_sha256": "d2be78b5e94ba62f102e480d06862cdf38ad769089875aa9e623e2dcac9f4f10",
+  "outer_parent_pid": 777732,
+  "actual_direct_wait_completed": true,
+  "driver_pid": 777735,
+  "driver_starttime_ticks": 4045097,
+  "exit_code": 0,
+  "ended_utc": "2026-10-08T14:44:50.644179+00:00",
+  "elapsed_seconds": 114.39486050199775,
+  "cancellations": []
+}

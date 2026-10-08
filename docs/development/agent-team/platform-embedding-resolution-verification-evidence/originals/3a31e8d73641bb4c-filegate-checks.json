@@ -1,0 +1,63 @@
+{
+  "state": "MODEL_GO_REPOSITORY_LAYER_FILEGATE_PASS",
+  "refs": {
+    "closure": {
+      "path": "/workspace/scratch/project-audit-ui-backend/go-chain01/closure.delta.json",
+      "sha256": "e2a1954fef51170af9f248e2d9f25316bfa7ad527a30b8e271d4913c835a9c83"
+    },
+    "shared_go_chain_manifest": {
+      "path": "/workspace/scratch/project-audit-ui-backend/go-chain01/manifest.json",
+      "sha256": "0716db670bbb043ffb5fa157c406d54ba86c28d158f2a484e4d3ee4c91bb1264"
+    },
+    "shared_go_chain_binding": {
+      "path": "/workspace/scratch/project-audit-ui-backend/go-chain01/binding.json",
+      "sha256": "684073d05dec765e85a4f1edfe260a07ef4ef277215dace2f6dce2d25baaaf04"
+    },
+    "actual_model_list_result": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-list-proposal01/run01/result.json",
+      "sha256": "f92074e95440298ec61abd7034fa30d9b9b275f16e232c29e7b903662f133e9e"
+    },
+    "base_closure": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/closure.json",
+      "sha256": "8d0ce424c05b056be08e530093886bf5e21d60c494073b3c53f8ff3e6c848dc3"
+    },
+    "retain_files_from": {
+      "path": "/workspace/scratch/owner-ui-backend/inputs.json",
+      "sha256": "37482995716234a1eefcbb769f878ffad65a60791d049f9d08d79f432e54c889"
+    },
+    "actual_union": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/actual-union.json",
+      "sha256": "38316270d43b789c4c302ead795e469daefd6b885738a8217f071bf7c61d079f"
+    },
+    "candidate": {
+      "path": "/workspace/scratch/project-audit-ui-backend/go-chain01/binding.json",
+      "sha256": "684073d05dec765e85a4f1edfe260a07ef4ef277215dace2f6dce2d25baaaf04"
+    }
+  },
+  "layer_file_counts_base_retained_removed_merged": [
+    951,
+    903,
+    900,
+    909
+  ],
+  "repository_files_checked": 909,
+  "package_filename_sets_checked": 63,
+  "delta_rows": 10,
+  "new_files": 9,
+  "replaced_files": 1,
+  "package_set_overrides": 3,
+  "loader_does_not_mutate_base": true,
+  "pure_merge_order_and_invalid_retain_cases": 4,
+  "actual_repository_digest": "8ce21289e0a3cf3aa1a48ec5e0c40eecab12b3e3fb8cb4b0898a03ed0af6bdcc",
+  "missing": [],
+  "mismatches": [],
+  "package_set_changes": [],
+  "forbidden_UI_schema_Node_dist_inputs": [],
+  "elapsed_seconds": 0.13428496300184634,
+  "no_large_index_copied_or_emitted": true,
+  "go_cache_external_files_read": false,
+  "driver_imported_or_executed": false,
+  "resources_started": false,
+  "root_authorized_resources": false,
+  "scope": "Actual 909 bound repository SHA reads and 63 filename sets; external355/tool/runtime readiness remains separately bound and pending. No Go/cache/resource command or current dist read."
+}

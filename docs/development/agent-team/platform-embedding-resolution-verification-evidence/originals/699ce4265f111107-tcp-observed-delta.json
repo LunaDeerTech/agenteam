@@ -1,0 +1,110 @@
+{
+  "role": "host polling; no ownership inference; may miss short connections",
+  "rows": [
+    {
+      "inode": "2238167",
+      "local": "0183620A:C7E8",
+      "remote": "0283620A:2328",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "010013AC:98C4",
+      "remote": "020013AC:2328",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "2249285",
+      "local": "0100007F:8052",
+      "remote": "00000000:0000",
+      "state": "0A",
+      "table": "tcp"
+    },
+    {
+      "inode": "2251017",
+      "local": "0100007F:8053",
+      "remote": "00000000:0000",
+      "state": "0A",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256820",
+      "local": "0100007F:8052",
+      "remote": "0100007F:8762",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2258721",
+      "local": "0100007F:8762",
+      "remote": "0100007F:8052",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256822",
+      "local": "010014AC:E584",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256849",
+      "local": "0100007F:876A",
+      "remote": "0100007F:8052",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256853",
+      "local": "0100007F:8770",
+      "remote": "0100007F:8052",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "010014AC:E584",
+      "remote": "020014AC:1538",
+      "state": "06",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256852",
+      "local": "010014AC:E586",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256856",
+      "local": "010014AC:E592",
+      "remote": "020014AC:1538",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256854",
+      "local": "0100007F:8052",
+      "remote": "0100007F:8770",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "2256850",
+      "local": "0100007F:8052",
+      "remote": "0100007F:876A",
+      "state": "01",
+      "table": "tcp"
+    },
+    {
+      "inode": "0",
+      "local": "010014AC:E592",
+      "remote": "020014AC:1538",
+      "state": "06",
+      "table": "tcp"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "state": "STOP_FINAL02_FALSE_OFFLINE_COMBINATION",
+  "completed_utc": "2026-10-08T14:28:34.353187+00:00",
+  "root_authorized_resources": false,
+  "own_input_gate_executed": false,
+  "Go_binary_driver_resource_executed": false,
+  "previous_manifest": {
+    "path": "/workspace/scratch/platform-embedding-independent-ab-final01/manifest.json",
+    "bytes": 1314,
+    "sha256": "77afb5d8d47b4937e685f8301e58756ab7dc388f60b82153454244fc5df7ba29"
+  },
+  "files": [
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-final02/binding-delta.json",
+      "bytes": 6073,
+      "sha256": "6eb12e140bfb3aa67edfc0ea0ef83851bfba876e434f938d68f92e0e7f83abd1"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-final02/closure.final.json",
+      "bytes": 1630,
+      "sha256": "8eccce74422c1c86bbf669c9ca3ce5ece50b5ba4d274e171ffb543b5c64419f4"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-final02/freeze.final.false.json",
+      "bytes": 24416,
+      "sha256": "4e241b9deff481df1edf91532ed293a83c2d96e9a4b5c2441ec96b961f9f043f"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-final02/handoff.md",
+      "bytes": 1747,
+      "sha256": "5a6166f494adcc4f66d623cb7248b5d37bdd41bbe40b49e2645376087d3e27f6"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-independent-ab-final02/offline-readiness.json",
+      "bytes": 11613,
+      "sha256": "c55de620538174d29a3a1de5f1a833accf790d866efc80eecbe9c94f4c2d4456"
+    }
+  ]
+}

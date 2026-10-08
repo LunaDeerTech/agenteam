@@ -1,0 +1,16 @@
+{
+  "reference": "../pure-check01/inputs-before.json",
+  "reference_sha256": "dadf09108c5c0d0d9dee56d215b6c2975abd01987cd04ef132a5db5be17040de",
+  "inherited_exact_local_inputs": 352,
+  "delta": [
+    {
+      "path": "internal/central/model/platform_embedding_resolution_test.go",
+      "before_sha256": "a5fbc31e9794bd812989709102f766e91b8d076f78a92aa8baa8fbfe34b7c594",
+      "after_sha256": "dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d",
+      "after_bytes": 16692
+    }
+  ],
+  "all_other_inputs_match": true,
+  "imports_and_test_names_unchanged": true,
+  "checked_utc": "2026-10-08T12:43:06.632816+00:00"
+}

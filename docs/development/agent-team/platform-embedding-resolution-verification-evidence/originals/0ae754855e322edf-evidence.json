@@ -1,0 +1,358 @@
+{
+  "status": "PASS_STOP_AUTHOR_UNKNOWN_ORIGINALS_AND_OWNED_RETIREMENT_ONLY",
+  "method": "Bounded fixed originals/JSON relationships and accepted stopped source assertions; no Go/SQL/driver/resources/network, no active next run or host/cache/dist reading.",
+  "originals": {
+    "run_files": 26,
+    "run_bytes": 411268,
+    "launch_files": 7,
+    "launch_bytes": 49119
+  },
+  "actual": {
+    "runs": [
+      "TestModelPlatformEmbeddingResolutionUnknown",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding/actual-result-decoration-stage-2-rollback-false",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding/actual-result-decoration-stage-2-rollback-true",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding/actual-result-decoration-stage-3-rollback-false",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding/actual-result-decoration-stage-3-rollback-true",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding/actual-commit-before-delivery-cancel-stage-2",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding/actual-commit-before-delivery-cancel-stage-3",
+      "TestModelPlatformEmbeddingResolutionUnknown/knowledge_embedding/missing-row-cannot-pass-original-command-writer",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding/actual-result-decoration-stage-2-rollback-false",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding/actual-result-decoration-stage-2-rollback-true",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding/actual-result-decoration-stage-3-rollback-false",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding/actual-result-decoration-stage-3-rollback-true",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding/actual-commit-before-delivery-cancel-stage-2",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding/actual-commit-before-delivery-cancel-stage-3",
+      "TestModelPlatformEmbeddingResolutionUnknown/memory_embedding/missing-row-cannot-pass-original-command-writer"
+    ],
+    "run_count": 17,
+    "top_count": 1,
+    "purpose_parents": 2,
+    "leaf_cases": 14,
+    "top_seconds": 6.93,
+    "package_seconds": 7.959,
+    "fixture_seconds": 62.474,
+    "outer_seconds": 118.1454398729984,
+    "inner_exit": 0,
+    "outer_exit": 0,
+    "decoration_logs": [
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=2 actual=committed returned=unknown; original attempt/cause retained; before-confirm final=0",
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=2 actual=not_committed returned=unknown; original attempt/cause retained; before-confirm final=0",
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=3 actual=committed returned=unknown; original attempt/cause retained; before-confirm final=1",
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=3 actual=not_committed returned=unknown; original attempt/cause retained; before-confirm final=0",
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=2 actual=committed returned=unknown; original attempt/cause retained; before-confirm final=0",
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=2 actual=not_committed returned=unknown; original attempt/cause retained; before-confirm final=0",
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=3 actual=committed returned=unknown; original attempt/cause retained; before-confirm final=1",
+      "platform_embedding_resolution_unknown_test.go:90: formal result decoration stage=3 actual=not_committed returned=unknown; original attempt/cause retained; before-confirm final=0"
+    ],
+    "command_writer_join_logs": [
+      "platform_embedding_resolution_unknown_test.go:162: real rollback then decorated Unknown; actual Command EX holder/waiter observed; canceled waiter and holder both actually joined before same-key confirmation; no physical wire ACK-loss claim",
+      "platform_embedding_resolution_unknown_test.go:162: real rollback then decorated Unknown; actual Command EX holder/waiter observed; canceled waiter and holder both actually joined before same-key confirmation; no physical wire ACK-loss claim"
+    ],
+    "actual_holder_waiter_count": 2
+  },
+  "controlled_boundary": "Real Store commit/rollback followed by controlled result decoration/cancellation; not physical COMMIT-ACK or network ACK loss. Original attempt/cause, phase/preparation/snapshot/binding/lease facts and same-key confirmation checked by completed fixed assertions; no separate persisted SQL dump.",
+  "inputs": {
+    "grant_sha256": "4eafcbc3c382d43ff9f8b5e66efd4fed998fc839b270b71e9f574682bce8b4be",
+    "before_after_sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2",
+    "recorded_files": 996,
+    "recorded_digest": "8fefb2e8350c6d1d01766087765b02b62f461cf3cb8249b2964dd26d5bd9e701",
+    "unknown_source": {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_unknown_test.go",
+      "bytes": 6857,
+      "sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d"
+    }
+  },
+  "retirement": {
+    "outer_actual_direct_waits": 1,
+    "inner_actual_direct_waits": 1,
+    "adopted_waits": 0,
+    "observed_process_count_only": 83,
+    "ids": [
+      "199551843fb6d9b15db1cfc67b8e6a0292539e26dd071603a24f16c92a3b9744",
+      "2327c081e2746bc2850412bb526c10ba56995d359f754189ab1236f79dad17b5",
+      "3a14589b2bd4c1c78cf2edfc396757e45284d6b92afaea1a03e24282f5867def",
+      "607d4c9e40cfddd34111caa1ed2d2260290bbccefa666a5d3ddebdcd0dcf6115",
+      "64dd18827d0eacf3244cb6c2735571a9a5def22e6c33474b2a9ddc7b69fe1b69",
+      "9c231be7d0a23dc9a398c780bdfa7be8db2ab592c803649151b523effa636933",
+      "cc50c7aed7a076d880f979dda9140ed725c167d88b66b8e0b7738f6cee88455c"
+    ],
+    "prior_v03_rounds": [
+      "embedatomicity01",
+      "embedauth01",
+      "embedreplay01",
+      "embedselect02"
+    ],
+    "v03_five_round_unique_ids": 35,
+    "cleanup_times": [
+      "2026-10-08T15:00:43.712535+00:00",
+      "2026-10-08T15:00:44.448965+00:00"
+    ],
+    "tcp_seconds": 52.44588397000189,
+    "tcp_last_two_times": [
+      "2026-10-08T15:01:37.194446+00:00",
+      "2026-10-08T15:01:37.398236+00:00"
+    ],
+    "four_nonowned_pid1_shims_not_waited": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 809923,
+        "ppid": 1,
+        "starttime": "4146126",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 810453,
+        "ppid": 1,
+        "starttime": "4146597",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 810840,
+        "ppid": 1,
+        "starttime": "4146888",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 811464,
+        "ppid": 1,
+        "starttime": "4147093",
+        "state": "Z"
+      }
+    ]
+  },
+  "root_reported_tool_receipt": {
+    "session": 85279,
+    "chunk": "7bdf91",
+    "exit": 0,
+    "scope": "Root message; not this verifier personally waiting that tool cell."
+  },
+  "limits": [
+    "Author Unknown actual plus independent original review, not independent actual A/B.",
+    "17RUN entries include parent groups; 14 leaf cases.",
+    "35IDs unique only across the five specified v03 generation rounds; prior business outcomes not independently re-reviewed here.",
+    "Four nonowned shims not waited; TCP polling supplementary only.",
+    "Original failures/cleanup unchanged; old groups/full card/README/production consumers/serving and prior hard stops outside this scope."
+  ],
+  "file_fingerprints": [
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/adopted-waits.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/baseline.json",
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/cancellation.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/cleanup.json",
+      "bytes": 83303,
+      "sha256": "f4f61bf89b4bd073fc7875ea8e9f68f8f8f26a29f37b19b72aa29076d19d3820"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/command.json",
+      "bytes": 1982,
+      "sha256": "4ec6a43ad133ab2279f58c510533298e66cfeba86984d54e7520cac37bb47804"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/disk-before-spawn.json",
+      "bytes": 200,
+      "sha256": "9ceb4e3f531796aa7afb467871813fe945f244196dad1981797e9e50f1d7113c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/disk-preflight.json",
+      "bytes": 200,
+      "sha256": "e3d18d3fd5dea98e784f5a30c576ae4fa38bba182de1e0eadd71ba49b32b5a88"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/driver.py.txt",
+      "bytes": 48924,
+      "sha256": "79739d14689f2c907cda3a933762aefcde2358254ba25adb4f3ccf24dd0d9442"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/frozen-input.json",
+      "bytes": 17755,
+      "sha256": "4eafcbc3c382d43ff9f8b5e66efd4fed998fc839b270b71e9f574682bce8b4be"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/input-after.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/input-before.json",
+      "bytes": 614,
+      "sha256": "b34950dd78e777e0578520f5d1945da189f53f8250c554eeea2a4f2c85e1fbe2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/local-image-digests.json",
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/monitor-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/observed-processes.json",
+      "bytes": 13443,
+      "sha256": "35d62a94b6a01e16c5237642e0aacdecf87ca3679a0711dd032ec15b56a852f5"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/observed-resources.json",
+      "bytes": 5148,
+      "sha256": "24dce2bb4dccacc622909a062355505119da970c0e9d2a3fd5c0c200d9f7bfcb"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/owned-tail-retirement.json",
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/prior-invocation-history.json",
+      "bytes": 2744,
+      "sha256": "405307d6430cf16978d062db6828d4dd05255c117f226d27815db5d76cbe0b78"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/process-baseline.json",
+      "bytes": 30498,
+      "sha256": "7634b5292d95d0b7297ddb8bcdb8ddcf7d939fe82592f507beb7ca4ea73813a2"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/raw.log",
+      "bytes": 9659,
+      "sha256": "a0b48f527b4432148b4867a69a8a3979136e060b7eebb03cd74b1eb912bab225"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/resource-id-chain.json",
+      "bytes": 1538,
+      "sha256": "f0903e4c34069ffd6e4cb2f7ade0f5e1b037fa10273e4b4d37175caca218da81"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/result.json",
+      "bytes": 35951,
+      "sha256": "1767ccc6401bc634fc504f76856af586fefa89a377bdd93a6830b92c5f1ed0b8"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/tcp-baseline.json",
+      "bytes": 1725,
+      "sha256": "c98ebc644d135320a1848e11c7a21f2ca2d29435f4acf8de6fb3104a84807219"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/tcp-observed-delta.json",
+      "bytes": 4423,
+      "sha256": "e7766a3874aa58c0fd06d9bebfe515b1dc56affc7aeb8d30c766f986235934e4"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/tcp-tail-observation.json",
+      "bytes": 146631,
+      "sha256": "a505bdc7b5886345aa9acdab9f00da80268ee7b8d36783b4eb6287e03614ad33"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/verification-input.json",
+      "bytes": 183,
+      "sha256": "392511ebe9c685b162d067b75c4b1d4e52fc06c9e6a888e8b6a2adf0effdee79"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedunknown01/watchdog.json",
+      "bytes": 536,
+      "sha256": "863ddb73b39ccf15b3348393e90758632e610b56be6c1336a4d43ce344bc454a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedunknown01/intent.json",
+      "bytes": 420,
+      "sha256": "6eac245a8a0347c862801f2d5d2ef3e9e2a40141b4f5505ab8903ec682bca10e"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedunknown01/launch.json",
+      "bytes": 1228,
+      "sha256": "1f945c6833e143bee9d008aece6de62d1c725bfc5627f98455ff21e10e5d8049"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedunknown01/prior-invocation-history.json",
+      "bytes": 2744,
+      "sha256": "7a98c0d9f7a65e086a2dac6b4d5547903439d86f5ffda4e1f8dbe1087d916779"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedunknown01/raw.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedunknown01/raw.stdout",
+      "bytes": 25565,
+      "sha256": "60ba0abc6a24fc243d10a2503d4b1c4230ae15448099e767e9449f4cc95cbccf"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedunknown01/result.json",
+      "bytes": 1407,
+      "sha256": "7df355caaefc72245e5fb568bfa152243664238438de3b3ebc2b54cbf9f6a380"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedunknown01/root-grant.json",
+      "bytes": 17755,
+      "sha256": "4eafcbc3c382d43ff9f8b5e66efd4fed998fc839b270b71e9f574682bce8b4be"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-compile02/installation.json",
+      "bytes": 3233,
+      "sha256": "b7a4aa4e89945e5d59209de03be832acbdca678bc709cf313ef1dfc16f2482d0"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg/candidate/tests/model/platform_embedding_resolution_unknown_test.go",
+      "bytes": 6857,
+      "sha256": "13fb6988c1337978f05a02b35a412455c194f24b26b76a042d67375ecc8ebc5d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/platform-embedding-pg-static01/review.md",
+      "bytes": 5099,
+      "sha256": "da648d4ffce6616a87b732b3a63f89a43f94f2d308a9e85e8bc249d9ec9ee23c"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedatomicity01/observed-resources.json",
+      "bytes": 5156,
+      "sha256": "028852c7ef08cafe1ae300b6bef0c0a80222dae9148bd1c2bd2c951fbd80ac6a"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedauth01/observed-resources.json",
+      "bytes": 5133,
+      "sha256": "c296507da4ef5f92428e61019937be8982fb10d07f6f49c1e57b826faf3b1671"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/observed-resources.json",
+      "bytes": 5143,
+      "sha256": "2e63eb287f5f75c3878e9c9fb4f6a81b66b5b5851c1a69466da4cf6f445f32ff"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedselect02/observed-resources.json",
+      "bytes": 5140,
+      "sha256": "152e73b77512c5bf3e3d764b1e37c208d15b5f9835c7c3b03acb6d5076087fef"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/runs/embedreplay01/result.json",
+      "bytes": 35320,
+      "sha256": "f8793ba7c7dfc080d5f0670275cdf23c52f4d88fbe0c88befc492cf248e60c41"
+    },
+    {
+      "path": "/workspace/scratch/platform-embedding-resolution-author-v1/pg-driver-v03/launches/embedreplay01/result.json",
+      "bytes": 1403,
+      "sha256": "6ce9e87581b0c9973f09c85922f1c1089145e0edb18c2cf1a0a198b67b5acfec"
+    }
+  ]
+}

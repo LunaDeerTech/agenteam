@@ -1,0 +1,49 @@
+{
+  "revision": "rev3",
+  "author_status": "STOP",
+  "independent_spec_status": "PENDING_DELTA_AND_FINAL_COMBINATION",
+  "baseline": "5320a187",
+  "baseline_source": "original root-supplied SPEC baseline retained; no Git used",
+  "created_utc": "2026-10-08T12:26:51.338078+00:00",
+  "repository_card": "docs/development/work-items/d09-platform-embedding-resolution.md",
+  "repository_card_sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93",
+  "revision_scope": "canonical lease/current authority/semantic error precedence clarification only; no product/public API/path/budget change",
+  "original_rev2": {
+    "card": "/workspace/scratch/platform-embedding-resolution-spec-v2/card.md",
+    "card_sha256": "67d372523d2ab94db5e60e2e85518171985e15a739e3812d564b18b6f61964d7",
+    "freeze": "/workspace/scratch/platform-embedding-resolution-spec-v2/freeze.json",
+    "freeze_sha256": "f67412a776f87f02bb09bb614c2a22365e596f86da00ea51357614a1a330babc",
+    "rev1_to_rev2_diff_sha256": "11eeeaacbd74bee7897e3090fa17ab521930c356a78162411a54dc1afd836fd5",
+    "all_original_files_unchanged": true
+  },
+  "source_manifest_exact_reuse": true,
+  "source_count": 49,
+  "product_or_resources_executed": false,
+  "files": [
+    {
+      "path": "card.md",
+      "bytes": 24449,
+      "sha256": "f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93"
+    },
+    {
+      "path": "rev2-to-rev3.diff",
+      "bytes": 8458,
+      "sha256": "65b866f0dd0e41360b9081b0d7af79c8259717ceb9b15a53c67a7c585265533e"
+    },
+    {
+      "path": "source-inputs.json",
+      "bytes": 9229,
+      "sha256": "e53ed0dcb300e8501919842bb70a5f0522ce18dfedeac6e34db7a1801885a2b5"
+    },
+    {
+      "path": "source-summary.md",
+      "bytes": 2655,
+      "sha256": "9533a4e519d848b9ca17850e5d81b0c2a364c8b01f4dce99304843a444e97d0e"
+    },
+    {
+      "path": "author-static-checks.json",
+      "bytes": 3329,
+      "sha256": "52dc7ae0bdb69e641d0ecde7308edcb8c848018c5c31d06bd2682ddb6772bafb"
+    }
+  ]
+}

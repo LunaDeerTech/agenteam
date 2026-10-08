@@ -1,0 +1,63 @@
+{
+  "state": "README9_INSTALLED_STOP_FINAL_NINE_PATH_REVIEW_PENDING",
+  "installed_utc": "2026-10-08T15:46:11.266139+00:00",
+  "target": "/workspace/agenteam/docs/development/backend/README.md",
+  "baseline": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "bytes": 72922,
+    "sha256": "394a856acf52cf0be6eaa89f3fbce9f680f834f1de0bc0ac073f3462a1094696"
+  },
+  "installed": {
+    "path": "/workspace/agenteam/docs/development/backend/README.md",
+    "bytes": 76151,
+    "sha256": "d36a9392e5fbcfc4d895031d666d5d6fe50597c89f9928125a3b34ff21e324d1"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v03/README.md",
+    "bytes": 76151,
+    "sha256": "d36a9392e5fbcfc4d895031d666d5d6fe50597c89f9928125a3b34ff21e324d1"
+  },
+  "patch": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v03/README.patch",
+    "bytes": 3337,
+    "sha256": "efd85acf9dd7f85ccb8843e33a3ee5873424a5f664efce438b9fb5d98a5493df"
+  },
+  "delta_from_reviewed_v02": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v03/v02-to-v03.patch",
+    "bytes": 1924,
+    "sha256": "c2166c1282139af3fc7637faf008d124b02dcd0819f6c912f2412b1a593f79de"
+  },
+  "previous_freeze": {
+    "path": "/workspace/scratch/platform-embedding-resolution-author-v1/backend-readme-v02/freeze.json",
+    "bytes": 2624,
+    "sha256": "851981d2e8566d30c90bab12b943ee27f111dcd006b9f3813a8a949228b04b18"
+  },
+  "permanent_technical_report": {
+    "path": "/workspace/agenteam/docs/development/agent-team/platform-embedding-resolution-verification.md",
+    "bytes": 8877,
+    "sha256": "430ce1a16be61c13bcae2fde31f8e952db62b49c973b5065678024bb11ad421b"
+  },
+  "final_eight_technical_review": {
+    "path": "/workspace/scratch/owner-audit-ui-verification/model-eight-technical-final01/review.md",
+    "bytes": 4581,
+    "sha256": "ab14ab6b5832c2c956ddccf32dd145b8969af920ba62f00819d02531516f64fe"
+  },
+  "root_accepted_six_pg_commit": "28dc84cf0cbec0188bbc4b9577d16bcabf0de2b7",
+  "checks": {
+    "single_insertion_hunk": true,
+    "four_inserted_paragraphs": true,
+    "inserted_bytes": 3229,
+    "old_body_bytes_exact": true,
+    "candidate_and_repository_bytes_equal": true,
+    "UTF8_LF_final_LF": true,
+    "added_lines_no_trailing_whitespace": true,
+    "new_links_resolve_from_repository_target": [
+      "../work-items/d09-platform-embedding-resolution.md",
+      "../agent-team/platform-embedding-resolution-verification.md"
+    ],
+    "file_mode_unchanged": true,
+    "eight_technical_sources_or_other_repository_files_written": false,
+    "Git_Go_Node_resources_tests_executed": false
+  },
+  "acceptance": "Eight technical version combination accepted; README installed as path9, complete nine-path final independent review still pending."
+}
